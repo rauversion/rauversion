@@ -4,7 +4,7 @@ class UserSettingsController < ApplicationController
 
   def show
     @section = params[:section] || "profile"
-    @user = User.find_by(username: params[:user_id])
+    @user = current_user
     render "index"
   end
 
@@ -14,7 +14,7 @@ class UserSettingsController < ApplicationController
   end
 
   def update
-    @user = User.find_by(username: params[:user_id])
+    @user = current_user
     @section = params[:section]
     if @user.update(user_attributes)
       flash.now[:notice] = "#{params[:section]} updated"
