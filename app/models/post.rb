@@ -1,4 +1,5 @@
 class Post < ApplicationRecord
+  include Croppable
   extend FriendlyId
   friendly_id :title, use: :slugged
   has_one_attached :cover
@@ -6,6 +7,13 @@ class Post < ApplicationRecord
   belongs_to :category, optional: true
   has_one_attached :cover
   has_many :comments, as: :commentable
+
+  store_accessor :settings, :crop_data, :json, default: {}
+
+  # Example method to call cropped_image with specific attributes
+  def cropped_image(fallback: :horizontal)
+    cropped_image_setup(attached_attribute: :cover, crop_data_attribute: :crop_data, fallback: fallback)
+  end
 
   scope :published, -> {
     where(state: "published")

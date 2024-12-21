@@ -72,6 +72,7 @@ class ArticlesController < ApplicationController
 
   def update
     @article = current_user.posts.friendly.find(params[:id])
+    @article.assign_attributes(crop_data: JSON.parse(params[:post][:crop_data])) unless params.dig(:post, :crop_data).blank?
     @article.update(article_params)
     # redirect_to edit_article_path(@article)
     flash.now[:notice] = "aloha!!"
@@ -95,9 +96,14 @@ class ArticlesController < ApplicationController
 
   def article_params
     params.require(:post).permit(
-      :id, :title, :private,
+      :id, 
+      :title, 
+      :private,
       :cover,
-      :category_id, :state, :excerpt, body: {}
+      :category_id, 
+      :state, 
+      :excerpt, 
+      body: {}
     )
   end
 end

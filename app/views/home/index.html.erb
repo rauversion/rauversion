@@ -97,7 +97,7 @@
         .order("id desc").limit(3).offset(1).each do |post| %>
         <div class="bg-white shadow-md rounded-lg- overflow-hidden relative">
 
-          <%= image_tag(post.cover_url(:large),
+          <%= image_tag(post.cropped_image,
             class: "w-full h-48 object-cover grayscale filter"
           ) %>
     
