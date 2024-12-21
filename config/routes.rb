@@ -218,7 +218,7 @@ Rails.application.routes.draw do
           get :about
         end
       end
-      get 'podcast/rss', to: 'podcast#rss', defaults: { format: 'rss' }, as: :rss_podcast
+      get 'podcast/rss', to: 'podcasts#rss', defaults: { format: 'rss' }, as: :rss_podcast
       get "followers", to: "user_follows#followers"
       get "followees", to: "user_follows#followees"
       get "/tracks", to: "users#tracks"

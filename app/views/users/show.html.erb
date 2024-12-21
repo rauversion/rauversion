@@ -27,16 +27,7 @@
     <div class="max-w-7xl mx-auto flex justify-between items-center px-4 py-5 sm:px-6 sm:py-4 lg:px-8 md:justify-start md:space-x-10">
       <div class="hidden md:flex-1 md:flex md:items-center md:justify-between">
         <nav class="flex space-x-10">
-          <% menu = [
-            {to: user_path(@user.username), name: "All"},
-            {to: user_albums_path(@user.username), name: t("profile.albums") },
-            {to: user_tracks_path(@user.username), name: t("profile.tracks") },
-            # {to: user_playlists_path(@user.username), name: t("profile.playlists") },
-            {to: user_reposts_path(@user.username), name: t("profile.reposts") },
-            {to: user_articles_path(@user.username), name: t("profile.articles"), hidden: !@user.is_admin? },
-          ]%>
-
-          <% menu.each do |item| %>
+          <% user_menu_items.each do |item| %>
             <% unless item[:hidden]%>
               <%= link_to item[:name], item[:to], class: "text-base font-medium text-gray-500 hover:text-gray-900 dark:text-gray-100 dark:hover:text-gray-100"  %>
             <% end %>
