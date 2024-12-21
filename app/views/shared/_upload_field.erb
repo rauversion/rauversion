@@ -59,7 +59,7 @@
     </div>
     -->
 
-    <% if cropper %>
+    <% if local_assigns[:cropper].present? %>
       <div data-controller="image-cropper">
         <% #form.file_field :cover, data: { action: "change->image-cropper#connect", image_cropper_target: "input" } %>
         <%= form.hidden_field crop_data_attribute, 

@@ -18,7 +18,12 @@
           <%= f.text_field :title, placeholder: "Podcast Title", class: "mt-1 block w-full border-blue-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
           <%= f.text_area :about, placeholder: "About the Podcast", rows: 3, class: "mt-1 block w-full border-blue-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
           <%= f.text_area :description, placeholder: "Detailed Description", rows: 5, class: "mt-1 block w-full border-blue-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
-          <%= f.file_field :avatar, class: "mt-1 block w-full" %>
+
+          <%= render "shared/upload_field", 
+            form: f, 
+            attribute: :avatar,
+            image_url: form.object.avatar_url
+          %>
 
           <h3 class="text-lg font-medium text-blue-gray-900 mt-6">Podcast Links</h3>
 
