@@ -3,7 +3,7 @@ module Croppable
 
   included do
     # Ensure the model using this concern has an image attachment and crop_data attribute
-    validates :crop_data, presence: true, if: :crop_data_present_and_valid?
+    # validates :crop_data, presence: true, if: :crop_data_present_and_valid?
   end
 
  # Method to generate a cropped image variant
