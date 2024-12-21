@@ -19,13 +19,17 @@ export default class extends Controller {
   imageTargetConnected(element) {
     const savedCropData = this.inputTarget.value ? JSON.parse(this.inputTarget.value) : null;
 
-    this.cropper = new Cropper(element, {
-      aspectRatio: this.aspectRatioValue, // Adjust as needed
-      viewMode: this.viewModeValue,
-      autoCropArea: this.autoCropAreaValue,
-      data: savedCropData,
-      crop: this.crop.bind(this),
-    });
+    setTimeout(()=>{
+      this.cropper = new Cropper(element, {
+        aspectRatio: this.aspectRatioValue, // Adjust as needed
+        viewMode: this.viewModeValue,
+        autoCropArea: this.autoCropAreaValue,
+        data: savedCropData,
+        restore: true,
+        crop: this.crop.bind(this),
+      });
+    }, 2000)
+
   }
 
   crop(event) {
