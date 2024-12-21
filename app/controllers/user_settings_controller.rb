@@ -5,18 +5,22 @@ class UserSettingsController < ApplicationController
   def show
     @section = params[:section] || "profile"
     @user = current_user
+    if @user.podcaster_info.blank? && params[:section] == "podcast"
+      @user.build_podcaster_info
+    end
     render "index"
   end
 
   def index
     @section = params[:section] || "profile"
-    @user = User.find_by(username: params[:user_id])
+    @user = current_user #User.find_by(username: params[:user_id])
   end
 
   def update
     @user = current_user
     @section = params[:section]
-    if @user.update(user_attributes)
+    @user.update(user_attributes)
+    if @user.errors.blank?
       flash.now[:notice] = "#{params[:section]} updated"
     end
   end

@@ -10,6 +10,9 @@ class PodcasterInfo < ApplicationRecord
   store_accessor :data, :overcast_url
   store_accessor :data, :pocket_casts_url
 
+  validates :title, presence: true
+  validates :about, presence: true
+  validates :description, presence: true
   # You can add validations for these fields if needed
   validates :spotify_url, url: true, allow_blank: true
   validates :apple_podcasts_url, url: true, allow_blank: true
