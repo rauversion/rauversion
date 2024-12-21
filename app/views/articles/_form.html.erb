@@ -41,7 +41,13 @@
           <div class="divide-y divide-gray-200 dark:divide-gray-800 px-4 sm:px-6">
 
             <div class="my-4">
-              <%= render "shared/upload_field", form: form, attribute: :cover %>
+              <%= render "shared/upload_field", 
+                form: form, 
+                attribute: :cover,
+                cropper: true,
+                crop_data: @article.crop_data,
+                crop_data_attribute: :crop_data
+              %>
             </div>
 
             <div class="space-y-6 pt-6 pb-5">

@@ -46,6 +46,7 @@ import accordeon_controller from "./accordeon_controller.js"
 import audio_player_controller from "./audio_player_controller.js"
 import marquee_controller from "./marquee_controller.js"
 import slide_controller from "./slide_controller.js"
+import image_cropper_controller from "./image_cropper_controller.js"
 
 //import GeoChart from './geo_chart_controller'
 
@@ -95,3 +96,4 @@ application.register("accordeon", accordeon_controller)
 application.register("audio-player", audio_player_controller)
 application.register("marquee", marquee_controller)
 application.register("slide", slide_controller)
+application.register("image-cropper", image_cropper_controller)

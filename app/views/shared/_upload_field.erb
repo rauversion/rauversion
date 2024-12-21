@@ -58,6 +58,24 @@
       </p>
     </div>
     -->
+
+    <% if cropper %>
+      <div data-controller="image-cropper">
+        <% #form.file_field :cover, data: { action: "change->image-cropper#connect", image_cropper_target: "input" } %>
+        <%= form.hidden_field crop_data_attribute, 
+          value: crop_data.to_json,
+          data: { image_cropper_target: "input" } 
+        %>
+        <% if form.object.send(attribute).attached? %>
+          <div>
+            <img 
+              src="<%= url_for(form.object.send(attribute)) %>" 
+              data-image-cropper-target="image" 
+              alt="Avatar">
+          </div>
+        <% end %>
+      </div>
+    <% end %>
   </div>
 </div>
 
