@@ -83,6 +83,7 @@ class Track < ApplicationRecord
   store_attribute :metadata, :copies, :string
   store_attribute :metadata, :price, :decimal
   store_attribute :metadata, :name_your_price, :boolean
+  store_attribute :metadata, :transcription, :string
 
   include AASM
 
@@ -349,7 +350,10 @@ class Track < ApplicationRecord
   def podcast_summarizer
     file_path = ActiveStorage::Blob.service.path_for(mp3_audio.key)
     summarizer = AudioSummarizer.new(file_path)
-    transcription = summarizer.summarize
-    self.update(description: transcription)
+    data = summarizer.summarize
+    self.update(
+      description: data[:summary],
+      transcription: data[:transcription]
+    )
   end
 end

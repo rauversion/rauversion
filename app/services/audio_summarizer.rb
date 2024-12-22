@@ -14,13 +14,20 @@ class AudioSummarizer
 
   def summarize
     chunk_paths = split_audio_by_silence
+    Rails.logger.info("Audio parts #{chunk_paths.size}")
     transcriptions = chunk_paths.map { |chunk_path| 
       Rails.logger.info("CHUNK PATH #{chunk_path}")
       transcribe_chunk(chunk_path) 
     }
+    
     text = transcriptions.join("\n")
     puts text
-    sumarize_transcription(text)
+    puts "*********"
+    {
+      transcription: text,
+      summary: sumarize_transcription(text)
+    }
+    
   ensure
     cleanup_temp_files(chunk_paths)
   end
