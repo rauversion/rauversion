@@ -205,6 +205,12 @@ Rails.application.routes.draw do
     resources :users, path: "" do
       resource :insights
       resources :artists, controller: "label_artists"
+      resources :user_links, path: 'links' do
+        collection do
+          get 'wizard/new', to: 'user_links/wizard#new', as: :wizard_new
+          post 'wizard', to: 'user_links/wizard#create', as: :wizard
+        end
+      end
       resources :settings, param: :section, controller: "user_settings"
       resources :invitations, controller: "user_invitations"
       resources :integrations, controller: "user_integrations"

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_12_22_044127) do
+ActiveRecord::Schema[8.0].define(version: 2024_12_22_151228) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -208,6 +208,18 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_22_044127) do
     t.datetime "created_at"
     t.index ["likeable_id", "likeable_type"], name: "fk_likeables"
     t.index ["liker_id", "liker_type"], name: "fk_likes"
+  end
+
+  create_table "link_services", force: :cascade do |t|
+    t.string "name"
+    t.string "icon"
+    t.string "url_pattern"
+    t.boolean "active", default: true
+    t.integer "position"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["active"], name: "index_link_services_on_active"
+    t.index ["position"], name: "index_link_services_on_position"
   end
 
   create_table "listening_events", force: :cascade do |t|
@@ -668,6 +680,21 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_22_044127) do
     t.index ["user_id"], name: "index_tracks_on_user_id"
   end
 
+  create_table "user_links", force: :cascade do |t|
+    t.string "title"
+    t.string "url"
+    t.integer "position"
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "type"
+    t.string "username"
+    t.string "custom_url"
+    t.index ["position"], name: "index_user_links_on_position"
+    t.index ["type"], name: "index_user_links_on_type"
+    t.index ["user_id"], name: "index_user_links_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "username"
     t.boolean "label"
@@ -769,4 +796,5 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_22_044127) do
   add_foreign_key "track_playlists", "playlists"
   add_foreign_key "track_playlists", "tracks"
   add_foreign_key "tracks", "users"
+  add_foreign_key "user_links", "users"
 end

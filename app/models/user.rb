@@ -40,6 +40,8 @@ class User < ApplicationRecord
   has_one_attached :profile_header
   has_one_attached :avatar
 
+  has_many :user_links, dependent: :destroy
+
   acts_as_followable
   acts_as_follower
   acts_as_liker
@@ -264,7 +266,7 @@ class User < ApplicationRecord
   end
 
   def self.ransackable_associations(auth_object = nil)
-    ["avatar_attachment", "avatar_blob", "child_accounts", "comments", "connected_accounts", "event_hosts", "events", "hosted_events", "identities", "invitations", "invited_by", "listening_events", "oauth_credentials", "photos", "playlists", "podcaster_info", "posts", "product_purchases", "products", "profile_header_attachment", "profile_header_blob", "purchases", "reposted_tracks", "reposts", "spotlights", "track_comments", "tracks"]
+    ["avatar_attachment", "avatar_blob", "child_accounts", "comments", "connected_accounts", "event_hosts", "events", "hosted_events", "identities", "invitations", "invited_by", "listening_events", "oauth_credentials", "photos", "playlists", "podcaster_info", "posts", "product_purchases", "products", "profile_header_attachment", "profile_header_blob", "purchases", "reposted_tracks", "reposts", "spotlights", "track_comments", "tracks", "user_links"]
   end
 
   # def password_required?

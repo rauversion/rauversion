@@ -1,0 +1,15 @@
+module UserLinks
+  class YoutubeLink < UserLink
+    validates :username, presence: true
+
+    def icon_class
+      'fa-brands fa-youtube'
+    end
+
+    protected
+
+    def generate_url
+      "https://youtube.com/@#{username}"
+    end
+  end
+end
