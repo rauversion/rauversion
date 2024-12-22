@@ -208,6 +208,7 @@ Rails.application.routes.draw do
       resources :user_links, path: 'links' do
         collection do
           get 'wizard/new', to: 'user_links/wizard#new', as: :wizard_new
+          post 'wizard/configure', to: 'user_links/wizard#configure', as: :configure_wizard
           post 'wizard', to: 'user_links/wizard#create', as: :wizard
         end
       end

@@ -5,6 +5,21 @@ module UserLinks
     
     def new
       @link_types = UserLink.available_types
+      render :choose_services, status: :unprocessable_entity
+    end
+
+    def configure
+      @selected_services = params[:services]&.select { |_, v| v == "1" }&.keys || []
+      
+      if @selected_services.empty?
+        flash.now[:error] = "Please select at least one service"
+        @link_types = UserLink.available_types
+        render :choose_services, status: :unprocessable_entity
+        return
+      end
+
+      @link_types = UserLink.available_types.slice(*@selected_services.map(&:to_sym))
+      render :configure_services, status: :unprocessable_entity
     end
 
     def create
@@ -21,11 +36,12 @@ module UserLinks
         end
       end
 
-      redirect_to user_links_path(username: current_user.username), notice: 'Social media links were successfully configured.'
+      redirect_to user_user_links_path(username: current_user.username), notice: 'Social media links were successfully configured.'
     rescue => e
       flash.now[:error] = e.message
       @link_types = UserLink.available_types
-      render :new
+      @selected_services = params[:services].keys
+      render :configure_services
     end
 
     private
