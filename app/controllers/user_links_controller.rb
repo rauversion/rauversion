@@ -3,19 +3,19 @@ class UserLinksController < ApplicationController
   before_action :set_user_link, only: [:edit, :update, :destroy]
   
   def index
-    @user = User.find_by!(username: params[:username])
+    @user = User.find_by!(username: params[:user_id])
     @user_links = @user.user_links
   end
 
   def new
-    @user_link = current_user.user_links.new
+    @user_link = UserLinks::WebsiteLink.new(user_id: current_user.id)
   end
 
   def create
     @user_link = current_user.user_links.new(user_link_params)
-    
+    @user_link.type = "UserLinks::WebsiteLink"
     if @user_link.save
-      redirect_to user_links_path(username: current_user.username), notice: 'Link was successfully created.'
+      redirect_to user_user_links_path(user_id: current_user.username), notice: 'Link was successfully created.'
     else
       render :new
     end
@@ -26,7 +26,7 @@ class UserLinksController < ApplicationController
 
   def update
     if @user_link.update(user_link_params)
-      redirect_to user_links_path(username: current_user.username), notice: 'Link was successfully updated.'
+      redirect_to user_user_links_path(user_id: current_user.username), notice: 'Link was successfully updated.'
     else
       render :edit
     end
@@ -34,7 +34,7 @@ class UserLinksController < ApplicationController
 
   def destroy
     @user_link.destroy
-    redirect_to user_links_path(username: current_user.username), notice: 'Link was successfully deleted.'
+    redirect_to user_user_links_path(user_id: current_user.username), notice: 'Link was successfully deleted.'
   end
 
   private
@@ -44,6 +44,16 @@ class UserLinksController < ApplicationController
   end
 
   def user_link_params
-    params.require(:user_link).permit(:title, :url, :position)
+    params.require(:user_links_website_link).permit(
+      :title, 
+      :url,
+      :position,
+      :custom_url)
+
+    params.require(:user_links_youtube_link).permit(
+      :title, 
+      :url,
+      :position,
+      :custom_url)
   end
 end

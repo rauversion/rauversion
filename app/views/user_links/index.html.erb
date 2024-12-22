@@ -1,37 +1,37 @@
 <div class="max-w-3xl mx-auto px-4 py-8">
-  <div class="bg-white shadow rounded-lg p-6">
+  <div class="bg-muted shadow rounded-lg p-6">
     <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold text-gray-900">
+      <h1 class="text-2xl font-bold text-default">
         <%= @user.username %>'s Links
       </h1>
       
       <% if current_user == @user %>
         <div class="space-x-4">
-          <%= link_to 'Add New Link', new_user_link_path, class: 'inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500' %>
-          <%= link_to 'Configure Social Media', wizard_new_user_links_path, class: 'inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500' %>
+          <%= link_to 'Add New Link', new_user_user_link_path, class: 'inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500' %>
+          <%= link_to 'Configure Social Media', wizard_new_user_user_links_path, class: 'inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500' %>
         </div>
       <% end %>
     </div>
 
     <div class="space-y-4">
       <% @user_links.each do |link| %>
-        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+        <div class="flex items-center justify-between p-4 bg-default rounded-lg">
           <div class="flex-1">
             <div class="flex items-center space-x-3">
               <i class="<%= link.icon_class %> text-xl"></i>
-              <h3 class="text-lg font-medium text-gray-900">
+              <h3 class="text-lg font-medium text-default">
                 <%= link.title %>
               </h3>
             </div>
-            <p class="text-sm text-gray-500 mt-1">
+            <p class="text-sm text-muted mt-1">
               <%= link.url %>
             </p>
           </div>
 
           <% if current_user == @user %>
             <div class="flex items-center space-x-2">
-              <%= link_to 'Edit', edit_user_link_path(link), class: 'text-sm text-indigo-600 hover:text-indigo-900' %>
-              <%= button_to 'Delete', user_link_path(link), method: :delete, class: 'text-sm text-red-600 hover:text-red-900', data: { confirm: 'Are you sure?' } %>
+              <%= link_to 'Edit', edit_user_user_link_path(@user.username, link), class: 'text-sm text-indigo-600 hover:text-indigo-900' %>
+              <%= button_to 'Delete', user_user_link_path(@user.username, link), method: :delete, class: 'text-sm text-red-600 hover:text-red-900', data: { confirm: 'Are you sure?' } %>
             </div>
           <% end %>
         </div>
@@ -40,13 +40,13 @@
       <% if @user_links.empty? %>
         <div class="text-center py-12">
           <div class="space-y-6">
-            <div class="text-gray-500">
+            <div class="text-muted">
               <i class="fas fa-link text-4xl"></i>
             </div>
             <div>
-              <p class="text-xl font-semibold text-gray-900">No links added yet</p>
+              <p class="text-xl font-semibold text-default">No links added yet</p>
               <% if current_user == @user %>
-                <p class="mt-2 text-sm text-gray-500">Get started by adding your social media links or custom URLs.</p>
+                <p class="mt-2 text-sm text-muted">Get started by adding your social media links or custom URLs.</p>
                 <div class="mt-6 space-x-4">
                   <%= link_to 'Add Custom Link', new_user_link_path, class: 'text-sm font-medium text-indigo-600 hover:text-indigo-500' %>
                   <span class="text-gray-300">|</span>

@@ -6,6 +6,10 @@ module UserLinks
       'fa-brands fa-snapchat'
     end
 
+    def image_name
+      "logos/snapchat.jpg"
+    end
+
     protected
 
     def generate_url

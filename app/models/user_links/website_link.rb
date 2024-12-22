@@ -6,6 +6,10 @@ module UserLinks
       'fa-solid fa-globe'
     end
 
+    def image_name
+      "logos/website.jpg"
+    end
+
     protected
 
     def generate_url

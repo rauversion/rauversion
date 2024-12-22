@@ -6,6 +6,10 @@ module UserLinks
       'fa-brands fa-facebook'
     end
 
+    def image_name
+      "logos/facebook.jpg"
+    end
+
     protected
 
     def generate_url

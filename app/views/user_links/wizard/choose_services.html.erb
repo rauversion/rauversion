@@ -31,7 +31,8 @@
             </div>
             <div class="ml-3">
               <label for="services_<%= type %>" class="font-medium text-gray-700 flex items-center space-x-2">
-                <i class="<%= klass.new.icon_class %> text-xl"></i>
+                <!--<i class="<%= klass.new.icon_class %> text-xl"></i>-->
+                <%= image_tag klass.new.image_name, class: "h-10 w-10 rounded-lg" %>
                 <span><%= name %></span>
               </label>
             </div>

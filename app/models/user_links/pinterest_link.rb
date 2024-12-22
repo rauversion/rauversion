@@ -6,6 +6,10 @@ module UserLinks
       'fa-brands fa-pinterest'
     end
 
+    def image_name
+      "logos/pinterest.jpg"
+    end
+
     protected
 
     def generate_url

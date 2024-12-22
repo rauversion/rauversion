@@ -1,0 +1,13 @@
+<div class="space-y-4">
+  <div>
+    <%= f.label :username, 'Amazon Shop Name', class: 'block text-sm font-medium text-gray-700' %>
+    <div class="mt-1">
+      <%= f.text_field :username, 
+          class: 'shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md',
+          placeholder: 'your-shop-name' %>
+      <p class="mt-1 text-sm text-muted">Enter your Amazon shop name (found in your store URL)</p>
+    </div>
+  </div>
+
+  <%= render 'user_links/wizard/shared/title_field', f: f %>
+</div>

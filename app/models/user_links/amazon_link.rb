@@ -6,6 +6,10 @@ module UserLinks
       'fa-brands fa-amazon'
     end
 
+    def image_name
+      "logos/amazon.jpg"
+    end
+
     protected
 
     def generate_url

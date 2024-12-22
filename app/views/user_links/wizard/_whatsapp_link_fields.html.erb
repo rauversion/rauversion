@@ -1,0 +1,13 @@
+<div class="space-y-4">
+  <div>
+    <div class="mt-1">
+      <%= f.text_field :username,
+          label: "Phone Number", 
+          class: 'shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md',
+          placeholder: '+1234567890' %>
+      <p class="mt-1 text-sm text-muted">Include country code (e.g., +1 for US)</p>
+    </div>
+  </div>
+
+  <%= render 'user_links/wizard/shared/title_field', f: f %>
+</div>

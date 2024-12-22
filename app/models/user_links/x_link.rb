@@ -6,6 +6,10 @@ module UserLinks
       'fa-brands fa-x-twitter'
     end
 
+    def image_name
+      "logos/x.jpg"
+    end
+
     protected
 
     def generate_url

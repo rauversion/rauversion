@@ -10,6 +10,10 @@ module UserLinks
       'fa-brands fa-threads'
     end
 
+    def image_name
+      "logos/threads.jpg"
+    end
+
     protected
 
     def generate_url

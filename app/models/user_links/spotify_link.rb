@@ -6,6 +6,10 @@ module UserLinks
       'fa-brands fa-spotify'
     end
 
+    def image_name
+      "logos/spotify.jpg"
+    end
+
     protected
 
     def generate_url

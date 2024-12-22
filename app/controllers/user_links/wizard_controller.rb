@@ -18,36 +18,35 @@ module UserLinks
         return
       end
 
-      @link_types = UserLink.available_types.slice(*@selected_services.map(&:to_sym))
+      # Build user_links objects for the selected services
+      @selected_services.each do |service|
+        klass = "UserLinks::#{service.to_s.classify}Link".constantize
+        current_user.user_links.build(type: klass.name)
+      end
+
       render :configure_services, status: :unprocessable_entity
     end
 
     def create
-      services_params = params.require(:services).permit!
-      
-      ActiveRecord::Base.transaction do
-        services_params.each do |service_type, service_data|
-          next if service_data[:username].blank? && service_data[:custom_url].blank?
-          
-          klass = "UserLinks::#{service_type.to_s.classify}Link".constantize
-          attrs = service_data.to_h.symbolize_keys
-          
-          current_user.user_links.create!(attrs.merge(type: klass.name))
-        end
+      if current_user.update(user_params)
+        redirect_to user_user_links_path(username: current_user.username), 
+          notice: 'Social media links were successfully configured.'
+      else
+        flash.now[:error] = current_user.errors.full_messages.to_sentence
+        render :configure_services, status: :unprocessable_entity
       end
-
-      redirect_to user_user_links_path(username: current_user.username), notice: 'Social media links were successfully configured.'
-    rescue => e
-      flash.now[:error] = e.message
-      @link_types = UserLink.available_types
-      @selected_services = params[:services].keys
-      render :configure_services
     end
 
     private
 
     def set_user
       @user = current_user
+    end
+
+    def user_params
+      params.require(:user).permit(
+        user_links_attributes: [:type, :username, :custom_url, :title]
+      )
     end
   end
 end

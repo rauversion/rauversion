@@ -41,6 +41,7 @@ class User < ApplicationRecord
   has_one_attached :avatar
 
   has_many :user_links, dependent: :destroy
+  accepts_nested_attributes_for :user_links, allow_destroy: true
 
   acts_as_followable
   acts_as_follower

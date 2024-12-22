@@ -1,4 +1,8 @@
-<%= form_with(model: user_link, url: [current_user, user_link] , local: true, class: 'space-y-6') do |f| %>
+<%= form_with(model: user_link, 
+  url: user_link.persisted? ? 
+    user_user_link_path(current_user.username, user_link) :
+    user_user_links_path(current_user.username), 
+  local: true, class: 'space-y-6') do |f| %>
   <% if user_link.errors.any? %>
     <div class="bg-red-50 p-4 rounded-md">
       <div class="flex">
@@ -24,16 +28,14 @@
   <% end %>
 
   <div>
-    <%= f.label :title, class: 'block text-sm font-medium text-gray-700' %>
     <div class="mt-1">
-      <%= f.text_field :title, class: 'shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md' %>
+      <%= f.text_field :title %>
     </div>
   </div>
 
   <div>
-    <%= f.label :url, class: 'block text-sm font-medium text-gray-700' %>
     <div class="mt-1">
-      <%= f.text_field :url, class: 'shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md' %>
+      <%= f.text_field :custom_url %>
     </div>
   </div>
 

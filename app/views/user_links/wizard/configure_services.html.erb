@@ -5,7 +5,7 @@
       <p class="mt-2 text-sm text-muted">Add your social media profiles to share with your audience.</p>
     </div>
 
-    <%= form_tag wizard_user_user_links_path, method: :post, class: 'space-y-8' do %>
+    <%= form_for current_user, url: wizard_user_user_links_path, method: :post, html: { class: 'space-y-8' } do |f| %>
       <% if flash[:error].present? %>
         <div class="rounded-md bg-red-50 p-4">
           <div class="flex">
@@ -22,94 +22,20 @@
       <% end %>
 
       <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
-        <% @link_types.each do |type, name| %>
-          <% klass = "UserLinks::#{type.to_s.classify}Link".constantize %>
-          <div class="bg-gray-50 p-4 rounded-lg">
+        <%= f.fields_for :user_links do |link_form| %>
+          <% type = link_form.object.class.name.demodulize.underscore.sub('_link', '') %>
+          <div class="bg-muted p-4 rounded-lg">
             <div class="flex items-center space-x-3 mb-4">
-              <i class="<%= klass.new.icon_class %> text-xl"></i>
-              <h3 class="text-lg font-medium text-default"><%= name %></h3>
+               
+              <%= image_tag link_form.object.image_name, class: "h-10 w-10 rounded-lg" %>
+
+              <h3 class="text-lg font-medium text-default">
+                <%= link_form.object.class.name.demodulize.titleize.gsub('Link', '') %>
+              </h3>
             </div>
 
-            <div class="space-y-4">
-              <% if klass == UserLinks::WebsiteLink %>
-                <div>
-                  <%= label_tag "services[#{type}][custom_url]", 'URL', class: 'block text-sm font-medium text-gray-700' %>
-                  <div class="mt-1">
-                    <%= text_field_tag "services[#{type}][custom_url]", nil, 
-                        class: 'shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md',
-                        placeholder: 'Enter the full URL' %>
-                  </div>
-                </div>
-              <% elsif klass == UserLinks::WhatsappLink %>
-                <div>
-                  <%= label_tag "services[#{type}][username]", 'Phone Number', class: 'block text-sm font-medium text-gray-700' %>
-                  <div class="mt-1">
-                    <%= text_field_tag "services[#{type}][username]", nil, 
-                        class: 'shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md',
-                        placeholder: '+1234567890' %>
-                    <p class="mt-1 text-sm text-gray-500">Include country code (e.g., +1 for US)</p>
-                  </div>
-                </div>
-              <% elsif klass == UserLinks::AmazonLink %>
-                <div>
-                  <%= label_tag "services[#{type}][username]", 'Amazon Shop Name', class: 'block text-sm font-medium text-gray-700' %>
-                  <div class="mt-1">
-                    <%= text_field_tag "services[#{type}][username]", nil, 
-                        class: 'shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md',
-                        placeholder: 'your-shop-name' %>
-                    <p class="mt-1 text-sm text-gray-500">Enter your Amazon shop name (found in your store URL)</p>
-                  </div>
-                </div>
-              <% elsif klass == UserLinks::ThreadLink %>
-                <div>
-                  <%= label_tag "services[#{type}][username]", 'Username', class: 'block text-sm font-medium text-gray-700' %>
-                  <div class="mt-1">
-                    <%= text_field_tag "services[#{type}][username]", nil, 
-                        class: 'shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md',
-                        placeholder: 'username' %>
-                    <p class="mt-1 text-sm text-gray-500">Enter without @ symbol (e.g., 'username' not '@username')</p>
-                  </div>
-                </div>
-              <% elsif klass == UserLinks::SnapchatLink %>
-                <div>
-                  <%= label_tag "services[#{type}][username]", 'Snapchat Username', class: 'block text-sm font-medium text-gray-700' %>
-                  <div class="mt-1">
-                    <%= text_field_tag "services[#{type}][username]", nil, 
-                        class: 'shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md',
-                        placeholder: 'snapchat_username' %>
-                    <p class="mt-1 text-sm text-gray-500">Your Snapchat username without snapchat.com/add/</p>
-                  </div>
-                </div>
-              <% elsif klass == UserLinks::SoundcloudLink %>
-                <div>
-                  <%= label_tag "services[#{type}][username]", 'SoundCloud Username', class: 'block text-sm font-medium text-gray-700' %>
-                  <div class="mt-1">
-                    <%= text_field_tag "services[#{type}][username]", nil, 
-                        class: 'shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md',
-                        placeholder: 'artist-name' %>
-                    <p class="mt-1 text-sm text-gray-500">Your SoundCloud profile name (found in your profile URL)</p>
-                  </div>
-                </div>
-              <% else %>
-                <div>
-                  <%= label_tag "services[#{type}][username]", 'Username', class: 'block text-sm font-medium text-gray-700' %>
-                  <div class="mt-1">
-                    <%= text_field_tag "services[#{type}][username]", nil, 
-                        class: 'shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md',
-                        placeholder: 'Enter your username' %>
-                  </div>
-                </div>
-              <% end %>
-
-              <div>
-                <%= label_tag "services[#{type}][title]", 'Display Title (optional)', class: 'block text-sm font-medium text-gray-700' %>
-                <div class="mt-1">
-                  <%= text_field_tag "services[#{type}][title]", nil, 
-                      class: 'shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md',
-                      placeholder: name %>
-                </div>
-              </div>
-            </div>
+            <%= render partial: "user_links/wizard/#{type}_link_fields", locals: { f: link_form } rescue render('user_links/wizard/default_link_fields', f: link_form) %>
+            <%= link_form.hidden_field :type %>
           </div>
         <% end %>
       </div>
@@ -117,7 +43,7 @@
       <div class="flex justify-end space-x-3">
         <%= link_to 'Back', wizard_new_user_user_links_path, 
             class: 'inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-default hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500' %>
-        <%= submit_tag 'Save Links', 
+        <%= f.submit 'Save Links', 
             class: 'inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-default bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500' %>
       </div>
     <% end %>

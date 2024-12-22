@@ -6,6 +6,10 @@ module UserLinks
       'fa-brands fa-soundcloud'
     end
 
+    def image_name
+      "logos/soundcloud.jpg"
+    end
+
     protected
 
     def generate_url

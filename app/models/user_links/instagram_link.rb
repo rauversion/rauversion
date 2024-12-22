@@ -6,6 +6,11 @@ module UserLinks
       'fa-brands fa-instagram'
     end
 
+
+    def image_name
+      "logos/instagram.jpg"
+    end
+
     protected
 
     def generate_url

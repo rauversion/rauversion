@@ -6,6 +6,10 @@ module UserLinks
       'fa-brands fa-tiktok'
     end
 
+    def image_name
+      "logos/tiktok.jpg"
+    end
+
     protected
 
     def generate_url

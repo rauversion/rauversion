@@ -9,6 +9,10 @@ module UserLinks
       'fa-brands fa-whatsapp'
     end
 
+    def image_name
+      "logos/whatsapp.jpg"
+    end
+
     protected
 
     def generate_url

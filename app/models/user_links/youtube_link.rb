@@ -6,6 +6,10 @@ module UserLinks
       'fa-brands fa-youtube'
     end
 
+    def image_name
+      "logos/youtube.jpg"
+    end
+
     protected
 
     def generate_url
