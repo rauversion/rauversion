@@ -34,6 +34,9 @@ Rails.application.routes.draw do
     member do
       post 'add_to_cart'
     end
+    collection do
+      get 'used_gear'
+    end
   end
 
   resources :product_checkout, only: [:create] do
@@ -210,7 +213,9 @@ Rails.application.routes.draw do
         :index, :create, :destroy
       ]
 
-      resources :products
+      resources :products do
+        get :used_gear, on: :collection
+      end
       resources :coupons
 
       resources :podcasts, controller: "podcasts" do

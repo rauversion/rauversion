@@ -10,9 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_11_30_003102) do
+ActiveRecord::Schema[8.0].define(version: 2024_12_22_044127) do
   # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
+  enable_extension "pg_catalog.plpgsql"
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -470,11 +470,22 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_30_003102) do
     t.string "slug"
     t.datetime "deleted_at"
     t.bigint "coupon_id"
+    t.string "condition"
+    t.string "brand"
+    t.string "model"
+    t.integer "year"
+    t.boolean "accept_barter", default: false
+    t.text "barter_description"
+    t.index ["accept_barter"], name: "index_products_on_accept_barter"
+    t.index ["brand"], name: "index_products_on_brand"
+    t.index ["condition"], name: "index_products_on_condition"
     t.index ["coupon_id"], name: "index_products_on_coupon_id"
     t.index ["deleted_at"], name: "index_products_on_deleted_at"
+    t.index ["model"], name: "index_products_on_model"
     t.index ["playlist_id"], name: "index_products_on_playlist_id"
     t.index ["slug"], name: "index_products_on_slug"
     t.index ["user_id"], name: "index_products_on_user_id"
+    t.index ["year"], name: "index_products_on_year"
   end
 
   create_table "products_images", force: :cascade do |t|

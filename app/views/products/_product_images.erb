@@ -5,7 +5,7 @@
 
     <div class="">
       <% if form.object.image.present? %>
-        <%= image_tag form.object.image, width: 200 %>
+        <%= image_tag form.object.image, width: 200 rescue nil %>
       <% end %>
     </div>
 

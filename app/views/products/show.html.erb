@@ -160,7 +160,9 @@
               </div>
             </div>
 
-            <%= render "gallery_photo", image: @product.product_images.first.image %>
+            <% if @product.product_images.any? %>
+              <%= render "gallery_photo", image: @product.product_images.first.image %>
+            <% end %>
           </div>
 
           <h3 class="sr-only">Description</h3>

@@ -1,0 +1,54 @@
+<div data-accordeon data-controller="accordeon" class="w-full rounded-lg mb-2.5 bg-subtle dark:bg-black">
+  <%= render "section_header", title: "Used Gear Details" %>
+  <div class="p-5 block pt-0" data-accordeon-target="panel">
+    <%= hidden_field_tag :product_type, :used_gear %>
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+      <div>
+        <%= form.text_field :brand %>
+      </div>
+
+      <div>
+        <%= form.text_field :model %>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 mt-4">
+      <div>
+        <%= form.number_field :year, min: 1900, max: Time.current.year, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" %>
+      </div>
+
+      <div>
+        <%= form.label :condition, class: "block text-sm font-medium text-default" %>
+        <%= form.select :condition, 
+            Product.conditions.keys.map { |c| [c.titleize, c] },
+            {}
+        %>
+      </div>
+    </div>
+
+    <div class="mt-4">
+      <div class="flex items-start">
+        <%= form.check_box :accept_barter,
+            label: false,
+            data: { 
+              action: "change->submit-on-change#submitForm",
+              "accordeon-target": "toggle"
+            } 
+        %>
+        <div class="ml-3">
+          <label for="product_accept_barter" class="text-sm font-medium text-default">Accept Barter</label>
+          <p class="text-sm text-gray-500">Check this if you're willing to accept item trades</p>
+        </div>
+      </div>
+    </div>
+
+    <% if form.object.accept_barter? %>
+      <div class="mt-4">
+        <%= form.text_area :barter_description, 
+            rows: 3,
+            placeholder: "Describe what kind of gear you'd consider trading for..."
+        %>
+      </div>
+    <% end %>
+  </div>
+</div>

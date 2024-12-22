@@ -3,11 +3,15 @@
 
   <h2 class="text-2xl py-4 font-bold">
     <% if product.new_record? %>
-      New Product
+      <% if params[:product_type] == 'used_gear' %>
+        List Your Music Gear
+      <% else %>
+        New Product
+      <% end %>
     <% else %>
       Edit product
     <% end %>
-  </h3>
+  </h2>
 
   <%= form_with(model: product, local: true, data: {
       controller: "submit-on-change"
@@ -21,39 +25,46 @@
     <% end %>
   
     <div class="space-y-3">
-
       <div class="block pt-0 space-y-3">
+        <% if params[:product_type] == 'used_gear' or @product.used_gear? %>
+          <div class="flex space-x-2">
+            <%= form.select :category, 
+                Product.categories.slice('instrument', 'audio_gear', 'dj_gear', 'accessories').keys.map { |c| [c.titleize, c] },
+                { prompt: "Select a category" },
+                { data: { action: "change->submit-on-change#submitForm" } }
+            %>
+          </div>
+        <% else %>
+          <div class="flex space-x-2">
+            <%= form.select :category, 
+                Product.categories.except('instrument', 'audio_gear', 'dj_gear', 'accessories').keys,
+                {},
+                { data: { action: "change->submit-on-change#submitForm" } }
+            %>
 
-        <div class="flex space-x-2">
-          <%= form.select :category, Product.categories.keys , {}, {
-            #label: false,
-              data: { action: "change->submit-on-change#submitForm" }
-            } 
-          %>
-
-
-          <% if ['vinyl', 'cassette'].include?(product.category) %>
-            <%= form.select :playlist_id, 
-              Playlist.where(user_id: current_user.id)
-              .or(Playlist.where(label_id: current_user.id))
-              .where(playlist_type: ["album", "ep"])
-              .map{|o| 
-                [o.title, o.id]
-              }, label: "Album" 
+            <% if ['vinyl', 'cassette'].include?(product.category) %>
+              <%= form.select :playlist_id, 
+                Playlist.where(user_id: current_user.id)
+                .or(Playlist.where(label_id: current_user.id))
+                .where(playlist_type: ["album", "ep"])
+                .map{|o| [o.title, o.id]}, 
+                { label: "Album" }
               %>
-          <% end %>
-        </div>
+            <% end %>
+          </div>
+        <% end %>
 
         <%= form.text_field :title %>
         <%= render "shared/simple_editor", form: form, field: :description %>
       </div>
 
-
+      <% if params[:product_type] == 'used_gear' %>
+        <%= render 'used_gear_fields', form: form %>
+      <% end %>
 
       <div data-accordeon data-controller="accordeon" class="w-full rounded-lg mb-2.5 bg-subtle dark:bg-black">
-        <%= render "section_header", title: "Photos" %>
+        <%= render "section_header", title: "Pricing & Inventory" %>
         <div class="p-5 block pt-0" data-accordeon-target="panel">
-
           <%= form.number_field :price, step: 0.01 %>
 
           <div>
@@ -75,37 +86,30 @@
           </div>
 
           <p class="text-xs text-muted">
-            We automatically decrement the quantity for you as the item sells — you only need to edit it if you’re also selling elsewhere (like at your shows, or another website). 
+            We automatically decrement the quantity for you as the item sells — you only need to edit it if you're also selling elsewhere. 
             Leave quantity blank for unlimited.
           </p>
 
-          <% # form.number_field :quantity, label: "Quantity remaining", class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" %>
-
           <%= form.select :status, Product.statuses.keys %>
 
-          <div>
-            <%= form.check_box :limited_edition, class: "rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" %>
-            <span class="ml-2">Show limited edition indicator to fans</span>
-          </div>
+          <% unless params[:product_type] == 'used_gear' %>
+            <div>
+              <%= form.check_box :limited_edition, class: "rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" %>
+              <span class="ml-2">Show limited edition indicator to fans</span>
+            </div>
 
-          <div>
-            <%= form.number_field :limited_edition_count, label: "Edition of", class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" %>
-            <p class="mt-1 text-sm text-gray-500">will appear just beneath the item description</p>
-          </div>
+            <div>
+              <%= form.number_field :limited_edition_count, label: "Edition of", class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" %>
+              <p class="mt-1 text-sm text-gray-500">will appear just beneath the item description</p>
+            </div>
 
-          <div>
-            <%= form.check_box :include_digital_album, class: "rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" %>
-            <span class="ml-2">Include digital album or track with the purchase of this item</span>
-          </div>
-
-          <div>
-            <%= form.select :visibility, options_for_select([['Public', 'public'], ['Private', 'private']], @product.visibility), {}, class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" %>
-          </div>
-          
+            <div>
+              <%= form.check_box :include_digital_album, class: "rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" %>
+              <span class="ml-2">Include digital album or track with the purchase of this item</span>
+            </div>
+          <% end %>
         </div>
       </div>
-
-
 
       <div data-accordeon data-controller="accordeon" class="w-full rounded-lg mb-2.5 bg-subtle dark:bg-black">
         <%= render "section_header", title: "Photos" %>
@@ -132,70 +136,45 @@
         </div>
       </div>
 
-
-    <div class="space-y-3">
-
-      <% # render "variant_form_section", form: form %>
-
       <div data-accordeon data-controller="accordeon" class="w-full rounded-lg mb-2.5 bg-subtle dark:bg-black">
-      
         <%= render "section_header", title: "Shipping" %>
-
-          <div class="p-5 block pt-0" data-accordeon-target="panel">
-
-            <div class="p-4 my-4">
-              <h3 class="text-lg">Shipping</h3>
+        <div class="p-5 block pt-0" data-accordeon-target="panel">
+          <div class="p-4 my-4">
+            <h3 class="text-lg">Shipping</h3>
             
-              <div>
-                <%= form.label :shipping_days, "Orders ship out within" %>
-                <%= form.number_field :shipping_days %>
-                <span>days of being placed</span>
-              </div>
-
-              <div>
-                <%= form.number_field :shipping_days, label: "Orders ship out within", class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" %>
-                <span class="mt-1 text-sm text-gray-500">days of being placed</span>
-              </div>
-
-              <div>
-                <%= form.date_field :shipping_begins_on, label: "Begins shipping on", class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" %>
-              </div>
-
-              <div data-controller="nested-form" class="py-6 sm:col-span-6">
-                <template data-nested-form-target="template">
-                  <%= form.fields_for :product_shippings, ProductShipping.new, child_index: 'NEW_RECORD' do |ff| %>
-                    <%= render "shipping_fields", form: ff %>
-                  <% end %>
-                </template>
-
-                <!--<div>
-                  <h3 class="text-lg font-medium text-gray-900">Shipping Prices</h3>
-                  <div>
-                    <%= form.number_field :shipping_within_country_price, step: 0.01, label: "Within Country", class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" %>
-                  </div>
-                  <div class="mt-4">
-                    <%= form.number_field :shipping_worldwide_price, step: 0.01, label: "Worldwide", class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" %>
-                  </div>
-                </div>-->
-
-                <div data-nested-form-target="wrap">
-                  <%= form.fields_for :product_shippings do |shipping_form| %>
-                    <%= render "shipping_fields", form: shipping_form %>
-                  <% end %>
-                </div>
-
-                <div class="my-3" data-nested-form-target="links">
-                  <%= link_to "Add new shipping options", "#", 
-                  class: "inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500", 
-                  data: { action: "click->nested-form#add_association" } %>
-                </div>
-              </div>
+            <div>
+              <%= form.label :shipping_days, "Orders ship out within" %>
+              <%= form.number_field :shipping_days %>
+              <span>days of being placed</span>
             </div>
 
+            <div>
+              <%= form.date_field :shipping_begins_on, label: "Begins shipping on", class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" %>
+            </div>
+
+            <div data-controller="nested-form" class="py-6 sm:col-span-6">
+              <template data-nested-form-target="template">
+                <%= form.fields_for :product_shippings, ProductShipping.new, child_index: 'NEW_RECORD' do |ff| %>
+                  <%= render "shipping_fields", form: ff %>
+                <% end %>
+              </template>
+
+              <div data-nested-form-target="wrap">
+                <%= form.fields_for :product_shippings do |shipping_form| %>
+                  <%= render "shipping_fields", form: shipping_form %>
+                <% end %>
+              </div>
+
+              <div class="my-3" data-nested-form-target="links">
+                <%= link_to "Add new shipping options", "#", 
+                class: "inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500", 
+                data: { action: "click->nested-form#add_association" } %>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
- 
       <div class="py-2 fixed bottom-[65px] w-full bg-emphasis left-0 border-t border-muted">
        
         <div class="flex space-x-2 items-center p-6">
@@ -212,6 +191,5 @@
         </div>
       </div>
     </div>
-
   <% end %>
 </div>
