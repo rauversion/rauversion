@@ -1,0 +1,118 @@
+<div class="max-w-3xl mx-auto py-10 px-4 sm:px-6 lg:py-12 lg:px-8">
+  <% if @user.is_creator? %>
+    <h1 class="text-3xl font-extrabold text-blue-gray-900">
+      <%= gettext("Social Links Settings") %>
+    </h1>
+
+    <%= form_for @user, url: user_setting_path(@user.username, :social_links), 
+      html: {class: "space-y-8 divide-y divide-gray-200 dark:divide-gray-800"} do |f| %>
+
+      <div class="bg-muted shadow sm:rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+          <h3 class="text-lg font-medium leading-6 text-default">SEO Settings</h3>
+          <div class="mt-2 max-w-xl text-sm text-muted">
+            <p>Optimize your social links page for search engines.</p>
+          </div>
+          <div class="mt-5 space-y-4">
+            <div>
+              <%= f.text_field :social_title,
+                label: 'Page Title',
+                placeholder: 'Enter a descriptive title for your page',
+                help: 'This will appear in search results and when sharing your page' %>
+            </div>
+
+            <div>
+              <%= f.text_area :social_description,
+                label: 'Page Description',
+                placeholder: 'Enter a brief description of your page',
+                help: 'This will appear in search results and when sharing your page',
+                rows: 3 %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="bg-muted shadow sm:rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+          <h3 class="text-lg font-medium leading-6 text-default">Analytics Integration</h3>
+          <div class="mt-2 max-w-xl text-sm text-muted">
+            <p>Add analytics tracking to understand your audience better.</p>
+          </div>
+          <div class="mt-5 space-y-4">
+            <div>
+              <%= f.text_field :google_analytics_id,
+                label: 'Google Analytics ID',
+                placeholder: 'G-XXXXXXXXXX or UA-XXXXXXXX-X' %>
+            </div>
+
+            <div>
+              <%= f.text_field :facebook_pixel_id,
+                label: 'Facebook Pixel ID',
+                placeholder: 'XXXXXXXXXXXXXXXXXX' %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-muted shadow sm:rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+          <h3 class="text-lg font-medium leading-6 text-default">
+            Mailing List Integration
+          </h3>
+
+          <div class="mt-5 space-y-4">
+            <div>
+              <%= f.check_box :email_sign_up,
+                label: "Email Sign-up",
+                hint: "Add an email sign-up field to your Linktree so visitors can join your mailing list."
+              %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-muted shadow sm:rounded-lg">
+        <div class="px-4 py-5 sm:p-6">
+          <h3 class="text-lg font-medium leading-6 text-default">Content Settings</h3>
+          <div class="mt-2 max-w-xl text-sm text-muted">
+            <p>Configure content restrictions and warnings for your page.</p>
+          </div>
+          <div class="mt-5 space-y-4">
+            <div class="relative flex items-start">
+              <div class="flex items-center h-5">
+                <%= f.check_box :sensitive_content,
+                  label: "Contains Sensitive Content",
+                  hint: "Enable this if your content contains sensitive material",
+                  class: "focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded" %>
+              </div>
+            </div>
+
+            <div>
+              <%= f.select :age_restriction,
+                options_for_select(current_user.age_restriction_options, f.object.age_restriction),
+                { label: 'Age Restriction' },
+                class: 'mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md' %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pt-8 flex justify-end space-x-2">
+        <%= f.submit gettext("Update Settings"),
+          class:
+            "bg-white py-2 px-4 border border-gray-300 dark:text-blue-gray-100 dark:bg-gray-900 rounded-md shadow-sm text-sm font-medium text-blue-gray-900 hover:bg-blue-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+        %>
+      </div>
+
+    <% end %>
+
+  <% else %>
+
+    <%= render "shared/blocked_view", title: gettext("Social links not allowed"),
+        subtitle: gettext("Social links are not allowed on your account type"),
+        description: gettext("Please send us an email showing us your work"),
+        cta: gettext("Request an artist account") %>
+  <% end %>
+
+</div>

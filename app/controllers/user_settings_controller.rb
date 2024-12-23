@@ -19,8 +19,7 @@ class UserSettingsController < ApplicationController
   def update
     @user = current_user
     @section = params[:section]
-    @user.update(user_attributes)
-    if @user.errors.blank?
+    if @user.update(user_attributes)
       flash.now[:notice] = "#{params[:section]} updated"
     end
   end
@@ -53,10 +52,23 @@ class UserSettingsController < ApplicationController
       :profile_header,
       :like_and_plays_on_your_post_email,
       :tbk_commerce_code, :pst_enabled, :tbk_test_mode,
+      
+      :mailing_list_provider,
+      :mailing_list_api_key,
+      :mailing_list_list_id,
+      :email_sign_up,
+      :google_analytics_id,
+      :facebook_pixel_id,
+      :social_title,
+      :social_description,
+      :sensitive_content,
+      :age_restriction,
+      
       podcaster_info_attributes: [
         :title, :about, :description, :avatar, :id,
         :spotify_url, :apple_podcasts_url, :google_podcasts_url, :stitcher_url, :overcast_url, :pocket_casts_url
       ]
+      
     )
   end
 end

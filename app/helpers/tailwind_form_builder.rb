@@ -156,15 +156,15 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
       info = @template.label_tag(
         tr(options[:label] || method), nil,
         class: "block text-gray-500 dark:text-white text-md font-bold pt-1"
-      ) + field_details(method, object, options)
+      )
     end
 
     options.merge!(class: "self-center mt-1-- mr-2 form-checkbox h-4 w-4 text-indigo-600 transition duration-150 ease-in-out") unless options.key?(:class)
 
-    hint = ""
+    hint_content = ""
     if options[:hint].present?
       hint_text = options[:hint].is_a?(Proc) ? @template.capture(&options[:hint]) : options[:hint]
-      hint = @template.content_tag(:p, hint_text.html_safe, class: "mt-1 text-sm text-gray-500")
+      hint_content = @template.content_tag(:p, hint_text.html_safe, class: "mt-1 text-sm text-gray-500")
     end
 
     @template.tag.div(class: "flex items-center space-x-2") do
@@ -172,11 +172,12 @@ class TailwindFormBuilder < ActionView::Helpers::FormBuilder
         @object_name, method, objectify_options(options), checked_value, unchecked_value
       )
       label_and_hint = @template.tag.div(class: "flex-col items-center") do
-        (info + hint).html_safe
+        (info + hint_content).html_safe
       end
       checkbox + label_and_hint
     end
   end
+
 
   def uploader_field(method, tag_value = "", options = {})
     @template.tag.div(class: "overflow-hidden relative w-64 mt-4 mb-4") do
