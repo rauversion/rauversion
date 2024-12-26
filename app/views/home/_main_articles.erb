@@ -1,0 +1,83 @@
+<section class="px-4 sm:px-8 py-12 md:py-24">
+  <div class="max-w-6xl mx-auto">
+    <div class="flex justify-between items-center mb-8 md:mb-12">
+      <h2 class="text-2xl md:text-3xl font-bold">Latest Stories</h2>
+      <a class="group flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors" href="/articles">VIEW ALL <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right w-4 h-4 group-hover:translate-x-1 transition-transform">
+          <path d="M5 12h14"></path>
+          <path d="m12 5 7 7-7 7"></path>
+        </svg>
+      </a>
+    </div>
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+      <div class="lg:col-span-8">
+
+
+        <% 
+          Post.published
+          .with_attached_cover
+          .includes(user: { avatar_attachment: :blob })
+          .order("id desc").offset(1).limit(1).each do |post|
+        %>
+          <article class="group cursor-pointer">
+            <%= link_to article_path(post) do %>
+              <div class="relative aspect-[16/9] overflow-hidden rounded-lg mb-6">
+                <!-- <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=2070" alt="Studio setup with synthesizers" class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500">-->
+                <%= image_tag(post.cover_url(:large), class: "object-cover w-full h-full group-hover:scale-105 transition-transform duration-500") %>
+
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                <div class="absolute bottom-0 left-0 p-6">
+                  <span class="inline-block px-3 py-1 bg-primary text-sm font-medium mb-4">
+                    Interviews
+                  </span>
+                  <h2 class="text-2xl md:text-4xl font-bold leading-tight mb-2">
+                    <%= post.title %>
+                  </h2>
+                  <p class="text-gray-300 mb-4">
+                    <%= post.excerpt %>
+                  </p>
+                  <div class="flex items-center gap-3">
+                    <%= image_tag post.user.avatar_url, class: "w-10 h-10 rounded-full object-cover" %>
+                    <div>
+                      <span class="block font-medium"><%= post.user.full_name %></span>
+                      <span class="text-sm text-gray-400">
+                        <%= l post.created_at, format: :long_with_day %> • 8 min read
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          </article>
+
+        <% end %>
+      </div>
+      <div class="lg:col-span-4 grid grid-cols-1 gap-8">
+        <% Post.published
+          .with_attached_cover
+          .includes(user: { avatar_attachment: :blob })
+          .order("id desc").limit(3).offset(1).each do |post| %>
+          <article class="group cursor-pointer flex gap-4">
+            <div class="relative w-24 h-24 flex-shrink-0 overflow-hidden rounded-lg">
+              
+              <%= image_tag(post.cropped_image,
+                class: "object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+              ) %>
+            
+            </div>
+            <div>
+              <span class="text-primary text-sm font-medium">
+                Technology
+              </span>
+              <h3 class="text-lg font-bold mt-1 group-hover:text-primary transition-colors line-clamp-2">
+                <%= post.title %>
+              </h3>
+              <span class="text-sm text-gray-400">
+                <%= l post.created_at, format: :long_with_day %>
+              </span>
+            </div>
+          </article>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</section>

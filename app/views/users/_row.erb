@@ -2,7 +2,7 @@
   <%= link_to user_path(user.username), "data-turbo-frame": "_top" do %>
     <div class="relative bg-white rounded-full overflow-hidden group-hover:opacity-75 sm:aspect-w-2 sm:aspect-h-1 lg:aspect-w-1 lg:aspect-h-1">
       <%= image_tag(user.avatar_url(:medium),
-        class: "w-full h-full object-center object-cover"
+        class: "object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
       ) %>
     </div>
 

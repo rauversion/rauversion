@@ -49,11 +49,5 @@ class UserLinksController < ApplicationController
       :url,
       :position,
       :custom_url)
-
-    params.require(:user_links_youtube_link).permit(
-      :title, 
-      :url,
-      :position,
-      :custom_url)
   end
 end

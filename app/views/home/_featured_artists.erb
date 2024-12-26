@@ -1,0 +1,29 @@
+<section class="px-4 sm:px-8 py-12 md:py-24">
+  <div class="max-w-6xl mx-auto">
+    <div class="flex justify-between items-center mb-8 md:mb-12">
+      <h2 class="text-2xl md:text-3xl font-bold">Featured Artists</h2>
+      <a class="group flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors" href="/artists">VIEW ALL <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right w-4 h-4 group-hover:translate-x-1 transition-transform">
+          <path d="M5 12h14"></path>
+          <path d="m12 5 7 7-7 7"></path>
+        </svg>
+      </a>
+    </div>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+      <% @artists.each do |user|%>
+        <%= link_to user_path user.username do %>
+          <div class="group cursor-pointer">
+            <div class="relative aspect-square overflow-hidden rounded-full mb-4">
+              <%= image_tag(user.avatar_url(:medium), class: "object-cover w-full h-full group-hover:scale-105 transition-transform duration-500") %>
+            </div>
+            <h3 class="text-lg font-bold text-center mb-1">
+              <%= user.full_name %>
+            </h3>
+            <p class="text-sm text-gray-400 text-center">
+              Electronic
+            </p>
+          </div>
+        <% end %>
+      <% end %>
+    </div>
+  </div>
+</section>

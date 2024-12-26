@@ -15,8 +15,8 @@ module.exports = {
   ],
   theme: {
     fontFamily: {
-      sans: ["'DM Sans'", 'sans-serif'],
-      serif: ["'DM Sans'", 'sans-serif'],
+      sans: ["'Host Grotesk'", 'sans-serif'],
+      serif: ["'Host Grotesk'", 'sans-serif'],
     },
     extend: {
 
@@ -136,7 +136,7 @@ module.exports = {
   },
   plugins: [
     require('@tailwindcss/forms'),
-    require('@tailwindcss/aspect-ratio'),
+    // require('@tailwindcss/aspect-ratio'),
     require('@tailwindcss/typography'),
   ]
 }

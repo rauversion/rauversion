@@ -145,6 +145,8 @@ en:
   user_settings:
     title_account: Account
     sub_account: Basic Account Information.
+    title_social_links: Social Links
+    sub_social_links: Social links to your other profiles.
     title_email: Change Email
     sub_email: Change Email information.
     title_security: Security
