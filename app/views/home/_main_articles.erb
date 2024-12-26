@@ -56,26 +56,28 @@
           .with_attached_cover
           .includes(user: { avatar_attachment: :blob })
           .order("id desc").limit(3).offset(1).each do |post| %>
-          <article class="group cursor-pointer flex gap-4">
-            <div class="relative w-24 h-24 flex-shrink-0 overflow-hidden rounded-lg">
+          <%= link_to article_path(post) do %>
+            <article class="group cursor-pointer flex gap-4">
+              <div class="relative w-24 h-24 flex-shrink-0 overflow-hidden rounded-lg">
+                
+                <%= image_tag(post.cropped_image,
+                  class: "object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+                ) %>
               
-              <%= image_tag(post.cropped_image,
-                class: "object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
-              ) %>
-            
-            </div>
-            <div>
-              <span class="text-primary text-sm font-medium">
-                Technology
-              </span>
-              <h3 class="text-lg font-bold mt-1 group-hover:text-primary transition-colors line-clamp-2">
-                <%= post.title %>
-              </h3>
-              <span class="text-sm text-gray-400">
-                <%= l post.created_at, format: :long_with_day %>
-              </span>
-            </div>
-          </article>
+              </div>
+              <div>
+                <span class="text-primary text-sm font-medium">
+                  Technology
+                </span>
+                <h3 class="text-lg font-bold mt-1 group-hover:text-primary transition-colors line-clamp-2">
+                  <%= post.title %>
+                </h3>
+                <span class="text-sm text-gray-400">
+                  <%= l post.created_at, format: :long_with_day %>
+                </span>
+              </div>
+            </article>
+          <% end %>
         <% end %>
       </div>
     </div>

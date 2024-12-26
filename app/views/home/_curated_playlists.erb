@@ -9,70 +9,39 @@
       </a>
     </div>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-      <div class="group cursor-pointer">
-        <div class="relative aspect-square overflow-hidden rounded-lg mb-4 bg-neutral-900">
-          <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&amp;w=2070" alt="Deep Electronic" class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500">
-          <div class="absolute bottom-3 right-3 bg-primary p-2 rounded-full">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list-music w-4 h-4">
-              <path d="M21 15V6"></path>
-              <path d="M18.5 18a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"></path>
-              <path d="M12 12H3"></path>
-              <path d="M16 6H3"></path>
-              <path d="M12 18H3"></path>
-            </svg>
+
+
+      <% Playlist.published
+        .latests
+        .includes(:releases)
+        .where(playlist_type: playlist_type)
+        .order("editor_choice_position asc, release_date desc, id desc").limit(limit).each do |playlist| %>
+
+        <div class="group cursor-pointer">
+          <div class="relative aspect-square overflow-hidden rounded-lg mb-4 bg-neutral-900">
+           
+            <%= image_tag(playlist.cover_url,
+              class: "object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+            ) %>
+
+            <div class="absolute bottom-3 right-3 bg-primary p-2 rounded-full">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list-music w-4 h-4">
+                <path d="M21 15V6"></path>
+                <path d="M18.5 18a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"></path>
+                <path d="M12 12H3"></path>
+                <path d="M16 6H3"></path>
+                <path d="M12 18H3"></path>
+              </svg>
+            </div>
           </div>
+          <h3 class="font-bold mb-1">
+            <%= playlist.title %>
+          </h3>
+          <p class="text-sm text-gray-400">
+            <%= t(:by, name: playlist.user.username) %> • <%= playlist.tracks.size %> tracks
+          </p>
         </div>
-        <h3 class="font-bold mb-1">Deep Electronic</h3>
-        <p class="text-sm text-gray-400">By PULSE • 42 tracks</p>
-      </div>
-      <div class="group cursor-pointer">
-        <div class="relative aspect-square overflow-hidden rounded-lg mb-4 bg-neutral-900">
-          <img src="https://images.unsplash.com/photo-1528722828814-77b9b83aafb2?q=80&amp;w=2070" alt="Ambient Works" class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500">
-          <div class="absolute bottom-3 right-3 bg-primary p-2 rounded-full">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list-music w-4 h-4">
-              <path d="M21 15V6"></path>
-              <path d="M18.5 18a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"></path>
-              <path d="M12 12H3"></path>
-              <path d="M16 6H3"></path>
-              <path d="M12 18H3"></path>
-            </svg>
-          </div>
-        </div>
-        <h3 class="font-bold mb-1">Ambient Works</h3>
-        <p class="text-sm text-gray-400">By PULSE • 36 tracks</p>
-      </div>
-      <div class="group cursor-pointer">
-        <div class="relative aspect-square overflow-hidden rounded-lg mb-4 bg-neutral-900">
-          <img src="https://images.unsplash.com/photo-1506157786151-b8491531f063?q=80&amp;w=2070" alt="Techno Essentials" class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500">
-          <div class="absolute bottom-3 right-3 bg-primary p-2 rounded-full">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list-music w-4 h-4">
-              <path d="M21 15V6"></path>
-              <path d="M18.5 18a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"></path>
-              <path d="M12 12H3"></path>
-              <path d="M16 6H3"></path>
-              <path d="M12 18H3"></path>
-            </svg>
-          </div>
-        </div>
-        <h3 class="font-bold mb-1">Techno Essentials</h3>
-        <p class="text-sm text-gray-400">By PULSE • 50 tracks</p>
-      </div>
-      <div class="group cursor-pointer">
-        <div class="relative aspect-square overflow-hidden rounded-lg mb-4 bg-neutral-900">
-          <img src="https://images.unsplash.com/photo-1614149162883-504ce4d13909?q=80&amp;w=2070" alt="Future Bass" class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500">
-          <div class="absolute bottom-3 right-3 bg-primary p-2 rounded-full">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list-music w-4 h-4">
-              <path d="M21 15V6"></path>
-              <path d="M18.5 18a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"></path>
-              <path d="M12 12H3"></path>
-              <path d="M16 6H3"></path>
-              <path d="M12 18H3"></path>
-            </svg>
-          </div>
-        </div>
-        <h3 class="font-bold mb-1">Future Bass</h3>
-        <p class="text-sm text-gray-400">By PULSE • 45 tracks</p>
-      </div>
+      <% end %>
     </div>
   </div>
 </section>

@@ -1,30 +1,108 @@
-<section aria-labelledby="collections-heading" class="bg-gray-100 dark:bg-black">
 
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 sm:pb-24 lg:pb-32 lg:pt-6 pt-4">
-      <div class="max-w-2xl mx-auto lg:max-w-none">
-        <h2 id="collections-users" class="text-2xl font-extrabold text-gray-900 dark:text-gray-100">
-          Artists you should know
-        </h2>
 
-        <%= turbo_frame_tag "conversation-list-#{@artists.current_page}", "data-turbo-action": "advance" do %>
-
-          <div class="mt-6 space-x-2 lg:space-y-0 grid-cols-3 grid lg:grid-cols-6 lg:gap-x-6 lg:gap-y-6">
-            <%= render partial: "users/row", collection: @artists, as: :user %>
+<div class="min-h-screen bg-black text-white">
+  <section class="relative h-[60vh] overflow-hidden">
+    <div class="absolute inset-0 bg-cover bg-center" style="background-image: url(&quot;https://images.unsplash.com/photo-1583944000409-00dd0ba1a275?q=80&amp;w=1974&quot;);">
+      <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
+    </div>
+    <div class="relative h-full px-4 sm:px-8">
+      <div class="max-w-6xl mx-auto h-full flex items-end pb-12 md:pb-24">
+        <div class="max-w-2xl">
+          <div class="flex items-center gap-3 mb-4">
+            <div class="flex items-center gap-2 bg-primary/20 px-3 py-1 rounded-full">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-badge-check w-4 h-4 text-primary">
+                <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"></path>
+                <path d="m9 12 2 2 4-4"></path>
+              </svg>
+              <span class="text-sm font-medium">Verified Artist</span>
+            </div>
           </div>
+          <h1 class="text-4xl md:text-6xl font-bold mb-4">Aphex Twin</h1>
+          <div class="flex items-center gap-6 text-gray-300 mb-6">
+            <span>Electronic</span>
+            <span>2.5M followers</span>
+            <span>4.2M monthly listeners</span>
+          </div>
+          <p class="text-gray-300 max-w-xl">Pioneer of electronic music, known for his experimental and innovative approach to composition.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <div class="px-4 sm:px-8 py-12 md:py-24">
+    <div class="max-w-6xl mx-auto">
+      <div>
+        <h2 class="text-2xl font-bold mb-6">Popular Genres</h2>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <button class="group relative aspect-square overflow-hidden rounded-lg">
+            <img src="https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&amp;w=2070" alt="Electronic" class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500">
+            <div class="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors"></div>
+            <span class="absolute inset-0 flex items-center justify-center text-xl font-bold">Electronic</span>
+          </button>
+          <button class="group relative aspect-square overflow-hidden rounded-lg">
+            <img src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&amp;w=2070" alt="Techno" class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500">
+            <div class="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors"></div>
+            <span class="absolute inset-0 flex items-center justify-center text-xl font-bold">Techno</span>
+          </button>
+          <button class="group relative aspect-square overflow-hidden rounded-lg">
+            <img src="https://images.unsplash.com/photo-1571512379797-4467abf4baa9?q=80&amp;w=1470" alt="House" class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500">
+            <div class="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors"></div>
+            <span class="absolute inset-0 flex items-center justify-center text-xl font-bold">House</span>
+          </button>
+          <button class="group relative aspect-square overflow-hidden rounded-lg">
+            <img src="https://images.unsplash.com/photo-1528722828814-77b9b83aafb2?q=80&amp;w=2070" alt="Ambient" class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500">
+            <div class="absolute inset-0 bg-black/40 group-hover:bg-black/50 transition-colors"></div>
+            <span class="absolute inset-0 flex items-center justify-center text-xl font-bold">Ambient</span>
+          </button>
+        </div>
+      </div>
+      <div class="mt-16">
+        <div class="flex flex-col md:flex-row justify-between gap-6 mb-12">
+          <div class="flex flex-wrap gap-4">
+            <button class="px-4 py-2 rounded-full text-sm font-medium transition-colors bg-primary text-white">All</button>
+            <button class="px-4 py-2 rounded-full text-sm font-medium transition-colors bg-neutral-900 hover:bg-neutral-800">Electronic</button>
+            <button class="px-4 py-2 rounded-full text-sm font-medium transition-colors bg-neutral-900 hover:bg-neutral-800">Techno</button>
+            <button class="px-4 py-2 rounded-full text-sm font-medium transition-colors bg-neutral-900 hover:bg-neutral-800">House</button>
+            <button class="px-4 py-2 rounded-full text-sm font-medium transition-colors bg-neutral-900 hover:bg-neutral-800">Ambient</button>
+            <button class="px-4 py-2 rounded-full text-sm font-medium transition-colors bg-neutral-900 hover:bg-neutral-800">Dubstep</button>
+            <button class="px-4 py-2 rounded-full text-sm font-medium transition-colors bg-neutral-900 hover:bg-neutral-800">Experimental</button>
+          </div>
+          <div class="relative">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.3-4.3"></path>
+            </svg>
+            <input type="text" placeholder="Search artists..." class="w-full md:w-64 pl-10 pr-4 py-2 bg-neutral-900 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary">
+          </div>
+        </div>
 
-          <% if @artists.next_page.present? %>
-            <%= turbo_frame_tag "conversation-list-#{@artists.next_page}", loading: :lazy,
-                                src: artists_path(page: @artists.next_page) do %>
-              <div class="">
-                <%= t('loading') %>
-              </div>
-            <% end %>
-          <% end %>
+        <section aria-labelledby="collections-heading" class="bg-gray-100 dark:bg-black">
+          <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 sm:pb-24 lg:pb-32 lg:pt-6 pt-4">
+            <div class="max-w-2xl mx-auto lg:max-w-none">
+            
+              <%= turbo_frame_tag "conversation-list-#{@artists.current_page}", "data-turbo-action": "advance" do %>
 
-        <% end %>
+                <div class="mt-6 space-x-2 lg:space-y-0 grid-cols-3 grid lg:grid-cols-6 lg:gap-x-6 lg:gap-y-6">
+                  <%= render partial: "users/row", collection: @artists, as: :user %>
+                </div>
+
+                <% if @artists.next_page.present? %>
+                  <%= turbo_frame_tag "conversation-list-#{@artists.next_page}", loading: :lazy,
+                                      src: artists_path(page: @artists.next_page) do %>
+                    <div class="">
+                      <%= t('loading') %>
+                    </div>
+                  <% end %>
+                <% end %>
+
+              <% end %>
+
+            </div>
+          </div>
+        </section>
 
       </div>
     </div>
+  </div>
+</div>
 
 
-</section>

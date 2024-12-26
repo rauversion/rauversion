@@ -129,7 +129,11 @@
   <%= render "home/main_articles" %>
   <%= render "home/album_releases" %>
   <%= render "home/featured_artists" %>
-  <%= render "home/curated_playlists" %>
+  <%= render "home/curated_playlists",     
+    playlist_type: ["playlist"], 
+    limit: 10,
+    title: "Playlists" 
+  %>
   <%= render "home/latest_releases" %>
 
 
