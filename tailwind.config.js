@@ -132,6 +132,22 @@ module.exports = {
         error: "var(--rau-text-error, #752522)",
         //brand: "var(--rau-brand-text,'white')",
       },
+
+      animation: {
+        marquee: 'marquee 25s linear infinite',
+        marquee2: 'marquee2 25s linear infinite',
+        marquee3: 'marquee2 5s linear infinite',
+      },
+      keyframes: {
+        marquee: {
+          '0%': { transform: 'translateX(0%)' },
+          '100%': { transform: 'translateX(-100%)' },
+        },
+        marquee2: {
+          '0%': { transform: 'translateX(100%)' },
+          '100%': { transform: 'translateX(0%)' },
+        },
+      }
     }
   },
   plugins: [

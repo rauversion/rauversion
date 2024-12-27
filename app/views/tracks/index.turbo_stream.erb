@@ -1,22 +1,23 @@
-<%= turbo_stream.update "tracks_filter" do %>
-  <div class="flex flex-wrap gap-3">
-    <%= link_to tracks_path, 
-        class: "px-4 py-2 rounded-full text-sm font-medium transition-colors #{params[:tag].blank? ? 'bg-primary text-white' : 'bg-neutral-900 hover:bg-neutral-800'}",
-        data: { turbo_frame: "tracks_filter" } do %>
-      All
-    <% end %>
-    <% @popular_tags.each do |tag| %>
-      <%= link_to tracks_path(tag: tag.tag), 
-          class: "px-4 py-2 rounded-full text-sm font-medium transition-colors #{params[:tag] == tag.tag ? 'bg-primary text-white' : 'bg-neutral-900 hover:bg-neutral-800'}",
-          data: { turbo_frame: "tracks_filter" } do %>
-        <%= tag.tag %>
-      <% end %>
+<%= turbo_stream.update "tracks_list" do %>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <% @tracks.each do |track| %>
+      <%= render "tracks/track_card", track: track %>
     <% end %>
   </div>
 
-  <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mt-8">
-    <% @tracks.each do |track| %>
-      <%= render "tracks/track_cell", track: track %>
+  <% if @tracks.next_page %>
+    <%= turbo_frame_tag "tracks_list_#{@tracks.next_page}", loading: :lazy,
+        src: tracks_path(page: @tracks.next_page, q: params[:q]) do %>
+      <div class="mt-8 text-center text-gray-400">
+        Loading more tracks...
+      </div>
     <% end %>
-  </div>
+  <% end %>
+
+  <% if @tracks.empty? %>
+    <div class="text-center py-12">
+      <h3 class="text-xl font-semibold mb-2">No tracks found</h3>
+      <p class="text-gray-400">Try adjusting your search criteria</p>
+    </div>
+  <% end %>
 <% end %>

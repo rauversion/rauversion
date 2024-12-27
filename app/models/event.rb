@@ -15,6 +15,18 @@ class Event < ApplicationRecord
     where(purchased_items: {purchased_item_type: "EventTicket"})
   }, through: :purchased_items, source: :purchased_item, source_type: "EventTicket"
 
+  def self.ransackable_attributes(auth_object = nil)
+    ["age_requirement", "attendee_list_settings", "city", "country", "created_at", "description", "eticket", "event_capacity", "event_capacity_limit", "event_ends", "event_settings", "event_short_link", "event_start", "id", "lat", "lng", "location", "online", "order_form", "postal", "private", "province", "scheduling_settings", "slug", "state", "streaming_service", "street", "street_number", "tax_rates_settings", "tickets", "timezone", "title", "updated_at", "user_id", "venue", "widget_button", "will_call"]
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    ["cover_attachment", "cover_blob", "event_hosts", "event_recordings", "event_schedules", "event_tickets", "paid_purchased_items", "purchased_event_tickets", "purchased_items", "purchases", "schedule_schedulings", "user"]
+  end
+
+  scope :upcoming, -> { where('event_start >= ?', Time.current).order(event_start: :asc) }
+  scope :past, -> { where('event_start < ?', Time.current).order(event_start: :desc) }
+  scope :published, -> { where(state: 'published') }
+
   # has_many :paid_tickets,
 
   has_one_attached :cover
@@ -38,7 +50,6 @@ class Event < ApplicationRecord
   store_accessor :event_settings, :scheduling_description, :string
   store_accessor :event_settings, :ticket_currency, :string
 
-  scope :published, -> { where(state: "published") }
   scope :drafts, -> { where(state: "draft") }
   scope :managers, -> { where(event_manager: true) }
   # Ex:- scope :active, -> {where(:active => true)}

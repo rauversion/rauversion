@@ -17,7 +17,7 @@ class TracksController < ApplicationController
       .group('unnest(tags)')
       .order('count DESC')
       .limit(10)
-
+    
     @labels = User.where(label: true).order("id desc").limit(10)
 
     @artists = User.where(role: "artist")
@@ -31,6 +31,21 @@ class TracksController < ApplicationController
       .order("editor_choice_position asc, release_date desc")
       .first
 
+
+    @q = Track.ransack(params[:q])
+    @q.sorts = 'created_at desc' if @q.sorts.empty?
+
+    if params[:q].present?
+    
+      @tracks = @q.result(distinct: true)
+      .published
+      .includes(:user)
+      #.with_attached_audio_file
+      #.with_attached_cover
+      .page(params[:page])
+      .per(12)
+    end
+      
     respond_to do |format|
       format.html
       format.turbo_stream

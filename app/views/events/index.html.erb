@@ -1,34 +1,26 @@
-
 <div class="min-h-screen bg-black text-white">
-  <section class="relative h-[60vh] overflow-hidden">
-    <div class="absolute inset-0 bg-cover bg-center" style="background-image: url(&quot;https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?q=80&amp;w=2070&quot;);">
+  <section class="relative h-[50vh] overflow-hidden">
+    <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?q=80&amp;w=2070');">
       <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
     </div>
-    <div class="relative h-full px-4 sm:px-8">
-      <div class="max-w-6xl mx-auto h-full flex items-end pb-12 md:pb-24">
-        <div class="max-w-2xl">
-          <div class="flex items-center gap-4 text-sm text-gray-300 mb-4">
-            <div class="flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar w-4 h-4">
-                <path d="M8 2v4"></path>
-                <path d="M16 2v4"></path>
-                <rect width="18" height="18" x="3" y="4" rx="2"></rect>
-                <path d="M3 10h18"></path>
-              </svg>July 14, 2024
+
+    <div class="absolute inset-0 flex items-center">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div class="max-w-xl mx-auto text-center">
+          <h1 class="text-4xl md:text-5xl font-bold mb-6">Find Your Next Event</h1>
+          <p class="text-lg text-gray-300 mb-8">Discover upcoming events and experiences in electronic music</p>
+          
+          <%= search_form_for @q, html: { class: "relative", data: { turbo_frame: "events_list", controller: "form", action: "input->form#submit" } } do |f| %>
+            <div class="relative">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.3-4.3"></path>
+              </svg>
+              <%= f.search_field :title_or_description_cont, 
+                  placeholder: "Search events...",
+                  class: "w-full pl-12 pr-4 py-3 bg-white/10 backdrop-blur-sm rounded-full text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary" %>
             </div>
-            <div class="flex items-center gap-2">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin w-4 h-4">
-                <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path>
-                <circle cx="12" cy="10" r="3"></circle>
-              </svg>Berlin, Germany
-            </div>
-          </div>
-          <h1 class="text-4xl md:text-6xl font-bold mb-4">Synthesis Festival 2024</h1>
-          <p class="text-gray-300 mb-6">A three-day celebration of electronic music featuring the world's top artists</p>
-          <div class="flex flex-wrap gap-4">
-            <a href="#" class="bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg font-medium transition-colors">Get Tickets</a>
-            <button class="bg-white/10 hover:bg-white/20 px-6 py-3 rounded-lg font-medium transition-colors">Learn More</button>
-          </div>
+          <% end %>
         </div>
       </div>
     </div>
@@ -36,190 +28,46 @@
 
   <section class="px-4 sm:px-8 py-12 md:py-24">
     <div class="max-w-6xl mx-auto">
-      <h2 class="text-2xl md:text-3xl font-bold mb-8">Find Events</h2>
-      <div class="bg-neutral-900 p-6 rounded-xl mb-8">
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div class="relative">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400">
-              <circle cx="11" cy="11" r="8"></circle>
-              <path d="m21 21-4.3-4.3"></path>
-            </svg>
-            <input type="text" placeholder="Search events..." class="w-full pl-10 pr-4 py-2 bg-black rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary">
-          </div>
-          <div class="relative">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400">
-              <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path>
-              <circle cx="12" cy="10" r="3"></circle>
-            </svg>
-            <input type="text" placeholder="Location..." class="w-full pl-10 pr-4 py-2 bg-black rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary">
-          </div>
-          <div class="relative">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400">
-              <path d="M8 2v4"></path>
-              <path d="M16 2v4"></path>
-              <rect width="18" height="18" x="3" y="4" rx="2"></rect>
-              <path d="M3 10h18"></path>
-            </svg>
-            <input type="date" class="w-full pl-10 pr-4 py-2 bg-black rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary text-gray-300">
-          </div>
+      <h2 class="text-2xl font-bold mb-8">Upcoming Events</h2>
+      <%= turbo_frame_tag "events_list" do %>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <% @events.each do |event| %>
+            <%= render "events/event_card", event: event %>
+          <% end %>
         </div>
-      </div>
-      <div class="mb-12">
-        <h3 class="text-xl font-bold mb-6 sticky top-0 bg-black/80 backdrop-blur-sm py-4 z-10">April 19, 2024</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <article class="group cursor-pointer bg-neutral-900 rounded-xl overflow-hidden">
-            <div class="relative aspect-[16/9] overflow-hidden">
-              <img src="https://images.unsplash.com/photo-1571512379797-4467abf4baa9?q=80&amp;w=1470" alt="Underground Techno Night" class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500">
+
+        <% if @events.next_page %>
+          <%= turbo_frame_tag "events_list_#{@events.next_page}", loading: :lazy,
+              src: events_path(page: @events.next_page, q: params[:q]) do %>
+            <div class="mt-8 text-center text-gray-400">
+              Loading more events...
             </div>
-            <div class="p-6">
-              <div class="flex items-center gap-4 text-sm text-gray-400 mb-3">
-                <div class="flex items-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar w-4 h-4">
-                    <path d="M8 2v4"></path>
-                    <path d="M16 2v4"></path>
-                    <rect width="18" height="18" x="3" y="4" rx="2"></rect>
-                    <path d="M3 10h18"></path>
-                  </svg>April 19, 2024
-                </div>
-                <div class="flex items-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin w-4 h-4">
-                    <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path>
-                    <circle cx="12" cy="10" r="3"></circle>
-                  </svg>London, UK
-                </div>
-              </div>
-              <h3 class="text-xl font-bold mb-2 group-hover:text-primary transition-colors">Underground Techno Night</h3>
-              <p class="text-sm text-gray-400 mb-4">Deep techno sounds in an intimate underground setting</p>
-              <div class="flex items-center justify-between">
-                <span class="text-primary font-medium">£25</span>
-                <button class="text-sm font-medium hover:text-primary transition-colors">View Details →</button>
-              </div>
-            </div>
-          </article>
-        </div>
-      </div>
-      <div class="mb-12">
-        <h3 class="text-xl font-bold mb-6 sticky top-0 bg-black/80 backdrop-blur-sm py-4 z-10">April 30, 2024</h3>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <article class="group cursor-pointer bg-neutral-900 rounded-xl overflow-hidden">
-            <div class="relative aspect-[16/9] overflow-hidden">
-              <img src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&amp;w=2070" alt="Ambient Sessions" class="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500">
-            </div>
-            <div class="p-6">
-              <div class="flex items-center gap-4 text-sm text-gray-400 mb-3">
-                <div class="flex items-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar w-4 h-4">
-                    <path d="M8 2v4"></path>
-                    <path d="M16 2v4"></path>
-                    <rect width="18" height="18" x="3" y="4" rx="2"></rect>
-                    <path d="M3 10h18"></path>
-                  </svg>April 30, 2024
-                </div>
-                <div class="flex items-center gap-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin w-4 h-4">
-                    <path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"></path>
-                    <circle cx="12" cy="10" r="3"></circle>
-                  </svg>Amsterdam, NL
-                </div>
-              </div>
-              <h3 class="text-xl font-bold mb-2 group-hover:text-primary transition-colors">Ambient Sessions</h3>
-              <p class="text-sm text-gray-400 mb-4">An evening of atmospheric electronic music</p>
-              <div class="flex items-center justify-between">
-                <span class="text-primary font-medium">€30</span>
-                <button class="text-sm font-medium hover:text-primary transition-colors">View Details →</button>
-              </div>
-            </div>
-          </article>
-        </div>
-      </div>
-    </div>
-  </section>
-  
-</div>
+          <% end %>
+        <% end %>
 
+        <% if @events.empty? %>
+          <div class="text-center py-12">
+            <h3 class="text-xl font-semibold mb-2">No events found</h3>
+            <p class="text-gray-400">Try adjusting your search criteria</p>
+          </div>
+        <% end %>
+      <% end %>
 
+      <% if @past_events.any? %>
+        <div class="mt-24">
+          <div class="flex items-center justify-between mb-8">
+            <h2 class="text-2xl font-bold">Past Events</h2>
+            <%= link_to "View All", events_path(q: { event_start_lt: Time.current }), 
+                class: "text-primary hover:text-primary/80 transition-colors" %>
+          </div>
 
-
-<!-- >
-
-<div class="pt-16 pb-20 px-4 sm:px-6 lg:pt-24 lg:pb-28 lg:px-8">
-  <div class="relative max-w-lg mx-auto divide-y-2 divide-muted lg:max-w-7xl">
-    <% if @upcoming_events.any? %>
-      <div>
-        <h2 class="text-3xl tracking-tight font-extrabold text-gray-900 dark:text-gray-100 sm:text-4xl">
-          <%= gettext("events.upcoming") %>
-        </h2>
-        <p class="mt-3 text-xl text-gray-500 dark:text-gray-300 sm:mt-4">
-          <%= gettext("event.upcoming_sub") %>
-        </p>
-      </div>
-
-      <div class="">
-        <div class="max-w-7xl mx-auto py-16 px-4 overflow-hidden sm:py-24 sm:px-6 lg:px-8">
-          <div class="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-8">
-            <% @upcoming_events.each do |event| %>
-              <a href="<%= event_path(event) %>"
-                class="group text-sm p-2 hover:bg-gray-700">
-                <div class="w-full aspect-w-1 aspect-h-1 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-900 group-hover:opacity-75">
-                  <%= image_tag(event.cover_url) %>
-                </div>
-
-                <h3 class="mt-4 font-medium text-gray-900 dark:text-gray-100">
-                  <%= event.title %>
-                </h3>
-
-                <p class="text-gray-500 italic">
-                  <%= "#{event.province} #{event.city} #{event.country}" %>
-                </p>
-
-                <p class="mt-2 font-medium text-gray-900 dark:text-gray-100">
-                  <%= event.event_dates %>
-                </p>
-              </a>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <% @past_events.each do |event| %>
+              <%= render "events/event_card", event: event %>
             <% end %>
           </div>
         </div>
-      </div>
-
-    <% end %>
-  </div>
-
-  <div class="relative max-w-lg mx-auto divide-y-2 divide-gray-200 dark:divide-muted lg:max-w-7xl">
-    <div>
-      <h2 class="text-3xl tracking-tight font-extrabold text-gray-900 dark:text-gray-100 sm:text-4xl">
-        <%= t("events.past") %>
-      </h2>
+      <% end %>
     </div>
-
-    <div class="">
-      <div class="max-w-7xl mx-auto py-16 px-4 overflow-hidden sm:py-24 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-5 lg:gap-x-8">
-          <% @past_events.each do |event| %>
-            <a href="<%= event_path(event) %>"
-              class="group text-sm p-2 hover:bg-gray-800 rounded-md transition-colors duration-500 ease-in-out">
-              <div class="w-full aspect-w-1 aspect-h-1 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-900 group-hover:opacity-75">
-                <%= image_tag(event.cover_url,
-                  class: "w-full h-full object-center object-cover"
-                ) %>
-              </div>
-
-              <h3 class="mt-4 font-medium text-gray-900 dark:text-gray-100">
-                <%= event.title %>
-              </h3>
-
-              <p class="text-gray-500 italic">
-                <%= "#{event.province} #{event.city} #{event.country}" %>
-              </p>
-
-              <p class="mt-2 font-medium text-gray-900 dark:text-gray-100">
-                <%= event.event_dates %>
-              </p>
-            </a>
-          <% end %>
-        </div>
-      </div>
-    </div>
-  </div>
+  </section>
 </div>
-
--->

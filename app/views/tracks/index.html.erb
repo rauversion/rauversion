@@ -16,10 +16,9 @@
             <button class="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg font-medium transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-play w-5 h-5">
                 <polygon points="6 3 20 12 6 21 6 3"></polygon>
-              </svg>Play Now 
-            </button>
+              </svg>Play Now </button>
             <%= link_to playlist_path(@highlighted_playlist), class: "bg-white/10 hover:bg-white/20 px-6 py-3 rounded-lg font-medium transition-colors" do %>
-              <span>View Album</span>
+              <span>View Album</button>
             <% end %>
           </div>
         </div>
@@ -31,13 +30,24 @@
     <div class="max-w-6xl mx-auto">
       <h1 class="text-4xl md:text-5xl font-bold mb-8">Discover Music</h1>
       <div class="space-y-6 mb-12">
-        <div class="relative max-w-md">
-          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400">
-            <circle cx="11" cy="11" r="8"></circle>
-            <path d="m21 21-4.3-4.3"></path>
-          </svg>
-          <input type="text" placeholder="Search music..." class="w-full pl-10 pr-4 py-2 bg-neutral-900 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary">
-        </div>
+        
+        <!-- Search Form -->
+        <%= search_form_for @q, html: { class: "space-y-4", data: { turbo_frame: "tracks_filter", controller: "form", action: "input->form#submit" } } do |f| %>
+          <div>
+            <div class="relative max-w-md">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.3-4.3"></path>
+              </svg>
+              <%= f.search_field :title_or_description_or_user_username_or_user_first_name_or_user_last_name_cont,
+                  placeholder: "Search tracks...",
+                  class: "w-full pl-10 pr-4 py-2 bg-neutral-900 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary" %>
+            </div>
+          </div>
+        <% end %>
+
+
+
         <%= turbo_frame_tag "tracks_filter" do %>
           <div class="flex flex-wrap gap-3 my-4">
             <%= link_to tracks_path, 
