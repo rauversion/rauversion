@@ -1,9 +1,12 @@
 <div class="max-w-3xl mx-auto py-10 px-4 sm:px-6 lg:py-12 lg:px-8">
   <% if @user.is_creator? %>
-    <h1 class="text-3xl font-extrabold text-blue-gray-900">
-      <%= gettext("Social Links Settings") %>
-    </h1>
+    <div class="flex justify-between items-center">
+      <h1 class="text-3xl font-extrabold text-blue-gray-900">
+        <%= gettext("Social Links Settings") %>
+      </h1>
 
+      <%= link_to "Show site", user_user_links_url(current_user.username), target: "_blank", class: "link" %>
+    </div>
     <%= form_for @user, url: user_setting_path(@user.username, :social_links), 
       html: {class: "space-y-8 divide-y divide-gray-200 dark:divide-gray-800"} do |f| %>
 

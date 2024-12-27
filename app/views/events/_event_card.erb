@@ -1,4 +1,4 @@
-<article class="group cursor-pointer bg-neutral-900 rounded-xl overflow-hidden">
+<article class="group cursor-pointer bg-muted rounded-xl overflow-hidden">
   <%= link_to event_path(event), data: { turbo_frame: "_top" } do %>
     <div class="relative aspect-[16/9] overflow-hidden">
       <%= image_tag(event.cover_url, 
@@ -7,7 +7,7 @@
     </div>
     
     <div class="p-6">
-      <div class="flex items-center gap-4 text-sm text-gray-400 mb-3">
+      <div class="flex items-center gap-4 text-sm text-muted mb-3">
         <div class="flex items-center gap-2">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar w-4 h-4">
             <path d="M8 2v4"></path>
@@ -33,7 +33,7 @@
         <%= event.title %>
       </h3>
 
-      <p class="text-sm text-gray-400 mb-4">
+      <p class="text-sm text-muted mb-4">
         <%= truncate(event.description, length: 100) %>
       </p>
 
@@ -43,7 +43,7 @@
             From <%= number_to_currency(event.event_tickets.minimum(:price)) %>
           </span>
         <% else %>
-          <span class="text-gray-400 font-medium">Free</span>
+          <span class="text-muted font-medium">Free</span>
         <% end %>
 
         <span class="text-sm font-medium hover:text-primary transition-colors">
