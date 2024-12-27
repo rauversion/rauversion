@@ -1,0 +1,35 @@
+<article class="group cursor-pointer">
+  <div class="relative aspect-[16/9] overflow-hidden rounded-lg mb-4">
+    <%= link_to article_path(article), data: { turbo_frame: "_top" } do %>
+      <%= image_tag(article.cropped_image, class: "object-cover w-full h-full group-hover:scale-105 transition-transform duration-500") %>
+    <% end %>
+  </div>
+
+  <div class="flex items-center gap-4 mb-3">
+    <span class="text-primary text-sm font-medium">
+      <%= article.category.name %>
+    </span>
+    <span class="text-sm text-gray-400">
+      <%= l(article.created_at, format: :long_with_day) %>
+    </span>
+  </div>
+
+  <%= link_to article_path(article), data: { turbo_frame: "_top" } do %>
+    <h3 class="text-xl font-bold mb-2 group-hover:text-primary transition-colors">
+      <%= article.title %>
+    </h3>
+  
+    <p class="text-gray-400 text-sm mb-4 <%= local_assigns[:truncate_title] ? "truncate" : "" %>">
+      <%= truncate article.excerpt %>
+    </p>
+  <% end %>
+
+  <%= link_to user_path(article.user.username), data: { turbo_frame: "_top" } do %>
+    <div class="flex items-center gap-3">
+      <%= image_tag(article.user.avatar_url(:small), class: "w-8 h-8 rounded-full object-cover") %>
+      <span class="text-sm font-medium">
+        <%= article.user.username %>
+      </span>
+    </div>
+  <% end %>
+</article>

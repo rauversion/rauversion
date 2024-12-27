@@ -1,65 +1,71 @@
 <div class="min-h-screen bg-black text-white px-4 sm:px-8 py-12">
-  <div class="max-w-6xl mx-auto">
-    <h1 class="text-4xl md:text-5xl font-bold mb-4">Latest Articles</h1>
-    <p class="text-gray-400 text-lg mb-12">
-      Discover the latest news and insights from the electronic music world
-    </p>
-    <div class="flex flex-col md:flex-row justify-between gap-6 mb-12">
-      <div class="flex flex-wrap gap-4">
-        <button class="px-4 py-2 rounded-full text-sm font-medium transition-colors bg-primary text-white">All</button>
-        <button class="px-4 py-2 rounded-full text-sm font-medium transition-colors bg-neutral-900 hover:bg-neutral-800">Features</button>
-        <button class="px-4 py-2 rounded-full text-sm font-medium transition-colors bg-neutral-900 hover:bg-neutral-800">Interviews</button>
-        <button class="px-4 py-2 rounded-full text-sm font-medium transition-colors bg-neutral-900 hover:bg-neutral-800">Gear</button>
-        <button class="px-4 py-2 rounded-full text-sm font-medium transition-colors bg-neutral-900 hover:bg-neutral-800">Technology</button>
-        <button class="px-4 py-2 rounded-full text-sm font-medium transition-colors bg-neutral-900 hover:bg-neutral-800">Culture</button>
-      </div>
-      <div class="relative">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400">
-          <circle cx="11" cy="11" r="8"></circle>
-          <path d="m21 21-4.3-4.3"></path>
-        </svg>
-        <input type="text" placeholder="Search articles..." class="w-full md:w-64 pl-10 pr-4 py-2 bg-neutral-900 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary">
-      </div>
-    </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-      
-      <% @articles.each do |post| %>
-      
-        <article class="group cursor-pointer">
-          <div class="relative aspect-[16/9] overflow-hidden rounded-lg mb-4">
-            <%= link_to article_path(post) do %>
-              <%= image_tag(post.cropped_image, style: "object-cover w-full h-full group-hover:scale-105 transition-transform duration-500") %>
+  <div class="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col md:flex-row gap-8">
+      <!-- Sidebar with categories and tags -->
+      <div class="w-full md:w-64 space-y-8">
+        <div>
+          <h3 class="text-lg font-semibold mb-4">Categories</h3>
+          <div class="space-y-2">
+            <%= link_to articles_path, 
+                class: "block px-3 py-2 rounded-lg #{!params[:category] ? 'bg-primary text-white' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}" do %>
+              <div class="flex justify-between items-center">
+                <span>All</span>
+                <span class="text-sm text-gray-500 dark:text-gray-400">
+                  <%= Post.published.count %>
+                </span>
+              </div>
+            <% end %>
+
+            <% @categories.each do |category| %>
+              <%= link_to articles_path(category: category.slug), 
+                  class: "block px-3 py-2 rounded-lg #{params[:category] == category.slug ? 'bg-primary text-white' : 'hover:bg-gray-100 dark:hover:bg-gray-800'}" do %>
+                <div class="flex justify-between items-center">
+                  <span><%= category.name %></span>
+                  <span class="text-sm text-gray-500 dark:text-gray-400">
+                    <%= category.posts_count %>
+                  </span>
+                </div>
+              <% end %>
             <% end %>
           </div>
-          <div class="flex items-center gap-4 mb-3">
-            <span class="text-primary text-sm font-medium">
-              <%= post.category.name %>
-            </span>
-            <span class="text-sm text-gray-400">
-              <%= l( post.created_at, format: :long_with_day )%>
-            </span>
-            <span class="text-sm text-gray-400">8 min read</span>
+        </div>
+
+        <div>
+          <h3 class="text-lg font-semibold mb-4">Popular Tags</h3>
+          <div class="flex flex-wrap gap-2">
+            <% @popular_tags.each do |tag| %>
+              <%= link_to tag.tag, 
+                  articles_path(tag: tag.tag), 
+                  class: "px-3 py-1 text-sm rounded-full #{params[:tag] == tag.tag ? 'bg-primary text-white' : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700'}" %>
+            <% end %>
           </div>
-          <%= link_to article_path(post) do %>
-            <h3 class="text-xl font-bold mb-2 group-hover:text-primary transition-colors">
-              <%= post.title %>
-            </h3>
-          
-          <p class="text-gray-400 text-sm mb-4 <% local_assigns[:truncate_title] ? "truncate" : "" %>">
-            <%= truncate post.excerpt %>
-          </p>
+        </div>
+      </div>
+
+      <!-- Main content -->
+      <div class="flex-1">
+        <h1 class="text-3xl font-extrabold tracking-tight mb-8">
+          <%= @current_category ? @current_category.name : "All Articles" %>
+        </h1>
+
+        <%= turbo_frame_tag "articles_list" do %>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <% @articles.each do |article| %>
+              <%= render "articles/article_card", article: article %>
+            <% end %>
+          </div>
+
+          <% if @articles.next_page %>
+            <%= turbo_frame_tag "articles_list_#{@articles.next_page}", loading: :lazy,
+                src: articles_path(page: @articles.next_page, category: params[:category], tag: params[:tag]) do %>
+              <div class="mt-8 text-center">
+                Loading more articles...
+              </div>
+            <% end %>
           <% end %>
-          <%= link_to user_path(post.user.username) do %>
-            <div class="flex items-center gap-3">
-              <%= image_tag(post.user.avatar_url(:small), class: "w-8 h-8 rounded-full object-cover") %>
-              <span class="text-sm font-medium">
-                <%= post.user.username %>
-              </span>
-            </div>
-          <% end %>
-        </article>
-      
-      <% end %>
+        <% end %>
+      </div>
     </div>
   </div>
 </div>

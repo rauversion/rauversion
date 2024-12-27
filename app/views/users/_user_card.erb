@@ -1,0 +1,13 @@
+<%= link_to user_path user.username do %>
+  <div class="group cursor-pointer">
+    <div class="relative aspect-square overflow-hidden rounded-full mb-4">
+      <%= image_tag(user.avatar_url(:medium), class: "object-cover w-full h-full group-hover:scale-105 transition-transform duration-500") %>
+    </div>
+    <h3 class="text-lg font-bold text-center mb-1">
+      <%= user.full_name %>
+    </h3>
+    <p class="text-sm text-gray-400 text-center">
+      Electronic
+    </p>
+  </div>
+<% end %>
