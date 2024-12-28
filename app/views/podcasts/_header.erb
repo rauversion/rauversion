@@ -1,10 +1,18 @@
 <header class="bg-default lg:fixed lg:inset-y-0 lg:left-0 lg:flex lg:w-112 lg:items-start lg:overflow-y-auto xl:w-120">
   <div class="hidden lg:sticky lg:top-0 lg:flex lg:w-16 lg:flex-none lg:items-center lg:whitespace-nowrap lg:py-12 lg:text-sm lg:leading-7 lg:[writing-mode:vertical-rl]">
     <span class="font-mono text-muted"><%= t("podcasts.hosted_by") %></span>
+
     <span class="mt-6 flex gap-6 font-bold text-default">
       <%= link_to @user.username , user_path(@user.username) %> 
       <span aria-hidden="true" class="text-slate-400">/</span>
+    </span>
+
+    <% @user.podcaster_info.hosts.each do |host| %>
+      <span class="mt-6 flex gap-6 font-bold text-default">
+        <%= link_to host.username , user_path(host.username) %> 
+        <span aria-hidden="true" class="text-slate-400">/</span>
       </span>
+    <% end %>
   </div>
   <div class="relative z-10 mx-auto px-4 pb-12 pt-10 sm:px-6 md:max-w-2xl md:px-4 lg:min-h-full lg:flex-auto lg:border-x lg:border-subtle lg:px-8 lg:py-20 lg:pb-28 xl:px-20">
     <a class="relative mx-auto block w-48 overflow-hidden rounded-lg bg-muted shadow-xl shadow-muted sm:w-64 sm:rounded-xl lg:w-auto lg:rounded-2xl" aria-label="Homepage" href="/">

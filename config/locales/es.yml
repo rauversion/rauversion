@@ -41,6 +41,10 @@ es:
   artists:
     featured: Artistas Destacados
 
+  podcasters:
+    all: Todos los anfitriones
+    new_host: Anfitrion nuevo
+
   articles:
     explore: Explorar
     recent_publications: Publicaciones recientes

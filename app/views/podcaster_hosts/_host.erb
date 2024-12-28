@@ -1,0 +1,18 @@
+<div id="podcaster-host-<%= host.id %>" class="flex items-center space-x-3 py-2">
+  <% if host.user.avatar.present? %>
+    <%= image_tag host.user.avatar_url, class: "h-8 w-8 rounded-full" %>
+  <% else %>
+    <div class="h-8 w-8 rounded-full bg-gray-200 flex items-center justify-center">
+      <span class="text-gray-500 text-sm"><%= host.user.email.first.upcase %></span>
+    </div>
+  <% end %>
+  
+  <div>
+    <p class="text-sm font-medium text-gray-900"><%= host.user.full_name || host.user.email %></p>
+    <p class="text-sm text-gray-500"><%= host.user.email %></p>
+
+    <%= link_to "Remove", user_podcaster_host_path(current_user.username, host.id), 
+    class: "text-sm font-medium text-error",
+    method: :delete, data: {turbo_method: :delete, turbo_confirm: "Are you sure?" } %>
+  </div>
+</div>

@@ -50,6 +50,10 @@ en:
     settings: Settings
     log_out: Log out
 
+  podcasters:
+    all: All Podcasters
+    new_host: Add New Host
+
   articles:
     explore: Explore
     latest_publications: Latest Publications

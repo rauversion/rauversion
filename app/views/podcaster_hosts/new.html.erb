@@ -1,0 +1,15 @@
+<%= render "shared/modal" do %>
+
+    <h3 class="text-lg font-medium leading-6 text-default">Add New Host</h3>
+    
+    <%= form_with(model: @podcaster_host, url: user_podcaster_hosts_path, local: true) do |f| %>
+      <div class="mt-4">
+        <%= f.email_field :email %>
+      </div>
+
+      <div class="mt-5 sm:mt-6">
+        <%= f.submit "Add Host", class: "submit-button w-full" %>
+      </div>
+    <% end %>
+
+<% end %>
