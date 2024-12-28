@@ -1,0 +1,3 @@
+<%= turbo_stream.append "podcaster-hosts", partial: "podcaster_hosts/host", locals: { host: @podcaster_host } %>
+<%= turbo_stream.update "modal" %>
+<%= flash_stream %>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_12_28_062306) do
+ActiveRecord::Schema[8.0].define(version: 2024_12_28_153551) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -326,6 +326,17 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_28_062306) do
     t.index ["user_id"], name: "index_playlists_on_user_id"
   end
 
+  create_table "podcaster_hosts", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "podcaster_info_id", null: false
+    t.string "role", default: "host"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["podcaster_info_id"], name: "index_podcaster_hosts_on_podcaster_info_id"
+    t.index ["user_id", "podcaster_info_id"], name: "index_podcaster_hosts_on_user_id_and_podcaster_info_id", unique: true
+    t.index ["user_id"], name: "index_podcaster_hosts_on_user_id"
+  end
+
   create_table "podcaster_infos", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.text "description"
@@ -336,6 +347,7 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_28_062306) do
     t.jsonb "settings"
     t.boolean "highlight"
     t.jsonb "data"
+    t.boolean "active"
     t.index ["user_id"], name: "index_podcaster_infos_on_user_id"
   end
 
@@ -767,6 +779,8 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_28_062306) do
   add_foreign_key "photos", "users"
   add_foreign_key "plain_messages", "plain_conversations"
   add_foreign_key "playlists", "users"
+  add_foreign_key "podcaster_hosts", "podcaster_infos"
+  add_foreign_key "podcaster_hosts", "users"
   add_foreign_key "podcaster_infos", "users"
   add_foreign_key "posts", "categories"
   add_foreign_key "posts", "users"

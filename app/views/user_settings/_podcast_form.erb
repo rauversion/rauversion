@@ -7,15 +7,21 @@
         <h2 class="text-xl font-medium text-blue-gray-900">
           <%= gettext("Podcast account Information") %>
         </h2>
-        <p class="mt-1 text-sm text-blue-gray-500">
-          <%= gettext("Podcaster information form.") %>
-        </p>
+        
+        <div class="flex items-center justify-between">
+          <p class="mt-1 text-sm text-blue-gray-500">
+            <%= gettext("Podcaster information form.") %>
+          </p>
+
+          <%= link_to t("podcasters.visit_site"), user_podcasts_path(current_user.username), class: "button", target: "_blank" %>
+        </div>
       </div>
 
       <%= form.fields_for :podcaster_info do |f| %>
         <div class="flex flex-col space-y-2 w-full col-span-6">
           <%= f.hidden_field :id %>
           <%= f.text_field :title, placeholder: "Podcast Title", class: "mt-1 block w-full border-blue-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
+          <%= f.check_box :active, label: "Display podcaster site", hint: t("podcasters.active_hint") %>
           <%= f.text_area :about, placeholder: "About the Podcast", rows: 3, class: "mt-1 block w-full border-blue-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
           <%= f.text_area :description, placeholder: "Detailed Description", rows: 5, class: "mt-1 block w-full border-blue-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" %>
 
@@ -33,6 +39,26 @@
           <%= f.url_field :stitcher_url, placeholder: "Stitcher URL" %>
           <%= f.url_field :overcast_url, placeholder: "Overcast URL" %>
           <%= f.url_field :pocket_casts_url, placeholder: "Pocket Casts URL" %>
+
+          <div class="bg-muted p-6 rounded-lg">
+
+            <div class="flex justify-between items-center">
+              <h3 class="text-lg font-medium mb-4">Podcast Hosts</h3>
+              
+              <%= link_to t("podcasters.new_host"), new_user_podcaster_host_path(current_user.username), 
+              class: "button-sm-outline", data: {turbo_frame: "modal"} %>
+            </div>
+
+            <div id="podcaster-hosts">
+
+              <% user.podcaster_info.podcaster_hosts.each do |host| %>
+                <%= render "podcaster_hosts/host", host: host %>
+              <% end %>
+
+            </div>
+
+
+          </div>
         </div>
       <% end %>
     </div>

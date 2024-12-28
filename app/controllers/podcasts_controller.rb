@@ -3,19 +3,35 @@ class PodcastsController < ApplicationController
   before_action :find_user
   before_action :unset_user_menu
   before_action :disable_footer
+  before_action :get_pocaster_info
 
   def index
-    @collection = @user.tracks.published.podcasts.page(params[:page]).per(10)
+    # Get user's podcasts and podcasts from hosts they're associated with
+    host_ids = @podcaster_info&.hosts&.pluck(:id) || []
+    @collection = Track.published.podcasts
+                      .where(user_id: [host_ids + [@user.id]].flatten)
+                      .page(params[:page])
+                      .per(10)
   end
 
   def show
-    @podcast = @user.tracks.published.podcasts.friendly.find(params[:id])
+    host_ids = @podcaster_info&.hosts&.pluck(:id) || []
+    @podcast = Track.published.podcasts
+                      .where(user_id: [host_ids + [@user.id]].flatten)
+                      .friendly.find(params[:id])
   end
 
   def about
   end
 
   private
+
+  def get_pocaster_info
+    @podcaster_info = @user.podcaster_info
+    unless @podcaster_info.active?
+      render "errors/404" and return
+    end
+  end
 
   def unset_user_menu
     @disable_user_menu = true

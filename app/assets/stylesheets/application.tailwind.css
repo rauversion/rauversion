@@ -83,7 +83,7 @@
     --rau-text-info: #dee9fc;
     --rau-text-success: #e2fbe8;
     --rau-text-attention: #fceed8;
-    --rau-text-error: #f9e3e2;
+    --rau-text-error: #f21a0f;
 
     /* Brand shenanigans
       -> These will be computed for the users theme at runtime.

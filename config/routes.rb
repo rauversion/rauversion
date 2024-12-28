@@ -46,7 +46,6 @@ Rails.application.routes.draw do
     end
   end
   
-
   root to: "home#index"
 
   get "/searchables", to: "users#index", as: :searchable_users
@@ -226,6 +225,7 @@ Rails.application.routes.draw do
       end
       resources :coupons
 
+      resources :podcaster_hosts, only: [:new, :create, :destroy]
       resources :podcasts, controller: "podcasts" do
         collection do
           get :about
