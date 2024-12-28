@@ -9,6 +9,7 @@ class Post < ApplicationRecord
   has_many :comments, as: :commentable
 
   store_accessor :settings, :crop_data, :json, default: {}
+  store_accessor :settings, :reading_time
   # store_accessor :settings, :tags, :json, default: []
 
   # Example method to call cropped_image with specific attributes

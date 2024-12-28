@@ -37,14 +37,14 @@
                     <%= post.title %>
                   </h2>
                   <p class="text-gray-300 mb-4">
-                    <%= post.excerpt %>
+                    <%= truncate post.excerpt, length: 200 %>
                   </p>
                   <div class="flex items-center gap-3">
                     <%= image_tag post.user.avatar_url, class: "w-10 h-10 rounded-full object-cover" %>
                     <div>
                       <span class="block font-medium"><%= post.user.full_name %></span>
                       <span class="text-sm text-gray-400">
-                        <%= l post.created_at, format: :long_with_day %> • 2 min read
+                        <%= l post.created_at, format: :long_with_day %> • <%= post.reading_time %>
                       </span>
                     </div>
                   </div>
