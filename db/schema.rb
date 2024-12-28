@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_12_28_065920) do
+ActiveRecord::Schema[8.0].define(version: 2024_12_28_153551) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -347,6 +347,7 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_28_065920) do
     t.jsonb "settings"
     t.boolean "highlight"
     t.jsonb "data"
+    t.boolean "active"
     t.index ["user_id"], name: "index_podcaster_infos_on_user_id"
   end
 

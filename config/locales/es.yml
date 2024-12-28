@@ -44,6 +44,9 @@ es:
   podcasters:
     all: Todos los anfitriones
     new_host: Anfitrion nuevo
+    visit_site: Visitar sitio
+    active_hint: Activando esta opción se disponibilizará el sitio de podcaster
+
 
   articles:
     explore: Explorar

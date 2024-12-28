@@ -66,6 +66,7 @@ class UserSettingsController < ApplicationController
       
       podcaster_info_attributes: [
         :title, :about, :description, :avatar, :id,
+        :active,
         :spotify_url, :apple_podcasts_url, :google_podcasts_url, :stitcher_url, :overcast_url, :pocket_casts_url,
         podcaster_hosts_ids: []
       ]

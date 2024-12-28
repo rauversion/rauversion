@@ -53,6 +53,8 @@ en:
   podcasters:
     all: All Podcasters
     new_host: Add New Host
+    visit_site: Visit Site
+    active_hint: By activating this option, the podcaster site will be public and will be displayed on the podcast page
 
   articles:
     explore: Explore
