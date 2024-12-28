@@ -33,6 +33,45 @@
           <%= f.url_field :stitcher_url, placeholder: "Stitcher URL" %>
           <%= f.url_field :overcast_url, placeholder: "Overcast URL" %>
           <%= f.url_field :pocket_casts_url, placeholder: "Pocket Casts URL" %>
+
+          <div class="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+            <div class="sm:col-span-4">
+              <%= f.label :podcaster_hosts_ids, "Podcast Hosts" %>
+              <div class="mt-1">
+                <%= f.select :podcaster_hosts_ids,
+                    options_from_collection_for_select(
+                      User.where.not(id: current_user.id),
+                      :id,
+                      :username,
+                      f.object.podcaster_hosts_ids
+                    ),
+                    {},
+                    {
+                      multiple: true,
+                      class: 'form-multiselect block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md'
+                    }
+                %>
+              </div>
+            </div>
+          </div>
+
+
+          <div class="bg-muted p-6 rounded-lg">
+            <h3 class="text-lg font-medium mb-4">Podcast Hosts</h3>
+            
+            <div class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
+              <%= f.label :podcaster_hosts_ids %>
+              <div class="mt-1 sm:mt-0 sm:col-span-2">
+                <div class="max-w-lg flex rounded-md shadow-sm">
+                  <%= f.select :podcaster_hosts_ids,
+                      options_from_collection_for_select(User.artists, :id, :username, f.object.podcaster_hosts_ids),
+                      {},
+                      { multiple: true, class: "form-multiselect block w-full text-base border-gray-300 focus:outline-none focus:ring-primary focus:border-primary sm:text-sm rounded-md" }
+                  %>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       <% end %>
     </div>

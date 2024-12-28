@@ -1,7 +1,10 @@
 class PodcasterInfo < ApplicationRecord
   belongs_to :user
   has_one_attached :avatar
+  has_many :podcaster_hosts, dependent: :destroy
+  has_many :hosts, through: :podcaster_hosts, source: :user
 
+  accepts_nested_attributes_for :podcaster_hosts, allow_destroy: true, reject_if: :all_blank
 
   store_accessor :data, :spotify_url
   store_accessor :data, :apple_podcasts_url
@@ -36,5 +39,23 @@ class PodcasterInfo < ApplicationRecord
       overcast: overcast_url,
       pocket_casts: pocket_casts_url
     }.compact
+  end
+
+  def podcaster_hosts_ids
+    podcaster_hosts.pluck(:user_id)
+  end
+
+  def podcaster_hosts_ids=(ids)
+    ids = Array(ids).reject(&:blank?).map(&:to_i)
+    
+    # Remove hosts that are no longer in the list
+    podcaster_hosts.where.not(user_id: ids).destroy_all
+    
+    # Add new hosts
+    ids.each do |user_id|
+      podcaster_hosts.find_or_create_by(user_id: user_id) do |ph|
+        ph.role = 'host'
+      end
+    end
   end
 end

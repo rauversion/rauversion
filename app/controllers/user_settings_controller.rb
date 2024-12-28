@@ -66,9 +66,20 @@ class UserSettingsController < ApplicationController
       
       podcaster_info_attributes: [
         :title, :about, :description, :avatar, :id,
-        :spotify_url, :apple_podcasts_url, :google_podcasts_url, :stitcher_url, :overcast_url, :pocket_casts_url
+        :spotify_url, :apple_podcasts_url, :google_podcasts_url, :stitcher_url, :overcast_url, :pocket_casts_url,
+        podcaster_hosts_ids: []
       ]
       
+    )
+  end
+
+  def podcaster_info_params
+    params.require(:podcaster_info).permit(
+      :title, :description, :category, :language, :explicit,
+      :owner_name, :owner_email, :author, :avatar,
+      :spotify_url, :apple_podcasts_url, :google_podcasts_url,
+      :stitcher_url, :overcast_url, :pocket_casts_url,
+      podcaster_hosts_ids: []
     )
   end
 end

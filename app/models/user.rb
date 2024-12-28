@@ -22,6 +22,9 @@ class User < ApplicationRecord
   has_many :events
   has_many :event_hosts
   has_many :hosted_events, through: :event_hosts
+
+  has_many :podcaster_hosts
+  has_many :hosted_podcasts, through: :podcaster_hosts
   has_many :purchases
   has_many :comments
   has_one :podcaster_info
