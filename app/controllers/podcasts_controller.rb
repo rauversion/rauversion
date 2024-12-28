@@ -5,11 +5,19 @@ class PodcastsController < ApplicationController
   before_action :disable_footer
 
   def index
-    @collection = @user.tracks.published.podcasts.page(params[:page]).per(10)
+    # Get user's podcasts and podcasts from hosts they're associated with
+    host_ids = @user.podcaster_info&.hosts&.pluck(:id) || []
+    @collection = Track.published.podcasts
+                      .where(user_id: [host_ids + [@user.id]].flatten)
+                      .page(params[:page])
+                      .per(10)
   end
 
   def show
-    @podcast = @user.tracks.published.podcasts.friendly.find(params[:id])
+    host_ids = @user.podcaster_info&.hosts&.pluck(:id) || []
+    @podcast = Track.published.podcasts
+                      .where(user_id: [host_ids + [@user.id]].flatten)
+                      .friendly.find(params[:id])
   end
 
   def about
