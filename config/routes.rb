@@ -34,6 +34,9 @@ Rails.application.routes.draw do
     member do
       post 'add_to_cart'
     end
+    collection do
+      get 'used_gear'
+    end
   end
 
   resources :product_checkout, only: [:create] do
@@ -51,6 +54,7 @@ Rails.application.routes.draw do
   get "/oembed/", to: "oembed#show", as: :oembed
   get "/become/:id", to: "application#become"
   get "/artists", to: "users#index"
+  get "/store", to: "store#index"
   
   get "/oembed/:track_id", to: "embeds#oembed_show", as: :oembed_show
   get "/oembed/:track_id/private", to: "embeds#oembed_private_show", as: :private_oembed_track
@@ -202,6 +206,13 @@ Rails.application.routes.draw do
     resources :users, path: "" do
       resource :insights
       resources :artists, controller: "label_artists"
+      resources :user_links, path: 'links' do
+        collection do
+          get 'wizard/new', to: 'user_links/wizard#new', as: :wizard_new
+          post 'wizard/configure', to: 'user_links/wizard#configure', as: :configure_wizard
+          post 'wizard', to: 'user_links/wizard#create', as: :wizard
+        end
+      end
       resources :settings, param: :section, controller: "user_settings"
       resources :invitations, controller: "user_invitations"
       resources :integrations, controller: "user_integrations"
@@ -210,7 +221,9 @@ Rails.application.routes.draw do
         :index, :create, :destroy
       ]
 
-      resources :products
+      resources :products do
+        get :used_gear, on: :collection
+      end
       resources :coupons
 
       resources :podcasts, controller: "podcasts" do

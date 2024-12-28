@@ -10,9 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2024_11_30_003102) do
+ActiveRecord::Schema[8.0].define(version: 2024_12_27_045117) do
   # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
+  enable_extension "pg_catalog.plpgsql"
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -210,6 +210,18 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_30_003102) do
     t.index ["liker_id", "liker_type"], name: "fk_likes"
   end
 
+  create_table "link_services", force: :cascade do |t|
+    t.string "name"
+    t.string "icon"
+    t.string "url_pattern"
+    t.boolean "active", default: true
+    t.integer "position"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["active"], name: "index_link_services_on_active"
+    t.index ["position"], name: "index_link_services_on_position"
+  end
+
   create_table "listening_events", force: :cascade do |t|
     t.string "remote_ip"
     t.string "country"
@@ -339,6 +351,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_30_003102) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.bigint "category_id"
+    t.string "tags", default: [], array: true
     t.index ["category_id"], name: "index_posts_on_category_id"
     t.index ["slug"], name: "index_posts_on_slug"
     t.index ["user_id"], name: "index_posts_on_user_id"
@@ -470,11 +483,22 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_30_003102) do
     t.string "slug"
     t.datetime "deleted_at"
     t.bigint "coupon_id"
+    t.string "condition"
+    t.string "brand"
+    t.string "model"
+    t.integer "year"
+    t.boolean "accept_barter", default: false
+    t.text "barter_description"
+    t.index ["accept_barter"], name: "index_products_on_accept_barter"
+    t.index ["brand"], name: "index_products_on_brand"
+    t.index ["condition"], name: "index_products_on_condition"
     t.index ["coupon_id"], name: "index_products_on_coupon_id"
     t.index ["deleted_at"], name: "index_products_on_deleted_at"
+    t.index ["model"], name: "index_products_on_model"
     t.index ["playlist_id"], name: "index_products_on_playlist_id"
     t.index ["slug"], name: "index_products_on_slug"
     t.index ["user_id"], name: "index_products_on_user_id"
+    t.index ["year"], name: "index_products_on_year"
   end
 
   create_table "products_images", force: :cascade do |t|
@@ -657,6 +681,21 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_30_003102) do
     t.index ["user_id"], name: "index_tracks_on_user_id"
   end
 
+  create_table "user_links", force: :cascade do |t|
+    t.string "title"
+    t.string "url"
+    t.integer "position"
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "type"
+    t.string "username"
+    t.string "custom_url"
+    t.index ["position"], name: "index_user_links_on_position"
+    t.index ["type"], name: "index_user_links_on_type"
+    t.index ["user_id"], name: "index_user_links_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "username"
     t.boolean "label"
@@ -698,6 +737,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_30_003102) do
     t.integer "invitations_count", default: 0
     t.boolean "editor"
     t.boolean "seller"
+    t.jsonb "social_links_settings", default: {}, null: false
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["invitation_token"], name: "index_users_on_invitation_token", unique: true
@@ -705,6 +745,7 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_30_003102) do
     t.index ["invited_by_type", "invited_by_id"], name: "index_users_on_invited_by"
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["seller"], name: "index_users_on_seller"
+    t.index ["social_links_settings"], name: "index_users_on_social_links_settings", using: :gin
     t.index ["unlock_token"], name: "index_users_on_unlock_token", unique: true
   end
 
@@ -758,4 +799,5 @@ ActiveRecord::Schema[7.2].define(version: 2024_11_30_003102) do
   add_foreign_key "track_playlists", "playlists"
   add_foreign_key "track_playlists", "tracks"
   add_foreign_key "tracks", "users"
+  add_foreign_key "user_links", "users"
 end

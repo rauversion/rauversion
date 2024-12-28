@@ -1,4 +1,4 @@
-<%= link_to track_path(track), 
+<% link_to track_path(track), 
   "data-turbo-frame": "_top",
   class: "w-64 md:w-48 group space-y-2 p-2 hover:bg-subtle rounded-md" do %>
   <div class="w-full aspect-w-1 aspect-h-1 bg-muted dark:bg-subtle rounded-lg overflow-hidden xl:aspect-w-7 xl:aspect-h-8">
@@ -31,3 +31,37 @@
 
 
 <% end %>
+
+
+
+      <%= link_to track_path(track), "data-turbo-frame": "_top" do %>
+      <div 
+        data-controller="play-button" 
+        data-track-detector-target="track"
+        data-track-id="<%= track.id %>"
+        data-audio-id="<%= track.id %>" 
+        data-play-button-url-value="<%= player_path(id: track, t: true) %>"
+        class="group cursor-pointer">
+        <div class="relative aspect-square overflow-hidden rounded-lg mb-4">
+          
+          <%= image_tag track.cover_url(:medium), class: "object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" %>
+
+
+          <button 
+          data-action="click->play-button#play"
+          data-play-button-target="button">
+            <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-play w-12 h-12 text-white">
+                <polygon points="6 3 20 12 6 21 6 3"></polygon>
+              </svg>
+            </div>
+          </button>
+        </div>
+        <h3 class="font-bold mb-1 truncate">
+          <%= track.title %>
+        </h3>
+        <p class="text-sm text-gray-400">
+          <%= track.user.username %>
+        </p>
+      </div>
+      <% end %>

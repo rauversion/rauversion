@@ -13,7 +13,26 @@ en:
   more: More
   save: Save
   back: "Back"
+  view_all: View all
+  menu:
+    music: Music
+    events: Events
+    magazine: Magazine
+    upload: "upload"
+    register: "Register"
+    log_in: "Log in"
+    notifications: "notifications"
+    my_music: My music
+    my_articles: My articles
+    my_events: My events
+    my_purchases: My purchases
+    my_sales: My sales
+    settings: Settings
+    log_out: Log out  
   not_activated_account: Access denied, not activated account.
+
+  artists:
+    featured: Featured Artists
 
   menu:
     music: Music
@@ -32,6 +51,8 @@ en:
     log_out: Log out
 
   articles:
+    explore: Explore
+    latest_publications: Latest Publications
     recent_publications: Recent publications
     selected_articles: Selected articles & reviews from Rauversion community and editorial
     the_latest: The latests
@@ -65,6 +86,11 @@ en:
     all_rights: All rights reserved.
     get_tickets: Get your tickets
     watch_live: Watch live stream
+    find_your_next_event: Find Your Next Event
+    discover_upcoming_events: Discover upcoming events and experiences in electronic music
+    upcoming_events: Upcoming Events
+    past_events: Past Events
+    view_more: View More
 
     my_events: My Events
     your_events: Your events
@@ -90,6 +116,7 @@ en:
     confirm: "Are you sure you want to delete this?"
 
   tracks:
+    new_releases: New Releases
     spotlight: "Spotlight"
     spotlights: "Spotlights %{msg}"
     recent: Recent Tracks
@@ -109,6 +136,12 @@ en:
     public_label: Public 
     public_hint: Public access to everyone
     pending_state_message: "Hold on, this track is in %{state} state"
+
+    new_releases: New Releases
+    featured_albums: Featured Albums
+    curated_playlists: Curated Playlists
+    featured_labels: Featured Labels
+
 
   home:
     artists: Artists you should know
@@ -145,6 +178,8 @@ en:
   user_settings:
     title_account: Account
     sub_account: Basic Account Information.
+    title_social_links: Social Links
+    sub_social_links: Social links to your other profiles.
     title_email: Change Email
     sub_email: Change Email information.
     title_security: Security

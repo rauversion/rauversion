@@ -5,7 +5,51 @@ class TracksController < ApplicationController
     @tracks = Track.published.order("id desc")
       .with_attached_cover
       .includes(user: {avatar_attachment: :blob})
-      .page(params[:page]).per(12)
+
+    # Filter by tag if present
+    @tracks = @tracks.where('? = ANY(tags)', params[:tag]) if params[:tag].present?
+    
+    @tracks = @tracks.page(params[:page]).per(12)
+    
+    @popular_tags = Track.published
+      .where.not(tags: [])
+      .select('unnest(tags) as tag, count(*) as count')
+      .group('unnest(tags)')
+      .order('count DESC')
+      .limit(10)
+    
+    @labels = User.where(label: true).order("id desc").limit(10)
+
+    @artists = User.where(role: "artist")
+      .where.not(username: nil)
+      .order("id desc")
+      .limit(3)
+
+    @highlighted_playlist = Playlist.published
+      .includes(:releases)
+      .where(playlist_type: ["ep", "album"])
+      .order("editor_choice_position asc, release_date desc")
+      .first
+
+
+    @q = Track.ransack(params[:q])
+    @q.sorts = 'created_at desc' if @q.sorts.empty?
+
+    if params[:q].present?
+    
+      @tracks = @q.result(distinct: true)
+      .published
+      .includes(:user)
+      #.with_attached_audio_file
+      #.with_attached_cover
+      .page(params[:page])
+      .per(12)
+    end
+      
+    respond_to do |format|
+      format.html
+      format.turbo_stream
+    end
   end
 
   def new

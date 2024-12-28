@@ -1,0 +1,24 @@
+<div class="group cursor-pointer">
+  <div class="relative aspect-square overflow-hidden rounded-lg mb-4 bg-neutral-900">
+  
+    <%= image_tag(playlist.cover_url,
+      class: "object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
+    ) %>
+
+    <div class="absolute bottom-3 right-3 bg-primary p-2 rounded-full">
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list-music w-4 h-4">
+        <path d="M21 15V6"></path>
+        <path d="M18.5 18a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"></path>
+        <path d="M12 12H3"></path>
+        <path d="M16 6H3"></path>
+        <path d="M12 18H3"></path>
+      </svg>
+    </div>
+  </div>
+  <h3 class="font-bold mb-1">
+    <%= playlist.title %>
+  </h3>
+  <p class="text-sm text-gray-400">
+    <%= t(:by, name: playlist.user.username) %> • <%= playlist.tracks.size %> tracks
+  </p>
+</div>

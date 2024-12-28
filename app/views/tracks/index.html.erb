@@ -1,39 +1,154 @@
-<div>
-  <div class="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
-    <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-gray-100">
-      Descubre pistas y álbumes
-    </h1>
-    <p class="mt-4 max-w-xl text-sm text-gray-700 dark:text-gray-300">
-      Nuestra lista de seguidores de la comunidad conservada.
-    </p>
-  </div>
-</div>
 
 
-<section aria-labelledby="products-heading" 
-  class="max-w-2xl mx-auto pt-12-- pb-16 px-4 sm:pt-16-- sm:pb-24 sm:px-6 lg:max-w-7xl lg:px-8">
-  <h2 id="products-heading" class="sr-only">Pistas</h2>
-
-
-  <%= turbo_frame_tag "conversation-list-#{@tracks.current_page}" do %>
-    <div class="grid grid-cols-1 gap-y-10 sm:grid-cols-2 gap-x-6 lg:grid-cols-5 xl:grid-cols-6 xl:gap-x-8" id="infinite-scroll">
-
-      <% @tracks.each do |track| %>
-        <%= render "tracks/track_cell", track: track %>
-      <% end %>
+<div class="min-h-screen bg-default text-default">
+  
+  <section class="relative h-[70vh] overflow-hidden">
+    <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('<%= @highlighted_playlist.cover_url %>');">
+      <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
     </div>
-
-    <% if @tracks.next_page.present? %>
-      <%= turbo_frame_tag "conversation-list-#{@tracks.next_page}", loading: :lazy,
-                          src: tracks_path(page: @tracks.next_page) do %>
-        <div class="">
-          <%= t('loading') %>
+    <div class="relative h-full px-4 sm:px-8">
+      <div class="max-w-6xl mx-auto h-full flex items-end pb-12 md:pb-24">
+        <div class="max-w-2xl">
+          <span class="inline-block px-3 py-1 bg-primary/20 text-primary text-sm font-medium rounded-full mb-4">New Release</span>
+          <h1 class="text-4xl md:text-6xl font-bold mb-4"><%= @highlighted_playlist.title %></h1>
+          <p class="text-2xl text-gray-300 mb-6"><%= truncate(@highlighted_playlist.description, length: 100) %></p>
+          <div class="flex items-center gap-4">
+            <!--<button class="flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg font-medium transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-play w-5 h-5">
+                <polygon points="6 3 20 12 6 21 6 3"></polygon>
+              </svg>Play Now 
+            </button>-->
+            <%= link_to playlist_path(@highlighted_playlist), class: "bg-white/10 hover:bg-white/20 px-6 py-3 rounded-lg font-medium transition-colors" do %>
+              <span>View Album</button>
+            <% end %>
+          </div>
         </div>
-      <% end %>
-    <% end %>
+      </div>
+    </div>
+  </section>
 
-  <% end %>
+  <section class="px-4 sm:px-8 py-12">
+    <div class="max-w-6xl mx-auto">
+      <h1 class="text-4xl md:text-5xl font-bold mb-8">Discover Music</h1>
+      <div class="space-y-6 mb-12">
+        
+        <!-- Search Form -->
+        <%= search_form_for @q, html: { class: "space-y-4", data: { turbo_frame: "tracks_filter", controller: "form", action: "input->form#submit" } } do |f| %>
+          <div>
+            <div class="relative max-w-md">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.3-4.3"></path>
+              </svg>
+              <%= f.search_field :title_or_description_or_user_username_or_user_first_name_or_user_last_name_cont,
+                  placeholder: "Search tracks...",
+                  class: "w-full pl-10 pr-4 py-2 bg-neutral-900 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary" %>
+            </div>
+          </div>
+        <% end %>
 
 
 
-</section>
+        <%= turbo_frame_tag "tracks_filter" do %>
+          <div class="flex flex-wrap gap-3 my-4">
+            <%= link_to tracks_path, 
+                class: "px-4 py-2 rounded-full text-sm font-medium transition-colors #{params[:tag].blank? ? 'bg-primary text-white' : 'bg-neutral-900 hover:bg-neutral-800'}",
+                data: { turbo_frame: "tracks_filter" } do %>
+              All
+            <% end %>
+            <% @popular_tags.each do |tag| %>
+              <%= link_to tracks_path(tag: tag.tag), 
+                  class: "px-4 py-2 rounded-full text-sm font-medium transition-colors #{params[:tag] == tag.tag ? 'bg-primary text-white' : 'bg-neutral-900 hover:bg-neutral-800'}",
+                  data: { turbo_frame: "tracks_filter", turbo_action: "advance" } do %>
+                <%= tag.tag %>
+              <% end %>
+            <% end %>
+          </div>
+
+          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-6 mt-8">
+            <% @tracks.each do |track| %>
+              <%= render "tracks/track_cell", track: track %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </section>
+  <div class="bg-default text-default">
+
+    <section class="px-4 sm:px-8 py-12 md:py-24">
+      <div class="max-w-6xl mx-auto">
+        <h2 class="text-2xl md:text-3xl font-bold mb-8">
+          <%= t("tracks.featured_artists") %>
+        </h2>
+        <div class="grid grid-cols-2 md:grid-cols-5 gap-6 md:gap-8">
+          <% @artists.each do |user|%>
+            <%= render "users/user_card", user: user  %>
+          <% end%>
+        </div>
+      </div>
+    </section>
+
+    <section class="px-4 sm:px-8 py-12 md:py-24 bg-neutral-900">
+      <div class="max-w-6xl mx-auto">
+        <h2 class="text-2xl md:text-3xl font-bold mb-8">
+          <%= t("tracks.featured_albums") %>
+        </h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
+          <% Playlist.published.latests.includes(:releases)
+          .where(playlist_type: ["ep", "album"])
+          .order("editor_choice_position asc, release_date desc, id desc")
+          .limit(3).each do |playlist| %>
+            <%= link_to playlist_path(playlist), class: "block" do %>
+              <%= render "playlists/playlist_card", playlist: playlist %>
+            <% end %>
+          <% end %>
+
+        </div>
+      </div>
+    </section>
+
+    <section class="px-4 sm:px-8 py-12 md:py-24">
+      <div class="max-w-6xl mx-auto">
+        <h2 class="text-2xl md:text-3xl font-bold mb-8">
+          <%= t("tracks.curated_playlists") %>
+        </h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-6 md:gap-8">
+          <% Playlist.published.latests.includes(:releases)
+          .where(playlist_type: "playlist")
+          .order("editor_choice_position asc, release_date desc, id desc")
+          .limit(3).each do |playlist| %>
+            <%= link_to playlist_path(playlist), class: "block" do %>
+              <%= render "playlists/playlist_card", playlist: playlist %>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </section>
+  </div>
+  <section class="px-4 sm:px-8 py-12 md:py-24 bg-default">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-2xl md:text-3xl font-bold mb-8">
+        <%= t("tracks.featured_labels") %>
+      </h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+        <% @labels.each do |label| %>
+          <div class="group cursor-pointer">
+            <div class="relative aspect-square overflow-hidden rounded-lg mb-4">
+              <%= image_tag label.avatar_url, class: "object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" %>
+              <div class="absolute inset-0 bg-default/40 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            </div>
+            <h3 class="font-bold mb-1">
+              <%= link_to user_path(label.username), class: "hover:text-primary transition-colors" do %>
+                <%= label.full_name %>
+              <% end %>
+            </h3>
+            <p class="text-sm text-gray-400">
+              <%= label.playlists.count %> releases
+            </p>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </section>
+</div>

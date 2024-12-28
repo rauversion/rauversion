@@ -1,0 +1,16 @@
+<%= turbo_stream.update "articles_list" do %>
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <% @articles.each do |article| %>
+      <%= render "articles/article_card", article: article %>
+    <% end %>
+  </div>
+
+  <% if @articles.next_page %>
+    <%= turbo_frame_tag "articles_list_#{@articles.next_page}", loading: :lazy,
+        src: articles_path(page: @articles.next_page, category: params[:category], tag: params[:tag]) do %>
+      <div class="mt-8 text-center">
+        Loading more articles...
+      </div>
+    <% end %>
+  <% end %>
+<% end %>

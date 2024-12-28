@@ -1,79 +1,79 @@
-<div class="pt-16 pb-20 px-4 sm:px-6 lg:pt-24 lg:pb-28 lg:px-8">
-  <div class="relative max-w-lg mx-auto divide-y-2 divide-muted lg:max-w-7xl">
-    <% if @upcoming_events.any? %>
-      <div>
-        <h2 class="text-3xl tracking-tight font-extrabold text-gray-900 dark:text-gray-100 sm:text-4xl">
-          <%= gettext("events.upcoming") %>
-        </h2>
-        <p class="mt-3 text-xl text-gray-500 dark:text-gray-300 sm:mt-4">
-          <%= gettext("event.upcoming_sub") %>
-        </p>
-      </div>
-
-      <div class="">
-        <div class="max-w-7xl mx-auto py-16 px-4 overflow-hidden sm:py-24 sm:px-6 lg:px-8">
-          <div class="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-x-8">
-            <% @upcoming_events.each do |event| %>
-              <a href="<%= event_path(event) %>"
-                class="group text-sm p-2 hover:bg-gray-700">
-                <div class="w-full aspect-w-1 aspect-h-1 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-900 group-hover:opacity-75">
-                  <%= image_tag(event.cover_url) %>
-                </div>
-
-                <h3 class="mt-4 font-medium text-gray-900 dark:text-gray-100">
-                  <%= event.title %>
-                </h3>
-
-                <p class="text-gray-500 italic">
-                  <%= "#{event.province} #{event.city} #{event.country}" %>
-                </p>
-
-                <p class="mt-2 font-medium text-gray-900 dark:text-gray-100">
-                  <%= event.event_dates %>
-                </p>
-              </a>
-            <% end %>
-          </div>
-        </div>
-      </div>
-
-    <% end %>
-  </div>
-
-  <div class="relative max-w-lg mx-auto divide-y-2 divide-gray-200 dark:divide-muted lg:max-w-7xl">
-    <div>
-      <h2 class="text-3xl tracking-tight font-extrabold text-gray-900 dark:text-gray-100 sm:text-4xl">
-        <%= t("events.past") %>
-      </h2>
+<div class="min-h-screen bg-default text-default">
+  <section class="relative h-[50vh] overflow-hidden">
+    <div class="absolute inset-0 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1516450360452-9312f5e86fc7?q=80&amp;w=2070');">
+      <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
     </div>
 
-    <div class="">
-      <div class="max-w-7xl mx-auto py-16 px-4 overflow-hidden sm:py-24 sm:px-6 lg:px-8">
-        <div class="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-5 lg:gap-x-8">
-          <% @past_events.each do |event| %>
-            <a href="<%= event_path(event) %>"
-              class="group text-sm p-2 hover:bg-gray-800 rounded-md transition-colors duration-500 ease-in-out">
-              <div class="w-full aspect-w-1 aspect-h-1 rounded-lg overflow-hidden bg-gray-100 dark:bg-gray-900 group-hover:opacity-75">
-                <%= image_tag(event.cover_url,
-                  class: "w-full h-full object-center object-cover"
-                ) %>
-              </div>
-
-              <h3 class="mt-4 font-medium text-gray-900 dark:text-gray-100">
-                <%= event.title %>
-              </h3>
-
-              <p class="text-gray-500 italic">
-                <%= "#{event.province} #{event.city} #{event.country}" %>
-              </p>
-
-              <p class="mt-2 font-medium text-gray-900 dark:text-gray-100">
-                <%= event.event_dates %>
-              </p>
-            </a>
+    <div class="absolute inset-0 flex items-center">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <div class="max-w-xl mx-auto text-center">
+          <h1 class="text-4xl md:text-5xl font-bold mb-6">
+            <%= t("events.find_your_next_event") %>
+          </h1>
+          <p class="text-lg text-gray-300 mb-8">
+            <%= t("events.discover_upcoming_events") %>
+          </p>
+          
+          <%= search_form_for @q, html: { class: "relative", data: { turbo_frame: "events_list", controller: "form", action: "input->form#submit" } } do |f| %>
+            <div class="relative">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400">
+                <circle cx="11" cy="11" r="8"></circle>
+                <path d="m21 21-4.3-4.3"></path>
+              </svg>
+              <%= f.search_field :title_or_description_cont, 
+                  placeholder: "Search events...",
+                  class: "w-full pl-12 pr-4 py-3 bg-white/10 backdrop-blur-sm rounded-full text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-primary" %>
+            </div>
           <% end %>
         </div>
       </div>
     </div>
-  </div>
+  </section>
+
+  <section class="px-4 sm:px-8 py-12 md:py-24">
+    <div class="max-w-6xl mx-auto">
+      <h2 class="text-2xl font-bold mb-8">
+        <%= t("events.upcoming_events") %>
+      </h2>
+      <%= turbo_frame_tag "events_list" do %>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <% @events.each do |event| %>
+            <%= render "events/event_card", event: event %>
+          <% end %>
+        </div>
+
+        <% if @events.next_page %>
+          <%= turbo_frame_tag "events_list_#{@events.next_page}", loading: :lazy,
+              src: events_path(page: @events.next_page, q: params[:q]) do %>
+            <div class="mt-8 text-center text-gray-400">
+              <%= t("view_more") %>
+            </div>
+          <% end %>
+        <% end %>
+
+        <% if @events.empty? %>
+          <div class="text-center py-12">
+            <h3 class="text-xl font-semibold mb-2"><%= t("events.no_events_found") %></h3>
+            <p class="text-gray-400"><%= t("events.try_adjusting_your_search_criteria") %></p>
+          </div>
+        <% end %>
+      <% end %>
+
+      <% if @past_events.any? %>
+        <div class="mt-24">
+          <div class="flex items-center justify-between mb-8">
+            <h2 class="text-2xl font-bold"><%= t("events.past_events") %></h2>
+            <%= link_to "View All", events_path(q: { event_start_lt: Time.current }), 
+                class: "text-primary hover:text-primary/80 transition-colors" %>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <% @past_events.each do |event| %>
+              <%= render "events/event_card", event: event %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+    </div>
+  </section>
 </div>

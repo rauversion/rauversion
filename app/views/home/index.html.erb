@@ -53,86 +53,97 @@
   <% end %>
 
 
-
-
-<div class="bg-gray-100 min-h-screen-">
-  <div class="container- mx-auto- px-4- py-8- flex md:flex-row flex-col">
-    <!-- Main Feature Section -->
-    
-    <% 
-      Post.published
-        .with_attached_cover
-        .includes(user: { avatar_attachment: :blob })
-        .order("id desc").limit(1).each do |post|
-    %>
-    
-      <div class="flex-grow bg-pink-600 text-white p-4- rounded-lg- mb-4- relative h-screen md:h-auto">
-        <%= image_tag(post.cover_url(:large), class: "absolute inset-0 w-full h-full object-cover opacity-50 hover:opacity-100 rounded-lg transition ease-in-out delay-150") %>
-        <div class="relative- z-10 flex flex-col md:flex-row items-center md:items-start absolute bottom-0">
-          <%= link_to article_path(post) do %>
-            <div class="w-full md:w-2/3 p-4 text-4xl space-y-2 font-bold mb-4 bg-default text-default m-2">
-              <h1 class="">
-                <%= post.title %>
-              </h1>
-              <p class="text-lg mb-4 font-thin">
-                <%= t("articles.by") %> <%= link_to post.user.username, user_path(post.user.username), class: "link" %> · <%= l post.created_at, format: :long_with_day %>.
-              </p>
-              <!--<a href="#" class="bg-white text-purple-600 font-semibold py-2 px-4 rounded-lg">
-                Read more
-              </a>-->
-            </div>
-          <% end %>
-        </div>
-      </div>
-
-    <% end %>
-
-    <!-- Smaller Feature Sections -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-0 md:w-2/5 w-full">
-
-      <!-- Feature 1 -->
-      <% Post.published
-        .with_attached_cover
-        .includes(user: { avatar_attachment: :blob })
-        .order("id desc").limit(3).offset(1).each do |post| %>
-        <div class="bg-white shadow-md rounded-lg- overflow-hidden relative">
-
-          <%= image_tag(post.cropped_image,
-            class: "w-full h-48 object-cover grayscale filter"
-          ) %>
-    
-          <div class="p-4 absolute bottom-0 bg-default m-2">
-            <h2 class="text-xl font-bold mb-1 p-1">
-             <%= link_to post.title, article_path(post) %>
-            </h2>
-            <p class="text-muted font-thin text-sm">
-              <%= t("articles.by") %> <%= link_to post.user.username, user_path(post.user.username), class: "link" %> · <%= l post.created_at, format: :long_with_day %>.
-            </p>
+<!--
+  <div class="bg-gray-100 min-h-screen-">
+    <div class="container- mx-auto- px-4- py-8- flex md:flex-row flex-col">
+      
+      <% 
+        Post.published
+          .with_attached_cover
+          .includes(user: { avatar_attachment: :blob })
+          .order("id desc").limit(1).each do |post|
+      %>
+      
+        <div class="flex-grow bg-pink-600 text-white p-4- rounded-lg- mb-4- relative h-screen md:h-auto">
+          <%= image_tag(post.cover_url(:large), class: "absolute inset-0 w-full h-full object-cover opacity-50 hover:opacity-100 rounded-lg transition ease-in-out delay-150") %>
+          <div class="relative- z-10 flex flex-col md:flex-row items-center md:items-start absolute bottom-0">
+            <%= link_to article_path(post) do %>
+              <div class="w-full md:w-2/3 p-4 text-4xl space-y-2 font-bold mb-4 bg-default text-default m-2">
+                <h1 class="">
+                  <%= post.title %>
+                </h1>
+                <p class="text-lg mb-4 font-thin">
+                  <%= t("articles.by") %> <%= link_to post.user.username, user_path(post.user.username), class: "link" %> · <%= l post.created_at, format: :long_with_day %>.
+                </p>
+               
+              </div>
+            <% end %>
           </div>
         </div>
+
       <% end %>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-0 md:w-2/5 w-full">
+        <% Post.published
+          .with_attached_cover
+          .includes(user: { avatar_attachment: :blob })
+          .order("id desc").limit(3).offset(1).each do |post| %>
+          <div class="bg-white shadow-md rounded-lg- overflow-hidden relative">
+
+            <%= image_tag(post.cropped_image,
+              class: "w-full h-48 object-cover grayscale filter"
+            ) %>
+      
+            <div class="p-4 absolute bottom-0 bg-default m-2">
+              <h2 class="text-xl font-bold mb-1 p-1">
+              <%= link_to post.title, article_path(post) %>
+              </h2>
+              <p class="text-muted font-thin text-sm">
+                <%= t("articles.by") %> <%= link_to post.user.username, user_path(post.user.username), class: "link" %> · <%= l post.created_at, format: :long_with_day %>.
+              </p>
+            </div>
+          </div>
+        <% end %>
+      </div>
     </div>
   </div>
-</div>
-
+  -->
 
   <%
-  ## render "articles/article_highlights",
-  #  posts: Post.published
-  #  .with_attached_cover
-  #  .includes(user: { avatar_attachment: :blob })
-  #  .order("id desc").limit(3)
+    ## render "articles/article_highlights",
+    #  posts: Post.published
+    #  .with_attached_cover
+    #  .includes(user: { avatar_attachment: :blob })
+    #  .order("id desc").limit(3)
   %>
 
 
-  <%= render "home/playlist_section_wide", 
-    playlist_type: ["ep", "album"], 
+  <% 
+  # render "home/playlist_section_wide", 
+  #  playlist_type: ["ep", "album"], 
+  #  limit: 10,
+  #  title: "EP & Album Releases"
+  %>
+
+  <!--
+  <div class="bg-primary py-4 overflow-hidden"><div class="flex gap-8 animate-marquee whitespace-nowrap"><div class="flex items-center gap-8 text-sm font-medium"><span>APHEX TWIN ANNOUNCES NEW ALBUM</span><span>•</span><span>MOOG INTRODUCES REVOLUTIONARY SYNTH</span><span>•</span><span>BERLIN ATONAL FESTIVAL RETURNS</span><span>•</span></div><div class="flex items-center gap-8 text-sm font-medium"><span>APHEX TWIN ANNOUNCES NEW ALBUM</span><span>•</span><span>MOOG INTRODUCES REVOLUTIONARY SYNTH</span><span>•</span><span>BERLIN ATONAL FESTIVAL RETURNS</span><span>•</span></div><div class="flex items-center gap-8 text-sm font-medium"><span>APHEX TWIN ANNOUNCES NEW ALBUM</span><span>•</span><span>MOOG INTRODUCES REVOLUTIONARY SYNTH</span><span>•</span><span>BERLIN ATONAL FESTIVAL RETURNS</span><span>•</span></div></div></div>
+  -->
+  
+  <%= render "home/header" %>
+  <%= render "home/main_articles" %>
+  <%= render "home/album_releases" %>
+  <%= render "home/featured_artists" %>
+  <%= render "home/curated_playlists",     
+    playlist_type: ["playlist"], 
     limit: 10,
-    title: "EP & Album Releases"
+    title: "Playlists" 
   %>
+  <%= render "home/latest_releases" %>
 
 
   <!-- Trending products -->
+
+  <!--
   <section aria-labelledby="trending-heading" class="bg-default">
     
     <div class="py-16 sm:py-24 lg:max-w-7xl lg:mx-auto lg:py-32 lg:px-8">
@@ -146,7 +157,6 @@
         <% end %>
       </div>
 
-      <!-- TODO: lazy frame to some collection route on tracks -->
       <div class="mt-8 relative">
         <div class="relative w-full overflow-x-auto">
           <ul role="list" class="mx-4 inline-flex space-x-8 sm:mx-6 lg:mx-0 lg:space-x-0 lg:grid lg:grid-cols-6 lg:gap-x-8">
@@ -195,5 +205,6 @@
       </div>
     </div>
   </section>
+  -->
 
 </main>

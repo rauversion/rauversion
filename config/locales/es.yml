@@ -12,12 +12,17 @@ es:
   more: Más
   save: Guardar
   back: "Volver"
+  view_all: "Ver todo"
+  view: Ver
 
   menu:
+    my_label: Mi sello
+    home: Inicio
     music: Música
     events: Eventos
     magazine: Revista
     upload: "Subir"
+    my_products_merch: Mi tienda
     register: "Registrar"
     log_in: "Iniciar sesión"
     notifications: "Notificaciones"
@@ -29,7 +34,15 @@ es:
     settings: Configuraciones
     log_out: Cerrar sesión
 
+  notifications:
+    title: Notificaciones
+    mark_all_as_read: Marcar todas como leídas
+
+  artists:
+    featured: Artistas Destacados
+
   articles:
+    explore: Explorar
     recent_publications: Publicaciones recientes
     selected_articles: Artículos y reseñas seleccionadas de la comunidad y editorial Rauversion
     the_latest: Los últimos
@@ -41,6 +54,8 @@ es:
     published: Publicados
     new_article: nuevo_artículo
     view: Ver Artículo
+    edit: Editar Artículo
+    create: Crear Artículo 
 
   attribution:
     some: Algunos derechos reservados
@@ -63,6 +78,11 @@ es:
     all_rights: Todos los derechos reservados.
     get_tickets: Consigue tus entradas
     watch_live: Ver transmisión en vivo
+    find_your_next_event: Encuentra tu próxima sesión
+    discover_upcoming_events: Descubre eventos y experiencias en musica electrónica
+    upcoming_events: Eventos próximos
+    past_events: Eventos pasados
+    view_more: Ver más
 
     my_events: Mis Eventos
     your_events: Tus eventos
@@ -107,6 +127,11 @@ es:
     public_label: Público 
     public_hint: Acceso público para todos
     pending_state_message: "Espera, esta pista está en estado %{state}"
+
+    new_releases: New Releases
+    featured_albums: Featured Albums
+    curated_playlists: Curated Playlists
+    featured_labels: Featured Labels
 
   home:
     artists: Artistas que deberías conocer

@@ -5,18 +5,48 @@ class ArticlesController < ApplicationController
     @articles = Post.published.order("id desc")
       .with_attached_cover
       .includes(user: {avatar_attachment: :blob})
-      .page(params[:page]).per(12)
 
+    # Filter by category if present
+    if params[:category].present?
+      @current_category = Category.friendly.find(params[:category])
+      @articles = @articles.where(category: @current_category)
+    end
+
+    @articles = @articles.page(params[:page]).per(12)
+
+    # Get all categories with post counts
+    @categories = Category.joins(:posts)
+      .where(posts: { state: "published" })
+      .select('categories.*, COUNT(posts.id) as posts_count')
+      .group('categories.id')
+      .order('posts_count DESC')
+
+    # Get popular tags from published posts
+    @popular_tags = Post.published
+      .where.not(tags: [])
+      .select('unnest(tags) as tag, count(*) as count')
+      .group('unnest(tags)')
+      .order('count DESC')
+      .limit(10)
+
+    # Latest articles for sidebar
     @latest_articles = Post.published.order("id desc")
       .with_attached_cover
       .includes(user: {avatar_attachment: :blob})
       .page(2).per(7)
 
+    # Featured news section
     @category = Category.friendly.find("news")
-    @news = Post.published.friendly.where(category_id: @category)
+    @news = Post.published.friendly
+      .where(category_id: @category)
       .with_attached_cover
       .includes(user: {avatar_attachment: :blob})
       .order("id desc").page(1).per(7)
+
+    respond_to do |format|
+      format.html
+      format.turbo_stream
+    end
   end
 
   def new

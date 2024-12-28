@@ -40,6 +40,9 @@ class User < ApplicationRecord
   has_one_attached :profile_header
   has_one_attached :avatar
 
+  has_many :user_links, dependent: :destroy
+  accepts_nested_attributes_for :user_links, allow_destroy: true
+
   acts_as_followable
   acts_as_follower
   acts_as_liker
@@ -71,6 +74,18 @@ class User < ApplicationRecord
   store_attribute :settings, :pst_enabled, :boolean
   store_attribute :settings, :tbk_commerce_code, :string
   store_attribute :settings, :tbk_test_mode, :boolean
+
+
+  store_attribute :social_links_settings, :email_sign_up, :boolean
+ 
+  store_attribute :social_links_settings, :google_analytics_id, :string
+  store_attribute :social_links_settings, :facebook_pixel_id, :string
+
+  store_attribute :social_links_settings, :social_title, :string
+  store_attribute :social_links_settings, :social_description, :text
+
+  store_attribute :social_links_settings, :sensitive_content, :boolean, default: false
+  store_attribute :social_links_settings, :age_restriction, :string
 
   accepts_nested_attributes_for :photos, allow_destroy: true
   accepts_nested_attributes_for :podcaster_info, allow_destroy: true
@@ -264,10 +279,41 @@ class User < ApplicationRecord
   end
 
   def self.ransackable_associations(auth_object = nil)
-    ["avatar_attachment", "avatar_blob", "child_accounts", "comments", "connected_accounts", "event_hosts", "events", "hosted_events", "identities", "invitations", "invited_by", "listening_events", "oauth_credentials", "photos", "playlists", "podcaster_info", "posts", "product_purchases", "products", "profile_header_attachment", "profile_header_blob", "purchases", "reposted_tracks", "reposts", "spotlights", "track_comments", "tracks"]
+    ["avatar_attachment", "avatar_blob", "child_accounts", "comments", "connected_accounts", "event_hosts", "events", "hosted_events", "identities", "invitations", "invited_by", "listening_events", "oauth_credentials", "photos", "playlists", "podcaster_info", "posts", "product_purchases", "products", "profile_header_attachment", "profile_header_blob", "purchases", "reposted_tracks", "reposts", "spotlights", "track_comments", "tracks", "user_links"]
   end
 
-  # def password_required?
-  #  false
-  # end
+  validates :google_analytics_id, format: { 
+    with: /\A(UA-\d{4,10}-\d{1,4}|G-[A-Z0-9]{10,})\z/,
+    message: "must be a valid Google Analytics ID",
+    allow_blank: true 
+  }
+  
+  validates :facebook_pixel_id, format: { 
+    with: /\A\d{15,16}\z/,
+    message: "must be a valid Facebook Pixel ID",
+    allow_blank: true 
+  }
+  
+  validates :age_restriction, inclusion: { 
+    in: ['', '14', '18', '21'],
+    message: "must be one of: 14+, 18+, or 21+" 
+  }
+
+  def mailing_list_providers
+    [
+      ['Select Provider', ''],
+      ['Mailchimp', 'mailchimp'],
+      ['ConvertKit', 'convertkit'],
+      ['MailerLite', 'mailerlite']
+    ]
+  end
+
+  def age_restriction_options
+    [
+      ['No age restriction', ''],
+      ['14+ Content', '14'],
+      ['18+ Content', '18'],
+      ['21+ Content', '21']
+    ]
+  end
 end

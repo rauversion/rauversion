@@ -504,6 +504,8 @@ module ApplicationHelper
       HTML
     when :podcast
       heroicon("microphone")
+    when :social_links
+      heroicon("link")
     else
       ""
     end

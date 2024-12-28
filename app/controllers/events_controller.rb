@@ -2,8 +2,26 @@ class EventsController < ApplicationController
   before_action :authenticate_user!, except: [:index, :show]
 
   def index
-    @upcoming_events = Event.upcoming_events
-    @past_events = Event.past_events
+    @q = Event.ransack(params[:q])
+    @q.sorts = 'starts_at asc' if @q.sorts.empty?
+    
+    @events = @q.result(distinct: true)
+      .published
+      .upcoming
+      .includes(:user)
+      .with_attached_cover
+      .page(params[:page]).per(12)
+
+    @past_events = Event.published
+      .past
+      .includes(:user)
+      .with_attached_cover
+      .limit(6)
+
+    respond_to do |format|
+      format.html
+      format.turbo_stream
+    end
   end
 
   def new
