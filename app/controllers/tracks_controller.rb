@@ -20,10 +20,7 @@ class TracksController < ApplicationController
     
     @labels = User.where(label: true).order("id desc").limit(10)
 
-    @artists = User.where(role: "artist")
-      .where.not(username: nil)
-      .order("id desc")
-      .limit(3)
+    @artists = User.featured_artists.limit(5)
 
     @highlighted_playlist = Playlist.published
       .includes(:releases)

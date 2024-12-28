@@ -5,28 +5,35 @@
     <div class="absolute inset-0 bg-cover bg-center" style="background-image: url(&quot;https://images.unsplash.com/photo-1583944000409-00dd0ba1a275?q=80&amp;w=1974&quot;);">
       <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
     </div>
-    <!-- <div class="relative h-full px-4 sm:px-8">
-      <div class="max-w-6xl mx-auto h-full flex items-end pb-12 md:pb-24">
-        <div class="max-w-2xl">
-          <div class="flex items-center gap-3 mb-4">
-            <div class="flex items-center gap-2 bg-primary/20 px-3 py-1 rounded-full">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-badge-check w-4 h-4 text-primary">
-                <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"></path>
-                <path d="m9 12 2 2 4-4"></path>
-              </svg>
-              <span class="text-sm font-medium">Verified Artist</span>
+
+    <% User.featured_artists.limit(1).each do |user| %>
+      <div class="relative h-full px-4 sm:px-8">
+        <div class="max-w-6xl mx-auto h-full flex items-end pb-12 md:pb-24">
+          <div class="max-w-2xl">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="flex items-center gap-2 bg-primary/20 px-3 py-1 rounded-full">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-badge-check w-4 h-4 text-primary">
+                  <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76Z"></path>
+                  <path d="m9 12 2 2 4-4"></path>
+                </svg>
+                <span class="text-sm font-medium hidden">Verified Artist</span>
+              </div>
             </div>
+            <h1 class="text-4xl md:text-6xl font-bold mb-4">
+              <%= user.full_name%>
+            </h1>
+            <div class="flex items-center gap-6 text-gray-300 mb-6">
+              <span>Electronic</span>
+              <span>2.5M followers</span>
+              <span>4.2M monthly listeners</span>
+            </div>
+            <p class="text-gray-300 max-w-xl">
+              <%= user.bio %>
+            </p>
           </div>
-          <h1 class="text-4xl md:text-6xl font-bold mb-4">Aphex Twin</h1>
-          <div class="flex items-center gap-6 text-gray-300 mb-6">
-            <span>Electronic</span>
-            <span>2.5M followers</span>
-            <span>4.2M monthly listeners</span>
-          </div>
-          <p class="text-gray-300 max-w-xl">Pioneer of electronic music, known for his experimental and innovative approach to composition.</p>
         </div>
       </div>
-    </div>-->
+    <% end %>
   </section>
   <div class="px-4 sm:px-8 py-12 md:py-24">
     <div class="max-w-6xl mx-auto">
@@ -75,7 +82,7 @@
           </div>
         </div>
 
-        <section aria-labelledby="collections-heading" class="bg-gray-100 dark:bg-black">
+        <section aria-labelledby="collections-heading">
           <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-16 sm:pb-24 lg:pb-32 lg:pt-6 pt-4">
             <div class="max-w-2xl mx-auto lg:max-w-none">
             

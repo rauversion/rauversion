@@ -1,5 +1,9 @@
 TODO:
 
+
+  + featured artists
+  + podcaster section
+
   + Current.label_user not set on impersonate new track
   
   + links in article internal to playlists

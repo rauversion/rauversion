@@ -275,8 +275,14 @@ class User < ApplicationRecord
   end
 
   def self.ransackable_attributes(auth_object = nil)
-    ["bio", "city", "confirmation_sent_at", "confirmation_token", "confirmed_at", "country", "created_at", "current_sign_in_at", "current_sign_in_ip", "editor", "email", "encrypted_password", "failed_attempts", "first_name", "id", "id_value", "invitation_accepted_at", "invitation_created_at", "invitation_limit", "invitation_sent_at", "invitation_token", "invitations_count", "invited_by_id", "invited_by_type", "label", "last_name", "last_sign_in_at", "last_sign_in_ip", "locked_at", "notification_settings", "remember_created_at", "reset_password_sent_at", "reset_password_token", "role", "settings", "sign_in_count", "support_link", "unconfirmed_email", "unlock_token", "updated_at", "username"]
+    ["username", "first_name", "last_name"]
   end
+
+  scope :featured_artists, -> { 
+    where(role: "artist", featured: true)
+      .where.not(username: nil)
+      .order(created_at: :desc)
+  }
 
   def self.ransackable_associations(auth_object = nil)
     ["avatar_attachment", "avatar_blob", "child_accounts", "comments", "connected_accounts", "event_hosts", "events", "hosted_events", "identities", "invitations", "invited_by", "listening_events", "oauth_credentials", "photos", "playlists", "podcaster_info", "posts", "product_purchases", "products", "profile_header_attachment", "profile_header_blob", "purchases", "reposted_tracks", "reposts", "spotlights", "track_comments", "tracks", "user_links"]
