@@ -1,9 +1,11 @@
 <section class="px-4 sm:px-8 py-12 md:py-24 bg-default">
   <div class="max-w-6xl mx-auto">
     <div class="flex justify-between items-center mb-8 md:mb-12">
-      <h2 class="text-2xl md:text-3xl font-bold">New Releases</h2>
+      <h2 class="text-2xl md:text-3xl font-bold">
+        <%= t("tracks.new_releases") %>
+      </h2>
       <%= link_to tracks_path, class: "group flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors" do %>
-        VIEW ALL 
+        <%= t("view_all") %>
         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right w-4 h-4 group-hover:translate-x-1 transition-transform">
           <path d="M5 12h14"></path>
           <path d="m12 5 7 7-7 7"></path>

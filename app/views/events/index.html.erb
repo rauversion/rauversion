@@ -7,8 +7,12 @@
     <div class="absolute inset-0 flex items-center">
       <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
         <div class="max-w-xl mx-auto text-center">
-          <h1 class="text-4xl md:text-5xl font-bold mb-6">Find Your Next Event</h1>
-          <p class="text-lg text-gray-300 mb-8">Discover upcoming events and experiences in electronic music</p>
+          <h1 class="text-4xl md:text-5xl font-bold mb-6">
+            <%= t("events.find_your_next_event") %>
+          </h1>
+          <p class="text-lg text-gray-300 mb-8">
+            <%= t("events.discover_upcoming_events") %>
+          </p>
           
           <%= search_form_for @q, html: { class: "relative", data: { turbo_frame: "events_list", controller: "form", action: "input->form#submit" } } do |f| %>
             <div class="relative">
@@ -28,7 +32,9 @@
 
   <section class="px-4 sm:px-8 py-12 md:py-24">
     <div class="max-w-6xl mx-auto">
-      <h2 class="text-2xl font-bold mb-8">Upcoming Events</h2>
+      <h2 class="text-2xl font-bold mb-8">
+        <%= t("events.upcoming_events") %>
+      </h2>
       <%= turbo_frame_tag "events_list" do %>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <% @events.each do |event| %>
@@ -40,15 +46,15 @@
           <%= turbo_frame_tag "events_list_#{@events.next_page}", loading: :lazy,
               src: events_path(page: @events.next_page, q: params[:q]) do %>
             <div class="mt-8 text-center text-gray-400">
-              Loading more events...
+              <%= t("view_more") %>
             </div>
           <% end %>
         <% end %>
 
         <% if @events.empty? %>
           <div class="text-center py-12">
-            <h3 class="text-xl font-semibold mb-2">No events found</h3>
-            <p class="text-gray-400">Try adjusting your search criteria</p>
+            <h3 class="text-xl font-semibold mb-2"><%= t("events.no_events_found") %></h3>
+            <p class="text-gray-400"><%= t("events.try_adjusting_your_search_criteria") %></p>
           </div>
         <% end %>
       <% end %>
@@ -56,7 +62,7 @@
       <% if @past_events.any? %>
         <div class="mt-24">
           <div class="flex items-center justify-between mb-8">
-            <h2 class="text-2xl font-bold">Past Events</h2>
+            <h2 class="text-2xl font-bold"><%= t("events.past_events") %></h2>
             <%= link_to "View All", events_path(q: { event_start_lt: Time.current }), 
                 class: "text-primary hover:text-primary/80 transition-colors" %>
           </div>
