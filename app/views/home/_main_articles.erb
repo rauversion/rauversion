@@ -59,7 +59,9 @@
         <% Post.published
           .with_attached_cover
           .includes(user: { avatar_attachment: :blob })
-          .order("id desc").limit(3).offset(1).each do |post| %>
+          .order("id desc")
+          .limit(3)
+          .offset(2).each do |post| %>
           <%= link_to article_path(post) do %>
             <article class="group cursor-pointer flex gap-4">
               <div class="relative w-24 h-24 flex-shrink-0 overflow-hidden rounded-lg">
