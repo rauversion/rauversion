@@ -18,7 +18,7 @@
                 <polygon points="6 3 20 12 6 21 6 3"></polygon>
               </svg>Play Now 
             </button>-->
-            <%= link_to playlist_path(@highlighted_playlist), class: "bg-white/10 hover:bg-white/20 px-6 py-3 rounded-lg font-medium transition-colors" do %>
+            <%= link_to @highlighted_playlist.releases.any? ? album_path(@highlighted_playlist.releases.first) : playlist_path(@highlighted_playlist), class: "bg-white/10 hover:bg-white/20 px-6 py-3 rounded-lg font-medium transition-colors" do %>
               <span>View Album</button>
             <% end %>
           </div>
