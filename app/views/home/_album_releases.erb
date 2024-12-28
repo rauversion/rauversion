@@ -42,7 +42,7 @@
 
           <%= link_to playlist_path(playlist) do %>
             <div class="group cursor-pointer relative overflow-hidden rounded-xl bg-muted aspect-square col-span-1">
-              <%= image_tag playlist.user.avatar_url(:large), class: "object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" %>
+              <%= image_tag playlist.cover_url(:large), class: "object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" %>
 
               <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                 <div class="absolute bottom-0 left-0 p-4">
