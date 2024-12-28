@@ -18,12 +18,12 @@
 
   <div class="relative z-10 px-4 sm:px-8 pt-16 md:pt-32">
     <div class="max-w-6xl mx-auto">
-      <h1 class="text-[10vw] md:text-[10vw] font-bold leading-none tracking-tighter mb-6 text-default">
+      <h1 class="text-[10vw] md:text-[6vw] font-bold leading-none tracking-tighter mb-6 text-default">
         <%= post.title %>
       </h1>
       <div class="flex flex-col md:flex-row md:justify-between md:items-end gap-6 md:gap-0">
         <p class="max-w-md text-base md:text-lg text-gray-300">
-          <%= post.excerpt %>
+          <%= truncate post.excerpt, length: 220 %>
         </p>
         <button class="group flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors">
           <%= t("articles.explore").upcase %>
