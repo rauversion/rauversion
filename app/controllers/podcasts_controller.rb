@@ -10,6 +10,7 @@ class PodcastsController < ApplicationController
     host_ids = @podcaster_info&.hosts&.pluck(:id) || []
     @collection = Track.published.podcasts
                       .where(user_id: [host_ids + [@user.id]].flatten)
+                      .order("id desc")
                       .page(params[:page])
                       .per(10)
   end
