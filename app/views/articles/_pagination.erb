@@ -1,0 +1,8 @@
+<% if @articles.next_page %>
+  <%= turbo_frame_tag "articles_list_#{@articles.next_page}", loading: :lazy,
+      src: articles_path(page: @articles.next_page, category: params[:category], tag: params[:tag], format: :turbo_stream) do %>
+    <div class="mt-8 text-center">
+      Loading more articles...
+    </div>
+  <% end %>
+<% end %>

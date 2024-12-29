@@ -12,8 +12,15 @@ class ArticlesController < ApplicationController
       @articles = @articles.where(category: @current_category)
     end
 
-    @articles = @articles.page(params[:page]).per(12)
+    @articles = @articles.page(params[:page]).per(6)
 
+    if request.headers["Turbo-Frame"]&.include?("articles_list")
+      respond_to do |format|
+        format.html
+        format.turbo_stream
+      end and return
+    end
+   
     # Get all categories with post counts
     @categories = Category.joins(:posts)
       .where(posts: { state: "published" })
