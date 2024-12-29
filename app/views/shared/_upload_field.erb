@@ -60,6 +60,7 @@
     -->
 
     <% if local_assigns[:cropper].present? %>
+
       <div data-controller="image-cropper">
         <% #form.file_field :cover, data: { action: "change->image-cropper#connect", image_cropper_target: "input" } %>
         <%= form.hidden_field crop_data_attribute, 
@@ -71,6 +72,7 @@
             <img 
               src="<%= url_for(form.object.send(attribute)) %>" 
               data-image-cropper-target="image" 
+              class="h-120"
               alt="Avatar">
           </div>
         <% end %>

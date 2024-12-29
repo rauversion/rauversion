@@ -102,11 +102,21 @@
                   class="sm:grid sm:grid-cols-3 sm:gap-4 sm:items-start sm:border-t sm:border-gray-200 sm:pt-5">
                   <%= form.label :cover %>
                   <div class="mt-1 sm:mt-0 sm:col-span-2">
-                    <%= render "shared/upload_field", 
-                    form: form, 
-                    attribute: :cover,
-                    image_url: form.object.cover_url(:small)
+                    <% 
+                    # render "shared/upload_field", 
+                    # form: form, 
+                    # attribute: :cover,
+                    # image_url: form.object.cover_url(:small)
                     %>
+
+                    <%= render "shared/upload_field", 
+                      form: form, 
+                      attribute: :cover,
+                      cropper: form.object.podcast?,
+                      crop_data: form.object.crop_data,
+                      crop_data_attribute: :crop_data
+                    %>
+        
                   </div>
                 </div>
 

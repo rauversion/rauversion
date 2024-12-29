@@ -8,6 +8,11 @@
             <%= link_to track.title, user_podcast_path(@user.username, track), data: {turbo_frame: "_top"} %>
           </h2>
 
+
+          <%= image_tag(track.cropped_image, class: "my-2 rounded-lg object-cover w-full h-full group-hover:scale-105 transition-transform duration-500") %>
+          
+          <%= link_to "Editar", edit_track_path(track), class: "button mt-2" if current_user == track.user %>
+
           <time datetime="<%= track.created_at %>" class="order-first font-mono text-sm leading-7 text-muted">
             <%= l track.created_at, format: :long_with_day %>
           </time>

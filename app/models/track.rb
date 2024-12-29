@@ -1,5 +1,7 @@
 class Track < ApplicationRecord
   extend FriendlyId
+  include Croppable
+
   friendly_id :title, use: :slugged
 
   belongs_to :user
@@ -100,6 +102,14 @@ class Track < ApplicationRecord
     event :sleep do
       transitions from: :running, to: :sleeping
     end
+  end
+
+  store_accessor :metadata, :crop_data, :json, default: {}
+  # store_accessor :settings, :tags, :json, default: []
+
+  # Example method to call cropped_image with specific attributes
+  def cropped_image(fallback: :horizontal)
+    cropped_image_setup(attached_attribute: :cover, crop_data_attribute: :crop_data, fallback: fallback)
   end
 
   def peaks
