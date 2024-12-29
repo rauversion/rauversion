@@ -358,7 +358,21 @@ class Track < ApplicationRecord
   end
 
   def podcast_summarizer
-    file_path = ActiveStorage::Blob.service.path_for(mp3_audio.key)
+    # use downloaded mp3 instead of path_for
+
+    if mp3_audio&.attached?
+
+      file_temp = Tempfile.new
+      file_temp.binmode
+      file_temp.write(mp3_audio.download)
+      file_temp.rewind
+
+      file_path = file_temp.path
+    else
+      return
+    end
+
+    # file_path = ActiveStorage::Blob.service.path_for(mp3_audio.key)
     summarizer = AudioSummarizer.new(file_path)
     data = summarizer.summarize
     self.update(
