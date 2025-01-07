@@ -1,7 +1,8 @@
 <%= form_with(model: user_link, 
   url: user_link.persisted? ? 
     user_user_link_path(current_user.username, user_link) :
-    user_user_links_path(current_user.username), 
+    user_user_links_path(current_user.username),
+  scope: :user_links_website_link, 
   local: true, class: 'space-y-6') do |f| %>
   <% if user_link.errors.any? %>
     <div class="bg-red-50 p-4 rounded-md">
@@ -27,16 +28,22 @@
     </div>
   <% end %>
 
-  <div>
-    <div class="mt-1">
-      <%= f.text_field :title %>
-    </div>
-  </div>
+  <% type = f.object.class.name.demodulize.underscore.sub('_link', '') %>
+  <div class="bg-muted p-4 rounded-lg">
+    <div class="flex items-center space-x-3 mb-4">
+        
+      <%= image_tag f.object.image_name, class: "h-10 w-10 rounded-lg" %>
 
-  <div>
-    <div class="mt-1">
-      <%= f.text_field :custom_url %>
+      <h3 class="text-lg font-medium text-default">
+        <%= f.object.class.name.demodulize.titleize.gsub('Link', '') %>
+      </h3>
     </div>
+
+    <%= render partial: "user_links/wizard/#{type}_link_fields", 
+      locals: { f: f } rescue render('user_links/wizard/default_link_fields', f: f) 
+    %>
+    <%= f.hidden_field :type %>
+    <%= f.hidden_field :id %>
   </div>
 
   <div class="flex justify-end">

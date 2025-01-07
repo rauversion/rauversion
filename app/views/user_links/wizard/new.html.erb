@@ -9,6 +9,7 @@
       <div class="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <% @link_types.each do |type, name| %>
           <% klass = "UserLinks::#{type.to_s.classify}Link".constantize %>
+          
           <div class="bg-muted p-4 rounded-lg">
             <div class="flex items-center space-x-3 mb-4">
               <i class="<%= klass.new.icon_class %> text-xl"></i>
@@ -28,6 +29,7 @@
               <% elsif klass == UserLinks::WhatsappLink %>
                 <div>
                   <%= label_tag "services[#{type}][username]", 'Phone Number', class: 'block text-sm font-medium text-gray-700' %>
+                  
                   <div class="mt-1">
                     <%= text_field_tag "services[#{type}][username]", nil, 
                         class: 'shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md',

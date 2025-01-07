@@ -48,6 +48,10 @@ class UserLinksController < ApplicationController
   def user_link_params
     params.require(:user_links_website_link).permit(
       :title, 
+      :type,
+      :username,
+      :title, 
+      :id,
       :url,
       :position,
       :custom_url)

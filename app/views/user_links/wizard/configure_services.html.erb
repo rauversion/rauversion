@@ -36,6 +36,7 @@
 
             <%= render partial: "user_links/wizard/#{type}_link_fields", locals: { f: link_form } rescue render('user_links/wizard/default_link_fields', f: link_form) %>
             <%= link_form.hidden_field :type %>
+            <%= link_form.hidden_field :id %>
           </div>
         <% end %>
       </div>

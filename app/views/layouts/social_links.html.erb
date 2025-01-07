@@ -22,5 +22,12 @@
         </a>
       </footer>
     </div>
+
+    <div class="flash">
+      <%= render "shared/flash" %>
+    </div>
+
+    <%= turbo_frame_tag "modal" %>
+    <%= render "shared/turbo_delete_modal" %>
   </body>
 </html>

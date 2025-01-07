@@ -7,8 +7,13 @@
       </div>
       
       <h1 class="text-2xl font-bold text-default py-3">
-        <%= @user.username %>'s Links
+        <% # @user.username %>
+        <%= @user.social_title %>
       </h1>
+
+      <p class="text-sm text-muted pb-4">
+        <%= @user.social_description %>
+      </p>
       
       <% if current_user == @user %>
         <div class="space-x-4">

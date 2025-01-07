@@ -45,7 +45,7 @@ module UserLinks
 
     def user_params
       params.require(:user).permit(
-        user_links_attributes: [:type, :username, :custom_url, :title]
+        user_links_attributes: [:type, :username, :custom_url, :title, :id]
       )
     end
   end
