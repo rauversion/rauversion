@@ -1,13 +1,15 @@
 class UserLinksController < ApplicationController
-  before_action :authenticate_user!
+  before_action :authenticate_user!, except: [:index]
   before_action :set_user_link, only: [:edit, :update, :destroy]
   
   def index
     @user = User.find_by!(username: params[:user_id])
     @user_links = @user.user_links
+    render "user_links/index", layout: "social_links"
   end
 
   def new
+    @user = current_user
     @user_link = UserLinks::WebsiteLink.new(user_id: current_user.id)
   end
 

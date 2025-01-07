@@ -1,7 +1,12 @@
 <div class="max-w-3xl mx-auto px-4 py-8">
   <div class="bg-muted shadow rounded-lg p-6">
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold text-default">
+    <div class="flex flex-col items-center justify-between mb-6">
+      
+      <div class="relative aspect-square overflow-hidden rounded-full mb-4">
+        <%= image_tag(@user.avatar_url(:medium), class: "object-cover w-40 h-40 group-hover:scale-105 transition-transform duration-500") %>
+      </div>
+      
+      <h1 class="text-2xl font-bold text-default py-3">
         <%= @user.username %>'s Links
       </h1>
       
@@ -15,46 +20,43 @@
 
     <div class="space-y-4">
       <% @user_links.each do |link| %>
-        <div class="flex items-center justify-between p-4 bg-default rounded-lg">
-          <div class="flex-1">
-            <div class="flex items-center space-x-3">
-              <i class="<%= link.icon_class %> text-xl"></i>
-              <h3 class="text-lg font-medium text-default">
-                <%= link.title %>
-              </h3>
-            </div>
-            <p class="text-sm text-muted mt-1">
-              <%= link.url %>
-            </p>
+        <div class="block p-4 bg-default rounded-lg border border-muted">
+          <div class="flex items-center justify-between">
+            <a href="<%= link.url %>" target="_blank" rel="noopener noreferrer" 
+               class="flex items-center space-x-3 flex-1 hover:opacity-75 transition-opacity duration-200">
+              <i class="<%= link.icon_class %> text-muted"></i>
+              <div class="flex flex-col">
+              <span class="font-medium text-default"><%= link.title %></span>
+                <p class="text-sm text-muted mt-1">
+                  <%= link.url %>
+                </p>
+              </div>
+              
+            </a>
+            
+            <% if current_user == @user %>
+              <div class="flex space-x-2 text-xs">
+                <%= link_to 'Edit', edit_user_user_link_path(@user.username, link), 
+                    class: 'text-muted hover:text-default', data: { turbo_target: '_top' } %>
+                <%= button_to 'Delete', user_user_link_path(@user.username, link), 
+                    method: :delete, 
+                    class: 'text-muted hover:text-default', 
+                    data: { turbo_method: :delete, turbo_confirm: 'Are you sure?' } %>
+              </div>
+            <% end %>
           </div>
-
-          <% if current_user == @user %>
-            <div class="flex items-center space-x-2">
-              <%= link_to 'Edit', edit_user_user_link_path(@user.username, link), class: 'text-sm text-indigo-600 hover:text-indigo-900' %>
-              <%= button_to 'Delete', user_user_link_path(@user.username, link), method: :delete, class: 'text-sm text-red-600 hover:text-red-900', data: { confirm: 'Are you sure?' } %>
-            </div>
-          <% end %>
         </div>
       <% end %>
 
       <% if @user_links.empty? %>
         <div class="text-center py-12">
-          <div class="space-y-6">
-            <div class="text-muted">
-              <i class="fas fa-link text-4xl"></i>
+          <p class="text-muted">No links added yet</p>
+          <% if current_user == @user %>
+            <div class="mt-4">
+              <%= link_to 'Add your first link', new_user_user_link_path, 
+                  class: 'text-indigo-600 hover:text-indigo-500' %>
             </div>
-            <div>
-              <p class="text-xl font-semibold text-default">No links added yet</p>
-              <% if current_user == @user %>
-                <p class="mt-2 text-sm text-muted">Get started by adding your social media links or custom URLs.</p>
-                <div class="mt-6 space-x-4">
-                  <%= link_to 'Add Custom Link', new_user_link_path, class: 'text-sm font-medium text-indigo-600 hover:text-indigo-500' %>
-                  <span class="text-gray-300">|</span>
-                  <%= link_to 'Configure Social Media', wizard_new_user_links_path, class: 'text-sm font-medium text-indigo-600 hover:text-indigo-500' %>
-                </div>
-              <% end %>
-            </div>
-          </div>
+          <% end %>
         </div>
       <% end %>
     </div>

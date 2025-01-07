@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= @user.username %>'s Links</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
+  </head>
+
+  <body class="dark bg-default">
+    <div class="min-h-screen flex flex-col">
+      <main class="flex-grow container mx-auto px-4 py-8 max-w-lg">
+        <%= yield %>
+      </main>
+
+      <footer class="py-4 text-center text-sm text-muted">
+        <a href="https://rauversion.com" target="_blank" rel="noopener noreferrer" class="hover:text-gray-700">
+          Powered by Rauversion
+        </a>
+      </footer>
+    </div>
+  </body>
+</html>
