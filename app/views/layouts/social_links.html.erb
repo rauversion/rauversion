@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= @user.social_title.presence || "#{@user.username}'s Links" %></title>
+    <%= display_meta_tags %>
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <meta name="description" content="<%= @user.social_description %>">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
     
@@ -41,6 +40,8 @@
       </noscript>
       <!-- End Meta Pixel Code -->
     <% end %>
+
+    <%= yield :head if content_for?(:head) %>
   </head>
 
   <body class="dark bg-default">

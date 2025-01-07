@@ -5,6 +5,27 @@ class UserLinksController < ApplicationController
   def index
     @user = User.find_by!(username: params[:user_id])
     @user_links = @user.user_links
+
+    set_meta_tags title: @user.social_title.presence || "#{@user.username}'s Links",
+                  site: 'Rauversion',
+                  reverse: true,
+                  description: @user.social_description,
+                  keywords: ['social links', 'profile', @user.username],
+                  og: {
+                    title: @user.social_title.presence || "#{@user.username}'s Links",
+                    description: @user.social_description,
+                    type: 'profile',
+                    url: user_user_links_url(@user.username),
+                    image: @user.avatar_url(:medium)
+                  },
+                  twitter: {
+                    card: 'summary',
+                    site: '@rauversion',
+                    title: @user.social_title.presence || "#{@user.username}'s Links",
+                    description: @user.social_description,
+                    image: @user.avatar_url(:medium)
+                  }
+
     render "user_links/index", layout: "social_links"
   end
 
