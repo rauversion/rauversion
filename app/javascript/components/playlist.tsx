@@ -142,7 +142,7 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
       </div>
 
       <div className="mt-8">
-        <div className="space-y-1">
+        <div className="space-y-1 h-[calc(100vh-211px)] overflow-y-auto">
           {playlist.tracks.map((track, index) => (
             <div 
               key={track.id}
