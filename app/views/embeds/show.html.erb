@@ -1,4 +1,30 @@
+<style>
+  :root {
+    --playlist-bg-from: rgb(0 0 0); /* bg-muted */
+    --playlist-bg-to: rgb(1 9 4); /* #115b2b */
+  }
 
+  .playlist-gradient {
+    background: linear-gradient(to bottom,
+      var(--playlist-bg-from) 0%,
+      var(--playlist-bg-to) 100%
+    );
+    transition: background 0.3s ease-in-out;
+  }
+
+  .playlist-gradient:hover {
+    --playlist-bg-from: rgb(0 0 0); /* bg-muted */
+    --playlist-bg-to: rgb(1 9 4); /* #115b2b */
+  }
+</style>
 
 <%= render "track" if @track.present? %>
-<%= render "playlist" if @playlist.present? %>
+
+<% if @playlist.present? %>
+  <div class="dark">
+    <div data-controller="playlist-widget" 
+        data-playlist-widget-playlist-id-value="<%= @playlist.id %>"
+        class="playlist-gradient">
+    </div>
+  </div>
+<% end %>

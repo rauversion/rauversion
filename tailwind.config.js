@@ -11,7 +11,9 @@ module.exports = {
     '**/*.erb',
     './app/helpers/**/*.rb',
     './app/assets/stylesheets/**/*.css',
-    './app/javascript/**/*.js'
+    './app/javascript/**/*.js',
+    './app/javascript/**/*.tsx',
+    './app/javascript/**/*.jsx'
   ],
   theme: {
     fontFamily: {

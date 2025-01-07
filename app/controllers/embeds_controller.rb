@@ -16,10 +16,10 @@ class EmbedsController < ApplicationController
   #  end
 
   def show_playlist
-    @playlist = Playlist.find_public(params[:playlist_id])
+    @playlist = Playlist.published.friendly.find(params[:playlist_id])
     return render status: 404, plain: "This playlist is private or not found" unless @playlist
 
-    render :show_playlist
+    render :show
   end
 
   def private_playlist
