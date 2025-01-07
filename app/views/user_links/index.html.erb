@@ -7,7 +7,6 @@
       </div>
       
       <h1 class="text-2xl font-bold text-default py-3">
-        <% # @user.username %>
         <%= @user.social_title %>
       </h1>
 
@@ -27,16 +26,18 @@
       <% @user_links.each do |link| %>
         <div class="block p-4 bg-default rounded-lg border border-muted">
           <div class="flex items-center justify-between">
-            <a href="<%= link.url %>" target="_blank" rel="noopener noreferrer" 
-               class="flex items-center space-x-3 flex-1 hover:opacity-75 transition-opacity duration-200">
+            <a href="<%= link.url %>" 
+               target="_blank" 
+               rel="noopener noreferrer" 
+               class="flex items-center space-x-3 flex-1 hover:opacity-75 transition-opacity duration-200"
+               onclick="trackLinkClick('<%= link.title %>', '<%= link.url %>')">
               <i class="<%= link.icon_class %> text-muted"></i>
               <div class="flex flex-col">
-              <span class="font-medium text-default"><%= link.title %></span>
+                <span class="font-medium text-default"><%= link.title %></span>
                 <p class="text-sm text-muted mt-1">
                   <%= link.url %>
                 </p>
               </div>
-              
             </a>
             
             <% if current_user == @user %>
@@ -55,7 +56,7 @@
 
       <% if @user_links.empty? %>
         <div class="text-center py-12">
-          <p class="text-muted">No links added yet</p>
+          <p class="text-gray-500">No links added yet</p>
           <% if current_user == @user %>
             <div class="mt-4">
               <%= link_to 'Add your first link', new_user_user_link_path, 
@@ -67,3 +68,27 @@
     </div>
   </div>
 </div>
+
+<% content_for :head do %>
+  <script>
+    function trackLinkClick(title, url) {
+      // Google Analytics Event
+      if (typeof gtag !== 'undefined') {
+        gtag('event', 'click', {
+          'event_category': 'Social Links',
+          'event_label': title,
+          'value': url
+        });
+      }
+
+      // Facebook Pixel Event
+      if (typeof fbq !== 'undefined') {
+        fbq('track', 'LinkClick', {
+          content_name: title,
+          content_category: 'Social Links',
+          value: url
+        });
+      }
+    }
+  </script>
+<% end %>
