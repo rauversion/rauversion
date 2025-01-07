@@ -29,6 +29,7 @@ interface Playlist {
   id: number;
   title: string;
   slug: string;
+  url: string;
   description: string;
   playlist_type: string;
   private: boolean;
@@ -132,9 +133,9 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
             >
               {isPlaying ? <Pause size={24} /> : <Play size={24} />}
             </button>
-            <button className="text-xs font-semibold px-4 py-1.5 rounded-full bg-transparent border border-white text-white hover:scale-105 transition">
-              Save on Rauversion
-            </button>
+            <a href={playlist.url} target="_blank" className="text-xs font-semibold px-4 py-1.5 rounded-full bg-transparent border border-white text-white hover:scale-105 transition">
+              Listen on Rauversion
+            </a>
           </div>
         </div>
       </div>
