@@ -27,6 +27,9 @@ json.tracks @playlist.track_playlists.includes(:track) do |track_playlist|
   json.audio_url url_for(track.mp3_audio) if track.audio.attached?
   json.cover_url url_for(track.cover) if track.cover.attached?
   json.position track_playlist.position
+  json.author do
+    json.extract! track.user, :id, :username, :full_name, :avatar_url
+  end
 end
 
 json.likes_count @playlist.likes.size

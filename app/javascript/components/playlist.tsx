@@ -42,6 +42,7 @@ interface Playlist {
   tracks: Track[];
   likes_count: number;
   comments_count: number;
+  author: User;
 }
 
 interface PlaylistProps {
@@ -165,7 +166,7 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
 
                 <div>
                   <p className="text-white font-medium">{track.title}</p>
-                  <p className="text-zinc-400 text-sm">{track.description}</p>
+                  <p className="text-zinc-400 text-sm">{track.author.full_name}</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
