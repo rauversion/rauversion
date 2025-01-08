@@ -1,5 +1,4 @@
-<div class="container">
-  <h1>New Music Product</h1>
-  <%= render partial: "form", locals: { product: @product } %>
-  <%= link_to 'Back', user_products_service_index_path(current_user.username), class: 'btn btn-link' %>
-</div>
+
+<%= render partial: "form", locals: { product: @product } %>
+<%= link_to 'Back', user_products_service_index_path(current_user.username), class: 'btn btn-link' %>
+

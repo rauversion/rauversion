@@ -175,21 +175,8 @@
         </div>
       </div>
 
-      <div class="py-2 fixed bottom-[65px] w-full bg-emphasis left-0 border-t border-muted">
-       
-        <div class="flex space-x-2 items-center p-6">
-          
-          <%= form.submit %>
+      <%= render "shared/submit_button", form: form %>
 
-          <% if form.object.errors.any? %>
-            <div class="py-3">
-              <p class="text-danger text-red-500 text-2xl">Errors Found</p>
-              <%= form.object.errors.full_messages.join(" ") %>
-            </div>
-          <% end %>
-
-        </div>
-      </div>
     </div>
   <% end %>
 </div>

@@ -44,11 +44,8 @@
       <%= render "products/shared/photos_section", form: form %>
       <%= render "products/shared/shipping_section", form: form %>
 
-      <div class="py-2 fixed bottom-[65px] w-full bg-emphasis left-0 border-t border-muted">
-        <div class="flex space-x-2 items-center p-6">
-          <%= form.submit class: "btn btn-primary" %>
-        </div>
-      </div>
+      <%= render "products/shared/submit_button", form: form %>
+
     </div>
   <% end %>
 </div>

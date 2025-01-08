@@ -1,19 +1,19 @@
-<div class="flex flex-col border border-emphasis rounded-md bg-muted" 
+<div class="flex flex-col border border-default rounded-md bg-muted" 
   data-controller="simple-editor">
-  <div class="px-2 py-2 flex items-center justify-between">
+  <div class="px-2 py-2 flex items-center justify-between bg-default">
     <div class="flex space-x-2 items-center">
 
       <button class="btn btn-xs text-xs font-bold border border-subtle outlined bg-default rounded-lg p-2" type="button" data-editor-toolbar data-level="1" data-action="simple-editor#toggleHeading">
-        <span class="text-xl">H1</span>
+        <span class="">H1</span>
       </button>
     
       <button class="btn btn-xs text-xs font-bold border border-subtle outlined bg-default rounded-lg p-2" type="button" data-level="2" data-action="simple-editor#toggleHeading">
-        <span class="text-xl">H2</span>
+        <span class="">H2</span>
       </button>
 
       <!-- list -->
       <button class="btn btn-xs text-xs font-bold border border-subtle outlined bg-default rounded-lg p-2" type="button" data-action="simple-editor#toggleBulletList">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="9" y1="6" x2="20" y2="6"></line>
           <line x1="9" y1="12" x2="20" y2="12"></line>
           <line x1="9" y1="18" x2="20" y2="18"></line>
@@ -25,7 +25,7 @@
 
       <!-- ordered -->
       <button class="btn btn-xs text-xs font-bold border border-subtle outlined bg-default rounded-lg p-2" type="button" data-action="simple-editor#toggleOrderedList">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="10" y1="6" x2="21" y2="6"></line>
           <line x1="10" y1="12" x2="21" y2="12"></line>
           <line x1="10" y1="18" x2="21" y2="18"></line>
@@ -37,7 +37,7 @@
 
       <!-- B -->
       <button class="btn btn-xs text-xs font-bold border border-subtle outlined bg-default rounded-lg p-2" type="button" data-action="simple-editor#toggleBold">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path>
           <path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"></path>
         </svg>
@@ -45,7 +45,7 @@
 
       <!-- italic -->
       <button class="btn btn-xs text-xs font-bold border border-subtle outlined bg-default rounded-lg p-2" type="button" data-action="simple-editor#toggleItalic">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="19" y1="4" x2="10" y2="4"></line>
           <line x1="14" y1="20" x2="5" y2="20"></line>
           <line x1="15" y1="4" x2="9" y2="20"></line>
@@ -54,7 +54,7 @@
 
       <!-- link -->
       <button class="btn btn-xs text-xs font-bold border border-subtle outlined bg-default rounded-lg p-2" type="button" data-action="simple-editor#openLinkPrompt">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"></path>
           <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"></path>
         </svg>
@@ -99,7 +99,8 @@
   </div>
 
   <div data-simple-editor-target="editor" 
-    class="px-4 border-t border-emphasis text-emphasis rounded-sm bg-mute prose prose-sm <%= local_assigns[:height] || "h-96" %> overflow-auto" 
+    class="px-4 border-t border-emphasis text-emphasis 
+    rounded-sm bg-mute prose prose-sm <%= local_assigns[:height] || "h-36" %> overflow-auto" 
     style="max-width: none;">
   </div>
 
