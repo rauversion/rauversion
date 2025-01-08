@@ -1,0 +1,48 @@
+<div class="product-card">
+  <% if product.main_image.present? %>
+    <%= image_tag product.main_image.image.variant(resize_to_limit: [300, 300]), class: "product-image" %>
+  <% end %>
+
+  <div class="product-details">
+    <h3 class="product-title">
+      <% # link_to product.title, user_product_path(product.user.username, product) %>
+    </h3>
+    
+    <p class="product-price">
+      <%= number_to_currency(product.price) %>
+    </p>
+
+    <% if product.is_a?(Products::MusicProduct) %>
+      <p class="product-album">
+        Album: <%= product.album.title %>
+      </p>
+      <% if product.include_digital_album? %>
+        <span class="badge badge-info">Includes Digital Album</span>
+      <% end %>
+    <% end %>
+
+    <% if product.is_a?(Products::GearProduct) %>
+      <p class="product-details">
+        <%= product.brand %> <%= product.model %> (<%= product.year %>)
+      </p>
+      <p class="product-condition">
+        Condition: <%= product.condition.titleize %>
+      </p>
+      <% if product.accept_barter? %>
+        <span class="badge badge-success">Accepts Barter</span>
+      <% end %>
+    <% end %>
+
+    <% if product.limited_edition? %>
+      <span class="badge badge-warning">
+        Limited Edition (<%= product.limited_edition_count %> available)
+      </span>
+    <% end %>
+
+    <div class="product-actions">
+      <% if current_user == product.user %>
+        <% # link_to 'Edit', [:edit, :user, product], class: "btn btn-sm btn-outline-primary" %>
+      <% end %>
+    </div>
+  </div>
+</div>

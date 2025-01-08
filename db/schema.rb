@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_12_28_153551) do
+ActiveRecord::Schema[8.0].define(version: 2025_01_08_015401) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -501,6 +501,7 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_28_153551) do
     t.integer "year"
     t.boolean "accept_barter", default: false
     t.text "barter_description"
+    t.jsonb "data"
     t.index ["accept_barter"], name: "index_products_on_accept_barter"
     t.index ["brand"], name: "index_products_on_brand"
     t.index ["condition"], name: "index_products_on_condition"

@@ -1,0 +1,57 @@
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold">Services</h1>
+    <%= link_to "Add New Service", 
+        new_user_products_service_path(current_user.username),
+        class: "btn btn-primary" %>
+  </div>
+
+  <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <% @products.each do |product| %>
+      <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
+        <% if product.product_images.any? %>
+          <%= image_tag product.product_images.first.image, 
+              class: "w-full h-48 object-cover",
+              alt: product.product_images.first.title %>
+        <% end %>
+
+        <div class="p-4">
+          <h3 class="text-lg font-semibold mb-2"><%= product.title %></h3>
+          
+          <div class="flex items-center text-sm text-gray-500 mb-2">
+            <span class="mr-2"><%= product.category.titleize %></span>
+            <span class="mx-2">•</span>
+            <span><%= product.delivery_method.titleize %></span>
+          </div>
+
+          <div class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            <%= truncate(product.description, length: 100) %>
+          </div>
+
+          <div class="flex justify-between items-center">
+            <div class="text-lg font-bold">
+              <%= number_to_currency(product.price) %>
+            </div>
+            
+            <div class="text-sm text-gray-500">
+              <%= pluralize(product.duration_minutes, 'minute') %>
+              <% if product.classes? %>
+                <span class="mx-1">•</span>
+                Up to <%= pluralize(product.max_participants, 'participant') %>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="mt-4 flex justify-end space-x-2">
+            <%= link_to "Edit",
+                edit_user_products_service_path(current_user.username, product),
+                class: "btn btn-secondary btn-sm" %>
+            <%= link_to "View",
+                user_products_service_path(current_user.username, product),
+                class: "btn btn-primary btn-sm" %>
+          </div>
+        </div>
+      </div>
+    <% end %>
+  </div>
+</div>

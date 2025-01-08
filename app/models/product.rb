@@ -6,13 +6,11 @@ class Product < ApplicationRecord
 
   belongs_to :user
   belongs_to :album, class_name: 'Playlist', optional: true, foreign_key: :playlist_id
-
   belongs_to :coupon, optional: true
 
   has_many :product_variants, dependent: :destroy
   has_many :product_options, dependent: :destroy
   has_many :product_images
-
   has_many :purchased_items, as: :purchased_item
   has_many :product_shippings, dependent: :destroy
   has_many :product_purchase_items
@@ -25,23 +23,10 @@ class Product < ApplicationRecord
   validates :sku, presence: true, uniqueness: true
   validates :category, presence: true
   validates :status, presence: true
-  validates :album, presence: true, if: -> { ['vinyl', 'cassette'].include?(category) }
-  validates :condition, presence: true, if: :used_gear?
-  validates :brand, presence: true, if: :used_gear?
-  validates :model, presence: true, if: :used_gear?
-  validates :barter_description, presence: true, if: :accept_barter?
 
-  attribute :limited_edition, :boolean
-  attribute :limited_edition_count, :integer
-  attribute :include_digital_album, :boolean
   attribute :visibility, :string
   attribute :name_your_price, :boolean
-  attribute :shipping_days, :integer
-  attribute :shipping_begins_on, :date
-  attribute :shipping_within_country_price, :decimal
-  attribute :shipping_worldwide_price, :decimal
   attribute :quantity, :integer
-  attribute :accept_barter, :boolean, default: false
 
   enum :status, { active: 'active', inactive: 'inactive', sold_out: 'sold_out' }
   enum :category, { 
@@ -55,7 +40,7 @@ class Product < ApplicationRecord
     dj_gear: 'dj_gear',
     accessories: 'accessories'
   }
-  
+
   enum :condition, {
     new: 'new',
     like_new: 'like_new',
@@ -68,15 +53,11 @@ class Product < ApplicationRecord
 
   scope :active, -> { where(status: 'active') }
   scope :by_category, ->(category) { where(category: category) }
-  scope :used_gear, -> { where(category: ['instrument', 'audio_gear', 'dj_gear', 'accessories']) }
-  scope :accept_barter, -> { where(accept_barter: true) }
 
   accepts_nested_attributes_for :product_variants
   accepts_nested_attributes_for :product_options
   accepts_nested_attributes_for :product_images
   accepts_nested_attributes_for :product_shippings, allow_destroy: true, reject_if: :all_blank
-
-  after_create :create_default_shippings
 
   def self.ransackable_attributes(auth_object = nil)
     ["category", "created_at", "description", "id", "id_value", "include_digital_album", 
@@ -87,11 +68,6 @@ class Product < ApplicationRecord
      "condition", "brand", "model", "year", "accept_barter"]
   end
 
-  def create_default_shippings
-    product_shippings.create(country: 'Chile', is_default: true)
-    product_shippings.create(country: 'Rest of World', is_default: true)
-  end
-
   def main_image
     product_images.first
   end
@@ -99,18 +75,4 @@ class Product < ApplicationRecord
   def available?
     active? && stock_quantity > 0
   end
-
-  def update_stock(quantity)
-    new_stock = stock_quantity - quantity
-    update(stock_quantity: new_stock, status: 'sold_out') if new_stock <= 0
-  end
-
-  def decrease_quantity(amount)
-    update(stock_quantity: [stock_quantity - amount, 0].max)
-  end
-
-  def used_gear?
-    ['instrument', 'audio_gear', 'dj_gear', 'accessories'].include?(category)
-  end
-
 end

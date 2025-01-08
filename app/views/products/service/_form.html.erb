@@ -1,0 +1,89 @@
+<div class="mx-auto lg:w-2/4 my-4 px-4 lg:px-2">
+  <h2 class="text-2xl py-4 font-bold">
+    <%= product.new_record? ? "New Service" : "Edit Service" %>
+  </h2>
+
+  <%= form_with(model: product, 
+      url: product.new_record? ? 
+           user_products_service_index_path(current_user.username) : 
+           user_products_service_path(current_user.username, product),
+      local: true, 
+      data: { controller: "submit-on-change" }) do |form| %>
+
+    <% if form.object.errors.any? %>
+      <div class="py-3">
+        <p class="text-danger text-red-500 text-2xl">Errors Found</p>
+        <%= form.object.errors.full_messages.join(" ") %>
+      </div>
+    <% end %>
+
+    <div class="space-y-3">
+      <div class="block pt-0 space-y-3">
+        <div class="flex space-x-2">
+          <%= form.select :category, 
+              Products::ServiceProduct.categories.keys.map { |c| [c.titleize, c] },
+              { prompt: "Select service type" },
+              { data: { action: "change->submit-on-change#submitForm" } } %>
+              
+          <%= form.select :delivery_method, 
+              Products::ServiceProduct.delivery_methods.keys.map { |m| [m.to_s.titleize, m] },
+              { prompt: "Select delivery method" } %>
+        </div>
+
+        <%= form.text_field :title %>
+        <%= render "shared/simple_editor", form: form, field: :description %>
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <%= form.number_field :duration_minutes, 
+                min: 15,
+                step: 15,
+                label: "Duration (minutes)" %>
+          </div>
+
+          <% if form.object.classes? %>
+            <div>
+              <%= form.number_field :max_participants,
+                  min: 1,
+                  label: "Maximum participants" %>
+            </div>
+          <% end %>
+        </div>
+      </div>
+
+      <div data-accordeon data-controller="accordeon" class="w-full rounded-lg mb-2.5 bg-subtle dark:bg-black">
+        <%= render "products/shared/section_header", title: "Service Details" %>
+        <div class="p-5 block pt-0" data-accordeon-target="panel">
+          <div class="space-y-4">
+            <div>
+              <%= form.text_area :prerequisites,
+                  rows: 3,
+                  placeholder: "List any prerequisites or requirements for participants..." %>
+            </div>
+
+            <div>
+              <%= form.text_area :what_to_expect,
+                  rows: 3,
+                  placeholder: "Describe what participants can expect during the session..." %>
+            </div>
+
+            <div>
+              <%= form.text_area :cancellation_policy,
+                  rows: 3,
+                  placeholder: "Describe your cancellation and refund policy..." %>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <%= render "products/shared/pricing_section", form: form %>
+      <%= render "products/shared/photos_section", form: form %>
+
+      <div class="py-2 fixed bottom-[65px] w-full bg-emphasis left-0 border-t border-muted">
+        <div class="flex space-x-2 items-center p-6">
+          <%= form.submit class: "btn btn-primary" %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

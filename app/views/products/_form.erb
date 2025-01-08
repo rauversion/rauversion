@@ -13,7 +13,7 @@
     <% end %>
   </h2>
 
-  <%= form_with(model: product, local: true, data: {
+  <%= form_with(model: product, url: product.new_record? ? user_products_path(current_user.username) : user_product_path(current_user.username, product), local: true, data: {
       controller: "submit-on-change"
     }) do |form| %>
 

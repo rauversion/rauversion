@@ -30,6 +30,12 @@ Rails.application.routes.draw do
 
   resources :product_purchases, only: [:index, :show]
 
+
+
+  namespace :products do
+   
+  end
+
   resources :products do
     member do
       post 'add_to_cart'
@@ -220,8 +226,46 @@ Rails.application.routes.draw do
         :index, :create, :destroy
       ]
 
+
+
+      namespace :products, path: :products do
+
+        resources :music do
+          collection do
+            get :search
+          end
+        end
+    
+        resources :gear do
+          collection do
+            get :search
+            get :brands
+          end
+        end
+    
+        resources :merch do
+          collection do
+            get :search
+          end
+        end
+    
+        resources :accessory do
+          collection do
+            get :search
+          end
+        end
+
+        resources :service do
+          collection do
+            get :search
+          end
+        end
+      end
+
       resources :products do
-        get :used_gear, on: :collection
+        collection do
+          get :used_gear
+        end
       end
       resources :coupons
 

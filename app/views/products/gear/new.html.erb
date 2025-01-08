@@ -1,0 +1,5 @@
+<div class="container">
+  <h1>New Gear Product</h1>
+  <%= render 'form', product: @product %>
+  <%= link_to 'Back', user_products_gear_index_path(current_user.username), class: 'btn btn-link' %>
+</div>

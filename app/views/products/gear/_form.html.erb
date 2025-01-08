@@ -1,0 +1,93 @@
+<div class="mx-auto lg:w-2/4 my-4 px-4 lg:px-2">
+  <h2 class="text-2xl py-4 font-bold">
+    <%= product.new_record? ? "List Your Music Gear" : "Edit Gear Listing" %>
+  </h2>
+
+  <%= form_with(model: product, 
+      url: product.new_record? ? 
+           user_products_gear_index_path(current_user.username) : 
+           user_products_gear_path(current_user.username, product),
+      local: true, 
+      data: { controller: "submit-on-change" }) do |form| %>
+
+    <% if form.object.errors.any? %>
+      <div class="py-3">
+        <p class="text-danger text-red-500 text-2xl">Errors Found</p>
+        <%= form.object.errors.full_messages.join(" ") %>
+      </div>
+    <% end %>
+
+    <div class="space-y-3">
+      <div class="block pt-0 space-y-3">
+        <div class="flex space-x-2">
+          <%= form.select :category, 
+              Products::GearProduct.categories.keys
+                           .select { |k| ['instrument', 'audio_gear', 'dj_gear'].include?(k) }
+                           .map { |c| [c.titleize, c] },
+              { prompt: "Select category" },
+              { data: { action: "change->submit-on-change#submitForm" } } %>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <%= form.text_field :brand %>
+          </div>
+
+          <div>
+            <%= form.text_field :model %>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <%= form.number_field :year, min: 1900, max: Time.current.year %>
+          </div>
+
+          <div>
+            <%= form.select :condition, 
+                Product.conditions.keys.map { |c| [c.titleize, c] },
+                { prompt: "Select condition" } %>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <div class="flex items-start">
+            <%= form.check_box :accept_barter,
+                class: "rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50",
+                data: { 
+                  action: "change->submit-on-change#submitForm",
+                  "accordeon-target": "toggle"
+                } 
+            %>
+            <div class="ml-3">
+              <label for="product_accept_barter" class="text-sm font-medium text-default">Accept Barter</label>
+              <p class="text-sm text-gray-500">Check this if you're willing to accept item trades</p>
+            </div>
+          </div>
+        </div>
+
+        <% if form.object.accept_barter? %>
+          <div class="mt-4">
+            <%= form.text_area :barter_description, 
+                rows: 3,
+                placeholder: "Describe what kind of gear you'd consider trading for..."
+            %>
+          </div>
+        <% end %>
+
+        <%= form.text_field :title %>
+        <%= render "shared/simple_editor", form: form, field: :description %>
+      </div>
+
+      <%= render "products/shared/pricing_section", form: form %>
+      <%= render "products/shared/photos_section", form: form %>
+      <%= render "products/shared/shipping_section", form: form %>
+
+      <div class="py-2 fixed bottom-[65px] w-full bg-emphasis left-0 border-t border-muted">
+        <div class="flex space-x-2 items-center p-6">
+          <%= form.submit class: "btn btn-primary" %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

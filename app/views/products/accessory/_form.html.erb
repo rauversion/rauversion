@@ -1,0 +1,54 @@
+<div class="mx-auto lg:w-2/4 my-4 px-4 lg:px-2">
+  <h2 class="text-2xl py-4 font-bold">
+    <%= product.new_record? ? "New Accessory" : "Edit Accessory" %>
+  </h2>
+
+  <%= form_with(model: product, 
+      url: product.new_record? ? 
+           user_products_accessory_index_path(current_user.username) : 
+           user_products_accessory_path(current_user.username, product),
+      local: true, 
+      data: { controller: "submit-on-change" }) do |form| %>
+
+    <% if form.object.errors.any? %>
+      <div class="py-3">
+        <p class="text-danger text-red-500 text-2xl">Errors Found</p>
+        <%= form.object.errors.full_messages.join(" ") %>
+      </div>
+    <% end %>
+
+    <div class="space-y-3">
+      <div class="block pt-0 space-y-3">
+        <div class="flex space-x-2">
+          <%= form.select :category, 
+              Products::AccessoryProduct.categories.keys.map { |c| [c.titleize, c] },
+              { prompt: "Select category" },
+              { data: { action: "change->submit-on-change#submitForm" } } %>
+        </div>
+
+        <%= form.text_field :title %>
+        <%= render "shared/simple_editor", form: form, field: :description %>
+
+        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div>
+            <%= form.text_field :brand %>
+          </div>
+
+          <div>
+            <%= form.text_field :model %>
+          </div>
+        </div>
+      </div>
+
+      <%= render "products/shared/pricing_section", form: form, show_limited_edition: true %>
+      <%= render "products/shared/photos_section", form: form %>
+      <%= render "products/shared/shipping_section", form: form %>
+
+      <div class="py-2 fixed bottom-[65px] w-full bg-emphasis left-0 border-t border-muted">
+        <div class="flex space-x-2 items-center p-6">
+          <%= form.submit class: "btn btn-primary" %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>
