@@ -28,6 +28,8 @@ module Products
     validates :duration_minutes, presence: true, numericality: { greater_than: 0 }
     validates :max_participants, presence: true, numericality: { greater_than: 0 }, if: :classes?
 
+
+    
     def self.delivery_methods
       {
         online: 'online',

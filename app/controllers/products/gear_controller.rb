@@ -25,11 +25,15 @@ module Products
       @product = Products::GearProduct.new(product_params)
       @product.user = current_user
 
+      if params[:changed_form]
+        render "create", status: :unprocessable_entity and return
+      end
+
       if @product.save
         redirect_to user_product_path(current_user.username, @product), 
                     notice: 'Gear product was successfully created.'
       else
-        render :new
+        render "create", status: :unprocessable_entity and return
       end
     end
 
@@ -43,6 +47,10 @@ module Products
       else
         render :edit
       end
+    end
+
+    def product_class
+      Products::GearProduct
     end
   end
 end

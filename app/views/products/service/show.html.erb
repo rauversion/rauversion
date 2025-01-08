@@ -14,7 +14,7 @@
           <div>
             <h1 class="text-3xl font-bold mb-2"><%= @product.title %></h1>
             <div class="flex items-center text-gray-500 mb-4">
-              <span class="text-lg font-semibold"><%= @product.category.titleize %></span>
+              <span class="text-lg font-semibold"><%= @product.category.to_s.titleize %></span>
               <span class="mx-2">•</span>
               <span><%= @product.delivery_method.titleize %></span>
               <span class="mx-2">•</span>

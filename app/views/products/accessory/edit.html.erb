@@ -1,5 +1,6 @@
-<div class="container">
-  <h1>Edit Accessory Product</h1>
+
+<div id="product-form">
   <%= render 'form', product: @product %>
-  <%= link_to 'Back', user_products_accessory_index_path(current_user.username), class: 'btn btn-link' %>
 </div>
+<%= link_to 'Back', user_products_accessory_index_path(current_user.username), class: 'btn btn-link' %>
+

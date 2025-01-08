@@ -10,7 +10,8 @@
         url: product.new_record? ? 
             user_products_service_index_path(current_user.username) : 
             user_products_service_path(current_user.username, product),
-        local: true, 
+        local: true,
+        scope: :product,
         data: { controller: "submit-on-change" }) do |form| %>
 
       <% if form.object.errors.any? %>

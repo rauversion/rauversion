@@ -18,9 +18,9 @@ class Product < ApplicationRecord
 
   validates :title, presence: true
   validates :description, presence: true
-  validates :price, presence: true, numericality: { greater_than_or_equal_to: 0 }
-  validates :stock_quantity, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
-  validates :sku, presence: true, uniqueness: true
+  # validates :price, presence: true, numericality: { greater_than_or_equal_to: 0 }
+  # validates :stock_quantity, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+  # validates :sku, presence: true, uniqueness: true
   validates :category, presence: true
   validates :status, presence: true
 
@@ -73,6 +73,6 @@ class Product < ApplicationRecord
   end
 
   def available?
-    active? && stock_quantity > 0
+    active? && stock_quantity.to_i > 0
   end
 end

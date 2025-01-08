@@ -16,6 +16,10 @@ module Products
       end
     end
 
+    def find_product
+      product_class.friendly.find(params[:id])
+    end
+
     def product_params
       params.require(:product).permit(
         :title, :coupon_id,

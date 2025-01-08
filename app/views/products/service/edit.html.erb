@@ -1,5 +1,6 @@
-<div class="container">
-  <h1>Edit Service</h1>
-  <%= render partial: "form", locals: { product: @product } %>
-  <%= link_to 'Back', user_products_service_path(current_user.username, @product), class: 'btn btn-link' %>
+
+<div id="product-form">
+  <%= render 'form', product: @product %>
 </div>
+<%= link_to 'Back', user_products_service_path(current_user.username, @product), class: 'btn btn-link' %>
+

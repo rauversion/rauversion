@@ -16,7 +16,7 @@
       </p>
       <p class="bg-emphasis text-sm inline-flex hover:cursor-pointer items-center 
         rounded-full hover:bg-muted px-3 py-1 font-medium">
-        <%= product.category.humanize %>
+        <%= product.category.to_s.humanize %>
       </p>
     </div>
     <div class="absolute inset-x-0 top-0 flex h-72 items-end justify-end overflow-hidden rounded-lg p-4">

@@ -11,12 +11,17 @@ module Products
     def create
       @product = product_class.new(product_params)
       @product.user = current_user
+      @product.category = 'service'
+
+      if params[:changed_form]
+        render "create", status: :unprocessable_entity and return
+      end
 
       if @product.save
         redirect_to user_products_service_path(current_user.username, @product),
                     notice: 'Service was successfully created.'
       else
-        render :new, status: :unprocessable_entity
+        render "create", status: :unprocessable_entity
       end
     end
 
@@ -54,10 +59,6 @@ module Products
 
     def product_class
       Products::ServiceProduct
-    end
-
-    def find_product
-      product_class.find(params[:id])
     end
   end
 end
