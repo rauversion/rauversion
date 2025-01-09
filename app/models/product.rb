@@ -59,6 +59,23 @@ class Product < ApplicationRecord
   accepts_nested_attributes_for :product_images
   accepts_nested_attributes_for :product_shippings, allow_destroy: true, reject_if: :all_blank
 
+  def edit_path(user)
+    case type
+    when "Products::MusicProduct"
+      Rails.application.routes.url_helpers.edit_user_products_music_path(user.username, self)
+    when "Products::GearProduct"
+      Rails.application.routes.url_helpers.edit_user_products_gear_path(user.username, self)
+    when "Products::MerchProduct"
+      Rails.application.routes.url_helpers.edit_user_products_merch_path(user.username, self)
+    when "Products::AccessoryProduct"
+      Rails.application.routes.url_helpers.edit_user_products_accessory_path(user.username, self)
+    when "Products::ServiceProduct"
+      Rails.application.routes.url_helpers.edit_user_products_service_path(user.username, self)
+    else
+      Rails.application.routes.url_helpers.edit_user_product_path(user.username, self)
+    end
+  end
+
   def self.ransackable_attributes(auth_object = nil)
     ["category", "created_at", "description", "id", "id_value", "include_digital_album", 
      "limited_edition", "limited_edition_count", "name_your_price", "playlist_id", 
