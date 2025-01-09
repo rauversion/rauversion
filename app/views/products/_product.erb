@@ -27,6 +27,6 @@
     </div>
   </div>
   <div class="mt-6">
-    <%= button_to "Add to cart", product_cart_add_path(product_id: product.id), method: :post, class: "button-sm-outline w-full text-center justify-center" %>
+    <%= button_to t("add_to_cart"), product_cart_add_path(product_id: product.id), method: :post, class: "button-sm-outline w-full text-center justify-center" %>
   </div>
 </div>

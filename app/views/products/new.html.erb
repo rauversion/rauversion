@@ -1,7 +1,7 @@
 <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
   <div class="text-center mb-12">
-    <h1 class="text-4xl font-bold text-gray-900 dark:text-white">What would you like to sell?</h1>
-    <p class="mt-4 text-xl text-gray-600 dark:text-gray-300">Choose the type of product you want to create</p>
+    <h1 class="text-4xl font-bold text-gray-900 dark:text-white"><%= t('products.new.title') %></h1>
+    <p class="mt-4 text-xl text-gray-600 dark:text-gray-300"><%= t('products.new.subtitle') %></p>
   </div>
 
   <!-- 
@@ -14,36 +14,36 @@
 
   <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
     <%= render "products/type_card", 
-        title: "Music",
-        description: "Sell your vinyl records, CDs, cassettes, and digital albums.",
+        title: t('products.new.types.music.title'),
+        description: t('products.new.types.music.description'),
         icon_class: "music",
         color: "purple",
         path: new_user_products_music_path(current_user.username) %>
 
     <%= render "products/type_card", 
-        title: "Music Gear",
-        description: "List your instruments, audio gear, and DJ equipment.",
+        title: t('products.new.types.gear.title'),
+        description: t('products.new.types.gear.description'),
         icon_class: "gear",
         color: "blue",
         path: new_user_products_gear_path(current_user.username) %>
 
     <%= render "products/type_card", 
-        title: "Merchandise",
-        description: "Sell t-shirts, posters, and other branded merchandise.",
+        title: t('products.new.types.merch.title'),
+        description: t('products.new.types.merch.description'),
         icon_class: "merch",
         color: "pink",
         path: new_user_products_merch_path(current_user.username) %>
 
     <%= render "products/type_card", 
-        title: "Accessories",
-        description: "Offer music-related accessories and collectibles.",
+        title: t('products.new.types.accessory.title'),
+        description: t('products.new.types.accessory.description'),
         icon_class: "accessory",
         color: "amber",
         path: new_user_products_accessory_path(current_user.username) %>
 
     <%= render "products/type_card", 
-        title: "Services",
-        description: "Offer coaching, feedback, and music classes.",
+        title: t('products.new.types.service.title'),
+        description: t('products.new.types.service.description'),
         icon_class: "service",
         color: "emerald",
         path: new_user_products_service_path(current_user.username) %>

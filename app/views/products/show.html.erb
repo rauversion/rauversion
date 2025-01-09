@@ -118,8 +118,7 @@
 
           <div class="flex flex-col space-x-4 mb-8">
             <% if @product.available? %>             
-              <%= button_to "Add to cart", product_cart_add_path(product_id: @product.id), method: :post, class: "button-sm-outline w-full text-center justify-center" %>
-              <% # button_to "Add to Cart", "#", method: :post, class: "mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-default hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" %>
+              <%= button_to t("add_to_cart"), product_cart_add_path(product_id: @product.id), method: :post, class: "button-sm-outline w-full text-center justify-center" %>
             <% else %>
               <p class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100">Sold Out</p>
             <% end %>

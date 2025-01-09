@@ -1,4 +1,3 @@
-
 en:
   hello: "Hello world"
   by: "By %{name}"
@@ -14,6 +13,27 @@ en:
   save: Save
   back: "Back"
   view_all: View all
+  add_to_cart: "Add to cart"
+  products:
+    new:
+      title: "What would you like to sell?"
+      subtitle: "Choose the type of product you want to create"
+      types:
+        music:
+          title: "Music"
+          description: "Sell your vinyl records, CDs, cassettes, and digital albums."
+        gear:
+          title: "Music Gear"
+          description: "List your instruments, audio gear, and DJ equipment."
+        merch:
+          title: "Merchandise"
+          description: "Sell t-shirts, posters, and other branded merchandise."
+        accessory:
+          title: "Accessories"
+          description: "Offer music-related accessories and collectibles."
+        service:
+          title: "Services"
+          description: "Offer coaching, feedback, and music classes."
   menu:
     music: Music
     events: Events
@@ -88,7 +108,7 @@ en:
     people_attending: People Attending
     venue: venue
     location: location
-    copyright: Copyright ©
+    copyright: Copyright 
     all_rights: All rights reserved.
     get_tickets: Get your tickets
     watch_live: Watch live stream

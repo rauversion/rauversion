@@ -14,6 +14,28 @@ es:
   back: "Volver"
   view_all: "Ver todo"
   view: Ver
+  add_to_cart: "Agregar al carrito"
+
+  products:
+    new:
+      title: "¿Qué te gustaría vender?"
+      subtitle: "Elige el tipo de producto que deseas crear"
+      types:
+        music:
+          title: "Música"
+          description: "Vende tus discos de vinilo, CDs, casetes y álbumes digitales."
+        gear:
+          title: "Equipos Musicales"
+          description: "Lista tus instrumentos, equipos de audio y equipos de DJ."
+        merch:
+          title: "Mercancía"
+          description: "Vende camisetas, pósters y otros productos de merchandising."
+        accessory:
+          title: "Accesorios"
+          description: "Ofrece accesorios y coleccionables relacionados con la música."
+        service:
+          title: "Servicios"
+          description: "Ofrece coaching, feedback y clases de música."
 
   menu:
     my_label: Mi sello
@@ -81,7 +103,7 @@ es:
     people_attending: Personas asistentes
     venue: recinto
     location: ubicación
-    copyright: Derechos de autor ©
+    copyright: Derechos de autor 
     all_rights: Todos los derechos reservados.
     get_tickets: Consigue tus entradas
     watch_live: Ver transmisión en vivo
