@@ -29,6 +29,11 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def guard_artist
+    return if current_user.artist? or current_user.admin? or current_user.editor?
+    redirect_to root_url
+  end
+
   helper_method :label_user
   def label_user
     return if session[:parent_user].blank?

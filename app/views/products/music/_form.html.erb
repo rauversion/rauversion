@@ -1,5 +1,5 @@
 
-<div class="m-4 rounded-lg border border-default bg-card text-card-foreground shadow-sm mx-auto max-w-3xl">
+<div class="m-4 rounded-lg border border-default bg-card text-card-foreground shadow-sm">
   
   <div class="p-6 pt-0 space-y-6">
 
@@ -15,15 +15,11 @@
         scope: :product,
         data: { controller: "submit-on-change" }) do |form| %>
 
-      <% if form.object.errors.any? %>
-        <div class="py-3">
-          <p class="text-danger text-red-500 text-2xl">Errors Found</p>
-          <%= form.object.errors.full_messages.join(" ") %>
-        </div>
-      <% end %>
+      <%= render 'products/shared/form_errors', form: form %>
 
-      <div class="space-y-3">
-        <div class="block pt-0 space-y-3">
+      <div class="grid md:grid-cols-5 gap-4 grid-cols-1">
+        
+        <div class="block pt-0 space-y-3 md:col-span-2">
           <div class="flex space-x-2">
             <%= form.select :category, 
                 Products::MusicProduct.categories.keys
@@ -41,20 +37,21 @@
 
           <%= form.text_field :title %>
           <%= render "shared/simple_editor", form: form, field: :description %>
-        </div>
 
-        <%= render "products/shared/pricing_section", form: form, show_limited_edition: true %>
-
-        <div>
+  
           <%= form.check_box :include_digital_album, class: "rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" %>
           <span class="ml-2">Include digital album with purchase</span>
+    
         </div>
 
-        <%= render "products/shared/photos_section", form: form %>
-        <%= render "products/shared/shipping_section", form: form %>
+        <div class="flex flex-col flex-grow md:col-span-3 col-span-1">
+          <%= render "products/shared/pricing_section", form: form, show_limited_edition: true %>
 
-        <%= render "products/shared/submit_button", form: form %>
+          <%= render "products/shared/photos_section", form: form %>
+          <%= render "products/shared/shipping_section", form: form %>
 
+          <%= render "products/shared/submit_button", form: form %>
+        </div>
       </div>
     <% end %>
 

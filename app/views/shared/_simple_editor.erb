@@ -13,14 +13,7 @@
 
       <!-- list -->
       <button class="btn btn-xs text-xs font-bold border border-subtle outlined bg-default rounded-lg p-2" type="button" data-action="simple-editor#toggleBulletList">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="9" y1="6" x2="20" y2="6"></line>
-          <line x1="9" y1="12" x2="20" y2="12"></line>
-          <line x1="9" y1="18" x2="20" y2="18"></line>
-          <circle cx="4" cy="6" r="2"></circle>
-          <circle cx="4" cy="12" r="2"></circle>
-          <circle cx="4" cy="18" r="2"></circle>
-        </svg>
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-list"><line x1="8" x2="21" y1="6" y2="6"/><line x1="8" x2="21" y1="12" y2="12"/><line x1="8" x2="21" y1="18" y2="18"/><line x1="3" x2="3" y1="6" y2="6"/><line x1="3" x2="3" y1="12" y2="12"/><line x1="3" x2="3" y1="18" y2="18"/></svg>
       </button>
 
       <!-- ordered -->
@@ -64,6 +57,44 @@
         <input data-simple-editor-target="linkField" data-action="keydown.enter->simple-editor#setLink" type="text">
         <button class="btn btn-xs text-xs font-bold outlined bg-default rounded-lg p-2" type="button" data-action="click->simple-editor#setLink">link</button>
       </div>
+
+      <!-- AI Enhancement -->
+      <button class="btn btn-xs text-xs font-bold border border-subtle outlined bg-default rounded-lg p-2 text-purple-800" 
+              type="button" 
+              data-action="simple-editor#openAiPrompt"
+              data-simple-editor-target="enhanceButton">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-sparkles"><path d="m12 3-1.912 5.813a2 2 0 0 1-1.275 1.275L3 12l5.813 1.912a2 2 0 0 1 1.275 1.275L12 21l1.912-5.813a2 2 0 0 1 1.275-1.275L21 12l-5.813-1.912a2 2 0 0 1-1.275-1.275L12 3Z"/><path d="M5 3v4"/><path d="M19 17v4"/><path d="M3 5h4"/><path d="M17 19h4"/></svg>
+      </button>
+
+      <!-- AI Prompt Modal -->
+      <div data-simple-editor-target="aiPromptWrapper" class="hidden fixed inset-0 bg-white bg-opacity-50 overflow-y-auto h-full w-full z-50">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-default">
+          <div class="mt-3">
+            <h3 class="text-lg leading-6 font-medium text-default">Enhance Text</h3>
+            <div class="mt-2">
+              <textarea
+                data-simple-editor-target="aiPromptInput"
+                class="mt-1 block w-full rounded-md border-muted shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                rows="3"
+                placeholder="Enter your prompt to enhance the text..."></textarea>
+            </div>
+            <div class="mt-4 flex justify-end space-x-3">
+              <button
+                type="button"
+                data-action="simple-editor#closeAiPrompt"
+                class="inline-flex justify-center rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                Cancel
+              </button>
+              <button
+                type="button"
+                data-action="simple-editor#enhanceWithAI"
+                class="inline-flex justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2">
+                Enhance
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     
     </div>
 
@@ -81,14 +112,14 @@
             ADD DYNAMIC TEXT VARIABLES
           </div>
           <% local_assigns[:variables].each do |k, v| %>
-            <div role="menuitem" class="focus:ring-brand-800 text-sm text-gray-700 ring-inset first-of-type:rounded-t-[inherit] last-of-type:rounded-b-[inherit] hover:bg-gray-100 hover:text-gray-900 focus:outline-none focus:ring-1 hover:ring-0" tabindex="-1" data-orientation="vertical" data-radix-collection-item="">
+            <div role="menuitem" class="focus:ring-brand-800 text-sm text-gray-700 ring-inset first-of-type:rounded-t-[inherit] last-of-type:rounded-b-[inherit] hover:bg-gray-100 hover:text-default focus:outline-none focus:ring-1 hover:ring-0" tabindex="-1" data-orientation="vertical" data-radix-collection-item="">
               <button type="button" 
                 data-value=" {<%= k %>} "
                 data-action="click->simple-editor#insert" 
                 class="w-full px-4 py-2">
                 <div class="sm:grid sm:grid-cols-2">
                   <div class="mr-3 text-left md:col-span-1">{<%= k %>}</div>
-                  <div class="hidden text-left text-gray-600 sm:col-span-1 sm:flex"><%= v %></div>
+                  <div class="hidden text-left text-muted sm:col-span-1 sm:flex"><%= v %></div>
                 </div>
               </button>
             </div>

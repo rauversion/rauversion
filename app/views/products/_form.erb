@@ -17,12 +17,7 @@
       controller: "submit-on-change"
     }) do |form| %>
 
-    <% if form.object.errors.any? %>
-      <div class="py-3">
-        <p class="text-danger text-red-500 text-2xl">Errors Found</p>
-        <%= form.object.errors.full_messages.join(" ") %>
-      </div>
-    <% end %>
+    <%= render 'products/shared/form_errors', form: form %>
   
     <div class="space-y-3">
       <div class="block pt-0 space-y-3">

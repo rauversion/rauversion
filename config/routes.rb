@@ -290,5 +290,7 @@ Rails.application.routes.draw do
     end
   end
 
+  post 'ai_enhancements/enhance', to: 'ai_enhancements#enhance'
+
   # mount Plain::Engine => "/plain"
 end

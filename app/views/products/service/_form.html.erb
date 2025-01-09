@@ -1,4 +1,4 @@
-<div class="m-4 rounded-lg border border-default bg-card text-card-foreground shadow-sm mx-auto max-w-3xl">
+<div class="m-4 rounded-lg border border-default bg-card text-card-foreground shadow-sm">
   
   <div class="p-6 pt-0 space-y-6">
 
@@ -14,15 +14,10 @@
         scope: :product,
         data: { controller: "submit-on-change" }) do |form| %>
 
-      <% if form.object.errors.any? %>
-        <div class="py-3">
-          <p class="text-danger text-red-500 text-2xl">Errors Found</p>
-          <%= form.object.errors.full_messages.join(" ") %>
-        </div>
-      <% end %>
+      <%= render 'products/shared/form_errors', form: form %>
 
-      <div class="space-y-3">
-        <div class="block pt-0 space-y-3">
+      <div class="grid md:grid-cols-5 gap-4 grid-cols-1">
+        <div class="block pt-0 space-y-3 md:col-span-2">
           <div class="flex space-x-2">
             <%= form.select :category, 
                 Products::ServiceProduct.categories.keys.map { |c| [c.titleize, c] },
@@ -55,35 +50,36 @@
           </div>
         </div>
 
-        <div data-accordeon data-controller="accordeon" class="w-full rounded-lg mb-2.5 bg-subtle dark:bg-black">
-          <%= render "products/shared/section_header", title: "Service Details" %>
-          <div class="p-5 block pt-0" data-accordeon-target="panel">
-            <div class="space-y-4">
-              <div>
-                <%= form.text_area :prerequisites,
-                    rows: 3,
-                    placeholder: "List any prerequisites or requirements for participants..." %>
-              </div>
+        <div class="flex flex-col flex-grow md:col-span-3 col-span-1">
+          <div data-accordeon data-controller="accordeon" class="w-full rounded-lg mb-2.5 bg-subtle dark:bg-black">
+            <%= render "products/shared/section_header", title: "Service Details" %>
+            <div class="p-5 block pt-0" data-accordeon-target="panel">
+              <div class="space-y-4">
+                <div>
+                  <%= form.text_area :prerequisites,
+                      rows: 3,
+                      placeholder: "List any prerequisites or requirements for participants..." %>
+                </div>
 
-              <div>
-                <%= form.text_area :what_to_expect,
-                    rows: 3,
-                    placeholder: "Describe what participants can expect during the session..." %>
-              </div>
+                <div>
+                  <%= form.text_area :what_to_expect,
+                      rows: 3,
+                      placeholder: "Describe what participants can expect during the session..." %>
+                </div>
 
-              <div>
-                <%= form.text_area :cancellation_policy,
-                    rows: 3,
-                    placeholder: "Describe your cancellation and refund policy..." %>
+                <div>
+                  <%= form.text_area :cancellation_policy,
+                      rows: 3,
+                      placeholder: "Describe your cancellation and refund policy..." %>
+                </div>
               </div>
             </div>
           </div>
+
+          <%= render "products/shared/pricing_section", form: form %>
+          <%= render "products/shared/photos_section", form: form %>
+          <%= render "products/shared/submit_button", form: form %>
         </div>
-
-        <%= render "products/shared/pricing_section", form: form %>
-        <%= render "products/shared/photos_section", form: form %>
-
-        <%= render "products/shared/submit_button", form: form %>
 
       </div>
     <% end %>
