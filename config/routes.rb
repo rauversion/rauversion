@@ -213,6 +213,7 @@ Rails.application.routes.draw do
       patch :schedule
       patch :complete
       patch :cancel
+      get :feedback_form
     end
   end
 

@@ -32,6 +32,10 @@ class ServiceBooking < ApplicationRecord
   validates :meeting_link, presence: true, if: :online_meeting_required?
   validates :meeting_location, presence: true, if: :in_person_meeting_required?
 
+  validates :rating, inclusion: { in: 1..5 }, allow_nil: true
+  validates :feedback, length: { maximum: 1000 }, allow_nil: true
+
+
   before_validation :set_initial_status, on: :create
   after_create :notify_new_booking
   after_update :notify_status_change

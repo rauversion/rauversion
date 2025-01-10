@@ -77,6 +77,19 @@ class ServiceBookingsController < ApplicationController
     redirect_to service_bookings_path
   end
 
+  def update
+    @service_booking = ServiceBooking.find(params[:id])
+    if @service_booking.update(service_booking_params)
+      redirect_to service_bookings_path, notice: t('.feedback_submitted')
+    else
+      render :show, status: :unprocessable_entity
+    end
+  end
+
+  def feedback_form
+    @service_booking = ServiceBooking.find(params[:id])
+  end
+
   private
 
   def set_service_booking
@@ -105,7 +118,9 @@ class ServiceBookingsController < ApplicationController
       :meeting_link,
       :meeting_location,
       :provider_notes,
-      :meeting_link
+      :meeting_link,
+      :rating,
+      :feedback
     )
   end
 end

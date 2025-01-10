@@ -1,0 +1,35 @@
+<%= render "shared/modal", title: t('.add_feedback') do %>
+  <%= form_with(model: @service_booking, class: "p-4") do |f| %>
+    <div class="space-y-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+          <%= t('service_bookings.feedback_form.rating') %>
+        </label>
+        <div class="mt-1 flex space-x-2">
+          <% (1..5).each do |star| %>
+            <%= f.radio_button :rating, star, class: "hidden peer", required: true, id: "star_#{star}" %>
+            <label for="star_<%=star%>" class="cursor-pointer text-2xl peer-checked:text-yellow-400">
+              ★
+            </label>
+          <% end %>
+        </div>
+      </div>
+
+      <div>
+        <div class="mt-1">
+          <%= f.text_area :feedback,
+              rows: 3,
+              label: t('service_bookings.feedback_form.feedback'),
+              required: true,
+              class: "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md",
+              placeholder: t('service_bookings.feedback_form.feedback_placeholder') %>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-5">
+      <%= f.submit t('service_bookings.feedback_form.submit'),
+          class: "w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:text-sm" %>
+    </div>
+  <% end %>
+<% end %>

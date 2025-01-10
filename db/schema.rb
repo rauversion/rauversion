@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_01_10_185248) do
+ActiveRecord::Schema[8.0].define(version: 2025_01_10_202843) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -615,6 +615,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_10_185248) do
     t.jsonb "metadata", default: {}, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "rating"
+    t.text "feedback"
     t.index ["customer_id"], name: "index_service_bookings_on_customer_id"
     t.index ["provider_id"], name: "index_service_bookings_on_provider_id"
     t.index ["service_product_id"], name: "index_service_bookings_on_service_product_id"

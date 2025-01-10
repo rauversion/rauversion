@@ -319,6 +319,14 @@ es:
       schedule_button: "Programar Servicio"
       cancel_button: "Cancelar"
 
+    feedback_form:
+      add_feedback: "Agrega tu Opinión"
+      rating: "Califica tu experiencia"
+      feedback: "Tu opinión"
+      feedback_placeholder: "Cuéntanos sobre tu experiencia..."
+      submit: "Enviar Opinión"
+    update:
+      feedback_submitted: "¡Gracias por tu opinión!"
     confirm:
       success: "La reserva ha sido confirmada exitosamente"
       invalid_status: "Esta reserva no puede ser confirmada"

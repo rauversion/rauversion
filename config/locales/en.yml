@@ -320,6 +320,14 @@ en:
       cancel_confirm: "Are you sure you want to cancel this booking? This action cannot be undone."
       provider_notes: "Provider Notes"
 
+    feedback_form:
+      add_feedback: "Add Your Feedback"
+      rating: "Rate your experience"
+      feedback: "Your feedback"
+      feedback_placeholder: "Tell us about your experience..."
+      submit: "Submit Feedback"
+    update:
+      feedback_submitted: "Thank you for your feedback!"
     schedule_modal:
       schedule_service: "Schedule Service"
       schedule_description: "Set the date and time for this service. Make sure to coordinate with the customer beforehand."
