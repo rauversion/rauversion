@@ -1,8 +1,8 @@
 class ServiceBookingsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_service_booking, only: [:show, :confirm, :schedule, :complete, :cancel]
+  before_action :set_service_booking, only: [:show, :confirm, :schedule_form, :schedule, :complete, :cancel]
   before_action :ensure_customer_or_provider, only: [:show]
-  before_action :ensure_provider, only: [:confirm, :schedule, :complete, :cancel]
+  before_action :ensure_provider, only: [:confirm, :schedule_form, :schedule, :complete, :cancel]
 
   def index
     @service_bookings = case params[:filter]
@@ -21,67 +21,60 @@ class ServiceBookingsController < ApplicationController
   def show
   end
 
-  def create
-    @service_product = Products::ServiceProduct.find(params[:service_product_id])
-    @service_booking = ServiceBooking.new(
-      service_product: @service_product,
-      customer: current_user,
-      provider: @service_product.user,
-      metadata: booking_metadata
-    )
-
-    if @service_booking.save
-      redirect_to service_booking_path(@service_booking), 
-        notice: t('.success')
-    else
-      redirect_to service_product_path(@service_product), 
-        alert: @service_booking.errors.full_messages.join(", ")
-    end
-  end
-
-  # Provider actions
   def confirm
     if @service_booking.pending_confirmation?
-      @service_booking.confirmed!
-      redirect_to service_booking_path(@service_booking), 
-        notice: t('.success')
+      @service_booking.update!(status: :confirmed)
+      flash[:notice] = t('.success')
     else
-      redirect_to service_booking_path(@service_booking), 
-        alert: t('.invalid_status')
+      flash[:alert] = t('.invalid_status')
+    end
+    redirect_to service_bookings_path
+  end
+
+  def schedule_form
+    if @service_booking.confirmed?
+      render partial: 'schedule_form', layout: false
+    else
+      redirect_to service_bookings_path, alert: t('.invalid_status')
     end
   end
 
   def schedule
-    if @service_booking.confirmed? && @service_booking.update(scheduling_params)
-      @service_booking.scheduled!
-      redirect_to service_booking_path(@service_booking), 
-        notice: t('.success')
+    if @service_booking.confirmed?
+      if @service_booking.update(schedule_params)
+        @service_booking.update!(status: :scheduled)
+        flash[:notice] = t('.success')
+      else
+        flash[:alert] = @service_booking.errors.full_messages.to_sentence
+      end
     else
-      render :show, status: :unprocessable_entity
+      flash[:alert] = t('.invalid_status')
     end
+    redirect_to service_bookings_path
   end
 
   def complete
-    if @service_booking.in_progress?
-      @service_booking.completed!
-      redirect_to service_booking_path(@service_booking), 
-        notice: t('.success')
+    if @service_booking.scheduled?
+      @service_booking.update!(status: :completed)
+      flash[:notice] = t('.success')
     else
-      redirect_to service_booking_path(@service_booking), 
-        alert: t('.invalid_status')
+      flash[:alert] = t('.invalid_status')
     end
+    redirect_to service_bookings_path
   end
 
   def cancel
     if @service_booking.may_cancel?
-      @service_booking.cancelled!
-      # TODO: Handle refund process if needed
-      redirect_to service_booking_path(@service_booking), 
-        notice: t('.success')
+      @service_booking.update!(
+        status: :cancelled,
+        cancelled_by: current_user,
+        cancellation_reason: params[:cancellation_reason]
+      )
+      flash[:notice] = t('.success')
     else
-      redirect_to service_booking_path(@service_booking), 
-        alert: t('.invalid_status')
+      flash[:alert] = t('.invalid_status')
     end
+    redirect_to service_bookings_path
   end
 
   private
@@ -91,32 +84,28 @@ class ServiceBookingsController < ApplicationController
   end
 
   def ensure_customer_or_provider
-    unless current_user == @service_booking.customer || 
-           current_user == @service_booking.provider
-      redirect_to root_path, alert: t('unauthorized')
+    unless [@service_booking.customer, @service_booking.provider].include?(current_user)
+      flash[:alert] = t('unauthorized')
+      redirect_to root_path
     end
   end
 
   def ensure_provider
-    unless current_user == @service_booking.provider
-      redirect_to root_path, alert: t('unauthorized')
+    unless @service_booking.provider == current_user
+      flash[:alert] = t('unauthorized')
+      redirect_to root_path
     end
   end
 
-  def booking_metadata
-    {
-      special_requirements: params[:special_requirements],
-      timezone: params[:timezone] || current_user.timezone
-    }
-  end
-
-  def scheduling_params
+  def schedule_params
     params.require(:service_booking).permit(
       :scheduled_date,
       :scheduled_time,
+      :timezone,
       :meeting_link,
       :meeting_location,
-      :provider_notes
+      :provider_notes,
+      :meeting_link
     )
   end
 end

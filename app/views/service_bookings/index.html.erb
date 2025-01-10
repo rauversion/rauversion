@@ -46,7 +46,103 @@
                 <span class="px-2 py-1 text-sm rounded-full <%= booking_status_class(booking.status) %>">
                   <%= t("service_bookings.status.#{booking.status}") %>
                 </span>
-                <%= link_to t('.view_details'), service_booking_path(booking), class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+
+                <% if booking.provider == current_user %>
+                  <% case booking.status %>
+                  <% when 'pending_confirmation' %>
+                    <%= button_to confirm_service_booking_path(booking),
+                        method: :patch,
+                        class: "inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
+                      <svg class="h-4 w-4 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <%= t('.confirm') %>
+                    <% end %>
+
+                  <% when 'confirmed' %>
+                    <div class="space-y-2">
+                      <div class="text-sm text-gray-700 dark:text-gray-300 font-medium">
+                        <%= t('.waiting_schedule') %>
+                      </div>
+
+                      <%= link_to schedule_form_service_booking_path(booking),
+                              data: { turbo_frame: "modal" },
+                              class: "inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500" do %>
+                        <svg class="h-4 w-4 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <%= t('.schedule') %>
+                      <% end %>
+                    </div>
+                  <% when 'scheduled' %>
+                    <div class="space-y-2">
+                      <div class="flex items-center text-sm text-gray-700 dark:text-gray-300">
+                        <svg class="h-4 w-4 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <%= booking.scheduled_date %> at <%= booking.scheduled_time %>
+                        (<%= booking.timezone %>)
+                      </div>
+
+                      <% if booking.meeting_link.present? %>
+                        <div class="flex items-center text-sm text-gray-700 dark:text-gray-300">
+                          <svg class="h-4 w-4 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                          <%= link_to t('.online_meeting'), booking.meeting_link, 
+                              target: "_blank",
+                              class: "text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300" %>
+                        </div>
+                      <% end %>
+
+                      <% if booking.meeting_location.present? %>
+                        <div class="flex items-center text-sm text-gray-700 dark:text-gray-300">
+                          <svg class="h-4 w-4 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          <%= booking.meeting_location %>
+                        </div>
+                      <% end %>
+
+                      <% if booking.provider_notes.present? %>
+                        <div class="flex items-start text-sm text-gray-700 dark:text-gray-300">
+                          <svg class="h-4 w-4 mr-1.5 mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          <div class="flex-1">
+                            <div class="font-medium"><%= t('.provider_notes') %>:</div>
+                            <%= booking.provider_notes %>
+                          </div>
+                        </div>
+                      <% end %>
+
+                      <%= button_to complete_service_booking_path(booking),
+                          method: :patch,
+                          class: "mt-3 inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" do %>
+                        <svg class="h-4 w-4 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <%= t('.mark_complete') %>
+                      <% end %>
+                    </div>
+                  <% end %>
+
+                  <% if booking.may_cancel? %>
+                    <%= button_to cancel_service_booking_path(booking), 
+                        method: :patch,
+                        data: { confirm: t('.cancel_confirm') },
+                        class: "inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500" do %>
+                      <svg class="h-4 w-4 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      <%= t('.cancel') %>
+                    <% end %>
+                  <% end %>
+                <% end %>
+
+                <%= link_to t('.view_details'), service_booking_path(booking), 
+                    class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
               </div>
             </div>
 

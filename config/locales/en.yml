@@ -307,12 +307,54 @@ en:
       for_customer: "for %{customer}"
       view_details: "View Details"
       not_scheduled: "Not scheduled yet"
+      waiting_schedule: "Booking confirmed. Waiting to be scheduled."
       minutes: "minutes"
-      online_meeting: "Online Meeting"
+      online_meeting: "Join Online Meeting"
       in_person: "In Person"
       no_bookings: "No bookings found"
       no_bookings_description: "You don't have any service bookings yet."
-    statuses:
+      confirm: "Confirm Booking"
+      schedule: "Schedule Service"
+      mark_complete: "Mark as Complete"
+      cancel: "Cancel Booking"
+      cancel_confirm: "Are you sure you want to cancel this booking? This action cannot be undone."
+      provider_notes: "Provider Notes"
+
+    schedule_modal:
+      schedule_service: "Schedule Service"
+      schedule_description: "Set the date and time for this service. Make sure to coordinate with the customer beforehand."
+      date: "Date"
+      time: "Time"
+      timezone: "Timezone"
+      meeting_link: "Meeting Link"
+      meeting_link_placeholder: "e.g., https://zoom.us/j/123456789"
+      meeting_link_help: "Add a video conference link (Zoom, Google Meet, etc.) if this is an online meeting"
+      meeting_location: "Meeting Location"
+      meeting_location_placeholder: "e.g., 123 Main St, Suite 100"
+      meeting_location_help: "Add the physical location if this is an in-person meeting"
+      provider_notes: "Provider Notes"
+      provider_notes_placeholder: "Add any special instructions or notes for the customer"
+      provider_notes_help: "These notes will be visible to the customer"
+      schedule_button: "Schedule Service"
+      cancel_button: "Cancel"
+
+    confirm:
+      success: "Booking has been confirmed successfully"
+      invalid_status: "This booking cannot be confirmed"
+
+    schedule:
+      success: "Service has been scheduled successfully"
+      invalid_status: "This booking cannot be scheduled"
+
+    complete:
+      success: "Service has been marked as completed"
+      invalid_status: "This service cannot be marked as completed yet"
+
+    cancel:
+      success: "Booking has been cancelled"
+      invalid_status: "This booking cannot be cancelled"
+
+    status:
       pending_confirmation: "Pending Confirmation"
       confirmed: "Confirmed"
       scheduled: "Scheduled"
@@ -320,19 +362,10 @@ en:
       completed: "Completed"
       cancelled: "Cancelled"
       refunded: "Refunded"
+
     create:
       success: "Service booking created successfully"
-    confirm:
-      success: "Service booking confirmed"
-      invalid_status: "Cannot confirm this booking in its current status"
-    schedule:
-      success: "Service booking scheduled successfully"
-    complete:
-      success: "Service marked as completed"
-      invalid_status: "Cannot complete this booking in its current status"
-    cancel:
-      success: "Service booking cancelled"
-      invalid_status: "Cannot cancel this booking in its current status"
+
     show:
       title: "Service Booking Details"
       provider_section: "Provider Actions"
@@ -427,3 +460,16 @@ en:
     my_sales: My sales
     settings: Settings
     log_out: Log out
+
+  shared:
+    modal:
+      meeting_link: "Meeting Link"
+      meeting_location: "Meeting Location"
+      provider_notes: "Provider Notes"
+      close: "Close"
+      meeting_link_placeholder: "e.g., https://zoom.us/j/123456789"
+      meeting_location_placeholder: "e.g., 123 Main St, Suite 100"
+      provider_notes_placeholder: "Add any special instructions or notes for the customer"
+      meeting_link_help: "Add a video conference link (Zoom, Google Meet, etc.) if this is an online meeting"
+      meeting_location_help: "Add the physical location if this is an in-person meeting"
+      provider_notes_help: "These notes will be visible to the customer"

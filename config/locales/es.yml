@@ -288,12 +288,54 @@ es:
       for_customer: "para %{customer}"
       view_details: "Ver Detalles"
       not_scheduled: "Aún no programada"
+      waiting_schedule: "Reserva confirmada. Esperando programación."
       minutes: "minutos"
-      online_meeting: "Reunión en Línea"
+      online_meeting: "Unirse a la Reunión Virtual"
       in_person: "Presencial"
       no_bookings: "No se encontraron reservas"
       no_bookings_description: "Aún no tienes reservas de servicios."
-    statuses:
+      confirm: "Confirmar Reserva"
+      schedule: "Programar Servicio"
+      mark_complete: "Marcar como Completado"
+      cancel: "Cancelar Reserva"
+      cancel_confirm: "¿Estás seguro de que deseas cancelar esta reserva? Esta acción no se puede deshacer."
+      provider_notes: "Notas del Proveedor"
+
+    schedule_modal:
+      schedule_service: "Programar Servicio"
+      schedule_description: "Establece la fecha y hora para este servicio. Asegúrate de coordinar con el cliente previamente."
+      date: "Fecha"
+      time: "Hora"
+      timezone: "Zona Horaria"
+      meeting_link: "Enlace de Reunión"
+      meeting_link_placeholder: "ej., https://zoom.us/j/123456789"
+      meeting_link_help: "Agrega un enlace de videoconferencia (Zoom, Google Meet, etc.) si es una reunión virtual"
+      meeting_location: "Ubicación de la Reunión"
+      meeting_location_placeholder: "ej., Calle Principal 123, Oficina 100"
+      meeting_location_help: "Agrega la ubicación física si es una reunión presencial"
+      provider_notes: "Notas del Proveedor"
+      provider_notes_placeholder: "Agrega instrucciones especiales o notas para el cliente"
+      provider_notes_help: "Estas notas serán visibles para el cliente"
+      schedule_button: "Programar Servicio"
+      cancel_button: "Cancelar"
+
+    confirm:
+      success: "La reserva ha sido confirmada exitosamente"
+      invalid_status: "Esta reserva no puede ser confirmada"
+
+    schedule:
+      success: "El servicio ha sido programado exitosamente"
+      invalid_status: "Esta reserva no puede ser programada"
+
+    complete:
+      success: "El servicio ha sido marcado como completado"
+      invalid_status: "Este servicio no puede ser marcado como completado aún"
+
+    cancel:
+      success: "La reserva ha sido cancelada"
+      invalid_status: "Esta reserva no puede ser cancelada"
+
+    status:
       pending_confirmation: "Pendiente de Confirmación"
       confirmed: "Confirmado"
       scheduled: "Programado"
@@ -301,19 +343,10 @@ es:
       completed: "Completado"
       cancelled: "Cancelado"
       refunded: "Reembolsado"
+
     create:
       success: "Reserva de servicio creada exitosamente"
-    confirm:
-      success: "Reserva de servicio confirmada"
-      invalid_status: "No se puede confirmar esta reserva en su estado actual"
-    schedule:
-      success: "Reserva de servicio programada exitosamente"
-    complete:
-      success: "Servicio marcado como completado"
-      invalid_status: "No se puede completar esta reserva en su estado actual"
-    cancel:
-      success: "Reserva de servicio cancelada"
-      invalid_status: "No se puede cancelar esta reserva en su estado actual"
+
     show:
       title: "Detalles de la Reserva"
       provider_section: "Acciones del Proveedor"
@@ -419,3 +452,16 @@ es:
     my_sales: Mis ventas
     settings: Configuraciones
     log_out: Cerrar sesión
+
+  shared:
+    modal:
+      meeting_link: "Enlace de Reunión"
+      meeting_location: "Ubicación de la Reunión"
+      provider_notes: "Notas del Proveedor"
+      close: "Cerrar"
+      meeting_link_placeholder: "ej., https://zoom.us/j/123456789"
+      meeting_location_placeholder: "ej., Calle Principal 123, Oficina 100"
+      provider_notes_placeholder: "Agrega instrucciones especiales o notas para el cliente"
+      meeting_link_help: "Agrega un enlace de videoconferencia (Zoom, Google Meet, etc.) si es una reunión virtual"
+      meeting_location_help: "Agrega la ubicación física si es una reunión presencial"
+      provider_notes_help: "Estas notas serán visibles para el cliente"

@@ -209,6 +209,7 @@ Rails.application.routes.draw do
   resources :service_bookings do
     member do
       patch :confirm
+      get :schedule_form
       patch :schedule
       patch :complete
       patch :cancel
