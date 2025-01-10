@@ -51,5 +51,31 @@ module Products
     def max_participants=(value)
       super(value.presence && value.to_i)
     end
+
+    def decrease_quantity(amount, customer = nil)
+      return unless amount.positive?
+      
+      with_lock do
+        new_quantity = stock_quantity - amount
+        if new_quantity >= 0
+          update!(stock_quantity: new_quantity)
+          update!(status: :sold_out) if new_quantity == 0
+          
+          # Create service booking for each purchased slot
+          if customer.present?
+            amount.times do
+              ServiceBooking.create!(
+                service_product: self,
+                customer: customer,
+                provider: user,
+                status: :pending_confirmation
+              )
+            end
+          end
+        else
+          raise ActiveRecord::RecordInvalid.new(self)
+        end
+      end
+    end
   end
 end

@@ -111,7 +111,7 @@ class ProductCheckoutController < ApplicationController
         })
   
         @purchase.product_purchase_items.each do |item|
-          item.product.decrease_quantity(item.quantity)
+          item.product.decrease_quantity(item.quantity, current_user) if item.quantity.positive?
         end
   
         ProductPurchaseMailer.purchase_confirmation(@purchase).deliver_later

@@ -295,3 +295,135 @@ en:
     episodes: "Episodes"
     show_more: "Show More"
     listen: Listen
+
+  service_bookings:
+    index:
+      title: "Service Bookings"
+      subtitle: "Manage your service bookings and appointments"
+      all: "All Bookings"
+      as_customer: "My Bookings"
+      as_provider: "Provider View"
+      with_provider: "with %{provider}"
+      for_customer: "for %{customer}"
+      view_details: "View Details"
+      not_scheduled: "Not scheduled yet"
+      minutes: "minutes"
+      online_meeting: "Online Meeting"
+      in_person: "In Person"
+      no_bookings: "No bookings found"
+      no_bookings_description: "You don't have any service bookings yet."
+    statuses:
+      pending_confirmation: "Pending Confirmation"
+      confirmed: "Confirmed"
+      scheduled: "Scheduled"
+      in_progress: "In Progress"
+      completed: "Completed"
+      cancelled: "Cancelled"
+      refunded: "Refunded"
+    create:
+      success: "Service booking created successfully"
+    confirm:
+      success: "Service booking confirmed"
+      invalid_status: "Cannot confirm this booking in its current status"
+    schedule:
+      success: "Service booking scheduled successfully"
+    complete:
+      success: "Service marked as completed"
+      invalid_status: "Cannot complete this booking in its current status"
+    cancel:
+      success: "Service booking cancelled"
+      invalid_status: "Cannot cancel this booking in its current status"
+    show:
+      title: "Service Booking Details"
+      provider_section: "Provider Actions"
+      confirm_button: "Confirm Booking"
+      schedule_button: "Schedule Service"
+      complete_button: "Mark as Completed"
+      cancel_button: "Cancel Booking"
+      scheduling:
+        title: "Schedule Service"
+        date_label: "Date"
+        time_label: "Time"
+        timezone_label: "Timezone"
+        meeting_link_label: "Meeting Link"
+        meeting_location_label: "Meeting Location"
+        notes_label: "Provider Notes"
+      customer_info:
+        title: "Customer Information"
+        special_requirements: "Special Requirements"
+
+  service_booking_mailer:
+    new_booking_notification:
+      subject: "New booking request for %{service} from %{customer}"
+      greeting: "Hello %{provider}!"
+      intro: "%{customer} has requested to book your service: %{service}"
+      booking_details: "Booking Details"
+      service: "Service"
+      category: "Category"
+      duration: "Duration"
+      minutes: "minutes"
+      special_requirements: "Special Requirements"
+      view_booking_button: "View Booking Details"
+      action_required: "Please review and confirm this booking request at your earliest convenience."
+
+    booking_confirmed_notification:
+      subject: "Your booking for %{service} has been confirmed by %{provider}"
+      greeting: "Hello %{customer}!"
+      confirmation_message: "Great news! %{provider} has confirmed your booking for %{service}."
+      booking_details: "Booking Details"
+      service: "Service"
+      provider: "Provider"
+      category: "Category"
+      duration: "Duration"
+      minutes: "minutes"
+      delivery_method: "Delivery Method"
+      next_steps: "The provider will contact you soon to schedule the service."
+      view_booking_button: "View Booking Details"
+      support_message: "If you have any questions, please contact our support team at %{email}"
+
+    booking_scheduled_notification:
+      subject: "%{service} with %{provider} has been scheduled"
+      greeting: "Hello %{customer}!"
+      scheduled_message: "Your session has been scheduled!"
+      date_time: "Date and Time"
+      timezone: "Timezone"
+      meeting_details: "Meeting Details"
+      online_meeting: "Online Meeting Link"
+      location: "Location"
+      view_booking_button: "View Booking Details"
+      calendar_button: "Add to Calendar"
+
+    service_completed_notification:
+      subject: "Your %{service} session has been completed"
+      greeting: "Hello %{customer}!"
+      completion_message: "Your service has been marked as completed."
+      feedback_request: "We'd love to hear about your experience!"
+      rate_button: "Rate this Service"
+
+    booking_cancelled_notification:
+      subject: "%{service} booking cancelled by %{cancelled_by}"
+      greeting: "Hello!"
+      cancellation_message: "The booking has been cancelled."
+      refund_info: "If you have made any payments, they will be refunded within 5-7 business days."
+
+    reminder_notification:
+      subject: "Reminder: %{service} scheduled for %{time}"
+      greeting: "Hello!"
+      reminder_message: "This is a friendly reminder about your upcoming service."
+      view_details_button: "View Details"
+
+  menu:
+    music: Music
+    events: Events
+    magazine: Magazine
+    upload: "upload"
+    register: "Register"
+    log_in: "Log in"
+    notifications: "notifications"
+    my_music: My music
+    my_articles: My articles
+    my_events: My events
+    my_purchases: My purchases
+    my_sales: My sales
+    settings: Settings
+    log_out: Log out
