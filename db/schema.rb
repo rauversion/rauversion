@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_01_08_162458) do
+ActiveRecord::Schema[8.0].define(version: 2025_01_10_185248) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -607,6 +607,20 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_08_162458) do
     t.index ["event_schedule_id"], name: "index_schedule_schedulings_on_event_schedule_id"
   end
 
+  create_table "service_bookings", force: :cascade do |t|
+    t.bigint "service_product_id", null: false
+    t.bigint "customer_id", null: false
+    t.bigint "provider_id", null: false
+    t.string "status", null: false
+    t.jsonb "metadata", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["customer_id"], name: "index_service_bookings_on_customer_id"
+    t.index ["provider_id"], name: "index_service_bookings_on_provider_id"
+    t.index ["service_product_id"], name: "index_service_bookings_on_service_product_id"
+    t.index ["status"], name: "index_service_bookings_on_status"
+  end
+
   create_table "spotlights", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.string "spotlightable_type", null: false
@@ -809,6 +823,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_08_162458) do
   add_foreign_key "reposts", "tracks"
   add_foreign_key "reposts", "users"
   add_foreign_key "schedule_schedulings", "event_schedules"
+  add_foreign_key "service_bookings", "products", column: "service_product_id"
+  add_foreign_key "service_bookings", "users", column: "customer_id"
+  add_foreign_key "service_bookings", "users", column: "provider_id"
   add_foreign_key "spotlights", "users"
   add_foreign_key "tickets", "events"
   add_foreign_key "track_comments", "tracks"

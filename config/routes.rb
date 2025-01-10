@@ -206,6 +206,16 @@ Rails.application.routes.draw do
   resources :labels
   resources :albums
 
+  resources :service_bookings do
+    member do
+      patch :confirm
+      get :schedule_form
+      patch :schedule
+      patch :complete
+      patch :cancel
+    end
+  end
+
   constraints(Constraints::UsernameRouteConstrainer.new) do
     # Same route as before, only within the constraints block
     resources :users, path: "" do
