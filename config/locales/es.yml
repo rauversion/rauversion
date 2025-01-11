@@ -193,6 +193,7 @@ es:
     follow: Seguir
     unfollow: Dejar de seguir
     following: Siguiendo
+    artists: Artistas
 
   user_settings:
     title_account: Cuenta

@@ -200,6 +200,7 @@ en:
     follow: Follow
     unfollow: Unfollow
     following: Following
+    artists: Artists
 
   user_settings:
     title_account: Account

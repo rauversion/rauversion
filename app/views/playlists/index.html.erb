@@ -1,0 +1,17 @@
+<div class="container mx-auto px-4">
+  <% Playlist::Types.plain.each do |type| %>
+    <% if @playlists_by_type[type].present? %>
+      <section class="max-w-6xl mx-auto">
+        <h2 class="text-2xl font-bold mb-4 capitalize"><%= type.pluralize %></h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <% @playlists_by_type[type].each do |playlist| %>
+            <%= link_to playlist_path(playlist), class: "block" do %>
+              <%= render "playlists/playlist_card", playlist: playlist %>
+            <% end %>
+          <% end %>
+        </div>
+      </section>
+    <% end %>
+  <% end %>
+</div>
