@@ -2,6 +2,7 @@ class PlaylistsController < ApplicationController
   before_action :authenticate_user!, except: [:index, :show]
 
   def index
+    @playlists_by_type = Playlist.published.group_by(&:playlist_type)
   end
 
   def show
