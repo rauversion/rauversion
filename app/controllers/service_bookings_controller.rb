@@ -79,7 +79,7 @@ class ServiceBookingsController < ApplicationController
 
   def update
     @service_booking = ServiceBooking.find(params[:id])
-    if @service_booking.update(service_booking_params)
+    if @service_booking.update(schedule_params)
       redirect_to service_bookings_path, notice: t('.feedback_submitted')
     else
       render :show, status: :unprocessable_entity
