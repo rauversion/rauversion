@@ -8,6 +8,13 @@ module Products
       @products = @products.page(params[:page]).per(20)
     end
 
+    def show
+      @profile = User.find_by(username: params[:user_id])
+      @product = @profile.products.merge(Products::MusicProduct.all)
+                        .includes(:product_images, :product_variants, :product_shippings, :album)
+                        .friendly.find(params[:id])
+    end
+
     def new
       @product = Products::MusicProduct.new(user: current_user)
     end

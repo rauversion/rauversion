@@ -15,6 +15,13 @@ module Products
       @available_brands = Products::GearProduct.distinct.pluck(:brand).compact
     end
 
+    def show
+      @profile = User.find_by(username: params[:user_id])
+      @product = @profile.products.merge(Products::GearProduct.all)
+                        .includes(:product_images, :product_shippings)
+                        .friendly.find(params[:id])
+    end
+
     def new
       @product = Products::GearProduct.new(user: current_user)
       @product.accept_barter = true
