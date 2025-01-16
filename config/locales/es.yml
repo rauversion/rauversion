@@ -481,6 +481,27 @@ es:
       meeting_location_help: "Agrega la ubicación física si es una reunión presencial"
       provider_notes_help: "Estas notas serán visibles para el cliente"
 
+
+  products:
+    service:
+      index:
+        title: "Servicios"
+        subtitle: "Gestiona tus servicios y citas"
+        all: "Todos los Servicios"
+        as_customer: "Mis Servicios"
+        as_provider: "Vista de Proveedor"
+        with_provider: "con %{provider}"
+        for_customer: "para %{customer}"
+        view_details: "Ver Detalles"
+        no_services: "No se encontraron servicios"
+        no_services_description: "Aún no tienes servicios programados."
+        confirm: "Confirmar Servicio"
+        schedule: "Programar Servicio"
+        mark_complete: "Marcar como Completado"
+        cancel: "Cancelar Servicio"
+        cancel_confirm: "¿Estás seguro de que deseas cancelar este servicio? Estaacción no se puede deshacer."
+        provider_notes: "Notas del Proveedor"
+        search_placeholder: "Buscar en la tienda..."
   store:
     index:
       store_title: "Música y Equipamiento"

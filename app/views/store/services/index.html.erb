@@ -22,7 +22,7 @@
       <!-- Service Types Grid -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
         <!-- Coaching -->
-        <%= link_to products_services_path(service_type: 'coaching'), 
+        <%= link_to store_services_path(service_type: 'coaching'), 
             class: "group relative overflow-hidden rounded-xl aspect-[4/3] #{params[:service_type] == 'coaching' ? 'ring-2 ring-primary' : ''}" do %>
           <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
                style="background-image: url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=2070');">
@@ -35,7 +35,7 @@
         <% end %>
 
         <!-- Classes -->
-        <%= link_to products_services_path(service_type: 'classes'), 
+        <%= link_to store_services_path(service_type: 'classes'), 
             class: "group relative overflow-hidden rounded-xl aspect-[4/3] #{params[:service_type] == 'classes' ? 'ring-2 ring-primary' : ''}" do %>
           <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
                style="background-image: url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2070');">
@@ -48,7 +48,7 @@
         <% end %>
 
         <!-- Feedback -->
-        <%= link_to products_services_path(service_type: 'feedback'), 
+        <%= link_to store_services_path(service_type: 'feedback'), 
             class: "group relative overflow-hidden rounded-xl aspect-[4/3] #{params[:service_type] == 'feedback' ? 'ring-2 ring-primary' : ''}" do %>
           <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
                style="background-image: url('https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=2070');">
@@ -68,19 +68,18 @@
             <circle cx="11" cy="11" r="8"></circle>
             <path d="m21 21-4.3-4.3"></path>
           </svg>
-          <input type="text" 
-            placeholder="<%= t('.search_placeholder') %>" 
+          <input type="text" placeholder="<%= t('.search_placeholder') %>" 
                  class="w-full pl-10 pr-4 py-2 bg-neutral-900 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary">
         </div>
         
         <div class="flex flex-wrap gap-3">
-          <%= link_to t(".all_services"), products_services_path, 
+          <%= link_to t(".all_services"), store_services_path, 
               class: "px-4 py-2 rounded-full text-sm font-medium transition-colors #{!params[:service_type] ? 'bg-primary text-white' : 'bg-neutral-900 hover:bg-neutral-800'}" %>
           
-          <%= link_to t(".online_only"), products_services_path(delivery: 'online'), 
+          <%= link_to t(".online_only"), store_services_path(delivery: 'online'), 
               class: "px-4 py-2 rounded-full text-sm font-medium transition-colors #{params[:delivery] == 'online' ? 'bg-primary text-white' : 'bg-neutral-900 hover:bg-neutral-800'}" %>
           
-          <%= link_to t(".in_person"), products_services_path(delivery: 'in_person'), 
+          <%= link_to t(".in_person"), store_services_path(delivery: 'in_person'), 
               class: "px-4 py-2 rounded-full text-sm font-medium transition-colors #{params[:delivery] == 'in_person' ? 'bg-primary text-white' : 'bg-neutral-900 hover:bg-neutral-800'}" %>
         </div>
       </div>
@@ -109,7 +108,7 @@
                 </div>
 
                 <div class="text-sm text-gray-600 dark:text-gray-400 mb-4">
-                  <%= raw truncate(product.description, length: 100) %>
+                  <%= truncate(product.description, length: 100) %>
                 </div>
 
                 <div class="flex justify-between items-center">
@@ -135,20 +134,6 @@
         <div class="text-center py-12">
           <h3 class="text-xl font-semibold mb-2"><%= t(".no_services_found") %></h3>
           <p class="text-gray-500"><%= t(".try_different_filters") %></p>
-        </div>
-      <% end %>
-
-      <!-- Add Service Button for Profile Owner -->
-      <% if current_user == @profile %>
-        <div class="mt-8 flex justify-center">
-          <%= link_to new_user_products_service_path(current_user.username),
-              class: "inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-6 py-3 rounded-lg font-medium transition-colors" do %>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5">
-              <path d="M5 12h14" />
-              <path d="M12 5v14" />
-            </svg>
-            <%= t(".add_new_service") %>
-          <% end %>
         </div>
       <% end %>
     </div>

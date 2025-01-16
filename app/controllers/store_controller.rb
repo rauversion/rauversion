@@ -5,7 +5,7 @@ class StoreController < ApplicationController
 
   def services
     @products = Product.where(type: 'Products::ServiceProduct')
-    render :index
+    render "products/service/index"
   end
 
   def music

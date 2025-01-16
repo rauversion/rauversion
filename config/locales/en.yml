@@ -34,6 +34,25 @@ en:
         service:
           title: "Services"
           description: "Offer coaching, feedback, and music classes."
+    service:
+      index:
+        services: "Services"
+        services_title: "Music Services & Education"
+        services_subtitle: "Book professional music services, from personalized coaching to expert feedback"
+        search_placeholder: "Search services..."
+        all_services: "All Services"
+        online_only: "Online Only"
+        in_person: "In Person"
+        coaching: "Coaching"
+        coaching_description: "One-on-one sessions to improve your skills"
+        classes: "Classes"
+        classes_description: "Group lessons and workshops"
+        feedback: "Feedback"
+        feedback_description: "Professional feedback on your music"
+        no_services_found: "No services found"
+        try_different_filters: "Try different filters or remove some to find more services"
+        add_new_service: "Add New Service"
+        up_to_participants: "Up to %{count} participants"
     shared:
       product_card:
         includes_digital: "Includes Digital"
@@ -498,3 +517,21 @@ en:
       services: "Services"
       accessories: "Accessories"
       gear: "Gear"
+    services:
+      index:
+        services: "Services"
+        services_title: "Book Music Services"
+        services_subtitle: "Find and book professional music services from our talented community"
+        search_placeholder: "Search services..."
+        all_services: "All Services"
+        online_only: "Online Only"
+        in_person: "In Person"
+        coaching: "Coaching"
+        coaching_description: "One-on-one sessions with music professionals"
+        classes: "Classes"
+        classes_description: "Join group lessons and workshops"
+        feedback: "Feedback"
+        feedback_description: "Get expert feedback on your music"
+        no_services_found: "No services found"
+        try_different_filters: "Try different filters or remove some to find more services"
+        up_to_participants: "Up to %{count} participants"

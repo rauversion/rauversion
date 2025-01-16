@@ -1,6 +1,8 @@
 module Products
   class ServiceController < BaseController
     def index
+      @user = User.find_by(username: params[:user_id])
+      @profile = @user
       @products = product_class.where(user_id: @user.id)
     end
 
