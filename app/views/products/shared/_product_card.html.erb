@@ -1,48 +1,50 @@
-<div class="product-card">
-  <% if product.main_image.present? %>
-    <%= image_tag product.main_image.image.variant(resize_to_limit: [300, 300]), class: "product-image" %>
-  <% end %>
-
-  <div class="product-details">
-    <h3 class="product-title">
-      <% # link_to product.title, user_product_path(product.user.username, product) %>
-    </h3>
-    
-    <p class="product-price">
-      <%= number_to_currency(product.price) %>
-    </p>
-
-    <% if product.is_a?(Products::MusicProduct) %>
-      <p class="product-album">
-        Album: <%= product.album.title %>
-      </p>
-      <% if product.include_digital_album? %>
-        <span class="badge badge-info">Includes Digital Album</span>
-      <% end %>
+<%= link_to product.show_path, class: "group cursor-pointer block" do %>
+  <div class="relative aspect-square overflow-hidden rounded-lg mb-4">
+    <% if product.main_image.present? %>
+      <%= image_tag product.main_image.image.variant(resize_to_limit: [400, 400]), 
+          class: "object-cover w-full h-full group-hover:scale-105 transition-transform duration-500",
+          alt: product.title %>
+    <% else %>
+      <div class="w-full h-full bg-neutral-900 flex items-center justify-center">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-neutral-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      </div>
     <% end %>
-
-    <% if product.is_a?(Products::GearProduct) %>
-      <p class="product-details">
-        <%= product.brand %> <%= product.model %> (<%= product.year %>)
-      </p>
-      <p class="product-condition">
-        Condition: <%= product.condition.titleize %>
-      </p>
-      <% if product.accept_barter? %>
-        <span class="badge badge-success">Accepts Barter</span>
-      <% end %>
-    <% end %>
-
-    <% if product.limited_edition? %>
-      <span class="badge badge-warning">
-        Limited Edition (<%= product.limited_edition_count %> available)
-      </span>
-    <% end %>
-
-    <div class="product-actions">
-      <% if current_user == product.user %>
-        <% # link_to 'Edit', [:edit, :user, product], class: "btn btn-sm btn-outline-primary" %>
-      <% end %>
-    </div>
+    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity"></div>
   </div>
-</div>
+
+  <div class="flex items-start justify-between mb-2">
+    <div>
+      <h3 class="font-bold text-default"><%= product.title %></h3>
+      <p class="text-sm text-gray-400">
+        <% if product.is_a?(Products::MusicProduct) %>
+          <%= product.album.title %>
+        <% elsif product.is_a?(Products::GearProduct) %>
+          <%= "#{product.brand} #{product.model}" %>
+        <% end %>
+      </p>
+      
+      <div class="flex flex-wrap gap-2 mt-2">
+        <% if product.is_a?(Products::MusicProduct) && product.include_digital_album? %>
+          <span class="px-2 py-1 text-xs bg-blue-500/10 text-blue-500 rounded-full">
+            <%= t('.includes_digital') %>
+          </span>
+        <% end %>
+
+        <% if product.is_a?(Products::GearProduct) && product.accept_barter? %>
+          <span class="px-2 py-1 text-xs bg-green-500/10 text-green-500 rounded-full">
+            <%= t('.accepts_barter') %>
+          </span>
+        <% end %>
+
+        <% if product.limited_edition? %>
+          <span class="px-2 py-1 text-xs bg-yellow-500/10 text-yellow-500 rounded-full">
+            <%= t('.limited_edition', count: product.limited_edition_count) %>
+          </span>
+        <% end %>
+      </div>
+    </div>
+    <span class="text-primary font-medium"><%= number_to_currency(product.price) %></span>
+  </div>
+<% end %>

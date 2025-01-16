@@ -37,6 +37,12 @@ es:
           title: "Servicios"
           description: "Ofrece coaching, feedback y clases de música."
 
+    shared:
+      product_card:
+        includes_digital: "Incluye Digital"
+        accepts_barter: "Acepta Trueque"
+        limited_edition: "Edición Limitada (%{count} disponibles)"
+
   menu:
     my_label: Mi sello
     home: Inicio
@@ -474,3 +480,14 @@ es:
       meeting_link_help: "Agrega un enlace de videoconferencia (Zoom, Google Meet, etc.) si es una reunión virtual"
       meeting_location_help: "Agrega la ubicación física si es una reunión presencial"
       provider_notes_help: "Estas notas serán visibles para el cliente"
+
+  store:
+    index:
+      store_title: "Música y Equipamiento"
+      store_subtitle: "Descubre nuestra colección curada de formatos musicales e instrumentos de calidad"
+      search_placeholder: "Buscar en la tienda..."
+      all: "Todos los Productos"
+      music: "Música"
+      services: "Servicios"
+      accessories: "Accesorios"
+      gear: "Equipamiento"

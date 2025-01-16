@@ -34,6 +34,10 @@ Rails.application.routes.draw do
 
   namespace :products do
    
+    get 'services', to: 'services#index'
+    get 'music', to: 'music#index'
+    get 'accessories', to: 'accessories#index'
+    get 'gear', to: 'gear#index'
   end
 
   resources :products do
@@ -60,6 +64,15 @@ Rails.application.routes.draw do
   get "/become/:id", to: "application#become"
   get "/artists", to: "users#index"
   get "/store", to: "store#index"
+  
+  resources :store do
+    collection do
+      get :services
+      get :music
+      get :accessories
+      get :gear
+    end
+  end
   
   get "/oembed/:track_id", to: "embeds#oembed_show", as: :oembed_show
   get "/oembed/:track_id/private", to: "embeds#oembed_private_show", as: :private_oembed_track

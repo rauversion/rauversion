@@ -34,6 +34,11 @@ en:
         service:
           title: "Services"
           description: "Offer coaching, feedback, and music classes."
+    shared:
+      product_card:
+        includes_digital: "Includes Digital"
+        accepts_barter: "Accepts Barter"
+        limited_edition: "Limited Edition (%{count} left)"
   menu:
     music: Music
     events: Events
@@ -482,3 +487,14 @@ en:
       meeting_link_help: "Add a video conference link (Zoom, Google Meet, etc.) if this is an online meeting"
       meeting_location_help: "Add the physical location if this is an in-person meeting"
       provider_notes_help: "These notes will be visible to the customer"
+
+  store:
+    index:
+      store_title: "Music & Equipment"
+      store_subtitle: "Discover our curated collection of music formats and quality used instruments"
+      search_placeholder: "Search store..."
+      all: "All Products"
+      music: "Music"
+      services: "Services"
+      accessories: "Accessories"
+      gear: "Gear"
