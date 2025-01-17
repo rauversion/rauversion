@@ -502,13 +502,17 @@ es:
         cancel_confirm: "¿Estás seguro de que deseas cancelar este servicio? Estaacción no se puede deshacer."
         provider_notes: "Notas del Proveedor"
         search_placeholder: "Buscar en la tienda..."
+
   store:
     index:
-      store_title: "Música y Equipamiento"
-      store_subtitle: "Descubre nuestra colección curada de formatos musicales e instrumentos de calidad"
+      store_title: "Tienda de Música"
+      store_subtitle: "Descubre música, equipamiento y servicios profesionales de nuestra comunidad"
       search_placeholder: "Buscar en la tienda..."
       all: "Todos los Productos"
       music: "Música"
-      services: "Servicios"
-      accessories: "Accesorios"
+      music_description: "Álbumes digitales y físicos de artistas independientes"
       gear: "Equipamiento"
+      gear_description: "Equipos y accesorios musicales de calidad"
+      services: "Servicios"
+      services_description: "Servicios profesionales y educación musical"
+      accessories: "Accesorios"

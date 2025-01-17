@@ -509,14 +509,17 @@ en:
 
   store:
     index:
-      store_title: "Music & Equipment"
-      store_subtitle: "Discover our curated collection of music formats and quality used instruments"
-      search_placeholder: "Search store..."
+      store_title: "Music Store"
+      store_subtitle: "Discover music, gear, and professional services from our community"
+      search_placeholder: "Search the store..."
       all: "All Products"
       music: "Music"
-      services: "Services"
-      accessories: "Accessories"
+      music_description: "Digital and physical albums from independent artists"
       gear: "Gear"
+      gear_description: "Quality music equipment and accessories"
+      services: "Services"
+      services_description: "Professional music services and education"
+      accessories: "Accessories"
     services:
       index:
         services: "Services"
