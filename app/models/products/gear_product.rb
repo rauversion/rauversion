@@ -11,5 +11,24 @@ module Products
     validates :barter_description, presence: true, if: :accept_barter?
 
     scope :used_gear, -> { where(category: ['instrument', 'audio_gear', 'dj_gear']) }
+  
+  
+    enum :category, { 
+      instrument: 'instrument', 
+      audio_gear: 'audio_gear', 
+      dj_gear: 'dj_gear',
+      synth: 'synth',
+      drum_kit: 'drum_kit',
+      keyboard: 'keyboard',
+      percussion: 'percussion',
+      bass: 'bass',
+      guitar: 'guitar',
+      effect: 'effect',
+      amp: 'amp',
+      console: 'console',
+      controller: 'controller'
+    }
+
+
   end
 end

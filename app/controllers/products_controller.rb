@@ -73,7 +73,7 @@ class ProductsController < ApplicationController
     @product = product_class.new(user: current_user)
     
     if params[:product_type] == 'used_gear'
-      @product.category = params[:gear_category] if Product.categories.key?(params[:gear_category])
+      @product.category = params[:gear_category] if product_class.categories.key?(params[:gear_category])
       @product.condition = 'good'
       @product.accept_barter = true
     end

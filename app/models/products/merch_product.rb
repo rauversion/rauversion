@@ -6,6 +6,13 @@ module Products
     
     before_validation :set_category
 
+    enum :category, { 
+      t_shirts: 't-shirts',
+      hoodies: 'hoodies',
+      mugs: 'mugs',
+      stickers: 'stickers',
+      other: 'other'
+    }
     private
 
     def set_category

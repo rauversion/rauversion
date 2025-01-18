@@ -6,6 +6,11 @@ module Products
     
     before_validation :set_category
 
+    enum :category, { 
+      merch: 'merch', 
+      other: 'other',
+      accessories: 'accessories'
+    }
 
     private
 

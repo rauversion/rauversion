@@ -43,6 +43,65 @@ es:
         accepts_barter: "Acepta Trueque"
         limited_edition: "Edición Limitada (%{count} disponibles)"
 
+    service:
+      index:
+        title: "Servicios"
+        subtitle: "Gestiona tus servicios y citas"
+        all: "Todos los Servicios"
+        as_customer: "Mis Servicios"
+        as_provider: "Vista de Proveedor"
+        with_provider: "con %{provider}"
+        for_customer: "para %{customer}"
+        view_details: "Ver Detalles"
+        no_services: "No se encontraron servicios"
+        no_services_description: "Aún no tienes servicios programados."
+        confirm: "Confirmar Servicio"
+        schedule: "Programar Servicio"
+        mark_complete: "Marcar como Completado"
+        cancel: "Cancelar Servicio"
+        cancel_confirm: "¿Estás seguro de que deseas cancelar este servicio? Estaacción no se puede deshacer."
+        provider_notes: "Notas del Proveedor"
+        search_placeholder: "Buscar en la tienda..."
+
+    gear:
+      index:
+        gear: "Equipamiento"
+        gear_title: "Equipamiento Musical"
+        gear_subtitle: "Explora equipos musicales de calidad de nuestra comunidad"
+        search_placeholder: "Buscar por título o descripción..."
+        filter_by_category: "Filtrar por Categoría"
+        filter_by_condition: "Filtrar por Condición"
+        filter_by_brand: "Filtrar por Marca"
+        filter_by_barter: "Opciones de Trueque"
+        show_barter_only: "Mostrar Solo Disponibles para Trueque"
+        all_categories: "Todas las Categorías"
+        all_brands: "Todas las Marcas"
+        barter_available: "Trueque Disponible"
+        no_gear_found: "No se encontró equipamiento"
+        try_different_filters: "Prueba diferentes filtros o elimina algunos para encontrar más equipamiento"
+        category:
+          instrument: "Instrumentos"
+          audio_gear: "Equipo de Audio"
+          dj_gear: "Equipo de DJ"
+          synth: "Sintetizadores"
+          drum_kit: "Baterías"
+          keyboard: "Teclados"
+          percussion: "Percusión"
+          bass: "Bajos"
+          guitar: "Guitarras"
+          effect: "Efectos"
+          amp: "Amplificadores"
+          console: "Consolas"
+          controller: "Controladores"
+        condition:
+          new: "Nuevo"
+          like_new: "Como Nuevo"
+          excellent: "Excelente"
+          very_good: "Muy Bueno"
+          good: "Bueno"
+          fair: "Regular"
+          poor: "Malo"
+
   menu:
     my_label: Mi sello
     home: Inicio
@@ -481,28 +540,6 @@ es:
       meeting_location_help: "Agrega la ubicación física si es una reunión presencial"
       provider_notes_help: "Estas notas serán visibles para el cliente"
 
-
-  products:
-    service:
-      index:
-        title: "Servicios"
-        subtitle: "Gestiona tus servicios y citas"
-        all: "Todos los Servicios"
-        as_customer: "Mis Servicios"
-        as_provider: "Vista de Proveedor"
-        with_provider: "con %{provider}"
-        for_customer: "para %{customer}"
-        view_details: "Ver Detalles"
-        no_services: "No se encontraron servicios"
-        no_services_description: "Aún no tienes servicios programados."
-        confirm: "Confirmar Servicio"
-        schedule: "Programar Servicio"
-        mark_complete: "Marcar como Completado"
-        cancel: "Cancelar Servicio"
-        cancel_confirm: "¿Estás seguro de que deseas cancelar este servicio? Estaacción no se puede deshacer."
-        provider_notes: "Notas del Proveedor"
-        search_placeholder: "Buscar en la tienda..."
-
   store:
     index:
       store_title: "Tienda de Música"
@@ -516,3 +553,20 @@ es:
       services: "Servicios"
       services_description: "Servicios profesionales y educación musical"
       accessories: "Accesorios"
+
+  music:
+    index:
+      music: "Música"
+      music_title: "Tienda de Música"
+      music_subtitle: "Descubre y colecciona música de artistas independientes"
+      search_placeholder: "Buscar por título o descripción..."
+      all_formats: "Todos los Formatos"
+      featured_albums: "Álbumes Destacados"
+      all_albums: "Todos los Álbumes"
+      no_albums_found: "No se encontraron álbumes"
+      try_different_filters: "Prueba diferentes filtros o elimina algunos para encontrar más álbumes"
+      format:
+        vinyl: "Vinilo"
+        cd: "CD"
+        cassette: "Casete"
+        digital: "Digital"

@@ -12,6 +12,15 @@ module Products
     
     before_validation :set_music_defaults
 
+    enum :category, { 
+      vinyl: 'vinyl', 
+      cassette: 'cassette', 
+      cd: 'cd',
+      blue_ray: 'blue_ray',
+      digital: 'digital',
+      other: 'other',
+    }
+
     private
 
     def set_music_defaults

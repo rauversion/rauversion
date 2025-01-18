@@ -22,7 +22,7 @@
       <!-- Service Types Grid -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
         <!-- Coaching -->
-        <%= link_to products_services_path(service_type: 'coaching'), 
+        <%= link_to services_store_index_path(service_type: 'coaching'), 
             class: "group relative overflow-hidden rounded-xl aspect-[4/3] #{params[:service_type] == 'coaching' ? 'ring-2 ring-primary' : ''}" do %>
           <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
                style="background-image: url('https://images.unsplash.com/photo-1470225620780-dba8ba36b745?q=80&w=2070');">
@@ -35,7 +35,7 @@
         <% end %>
 
         <!-- Classes -->
-        <%= link_to products_services_path(service_type: 'classes'), 
+        <%= link_to services_store_index_path(service_type: 'classes'), 
             class: "group relative overflow-hidden rounded-xl aspect-[4/3] #{params[:service_type] == 'classes' ? 'ring-2 ring-primary' : ''}" do %>
           <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
                style="background-image: url('https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&w=2070');">
@@ -48,7 +48,7 @@
         <% end %>
 
         <!-- Feedback -->
-        <%= link_to products_services_path(service_type: 'feedback'), 
+        <%= link_to services_store_index_path(service_type: 'feedback'), 
             class: "group relative overflow-hidden rounded-xl aspect-[4/3] #{params[:service_type] == 'feedback' ? 'ring-2 ring-primary' : ''}" do %>
           <div class="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-110"
                style="background-image: url('https://images.unsplash.com/photo-1516280440614-37939bbacd81?q=80&w=2070');">

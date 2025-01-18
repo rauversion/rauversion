@@ -29,17 +29,6 @@ class Product < ApplicationRecord
   attribute :quantity, :integer
 
   enum :status, { active: 'active', inactive: 'inactive', sold_out: 'sold_out' }
-  enum :category, { 
-    merch: 'merch', 
-    vinyl: 'vinyl', 
-    cassette: 'cassette', 
-    cd: 'cd', 
-    other: 'other',
-    instrument: 'instrument',
-    audio_gear: 'audio_gear',
-    dj_gear: 'dj_gear',
-    accessories: 'accessories'
-  }
 
   enum :condition, {
     new: 'new',
@@ -91,6 +80,10 @@ class Product < ApplicationRecord
     else
       Rails.application.routes.url_helpers.user_product_path(self.user.username, self)
     end
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    ["album", "coupon", "product_images", "product_options", "product_purchase_items", "product_purchases", "product_shippings", "product_variants", "purchased_items", "user"]
   end
 
   def self.ransackable_attributes(auth_object = nil)

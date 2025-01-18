@@ -3,7 +3,8 @@ module Products
     enum :category, {
       coaching: 'coaching',
       feedback: 'feedback',
-      classes: 'classes'
+      classes: 'classes',
+      other: 'other'
     }
 
     store_accessor :data, 

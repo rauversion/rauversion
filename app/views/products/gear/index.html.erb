@@ -1,54 +1,140 @@
-<div class="container">
-  <div class="row mb-4">
-    <div class="col">
-      <h1>Music Gear</h1>
-      <%= link_to 'Add New Gear', new_user_products_gear_path(current_user.username), class: 'btn btn-primary' if current_user == @profile %>
+<div class="min-h-screen bg-default text-default">
+  <section class="relative h-[40vh] overflow-hidden">
+    <div class="absolute inset-0 bg-cover bg-center" style="background-image: url(&quot;https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?q=80&amp;w=2070&quot;);">
+      <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
     </div>
-  </div>
-
-  <div class="row mb-4">
-    <div class="col">
-      <%= search_form_for @q, url: user_products_gear_index_path(@profile.username), class: 'form-inline' do |f| %>
-        <div class="form-group mr-2">
-          <%= f.search_field :title_cont, placeholder: 'Search by title', class: 'form-control' %>
+    <div class="relative h-full px-4 sm:px-8">
+      <div class="max-w-6xl mx-auto h-full flex items-end pb-12">
+        <div>
+          <div class="flex items-center gap-3 mb-4">
+            <%= render "products/icons/gear" %>
+            <span class="text-primary font-medium"><%= t(".gear") %></span>
+          </div>
+          <h1 class="text-4xl md:text-5xl font-bold mb-4"><%= t(".gear_title") %></h1>
+          <p class="text-gray-300 max-w-xl"><%= t(".gear_subtitle") %></p>
         </div>
-        <div class="form-group mr-2">
-          <%= f.select :category_eq, 
-              [['All Types', '']] + Products::GearProduct.categories.keys
-                                   .select { |k| ['instrument', 'audio_gear', 'dj_gear'].include?(k) }
-                                   .map { |c| [c.titleize, c] },
-              {}, class: 'form-control' %>
-        </div>
-        <div class="form-group mr-2">
-          <%= f.select :condition_eq, 
-              [['Any Condition', '']] + Product.conditions.keys.map { |c| [c.titleize, c] },
-              {}, class: 'form-control' %>
-        </div>
-        <div class="form-group mr-2">
-          <%= f.select :brand_eq, 
-              [['All Brands', '']] + @available_brands.map { |b| [b, b] },
-              {}, class: 'form-control' %>
-        </div>
-        <div class="form-check mr-2">
-          <%= f.check_box :accept_barter_true, class: 'form-check-input' %>
-          <%= f.label :accept_barter_true, 'Barter Only', class: 'form-check-label' %>
-        </div>
-        <%= f.submit 'Search', class: 'btn btn-secondary' %>
-      <% end %>
-    </div>
-  </div>
-
-  <div class="row">
-    <% @products.each do |product| %>
-      <div class="col-md-4 mb-4">
-        <%= render 'products/shared/product_card', product: product %>
       </div>
-    <% end %>
-  </div>
+    </div>
+  </section>
 
-  <div class="row">
-    <div class="col">
-      <%= paginate @products %>
+  <div class="px-4 sm:px-8 py-12">
+    <div class="max-w-6xl mx-auto">
+      <!-- Search and Filters -->
+      <div class="mb-12 space-y-6">
+        <%= search_form_for @q, url: gear_store_index_path, class: 'space-y-6' do |f| %>
+          <div class="relative max-w-md">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.3-4.3"></path>
+            </svg>
+            <%= f.search_field :title_or_description_cont, 
+                placeholder: t(".search_placeholder"), 
+                class: "w-full pl-10 pr-4 py-2 bg-neutral-900 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary" %>
+          </div>
+
+          <!-- Category Filter -->
+          <div class="space-y-4">
+            <h3 class="font-medium"><%= t(".filter_by_category") %></h3>
+            <div class="flex flex-wrap gap-3">
+              <%= link_to t(".all_categories"), gear_store_index_path, 
+                  class: "px-4 py-2 rounded-full text-sm font-medium transition-colors #{!params[:gear_category] ? 'bg-primary text-white' : 'bg-neutral-900 hover:bg-neutral-800'}" %>
+              
+              <% Products::GearProduct.categories.keys.each do |category| %>
+                <%= link_to t(".category.#{category}"), gear_store_index_path(gear_category: category), 
+                    class: "px-4 py-2 rounded-full text-sm font-medium transition-colors #{params[:gear_category] == category ? 'bg-primary text-white' : 'bg-neutral-900 hover:bg-neutral-800'}" %>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Additional Filters -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Condition Filter -->
+            <div>
+              <h3 class="font-medium mb-3"><%= t(".filter_by_condition") %></h3>
+              <div class="flex flex-wrap gap-3">
+                <% Product.conditions.keys.each do |condition| %>
+                  <%= link_to t(".condition.#{condition}"), gear_store_index_path(params.permit(:gear_category).merge(condition: condition)), 
+                      class: "px-4 py-2 rounded-full text-sm font-medium transition-colors #{params[:condition] == condition ? 'bg-primary text-white' : 'bg-neutral-900 hover:bg-neutral-800'}" %>
+                <% end %>
+              </div>
+            </div>
+
+            <!-- Brand Filter -->
+            <div>
+              <h3 class="font-medium mb-3"><%= t(".filter_by_brand") %></h3>
+              <%= f.select :brand_eq, 
+                  @available_brands.map { |b| [b, b] },
+                  { include_blank: t(".all_brands") },
+                  class: "w-full px-4 py-2 bg-neutral-900 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary" %>
+            </div>
+
+            <!-- Barter Filter -->
+            <div>
+              <h3 class="font-medium mb-3"><%= t(".filter_by_barter") %></h3>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <%= check_box_tag :barter_only, '1', params[:barter_only].present?, 
+                    class: "form-checkbox text-primary rounded focus:ring-primary" %>
+                <span class="text-sm"><%= t(".show_barter_only") %></span>
+              </label>
+            </div>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Gear Grid -->
+      <div class="mb-8">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <% @products.each do |product| %>
+            <%= link_to product.show_path, class: "group" do %>
+              <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
+                <% if product.product_images.any? %>
+                  <div class="relative aspect-square">
+                    <%= image_tag product.product_images.first.image, 
+                        class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-500",
+                        alt: product.product_images.first.title %>
+                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    
+                    <% if product.accept_barter? %>
+                      <div class="absolute top-2 right-2 bg-primary text-white text-xs px-2 py-1 rounded-full">
+                        <%= t(".barter_available") %>
+                      </div>
+                    <% end %>
+                  </div>
+                <% end %>
+
+                <div class="p-4">
+                  <h3 class="font-semibold mb-1 line-clamp-1"><%= product.title %></h3>
+                  <p class="text-sm text-gray-500 mb-2"><%= product.user.full_name %></p>
+                  
+                  <div class="flex items-center justify-between mb-2">
+                    <span class="text-primary font-bold"><%= number_to_currency(product.price) %></span>
+                    <span class="text-sm text-gray-500"><%= product.category&.titleize %></span>
+                  </div>
+
+                  <div class="flex items-center justify-between text-sm">
+                    <span class="text-gray-500"><%= product.brand %></span>
+                    <span class="text-gray-500"><%= t(".condition.#{product.condition}") %></span>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <% if @products.total_pages > 1 %>
+        <div class="mt-8 flex justify-center">
+          <%= paginate @products, theme: 'tailwind' %>
+        </div>
+      <% end %>
+
+      <% if @products.empty? %>
+        <div class="text-center py-12">
+          <h3 class="text-xl font-semibold mb-2"><%= t(".no_gear_found") %></h3>
+          <p class="text-gray-500"><%= t(".try_different_filters") %></p>
+        </div>
+      <% end %>
     </div>
   </div>
 </div>

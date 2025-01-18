@@ -69,6 +69,8 @@ Rails.application.routes.draw do
     collection do
       get :services
       get :music
+      get :classes
+      get :feedback
       get :accessories
       get :gear
     end
