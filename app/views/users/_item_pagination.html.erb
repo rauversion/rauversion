@@ -1,7 +1,7 @@
 <%= turbo_frame_tag 'list-pagination' do %>
   <%= paginate @collection, params: {
     controller: 'users', 
-    action: @as.to_s.pluralize, 
+    action: @namespace.present? ? @namespace.to_s.pluralize : @as.to_s.pluralize, 
     # format: :turbo_stream,
     user_id: @user.username
   } %>

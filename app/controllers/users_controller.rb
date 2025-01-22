@@ -74,10 +74,12 @@ class UsersController < ApplicationController
 
     @collection = @collection.references(:tracks)
     .page(params[:page])
+    .per(5)
 
     @as = :playlist
     @section = "playlists/playlist_item"
-    render "show"
+    # render "show"
+    paginated_render
   end
 
   def artists
@@ -117,8 +119,10 @@ class UsersController < ApplicationController
 
     @collection = @collection.page(params[:page]).per(5)
     @as = :playlist
+    @namespace = :album
     @section = "playlists/playlist_item"
-    render "show"
+    # render "show"
+    paginated_render
   end
 
   def about
