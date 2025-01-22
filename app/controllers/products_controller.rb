@@ -13,6 +13,9 @@ class ProductsController < ApplicationController
 
     @products = @products.by_category(params[:category]) if params[:category].present?
     @products = @products.page(params[:page]).per(20)
+
+    @available_brands = Products::GearProduct.distinct.pluck(:brand).compact
+
   end
 
   def used_gear

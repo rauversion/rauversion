@@ -102,6 +102,30 @@ es:
           fair: "Regular"
           poor: "Malo"
 
+    index:
+      products: "Productos"
+      coupons: "Cupones"
+      add_new_product: "Agregar Nuevo Producto"
+      music: "Música"
+      gear: "Equipamiento"
+      services: "Servicios"
+      search_title: "Buscar"
+      search_placeholder: "Buscar por título o descripción..."
+      format: "Formato"
+      gear_category: "Categoría"
+      service_type: "Tipo de Servicio"
+      condition: "Condición"
+      brand: "Marca"
+      all_formats: "Todos los Formatos"
+      all_categories: "Todas las Categorías"
+      all_conditions: "Todas las Condiciones"
+      all_brands: "Todas las Marcas"
+      all_service_types: "Todos los Tipos de Servicio"
+      show_barter_only: "Mostrar Solo Disponibles para Trueque"
+      search: "Buscar"
+      no_products_found: "No se encontraron productos"
+      try_different_filters: "Prueba diferentes filtros o elimina algunos para encontrar más productos"
+
   menu:
     my_label: Mi sello
     home: Inicio
