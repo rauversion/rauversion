@@ -11,7 +11,7 @@
           <circle cx="8" cy="18" r="4"></circle>
           <path d="M12 18V2l7 4"></path>
         </svg>-->
-        <%= image_tag track.cover_url(:medium), class: "h-12 w-12 object-cover rounded-lg" %>
+        <%= image_tag track.cover.present? ? track.cover_url(:medium) : playlist.cover_url(:medium) , class: "h-12 w-12 object-cover rounded-lg" %>
 
         <div class="flex-grow">
           <p class="font-medium"><%= track.title %></p>

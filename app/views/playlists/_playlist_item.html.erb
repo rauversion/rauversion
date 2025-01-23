@@ -61,7 +61,7 @@
                       class: "flex items-center space-x-4" do %>
                       <div class="flex-shrink-0">
                         <%= image_tag(
-                            tp.track.cover_url(:small),
+                            tp.track.cover.present? ? tp.track.cover_url(:small) : playlist.cover_url(:small),
                           class: "h-8 w-8 rounded-full"
                         ) %>
                       </div>
