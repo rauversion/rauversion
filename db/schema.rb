@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2024_12_28_153551) do
+ActiveRecord::Schema[8.0].define(version: 2025_01_26_215526) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -501,6 +501,8 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_28_153551) do
     t.integer "year"
     t.boolean "accept_barter", default: false
     t.text "barter_description"
+    t.jsonb "data"
+    t.string "type"
     t.index ["accept_barter"], name: "index_products_on_accept_barter"
     t.index ["brand"], name: "index_products_on_brand"
     t.index ["condition"], name: "index_products_on_condition"
@@ -553,6 +555,18 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_28_153551) do
     t.index ["user_id"], name: "index_purchases_on_user_id"
   end
 
+  create_table "release_playlists", force: :cascade do |t|
+    t.bigint "release_id", null: false
+    t.bigint "playlist_id", null: false
+    t.integer "position"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["playlist_id"], name: "index_release_playlists_on_playlist_id"
+    t.index ["position"], name: "index_release_playlists_on_position"
+    t.index ["release_id", "playlist_id"], name: "index_release_playlists_on_release_id_and_playlist_id", unique: true
+    t.index ["release_id"], name: "index_release_playlists_on_release_id"
+  end
+
   create_table "release_section_images", force: :cascade do |t|
     t.string "caption"
     t.integer "order"
@@ -603,6 +617,22 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_28_153551) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["event_schedule_id"], name: "index_schedule_schedulings_on_event_schedule_id"
+  end
+
+  create_table "service_bookings", force: :cascade do |t|
+    t.bigint "service_product_id", null: false
+    t.bigint "customer_id", null: false
+    t.bigint "provider_id", null: false
+    t.string "status", null: false
+    t.jsonb "metadata", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "rating"
+    t.text "feedback"
+    t.index ["customer_id"], name: "index_service_bookings_on_customer_id"
+    t.index ["provider_id"], name: "index_service_bookings_on_provider_id"
+    t.index ["service_product_id"], name: "index_service_bookings_on_service_product_id"
+    t.index ["status"], name: "index_service_bookings_on_status"
   end
 
   create_table "spotlights", force: :cascade do |t|
@@ -800,6 +830,8 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_28_153551) do
   add_foreign_key "products_images", "products"
   add_foreign_key "purchased_items", "purchases"
   add_foreign_key "purchases", "users"
+  add_foreign_key "release_playlists", "playlists"
+  add_foreign_key "release_playlists", "releases"
   add_foreign_key "release_section_images", "release_sections"
   add_foreign_key "release_sections", "releases"
   add_foreign_key "releases", "playlists"
@@ -807,6 +839,9 @@ ActiveRecord::Schema[8.0].define(version: 2024_12_28_153551) do
   add_foreign_key "reposts", "tracks"
   add_foreign_key "reposts", "users"
   add_foreign_key "schedule_schedulings", "event_schedules"
+  add_foreign_key "service_bookings", "products", column: "service_product_id"
+  add_foreign_key "service_bookings", "users", column: "customer_id"
+  add_foreign_key "service_bookings", "users", column: "provider_id"
   add_foreign_key "spotlights", "users"
   add_foreign_key "tickets", "events"
   add_foreign_key "track_comments", "tracks"

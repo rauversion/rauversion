@@ -1,1 +1,3 @@
-<%= render "albums/templates/base" %>
+<% template_view = @release.template == "default" ? "base" : @release.template %>
+
+<%= render "albums/templates/#{template_view}" %>

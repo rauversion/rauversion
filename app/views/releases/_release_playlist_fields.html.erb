@@ -1,0 +1,32 @@
+<div class="nested-fields sm:col-span-6 mt-6 p-4 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6 bg-subtle rounded-md border-2 border-subtle"
+  data-new-record="<%= form.object.new_record? %>">
+
+  <%= form.hidden_field :_destroy %>
+  <%= form.hidden_field :id %>
+
+  <div class="sm:col-span-4">
+    <%= form.collection_select :playlist_id, 
+        Playlist.where(playlist_type: ["album", "ep"]), 
+        :id, 
+        :title,
+        { prompt: "Select an album" },
+        { class: "input" } 
+    %>
+  </div>
+
+  <div class="sm:col-span-2">
+    <%= form.number_field :position, 
+        label: "Order",
+        class: "input" %>
+  </div>
+
+  <div class="sm:col-span-6 flex justify-end">
+    <button
+      type="button"
+      class="inline-flex justify-center items-center dark:border-2 dark:border-red-600 rounded-lg py-2 px-2 bg-black text-red-600 block text-sm"
+      data-action="click->nested-form#remove_association"
+    >
+      Remove Album
+    </button>
+  </div>
+</div>

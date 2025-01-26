@@ -159,6 +159,10 @@ Rails.application.routes.draw do
   resources :photos
   resource :spotlight
   resources :playlists do
+
+    collection do
+      get :by_id
+    end
     resources :comments
     resource :embed, only: :show
     resource :likes

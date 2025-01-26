@@ -1,4 +1,5 @@
 
 <div class="container m-auto sm:w-2/3">
+  <%= @release.errors.full_messages.join(', ') if @release.errors.any? %>
   <%= render "form" %>
 </div>

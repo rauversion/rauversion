@@ -1,0 +1,118 @@
+<%= form_with model: [@playlist, @release], class: "space-y-8 divide-y divide-gray-200" do |form| %>
+  <div class="space-y-8 divide-y divide-gray-200 sm:space-y-5">
+    <div class="space-y-6 sm:space-y-5">
+      <div class="space-y-6 sm:space-y-5">
+        <%= form.text_field :title %>
+        <%= form.text_field :subtitle %>
+
+        <div>
+
+          <%= form.label :cover_color %>
+          <%= form.color_field :cover_color %>
+
+          <%= form.label :record_color %>
+          <%= form.color_field :record_color %>
+
+
+          <%= form.label :sleeve_color %>
+          <%= form.color_field :sleeve_color %>
+
+          <% #= form.text_field :cover_color %>
+          <% #= form.text_field :sleeve_color %>
+          <% #= form.text_field :record_color %>
+
+          <%= form.file_field :cover %>
+          <%= form.file_field :sleeve %>
+
+          <%= form.text_field :spotify %>
+          <%= form.text_field :bandcamp %>
+          <%= form.text_field :soundcloud %>
+
+          <%= form.label :product %>
+          <%= form.select :product_id, current_user.products.map{|o| [o.title, o.id]}, 
+            {
+              include_blank: 'None Specified',
+              multiple: false
+            },
+            label: "Product" 
+          %>
+
+          <div class="sm:col-span-3">
+
+            <%= form.label :template %>
+            <%= form.select :template, Release::TEMPLATES, 
+                {
+                  include_blank: "Select a template",
+                  multiple: false
+                },
+              label: "Template" 
+            %>
+
+          </div>
+        </div>
+
+        <h1 class="text-2xl font-semibold">
+          Album Information
+        </h1>
+
+        <div class="sm:col-span-6">
+          <div data-controller="nested-form" class="py-6">
+            <template data-nested-form-target="template">
+              <%= form.fields_for :release_playlists, ReleasePlaylist.new, child_index: 'NEW_RECORD' do |ff| %>
+                <%= render 'release_playlist_fields', form: ff %>
+              <% end %>
+            </template>
+
+            <div class="space-y-3" data-nested-form-target="wrap">
+              <%= form.fields_for :release_playlists do |ff| %>
+                <%= render 'release_playlist_fields', form: ff %>
+              <% end %>
+            </div>
+
+            <div class="my-3" data-nested-form-target="links">
+              <%= link_to "Add Album", "#", 
+                  class: "button-large-outline", 
+                  data: { action: "click->nested-form#add_association" } %>
+            </div>
+          </div>
+        </div>
+
+        <div data-controller="nested-form" class="py-6">
+          <template data-nested-form-target="template">
+            <%= form.fields_for :release_sections, ReleaseSection.new, child_index: 'NEW_RECORD' do |ff| %>
+              <%= render 'release_section_fields', form: ff %>
+            <% end %>
+          </template>
+
+          <h1 class="text-2xl font-semibold">Release Sections</h1>
+
+          <div class="" data-nested-form-target="wrap">
+            <%= form.fields_for :release_sections, form.object.release_sections.order(:position) do |ff| %>
+              <%= render 'release_section_fields', form: ff %>
+            <% end %>
+          </div>
+
+          <div class="my-3" data-nested-form-target="links">
+            <%= link_to "Add Release Section", "#", 
+              class: "button-large-outline", 
+              data: { 
+                action: "click->nested-form#add_association" 
+              } 
+            %>
+          </div>
+        </div>
+        
+        <div class="sm:col-span-6">
+          <% # render "shared/social_links", form: form %>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="pt-5">
+    <div class="flex justify-end">
+      <%= link_to "Cancel", playlist_path(@playlist), class: "button" %>
+      <%= form.submit class: "ml-3 button-primary" %>
+    </div>
+  </div>
+<% end %>
