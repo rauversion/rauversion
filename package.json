@@ -7,6 +7,7 @@
     "@hotwired/turbo": "8.0.5",
     "@hotwired/turbo-rails": "8.0.5",
     "@josefarias/hotwire_combobox": "^0.2.1",
+    "@measured/puck": "^0.18.1",
     "@rails/activestorage": "^7.0.6",
     "@rails/request.js": "^0.0.8",
     "@tailwindcss/aspect-ratio": "^0.4.2",

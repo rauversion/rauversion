@@ -49,6 +49,7 @@ import slide_controller from "./slide_controller.js"
 import image_cropper_controller from "./image_cropper_controller.js"
 
 import playlist_widget_controller from "./playlist_widget_controller.js"
+import puck_editor_controller from "./puck_editor_controller.js"
 //import GeoChart from './geo_chart_controller'
 
 // Configure Stimulus development experience
@@ -99,3 +100,4 @@ application.register("marquee", marquee_controller)
 application.register("slide", slide_controller)
 application.register("image-cropper", image_cropper_controller)
 application.register("playlist-widget", playlist_widget_controller)
+application.register("puck-editor", puck_editor_controller)

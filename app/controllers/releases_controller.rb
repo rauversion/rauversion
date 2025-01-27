@@ -1,8 +1,13 @@
 class ReleasesController < ApplicationController
-  before_action :find_playlist
+  before_action :find_playlist, except: [:puck, :upload_puck_image]
+  before_action :disable_footer, only: [:puck]
 
   def index
     @playlist.releases
+  end
+
+  def puck
+    render "puck"
   end
 
   def new
@@ -40,6 +45,20 @@ class ReleasesController < ApplicationController
     @release = @playlist.releases.friendly.find(params[:id])
     @release.destroy
     redirect_to playlist_releases_path(@playlist)
+  end
+
+  def upload_puck_image
+    uploaded_file = params[:file]
+    blob = ActiveStorage::Blob.create_and_upload!(
+      io: uploaded_file,
+      filename: uploaded_file.original_filename,
+      content_type: uploaded_file.content_type
+    )
+    
+    render json: { 
+      url: rails_blob_url(blob),
+      id: blob.id
+    }
   end
 
   private

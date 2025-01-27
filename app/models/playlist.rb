@@ -46,7 +46,7 @@ class Playlist < ApplicationRecord
   scope :albums, -> { where(playlist_type: "album") }
   store_accessor :metadata, :buy_link, :string
   store_accessor :metadata, :buy_link_title, :string
-  store_accessor :metadata, :buy, :boolean
+  store_accessor :metadata, :buy, :boolean, default: false
   store_accessor :metadata, :record_label, :string
 
   store_accessor :metadata, :attribution, :boolean

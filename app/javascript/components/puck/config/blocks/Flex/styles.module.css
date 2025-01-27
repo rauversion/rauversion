@@ -1,0 +1,9 @@
+.Flex {
+  display: flex;
+  flex-wrap: wrap;
+  height: 100%;
+}
+
+.Flex-item {
+  flex: 1;
+}

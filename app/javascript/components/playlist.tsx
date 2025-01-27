@@ -59,6 +59,15 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
 
   useEffect(() => {
     const fetchPlaylist = async () => {
+      if (!playlistId) {
+        setPlaylist(null);
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
+
       try {
         const response = await fetch(`/playlists/${playlistId}.json`);
         if (!response.ok) {
