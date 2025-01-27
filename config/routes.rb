@@ -162,12 +162,15 @@ Rails.application.routes.draw do
   resource :spotlight
 
   resources :releases do
+    member do
+      get :editor
+    end
     collection do
       get :puck
       post :upload_puck_image
     end
   end
-  
+
   resources :playlists do
 
     collection do

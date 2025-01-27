@@ -1,11 +1,11 @@
-import { Controller } from '@hotwired/stimulus';
-import React from 'react';
-import { createRoot } from 'react-dom/client';
+import { Controller } from "@hotwired/stimulus";
+import { createRoot } from "react-dom/client";
+import React from "react";
 import { Puck, DropZone } from "@measured/puck";
 import "@measured/puck/puck.css";
+import { put } from '@rails/request.js';
 import PlaylistComponent from '../components/playlist';
 import { ButtonBlock, ButtonBlockConfig, Slider, SliderConfig } from '../components/puck';
-
 
 import {
   ImageUploadField,
@@ -161,14 +161,33 @@ const config = {
     },
   },
 };
- 
+
 // Describe the initial data
 const initialData = {};
 
 // Save the data to your database
-function save(data) {
-  console.log("Saving data:", data);
-  // Implement your save logic here
+async function save(data) {
+  console.log("Saving data: ", data);
+  
+  try {
+    const response = await put(`/releases/${window.releaseId}`, {
+      body: JSON.stringify({
+        release: {
+          editor_data: data
+        }
+      })
+    });
+
+    if (!response.ok) {
+      throw new Error('Failed to save release data');
+    }
+
+    const result = await response.json();
+    console.log("Save successful:", result);
+  } catch (error) {
+    console.error("Error saving release data:", error);
+    // You might want to show an error notification here
+  }
 }
 
 // Render Puck editor
