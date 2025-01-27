@@ -39,7 +39,7 @@
                 aria-roledescription="slide" 
                 class="w-1/2 md:w-1/3 lg:w-1/4 min-w-[200px] shrink-0 grow-0 pl-2 md:pl-4" 
                 role="group">
-                <div class="aspect-square bg-white/10 cursor-pointer hover:bg-white/20 transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg rounded-lg overflow-hidden">
+                <%= link_to playlist_path(playlist), data: { turbo_frame: "player_widget" }, class: "aspect-square bg-white/10 cursor-pointer hover:bg-white/20 transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg rounded-lg overflow-hidden block" do %>
                   <% if playlist.cover.attached? %>
                     <div class="relative w-full aspect-square">
                       <%= image_tag playlist.cover.variant(resize_to_limit: [400, 400]), 
@@ -54,7 +54,7 @@
                       <%= playlist.playlist_type %> • <%= playlist.release_date.try :year %>
                     </div>
                   </div>
-                </div>
+                <% end %>
               </div>
             <% end%>
           </div>
@@ -92,30 +92,13 @@
         </div>
       </div>
 
-      <div class="bg-white/10 p-6 rounded-lg space-y-4 animate-in fade-in slide-in-from-top-4">
-        <div class="flex justify-between items-center border-b border-white/20 pb-4">
-          <h3 class="text-xl font-bold text-white">ExData - EP (2024)</h3>
-        </div>
-        <div class="space-y-2">
-          <div class="flex justify-between items-center py-2 border-b border-white/10">
-            <span class="text-sm text-white">01. Inicio</span>
-            <span class="text-sm text-white/60">4:23</span>
-          </div>
-          <div class="flex justify-between items-center py-2 border-b border-white/10">
-            <span class="text-sm text-white">02. Despertar</span>
-            <span class="text-sm text-white/60">5:17</span>
-          </div>
-          <div class="flex justify-between items-center py-2 border-b border-white/10">
-            <span class="text-sm text-white">03. Conexión</span>
-            <span class="text-sm text-white/60">6:01</span>
-          </div>
-          <div class="flex justify-between items-center py-2 border-b border-white/10">
-            <span class="text-sm text-white">04. Digital</span>
-            <span class="text-sm text-white/60">4:45</span>
-          </div>
-        </div>
-      </div>
+
+      <%= turbo_frame_tag "player_widget", class: "mt-4" do %>
+
+      <% end %>
+
     </div>
+
     <div class="grid grid-cols-2 gap-4 text-white/80 text-xs">
       <div>
         <h3 class="font-bold mb-2">RECENT SHOWS</h3>
@@ -138,7 +121,8 @@
         </ul>
       </div>
     </div>
-    <div class="flex justify-center">
+
+    <div class="flex justify-center mb-20 mt-4">
       <div class="text-white text-2xl font-bold">TENSA RECORDS</div>
     </div>
   </div>

@@ -1,0 +1,26 @@
+<%= turbo_frame_tag "player_widget" do %>
+
+
+<div class="bg-white/10 p-6 rounded-lg space-y-4 animate-in fade-in slide-in-from-top-4 my-4">
+  <div class="flex justify-between items-center border-b border-white/20 pb-4">
+    <h3 class="text-xl font-bold text-white"><%= playlist.title %></h3>
+  </div>
+  <div class="space-y-2">
+
+    <% playlist.tracks.each do |track| %>
+      <%= link_to player_path(id: track, t: true), data: { 
+          track_id: track.id, 
+          track_detector_target: "track"
+        } do %>
+        <div class="flex justify-between items-center py-2 border-b border-white/10">
+          <span class="text-sm text-white"><%= track.title %></span>
+          <span class="text-sm text-white/60"><%= track.duration %></span>
+        </div>
+      <% end %>
+    <% end %>
+    
+  </div>
+</div>
+
+
+<% end %>

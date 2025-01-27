@@ -21,7 +21,17 @@ class PlaylistsController < ApplicationController
     @playlist ||= Playlist.published.friendly.find(params[:id])
     @track = @playlist.tracks.first
 
-    get_meta_tags
+    respond_to do |format|
+      format.html do
+        if turbo_frame_request?
+          render partial: "playlist_widget", locals: { playlist: @playlist }
+        else
+          get_meta_tags
+          render "show"
+        end
+      end
+      format.json
+    end
   end
 
   def edit
