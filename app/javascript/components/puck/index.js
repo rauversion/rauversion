@@ -16,3 +16,4 @@ export { default as ButtonBlock, config as ButtonBlockConfig } from './Button';
 //export { default as Image, config as ImageConfig } from './Image';
 //export { default as Video, config as VideoConfig } from './Video';
 //export { default as Audio, config as AudioConfig } from './Audio';
+export { default as Slider, config as SliderConfig } from './Slider';

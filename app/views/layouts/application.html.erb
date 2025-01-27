@@ -21,6 +21,8 @@
     <meta name="turbo-refresh-scroll" content="preserve">
     <meta name="turbo-prefetch" content="false">
 
+    <meta name="current-user-id" content="<%= current_user&.username %>">
+
     <% if @oembed_json %>
       <link rel="alternate" type="application/json+oembed" href="<%= @oembed_json %>" />
     <% end %>
@@ -36,10 +38,12 @@
 
     <%= yield %>
 
+    <% unless @disable_player%>
     <div id="cart-counter" data-turbo-permanent>
       <%= turbo_frame_tag "player-frame", src: player_path(id: Track.published&.last&.id) %>
       <% #= render "player/player", track: Track.first %>
     </div>
+    <% end %>
 
     <div class="flash">
       <%= render "shared/flash" %>

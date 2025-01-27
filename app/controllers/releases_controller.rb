@@ -1,21 +1,22 @@
 class ReleasesController < ApplicationController
-  before_action :find_playlist, except: [:puck, :upload_puck_image]
+  before_action :find_playlist, except: [:puck, :upload_puck_image, :edit]
   before_action :disable_footer, only: [:puck]
 
   def index
-    @playlist.releases
+    current_user.releases
   end
 
   def puck
+    @disable_player = true
     render "puck"
   end
 
   def new
-    @release = @playlist.releases.new
+    @release = current_user.releases.new
   end
 
   def create
-    @release = @playlist.releases.new
+    @release = current_user.releases.new
     permitted_params = release_params
     if @release.update(permitted_params)
       redirect_to edit_playlist_release_path(@playlist, @release), notice: "success", status: 422
@@ -25,11 +26,11 @@ class ReleasesController < ApplicationController
   end
 
   def edit
-    @release = @playlist.releases.friendly.find(params[:id])
+    @release = current_user.releases.friendly.find(params[:id])
   end
 
   def update
-    @release = @playlist.releases.friendly.find(params[:id])
+    @release = current_user.releases.friendly.find(params[:id])
     permitted_params = release_params
     if @release.update(permitted_params)
       flash.now[:notice] = "updated"
@@ -42,7 +43,7 @@ class ReleasesController < ApplicationController
   end
 
   def destroy
-    @release = @playlist.releases.friendly.find(params[:id])
+    @release = current_user.releases.friendly.find(params[:id])
     @release.destroy
     redirect_to playlist_releases_path(@playlist)
   end

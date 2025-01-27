@@ -1,6 +1,7 @@
 class Release < ApplicationRecord
   include FriendlyId
-  belongs_to :playlist
+  belongs_to :playlist, optional: true
+  belongs_to :user, optional: true
   has_many :release_sections, dependent: :destroy
   has_many :release_playlists, dependent: :destroy
   has_many :playlists, through: :release_playlists

@@ -160,6 +160,14 @@ Rails.application.routes.draw do
 
   resources :photos
   resource :spotlight
+
+  resources :releases do
+    collection do
+      get :puck
+      post :upload_puck_image
+    end
+  end
+  
   resources :playlists do
 
     collection do
@@ -255,6 +263,9 @@ Rails.application.routes.draw do
       get "/label_artists", to: "users#artists", as: :label_artists
 
       get "/articles", to: "users#articles"
+      member do
+        get :playlists, format: :json, to: 'users#playlists_api'
+      end
     end
   end
 

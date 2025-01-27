@@ -4,7 +4,7 @@ import { createRoot } from 'react-dom/client';
 import { Puck, DropZone } from "@measured/puck";
 import "@measured/puck/puck.css";
 import PlaylistComponent from '../components/playlist';
-import { ButtonBlock, ButtonBlockConfig } from '../components/puck';
+import { ButtonBlock, ButtonBlockConfig, Slider, SliderConfig } from '../components/puck';
 
 
 import {
@@ -105,9 +105,14 @@ const config = {
       defaultProps: ButtonBlockConfig.defaultProps,
       render: ButtonBlock,
     },
+    Slider: {
+      fields: SliderConfig.fields,
+      defaultProps: SliderConfig.defaultProps,
+      render: Slider,
+    },
   },
 
-  categoriessss: {
+  categories_disabled_do_not_use: {
     player: {
       components: ["Playlist"],
     },
@@ -167,7 +172,8 @@ function save(data) {
 }
 
 // Render Puck editor
-function Editor() {
+function Editor({releaseId}) {
+  window.releaseId = releaseId
   return (
     <Puck config={config} data={initialData} onPublish={save} />
   );
@@ -175,6 +181,9 @@ function Editor() {
 
 export default class extends Controller {
   static targets = []
+  static values = {
+    releaseId: Number,
+  }
 
   initialize() {
     const root = createRoot(this.element);

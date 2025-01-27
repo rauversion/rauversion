@@ -79,6 +79,10 @@ class UsersController < ApplicationController
     @as = :playlist
     @section = "playlists/playlist_item"
     # render "show"
+
+    if request.format.json?
+      render "playlists" and return
+    end
     paginated_render
   end
 
@@ -122,6 +126,11 @@ class UsersController < ApplicationController
     @namespace = :album
     @section = "playlists/playlist_item"
     # render "show"
+
+    if request.format.json?
+      render "playlists" and return
+    end
+    
     paginated_render
   end
 
