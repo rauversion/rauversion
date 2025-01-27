@@ -24,7 +24,10 @@ json.url url_for(@playlist)
 json.tracks @playlist.track_playlists.includes(:track) do |track_playlist|
   track = track_playlist.track
   json.extract! track, :id, :title, :description, :duration
+  begin
   json.audio_url url_for(track.mp3_audio) if track.audio.attached?
+  rescue
+  end
   json.cover_url url_for(track.cover) if track.cover.attached?
   json.position track_playlist.position
   json.author do
@@ -35,9 +38,9 @@ end
 json.likes_count @playlist.likes.size
 json.comments_count @playlist.comments.size
 
-json.metadata do
-  json.buy_link @playlist.buy_link
-  json.buy_link_title @playlist.buy_link_title
-  json.buy @playlist.buy
-  json.record_label @playlist.record_label
-end
+
+json.buy_link @playlist.buy_link
+json.buy_link_title @playlist.buy_link_title
+json.buy @playlist.buy
+json.record_label @playlist.record_label
+
