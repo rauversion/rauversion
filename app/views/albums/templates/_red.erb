@@ -8,7 +8,7 @@
       <%= @release.subtitle %>
     </h3>
 
-    <div class="text-white md:text-2xl p-4 text-base mt-4">
+    <div class="text-white md:text-2xl p-4 text-base mt-4 text-center">
       <%= raw @release.release_sections.find{|o| o.tag == "intro" }&.body %>
     </div>
 
