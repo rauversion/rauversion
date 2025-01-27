@@ -55,10 +55,13 @@ class ReleasesController < ApplicationController
 
   def release_params
     params.require(:release).permit(
+      :sleeve_color, :cover, :product_id,
       :title, :subtitle, :cover_color, :record_color, :template,
       :spotify, :bandcamp, :soundcloud, :apple_music, :tidal,
       :amazon_music, :youtube_music, :deezer, :pandora,
-      release_sections_attributes: [:id, :title, :content, :_destroy],
+      release_sections_attributes: [
+        :id, :title, :content, :_destroy, :subtitle, :tag, :position, :body
+      ],
       release_playlists_attributes: [:id, :playlist_id, :position, :_destroy]
     )
   end

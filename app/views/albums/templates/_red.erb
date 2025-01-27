@@ -1,119 +1,145 @@
-<div class="max-w-3xl mx-auto bg-red-600 p-8 space-y-6">
-  <h1 class="f_SW50ZXI text-pink-300 text-7xl md:text-8xl font-black tracking-tight leading-none text-center">RECOLECCIÓN <br>RENÉ ROCO </h1>
-  <p class="text-white text-sm md:text-base">“Recolección” reúne siete discos creados entre 2005 y 2024, una selección de demos, maquetas, composiciones finalizadas y experimentaciones que, hasta ahora, permanecían archivadas en discos duros. Estas grabaciones, surgidas en distintos momentos y contextos, muestran una diversidad de géneros, timbres y enfoques que reflejan el proceso de explorar y experimentar con el sonido a lo largo de casi dos décadas.</p>
-  <div class="flex flex-wrap justify-center gap-x-8 text-white text-sm md:text-base">
-    <span>ExData EP</span>
-    <span>HATE EP</span>
-    <span>Dadirucso Al LP</span>
-    <span>Axioma LP</span>
-    <span>Humo y Metal LP</span>
-    <span>Karma EP</span>
-    <span>Audio B LP</span>
-  </div>
-  <div class="relative aspect-[4/3] w-full max-w-2xl mx-auto overflow-hidden rounded-lg">
-    <img alt="René Roco portrait" decoding="async" data-nimg="fill" class="object-cover" src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screen%20Shot%202025-01-24%20at%2011.40.09%20AM-KZLebOaoakjiwD5ujpmdC5WfYgwqTh.png" style="position: absolute; height: 100%; width: 100%; inset: 0px; color: transparent;">
-  </div>
-  <div class="w-full max-w-4xl mx-auto space-y-8">
-    <div aria-roledescription="carousel" class="relative w-full" role="region">
-      <div class="overflow-hidden">
-        <div class="flex -ml-2 md:-ml-4" style="transform: translate3d(0px, 0px, 0px);">
-          <div aria-roledescription="slide" class="min-w-0 shrink-0 grow-0 pl-2 md:pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4" role="group" style="transform: translate3d(0px, 0px, 0px);">
-            <div class="aspect-square bg-white/10 p-4 cursor-pointer hover:bg-white/20 transition-colors">
-              <div class="h-full flex flex-col justify-between">
-                <div class="text-white font-bold">ExData</div>
-                <div class="text-white/60 text-sm">EP • 2024</div>
+<div class=" bg-red-600 p-8 space-y-6">
+
+  <div class="max-w-3xl mx-auto">
+    <h1 class="uppercase text-pink-300 text-7xl md:text-8xl font-black tracking-tight leading-none text-center">
+      <%= @release.title %> <br>
+    </h1>
+    <h3 class="text-pink-300 text-3xl text-center font-black">
+      <%= @release.subtitle %>
+    </h3>
+
+    <div class="text-white md:text-2xl p-4 text-base mt-4">
+      <%= raw @release.release_sections.find{|o| o.tag == "intro" }&.body %>
+    </div>
+
+    <div class="py-4 uppercase flex flex-wrap justify-center gap-x-8 text-white text-sm md:text-base">
+      <% @release.playlists.each do |playlist| %>
+        <span><%= playlist.title %></span>
+      <% end %>
+    </div>
+
+    <div class="relative aspect-[4/3] w-full max-w-2xl-- mx-auto overflow-hidden rounded-lg">
+      <%= image_tag @release.cover.variant(resize_to_limit: [1200, 800]), class: "object-cover", style: "position: absolute; height: 100%; width: 100%; inset: 0px; color: transparent;" %>
+      <!--<img alt="René Roco portrait" decoding="async" data-nimg="fill" class="object-cover" src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screen%20Shot%202025-01-24%20at%2011.40.09%20AM-KZLebOaoakjiwD5ujpmdC5WfYgwqTh.png" style="position: absolute; height: 100%; width: 100%; inset: 0px; color: transparent;">-->
+    </div>
+    <div class="w-full max-w-4xl mx-auto space-y-8 my-4">
+      <div 
+        data-controller="slide"
+        data-slide-auto-play-value="false"
+        data-slide-interval-value="5000"
+        data-slide-items-to-show-value="4"
+        aria-roledescription="carousel" 
+        class="relative w-full" 
+        role="region">
+        <div class="overflow-hidden">
+          <div class="flex -ml-2 md:-ml-4 transition-transform duration-300 ease-in-out">
+            <% @release.playlists.each do |playlist| %>
+              <div 
+                data-slide-target="slide"
+                aria-roledescription="slide" 
+                class="w-1/2 md:w-1/3 lg:w-1/4 min-w-[200px] shrink-0 grow-0 pl-2 md:pl-4" 
+                role="group">
+                <div class="aspect-square bg-white/10 cursor-pointer hover:bg-white/20 transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg rounded-lg overflow-hidden">
+                  <% if playlist.cover.attached? %>
+                    <div class="relative w-full aspect-square">
+                      <%= image_tag playlist.cover.variant(resize_to_limit: [400, 400]), 
+                          class: "absolute inset-0 w-full h-full object-cover" %>
+                    </div>
+                  <% end %>
+                  <div class="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+                    <div class="text-white font-bold">
+                      <%= playlist.title %>
+                    </div>
+                    <div class="text-white/60 text-sm">
+                      <%= playlist.playlist_type %> • <%= playlist.release_date.try :year %>
+                    </div>
+                  </div>
+                </div>
               </div>
-            </div>
+            <% end%>
           </div>
-          <div aria-roledescription="slide" class="min-w-0 shrink-0 grow-0 pl-2 md:pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4" role="group" style="transform: translate3d(0px, 0px, 0px);">
-            <div class="aspect-square bg-white/10 p-4 cursor-pointer hover:bg-white/20 transition-colors">
-              <div class="h-full flex flex-col justify-between">
-                <div class="text-white font-bold">HATE</div>
-                <div class="text-white/60 text-sm">EP • 2024</div>
-              </div>
-            </div>
+        </div>
+        <button 
+          data-slide-target="previousButton"
+          data-action="click->slide#previous"
+          class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 border border-white/20 bg-black/50 hover:bg-white/20 text-white absolute h-8 w-8 rounded-full -left-12 top-1/2 -translate-y-1/2 backdrop-blur-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left h-4 w-4">
+            <path d="m12 19-7-7 7-7"></path>
+            <path d="M19 12H5"></path>
+          </svg>
+          <span class="sr-only">Previous slide</span>
+        </button>
+        <button 
+          data-slide-target="nextButton"
+          data-action="click->slide#next"
+          class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 border border-white/20 bg-black/50 hover:bg-white/20 text-white absolute h-8 w-8 rounded-full -right-12 top-1/2 -translate-y-1/2 backdrop-blur-sm">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right h-4 w-4">
+            <path d="M5 12h14"></path>
+            <path d="m12 5 7 7-7 7"></path>
+          </svg>
+          <span class="sr-only">Next slide</span>
+        </button>
+
+        <div class="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex space-x-2">
+          <% (1..3).each_with_index do |_, index| %>
+            <button 
+              data-action="click->slide#goToSlide" 
+              data-slide-index="<%= index %>"
+              class="w-2 h-2 rounded-full bg-white/30 transition-all duration-300 hover:bg-white/50"
+              aria-label="Go to slide <%= index + 1 %>">
+            </button>
+          <% end %>
+        </div>
+      </div>
+
+      <div class="bg-white/10 p-6 rounded-lg space-y-4 animate-in fade-in slide-in-from-top-4">
+        <div class="flex justify-between items-center border-b border-white/20 pb-4">
+          <h3 class="text-xl font-bold text-white">ExData - EP (2024)</h3>
+        </div>
+        <div class="space-y-2">
+          <div class="flex justify-between items-center py-2 border-b border-white/10">
+            <span class="text-sm text-white">01. Inicio</span>
+            <span class="text-sm text-white/60">4:23</span>
           </div>
-          <div aria-roledescription="slide" class="min-w-0 shrink-0 grow-0 pl-2 md:pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4" role="group" style="transform: translate3d(0px, 0px, 0px);">
-            <div class="aspect-square bg-white/10 p-4 cursor-pointer hover:bg-white/20 transition-colors">
-              <div class="h-full flex flex-col justify-between">
-                <div class="text-white font-bold">Dadirucso Al</div>
-                <div class="text-white/60 text-sm">LP • 2023</div>
-              </div>
-            </div>
+          <div class="flex justify-between items-center py-2 border-b border-white/10">
+            <span class="text-sm text-white">02. Despertar</span>
+            <span class="text-sm text-white/60">5:17</span>
           </div>
-          <div aria-roledescription="slide" class="min-w-0 shrink-0 grow-0 pl-2 md:pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4" role="group" style="transform: translate3d(0px, 0px, 0px);">
-            <div class="aspect-square bg-white/10 p-4 cursor-pointer hover:bg-white/20 transition-colors">
-              <div class="h-full flex flex-col justify-between">
-                <div class="text-white font-bold">Axioma</div>
-                <div class="text-white/60 text-sm">LP • 2023</div>
-              </div>
-            </div>
+          <div class="flex justify-between items-center py-2 border-b border-white/10">
+            <span class="text-sm text-white">03. Conexión</span>
+            <span class="text-sm text-white/60">6:01</span>
           </div>
-          <div aria-roledescription="slide" class="min-w-0 shrink-0 grow-0 pl-2 md:pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4" role="group">
-            <div class="aspect-square bg-white/10 p-4 cursor-pointer hover:bg-white/20 transition-colors">
-              <div class="h-full flex flex-col justify-between">
-                <div class="text-white font-bold">Humo y Metal</div>
-                <div class="text-white/60 text-sm">LP • 2022</div>
-              </div>
-            </div>
-          </div>
-          <div aria-roledescription="slide" class="min-w-0 shrink-0 grow-0 pl-2 md:pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4" role="group">
-            <div class="aspect-square bg-white/10 p-4 cursor-pointer hover:bg-white/20 transition-colors">
-              <div class="h-full flex flex-col justify-between">
-                <div class="text-white font-bold">Karma</div>
-                <div class="text-white/60 text-sm">EP • 2022</div>
-              </div>
-            </div>
-          </div>
-          <div aria-roledescription="slide" class="min-w-0 shrink-0 grow-0 pl-2 md:pl-4 basis-1/2 md:basis-1/3 lg:basis-1/4" role="group">
-            <div class="aspect-square bg-white/10 p-4 cursor-pointer hover:bg-white/20 transition-colors">
-              <div class="h-full flex flex-col justify-between">
-                <div class="text-white font-bold">Audio B</div>
-                <div class="text-white/60 text-sm">LP • 2021</div>
-              </div>
-            </div>
+          <div class="flex justify-between items-center py-2 border-b border-white/10">
+            <span class="text-sm text-white">04. Digital</span>
+            <span class="text-sm text-white/60">4:45</span>
           </div>
         </div>
       </div>
-      <button class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground absolute h-8 w-8 rounded-full -left-12 top-1/2 -translate-y-1/2">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left h-4 w-4">
-          <path d="m12 19-7-7 7-7"></path>
-          <path d="M19 12H5"></path>
-        </svg>
-        <span class="sr-only">Previous slide</span>
-      </button>
-      <button class="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg]:size-4 [&amp;_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground absolute h-8 w-8 rounded-full -right-12 top-1/2 -translate-y-1/2">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-right h-4 w-4">
-          <path d="M5 12h14"></path>
-          <path d="m12 5 7 7-7 7"></path>
-        </svg>
-        <span class="sr-only">Next slide</span>
-      </button>
     </div>
-  </div>
-  <div class="grid grid-cols-2 gap-4 text-white/80 text-xs">
-    <div>
-      <h3 class="font-bold mb-2">RECENT SHOWS</h3>
-      <ul class="space-y-1">
-        <li>2025 | Aniversario 30 años Perrera Arte</li>
-        <li>2024 | Creamfields, Chile</li>
-        <li>2024 | M100: Festival Le Rock</li>
-        <li>2023 | Creamfields, Chile</li>
-        <li>2023 | Micro Mutek, Chile</li>
-      </ul>
+    <div class="grid grid-cols-2 gap-4 text-white/80 text-xs">
+      <div>
+        <h3 class="font-bold mb-2">RECENT SHOWS</h3>
+        <ul class="space-y-1">
+          <li>2025 | Aniversario 30 años Perrera Arte</li>
+          <li>2024 | Creamfields, Chile</li>
+          <li>2024 | M100: Festival Le Rock</li>
+          <li>2023 | Creamfields, Chile</li>
+          <li>2023 | Micro Mutek, Chile</li>
+        </ul>
+      </div>
+      <div>
+        <h3 class="font-bold mb-2">CONTACT</h3>
+        <ul class="space-y-1">
+          <li>contacto@reneroco.info</li>
+          <li>contacto@tensarecords.com</li>
+          <li>reneroco.info</li>
+          <li>@renerocovmv</li>
+          <li>tensarecords.com</li>
+        </ul>
+      </div>
     </div>
-    <div>
-      <h3 class="font-bold mb-2">CONTACT</h3>
-      <ul class="space-y-1">
-        <li>contacto@reneroco.info</li>
-        <li>contacto@tensarecords.com</li>
-        <li>reneroco.info</li>
-        <li>@renerocovmv</li>
-        <li>tensarecords.com</li>
-      </ul>
+    <div class="flex justify-center">
+      <div class="text-white text-2xl font-bold">TENSA RECORDS</div>
     </div>
-  </div>
-  <div class="flex justify-center">
-    <div class="text-white text-2xl font-bold">TENSA RECORDS</div>
   </div>
 </div>
