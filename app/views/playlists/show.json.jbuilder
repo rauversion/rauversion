@@ -38,6 +38,6 @@ end
 json.likes_count @playlist.likes.size
 json.comments_count @playlist.comments.size
 
-json.metadata  do
+#json.metadata  do
   json.extract! @playlist, :buy_link, :buy, :title, :record_label
-end
+#end
