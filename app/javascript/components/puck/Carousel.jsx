@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import ImageUploadField from './ImageUploadField';
 
 const Carousel = ({ items = [], autoplay, interval }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -25,7 +26,7 @@ const Carousel = ({ items = [], autoplay, interval }) => {
     setCurrentIndex((current) => (current - 1 + items.length) % items.length);
   };
 
-  if (!items.length) return null;
+  if (!items.length) return <div>No items</div>;
 
   return (
     <div className="relative">
@@ -99,38 +100,43 @@ export const config = {
       arrayFields: {
         image: {
           type: "custom",
-          render: ({ onChange, value }) => (
-            <div>
-              <label>Image URL:</label>
-              <input
-                type="text"
-                value={value}
-                onChange={(e) => onChange(e.target.value)}
-                className="border p-2 w-full"
-              />
-            </div>
-          ),
+          render: ImageUploadField,
+          label: "Image"
         },
         title: {
           type: "text",
-          label: "Title",
+          label: "Title"
         },
         description: {
           type: "text",
-          label: "Description",
-        },
-      },
+          label: "Description"
+        }
+      }
     },
     autoplay: {
       type: "boolean",
-      label: "Enable Autoplay",
-      defaultValue: true,
+      label: "Enable Autoplay"
     },
     interval: {
       type: "number",
-      label: "Autoplay Interval (ms)",
-      defaultValue: 5000,
-    },
+      label: "Autoplay Interval (ms)"
+    }
+  },
+  defaultProps: {
+    items: [
+      {
+        image: "",
+        title: "First Slide",
+        description: "This is the first slide description"
+      },
+      {
+        image: "",
+        title: "Second Slide",
+        description: "This is the second slide description"
+      }
+    ],
+    autoplay: true,
+    interval: 5000
   }
 };
 

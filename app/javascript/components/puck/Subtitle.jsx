@@ -15,8 +15,11 @@ export const config = {
     color: {
       type: "text",
       label: "Text Color",
-      defaultValue: "text-gray-600",
     },
+  },
+  defaultProps: {
+    text: "Subtitle",
+    color: "text-gray-600"
   }
 };
 

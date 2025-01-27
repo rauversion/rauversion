@@ -10,7 +10,10 @@ export const config = {
       type: "text",
       label: "Heading Text",
     },
-  }
+  },
+  defaultProps: {
+    children: "Heading",
+  },
 };
 
 export default HeadingBlock;

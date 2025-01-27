@@ -47,12 +47,10 @@ export const config = {
         { label: "3 Columns", value: "grid-cols-3" },
         { label: "4 Columns", value: "grid-cols-4" },
       ],
-      defaultValue: "grid-cols-2"
     },
     textColor: {
       type: "text",
       label: "Text Color",
-      defaultValue: "text-white/80"
     },
     textSize: {
       type: "select",
@@ -63,7 +61,6 @@ export const config = {
         { label: "Base", value: "text-base" },
         { label: "Large", value: "text-lg" },
       ],
-      defaultValue: "text-xs"
     }
   },
   defaultProps: {
@@ -90,7 +87,7 @@ export const config = {
       }
     ],
     gridCols: "grid-cols-2",
-    textColor: "text-white/80",
+    textColor: "text-default0",
     textSize: "text-xs"
   }
 };

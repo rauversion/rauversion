@@ -50,7 +50,6 @@ export const config = {
             { label: "75%", value: "basis-3/4" },
             { label: "100%", value: "basis-full" },
           ],
-          defaultValue: "basis-auto",
         },
         grow: {
           type: "select",
@@ -59,7 +58,6 @@ export const config = {
             { label: "No grow", value: "grow-0" },
             { label: "Grow", value: "grow" },
           ],
-          defaultValue: "grow-0",
         },
         shrink: {
           type: "select",
@@ -68,7 +66,6 @@ export const config = {
             { label: "No shrink", value: "shrink-0" },
             { label: "Shrink", value: "shrink" },
           ],
-          defaultValue: "shrink",
         },
       },
     },
@@ -81,7 +78,6 @@ export const config = {
         { label: "Column", value: "flex-col" },
         { label: "Column Reverse", value: "flex-col-reverse" },
       ],
-      defaultValue: "flex-row",
     },
     wrap: {
       type: "select",
@@ -91,7 +87,6 @@ export const config = {
         { label: "No Wrap", value: "flex-nowrap" },
         { label: "Wrap Reverse", value: "flex-wrap-reverse" },
       ],
-      defaultValue: "flex-wrap",
     },
     justify: {
       type: "select",
@@ -104,7 +99,6 @@ export const config = {
         { label: "Space Around", value: "justify-around" },
         { label: "Space Evenly", value: "justify-evenly" },
       ],
-      defaultValue: "justify-start",
     },
     align: {
       type: "select",
@@ -116,7 +110,6 @@ export const config = {
         { label: "Baseline", value: "items-baseline" },
         { label: "Stretch", value: "items-stretch" },
       ],
-      defaultValue: "items-start",
     },
     gap: {
       type: "select",
@@ -128,12 +121,10 @@ export const config = {
         { label: "Large", value: "gap-6" },
         { label: "Extra Large", value: "gap-8" },
       ],
-      defaultValue: "gap-4",
     },
     className: {
       type: "text",
       label: "Additional Classes",
-      defaultValue: "",
     },
   },
   defaultProps: {

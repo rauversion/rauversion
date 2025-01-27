@@ -48,7 +48,6 @@ export const config = {
             { label: "11 Columns", value: "col-span-11" },
             { label: "12 Columns", value: "col-span-12" },
           ],
-          defaultValue: "col-span-4",
         },
       },
     },
@@ -62,12 +61,10 @@ export const config = {
         { label: "Large", value: "gap-6" },
         { label: "Extra Large", value: "gap-8" },
       ],
-      defaultValue: "gap-4",
     },
     className: {
       type: "text",
       label: "Additional Classes",
-      defaultValue: "",
     }
   },
   defaultProps: {

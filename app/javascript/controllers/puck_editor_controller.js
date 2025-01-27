@@ -30,7 +30,8 @@ import {
 const config = {
   components: {
     MultiList: {
-      ...MultiListConfig,
+      fields: MultiListConfig.fields,
+      defaultProps: MultiListConfig.defaultProps,
       render: MultiList,
     },
     Example: {
@@ -43,11 +44,13 @@ const config = {
       },
     },
     Grid: {
-      ...GridConfig,
+      fields: GridConfig.fields,
+      defaultProps: GridConfig.defaultProps,
       render: Grid,
     },
     Flex: {
-      ...FlexConfig,
+      fields: FlexConfig.fields,
+      defaultProps: FlexConfig.defaultProps,
       render: Flex,
     },
     Playlist: {
@@ -62,33 +65,42 @@ const config = {
           defaultValue: "dark",
         },
       },
+      defaultProps: {
+        playlistId: "",
+        theme: "dark"
+      },
       render: ({ playlistId, theme }) => {
         return <PlaylistComponent playlistId={playlistId} theme={theme} />;
       },
     },
     HeroSection: {
-      ...HeroSectionConfig,
+      fields: HeroSectionConfig.fields,
+      defaultProps: HeroSectionConfig.defaultProps,
       render: HeroSection,
     },
     Title: {
-      ...TitleConfig,
+      fields: TitleConfig.fields,
+      defaultProps: TitleConfig.defaultProps,
       render: Title,
     },
     Subtitle: {
-      ...SubtitleConfig,
+      fields: SubtitleConfig.fields,
+      defaultProps: SubtitleConfig.defaultProps,
       render: Subtitle,
     },
     Carousel: {
-      ...CarouselConfig,
+      fields: CarouselConfig.fields,
+      defaultProps: CarouselConfig.defaultProps,
       render: Carousel,
     },
     HeadingBlock: {
-      ...HeadingBlockConfig,
+      fields: HeadingBlockConfig.fields,
+      defaultProps: HeadingBlockConfig.defaultProps,
       render: HeadingBlock,
     },
   },
 
-  categories: {
+  categoriessss: {
     player: {
       components: ["Playlist"],
     },
@@ -96,7 +108,7 @@ const config = {
       components: ["Grid", "Flex", "Space"],
     },
     typography: {
-      components: ["Heading", "Title", "Subtitle", "Text"],
+      components: ["Heading", "Text"],
     },
     interactive: {
       title: "Actions",

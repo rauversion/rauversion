@@ -20,7 +20,6 @@ export const config = {
         { label: "Medium", value: "text-4xl" },
         { label: "Large", value: "text-6xl" },
       ],
-      defaultValue: "text-4xl",
     },
     alignment: {
       type: "select",
@@ -30,8 +29,12 @@ export const config = {
         { label: "Center", value: "text-center" },
         { label: "Right", value: "text-right" },
       ],
-      defaultValue: "text-left",
     },
+  },
+  defaultProps: {
+    text: "Title",
+    size: "text-4xl",
+    alignment: "text-left"
   }
 };
 
