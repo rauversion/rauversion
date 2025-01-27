@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ImageUploadField from './ImageUploadField';
+import CheckboxField from './CheckboxField';
 
 const Carousel = ({ items = [], autoplay, interval }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -114,7 +115,8 @@ export const config = {
       }
     },
     autoplay: {
-      type: "boolean",
+      type: "custom",
+      render: CheckboxField,
       label: "Enable Autoplay"
     },
     interval: {

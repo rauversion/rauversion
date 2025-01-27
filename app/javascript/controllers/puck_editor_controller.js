@@ -4,6 +4,8 @@ import { createRoot } from 'react-dom/client';
 import { Puck, DropZone } from "@measured/puck";
 import "@measured/puck/puck.css";
 import PlaylistComponent from '../components/playlist';
+import { ButtonBlock, ButtonBlockConfig } from '../components/puck';
+
 
 import {
   ImageUploadField,
@@ -97,6 +99,11 @@ const config = {
       fields: HeadingBlockConfig.fields,
       defaultProps: HeadingBlockConfig.defaultProps,
       render: HeadingBlock,
+    },
+    ButtonBlock: {
+      fields: ButtonBlockConfig.fields,
+      defaultProps: ButtonBlockConfig.defaultProps,
+      render: ButtonBlock,
     },
   },
 

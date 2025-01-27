@@ -1,5 +1,6 @@
 import React from 'react';
 import ImageUploadField from './ImageUploadField';
+import Button from './Button';
 
 const HeroSection = ({ 
   backgroundImage, 
@@ -48,18 +49,14 @@ const HeroSection = ({
             <p className={getClassName("subtitle")}>{description}</p>
             <div className={getClassName("actions")}>
               {buttons.map((button, i) => (
-                <a
+                <Button
                   key={i}
+                  label={button.label}
                   href={button.href}
-                  className={`px-6 py-3 rounded-lg ${
-                    button.variant === "primary" 
-                      ? "bg-blue-600 text-white hover:bg-blue-700" 
-                      : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-                  } ${button.size === "large" ? "text-lg" : ""}`}
+                  variant={button.variant}
+                  size={button.size}
                   tabIndex={puck.isEditing ? -1 : undefined}
-                >
-                  {button.label}
-                </a>
+                />
               ))}
             </div>
           </div>
