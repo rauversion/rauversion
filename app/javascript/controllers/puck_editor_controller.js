@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import React from "react";
 import { Puck, DropZone } from "@measured/puck";
 import "@measured/puck/puck.css";
-import { put } from '@rails/request.js';
+import { put, get } from '@rails/request.js';
 import PlaylistComponent from '../components/playlist';
 import { ButtonBlock, ButtonBlockConfig, Slider, SliderConfig } from '../components/puck';
 
@@ -199,23 +199,50 @@ async function save(data) {
 
 // Render Puck editor
 function Editor() {
+  const [data, setData] = React.useState(initialData);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    const fetchEditorData = async () => {
+      try {
+        const releaseId = document.querySelector('meta[name="current-release-id"]')?.content;
+        if (!releaseId) {
+          console.error('No release ID found');
+          setLoading(false);
+          return;
+        }
+
+        const response = await get(`/releases/${releaseId}.json`);
+        if (response.ok) {
+          const releaseData = await response.json;
+          if (releaseData.editor_data) {
+            setData(releaseData.editor_data);
+          }
+        }
+      } catch (error) {
+        console.error('Error loading editor data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEditorData();
+  }, []);
+
+  if (loading) {
+    return <div className="flex items-center justify-center h-screen">
+      <div className="text-lg text-gray-600">Loading editor...</div>
+    </div>;
+  }
+
   return (
-    <Puck config={config} data={initialData} onPublish={save} />
+    <Puck config={config} data={data} onPublish={save} />
   );
 }
 
 export default class extends Controller {
-  static targets = []
-  static values = {
-    releaseId: Number,
-  }
-
-  initialize() {
+  connect() {
     const root = createRoot(this.element);
     root.render(<Editor />);
-  }
-
-  disconnect() {
-    // Cleanup
   }
 }
