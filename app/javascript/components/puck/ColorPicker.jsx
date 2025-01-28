@@ -12,8 +12,15 @@ const ColorPicker = ({ onChange, value, label }) => {
     setDisplayColorPicker(false);
   };
 
+  const decimalToHex = (alpha) => alpha === 0 ? '00' : Math.round(255 * alpha).toString(16)
+
+  const handleColorChange = (color) => {
+    const hexCode = `${color.hex}${decimalToHex(color.rgb.a)}` 
+    return hexCode
+  }
+
   const handleChange = (color) => {
-    onChange(color.hex);
+    onChange(handleColorChange(color));
   };
 
   const styles = {

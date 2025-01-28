@@ -18,7 +18,9 @@ import {
   Title,
   TitleConfig,
   Text,
-  TextConfig
+  TextConfig,
+  MultiList,
+  MultiListConfig,
 } from '../components/puck';
 
 const config = {
@@ -65,12 +67,17 @@ const config = {
       defaultProps: SliderConfig.defaultProps,
       render: Slider,
     },
+    MultiList: {
+      fields: MultiListConfig.fields,
+      defaultProps: MultiListConfig.defaultProps,
+      render: MultiList,
+    },
   },
   root: {
     render: ({ background, textColor, alignment, children }) => {
       return <div
       style={{ backgroundColor: background, color: textColor, textAlign: alignment }} 
-      className="flex flex-col min-h-screen">
+      className="flex flex-col min-h-screen pb-40">
         {children}
       </div>;
     },
