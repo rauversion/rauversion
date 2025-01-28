@@ -9,7 +9,20 @@ const MultiList = ({ columns, gridCols, textColor, textSize, className }) => {
             <h3 className="font-bold mb-2">{column.title}</h3>
             <ul className="space-y-1">
               {column.items.map((item, itemIndex) => (
-                <li key={itemIndex}>{item.text}</li>
+                <li key={itemIndex}>
+                  {item.url ? (
+                    <a 
+                      href={item.url} 
+                      className="hover:underline"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {item.text}
+                    </a>
+                  ) : (
+                    item.text
+                  )}
+                </li>
               ))}
             </ul>
           </div>
@@ -36,6 +49,11 @@ export const config = {
             text: {
               type: "text",
               label: "Item Text"
+            },
+            url: {
+              type: "text",
+              label: "Item URL (optional)",
+              defaultValue: "",
             }
           }
         }
@@ -76,21 +94,22 @@ export const config = {
       {
         title: "RECENT SHOWS",
         items: [
-          { text: "2025 | Aniversario 30 años Perrera Arte" },
-          { text: "2024 | Creamfields, Chile" },
-          { text: "2024 | M100: Festival Le Rock" },
-          { text: "2023 | Creamfields, Chile" },
-          { text: "2023 | Micro Mutek, Chile" }
+          { text: "2025 | Aniversario 30 años Perrera Arte", url: "https://example.com/show1" },
+          { text: "2024 | Creamfields, Chile", url: "https://example.com/show2" },
+          { text: "2024 | M100: Festival Le Rock", url: "https://example.com/show3" },
+          { text: "2023 | Creamfields, Chile", url: "https://example.com/show4" },
+          { text: "2023 | Micro Mutek, Chile", url: "https://example.com/show5" }
         ]
       },
       {
         title: "CONTACT",
+        // change the text keys to a sample text
         items: [
-          { text: "contacto@reneroco.info" },
-          { text: "contacto@tensarecords.com" },
-          { text: "reneroco.info" },
-          { text: "@renerocovmv" },
-          { text: "tensarecords.com" }
+          { text: "contacto@example.info", url: "mailto:contacto@reneroco.info" },
+          { text: "contacto@example.com", url: "mailto:contacto@tensarecords.com" },
+          { text: "example.info", url: "https://reneroco.info" },
+          { text: "@example", url: "https://twitter.com/renerocovmv" },
+          { text: "example.com", url: "https://tensarecords.com" }
         ]
       }
     ],
