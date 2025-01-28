@@ -18,15 +18,17 @@ const Slider = ({
       
       try {
         const userId = document.querySelector('meta[name="current-user-id"]')?.content;
+        const releaseId = document.querySelector('meta[name="current-release-id"]')?.content;
+
         if (!userId) {
           console.error('No user ID found');
           setLoading(false);
           return;
         }
 
-        const response = await fetch(`/users/${userId}/playlists.json?ids=${playlistIds.join(',')}`);
+        const response = await fetch(`/releases/${releaseId}.json`);
         const data = await response.json();
-        setPlaylists(data);
+        setPlaylists(data.release_playlists);
         setLoading(false);
       } catch (error) {
         console.error('Error fetching playlists:', error);

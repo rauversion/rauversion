@@ -174,9 +174,10 @@ const initialData = {};
 // Save the data to your database
 async function save(data) {
   console.log("Saving data: ", data);
-  
+  const releaseId = document.querySelector('meta[name="current-release-id"]')?.content;
+
   try {
-    const response = await put(`/releases/${window.releaseId}`, {
+    const response = await put(`/releases/${releaseId}`, {
       body: JSON.stringify({
         release: {
           editor_data: data
@@ -197,8 +198,7 @@ async function save(data) {
 }
 
 // Render Puck editor
-function Editor({releaseId}) {
-  window.releaseId = releaseId
+function Editor() {
   return (
     <Puck config={config} data={initialData} onPublish={save} />
   );

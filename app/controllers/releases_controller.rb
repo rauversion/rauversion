@@ -30,6 +30,14 @@ class ReleasesController < ApplicationController
     @release = current_user.releases.friendly.find(params[:id])
   end
 
+  def show
+    @release = current_user.releases.friendly.find(params[:id])
+    respond_to do |format|
+      format.html
+      format.json
+    end
+  end
+
   def update
     @release = current_user.releases.friendly.find(params[:id])
     permitted_params = release_params
@@ -39,7 +47,7 @@ class ReleasesController < ApplicationController
       permitted_params[:playlist_ids].each do |playlist_id|
         @release.release_playlists.create(playlist_id: playlist_id)
       end
-      head :ok and return
+      render :show, format: :json and return
     end
 
     if permitted_params[:editor_data].present?
