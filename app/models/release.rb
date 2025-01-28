@@ -8,7 +8,7 @@ class Release < ApplicationRecord
   belongs_to :product, optional: true
   friendly_id :title, use: :slugged
 
-  TEMPLATES = ['base', 'react_app', 'red']
+  TEMPLATES = ['base', 'react_app', 'red', 'puck']
 
   has_one_attached :cover
   has_one_attached :sleeve

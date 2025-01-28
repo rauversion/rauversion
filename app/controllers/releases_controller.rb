@@ -94,11 +94,16 @@ class ReleasesController < ApplicationController
 
   def release_params
     params.require(:release).permit(
+
+    :subtitle, :cover_color, :record_color, :sleeve_color, :spotify, :bandcamp, :soundcloud, 
+    :product_id, :template, 
       :title, :description, :release_date, :private,
       :price, :currency, :minimum_price, :show_credits,
       :show_more_button, :credits, :about, :purchase_message,
       :purchase_description, :upsell_enabled, :upsell_message,
       playlist_ids: [],
+      release_playlists_attributes: [],
+      release_sections_attributes: [],
       editor_data: {}
     )
   end
