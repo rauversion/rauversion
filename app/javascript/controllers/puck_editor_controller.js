@@ -27,7 +27,8 @@ import {
   ButtonBlock, ButtonBlockConfig,
   Slider, SliderConfig, 
   CardBlock, CardBlockConfig, 
-  Section, SectionConfig
+  Section, SectionConfig,
+  ImageBlock, ImageBlockConfig
 } from '../components/puck';
 
 // Create Puck component config
@@ -126,6 +127,11 @@ const config = {
       fields: SectionConfig.fields,
       defaultProps: SectionConfig.defaultProps,
       render: Section,
+    },
+    ImageBlock: {
+      fields: ImageBlockConfig.fields,
+      defaultProps: ImageBlockConfig.defaultProps,
+      render: ImageBlock,
     },
     Button: {
       fields: ButtonBlockConfig.fields,

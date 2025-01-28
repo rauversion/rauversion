@@ -9,6 +9,7 @@ export { default as Text, config as TextConfig } from './Text';
 export { default as ButtonBlock, config as ButtonBlockConfig } from './Button';
 export { default as Section, config as SectionConfig } from './Section';
 export { default as CardBlock, config as CardBlockConfig } from './CardBlock';
+export { default as ImageBlock, config as ImageBlockConfig } from './ImageBlock';
 
 export { default as Carousel, config as CarouselConfig } from './Carousel';
 export { default as HeadingBlock, config as HeadingBlockConfig } from './HeadingBlock';
