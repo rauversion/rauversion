@@ -5,6 +5,8 @@ export { default as MultiList, config as MultiListConfig } from './MultiList';
 export { default as HeroSection, config as HeroSectionConfig } from './HeroSection';
 export { default as Title, config as TitleConfig } from './Title';
 export { default as Subtitle, config as SubtitleConfig } from './Subtitle';
+export { default as Text, config as TextConfig } from './Text';
+
 export { default as Carousel, config as CarouselConfig } from './Carousel';
 export { default as HeadingBlock, config as HeadingBlockConfig } from './HeadingBlock';
 export { default as Grid, config as GridConfig } from './Grid';

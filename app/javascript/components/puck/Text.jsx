@@ -1,20 +1,45 @@
 import React from 'react';
 import ColorPicker from './ColorPicker';
 
-const Title = ({ title, size, weight, letterSpacing, alignment, color }) => {
+const Text = ({ content, size, weight, letterSpacing, alignment, color, variant, backgroundColor, padding }) => {
+  const baseClasses = `${size} ${weight} ${letterSpacing} ${alignment} ${padding}`;
+  
+  if (variant === 'blockquote') {
+    return (
+      <blockquote 
+        className={`${baseClasses} border-l-4 border-gray-300 italic`}
+        style={{ color, backgroundColor }}
+      >
+        {content}
+      </blockquote>
+    );
+  }
+
   return (
-    <div className={`${size} ${weight} ${letterSpacing} ${alignment}`} style={{ color }}>
-      {title}
+    <div 
+      className={baseClasses}
+      style={{ color, backgroundColor }}
+    >
+      {content}
     </div>
   );
 };
 
 export const config = {
   fields: {
-    title: {
-      type: "text",
-      label: "Title",
-      defaultValue: "Title",
+    content: {
+      type: "textarea",
+      label: "Content",
+      defaultValue: "Enter your text here",
+    },
+    variant: {
+      type: "select",
+      label: "Style Variant",
+      options: [
+        { label: "Regular Text", value: "text" },
+        { label: "Blockquote", value: "blockquote" },
+      ],
+      defaultValue: "text",
     },
     size: {
       type: "select",
@@ -26,42 +51,28 @@ export const config = {
         { label: "Large", value: "text-lg" },
         { label: "XL", value: "text-xl" },
         { label: "2XL", value: "text-2xl" },
-        { label: "3XL", value: "text-3xl" },
-        { label: "4XL", value: "text-4xl" },
-        { label: "5XL", value: "text-5xl" },
-        { label: "6XL", value: "text-6xl" },
-        { label: "7XL", value: "text-7xl" },
-        { label: "8XL", value: "text-8xl" },
-        { label: "9XL", value: "text-9xl" },
       ],
-      defaultValue: "text-4xl",
+      defaultValue: "text-base",
     },
     weight: {
       type: "select",
       label: "Font Weight",
       options: [
-        { label: "Thin", value: "font-thin" },
-        { label: "Extra Light", value: "font-extralight" },
         { label: "Light", value: "font-light" },
         { label: "Normal", value: "font-normal" },
         { label: "Medium", value: "font-medium" },
         { label: "Semi Bold", value: "font-semibold" },
         { label: "Bold", value: "font-bold" },
-        { label: "Extra Bold", value: "font-extrabold" },
-        { label: "Black", value: "font-black" },
       ],
-      defaultValue: "font-bold",
+      defaultValue: "font-normal",
     },
     letterSpacing: {
       type: "select",
       label: "Letter Spacing",
       options: [
-        { label: "Tighter", value: "tracking-tighter" },
         { label: "Tight", value: "tracking-tight" },
         { label: "Normal", value: "tracking-normal" },
         { label: "Wide", value: "tracking-wide" },
-        { label: "Wider", value: "tracking-wider" },
-        { label: "Widest", value: "tracking-widest" },
       ],
       defaultValue: "tracking-normal",
     },
@@ -72,23 +83,44 @@ export const config = {
         { label: "Left", value: "text-left" },
         { label: "Center", value: "text-center" },
         { label: "Right", value: "text-right" },
+        { label: "Justify", value: "text-justify" },
       ],
       defaultValue: "text-left",
+    },
+    padding: {
+      type: "select",
+      label: "Padding",
+      options: [
+        { label: "None", value: "p-0" },
+        { label: "Small", value: "p-2" },
+        { label: "Medium", value: "p-4" },
+        { label: "Large", value: "p-6" },
+        { label: "XL", value: "p-8" },
+      ],
+      defaultValue: "p-4",
     },
     color: {
       type: "custom",
       label: "Text Color",
       render: ColorPicker,
     },
+    backgroundColor: {
+      type: "custom",
+      label: "Background Color",
+      render: ColorPicker,
+    },
   },
   defaultProps: {
-    title: "Title",
-    size: "text-4xl",
-    weight: "font-bold",
+    content: "Enter your text here",
+    variant: "text",
+    size: "text-base",
+    weight: "font-normal",
     letterSpacing: "tracking-normal",
     alignment: "text-left",
+    padding: "p-4",
     color: "#000000",
+    backgroundColor: "transparent",
   }
 };
 
-export default Title;
+export default Text;

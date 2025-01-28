@@ -16,6 +16,8 @@ import {
   HeroSectionConfig,
   Title,
   TitleConfig,
+  Text,
+  TextConfig,
   Subtitle,
   SubtitleConfig,
   Carousel,
@@ -84,6 +86,11 @@ const config = {
       fields: TitleConfig.fields,
       defaultProps: TitleConfig.defaultProps,
       render: Title,
+    },
+    Text: {
+      fields: TextConfig.fields,
+      defaultProps: TextConfig.defaultProps,
+      render: Text,
     },
     Subtitle: {
       fields: SubtitleConfig.fields,
@@ -189,7 +196,7 @@ async function save(data) {
       throw new Error('Failed to save release data');
     }
 
-    const result = await response.json();
+    const result = await response.json;
     console.log("Save successful:", result);
   } catch (error) {
     console.error("Error saving release data:", error);
