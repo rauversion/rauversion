@@ -5,7 +5,7 @@ import { Puck, DropZone } from "@measured/puck";
 import "@measured/puck/puck.css";
 import { put, get } from '@rails/request.js';
 import PlaylistComponent from '../components/playlist';
-import { ButtonBlock, ButtonBlockConfig, Slider, SliderConfig } from '../components/puck';
+import { ButtonBlock, ButtonBlockConfig, Slider, SliderConfig, CardBlock, CardBlockConfig } from '../components/puck';
 
 import {
   ImageUploadField,
@@ -92,11 +92,11 @@ const config = {
       defaultProps: TextConfig.defaultProps,
       render: Text,
     },
-    Subtitle: {
+    /*Subtitle: {
       fields: SubtitleConfig.fields,
       defaultProps: SubtitleConfig.defaultProps,
       render: Subtitle,
-    },
+    },*/
     Carousel: {
       fields: CarouselConfig.fields,
       defaultProps: CarouselConfig.defaultProps,
@@ -116,6 +116,11 @@ const config = {
       fields: SliderConfig.fields,
       defaultProps: SliderConfig.defaultProps,
       render: Slider,
+    },
+    CardBlock: {
+      fields: CardBlockConfig.fields,
+      defaultProps: CardBlockConfig.defaultProps,
+      render: CardBlock,
     },
   },
 
