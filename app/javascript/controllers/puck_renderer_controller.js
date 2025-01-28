@@ -9,6 +9,8 @@ import {
   ButtonBlockConfig,
   Slider,
   SliderConfig,
+  Flex,
+  FlexConfig,
   CardBlock,
   CardBlockConfig,
   Section,
@@ -27,6 +29,11 @@ import {
 
 const config = {
   components: {
+    Flex: {
+      fields: FlexConfig.fields,
+      defaultProps: FlexConfig.defaultProps,
+      render: Flex,
+    },
     Title: {
       fields: TitleConfig.fields,
       defaultProps: TitleConfig.defaultProps,

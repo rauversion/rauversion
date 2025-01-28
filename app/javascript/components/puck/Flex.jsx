@@ -15,7 +15,7 @@ const Flex = ({
       {items.map((item, index) => (
         <div
           key={index}
-          className={`border ${item.basis || 'basis-auto'} ${item.grow || 'grow-0'} ${item.shrink || 'shrink-1'}`}
+          className={`${item.basis || 'basis-auto'} ${item.grow || 'grow-0'} ${item.shrink || 'shrink-1'}`}
           style={{
             minHeight: '50px',
             minWidth: item.basis === 'basis-0' ? '100px' : 'auto'
@@ -23,7 +23,7 @@ const Flex = ({
         >
           <DropZone
             zone={`flex-${index}`}
-            className="h-full"
+            className="h-full flex"
           />
         </div>
       ))}
