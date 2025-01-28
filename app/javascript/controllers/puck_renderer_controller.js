@@ -65,7 +65,16 @@ const config = {
       defaultProps: SliderConfig.defaultProps,
       render: Slider,
     },
-  }
+  },
+  root: {
+    render: ({ background, textColor, alignment, children }) => {
+      return <div
+      style={{ backgroundColor: background, color: textColor, textAlign: alignment }} 
+      className="flex flex-col min-h-screen">
+        {children}
+      </div>;
+    },
+  },
 };
 
 function Page({ data }) {
