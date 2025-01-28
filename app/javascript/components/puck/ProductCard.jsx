@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { get, post } from '@rails/request.js';
 import ColorPicker from './ColorPicker';
+import CheckboxField from './CheckboxField';
 
 const ProductCard = ({ 
-  productId,
   backgroundColor,
   borderColor,
   titleColor,
@@ -11,19 +11,33 @@ const ProductCard = ({
   textColor,
   buttonText,
   buttonStyle,
-  imageHeight
+  imageHeight,
+  showGallery
 }) => {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
-
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [userId, setUserId] = useState(null);
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const response = await get(`/products/${productId}.json`);
+        const u = document.querySelector('meta[name="current-user-id"]')?.content;
+        setUserId(u);
+        if (!u) {
+          console.error('No user ID found');
+          setLoading(false);
+          return;
+        }
+
+        const response = await get(`/${userId}/products/${productId}.json`);
         if (response.ok) {
           const data = await response.json;
           setProduct(data);
+          // Set initial image
+          if (data.product_images && data.product_images.length > 0) {
+            setSelectedImage(data.product_images[0]);
+          }
         }
       } catch (error) {
         console.error('Error fetching product:', error);
@@ -32,17 +46,17 @@ const ProductCard = ({
       }
     };
 
-    if (productId) {
+    if (userId) {
       fetchProduct();
     }
-  }, [productId]);
+  }, [userId]);
 
   const handleAddToCart = async () => {
     if (!product || adding) return;
     
     setAdding(true);
     try {
-      const response = await post(`/product_cart/add/${product.id}`, {
+      const response = await post(`/${userId}/product_cart/add/${product.id}`, {
         headers: {
           'Content-Type': 'application/json',
           'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content,
@@ -50,7 +64,6 @@ const ProductCard = ({
       });
       
       if (response.ok) {
-        // You might want to show a success message or update cart state
         console.log('Product added to cart');
       }
     } catch (error) {
@@ -81,17 +94,33 @@ const ProductCard = ({
           borderColor,
         }}
       >
-        {
-          product &&
+        {product &&
           <div className="p-0">
             <div className="flex flex-col sm:flex-row">
               <div className={`w-full sm:w-1/3 p-4 ${imageHeight}`}>
-                {product.cover_url && (
-                  <img 
-                    className="w-full h-full object-cover" 
-                    src={product.cover_url}
-                    alt={product.title}
-                  />
+                <img 
+                  className="w-full h-full object-cover" 
+                  src={selectedImage?.image_url || product.cover_url}
+                  alt={product.title}
+                />
+                {showGallery && product.product_images?.length > 0 && (
+                  <div className="mt-4 grid grid-cols-4 gap-2">
+                    {product.product_images.map((image) => (
+                      <button
+                        key={image.id}
+                        onClick={() => setSelectedImage(image)}
+                        className={`relative flex h-16 cursor-pointer items-center justify-center rounded-md bg-white text-sm font-medium uppercase text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-opacity-50 focus:ring-offset-4 ${
+                          selectedImage?.id === image.id ? 'ring-2 ring-indigo-500' : ''
+                        }`}
+                      >
+                        <img 
+                          src={image.image_url} 
+                          alt={`${product.title} - Image ${image.id}`}
+                          className="h-full w-full object-cover object-center rounded-md"
+                        />
+                      </button>
+                    ))}
+                  </div>
                 )}
               </div>
               <div className="w-full sm:w-2/3 p-6 flex flex-col justify-between">
@@ -148,18 +177,35 @@ const ProductCard = ({
 
 export const config = {
   fields: {
+    userId: {
+      type: "text",
+      label: "User ID (username)",
+      required: true,
+    },
     productId: {
       type: "external",
-      fetchList: async () => {
-        // Query an API for a list of items
-        const items = await fetch(`/api/items`).then((res) => res.json());
-        // [
-        //   { title: "Hello, world", description: "Lorem ipsum 1" },
-        //   { title: "Goodbye, world", description: "Lorem ipsum 2" },
-        // ];
-
-        return items;
-      }, 
+      label: "Select Product",
+      fetchList: async (_, { userId }) => {
+        if (!userId) return [];
+        
+        try {
+          const response = await get(`/${userId}/products.json`);
+          if (response.ok) {
+            const products = await response.json;
+            return products.map(product => ({
+              id: product.id,
+              title: product.title,
+              description: product.description,
+              price: product.price,
+              category: product.category
+            }));
+          }
+          return [];
+        } catch (error) {
+          console.error('Error loading products:', error);
+          return [];
+        }
+      },
     },
     backgroundColor: {
       type: "custom",
@@ -208,6 +254,11 @@ export const config = {
         { label: "Extra Large", value: "h-96" },
       ],
     },
+    showGallery: {
+      label: "Show Image Gallery",
+      type: "custom",
+      render: CheckboxField
+    }
   },
   defaultProps: {
     backgroundColor: "#FFFFFF",
@@ -218,6 +269,8 @@ export const config = {
     buttonText: "Add to Cart",
     buttonStyle: "outline",
     imageHeight: "h-64",
+    showGallery: true,
+    userId: "",
   }
 };
 
