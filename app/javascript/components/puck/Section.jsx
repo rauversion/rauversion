@@ -176,8 +176,11 @@ export const config = {
       type: "array",
       label: "Images",
       arrayFields: {
-        type: "custom",
-        render: ImageUploadField,
+        image: {
+          type: "custom",
+          render: ImageUploadField,
+          label: "Image"
+        },
       },
     },
     backgroundColor: {
