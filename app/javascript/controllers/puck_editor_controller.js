@@ -28,7 +28,8 @@ import {
   Slider, SliderConfig, 
   CardBlock, CardBlockConfig, 
   Section, SectionConfig,
-  ImageBlock, ImageBlockConfig
+  ImageBlock, ImageBlockConfig,
+  ProductCard, ProductCardConfig
 } from '../components/puck';
 
 // Create Puck component config
@@ -38,6 +39,11 @@ const config = {
       fields: MultiListConfig.fields,
       defaultProps: MultiListConfig.defaultProps,
       render: MultiList,
+    },
+    ProductCard: {
+      fields: ProductCardConfig.fields,
+      defaultProps: ProductCardConfig.defaultProps,
+      render: ProductCard,
     },
     Example: {
       render: () => {

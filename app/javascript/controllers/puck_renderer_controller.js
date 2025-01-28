@@ -21,6 +21,8 @@ import {
   TextConfig,
   MultiList,
   MultiListConfig,
+  ProductCard,
+  ProductCardConfig,
 } from '../components/puck';
 
 const config = {
@@ -71,6 +73,11 @@ const config = {
       fields: MultiListConfig.fields,
       defaultProps: MultiListConfig.defaultProps,
       render: MultiList,
+    },
+    ProductCard: {
+      fields: ProductCardConfig.fields,
+      defaultProps: ProductCardConfig.defaultProps,
+      render: ProductCard,
     },
   },
   root: {
