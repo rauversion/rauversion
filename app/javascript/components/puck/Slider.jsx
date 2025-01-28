@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react';
+import { createRoot } from 'react-dom/client';
 import PlaylistSelector from './PlaylistSelector';
 import CheckboxField from './CheckboxField';
+import PlaylistComponent from '../playlist';
 
 const Slider = ({ 
   playlistIds = [],
   autoPlay = false,
   interval = 5000,
-  itemsToShow = 4
+  itemsToShow = 4,
+  openAsComponent = false
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [playlists, setPlaylists] = useState([]);
@@ -96,29 +99,64 @@ const Slider = ({
                 role="group"
                 style={{ flex: `0 0 ${100 / itemsToShow}%` }}
               >
-                <a 
-                  href={`/playlists/${playlist.id}`}
-                  data-turbo-frame="player_widget"
-                  className="aspect-square bg-white/10 cursor-pointer hover:bg-white/20 transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg rounded-lg overflow-hidden block relative"
-                >
-                  {playlist.cover_url && (
-                    <div className="relative w-full aspect-square">
-                      <img 
-                        src={playlist.cover_url} 
-                        alt={playlist.title}
-                        className="absolute inset-0 w-full h-full object-cover"
-                      />
-                    </div>
-                  )}
-                  <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
-                    <div className="text-white font-bold">
-                      {playlist.title}
-                    </div>
-                    <div className="text-white/60 text-sm">
-                      {playlist.playlist_type} • {new Date(playlist.release_date).getFullYear()}
+                {openAsComponent ? (
+                  <div 
+                    className="aspect-square bg-white/10 cursor-pointer hover:bg-white/20 transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg rounded-lg overflow-hidden block relative"
+                    onClick={() => {
+                      const playerWidget = document.getElementById('player_widget');
+                      if (playerWidget) {
+                        const root = document.createElement('div');
+                        playerWidget.innerHTML = '';
+                        playerWidget.appendChild(root);
+                        createRoot(root).render(
+                          <PlaylistComponent playlistId={playlist.id} />
+                        );
+                      }
+                    }}
+                  >
+                    {playlist.cover_url && (
+                      <div className="relative w-full aspect-square">
+                        <img 
+                          src={playlist.cover_url} 
+                          alt={playlist.title}
+                          className="absolute inset-0 w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+                      <div className="text-white font-bold">
+                        {playlist.title}
+                      </div>
+                      <div className="text-white/60 text-sm">
+                        {playlist.playlist_type} • {new Date(playlist.release_date).getFullYear()}
+                      </div>
                     </div>
                   </div>
-                </a>
+                ) : (
+                  <a 
+                    href={`/playlists/${playlist.id}`}
+                    data-turbo-frame="player_widget"
+                    className="aspect-square bg-white/10 cursor-pointer hover:bg-white/20 transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-lg rounded-lg overflow-hidden block relative"
+                  >
+                    {playlist.cover_url && (
+                      <div className="relative w-full aspect-square">
+                        <img 
+                          src={playlist.cover_url} 
+                          alt={playlist.title}
+                          className="absolute inset-0 w-full h-full object-cover"
+                        />
+                      </div>
+                    )}
+                    <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 to-transparent">
+                      <div className="text-white font-bold">
+                        {playlist.title}
+                      </div>
+                      <div className="text-white/60 text-sm">
+                        {playlist.playlist_type} • {new Date(playlist.release_date).getFullYear()}
+                      </div>
+                    </div>
+                  </a>
+                )}
               </div>
             ))}
           </div>
@@ -193,13 +231,19 @@ export const config = {
         { label: "4 Items", value: 4 },
         { label: "5 Items", value: 5 }
       ]
+    },
+    openAsComponent: {
+      type: "custom",
+      render: CheckboxField,
+      label: "Open as React Component"
     }
   },
   defaultProps: {
     playlistIds: [],
     autoPlay: false,
     interval: 5000,
-    itemsToShow: 4
+    itemsToShow: 4,
+    openAsComponent: false
   }
 };
 

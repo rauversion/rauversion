@@ -34,6 +34,7 @@ import {
   OembedBlock, OembedBlockConfig
 } from '../components/puck';
 
+
 // Create Puck component config
 const config = {
   components: {
@@ -46,15 +47,6 @@ const config = {
       fields: ProductCardConfig.fields,
       defaultProps: ProductCardConfig.defaultProps,
       render: ProductCard,
-    },
-    Example: {
-      render: () => {
-        return (
-          <div>
-            <DropZone zone="my-content" />
-          </div>
-        );
-      },
     },
     Grid: {
       fields: GridConfig.fields,
@@ -101,11 +93,6 @@ const config = {
       defaultProps: TextConfig.defaultProps,
       render: Text,
     },
-    /*Subtitle: {
-      fields: SubtitleConfig.fields,
-      defaultProps: SubtitleConfig.defaultProps,
-      render: Subtitle,
-    },*/
     Carousel: {
       fields: CarouselConfig.fields,
       defaultProps: CarouselConfig.defaultProps,
@@ -157,7 +144,14 @@ const config = {
       render: OembedBlock,
     },
   },
-
+  categories: {
+    layout: { components: ["Container", "Grid", "Flex", "Section"] },
+    content: { components: ["Title", "Text", "HeadingBlock", "MultiList"] },
+    media: { components: ["ImageBlock", "OembedBlock", "Carousel", "Slider", "Playlist"] },
+    interactive: { components: ["Button", "ButtonBlock"] },
+    cards: { components: ["ProductCard", "CardBlock"] },
+    featured: { components: ["HeroSection"] },
+  },
   root: {
     fields: {
       background: {
@@ -204,25 +198,6 @@ const config = {
     },
   },
 
-  categories_disabled_do_not_use: {
-    player: {
-      components: ["Playlist"],
-    },
-    layout: {
-      components: ["Grid", "Flex", "Space"],
-    },
-    typography: {
-      components: ["Heading", "Text"],
-    },
-    interactive: {
-      title: "Actions",
-      components: ["Button"],
-    },
-    other: {
-      title: "Other",
-      components: ["Card", "Hero", "Logos", "Stats"],
-    },
-  },
 };
 
 // Describe the initial data
