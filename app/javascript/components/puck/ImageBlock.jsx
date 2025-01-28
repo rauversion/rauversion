@@ -9,14 +9,26 @@ const ImageBlock = ({
   height,
   objectFit,
   shadow,
-  alt
+  alt,
+  containerClasses,
+  containerStyle
 }) => {
+  // Parse containerStyle from string to object
+  let parsedStyle = {};
+  try {
+    parsedStyle = containerStyle ? JSON.parse(containerStyle) : {};
+  } catch (e) {
+    console.warn('Invalid containerStyle JSON:', e);
+  }
+
   const ImageComponent = (
-    <img
-      src={image}
-      alt={alt || ''}
-      className={`${width} ${height} ${objectFit} ${borderRadius} ${shadow}`}
-    />
+    <div className={containerClasses} style={parsedStyle}>
+      <img
+        src={image}
+        alt={alt || ''}
+        className={`${width} ${height} ${objectFit} ${borderRadius} ${shadow}`}
+      />
+    </div>
   );
 
   if (href) {
@@ -51,6 +63,18 @@ export const config = {
       type: "text",
       label: "Link URL (optional)",
       defaultValue: "",
+    },
+    containerClasses: {
+      type: "text",
+      label: "Container Classes",
+      description: "Add custom classes to the container div (e.g., 'flex justify-center p-4')",
+      defaultValue: "",
+    },
+    containerStyle: {
+      type: "text",
+      label: "Container Inline Style",
+      description: "Add custom inline styles as JSON (e.g., {'maxWidth': '500px'})",
+      defaultValue: "{}",
     },
     width: {
       type: "select",
@@ -122,6 +146,8 @@ export const config = {
     image: "",
     alt: "",
     href: "",
+    containerClasses: "",
+    containerStyle: "{}",
     width: "w-full",
     height: "h-auto",
     objectFit: "object-cover",
