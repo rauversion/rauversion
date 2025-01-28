@@ -2,6 +2,8 @@ export { default as ImageUploadField } from './ImageUploadField';
 export { default as CheckboxField } from './CheckboxField';
 export { default as ColorPicker } from './ColorPicker';
 export { default as MultiList, config as MultiListConfig } from './MultiList';
+export { default as Container, config as ContainerConfig } from './Container';
+export { default as OembedBlock, config as OembedBlockConfig } from './OembedBlock';
 export { default as ButtonBlock, config as ButtonBlockConfig } from './Button';
 export { default as HeroSection, config as HeroSectionConfig } from './HeroSection';
 export { default as Title, config as TitleConfig } from './Title';

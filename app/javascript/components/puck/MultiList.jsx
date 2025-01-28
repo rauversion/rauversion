@@ -1,18 +1,20 @@
 import React from 'react';
 
-const MultiList = ({ columns, gridCols, textColor, textSize }) => {
+const MultiList = ({ columns, gridCols, textColor, textSize, className }) => {
   return (
-    <div className={`grid ${gridCols} gap-4 ${textColor} ${textSize}`}>
-      {columns.map((column, index) => (
-        <div key={index}>
-          <h3 className="font-bold mb-2">{column.title}</h3>
-          <ul className="space-y-1">
-            {column.items.map((item, itemIndex) => (
-              <li key={itemIndex}>{item.text}</li>
-            ))}
-          </ul>
-        </div>
-      ))}
+    <div className={className}>
+      <div className={`grid ${gridCols} gap-4 ${textColor} ${textSize}`}>
+        {columns.map((column, index) => (
+          <div key={index}>
+            <h3 className="font-bold mb-2">{column.title}</h3>
+            <ul className="space-y-1">
+              {column.items.map((item, itemIndex) => (
+                <li key={itemIndex}>{item.text}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
@@ -61,6 +63,12 @@ export const config = {
         { label: "Base", value: "text-base" },
         { label: "Large", value: "text-lg" },
       ],
+    },
+    className: {
+      type: "text",
+      label: "Wrapper Classes",
+      description: "Add custom classes to the wrapper element",
+      defaultValue: "",
     }
   },
   defaultProps: {
@@ -88,7 +96,8 @@ export const config = {
     ],
     gridCols: "grid-cols-2",
     textColor: "text-default0",
-    textSize: "text-xs"
+    textSize: "text-xs",
+    className: ""
   }
 };
 

@@ -25,6 +25,10 @@ import {
   MultiListConfig,
   ProductCard,
   ProductCardConfig,
+  Container,
+  ContainerConfig,
+  OembedBlock,
+  OembedBlockConfig,
 } from '../components/puck';
 
 const config = {
@@ -78,6 +82,16 @@ const config = {
       fields: ProductCardConfig.fields,
       defaultProps: ProductCardConfig.defaultProps,
       render: ProductCard,
+    },
+    Container: {
+      fields: ContainerConfig.fields,
+      defaultProps: ContainerConfig.defaultProps,
+      render: Container,
+    },
+    OembedBlock: {
+      fields: OembedBlockConfig.fields,
+      defaultProps: OembedBlockConfig.defaultProps,
+      render: OembedBlock,
     },
   },
   root: {

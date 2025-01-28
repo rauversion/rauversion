@@ -29,7 +29,9 @@ import {
   CardBlock, CardBlockConfig, 
   Section, SectionConfig,
   ImageBlock, ImageBlockConfig,
-  ProductCard, ProductCardConfig
+  ProductCard, ProductCardConfig,
+  Container, ContainerConfig,
+  OembedBlock, OembedBlockConfig
 } from '../components/puck';
 
 // Create Puck component config
@@ -143,6 +145,16 @@ const config = {
       fields: ButtonBlockConfig.fields,
       defaultProps: ButtonBlockConfig.defaultProps,
       render: ButtonBlock,
+    },
+    Container: {
+      fields: ContainerConfig.fields,
+      defaultProps: ContainerConfig.defaultProps,
+      render: Container,
+    },
+    OembedBlock: {
+      fields: OembedBlockConfig.fields,
+      defaultProps: OembedBlockConfig.defaultProps,
+      render: OembedBlock,
     },
   },
 

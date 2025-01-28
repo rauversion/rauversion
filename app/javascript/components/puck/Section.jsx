@@ -7,7 +7,7 @@ const Section = ({
   title,
   subtitle,
   description,
-  images,
+  image,
   backgroundColor,
   borderColor,
   titleColor,
@@ -21,9 +21,9 @@ const Section = ({
   const renderLeftVariant = () => (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       <div className="flex flex-col sm:flex-row space-y-4 items-center space-x-4">
-        {images && images.map((image, index) => (
-          <img key={index} src={image} alt="" className="rounded-lg w-48" />
-        ))}
+        {image && (
+          <img src={image} alt="" className="rounded-lg w-full object-cover" />
+        )}
         <div className={`${textSize} text-subtle`} style={{ color: textColor }}>
           {description}
         </div>
@@ -52,6 +52,9 @@ const Section = ({
         </div>
       </div>
       <div className="flex justify-end flex-col">
+        {image && (
+          <img src={image} alt="" className="rounded-lg w-full object-cover mb-4" />
+        )}
         <p className={`${subtitleSize} font-bold text-subtle text-right`} style={{ color: subtitleColor }}>
           {subtitle}
         </p>
@@ -70,10 +73,53 @@ const Section = ({
             {description}
           </div>
         </div>
-        <div className="flex flex-col space-y-4">
-          {images && images.map((image, index) => (
-            <img key={index} src={image} alt="" className="rounded-lg w-full" />
-          ))}
+        <div className="flex flex-col">
+          {image && (
+            <img src={image} alt="" className="rounded-lg w-full object-cover" />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderOverlayVariant = () => (
+    <div className="w-full relative">
+      <div className="w-full aspect-[4/3] md:aspect-[16/9] relative">
+        {image && (
+          <img 
+            src={image} 
+            alt={title}
+            className="w-full h-full sm:grayscale hover:grayscale-0 transition-all duration-300"
+            style={{ objectFit: 'cover' }}
+          />
+        )}
+      </div>
+      <div className="sm:absolute top-0 right-0 bottom-0 w-full md:w-1/2 lg:w-2/5 flex items-center justify-center">
+        <div 
+          className="p-6 md:p-8 w-full h-full flex flex-col justify-center"
+          style={{ 
+            backgroundColor: backgroundColor,
+            opacity: 0.75
+          }}
+        >
+          <h1 
+            className={`${titleSize} font-bold tracking-tight leading-none`}
+            style={{ color: titleColor }}
+          >
+            {title}
+          </h1>
+          <p 
+            className={`${subtitleSize} font-bold uppercase tracking-tight text-right`}
+            style={{ color: subtitleColor }}
+          >
+            {subtitle}
+          </p>
+          <div 
+            className="mt-4 text-sm"
+            style={{ color: textColor }}
+          >
+            <div dangerouslySetInnerHTML={{ __html: description }} />
+          </div>
         </div>
       </div>
     </div>
@@ -82,16 +128,17 @@ const Section = ({
   const variants = {
     left: renderLeftVariant,
     right: renderRightVariant,
-    fixed: renderFixedVariant
+    fixed: renderFixedVariant,
+    overlay: renderOverlayVariant
   };
 
   const renderVariant = variants[variant] || variants.left;
 
   return (
     <section 
-      className={`container mx-auto ${padding} border-t-4`}
+      className={`${variant === 'overlay' ? '' : 'container mx-auto'} ${padding} border-t-4`}
       style={{ 
-        backgroundColor: backgroundColor,
+        backgroundColor: variant === 'overlay' ? 'transparent' : backgroundColor,
         borderColor: borderColor
       }}
     >
@@ -109,6 +156,7 @@ export const config = {
         { label: "Left Image", value: "left" },
         { label: "Right Image", value: "right" },
         { label: "Fixed Layout", value: "fixed" },
+        { label: "Overlay", value: "overlay" }
       ],
       defaultValue: "left",
     },
@@ -172,16 +220,10 @@ export const config = {
       label: "Text Color",
       render: ColorPicker,
     },
-    images: {
-      type: "array",
-      label: "Images",
-      arrayFields: {
-        image: {
-          type: "custom",
-          render: ImageUploadField,
-          label: "Image"
-        },
-      },
+    image: {
+      type: "custom",
+      label: "Image",
+      render: ImageUploadField,
     },
     backgroundColor: {
       type: "custom",
@@ -197,6 +239,7 @@ export const config = {
       type: "select",
       label: "Padding",
       options: [
+        { label: "None", value: "p-0" },
         { label: "Small", value: "px-4 py-8" },
         { label: "Medium", value: "px-6 py-10" },
         { label: "Large", value: "px-8 py-12" },
@@ -216,7 +259,7 @@ export const config = {
     description: "Add your section description here...",
     textSize: "text-lg",
     textColor: "#4B5563",
-    images: [],
+    image: "",
     backgroundColor: "#FFFFFF",
     borderColor: "#D1D5DB",
     padding: "px-8 py-12",
