@@ -4,7 +4,7 @@ const ColorPicker = ({ onChange, value, label }) => {
   return (
     <div>
       <label>{label}:</label>
-      <input type="color" value={value} onChange={onChange} />
+      <input type="color" value={value} onChange={(e) => onChange(e.target.value)} />
     </div>
   );
 };

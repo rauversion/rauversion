@@ -136,13 +136,11 @@ const config = {
       background: {
         type: "custom",
         label: "Background Color",
-        defaultValue: "#ffffff",
         render: ColorPicker,
       },
       textColor: {
         type: "custom",
         label: "Text Color",
-        defaultValue: "#000000",
         render: ColorPicker,
       },
       alignment: {
@@ -152,12 +150,20 @@ const config = {
           { label: "Left", value: "text-left" },
           { label: "Center", value: "text-center" },
           { label: "Right", value: "text-right" },
-        ],
-        defaultValue: "text-left",
+        ]
       },
     },
-    render: ({ children }) => {
-      return <div className="flex flex-col min-h-screen">{children}</div>;
+    defaultProps: {
+      background: "#ffffff",
+      textColor: "#000000",
+      alignment: "text-left",
+    },
+    render: ({ background, textColor, alignment, children }) => {
+      return <div
+      style={{ backgroundColor: background, color: textColor, textAlign: alignment }} 
+      className="flex flex-col min-h-screen">
+        {children}
+      </div>;
     },
   },
 };
