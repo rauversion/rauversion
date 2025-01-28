@@ -98,8 +98,8 @@ class ReleasesController < ApplicationController
       :price, :currency, :minimum_price, :show_credits,
       :show_more_button, :credits, :about, :purchase_message,
       :purchase_description, :upsell_enabled, :upsell_message,
-      :editor_data,
-      playlist_ids: []
+      playlist_ids: [],
+      editor_data: {}
     )
   end
 

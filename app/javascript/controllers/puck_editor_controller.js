@@ -177,7 +177,7 @@ async function save(data) {
   const releaseId = document.querySelector('meta[name="current-release-id"]')?.content;
 
   try {
-    const response = await put(`/releases/${releaseId}`, {
+    const response = await put(`/releases/${releaseId}.json`, {
       body: JSON.stringify({
         release: {
           editor_data: data
