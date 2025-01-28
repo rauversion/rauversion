@@ -5,10 +5,8 @@ import { Puck, DropZone } from "@measured/puck";
 import "@measured/puck/puck.css";
 import { put, get } from '@rails/request.js';
 import PlaylistComponent from '../components/playlist';
-import { ButtonBlock, ButtonBlockConfig, Slider, SliderConfig, CardBlock, CardBlockConfig } from '../components/puck';
 
 import {
-  ImageUploadField,
   ColorPicker,
   MultiList,
   MultiListConfig,
@@ -18,8 +16,6 @@ import {
   TitleConfig,
   Text,
   TextConfig,
-  Subtitle,
-  SubtitleConfig,
   Carousel,
   CarouselConfig,
   HeadingBlock,
@@ -27,7 +23,11 @@ import {
   Grid,
   GridConfig,
   Flex,
-  FlexConfig
+  FlexConfig,
+  ButtonBlock, ButtonBlockConfig,
+  Slider, SliderConfig, 
+  CardBlock, CardBlockConfig, 
+  Section, SectionConfig
 } from '../components/puck';
 
 // Create Puck component config
@@ -121,6 +121,16 @@ const config = {
       fields: CardBlockConfig.fields,
       defaultProps: CardBlockConfig.defaultProps,
       render: CardBlock,
+    },
+    Section: {
+      fields: SectionConfig.fields,
+      defaultProps: SectionConfig.defaultProps,
+      render: Section,
+    },
+    Button: {
+      fields: ButtonBlockConfig.fields,
+      defaultProps: ButtonBlockConfig.defaultProps,
+      render: ButtonBlock,
     },
   },
 
