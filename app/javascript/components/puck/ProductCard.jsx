@@ -55,7 +55,8 @@ const ProductCard = ({
   buttonStyle,
   imageHeight,
   showGallery,
-  productId
+  productId,
+  className
 }) => {
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
@@ -126,7 +127,7 @@ const ProductCard = ({
     : 'button-large';
 
   return (
-    <div className="mt-4">
+    <div className={`mt-4 ${className || ''}`}>
       <div 
         className="rounded-lg border shadow-sm w-full max-w-3xl"
         style={{ 
@@ -187,7 +188,7 @@ const ProductCard = ({
                   className="text-sm mt-2"
                   style={{ color: textColor }}
                 >
-                  {product.description}
+                  <div dangerouslySetInnerHTML={{ __html: product.description }} />
                 </p>
               </div>
               <div className="flex justify-between items-center mt-4">
@@ -219,6 +220,12 @@ export const config = {
       type: "custom",
       label: "Select Product",
       render: ProductSelector
+    },
+    className: {
+      type: "text",
+      label: "Root Classes",
+      defaultValue: "",
+      description: "Add custom classes to the root element"
     },
     backgroundColor: {
       type: "custom",
@@ -282,7 +289,8 @@ export const config = {
     buttonText: "Add to Cart",
     buttonStyle: "outline",
     imageHeight: "h-64",
-    showGallery: true
+    showGallery: true,
+    className: ""
   }
 };
 

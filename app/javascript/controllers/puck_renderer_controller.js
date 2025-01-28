@@ -27,13 +27,6 @@ import {
 
 const config = {
   components: {
-    root: {
-      render: ({ children }) => {
-        return <div className="flex flex-col min-h-screen">
-          {children}
-        </div>;
-      },
-    },
     Title: {
       fields: TitleConfig.fields,
       defaultProps: TitleConfig.defaultProps,
@@ -81,11 +74,14 @@ const config = {
     },
   },
   root: {
-    render: ({ background, textColor, alignment, children }) => {
+    render: ({ background, textColor, alignment, children, classes }) => {
       return <div
       style={{ backgroundColor: background, color: textColor, textAlign: alignment }} 
       className="flex flex-col min-h-screen pb-40">
-        {children}
+        <div className={`flex flex-col min-h-screen ${classes}`}>
+          {children}
+        </div>
+       
       </div>;
     },
   },

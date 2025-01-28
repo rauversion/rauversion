@@ -146,25 +146,6 @@ const config = {
     },
   },
 
-  categories_disabled_do_not_use: {
-    player: {
-      components: ["Playlist"],
-    },
-    layout: {
-      components: ["Grid", "Flex", "Space"],
-    },
-    typography: {
-      components: ["Heading", "Text"],
-    },
-    interactive: {
-      title: "Actions",
-      components: ["Button"],
-    },
-    other: {
-      title: "Other",
-      components: ["Card", "Hero", "Logos", "Stats"],
-    },
-  },
   root: {
     fields: {
       background: {
@@ -186,18 +167,48 @@ const config = {
           { label: "Right", value: "text-right" },
         ]
       },
+      classes: {
+        type: "text",
+        label: "Root Classes",
+        defaultValue: "",
+        description: "Add custom classes to the root element"
+      },
     },
     defaultProps: {
       background: "#ffffff",
       textColor: "#000000",
       alignment: "text-left",
+      classes: "",
     },
-    render: ({ background, textColor, alignment, children }) => {
+    render: ({ background, textColor, alignment, classes, children }) => {
       return <div
       style={{ backgroundColor: background, color: textColor, textAlign: alignment }} 
-      className="flex flex-col min-h-screen">
+      className={`flex flex-col min-h-screen`}>
+        <div className={`flex flex-col min-h-screen ${classes}`}>
         {children}
+        </div>
+        
       </div>;
+    },
+  },
+
+  categories_disabled_do_not_use: {
+    player: {
+      components: ["Playlist"],
+    },
+    layout: {
+      components: ["Grid", "Flex", "Space"],
+    },
+    typography: {
+      components: ["Heading", "Text"],
+    },
+    interactive: {
+      title: "Actions",
+      components: ["Button"],
+    },
+    other: {
+      title: "Other",
+      components: ["Card", "Hero", "Logos", "Stats"],
     },
   },
 };
