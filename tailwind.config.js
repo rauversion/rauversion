@@ -163,6 +163,12 @@ module.exports = {
       pattern: /^shadow-/,
       pattern: /^max-/,
       pattern: /^min-/,
+      pattern: /^flex-/,
+      pattern: /^basis-/,
+      pattern: /^grow-/,
+      pattern: /^shrink-/,
+      pattern: /^justify-/,
+      pattern: /^items-/,
     }
   ],
   plugins: [
