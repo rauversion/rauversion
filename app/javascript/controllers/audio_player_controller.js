@@ -1,5 +1,6 @@
 import { Controller } from "@hotwired/stimulus";
 import { get } from '@rails/request.js'
+import useAudioStore from '../stores/audioStore'
 
 export default class extends Controller {
   static targets = [
@@ -65,11 +66,13 @@ export default class extends Controller {
       playPromise
         .then(() => {
           this.toggleIcons()
+          useAudioStore.setState({ currentTrackId: this.idValue, isPlaying: true });
           // Automatic playback started!
         })
         .catch((error) => {
           // Auto-play was prevented
           console.error("Playback failed:", error);
+          useAudioStore.setState({ isPlaying: false });
           //this.playButton.textContent = "Play";
           this.toggleIcons()
         });
@@ -79,10 +82,12 @@ export default class extends Controller {
   playPause() {
     if (this.audio.paused) {
       this.audio.play();
+      useAudioStore.setState({ currentTrackId: this.idValue, isPlaying: true });
       //this.playButton.textContent = "Pause";
       this.toggleIcons()
     } else {
       this.audio.pause();
+      useAudioStore.setState({ isPlaying: false });
       this.toggleIcons()
       //this.playButton.textContent = "Play";
     }
@@ -201,6 +206,7 @@ export default class extends Controller {
     if (this.audio) {
       this.audio.pause();
       this.audio.currentTime = 0; // Reset to the beginning
+      useAudioStore.setState({ isPlaying: false });
     }
   }
 

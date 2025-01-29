@@ -101,37 +101,18 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
     }
   }, [currentTrackId, playlist]);
 
+
   useEffect(() => {
     if (playlist && currentTrackIndex >= 0) {
       const track = playlist.tracks[currentTrackIndex];
-      if (audioRef.current && track.audio_url) {
+      /*if (audioRef.current && track.audio_url) {
         audioRef.current.src = track.audio_url;
         if (isPlaying) {
           audioRef.current.play();
         }
-      }
+      }*/
     }
   }, [currentTrackIndex, playlist, isPlaying]);
-
-  const handleTrackPlay = (index: number) => {
-    if (currentTrackIndex === index) {
-      togglePlayPause();
-    } else {
-      setCurrentTrackIndex(index);
-      setIsPlaying(true);
-    }
-  };
-
-  const togglePlayPause = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
-    }
-  };
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
