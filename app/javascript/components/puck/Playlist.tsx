@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Play, Pause, MoreHorizontal } from 'lucide-react';
+import useAudioStore from '../../stores/audioStore';
 
 interface Track {
   id: number;
@@ -58,8 +59,10 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [currentTrackIndex, setCurrentTrackIndex] = useState<number>(-1);
-  const [isPlaying, setIsPlaying] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Subscribe to audio store state
+  const { currentTrackId, isPlaying } = useAudioStore();
 
   useEffect(() => {
     const fetchPlaylist = async () => {
@@ -88,6 +91,15 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
 
     fetchPlaylist();
   }, [playlistId]);
+
+  useEffect(() => {
+    if (playlist && currentTrackId) {
+      const index = playlist.tracks.findIndex(track => track.id === currentTrackId);
+      if (index !== -1) {
+        setCurrentTrackIndex(index);
+      }
+    }
+  }, [currentTrackId, playlist]);
 
   useEffect(() => {
     if (playlist && currentTrackIndex >= 0) {
@@ -141,8 +153,6 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
           <h2 className="text-white font-bold text-3xl mb-2">{playlist.title}</h2>
           <p className="text-zinc-400 mb-4">{playlist.user.full_name}</p>
           <div className="flex items-center gap-4">
-
-            
             <a 
               data-track-init-path={playlist.tracks[0] ? `/player?id=${playlist.tracks[0].slug}&t=true` : ''}
               data-action="track-detector#addGroup" 
@@ -162,25 +172,35 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
           {playlist.tracks.map((track, index) => (
             <div 
               key={track.id}
-              className="flex items-center justify-between p-2 rounded hover:bg-white hover:bg-opacity-10 group"
+              className={`flex items-center justify-between p-2 rounded hover:bg-white hover:bg-opacity-10 group ${
+                currentTrackId === track.id ? 'bg-white bg-opacity-20' : ''
+              }`}
             >
               <div className="flex items-center gap-4">
-                <span className="text-zinc-400 w-6">{index + 1}</span>
+                <span className={`w-6 ${currentTrackId === track.id ? 'text-[#1DB954]' : 'text-zinc-400'}`}>
+                  {index + 1}
+                </span>
                 
                 <a 
                   href={`/player?id=${track.slug}&t=true`}
                   data-track-id={track.id}
                   data-track-detector-target="track"
-                  className="text-zinc-400 opacity-0 group-hover:opacity-100 hover:text-white transition"
+                  className={`${
+                    currentTrackId === track.id ? 'text-[#1DB954] opacity-100' : 'text-zinc-400 opacity-0'
+                  } group-hover:opacity-100 hover:text-white transition`}
                 >
-                  {currentTrackIndex === index && isPlaying ? 
+                  {currentTrackId === track.id && isPlaying ? 
                     <Pause size={20} /> : 
                     <Play size={20} />
                   }
                 </a>
 
                 <div>
-                  <p className="text-white font-medium">{track.title}</p>
+                  <p className={`font-medium ${
+                    currentTrackId === track.id ? 'text-[#1DB954]' : 'text-white'
+                  }`}>
+                    {track.title}
+                  </p>
                   <p className="text-zinc-400 text-sm">{track.author.full_name}</p>
                 </div>
               </div>
