@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "jsx": "react",
+    "module": "esnext",
+    "allowSyntheticDefaultImports": true,
+    "baseUrl": "./app/javascript",
+    "paths": {
+      "@/*": ["./*"]
+    }
+  }
+}

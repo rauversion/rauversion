@@ -2,6 +2,8 @@ TODO:
 
   + Playlist block
     + Color accent on puck
+  + images too big , use variants
+  + slider is cluncky
 
   + featured artists
   + podcaster section
