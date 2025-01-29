@@ -20,14 +20,7 @@ const Slider = ({
       if (playlistIds.length === 0) return;
       
       try {
-        const userId = document.querySelector('meta[name="current-user-id"]')?.content;
         const releaseId = document.querySelector('meta[name="current-release-id"]')?.content;
-
-        if (!userId) {
-          console.error('No user ID found');
-          setLoading(false);
-          return;
-        }
 
         const response = await fetch(`/releases/${releaseId}.json`);
         const data = await response.json();

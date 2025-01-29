@@ -1,5 +1,5 @@
 class ReleasesController < ApplicationController
-  before_action :authenticate_user!
+  before_action :authenticate_user!, except: [:show]
   # before_action :find_playlist, except: [:puck, :upload_puck_image, :edit]
   before_action :disable_footer, only: [:editor]
 
@@ -32,7 +32,7 @@ class ReleasesController < ApplicationController
   end
 
   def show
-    @release = current_user.releases.friendly.find(params[:id])
+    @release = Release.friendly.find(params[:id])
     respond_to do |format|
       format.html
       format.json

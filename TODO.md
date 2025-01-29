@@ -1,5 +1,7 @@
 TODO:
 
+  + Playlist block
+    + Color accent on puck
 
   + featured artists
   + podcaster section
