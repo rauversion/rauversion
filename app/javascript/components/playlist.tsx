@@ -33,7 +33,10 @@ interface Playlist {
   description: string;
   playlist_type: string;
   private: boolean;
-  metadata: PlaylistMetadata;
+  // metadata: PlaylistMetadata;
+  buy: boolean;
+  buy_link: string;
+  buy_link_title: string;
   created_at: string;
   updated_at: string;
   user: User;
@@ -59,6 +62,15 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
 
   useEffect(() => {
     const fetchPlaylist = async () => {
+      if (!playlistId) {
+        setPlaylist(null);
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      setError(null);
+
       try {
         const response = await fetch(`/playlists/${playlistId}.json`);
         if (!response.ok) {
@@ -178,15 +190,15 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
         </div>
       </div>
 
-      {playlist.metadata.buy && (
+      {playlist.buy && (
         <div className="mt-6 text-center">
           <a 
-            href={playlist.metadata.buy_link}
+            href={playlist.buy_link}
             target="_blank"
             rel="noopener noreferrer"
             className="text-xs font-semibold px-4 py-1.5 rounded-full bg-transparent border border-white text-white hover:scale-105 transition"
           >
-            {playlist.metadata.buy_link_title || 'Buy Now'}
+            {playlist.buy_link_title || 'Buy Now'}
           </a>
         </div>
       )}

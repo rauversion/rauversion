@@ -14,6 +14,8 @@ class PreviewCard < ApplicationRecord
 
   validates :url, presence: true
 
+  before_save :process_youtube_iframe
+
   def save_with_optional_image!
     save!
   rescue ActiveRecord::RecordInvalid
@@ -28,6 +30,21 @@ class PreviewCard < ApplicationRecord
 
   def provider_url
     Addressable::URI.parse(url).site
+  end
+
+  def process_youtube_iframe
+    return html unless url.include?('https://www.youtube.com/watch?v=') && html.present?
+
+    doc = Nokogiri::HTML.fragment(html)
+    iframe = doc.at_css('iframe')
+    
+    if iframe
+      iframe['width'] = '100%'
+      iframe['height'] = '100%'
+      self.html = doc.to_html
+    else
+      self.html = html
+    end
   end
 
   def media

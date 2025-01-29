@@ -28,6 +28,8 @@ Rails.application.routes.draw do
   get 'product_cart', to: 'product_cart#show', as: 'product_cart'
   delete 'product_cart/remove/:product_id', to: 'product_cart#remove', as: 'product_cart_remove'
 
+  get 'puck', to: 'releases#puck'
+
   resources :product_purchases, only: [:index, :show]
 
   resources :products do
@@ -158,6 +160,17 @@ Rails.application.routes.draw do
 
   resources :photos
   resource :spotlight
+
+  resources :releases do
+    member do
+      get :editor
+    end
+    collection do
+      get :puck
+      post :upload_puck_image
+    end
+  end
+
   resources :playlists do
 
     collection do
@@ -169,7 +182,13 @@ Rails.application.routes.draw do
     resource :reposts
     resource :sharer, controller: "sharer"
 
-    resources :releases
+    resources :releases do
+      collection do
+        get :puck
+        post :upload_puck_image
+      end
+    end
+
     member do
       post :sort
     end
@@ -247,6 +266,9 @@ Rails.application.routes.draw do
       get "/label_artists", to: "users#artists", as: :label_artists
 
       get "/articles", to: "users#articles"
+      member do
+        get :playlists, format: :json, to: 'users#playlists_api'
+      end
     end
   end
 

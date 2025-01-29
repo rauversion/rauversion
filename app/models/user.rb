@@ -9,8 +9,10 @@ class User < ApplicationRecord
     :recoverable, :rememberable, :validatable, :confirmable,
     :invitable, :omniauthable, :trackable, :lockable
 
+  
   has_many :tracks
   has_many :playlists
+  has_many :releases
   has_many :reposts
   has_many :reposted_tracks, through: :reposts, source: :track
   has_many :track_comments

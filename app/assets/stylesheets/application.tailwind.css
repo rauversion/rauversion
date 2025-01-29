@@ -1,6 +1,16 @@
-@tailwind base;
+
+/*@tailwind base;
 @tailwind components;
-@tailwind utilities;
+@tailwind utilities;*/
+
+@import "tailwindcss/base";
+@import "./puck_copy.css";
+
+@import "tailwindcss/components";
+/*@import "./custom-components.css";*/
+
+@import "tailwindcss/utilities";
+/*@import "./custom-utilities.css";*/
 
 @layer components {
   .ProseMirror {
