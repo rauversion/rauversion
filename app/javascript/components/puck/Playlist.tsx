@@ -184,7 +184,7 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
                 <a 
                   href={`/player?id=${track.slug}&t=true`}
                   data-track-id={track.id}
-                  data-track-detector-target="track"
+                  data-track-detector-targetnono="track"
                   className={`${
                     currentTrackId === track.id ? 'text-[#1DB954] opacity-100' : 'text-zinc-400 opacity-0'
                   } group-hover:opacity-100 hover:text-white transition`}

@@ -1,6 +1,5 @@
 import { Controller } from "@hotwired/stimulus";
 import { get } from '@rails/request.js'
-import useAudioStore from '../stores/audioStore'
 
 export default class extends Controller {
   static targets = [
@@ -53,6 +52,7 @@ export default class extends Controller {
   }
 
   autoPlay() {
+
     // check if at attribute is provided, if not, do not do autoplay
     if(!this.audio.dataset.ap){ 
       console.log("Skip AutoPlay")
@@ -65,13 +65,12 @@ export default class extends Controller {
       playPromise
         .then(() => {
           this.toggleIcons()
-          useAudioStore.getState().play(this.idValue);
           // Automatic playback started!
         })
         .catch((error) => {
           // Auto-play was prevented
           console.error("Playback failed:", error);
-          useAudioStore.getState().pause();
+          //this.playButton.textContent = "Play";
           this.toggleIcons()
         });
     }
@@ -80,12 +79,12 @@ export default class extends Controller {
   playPause() {
     if (this.audio.paused) {
       this.audio.play();
-      useAudioStore.getState().play(this.idValue);
+      //this.playButton.textContent = "Pause";
       this.toggleIcons()
     } else {
       this.audio.pause();
-      useAudioStore.getState().pause();
       this.toggleIcons()
+      //this.playButton.textContent = "Play";
     }
   }
 
@@ -201,9 +200,7 @@ export default class extends Controller {
   stopAudio() {
     if (this.audio) {
       this.audio.pause();
-      this.audio.currentTime = 0;
-      useAudioStore.getState().pause();
-      this.toggleIcons();
+      this.audio.currentTime = 0; // Reset to the beginning
     }
   }
 
@@ -215,21 +212,31 @@ export default class extends Controller {
   }
 
   async nextSong() {
-    const nextTrackIndex = this.getNextTrackIndex();
-    if (nextTrackIndex !== null) {
-      const nextTrack = window.store.getState().playlist[nextTrackIndex];
-      if (nextTrack) {
-        const event = new CustomEvent("player:info", {
-          detail: {
-            id: nextTrack.id,
-            url: nextTrack.audio_url,
-            peaks: nextTrack.peaks
-          }
-        });
-        useAudioStore.getState().play(nextTrack.id);
-        document.dispatchEvent(event);
+    this.debounce(async () => {
+      this.stopAudio()
+      this.hasHalfwayEventFired = false;
+      const c = this.getNextTrackIndex();
+      let aa = document.querySelector(`#sidebar-track-${c}`);
+
+      if (!aa) {
+        const otherController = this.application.getControllerForElementAndIdentifier(
+          document.getElementById("track-detector"),
+          "track-detector"
+        );
+        otherController.detect();
       }
-    }
+
+      if (aa) {
+        const response = await get(aa.dataset.url, {
+          responseKind: "turbo-stream",
+        });
+        console.log("RESPONSE", response);
+        console.log("Playing next song", c, aa);
+      } else {
+        console.log("No more songs to play", c, aa);
+      }
+
+    }, 200)
   }
 
   async prevSong() {
