@@ -29,6 +29,8 @@ import {
   ContainerConfig,
   OembedBlock,
   OembedBlockConfig,
+  Playlist,
+  PlaylistConfig
 } from '../components/puck';
 
 const config = {
@@ -93,6 +95,11 @@ const config = {
       defaultProps: OembedBlockConfig.defaultProps,
       render: OembedBlock,
     },
+    Playlist: {
+      fields: PlaylistConfig.fields,
+      defaultProps: PlaylistConfig.defaultProps,
+      render: Playlist,
+    }
   },
   root: {
     render: ({ background, textColor, alignment, children, classes }) => {

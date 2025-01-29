@@ -18,3 +18,4 @@ export { default as HeadingBlock, config as HeadingBlockConfig } from './Heading
 export { default as Grid, config as GridConfig } from './Grid';
 export { default as Flex, config as FlexConfig } from './Flex';
 export { default as Slider, config as SliderConfig } from './Slider';
+export { default as Playlist, config as PlaylistConfig } from './Playlist';

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import PlaylistSelector from './PlaylistSelector';
 import CheckboxField from './CheckboxField';
-import PlaylistComponent from '../playlist';
+import PlaylistComponent from './Playlist';
 
 const Slider = ({ 
   playlistIds = [],

@@ -17,9 +17,9 @@ export default class extends Controller {
     const marqueeElement = this.element
     const spanElement = marqueeElement.querySelector("span");
 
-    console.log("Span content:", spanElement.textContent);  // Check if content is present
-    console.log("Span scrollWidth:", spanElement.scrollWidth);  // Check scrollWidth
-    console.log("Span clientWidth:", marqueeElement.clientWidth);  // Check clientWidth
+    //console.log("Span content:", spanElement.textContent);  // Check if content is present
+    //console.log("Span scrollWidth:", spanElement.scrollWidth);  // Check scrollWidth
+    //console.log("Span clientWidth:", marqueeElement.clientWidth);  // Check clientWidth
     
     const contentWidth = spanElement.scrollWidth;
     const containerWidth = marqueeElement.clientWidth;

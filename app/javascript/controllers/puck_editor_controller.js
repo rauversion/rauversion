@@ -6,10 +6,10 @@ import { Puck } from "@measured/puck";
 // import "../components/puck_copy.css";
 // import "../components/aaa.css";
 import { put, get } from '@rails/request.js';
-import PlaylistComponent from '../components/playlist';
-
 
 import {
+  Playlist,
+  PlaylistConfig,
   ColorPicker,
   MultiList,
   MultiListConfig,
@@ -62,23 +62,10 @@ const config = {
       render: Flex,
     },
     Playlist: {
-      fields: {
-        playlistId: {
-          type: "text",
-          label: "Playlist ID",
-        },
-        theme: {
-          type: "text",
-          label: "Theme",
-          defaultValue: "dark",
-        },
-      },
-      defaultProps: {
-        playlistId: "",
-        theme: "dark"
-      },
+      fields: Playlist.fields,
+      defaultProps: Playlist.defaultProps,
       render: ({ playlistId, theme }) => {
-        return <PlaylistComponent playlistId={playlistId} theme={theme} />;
+        return <Playlist playlistId={playlistId} theme={theme} />;
       },
     },
     HeroSection: {
