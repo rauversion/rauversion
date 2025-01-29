@@ -1,6 +1,7 @@
 json.array! @collection do |playlist|
   json.id playlist.id
   json.title playlist.title
+  json.slug playlist.slug
   json.playlist_type playlist.playlist_type
   json.release_date playlist.release_date
   json.cover_url url_for(playlist.cover) if playlist.cover.attached?

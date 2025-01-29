@@ -23,7 +23,7 @@ json.cover_url @playlist.cover.attached? ? url_for(@playlist.cover) : nil
 json.url url_for(@playlist)
 json.tracks @playlist.track_playlists.includes(:track) do |track_playlist|
   track = track_playlist.track
-  json.extract! track, :id, :title, :description, :duration
+  json.extract! track, :id, :title, :description, :duration, :slug
   begin
   json.audio_url url_for(track.mp3_audio) if track.audio.attached?
   rescue
