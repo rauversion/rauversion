@@ -98,7 +98,7 @@ const config = {
     render: ({ background, textColor, alignment, children, classes }) => {
       return <div
       style={{ backgroundColor: background, color: textColor, textAlign: alignment }} 
-      className="flex flex-col min-h-screen pb-40">
+      className="flex- flex-col- min-h-screen pb-40">
         <div className={`flex flex-col min-h-screen ${classes}`}>
           {children}
         </div>

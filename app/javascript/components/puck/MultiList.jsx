@@ -3,7 +3,7 @@ import React from 'react';
 const MultiList = ({ columns, gridCols, textColor, textSize, className }) => {
   return (
     <div className={className}>
-      <div className={`grid ${gridCols} gap-4 ${textColor} ${textSize}`}>
+      <div className={`grid md:${gridCols} grid-cols-1 gap-4 ${textColor} ${textSize}`}>
         {columns.map((column, index) => (
           <div key={index}>
             <h3 className="font-bold mb-2">{column.title}</h3>

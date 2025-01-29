@@ -1,10 +1,13 @@
 import { Controller } from "@hotwired/stimulus";
 import { createRoot } from "react-dom/client";
 import React from "react";
-import { Puck, DropZone } from "@measured/puck";
-import "@measured/puck/puck.css";
+import { Puck } from "@measured/puck";
+// import "@measured/puck/puck.css";
+// import "../components/puck_copy.css";
+// import "../components/aaa.css";
 import { put, get } from '@rails/request.js';
 import PlaylistComponent from '../components/playlist';
+
 
 import {
   ColorPicker,

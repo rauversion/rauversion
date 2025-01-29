@@ -3,30 +3,33 @@ import ImageUploadField from './ImageUploadField';
 
 const ImageBlock = ({ 
   image, 
-  href, 
-  borderRadius,
-  width,
-  height,
-  objectFit,
-  shadow,
+  href,
   alt,
-  containerClasses,
-  containerStyle
+  aspectRatio = "4/3",
+  maxWidth = "2xl",
+  rounded = "lg",
+  shadow = "lg"
 }) => {
-  // Parse containerStyle from string to object
-  let parsedStyle = {};
-  try {
-    parsedStyle = containerStyle ? JSON.parse(containerStyle) : {};
-  } catch (e) {
-    console.warn('Invalid containerStyle JSON:', e);
-  }
+  const containerStyle = {
+    position: 'relative',
+    aspectRatio: aspectRatio
+  };
+
+  const imageStyle = {
+    position: 'absolute',
+    height: '100%',
+    width: '100%',
+    inset: '0px',
+    color: 'transparent'
+  };
 
   const ImageComponent = (
-    <div className={containerClasses} style={parsedStyle}>
+    <div className={`relative w-full max-w-${maxWidth} mx-auto overflow-hidden rounded-${rounded} shadow-${shadow}`} style={containerStyle}>
       <img
         src={image}
         alt={alt || ''}
-        className={`${width} ${height} ${objectFit} ${borderRadius} ${shadow}`}
+        className="object-cover"
+        style={imageStyle}
       />
     </div>
   );
@@ -64,95 +67,66 @@ export const config = {
       label: "Link URL (optional)",
       defaultValue: "",
     },
-    containerClasses: {
-      type: "text",
-      label: "Container Classes",
-      description: "Add custom classes to the container div (e.g., 'flex justify-center p-4')",
-      defaultValue: "",
-    },
-    containerStyle: {
-      type: "text",
-      label: "Container Inline Style",
-      description: "Add custom inline styles as JSON (e.g., {'maxWidth': '500px'})",
-      defaultValue: "{}",
-    },
-    width: {
+    aspectRatio: {
       type: "select",
-      label: "Width",
+      label: "Aspect Ratio",
       options: [
-        { label: "Auto", value: "w-auto" },
-        { label: "Full", value: "w-full" },
-        { label: "1/2", value: "w-1/2" },
-        { label: "1/3", value: "w-1/3" },
-        { label: "2/3", value: "w-2/3" },
-        { label: "1/4", value: "w-1/4" },
-        { label: "3/4", value: "w-3/4" },
+        { label: "4:3", value: "4/3" },
+        { label: "16:9", value: "16/9" },
+        { label: "1:1", value: "1/1" },
+        { label: "3:4", value: "3/4" },
+        { label: "2:3", value: "2/3" }
       ],
-      defaultValue: "w-full",
+      defaultValue: "4/3",
     },
-    height: {
+    maxWidth: {
       type: "select",
-      label: "Height",
+      label: "Max Width",
       options: [
-        { label: "Auto", value: "h-auto" },
-        { label: "Small", value: "h-48" },
-        { label: "Medium", value: "h-64" },
-        { label: "Large", value: "h-96" },
-        { label: "Screen", value: "h-screen" },
+        { label: "Small", value: "sm" },
+        { label: "Medium", value: "md" },
+        { label: "Large", value: "lg" },
+        { label: "Extra Large", value: "xl" },
+        { label: "2XL", value: "2xl" },
+        { label: "None", value: "none" },
       ],
-      defaultValue: "h-auto",
+      defaultValue: "2xl",
     },
-    objectFit: {
+    rounded: {
       type: "select",
-      label: "Object Fit",
+      label: "Rounded",
       options: [
-        { label: "Cover", value: "object-cover" },
-        { label: "Contain", value: "object-contain" },
-        { label: "Fill", value: "object-fill" },
-        { label: "None", value: "object-none" },
+        { label: "None", value: "none" },
+        { label: "Small", value: "sm" },
+        { label: "Medium", value: "md" },
+        { label: "Large", value: "lg" },
+        { label: "Extra Large", value: "xl" },
+        { label: "2XL", value: "2xl" },
       ],
-      defaultValue: "object-cover",
-    },
-    borderRadius: {
-      type: "select",
-      label: "Border Radius",
-      options: [
-        { label: "None", value: "rounded-none" },
-        { label: "Small", value: "rounded-sm" },
-        { label: "Medium", value: "rounded-md" },
-        { label: "Large", value: "rounded-lg" },
-        { label: "Extra Large", value: "rounded-xl" },
-        { label: "2XL", value: "rounded-2xl" },
-        { label: "3XL", value: "rounded-3xl" },
-        { label: "Full", value: "rounded-full" },
-      ],
-      defaultValue: "rounded-none",
+      defaultValue: "lg",
     },
     shadow: {
       type: "select",
       label: "Shadow",
       options: [
-        { label: "None", value: "shadow-none" },
-        { label: "Small", value: "shadow-sm" },
-        { label: "Medium", value: "shadow-md" },
-        { label: "Large", value: "shadow-lg" },
-        { label: "Extra Large", value: "shadow-xl" },
-        { label: "2XL", value: "shadow-2xl" },
+        { label: "None", value: "none" },
+        { label: "Small", value: "sm" },
+        { label: "Medium", value: "md" },
+        { label: "Large", value: "lg" },
+        { label: "Extra Large", value: "xl" },
+        { label: "2XL", value: "2xl" },
       ],
-      defaultValue: "shadow-none",
-    },
+      defaultValue: "lg",
+    }
   },
   defaultProps: {
     image: "",
     alt: "",
     href: "",
-    containerClasses: "",
-    containerStyle: "{}",
-    width: "w-full",
-    height: "h-auto",
-    objectFit: "object-cover",
-    borderRadius: "rounded-none",
-    shadow: "shadow-none",
+    aspectRatio: "4/3",
+    maxWidth: "2xl",
+    rounded: "lg",
+    shadow: "lg"
   }
 };
 

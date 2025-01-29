@@ -166,7 +166,7 @@ const Slider = ({
           <>
             <button 
               onClick={previous}
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-white/20 bg-black/50 hover:bg-white/20 text-white absolute h-8 w-8 rounded-full -left-5 top-1/2 -translate-y-1/2 backdrop-blur-sm"
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-white/20 bg-black/50 hover:bg-white/20 text-white absolute h-8 w-8 rounded-full left-5 top-1/2 -translate-y-1/2 backdrop-blur-sm"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-left h-4 w-4">
                 <path d="m12 19-7-7 7-7"></path>
@@ -176,7 +176,7 @@ const Slider = ({
             </button>
             <button 
               onClick={next}
-              className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-white/20 bg-black/50 hover:bg-white/20 text-white absolute h-8 w-8 rounded-full -right-5 top-1/2 -translate-y-1/2 backdrop-blur-sm"
+              className="inline-flex items-center justify-center gap-2 whitespace-nowrap text-sm font-medium ring-offset-background transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-white/20 bg-black/50 hover:bg-white/20 text-white absolute h-8 w-8 rounded-full right-5 top-1/2 -translate-y-1/2 backdrop-blur-sm"
             >
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-right h-4 w-4">
                 <path d="M5 12h14"></path>

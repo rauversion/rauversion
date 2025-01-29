@@ -16,12 +16,12 @@ const Text = ({ content, size, weight, letterSpacing, alignment, color, variant,
   }
 
   return (
-    <div 
+    <p 
       className={baseClasses}
       style={{ color, backgroundColor }}
     >
       {content}
-    </div>
+    </p>
   );
 };
 
@@ -48,9 +48,9 @@ export const config = {
         { label: "XS", value: "text-xs" },
         { label: "Small", value: "text-sm" },
         { label: "Base", value: "text-base" },
-        { label: "Large", value: "text-lg" },
-        { label: "XL", value: "text-xl" },
-        { label: "2XL", value: "text-2xl" },
+        { label: "Large", value: "md:text-lg text-base" },
+        { label: "XL", value: "md:text-xl text-large" },
+        { label: "2XL", value: "md:text-2xl text-base" },
       ],
       defaultValue: "text-base",
     },
