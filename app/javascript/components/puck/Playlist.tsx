@@ -52,9 +52,10 @@ interface Playlist {
 
 interface PlaylistProps {
   playlistId: string | number;
+  accentColor?: string;
 }
 
-export default function PlaylistComponent({ playlistId }: PlaylistProps) {
+export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" }: PlaylistProps) {
   const [playlist, setPlaylist] = useState<Playlist | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -119,8 +120,7 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
   if (!playlist) return <div>No playlist found</div>;
 
   return (
-    <div className="h-screen rounded-lg p-4">
-      <audio ref={audioRef} />
+    <div className="rounded-lg p-4">
       <div className="flex items-start gap-6">
         {playlist.cover_url && (
           <img 
@@ -137,7 +137,8 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
             <a 
               data-track-init-path={playlist.tracks[0] ? `/player?id=${playlist.tracks[0].slug}&t=true` : ''}
               data-action="track-detector#addGroup" 
-              className="bg-[#1DB954] text-black font-semibold rounded-full p-3 hover:scale-105 transition"
+              style={{ backgroundColor: accentColor }}
+              className={`bg-default text-black font-semibold rounded-full p-3 hover:scale-105 transition`}
             >
               {isPlaying ? <Pause size={24} /> : <Play size={24} />}
             </a>
@@ -149,7 +150,7 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
       </div>
 
       <div className="mt-8">
-        <div className="space-y-1 h-[calc(100vh-211px)] overflow-y-auto">
+        <div className="space-y-1 bg-black/5 p-4 rounded-lg">
           {playlist.tracks.map((track, index) => (
             <div 
               key={track.id}
@@ -158,7 +159,7 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
               }`}
             >
               <div className="flex items-center gap-4">
-                <span className={`w-6 ${currentTrackId === track.id ? 'text-[#1DB954]' : 'text-zinc-400'}`}>
+                <span className={`w-6 ${currentTrackId === track.id ? `text-[${accentColor}]` : 'text-zinc-400'}`}>
                   {index + 1}
                 </span>
                 
@@ -167,7 +168,7 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
                   data-track-id={track.id}
                   data-track-detector-targetnono="track"
                   className={`${
-                    currentTrackId === track.id ? 'text-[#1DB954] opacity-100' : 'text-zinc-400 opacity-0'
+                    currentTrackId === track.id ? `text-[${accentColor}] opacity-100` : 'text-zinc-400 opacity-0'
                   } group-hover:opacity-100 hover:text-white transition`}
                 >
                   {currentTrackId === track.id && isPlaying ? 
@@ -178,7 +179,7 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
 
                 <div>
                   <p className={`font-medium ${
-                    currentTrackId === track.id ? 'text-[#1DB954]' : 'text-white'
+                    currentTrackId === track.id ? `text-[${accentColor}]` : 'text-white'
                   }`}>
                     {track.title}
                   </p>
@@ -214,16 +215,16 @@ export const config = {
   fields: {
     playlistId: {
       type: "text",
-      label: "Playlist ID",
+      label: "Playlist ID"
     },
-    theme: {
-      type: "text",
-      label: "Theme",
-      defaultValue: "dark",
-    },
+    accentColor: {
+      type: "color",
+      label: "Accent Color",
+      defaultValue: "#1DB954"
+    }
   },
   defaultProps: {
     playlistId: "",
-    theme: "dark"
+    accentColor: "#1DB954"
   },
 }

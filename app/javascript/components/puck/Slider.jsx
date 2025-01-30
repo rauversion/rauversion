@@ -4,6 +4,7 @@ import PlaylistSelector from './PlaylistSelector';
 import { get } from '@rails/request.js';
 import CheckboxField from './CheckboxField';
 import PlaylistComponent from './Playlist';
+import ColorPicker from "./ColorPicker";
 import {
   Carousel,
   CarouselContent,
@@ -25,6 +26,7 @@ const Slider = ({
   itemsToShow = 4,
   orientation = "horizontal",
   itemSize = "responsive",
+  accentColor = "#1DB954",
   openAsComponent = false
 }) => {
   const [playlists, setPlaylists] = useState([]);
@@ -100,7 +102,7 @@ const Slider = ({
               <div className="p-1">
                 <div 
                   className={`relative group aspect-square overflow-hidden bg-zinc-100 rounded-md cursor-pointer
-                    ${selectedPlaylist === playlist.id ? 'ring-2 ring-primary' : ''}`}
+                    ${selectedPlaylist === playlist.id ? `ring-2 ring-[${accentColor}]` : ''}`}
                   onClick={() => handlePlaylistClick(playlist.id)}
                 >
                   <img
@@ -126,7 +128,10 @@ const Slider = ({
 
       {selectedPlaylist && (
         <div className="mt-8">
-          <PlaylistComponent playlistId={selectedPlaylist} />
+          <PlaylistComponent 
+            playlistId={selectedPlaylist} 
+            accentColor={accentColor}
+          />
         </div>
       )}
     </div>
@@ -168,6 +173,11 @@ export const config = {
       ],
       defaultValue: "horizontal"
     },
+    accentColor: {
+      type: "custom",
+      label: "Text Color",
+      render: ColorPicker,
+    },
     openAsComponent: {
       type: "custom",
       render: CheckboxField,
@@ -181,6 +191,7 @@ export const config = {
     itemsToShow: 4,
     orientation: "horizontal",
     itemSize: "responsive",
+    accentColor: "#1DB954",
     openAsComponent: false
   }
 };

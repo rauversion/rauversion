@@ -19,7 +19,7 @@ if @playlist.label.present?
   end
 end
 
-json.cover_url @playlist.cover.attached? ? url_for(@playlist.cover) : nil
+json.cover_url @playlist.cover.attached? ? @playlist.cover_url(:large) : nil
 json.url url_for(@playlist)
 json.tracks @playlist.track_playlists.order(:position).includes(:track) do |track_playlist|
   track = track_playlist.track
@@ -28,7 +28,7 @@ json.tracks @playlist.track_playlists.order(:position).includes(:track) do |trac
   json.audio_url url_for(track.mp3_audio) if track.audio.attached?
   rescue
   end
-  json.cover_url url_for(track.cover) if track.cover.attached?
+  json.cover_url track.cover_url(:large) if track.cover.attached?
   json.position track_playlist.position
   json.author do
     json.extract! track.user, :id, :username, :full_name, :avatar_url
