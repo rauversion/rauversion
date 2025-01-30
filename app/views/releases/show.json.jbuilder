@@ -14,6 +14,8 @@ json.release_playlists @release.release_playlists do |release_playlist|
   json.id release_playlist.playlist.id
   json.title release_playlist.playlist.title
   json.tracks_count release_playlist.playlist.tracks&.count || 0
-  json.cover_url rails_blob_url(release_playlist.playlist.cover) if release_playlist.playlist.cover.attached?
+  if release_playlist.playlist.cover.attached?
+    json.cover_url rails_blob_url(release_playlist.playlist.cover.variant(resize_to_fill: [1200, 1200]))
+  end
   json.url playlist_path(release_playlist.playlist)
 end

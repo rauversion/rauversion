@@ -85,8 +85,10 @@ class ReleasesController < ApplicationController
       content_type: uploaded_file.content_type
     )
     
+    variant = blob.variant(resize_to_fill: [1200, 1200]).processed
+    
     render json: { 
-      url: rails_blob_url(blob),
+      url: rails_blob_url(variant),
       id: blob.id
     }
   end
