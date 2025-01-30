@@ -8,6 +8,7 @@
     "@hotwired/turbo-rails": "8.0.5",
     "@josefarias/hotwire_combobox": "^0.2.1",
     "@measured/puck": "^0.18.1",
+    "@radix-ui/react-checkbox": "^1.1.3",
     "@radix-ui/react-slot": "^1.1.1",
     "@rails/activestorage": "^7.0.6",
     "@rails/request.js": "^0.0.8",

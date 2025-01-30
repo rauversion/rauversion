@@ -12,11 +12,19 @@ import {
   CarouselPrevious,
 } from "../ui/carousel"
 
+const itemSizeVariants = {
+  'responsive': 'md:basis-1/2 lg:basis-1/3',
+  'third': 'basis-1/3',
+  'half': 'basis-1/2'
+};
+
 const Slider = ({ 
   playlistIds = [],
   autoPlay = false,
   interval = 5000,
   itemsToShow = 4,
+  orientation = "horizontal",
+  itemSize = "responsive",
   openAsComponent = false
 }) => {
   const [playlists, setPlaylists] = useState([]);
@@ -78,6 +86,7 @@ const Slider = ({
   return (
     <div className="w-full space-y-8">
       <Carousel 
+        orientation={orientation}
         setApi={setApi}
         className="w-full"
         opts={{
@@ -87,7 +96,7 @@ const Slider = ({
       >
         <CarouselContent className="-ml-2 md:-ml-4">
           {playlists.map((playlist) => (
-            <CarouselItem key={playlist.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/4">
+            <CarouselItem key={playlist.id} className={`pl-2 md:pl-4 ${itemSizeVariants[itemSize]}`}>
               <div className="p-1">
                 <div 
                   className={`relative group aspect-square overflow-hidden bg-zinc-100 rounded-md cursor-pointer
@@ -140,15 +149,24 @@ export const config = {
       type: "number",
       label: "Slide Interval (ms)"
     },
-    itemsToShow: {
+    itemSize: {
       type: "select",
-      label: "Items to Show",
+      label: "Item Size",
       options: [
-        { label: "2 Items", value: 2 },
-        { label: "3 Items", value: 3 },
-        { label: "4 Items", value: 4 },
-        { label: "5 Items", value: 5 }
-      ]
+        { label: "Responsive (50% - 33%)", value: "responsive" },
+        { label: "One Third", value: "third" },
+        { label: "Half Width", value: "half" }
+      ],
+      defaultValue: "responsive"
+    },
+    orientation: {
+      type: "select",
+      label: "Orientation",
+      options: [
+        { label: "Horizontal", value: "horizontal" },
+        { label: "Vertical", value: "vertical" }
+      ],
+      defaultValue: "horizontal"
     },
     openAsComponent: {
       type: "custom",
@@ -161,6 +179,8 @@ export const config = {
     autoPlay: false,
     interval: 5000,
     itemsToShow: 4,
+    orientation: "horizontal",
+    itemSize: "responsive",
     openAsComponent: false
   }
 };
