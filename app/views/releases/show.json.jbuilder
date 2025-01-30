@@ -6,7 +6,7 @@ json.editor_data @release.editor_data
 
 
 
-json.release_playlists @release.release_playlists do |release_playlist|
+json.release_playlists @release.release_playlists.order(:position) do |release_playlist|
   json.id release_playlist.id
   json.playlist_id release_playlist.playlist_id
   json.position release_playlist.position
