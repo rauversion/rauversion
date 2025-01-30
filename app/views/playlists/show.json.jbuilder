@@ -21,7 +21,7 @@ end
 
 json.cover_url @playlist.cover.attached? ? url_for(@playlist.cover) : nil
 json.url url_for(@playlist)
-json.tracks @playlist.track_playlists.includes(:track) do |track_playlist|
+json.tracks @playlist.track_playlists.order(:position).includes(:track) do |track_playlist|
   track = track_playlist.track
   json.extract! track, :id, :title, :description, :duration, :slug
   begin

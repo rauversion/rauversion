@@ -175,6 +175,7 @@ Rails.application.routes.draw do
 
     collection do
       get :by_id
+      get :albums
     end
     resources :comments
     resource :embed, only: :show

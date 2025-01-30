@@ -1,4 +1,15 @@
-json.array! @collection do |playlist|
+json.metadata do
+  json.current_page @collection.current_page
+  json.total_pages @collection.total_pages
+  json.total_count @collection.total_count
+  json.next_page @collection.next_page
+  json.prev_page @collection.prev_page
+  json.is_first_page @collection.first_page?
+  json.is_last_page @collection.last_page?
+end
+
+json.collection @collection do |playlist|
+
   json.id playlist.id
   json.title playlist.title
   json.slug playlist.slug

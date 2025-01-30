@@ -58,6 +58,10 @@ class Playlist < ApplicationRecord
   store_accessor :metadata, :price, :decimal
   store_accessor :metadata, :name_your_price, :boolean
 
+  def self.ransackable_attributes(auth_object = nil)
+    ["created_at", "custom_genre", "description", "editor_choice_position", "genre", "id", "id_value", "label_id", "likes_count", "metadata", "playlist_type", "private", "release_date", "slug", "tags", "title", "updated_at", "user_id"]
+  end
+  
   def name_your_price?
     name_your_price.present?
   end
