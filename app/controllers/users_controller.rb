@@ -121,16 +121,16 @@ class UsersController < ApplicationController
       @collection = @collection.where(private: false)
     end
 
-    @collection = @collection.page(params[:page]).per(5)
-    @as = :playlist
-    @namespace = :album
-    @section = "playlists/playlist_item"
-    # render "show"
+    @collection = @collection.ransack(title_cont: params[:q]).result if params[:q].present?
+    @collection = @collection.page(params[:page]).per(10)
 
     if request.format.json?
       render "playlists" and return
     end
     
+    @as = :playlist
+    @namespace = :album
+    @section = "playlists/playlist_item"
     paginated_render
   end
 

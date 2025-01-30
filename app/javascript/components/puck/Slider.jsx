@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import PlaylistSelector from './PlaylistSelector';
+import { get } from '@rails/request.js';
 import CheckboxField from './CheckboxField';
 import PlaylistComponent from './Playlist';
 import {
@@ -30,12 +31,13 @@ const Slider = ({
       try {
         const releaseId = document.querySelector('meta[name="current-release-id"]')?.content;
 
-        const response = await fetch(`/releases/${releaseId}.json`);
-        const data = await response.json();
-        setPlaylists(data.release_playlists);
+        // const response = await fetch(`/releases/${releaseId}.json`);
+        const response = await get(`/playlists/albums.json?ids=${playlistIds.join(",")}`);
+        const data = await response.json;
+        setPlaylists(data.collection);
         // Set the first playlist as selected by default
-        if (data.release_playlists.length > 0) {
-          setSelectedPlaylist(data.release_playlists[0].id);
+        if (data.collection.length > 0) {
+          setSelectedPlaylist(data.collection[0].id);
         }
         setLoading(false);
       } catch (error) {
