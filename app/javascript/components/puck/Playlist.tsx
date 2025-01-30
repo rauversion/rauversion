@@ -115,6 +115,11 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
     }
   }, [currentTrackIndex, playlist, isPlaying]);
 
+  const setTracksToStore = (startIndex = 0) => {
+    const tracks = playlist?.tracks.slice(startIndex).map(t => t.id) || [];
+    useAudioStore.setState({ playlist: tracks });
+  };
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
   if (!playlist) return <div>No playlist found</div>;
@@ -135,8 +140,11 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
           <p className="text-zinc-400 mb-4">{playlist.user.full_name}</p>
           <div className="flex items-center gap-4">
             <a 
-              data-track-init-path={playlist.tracks[0] ? `/player?id=${playlist.tracks[0].slug}&t=true` : ''}
-              data-action="track-detector#addGroup" 
+              href={playlist.tracks[0] ? `/player?id=${playlist.tracks[0].slug}&t=true` : ''}
+              // data-action="track-detector#addGroup" 
+              onClick={(e) => {
+                setTracksToStore(0);
+              }}
               style={{ backgroundColor: accentColor }}
               className={`bg-default text-black font-semibold rounded-full p-3 hover:scale-105 transition`}
             >
@@ -163,8 +171,13 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
                   {index + 1}
                 </span>
                 
+
                 <a 
                   href={`/player?id=${track.slug}&t=true`}
+                  onClick={(e) => {
+                    const trackIndex = playlist.tracks.map(t => t.id).indexOf(track.id);
+                    setTracksToStore(trackIndex);
+                  }}
                   data-track-id={track.id}
                   data-track-detector-targetnono="track"
                   className={`${
