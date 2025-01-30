@@ -3,8 +3,14 @@ import { get, put } from '@rails/request.js';
 import AsyncSelect from 'react-select/async';
 
 const PlaylistSelector = ({ onChange, value = [] }) => {
+  const [playlistIds, setPlaylistIds] = useState(value);
+  const [playlists, setPlaylists] = useState([]);
   const [releaseId, setReleaseId] = useState(null);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    setPlaylistIds(value);
+  }, [value]);
 
   useEffect(() => {
     const releaseId = document.querySelector('meta[name="current-release-id"]')?.content;
@@ -27,6 +33,7 @@ const PlaylistSelector = ({ onChange, value = [] }) => {
           label: playlist.title,
           coverUrl: playlist.cover_url
         }));
+        setPlaylists(options);
         callback(options);
       }
     } catch (error) {
@@ -38,34 +45,7 @@ const PlaylistSelector = ({ onChange, value = [] }) => {
   const handleChange = async (newSelectedOptions) => {
     const newValue = newSelectedOptions ? newSelectedOptions.map(option => option.value) : [];
     onChange(newValue);
-
-    /*if (!releaseId) {
-      console.error('No release ID found');
-      return;
-    }
-
-    setSaving(true);
-    try {
-      const response = await put(`/releases/${releaseId}`, {
-        body: JSON.stringify({
-          release: {
-            playlist_ids: newValue
-          }
-        }),
-        responseKind: 'json'
-      });
-
-      if (response.ok) {
-        console.log('Playlists updated successfully');
-      } else {
-        console.error('Failed to update playlists');
-      }
-    } catch (error) {
-      console.error('Error updating playlists:', error);
-    } finally {
-      setSaving(false);
-    }*/
-  };
+ };
 
   const customStyles = {
     option: (provided, state) => ({
@@ -103,6 +83,7 @@ const PlaylistSelector = ({ onChange, value = [] }) => {
         isMulti
         cacheOptions
         defaultOptions
+        value={playlists.filter(playlist => playlistIds.includes(playlist.value)) }
         onChange={handleChange}
         loadOptions={(inputValue) => new Promise((resolve) => loadOptions(inputValue, resolve))}
         isLoading={saving}

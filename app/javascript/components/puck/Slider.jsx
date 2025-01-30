@@ -99,10 +99,11 @@ const Slider = ({
                     alt={playlist.title}
                     className="object-cover w-full h-full transition-all hover:scale-105"
                   />
+                  
                   <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 to-transparent p-4">
                     <div className="text-white">
                       <h3 className="font-semibold">{playlist.title}</h3>
-                      <p className="text-sm text-zinc-300">{playlist.description}</p>
+                      <p className="text-sm text-zinc-300">{playlist.tracks_count} tracks</p>
                     </div>
                   </div>
                 </div>
