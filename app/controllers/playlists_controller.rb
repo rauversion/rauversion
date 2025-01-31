@@ -21,6 +21,8 @@ class PlaylistsController < ApplicationController
     @playlist ||= Playlist.published.friendly.find(params[:id])
     @track = @playlist.tracks.first
 
+    render status: 404, plain: "This playlist is private or not found" and return unless @playlist
+
     respond_to do |format|
       format.html do
         if turbo_frame_request?
