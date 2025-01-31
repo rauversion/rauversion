@@ -15,14 +15,15 @@ json.track do
   json.podcast @track.podcast
   json.created_at @track.created_at
   json.updated_at @track.updated_at
+  json.processed  @track.processed?
 
   json.user do
     json.id @track.user.id
     json.username @track.user.username
     json.avatar_url @track.user.avatar_url if @track.user.avatar.attached?
     json.bio @track.user.bio
-    json.followers_count @track.user.followers_count
-    json.following_count @track.user.following_count
+    #json.followers_count @track.user.followers_count
+    #json.following_count @track.user.following_count
   end
 
   if @track.label
