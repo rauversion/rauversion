@@ -1,11 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useRef } from 'react'
 import WaveSurfer from 'wavesurfer.js'
 import { get } from '@rails/request.js'
+import { Play, Pause } from 'lucide-react'
+import useAudioStore from '../../stores/audioStore'
 
 export default function TrackPlayer({ url, peaks, height = 45, id, urlLink }) {
   const waveformRef = useRef(null)
   const wavesurfer = useRef(null)
-  const [isPlaying, setIsPlaying] = useState(false)
+  const { currentTrackId, isPlaying, setCurrentTrack, setIsPlaying, play, pause } = useAudioStore()
 
   useEffect(() => {
     if (!url) return
@@ -38,11 +40,19 @@ export default function TrackPlayer({ url, peaks, height = 45, id, urlLink }) {
     }
 
     const handleAudioProcessPlay = (e) => {
-      setIsPlaying(true)
+      if (e.detail.id === id) {
+        setIsPlaying(true)
+        play(id)
+        wavesurfer.current.play()
+      }
     }
 
     const handleAudioProcessPause = (e) => {
-      setIsPlaying(false)
+      if (e.detail.id === id) {
+        setIsPlaying(false)
+        pause()
+        wavesurfer.current.pause()
+      }
     }
 
     document.addEventListener(`audio-process-${id}`, handleAudioProcess)
@@ -62,18 +72,51 @@ export default function TrackPlayer({ url, peaks, height = 45, id, urlLink }) {
     }
   }, [url, peaks, height, id])
 
+  useEffect(() => {
+    // Handle global playback state changes
+    if (currentTrackId === id && isPlaying !== isPlaying) {
+      if (isPlaying) {
+        wavesurfer.current?.play()
+      } else {
+        wavesurfer.current?.pause()
+      }
+    }
+
+    // Pause this track if another track starts playing
+    if (currentTrackId !== id && isPlaying) {
+      wavesurfer.current?.pause()
+    }
+  }, [currentTrackId, isPlaying])
+
   const handlePlay = async () => {
-    if (!isPlaying) {
-      const event = new CustomEvent("play-song", {
-        detail: { id }
-      })
-      waveformRef.current.dispatchEvent(event)
-      
-      if (urlLink) {
-        const response = await get(urlLink, { 
-          responseKind: "turbo-stream"
+    if (!isPlaying || currentTrackId !== id) {
+      // Stop other playing tracks
+      if (currentTrackId && currentTrackId !== id) {
+        const event = new CustomEvent("audio-process-pause", {
+          detail: { id: currentTrackId }
         })
-        console.log("RESPONSE", response)
+        document.dispatchEvent(event)
+      }
+
+      const playPromise = wavesurfer.current.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            setIsPlaying(true)
+            setCurrentTrack(id)
+            
+            if (urlLink) {
+              get(urlLink, { 
+                responseKind: "turbo-stream"
+              }).then(response => {
+                console.log("RESPONSE", response)
+              });
+            }
+          })
+          .catch((error) => {
+            console.error("Playback failed:", error);
+            setIsPlaying(false);
+          });
       }
     } else {
       dispatchPause()
@@ -90,13 +133,13 @@ export default function TrackPlayer({ url, peaks, height = 45, id, urlLink }) {
   }
 
   const handleDrawerClick = (e) => {
-    const eventName = isPlaying ? 'audio-process-pause' : 'audio-process-play'
+    const eventName = isPlaying && currentTrackId === id ? 'audio-process-pause' : 'audio-process-play'
     const event = new CustomEvent(eventName, {
       detail: { id }
     })
     document.dispatchEvent(event)
 
-    if (!isPlaying) {
+    if (!(isPlaying && currentTrackId === id)) {
       const playEvent = new CustomEvent("play-song", {
         detail: { id }
       })
@@ -109,7 +152,8 @@ export default function TrackPlayer({ url, peaks, height = 45, id, urlLink }) {
       detail: { id }
     })
     document.dispatchEvent(event)
-    setIsPlaying(false)
+    setIsPlaying(false);
+    wavesurfer.current.pause();
   }
 
   return (
@@ -119,35 +163,11 @@ export default function TrackPlayer({ url, peaks, height = 45, id, urlLink }) {
           onClick={handlePlay}
           className="relative z-0 inline-flex ml-2 pl-6 pt-6 player-button"
         >
-          <span className="sr-only">{isPlaying ? 'Pause' : 'Play'}</span>
-          {isPlaying ? (
-            <svg
-              className="h-10 w-10"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              style={{ display: isPlaying ? 'none' : 'block' }}
-            >
-              <path
-                fillRule="evenodd"
-                d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z"
-                clipRule="evenodd"
-              />
-            </svg>
+          <span className="sr-only">{isPlaying && currentTrackId === id ? 'Pause' : 'Play'}</span>
+          {isPlaying && currentTrackId === id ? (
+            <Pause className="h-10 w-10 text-white" />
           ) : (
-            <svg
-              className="h-10 w-10"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              style={{ display: isPlaying ? 'block' : 'none' }}
-            >
-              <path
-                fillRule="evenodd"
-                d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z"
-                clipRule="evenodd"
-              />
-            </svg>
+            <Play className="h-10 w-10 text-white" />
           )}
         </button>
       </div>

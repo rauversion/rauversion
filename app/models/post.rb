@@ -48,7 +48,7 @@ class Post < ApplicationRecord
     return Rails.application.routes.url_helpers.rails_storage_proxy_url(url) if url.present?
 
 
-    url || "/images/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
+    url || "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
   end
 
   def self.ransackable_attributes(auth_object = nil)
