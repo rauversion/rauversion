@@ -6,6 +6,8 @@ import EventsIndex from './events/Index'
 import EventShow from './events/Show'
 import AudioPlayer from './audio_player'
 import UserMenu from './shared/UserMenu'
+import TracksIndex from './tracks/Index'
+import TrackShow from './tracks/Show'
 
 export default function AppRouter() {
   return (
@@ -20,6 +22,8 @@ export default function AppRouter() {
         <Route path="/articles/:slug" element={<ArticleShow />} />
         <Route path="/events" element={<EventsIndex />} />
         <Route path="/events/:slug" element={<EventShow />} />
+        <Route path="/tracks" element={<TracksIndex />} />
+        <Route path="/tracks/:slug" element={<TrackShow />} />
       </Routes>
       <AudioPlayer />
     </BrowserRouter>

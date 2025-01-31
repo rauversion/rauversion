@@ -131,7 +131,12 @@ export default function ArticleShow() {
       <div className="relative px-4 sm:px-6 lg:px-8">
         <div className="text-lg max-w-prose mx-auto">
           <h1>
-            <Link to={`/users/${article.author.username}`}>
+            <Link to={`/users/${article.author.username}`} className="flex items-center justify-center gap-2">
+              <img 
+                src={article.author.avatar_url.small} 
+                alt={article.author.name}
+                className="w-8 h-8 rounded-full"
+              />
               <span className="block text-base text-center text-brand-600 font-semibold tracking-wide uppercase">
                 By {article.author.name}
               </span>
@@ -140,6 +145,16 @@ export default function ArticleShow() {
               {article.title}
             </span>
           </h1>
+
+          {article.cover_url && (
+            <div className="mt-8 aspect-w-16 aspect-h-9 rounded-lg overflow-hidden">
+              <img 
+                src={article.cover_url.large} 
+                alt={article.title}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          )}
 
           <p className="mt-8 text-xl text-gray-500 dark:text-gray-300 leading-8">
             {article.excerpt}

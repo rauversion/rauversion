@@ -24,12 +24,19 @@ json.events @events do |event|
   json.event_capacity_limit event.event_capacity_limit
   json.eticket event.eticket
   json.will_call event.will_call
-  json.cover_image event.cropped_image
+  json.cover_url do
+    json.medium event.cover_url(:medium)
+    json.small event.cover_url(:small)
+    json.large event.cover_url(:large)
+  end
   
   json.author event.user do
     json.username event.user.username
     json.name event.user.full_name
-    json.avatar event.user.avatar_url(:small)
+    json.avatar_url do
+      json.medium event.user.avatar_url(:medium)
+      json.small event.user.avatar_url(:small)
+    end
   end
 end
 
@@ -46,12 +53,19 @@ json.past_events @past_events do |event|
   json.online event.online
   json.location event.location
   json.venue event.venue
-  json.cover_image event.cover_url
+  json.cover_url do
+    json.medium event.cover_url(:medium)
+    json.small event.cover_url(:small)
+    json.large event.cover_url(:large)
+  end
   
   json.author do
     json.username event.user.username
     json.name event.user.full_name
-    json.avatar event.user.avatar_url(:small)
+    json.avatar_url do
+      json.medium event.user.avatar_url(:medium)
+      json.small event.user.avatar_url(:small)
+    end
   end
 end
 

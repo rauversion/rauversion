@@ -31,24 +31,21 @@ class TracksController < ApplicationController
       .order("editor_choice_position asc, release_date desc")
       .first
 
-
     @q = Track.ransack(params[:q])
     @q.sorts = 'created_at desc' if @q.sorts.empty?
 
     if params[:q].present?
-    
       @tracks = @q.result(distinct: true)
-      .published
-      .includes(:user)
-      #.with_attached_audio_file
-      #.with_attached_cover
-      .page(params[:page])
-      .per(12)
+        .published
+        .includes(:user)
+        .page(params[:page])
+        .per(12)
     end
       
     respond_to do |format|
       format.html
       format.turbo_stream
+      format.json
     end
   end
 
@@ -121,6 +118,11 @@ class TracksController < ApplicationController
   def show
     @track = Track.friendly.find(params[:id])
     get_meta_tags
+
+    respond_to do |format|
+      format.html
+      format.json
+    end
   end
 
   def destroy

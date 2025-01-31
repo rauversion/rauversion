@@ -23,7 +23,11 @@ json.event_capacity @event.event_capacity
 json.event_capacity_limit @event.event_capacity_limit
 json.eticket @event.eticket
 json.will_call @event.will_call
-json.cover_image @event.cover_url(:large)
+json.cover_url do
+  json.medium @event.cover_url(:medium)
+  json.small @event.cover_url(:small)
+  json.large @event.cover_url(:large)
+end
 
 # Event specific labels
 json.participant_label @event.participant_label
@@ -40,7 +44,12 @@ json.event_hosts @event.event_hosts do |host|
   json.description host.description
   json.listed_on_page host.listed_on_page
   json.event_manager host.event_manager
-  json.avatar host.user.avatar_url(:small)
+  json.user do
+    json.avatar_url do
+      json.medium host.user.avatar_url(:medium)
+      json.small host.user.avatar_url(:small)
+    end
+  end
 end
 
 # Event schedules

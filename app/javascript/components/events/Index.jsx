@@ -62,9 +62,9 @@ function EventCard({ event }) {
   return (
     <Link to={`/events/${event.slug}`} className="group">
       <div className="aspect-w-16 aspect-h-9 w-full overflow-hidden rounded-lg bg-gray-200">
-        {event.cover_image ? (
+        {event.cover_url ? (
           <img
-            src={event.cover_image}
+            src={event.cover_url.medium}
             alt={event.title}
             className="h-full w-full object-cover object-center group-hover:opacity-75"
           />
@@ -95,7 +95,7 @@ function EventCard({ event }) {
         <div className="flex-shrink-0">
           <img
             className="h-10 w-10 rounded-full"
-            src={event.author.avatar}
+            src={event.author.avatar_url.small}
             alt={event.author.name}
           />
         </div>
@@ -103,7 +103,7 @@ function EventCard({ event }) {
           <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
             {event.author.name}
           </p>
-          <div className="flex space-x-1 text-sm text-gray-500 dark:text-gray-400">
+          <div className="flex space-x-1 text-sm text-gray-500">
             <time dateTime={event.event_start}>
               {new Date(event.event_start).toLocaleDateString()}
             </time>

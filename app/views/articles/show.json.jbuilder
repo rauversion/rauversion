@@ -7,7 +7,12 @@ json.created_at @post.created_at
 json.updated_at @post.updated_at
 json.state @post.state
 json.reading_time @post.settings["reading_time"]
-json.cover_image @post.cropped_image
+json.cover_url do
+  json.medium @post.cover_url(:medium)
+  json.small @post.cover_url(:small)
+  json.large @post.cover_url(:large)
+  json.horizontal @post.cover_url(:horizontal)
+end
 
 if @post.category
   json.category do
@@ -22,5 +27,8 @@ json.tags @post.tags
 json.author do
   json.username @post.user.username
   json.name @post.user.full_name
-  json.avatar @post.user.avatar_url(:small)
+  json.avatar_url do
+    json.medium @post.user.avatar_url(:medium)
+    json.small @post.user.avatar_url(:small)
+  end
 end

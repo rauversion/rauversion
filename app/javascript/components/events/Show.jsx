@@ -64,9 +64,9 @@ export default function EventShow() {
       <main>
         <div className="relative pt-10 pb-20 sm:py-24">
           <div className="absolute inset-x-0 -top-40 -bottom-14 overflow-hidden bg-black">
-            {event.cover_image && (
+            {event.cover_url && (
               <img
-                src={event.cover_image}
+                src={event.cover_url.large}
                 alt={event.title}
                 width="918"
                 height="1495"

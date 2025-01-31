@@ -7,7 +7,12 @@ json.items @articles do |article|
   json.updated_at article.updated_at
   json.state article.state
   json.reading_time article.settings["reading_time"]
-  json.cover_image article.cropped_image
+  json.cover_url do
+    json.medium article.cover_url(:medium)
+    json.small article.cover_url(:small)
+    json.large article.cover_url(:large)
+    json.horizontal article.cover_url(:horizontal)
+  end
   
   if article.category
     json.category do
@@ -20,7 +25,10 @@ json.items @articles do |article|
   json.author do
     json.username article.user.username
     json.name article.user.full_name
-    json.avatar article.user.avatar_url(:small)
+    json.avatar_url do
+      json.medium article.user.avatar_url(:medium)
+      json.small article.user.avatar_url(:small)
+    end
   end
   
   json.tags article.tags

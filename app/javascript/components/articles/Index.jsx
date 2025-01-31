@@ -123,10 +123,10 @@ function ArticleCard({ article }) {
   return (
     <Link to={`/articles/${article.slug}`} className="block group">
       <div className="bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-        {article.cover_image && (
+        {article.cover_url && (
           <div className="aspect-w-16 aspect-h-9">
             <img 
-              src={article.cover_image} 
+              src={article.cover_url.horizontal} 
               alt={article.title}
               className="object-cover w-full h-full"
             />
