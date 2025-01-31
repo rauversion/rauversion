@@ -230,10 +230,7 @@ export default class extends Controller {
 
   async nextSong() {
     this.hasHalfwayEventFired = false;
-    debugger
     const c = this.getNextTrackIndex()
-
-
     
     const response = await get(`/player?id=${c}&t=true`, { 
       responseKind: "turbo-stream", 

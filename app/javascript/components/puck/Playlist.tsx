@@ -118,113 +118,119 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
   if (!playlist) return <div>No playlist found</div>;
 
   return (
-    <div className="rounded-lg p-4">
-      <div className="flex items-start gap-6">
-        {playlist.cover_url && (
-          <img 
-            src={playlist.cover_url} 
-            alt={playlist.title}
-            className="w-[160px] h-[160px] rounded-md shadow-lg"
-          />
-        )}
-        
-        <div className="flex-1">
-          <h2 className="text-white font-bold text-3xl mb-2">{playlist.title}</h2>
-          <p className="text-zinc-400 mb-4">{playlist.user.full_name}</p>
-          <div className="flex items-center gap-4">
-            <a 
-              href={playlist.tracks[0] ? `/player?id=${playlist.tracks[0].slug}&t=true` : ''}
-              // data-action="track-detector#addGroup" 
-              onClick={(e) => {
-                if(audioPlaying() && currentTrackId === playlist.tracks[0].id) {
-                  audioElement.pause();
-                  useAudioStore.setState({ isPlaying: false });
-                  e.preventDefault();
-                } else {
-                  setTracksToStore(0);
-                }
-              }}
-              style={{ backgroundColor: accentColor }}
-              className={`bg-default text-black font-semibold rounded-full p-3 hover:scale-105 transition`}
-            >
-              {isPlaying ? <Pause size={24} /> : <Play size={24} />}
-            </a>
-            <a href={playlist.url} target="_blank" className="text-xs font-semibold px-4 py-1.5 rounded-full bg-transparent border border-white text-white hover:scale-105 transition">
-              Listen on Rauversion
-            </a>
+    <>{
+      playlist && (
+        <div className="rounded-lg p-4">
+     
+        <div className="flex items-start gap-6">
+          {playlist.cover_url && (
+            <img 
+              src={playlist.cover_url} 
+              alt={playlist.title}
+              className="w-[160px] h-[160px] rounded-md shadow-lg"
+            />
+          )}
+          
+          <div className="flex-1">
+            <h2 className="text-white font-bold text-3xl mb-2">{playlist.title}</h2>
+            <p className="text-zinc-400 mb-4">{playlist.user.full_name}</p>
+            <div className="flex items-center gap-4">
+              <a 
+                href={playlist.tracks[0] ? `/player?id=${playlist.tracks[0].slug}&t=true` : ''}
+                // data-action="track-detector#addGroup" 
+                onClick={(e) => {
+                  if(audioPlaying() && currentTrackId === playlist.tracks[0].id) {
+                    audioElement.pause();
+                    useAudioStore.setState({ isPlaying: false });
+                    e.preventDefault();
+                  } else {
+                    setTracksToStore(0);
+                  }
+                }}
+                style={{ backgroundColor: accentColor }}
+                className={`bg-default text-black font-semibold rounded-full p-3 hover:scale-105 transition`}
+              >
+                {isPlaying ? <Pause size={24} /> : <Play size={24} />}
+              </a>
+              <a href={playlist.url} target="_blank" className="text-xs font-semibold px-4 py-1.5 rounded-full bg-transparent border border-white text-white hover:scale-105 transition">
+                Listen on Rauversion
+              </a>
+            </div>
           </div>
         </div>
-      </div>
-
-      <div className="mt-8">
-        <div className="space-y-1 bg-black/5 p-4 rounded-lg">
-          {playlist.tracks.map((track, index) => (
-            <div 
-              key={track.id}
-              className={`flex items-center justify-between p-2 rounded hover:bg-white hover:bg-opacity-10 group ${
-                currentTrackId === track.id ? 'bg-white bg-opacity-20' : ''
-              }`}
-            >
-              <div className="flex items-center gap-4">
-                <span className={`w-6 ${currentTrackId === track.id ? `text-[${accentColor}]` : 'text-zinc-400'}`}>
-                  {index + 1}
-                </span>
-                
-                <a 
-                  href={`/player?id=${track.slug}&t=true`}
-                  onClick={(e) => {
-                    if(audioPlaying() && currentTrackId === track.id) {
-                      audioElement.pause();
-                      useAudioStore.setState({ isPlaying: false });
-                      e.preventDefault();
-                    } else {
-                      const trackIndex = playlist.tracks.map(t => t.id).indexOf(track.id);
-                      setTracksToStore(trackIndex);
+  
+        <div className="mt-8">
+          <div className="space-y-1 bg-black/5 p-4 rounded-lg">
+            {playlist.tracks.map((track, index) => (
+              <div 
+                key={track.id}
+                className={`flex items-center justify-between p-2 rounded hover:bg-white hover:bg-opacity-10 group ${
+                  currentTrackId === track.id ? 'bg-white bg-opacity-20' : ''
+                }`}
+              >
+                <div className="flex items-center gap-4">
+                  <span className={`w-6 ${currentTrackId === track.id ? `text-[${accentColor}]` : 'text-zinc-400'}`}>
+                    {index + 1}
+                  </span>
+                  
+                  <a 
+                    href={`/player?id=${track.slug}&t=true`}
+                    onClick={(e) => {
+                      if(audioPlaying() && currentTrackId === track.id) {
+                        audioElement.pause();
+                        useAudioStore.setState({ isPlaying: false });
+                        e.preventDefault();
+                      } else {
+                        const trackIndex = playlist.tracks.map(t => t.id).indexOf(track.id);
+                        setTracksToStore(trackIndex);
+                      }
+                    }}
+                    data-track-id={track.id}
+                    data-track-detector-targetnono="track"
+                    className={`${
+                      currentTrackId === track.id ? `text-[${accentColor}] opacity-100` : 'text-zinc-400 opacity-0'
+                    } group-hover:opacity-100 hover:text-white transition`}
+                  >
+                    {currentTrackId === track.id && isPlaying ? 
+                      <Pause size={20} /> : 
+                      <Play size={20} />
                     }
-                  }}
-                  data-track-id={track.id}
-                  data-track-detector-targetnono="track"
-                  className={`${
-                    currentTrackId === track.id ? `text-[${accentColor}] opacity-100` : 'text-zinc-400 opacity-0'
-                  } group-hover:opacity-100 hover:text-white transition`}
-                >
-                  {currentTrackId === track.id && isPlaying ? 
-                    <Pause size={20} /> : 
-                    <Play size={20} />
-                  }
-                </a>
-
-                <div>
-                  <p className={`font-medium ${
-                    currentTrackId === track.id ? `text-[${accentColor}]` : 'text-white'
-                  }`}>
-                    {track.title}
-                  </p>
-                  <p className="text-zinc-400 text-sm">{track.author.full_name}</p>
+                  </a>
+  
+                  <div>
+                    <p className={`font-medium ${
+                      currentTrackId === track.id ? `text-[${accentColor}]` : 'text-white'
+                    }`}>
+                      {track.title}
+                    </p>
+                    <p className="text-zinc-400 text-sm">{track.author.full_name}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <span className="text-zinc-400">{track.duration}</span>
+  
                 </div>
               </div>
-              <div className="flex items-center gap-4">
-                <span className="text-zinc-400">{track.duration}</span>
-
-              </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
+  
+        {playlist.buy && (
+          <div className="mt-6 text-center">
+            <a 
+              href={playlist.buy_link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs font-semibold px-4 py-1.5 rounded-full bg-transparent border border-white text-white hover:scale-105 transition"
+            >
+              {playlist.buy_link_title || 'Buy Now'}
+            </a>
+          </div>
+        )}
       </div>
-
-      {playlist.buy && (
-        <div className="mt-6 text-center">
-          <a 
-            href={playlist.buy_link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-xs font-semibold px-4 py-1.5 rounded-full bg-transparent border border-white text-white hover:scale-105 transition"
-          >
-            {playlist.buy_link_title || 'Buy Now'}
-          </a>
-        </div>
-      )}
-    </div>
+      )
+    }
+    </>
   );
 }
 
