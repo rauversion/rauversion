@@ -9,6 +9,9 @@ import UserMenu from './shared/UserMenu'
 import TracksIndex from './tracks/Index'
 import TrackShow from './tracks/Show'
 import Home from './home/Index'
+import PlaylistsIndex from './playlists/Index'
+import PlaylistShow from './playlists/Show'
+
 
 export default function AppRouter() {
   return (
@@ -18,7 +21,7 @@ export default function AppRouter() {
         labelUser={window.labelUser}
         cartItemCount={window.cartItemCount}
       />
-      <Routes>
+      <Routes className="pb-10">
         <Route path="/" element={<Home />} />
         <Route path="/articles" element={<ArticlesIndex />} />
         <Route path="/articles/:slug" element={<ArticleShow />} />
@@ -26,6 +29,8 @@ export default function AppRouter() {
         <Route path="/events/:slug" element={<EventShow />} />
         <Route path="/tracks" element={<TracksIndex />} />
         <Route path="/tracks/:slug" element={<TrackShow />} />
+        <Route path="/playlists" element={<PlaylistsIndex />} />
+        <Route path="/playlists/:slug" element={<PlaylistShow />} />
       </Routes>
       <AudioPlayer />
     </BrowserRouter>

@@ -86,7 +86,7 @@ export default function Home() {
         </div>
       )}
 
-      <Header />
+      <Header posts={posts} />
       <MainArticles posts={posts} />
       <AlbumReleases albums={albums} />
       <FeaturedArtists artists={artists} />

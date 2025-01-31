@@ -21,9 +21,9 @@ json.track do
     json.id @track.user.id
     json.username @track.user.username
     json.avatar_url do
-      json.small @track.user.avatar_url(:small).url
-      json.medium @track.user.avatar_url(:medium).url
-      json.large @track.user.avatar_url(:large).url
+      json.small @track.user.avatar_url(:small)
+      json.medium @track.user.avatar_url(:medium)
+      json.large @track.user.avatar_url(:large)
     end if @track.user
     json.bio @track.user.bio
   end
@@ -42,9 +42,9 @@ json.track do
 
   json.cover_url do
     if @track.cover.attached?
-      json.small Rails.application.routes.url_helpers.rails_storage_proxy_url(@track.cover.variant(:small).processed)
-      json.medium Rails.application.routes.url_helpers.rails_storage_proxy_url(@track.cover.variant(:medium).processed)
-      json.large Rails.application.routes.url_helpers.rails_storage_proxy_url(@track.cover.variant(:large).processed)
+      json.small cover_url(:small)
+      json.medium cover_url(:medium)
+      json.large cover_url(:large)
     else
       json.small "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
       json.medium "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"

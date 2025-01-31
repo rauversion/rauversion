@@ -81,7 +81,7 @@ class Playlist < ApplicationRecord
       cover.variant(resize_to_limit: [200, 200])&.processed&.url
     end
 
-    url || "daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
+    url || "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
   end
 
   def album?

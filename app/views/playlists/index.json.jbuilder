@@ -1,46 +1,50 @@
-json.metadata do
-  json.pagination do
-    json.current_page @playlists.current_page
-    json.next_page @playlists.next_page
-    json.prev_page @playlists.prev_page
-    json.total_pages @playlists.total_pages
-    json.total_count @playlists.total_count
-    json.per_page @playlists.limit_value
+json.playlists @playlists do |playlist|
+  json.id playlist.id
+  json.title playlist.title
+  json.description playlist.description
+  json.slug playlist.slug
+  json.playlist_type playlist.playlist_type
+  json.private playlist.private
+  json.release_date playlist.release_date
+  json.editor_choice_position playlist.editor_choice_position
+  json.created_at playlist.created_at
+  json.updated_at playlist.updated_at
+
+  json.user do
+    json.id playlist.user.id
+    json.username playlist.user.username
+    json.avatar_url do
+      json.small playlist.user.avatar_url(:small)
+      json.medium playlist.user.avatar_url(:medium)
+      json.large playlist.user.avatar_url(:large)
+    end if playlist.user
+    json.bio playlist.user.bio
+  end
+
+  json.cover_url do
+    if playlist.cover.attached?
+      json.small playlist.cover_url(:small)
+      json.medium playlist.cover_url(:medium)
+      json.large playlist.cover_url(:large)
+    else
+      json.small "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
+      json.medium "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
+      json.large "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
+    end
+  end
+
+  json.tracks playlist.tracks do |track|
+    json.id track.id
+    json.title track.title
+    json.slug track.slug
+    json.duration track.duration
+    json.created_at track.created_at
   end
 end
 
-json.playlists do
-  @playlists_by_type.each do |type, playlists|
-    json.set! type do
-      json.array! playlists do |playlist|
-        json.extract! playlist,
-          :id,
-          :title,
-          :slug,
-          :description,
-          :playlist_type,
-          :private,
-          :metadata,
-          :created_at,
-          :updated_at
-
-        json.user do
-          json.extract! playlist.user, :id, :username, :full_name, :avatar_url
-        end
-
-        if playlist.label.present?
-          json.label do
-            json.extract! playlist.label, :id, :username, :full_name, :avatar_url
-          end
-        end
-
-        json.cover_url playlist.cover.attached? ? url_for(playlist.cover) : nil
-        json.url url_for(playlist)
-        
-        json.tracks_count playlist.tracks.size
-        json.likes_count playlist.likes.size
-        json.comments_count playlist.comments.size
-      end
-    end
-  end
+json.meta do
+  json.current_page @playlists.current_page
+  json.total_pages @playlists.total_pages
+  json.total_count @playlists.total_count
+  json.per_page @playlists.limit_value
 end

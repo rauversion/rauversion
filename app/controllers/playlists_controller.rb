@@ -4,6 +4,11 @@ class PlaylistsController < ApplicationController
   def index
     @playlists = Playlist.published.page(params[:page]).per(24)
     @playlists_by_type = @playlists.group_by(&:playlist_type)
+
+    respond_to do |format|
+      format.html
+      format.json
+    end
   end
 
   def show
