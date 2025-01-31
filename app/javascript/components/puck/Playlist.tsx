@@ -87,7 +87,11 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
         if (!response.ok) {
           throw new Error('Failed to fetch playlist');
         }
+        
         const data = await response.json();
+        if(data.error){
+          throw new Error(data.error);
+        }
         setPlaylist(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
