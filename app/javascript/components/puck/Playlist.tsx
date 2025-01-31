@@ -156,9 +156,9 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
               >
                 {isPlaying ? <Pause size={24} /> : <Play size={24} />}
               </a>
-              <a href={playlist.url} target="_blank" className="text-xs font-semibold px-4 py-1.5 rounded-full bg-transparent border border-white text-white hover:scale-105 transition">
+              {/*<a href={playlist.url} target="_blank" className="text-xs font-semibold px-4 py-1.5 rounded-full bg-transparent border border-white text-white hover:scale-105 transition">
                 Listen on Rauversion
-              </a>
+              </a>*/}
             </div>
           </div>
         </div>
