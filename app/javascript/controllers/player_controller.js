@@ -230,19 +230,12 @@ export default class extends Controller {
 
   async nextSong() {
     this.hasHalfwayEventFired = false;
+    debugger
     const c = this.getNextTrackIndex()
-    let aa = document.querySelector(`#sidebar-track-${ c }`)
-    if (!aa) {
-     
-      const otherController = this.application.getControllerForElementAndIdentifier(
-        document.getElementById("track-detector"), 'track-detector'
-      )
-      otherController.detect()
-  
 
-      
-    }
-    const response = await get(aa.dataset.url, { 
+
+    
+    const response = await get(`/player?id=${c}&t=true`, { 
       responseKind: "turbo-stream", 
     })
     console.log("RESPONSE", response)
@@ -287,8 +280,7 @@ export default class extends Controller {
     this.hasHalfwayEventFired = false;
 
     const c = this.getPreviousTrackIndex()
-    const aa = document.querySelector(`#sidebar-track-${ c }`)
-    const response = await get(aa.dataset.url, { 
+    const response = await get(`/player?id=${c}&t=true`, { 
       responseKind: "turbo-stream", 
     })
     console.log("RESPONSE", response)

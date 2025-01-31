@@ -71,7 +71,11 @@ Rails.application.routes.draw do
   get "/500" => "errors#fatal"
   post "webhooks/:provider", to: "webhooks#create", as: :webhooks
 
-  resource :player, controller: "player"
+  resource :player, controller: "player" do
+    member do
+      get :tracklist
+    end
+  end
 
   scope path: "/api" do
     scope path: "/v1" do

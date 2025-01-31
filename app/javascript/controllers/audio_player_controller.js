@@ -1,5 +1,5 @@
 import { Controller } from "@hotwired/stimulus";
-import { get } from '@rails/request.js'
+import { get } from '@rails/request.js';
 import useAudioStore from '../stores/audioStore'
 
 export default class extends Controller {
@@ -46,7 +46,7 @@ export default class extends Controller {
     this.hasHalfwayEventFired = false;
 
     // Listen for the 'ended' event to play the next song
-    this.audio.addEventListener("ended", this.nextSong.bind(this));
+    this.audio.addEventListener("ended", this.handleEnded.bind(this));
 
     // Listen for the 'audio-process-mouseup' event
     document.addEventListener(`audio-process-mouseup-${this.idValue}`, this.updateSeek.bind(this));
@@ -217,31 +217,34 @@ export default class extends Controller {
     this.debounceTimeout = setTimeout(func, delay);
   }
 
+  async handleEnded() {
+    this.hasHalfwayEventFired = false;
+    const { playlist } = useAudioStore.getState();
+    const currentIndex = playlist.indexOf(useAudioStore.getState().currentTrackId);
+    const nextTrackId = playlist[currentIndex + 1];
+
+    if (nextTrackId) {
+      const track = await Track.find(nextTrackId);
+      const response = await get(`/player?id=${track.slug}&t=true`, {
+        responseKind: "turbo-stream"
+      });
+    }
+  }
+
   async nextSong() {
     this.debounce(async () => {
       this.stopAudio()
       this.hasHalfwayEventFired = false;
-      const c = this.getNextTrackIndex();
-      let aa = document.querySelector(`#sidebar-track-${c}`);
+      const nextTrackId = this.getNextTrackIndex();
 
-      if (!aa) {
-        const otherController = this.application.getControllerForElementAndIdentifier(
-          document.getElementById("track-detector"),
-          "track-detector"
-        );
-        otherController.detect();
-      }
-
-      if (aa) {
-        const response = await get(aa.dataset.url, {
+      if (nextTrackId) {
+        const response = await get(`/player?id=${nextTrackId}&t=true`, {
           responseKind: "turbo-stream",
         });
-        console.log("RESPONSE", response);
-        console.log("Playing next song", c, aa);
+        console.log("Playing next song", nextTrackId);
       } else {
-        console.log("No more songs to play", c, aa);
+        console.log("No more songs in queue");
       }
-
     }, 200)
   }
 
@@ -249,41 +252,37 @@ export default class extends Controller {
     this.debounce(async () => {
       this.stopAudio()
       this.hasHalfwayEventFired = false;
-      const c = this.getPreviousTrackIndex();
-      let aa = document.querySelector(`#sidebar-track-${c}`);
-
-      if (aa) {
-        const response = await get(aa.dataset.url, {
+      const prevTrackId = this.getPreviousTrackIndex();
+ 
+      if (prevTrackId) {
+        const response = await get(`/player?id=${prevTrackId}&t=true`, {
           responseKind: "turbo-stream",
         });
-        console.log("RESPONSE", response);
-        console.log("Playing previous song", c, aa);
+        console.log("Playing previous song", prevTrackId);
       } else {
-        console.log("No more songs to play", c, aa);
+        console.log("No previous song in queue");
       }
     }, 200)
   }
 
   getNextTrackIndex() {
-    const { playlist } = window.store.getState();
-    const currentTrackId = this.idValue + "";
-    const currentTrackIndex = playlist.indexOf(currentTrackId);
-
-    if (currentTrackIndex === -1) return playlist[0];
-    return currentTrackIndex === playlist.length - 1
-      ? playlist[0]
-      : playlist[currentTrackIndex + 1];
+    const { playlist, currentTrackId } = useAudioStore.getState();
+    const currentIndex = playlist.indexOf(currentTrackId);
+    
+    if (currentIndex === -1 || currentIndex === playlist.length - 1) return null;
+    
+    const nextTrack = playlist[currentIndex + 1];
+    return nextTrack;
   }
 
   getPreviousTrackIndex() {
-    const { playlist } = window.store.getState();
-    const currentTrackId = this.idValue + "";
-    const currentTrackIndex = playlist.indexOf(currentTrackId);
-
-    if (currentTrackIndex === -1) return playlist[0];
-    return currentTrackIndex === 0
-      ? playlist[playlist.length - 1]
-      : playlist[currentTrackIndex - 1];
+    const { playlist, currentTrackId } = useAudioStore.getState();
+    const currentIndex = playlist.indexOf(currentTrackId);
+    
+    if (currentIndex <= 0) return null;
+    
+    const previousTrack = playlist[currentIndex - 1];
+    return previousTrack;
   }
 
   removeSong(e) {

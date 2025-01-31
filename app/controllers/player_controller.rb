@@ -32,6 +32,25 @@ class PlayerController < ApplicationController
     end
   end
 
+  def tracklist
+    if params[:ids].present?
+      # Find tracks by IDs and maintain the order they were sent in
+      track_ids = params[:ids]
+      @tracks = Track.where(id: track_ids)
+                    .with_attached_cover
+                    .includes(user: {avatar_attachment: :blob})
+      
+      # Order tracks based on the original IDs array order
+      @tracks = @tracks.index_by(&:id).values_at(*track_ids.map(&:to_i)).compact
+    else
+      @tracks = []
+    end
+    
+    respond_to do |format|
+      format.json
+    end
+  end
+
   def next_track(id)
     Track.where("id > ?", id).order(id: :asc).first
       .with_attached_cover

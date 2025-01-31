@@ -108,19 +108,6 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
     }
   }, [currentTrackId, playlist]);
 
-
-  useEffect(() => {
-    if (playlist && currentTrackIndex >= 0) {
-      const track = playlist.tracks[currentTrackIndex];
-      /*if (audioRef.current && track.audio_url) {
-        audioRef.current.src = track.audio_url;
-        if (isPlaying) {
-          audioRef.current.play();
-        }
-      }*/
-    }
-  }, [currentTrackIndex, playlist, isPlaying]);
-
   const setTracksToStore = (startIndex = 0) => {
     const tracks = playlist?.tracks.slice(startIndex).map(t => t.id) || [];
     useAudioStore.setState({ playlist: tracks });
@@ -183,7 +170,6 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
                   {index + 1}
                 </span>
                 
-
                 <a 
                   href={`/player?id=${track.slug}&t=true`}
                   onClick={(e) => {
