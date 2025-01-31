@@ -57,6 +57,7 @@ Rails.application.routes.draw do
   end
   
   root to: "home#index"
+  get "/home", to: "home#index"
 
   get "/searchables", to: "users#index", as: :searchable_users
   # resource :oembed, controller: 'oembed', only: :show

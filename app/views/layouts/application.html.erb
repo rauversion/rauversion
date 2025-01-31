@@ -54,6 +54,14 @@
         APP_NAME: '<%= ENV["APP_NAME"] %>'
       };
     </script>
+
+    <%# Remove home data from window object since we're fetching it via JSON %>
+    <script type="text/javascript">
+      window.ENV = {
+        APP_NAME: '<%= ENV["APP_NAME"] %>'
+      };
+    </script>
+
   </head>
 
   <body class="bg-default font-sans antialiased text-default dark h-full"

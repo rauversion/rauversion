@@ -8,6 +8,7 @@ import AudioPlayer from './audio_player'
 import UserMenu from './shared/UserMenu'
 import TracksIndex from './tracks/Index'
 import TrackShow from './tracks/Show'
+import Home from './home/Index'
 
 export default function AppRouter() {
   return (
@@ -18,6 +19,7 @@ export default function AppRouter() {
         cartItemCount={window.cartItemCount}
       />
       <Routes>
+        <Route path="/" element={<Home />} />
         <Route path="/articles" element={<ArticlesIndex />} />
         <Route path="/articles/:slug" element={<ArticleShow />} />
         <Route path="/events" element={<EventsIndex />} />
