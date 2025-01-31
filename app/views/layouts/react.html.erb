@@ -27,14 +27,6 @@
 
     <div id="react-root"></div>
 
-    <% unless @disable_player%>
-    <div id="cart-counter" data-turbo-permanent>
-      <%= turbo_frame_tag "player-frame", 
-      refresh: "morph",
-      src: player_path(id: Track.published&.last&.id) %>
-    </div>
-    <% end %>
-
     <div class="flash">
       <%= render "shared/flash" %>
     </div>

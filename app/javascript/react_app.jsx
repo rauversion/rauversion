@@ -19,4 +19,4 @@ const initReactApp = () => {
 document.addEventListener('DOMContentLoaded', initReactApp)
 
 // Re-initialize when Turbo navigates
-document.addEventListener('turbo:load', initReactApp)
+// document.addEventListener('turbo:load', initReactApp)

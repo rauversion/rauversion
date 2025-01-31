@@ -21,6 +21,7 @@ class EventsController < ApplicationController
     respond_to do |format|
       format.html
       format.turbo_stream
+      format.json
     end
   end
 
@@ -30,6 +31,11 @@ class EventsController < ApplicationController
 
   def show
     @event = Event.public_events.friendly.find(params[:id])
+    
+    respond_to do |format|
+      format.html
+      format.json
+    end
   end
 
   def edit
