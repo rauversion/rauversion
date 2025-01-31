@@ -15,14 +15,14 @@ import { List } from "lucide-react"
 
 export default function AudioPlayer({ id, url, peaks, height }) {
   const audioRef = useRef(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  //const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(window.store?.getState()?.volume || 1);
   const [isMuted, setIsMuted] = useState(false);
   const [hasHalfwayEventFired, setHasHalfwayEventFired] = useState(false);
   const debounceTimeoutRef = useRef(null);
-  const { currentTrackId } = useAudioStore();
+  const { currentTrackId, isPlaying } = useAudioStore();
   const [playerData, setPlayerData] = useState(null);
 
   useEffect(() => {
@@ -38,11 +38,8 @@ export default function AudioPlayer({ id, url, peaks, height }) {
         if(response.ok) {
           const data = await response.json;
           setPlayerData(data);
-          
+          useAudioStore.setState({ isPlaying: true});
           // Wait a bit for the audio source to be updated
-          setTimeout(() => {
-            playAudio();
-          }, 100);
         }
       } catch (error) {
         console.error('Error loading track:', error);
@@ -90,6 +87,16 @@ export default function AudioPlayer({ id, url, peaks, height }) {
   }, [id]);
 
   useEffect(() => {
+    if(isPlaying) {
+      setTimeout(() => {
+        playAudio();
+      }, 100);
+    } else {
+      audioRef.current.pause();
+    }
+  }, [isPlaying]);
+
+  useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
@@ -114,12 +121,10 @@ export default function AudioPlayer({ id, url, peaks, height }) {
       if (playPromise !== undefined) {
         playPromise
           .then(() => {
-            setIsPlaying(true);
             useAudioStore.setState({ currentTrackId: id, isPlaying: true });
           })
           .catch((error) => {
             console.error("Playback failed:", error);
-            setIsPlaying(false);
             useAudioStore.setState({ isPlaying: false });
           });
       }
@@ -189,12 +194,11 @@ export default function AudioPlayer({ id, url, peaks, height }) {
     if (!audioRef.current) return;
 
     if (audioRef.current.paused) {
-      audioRef.current.play();
-      setIsPlaying(true);
+      // audioRef.current.play();
       useAudioStore.setState({ currentTrackId: id, isPlaying: true });
     } else {
-      audioRef.current.pause();
-      setIsPlaying(false);
+      // audioRef.current.pause();
+      // setIsPlaying(false);
       useAudioStore.setState({ isPlaying: false });
     }
   };
@@ -279,12 +283,12 @@ export default function AudioPlayer({ id, url, peaks, height }) {
       const playPromise = audioRef.current.play();
       if (playPromise !== undefined) {
         await playPromise;
-        setIsPlaying(true);
+        // setIsPlaying(true);
         useAudioStore.setState({ isPlaying: true });
       }
     } catch (error) {
       console.error("Error playing audio:", error);
-      setIsPlaying(false);
+      // setIsPlaying(false);
       useAudioStore.setState({ isPlaying: false });
     }
   };

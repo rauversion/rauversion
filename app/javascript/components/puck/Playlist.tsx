@@ -140,15 +140,16 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
             <p className="text-zinc-400 mb-4">{playlist.user.full_name}</p>
             <div className="flex items-center gap-4">
               <a 
-                href={playlist.tracks[0] ? `/player?id=${playlist.tracks[0].slug}&t=true` : ''}
+                // href={playlist.tracks[0] ? `/player?id=${playlist.tracks[0].slug}&t=true` : ''}
                 // data-action="track-detector#addGroup" 
                 onClick={(e) => {
-                  if(audioPlaying() && currentTrackId === playlist.tracks[0].id) {
-                    audioElement.pause();
+                  if(audioPlaying()) {
+                    //audioElement.pause();
                     useAudioStore.setState({ isPlaying: false });
                     e.preventDefault();
                   } else {
                     setTracksToStore(0);
+                    useAudioStore.setState({ currentTrackId: playlist.tracks[0].id + "", isPlaying: true });
                   }
                 }}
                 style={{ backgroundColor: accentColor }}
@@ -181,13 +182,14 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
                     onClick={async (e) => {
                       e.preventDefault();
                       
-                      if(audioPlaying() && currentTrackId === track.id + "") {
+                      if(audioPlaying()) {
                         audioElement.pause();
-                        useAudioStore.setState({ isPlaying: false });
+                        useAudioStore.setState({ currentTrackId: track.id + "", isPlaying: false });
+                      } else {
+                        useAudioStore.setState({ currentTrackId: track.id + "", isPlaying: true });
                       }
 
                       // Set the track in the store
-                      useAudioStore.setState({ currentTrackId: track.id + "" });
                     }}
                     className="cursor-pointer"
                   >
