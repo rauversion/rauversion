@@ -1,6 +1,7 @@
 <!DOCTYPE html>
-<html class="">
+<html class="h-full antialiased">
   <head>
+    <title><%= content_for?(:title) ? yield(:title) : "Rauversion" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
@@ -27,16 +28,44 @@
       <link rel="alternate" type="application/json+oembed" href="<%= @oembed_json %>" />
     <% end %>
 
+    <%# Initialize user data for React components %>
+    <script type="text/javascript">
+      window.currentUser = <%= raw (current_user ? {
+        id: current_user.id,
+        email: current_user.email,
+        username: current_user.username,
+        avatar: current_user.avatar_url(:small),
+        is_admin: current_user.is_admin?,
+        is_creator: current_user.is_creator?,
+        can_sell_products: current_user.can_sell_products?,
+        label: current_user.label,
+        editor: current_user.is_publisher?
+      }.to_json : 'null') %>;
+
+      window.labelUser = <%= raw (label_user ? {
+        id: label_user.id,
+        username: label_user.username,
+        avatar: label_user.avatar_url(:small)
+      }.to_json : 'null') %>;
+
+      window.cartItemCount = <%= cart_item_count %>;
+      window.I18n = { locale: '<%= I18n.locale %>' };
+      window.ENV = {
+        APP_NAME: '<%= ENV["APP_NAME"] %>'
+      };
+    </script>
   </head>
 
-  <body class="bg-default font-sans antialiased text-default dark"
+  <body class="bg-default font-sans antialiased text-default dark h-full"
      data-controller="track-detector dark-mode track-player">
     
     <% if !@disable_user_menu %>
       <%= render "shared/user_menu" %>
     <% end %>
 
-    <%= yield %>
+    <div id="root">
+      <%= yield %>
+    </div>
 
     <% unless @disable_player%>
     <div id="cart-counter" data-turbo-permanent>
@@ -52,7 +81,6 @@
 
     <%= turbo_frame_tag "modal" %>
     <%= render "shared/turbo_delete_modal" %>
-
 
     <% 
     # live_render(@conn, RauversionWeb.TrackLive.Player,
