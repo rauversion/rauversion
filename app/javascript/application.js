@@ -2,7 +2,7 @@
 import "@hotwired/turbo-rails"
 import './stores/audioStore'
 import "./controllers"
-
+import "./react_app"
 
 window.dispatchMapsEvent = function (...args) {
   const event = document.createEvent("Events")

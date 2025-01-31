@@ -30,7 +30,7 @@
   </head>
 
   <body class="bg-default font-sans antialiased text-default dark"
-     data-controller="track-detector dark-mode">
+     data-controller="track-detector dark-mode track-player">
     
     <% if !@disable_user_menu %>
       <%= render "shared/user_menu" %>
@@ -40,8 +40,9 @@
 
     <% unless @disable_player%>
     <div id="cart-counter" data-turbo-permanent>
-      <%= turbo_frame_tag "player-frame", src: player_path(id: Track.published&.last&.id) %>
-      <% #= render "player/player", track: Track.first %>
+      <%= turbo_frame_tag "player-frame", 
+      refresh: "morph",
+      src: player_path(id: Track.published&.last&.id) %>
     </div>
     <% end %>
 

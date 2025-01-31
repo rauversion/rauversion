@@ -19,8 +19,10 @@
       <div class="controls flex items-center">
         <span class="sm:ml-4 relative z-0 inline-flex py-2 px-2 sm:px-0">
           <button type="button" 
-            data-action="trackplayer#play" 
+            data-action="click->track-player#play"
+            data-action-disabled="trackplayer#play" 
             data-trackplayer-target="play" 
+            data-track-id="<%= track.id %>"
             data-url="<%= player_url(id: track, t: true) %>"
             class="player-button">
             <span class="sr-only">Jugar</span>

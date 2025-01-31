@@ -1,6 +1,14 @@
 require_relative "../lib/constraints/username_route_contrainer"
 
 Rails.application.routes.draw do
+  # API routes
+  namespace :api do
+    namespace :v1 do
+      resources :categories, only: [:index]
+      get 'tags/popular', to: 'tags#popular'
+    end
+  end
+
   # devise_for :users
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
@@ -90,6 +98,8 @@ Rails.application.routes.draw do
     end
     collection do
       get :mine
+      get :categories
+      get :tags
     end
   end
 

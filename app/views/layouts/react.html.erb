@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html class="">
+  <head>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
+    <%= display_meta_tags site: "Rauversion" %>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+
+    <meta name="turbo-refresh-method" content="morph">
+    <meta name="turbo-refresh-scroll" content="preserve">
+    <meta name="turbo-prefetch" content="false">
+
+    <meta name="current-user-id" content="<%= current_user&.username %>">
+  </head>
+
+  <body class="bg-default font-sans antialiased text-default dark">
+    <% if !@disable_user_menu %>
+      <%= render "shared/user_menu" %>
+    <% end %>
+
+    <div id="react-root"></div>
+
+    <% unless @disable_player%>
+    <div id="cart-counter" data-turbo-permanent>
+      <%= turbo_frame_tag "player-frame", 
+      refresh: "morph",
+      src: player_path(id: Track.published&.last&.id) %>
+    </div>
+    <% end %>
+
+    <div class="flash">
+      <%= render "shared/flash" %>
+    </div>
+  </body>
+</html>

@@ -1,5 +1,5 @@
 class ArticlesController < ApplicationController
-  before_action :authenticate_user!, except: [:index, :show]
+  before_action :authenticate_user!, except: [:index, :show, :categories, :tags]
 
   def index
     @articles = Post.published.order("id desc")
@@ -10,6 +10,11 @@ class ArticlesController < ApplicationController
     if params[:category].present?
       @current_category = Category.friendly.find(params[:category])
       @articles = @articles.where(category: @current_category)
+    end
+
+    # Filter by tag if present
+    if params[:tag].present?
+      @articles = @articles.where("tags @> ARRAY[?]::varchar[]", [params[:tag]])
     end
 
     @articles = @articles.page(params[:page]).per(6)
@@ -52,6 +57,7 @@ class ArticlesController < ApplicationController
 
     respond_to do |format|
       format.html
+      format.json
       format.turbo_stream
     end
   end
@@ -64,10 +70,7 @@ class ArticlesController < ApplicationController
     @post = Post.published.friendly.find(params[:id])
 
     set_meta_tags(
-      # title: @post.title,
-      # description: @post.excerpt,
       keywords: "",
-      # url: Routes.articles_show_url(socket, :show, post.id),
       title: "#{@post.title} on Rauversion",
       description: "Read #{@post.title} by #{@post.user.username} on Rauversion.",
       image: @post&.cover_url(:medium),
@@ -87,6 +90,11 @@ class ArticlesController < ApplicationController
         "image:src": @post&.cover_url(:medium)
       }
     )
+
+    respond_to do |format|
+      format.html
+      format.json
+    end
   end
 
   def preview
@@ -104,14 +112,12 @@ class ArticlesController < ApplicationController
 
   def edit
     @article = current_user.posts.friendly.find(params[:id])
-    # redirect_to edit_article_path(@article)
   end
 
   def update
     @article = current_user.posts.friendly.find(params[:id])
     @article.assign_attributes(crop_data: JSON.parse(params[:post][:crop_data])) unless params.dig(:post, :crop_data).blank?
     @article.update(article_params)
-    # redirect_to edit_article_path(@article)
     flash.now[:notice] = "aloha!!"
   end
 
@@ -127,6 +133,31 @@ class ArticlesController < ApplicationController
     end
 
     @posts.page(params[:page]).per(10)
+  end
+
+  def categories
+    @categories = Category.joins(:posts)
+      .where(posts: { state: "published" })
+      .select('categories.*, COUNT(posts.id) as posts_count')
+      .group('categories.id')
+      .order('posts_count DESC')
+
+    respond_to do |format|
+      format.json
+    end
+  end
+
+  def tags
+    @popular_tags = Post.published
+      .where.not(tags: [])
+      .select('unnest(tags) as tag, count(*) as count')
+      .group('unnest(tags)')
+      .order('count DESC')
+      .limit(10)
+
+    respond_to do |format|
+      format.json
+    end
   end
 
   private

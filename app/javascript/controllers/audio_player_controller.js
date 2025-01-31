@@ -317,9 +317,10 @@ export default class extends Controller {
     // Create a container for our React component
     this.container = document.createElement('div');
     this.element.appendChild(this.container);
+    this.connectboo()
   }
 
-  connect() {
+  connectboo() {
     try {
       // Create a root for React rendering
       this.root = createRoot(this.container);

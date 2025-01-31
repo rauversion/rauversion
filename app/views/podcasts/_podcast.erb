@@ -30,6 +30,8 @@
           <div class="mt-4 flex items-center gap-4" data-controller="trackplayer" 
             data-controller="trackplayer" 
             data-trackplayer-height-value="70" 
+            data-action="click->track-player#play"
+            data-track-id="<%= track.id %>"
             data-trackplayer-id-value="<%= track.id %>"
             data-trackplayer-url-value="<%= track.mp3_audio.url %>"
             data-trackplayer-url-link-value="<%= player_path(id: track, t: true) %>"

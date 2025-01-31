@@ -1,6 +1,9 @@
 class TracksController < ApplicationController
   before_action :authenticate_user!, except: [:index, :show, :private_access]
   before_action :check_activated_account, only: [:new, :create, :update, :delete]
+
+  layout :layout_by_resource
+
   def index
     @tracks = Track.published.order("id desc")
       .with_attached_cover
