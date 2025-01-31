@@ -1,8 +1,15 @@
 import { Controller } from "@hotwired/stimulus";
 import { get } from '@rails/request.js';
-import useAudioStore from '../stores/audioStore'
+import useAudioStore from '../stores/audioStore';
+import { createRoot } from 'react-dom/client';
+import React from 'react';
+import AudioPlayer from '../components/audio_player';
 
-export default class extends Controller {
+// DO NOT CHANGE THIS
+
+/*
+
+ class extends Controller {
   static targets = [
     "audio",
     "playButton",
@@ -293,5 +300,62 @@ export default class extends Controller {
     const newPlaylist = playlist.filter(trackId => trackId !== trackIdToRemove);
   
     store.setState({ playlist: newPlaylist });
+  }
+}
+
+*/
+
+export default class extends Controller {
+  static values = {
+    id: Number,
+    url: String,
+    peaks: String,
+    height: Number,
+  }
+
+  initialize() {
+    // Create a container for our React component
+    this.container = document.createElement('div');
+    this.element.appendChild(this.container);
+  }
+
+  connect() {
+    try {
+      // Create a root for React rendering
+      this.root = createRoot(this.container);
+      
+      
+      // Get audio element
+      const audioElement = this.element.querySelector('audio');
+      
+      // Extract values needed for the React component
+      const props = {
+        id: this.idValue,
+        url: audioElement?.src,
+        peaks: this.peaksValue,
+        height: this.heightValue,
+      };
+
+      // Render the React component using createRoot
+      this.root.render(<AudioPlayer {...props} />);
+
+    } catch (error) {
+      console.error('Error initializing audio player:', error);
+    }
+  }
+
+  disconnect() {
+    try {
+      // Clean up React root when controller disconnects
+      if (this.root) {
+        this.root.unmount();
+      }
+      // Remove the container
+      if (this.container && this.container.parentNode) {
+        this.container.parentNode.removeChild(this.container);
+      }
+    } catch (error) {
+      console.error('Error cleaning up audio player:', error);
+    }
   }
 }

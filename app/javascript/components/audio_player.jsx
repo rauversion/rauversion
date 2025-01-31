@@ -22,6 +22,72 @@ export default function AudioPlayer({ id, url, peaks, height }) {
   const [isMuted, setIsMuted] = useState(false);
   const [hasHalfwayEventFired, setHasHalfwayEventFired] = useState(false);
   const debounceTimeoutRef = useRef(null);
+  const { currentTrackId } = useAudioStore();
+  const [playerData, setPlayerData] = useState(null);
+
+  useEffect(() => {
+    const fetchAndPlayTrack = async () => {
+      
+      if (!currentTrackId) return;
+
+      try {
+        const response = await get(`/player.json?id=${currentTrackId}`, {
+          responseKind: "json"
+        });
+        
+        if(response.ok) {
+          const data = await response.json;
+          setPlayerData(data);
+          
+          // Wait a bit for the audio source to be updated
+          setTimeout(() => {
+            playAudio();
+          }, 100);
+        }
+      } catch (error) {
+        console.error('Error loading track:', error);
+      }
+    };
+
+    fetchAndPlayTrack();
+  }, [currentTrackId]);
+
+  useEffect(() => {
+    const fetchPlayerData = async () => {
+      try {
+        const response = await get(`/player.json?id=${id}`, {
+          responseKind: "json"
+        });
+        
+        if(response.ok) {
+          const data = await response.json;
+          
+          setPlayerData(data);
+
+          // Update audio source if needed
+          if (audioRef.current && data.track?.audio_url) {
+            audioRef.current.src = data.track.audio_url;
+          }
+
+          // Update the store with the playlist if available
+          if (data.playlist) {
+            useAudioStore.setState({ 
+              playlist: data.playlist,
+              currentTrackId: id 
+            });
+          }
+        } else {
+          console.error('Error fetching player data:', response.statusText);
+        }
+      } catch (error) {
+        console.error('Error fetching player data:', error);
+      }
+    };
+
+    if (id) {
+      fetchPlayerData();
+    }
+  }, [id]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -102,7 +168,7 @@ export default function AudioPlayer({ id, url, peaks, height }) {
           "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content
         },
       });
-      const data = await response.json();
+      const data = await response.json;
       console.log("Event tracked:", data);
     } catch (error) {
       console.error("Error tracking event:", error);
@@ -177,15 +243,16 @@ export default function AudioPlayer({ id, url, peaks, height }) {
     const { playlist, currentTrackId } = useAudioStore.getState();
     const currentIndex = playlist.indexOf(currentTrackId + "");
     
-    if (currentIndex === -1 || currentIndex === playlist.length - 1) return null;
-    
+    if (currentIndex === -1 || currentIndex === playlist.length - 1) return playlist[0];
     return playlist[currentIndex + 1];
+
   };
 
   const getPreviousTrackIndex = () => {
     const { playlist, currentTrackId } = useAudioStore.getState();
     const currentIndex = playlist.indexOf(currentTrackId + "");
     
+
     if (currentIndex <= 0) return null;
     
     return playlist[currentIndex - 1];
@@ -205,17 +272,32 @@ export default function AudioPlayer({ id, url, peaks, height }) {
     useAudioStore.setState({ isPlaying: false });
   };
 
+  const playAudio = async () => {
+    if (!audioRef.current) return;
+
+    try {
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        await playPromise;
+        setIsPlaying(true);
+        useAudioStore.setState({ isPlaying: true });
+      }
+    } catch (error) {
+      console.error("Error playing audio:", error);
+      setIsPlaying(false);
+      useAudioStore.setState({ isPlaying: false });
+    }
+  };
+
   const handleNextSong = () => {
     debounce(async () => {
       stopAudio();
       setHasHalfwayEventFired(false);
+
       const nextTrackId = getNextTrackIndex();
 
       if (nextTrackId) {
-        await get(`/player?id=${nextTrackId}&t=true`, {
-          responseKind: "turbo-stream",
-        });
-        console.log("Playing next song", nextTrackId);
+        useAudioStore.setState({ currentTrackId: nextTrackId });
       } else {
         console.log("No more songs in queue");
       }
@@ -226,13 +308,11 @@ export default function AudioPlayer({ id, url, peaks, height }) {
     debounce(async () => {
       stopAudio();
       setHasHalfwayEventFired(false);
+
       const prevTrackId = getPreviousTrackIndex();
 
       if (prevTrackId) {
-        await get(`/player?id=${prevTrackId}&t=true`, {
-          responseKind: "turbo-stream",
-        });
-        console.log("Playing previous song", prevTrackId);
+        useAudioStore.setState({ currentTrackId: prevTrackId });
       } else {
         console.log("No previous song in queue");
       }
@@ -245,6 +325,45 @@ export default function AudioPlayer({ id, url, peaks, height }) {
     <div id="main-player" className="z-50 fixed bottom-0 w-full h-[6rem]-- py-2 bg-transparent sm:bg-default border-t dark:border-none border-muted-">
       {/* Mobile View */}
       <div className="flex sm:hidden items-center bg-subtle px-2 rounded-lg p-2 shadow-lg w-full- max-w-md- mx-auto- mx-2">
+        {/* Album Art */}
+        <div className="flex-shrink-0">
+          <a data-turbo-frame="_top" href={playerData?.track?.url}>
+            {playerData?.track?.artwork_url ? (
+              <img 
+                alt={`${playerData.track.title} Cover Art`} 
+                className="w-12 h-12 rounded-md object-cover" 
+                src={playerData.track.artwork_url}
+              />
+            ) : (
+              <div className="w-12 h-12 rounded-md bg-muted flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground">
+                  <circle cx="12" cy="12" r="4"></circle>
+                  <path d="M12 8v8"></path>
+                  <path d="M8 12h8"></path>
+                </svg>
+              </div>
+            )}
+          </a>
+        </div>
+
+        {/* Track Information */}
+        <div className="ml-3 flex-grow">
+          <div className="font-semibold text-sm w-[212px] truncate" data-controller="marquee">
+            <span data-marquee-target="marquee" className="inline-block w-full">
+              <a data-turbo-frame="_top" href={playerData?.track?.url}>
+                {playerData?.track?.title}
+              </a>
+            </span>
+          </div>
+
+          <div className="text-gray-400 text-xs truncate">
+            <a data-turbo-frame="_top" href={playerData?.track?.user_url}>
+              {playerData?.track?.user_username}
+            </a>
+          </div>
+        </div>
+
+        {/* Rest of the mobile controls */}
         <div className="flex items-center space-x-2">
           <button className="text-default" onClick={handlePrevSong}>
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-left">
@@ -276,6 +395,42 @@ export default function AudioPlayer({ id, url, peaks, height }) {
       {/* Desktop View */}
       <div className="hidden sm:block">
         <div className="flex items-center justify-between pt-2 px-2">
+          {/* Album Art and Track Info */}
+          <div className="flex items-center space-x-2 w-[168px] md:w-auto">
+            <a data-turbo-frame="_top" href={playerData?.track?.url}>
+              {playerData?.track?.artwork_url ? (
+                <img 
+                  alt={`${playerData.track.title} Cover Art`} 
+                  className="w-12 h-12 rounded-md object-cover" 
+                  src={playerData.track.artwork_url}
+                />
+              ) : (
+                <div className="w-12 h-12 rounded-md bg-muted flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground">
+                    <circle cx="12" cy="12" r="4"></circle>
+                    <path d="M12 8v8"></path>
+                    <path d="M8 12h8"></path>
+                  </svg>
+                </div>
+              )}
+            </a>
+            
+            <div className="text-default">
+              <div className="font-semibold text-sm w-[129px] truncate marquee-active" data-controller="marquee">
+                <span data-marquee-target="marquee" className="inline-block w-full">
+                  <a data-turbo-frame="_top" href={playerData?.track?.url}>
+                    {playerData?.track?.title}
+                  </a>
+                </span>
+              </div>
+              <div className="text-xs text-gray-400 truncate w-48">
+                <a data-turbo-frame="_top" href={playerData?.track?.user_url}>
+                  {playerData?.track?.user_username}
+                </a>
+              </div>
+            </div>
+          </div>
+
           {/* Controls */}
           <div className="flex items-center space-x-4">
             <button className="text-default hidden sm:block" onClick={handlePrevSong}>
@@ -374,7 +529,7 @@ export default function AudioPlayer({ id, url, peaks, height }) {
         {/* Audio Element */}
         <audio
           ref={audioRef}
-          src={url}
+          src={playerData?.track?.audio_url}
           data-track-id={id}
           id="audioElement"
         />

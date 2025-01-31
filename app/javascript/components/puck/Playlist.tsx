@@ -178,24 +178,20 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
                   </span>
                   
                   <a 
-                    href={`/player?id=${track.slug}&t=true`}
-                    onClick={(e) => {
-                      if(audioPlaying() && currentTrackId === track.id) {
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      
+                      if(audioPlaying() && currentTrackId === track.id + "") {
                         audioElement.pause();
                         useAudioStore.setState({ isPlaying: false });
-                        e.preventDefault();
-                      } else {
-                        const trackIndex = playlist.tracks.map(t => t.id).indexOf(track.id);
-                        setTracksToStore(trackIndex);
                       }
+
+                      // Set the track in the store
+                      useAudioStore.setState({ currentTrackId: track.id + "" });
                     }}
-                    data-track-id={track.id}
-                    data-track-detector-targetnono="track"
-                    className={`${
-                      currentTrackId === track.id ? `text-[${accentColor}] opacity-100` : 'text-zinc-400 opacity-0'
-                    } group-hover:opacity-100 hover:text-white transition`}
+                    className="cursor-pointer"
                   >
-                    {currentTrackId === track.id && isPlaying ? 
+                    {currentTrackId === track.id + "" && isPlaying ? 
                       <Pause size={20} /> : 
                       <Play size={20} />
                     }
