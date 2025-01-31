@@ -219,13 +219,10 @@ export default class extends Controller {
 
   async handleEnded() {
     this.hasHalfwayEventFired = false;
-    const { playlist } = useAudioStore.getState();
-    const currentIndex = playlist.indexOf(useAudioStore.getState().currentTrackId);
-    const nextTrackId = playlist[currentIndex + 1];
+    const nextTrackId = this.getNextTrackIndex();
 
     if (nextTrackId) {
-      const track = await Track.find(nextTrackId);
-      const response = await get(`/player?id=${track.slug}&t=true`, {
+      const response = await get(`/player?id=${nextTrackId}&t=true`, {
         responseKind: "turbo-stream"
       });
     }
@@ -267,7 +264,7 @@ export default class extends Controller {
 
   getNextTrackIndex() {
     const { playlist, currentTrackId } = useAudioStore.getState();
-    const currentIndex = playlist.indexOf(currentTrackId);
+    const currentIndex = playlist.indexOf(currentTrackId + "");
     
     if (currentIndex === -1 || currentIndex === playlist.length - 1) return null;
     
@@ -277,7 +274,7 @@ export default class extends Controller {
 
   getPreviousTrackIndex() {
     const { playlist, currentTrackId } = useAudioStore.getState();
-    const currentIndex = playlist.indexOf(currentTrackId);
+    const currentIndex = playlist.indexOf(currentTrackId + "");
     
     if (currentIndex <= 0) return null;
     

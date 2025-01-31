@@ -109,7 +109,7 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
   }, [currentTrackId, playlist]);
 
   const setTracksToStore = (startIndex = 0) => {
-    const tracks = playlist?.tracks.slice(startIndex).map(t => t.id) || [];
+    const tracks = playlist?.tracks.slice(startIndex).map(t => t.id + "") || [];
     useAudioStore.setState({ playlist: tracks });
   };
 
