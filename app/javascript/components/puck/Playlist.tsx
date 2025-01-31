@@ -65,6 +65,12 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
   // Subscribe to audio store state
   const { currentTrackId, isPlaying } = useAudioStore();
 
+  const audioElement = document.getElementById("audioElement") as HTMLAudioElement
+
+  const audioPlaying = (): boolean => {
+    return audioElement && !audioElement.paused;
+  };
+
   useEffect(() => {
     const fetchPlaylist = async () => {
       if (!playlistId) {
@@ -143,7 +149,13 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
               href={playlist.tracks[0] ? `/player?id=${playlist.tracks[0].slug}&t=true` : ''}
               // data-action="track-detector#addGroup" 
               onClick={(e) => {
-                setTracksToStore(0);
+                if(audioPlaying() && currentTrackId === playlist.tracks[0].id) {
+                  audioElement.pause();
+                  useAudioStore.setState({ isPlaying: false });
+                  e.preventDefault();
+                } else {
+                  setTracksToStore(0);
+                }
               }}
               style={{ backgroundColor: accentColor }}
               className={`bg-default text-black font-semibold rounded-full p-3 hover:scale-105 transition`}
@@ -175,8 +187,14 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
                 <a 
                   href={`/player?id=${track.slug}&t=true`}
                   onClick={(e) => {
-                    const trackIndex = playlist.tracks.map(t => t.id).indexOf(track.id);
-                    setTracksToStore(trackIndex);
+                    if(audioPlaying() && currentTrackId === track.id) {
+                      audioElement.pause();
+                      useAudioStore.setState({ isPlaying: false });
+                      e.preventDefault();
+                    } else {
+                      const trackIndex = playlist.tracks.map(t => t.id).indexOf(track.id);
+                      setTracksToStore(trackIndex);
+                    }
                   }}
                   data-track-id={track.id}
                   data-track-detector-targetnono="track"
