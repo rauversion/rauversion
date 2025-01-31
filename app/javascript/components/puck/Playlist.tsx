@@ -7,7 +7,7 @@ interface Track {
   title: string;
   slug: string;
   description: string;
-  duration: number;
+  duration: string;
   audio_url: string;
   cover_url: string;
   position: number;
@@ -207,8 +207,13 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className="text-zinc-400">{track.duration}</span>
-  
+                  {
+                    track.duration !== "xx;xx" && (
+                      <span className="text-zinc-400">
+                        {track.duration}
+                      </span>
+                    )
+                  }
                 </div>
               </div>
             ))}
