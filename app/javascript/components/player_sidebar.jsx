@@ -95,11 +95,11 @@ const PlayerSidebar = () => {
                 className="flex items-center gap-2 flex-1"
               >
                 <div className="w-10 h-10 relative group">
-                  <img
+                  {/*<img
                     src={track.cover_url}
                     alt={track.title}
                     className="w-full h-full object-cover rounded"
-                  />
+                  />*/}
                   <div className={`absolute inset-0 flex items-center justify-center bg-black/40 ${
                     currentTrackId === track.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
                   } transition-opacity`}>
