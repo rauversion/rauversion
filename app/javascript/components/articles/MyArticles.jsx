@@ -1,5 +1,5 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import {useInfiniteScroll} from '../../hooks/useInfiniteScroll'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
@@ -21,9 +21,23 @@ import {
 } from "../ui/dropdown-menu"
 import { MoreHorizontal } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs"
+import { post } from '@rails/request.js'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Input } from "@/components/ui/input"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
+import { useToast } from "@/hooks/use-toast"
+
+const formSchema = z.object({
+  title: z.string().min(2, {
+    message: "Title must be at least 2 characters.",
+  }),
+})
 
 function getStatusBadge(status_raw) {
-  const status = status_raw.toLowerCase()
+  const status = status_raw ? status_raw.toLowerCase() : "draft"
   switch(status) {
     case 'published':
       return (
@@ -47,12 +61,61 @@ function getStatusBadge(status_raw) {
 }
 
 export default function MyArticles() {
+  const navigate = useNavigate()
+  const { toast } = useToast()
+  const [open, setOpen] = React.useState(false)
   const [tab, setTab] = React.useState('all')
   const {
     items: posts,
     loading,
     lastElementRef
   } = useInfiniteScroll(`/articles/mine.json?tab=${tab}`)
+
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      title: "",
+    },
+  })
+
+  const onSubmit = async (data) => {
+    try {
+      const response = await post('/articles.json', {
+        body: JSON.stringify({
+          post: {
+            title: data.title,
+            state: 'draft'
+          }
+        }),
+        responseKind: 'json'
+      })
+
+      if (response.ok) {
+        const { article } = await response.json
+        toast({
+          title: "Éxito",
+          description: "Artículo creado correctamente",
+        })
+        setOpen(false)
+        navigate(`/articles/${article.slug}/edit`)
+      } else {
+        const { errors } = await response.json
+        Object.keys(errors).forEach((key) => {
+          form.setError(key, {
+            type: 'manual',
+            message: errors[key][0]
+          })
+        })
+      }
+    } catch (error) {
+      console.error('Error creating article:', error)
+      toast({
+        title: "Error",
+        description: "No se pudo crear el artículo",
+        variant: "destructive",
+      })
+    }
+  }
 
   if (loading && !posts.length) return <div>Loading...</div>
   if (!posts) return null
@@ -79,11 +142,51 @@ export default function MyArticles() {
           </p>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-          <Button asChild>
-            <Link to="/articles/new">
-              New Article
-            </Link>
-          </Button>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button asChild>
+              <Button variant="outline">New Article</Button>
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create New Article</DialogTitle>
+                <DialogDescription>
+                  Enter the title of your new article. You can edit it later.
+                </DialogDescription>
+              </DialogHeader>
+
+              <Form {...form}>
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                  <FormField
+                    control={form.control}
+                    name="title"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Title</FormLabel>
+                        <FormControl>
+                          <Input placeholder="My new article" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <div className="flex justify-end space-x-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => setOpen(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button type="submit">
+                      Create
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
@@ -99,7 +202,7 @@ export default function MyArticles() {
               </TableRow>
             </TableHeader>
             <TableBody>
-            
+
               {posts.map((post, index) => (
                 <TableRow 
                   key={post.id} 

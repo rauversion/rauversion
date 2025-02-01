@@ -103,11 +103,17 @@ class ArticlesController < ApplicationController
   end
 
   def create
-    @article = current_user.posts.create(
-      body: params[:post][:body],
-      title: params[:post][:title]
-    )
-    redirect_to edit_article_path(@article), status: :see_other
+    @article = current_user.posts.new(article_params)
+
+    respond_to do |format|
+      if @article.save
+        format.html { redirect_to article_url(@article), notice: "Article was successfully created." }
+        format.json { render json: { article: { id: @article.id, slug: @article.slug } }, status: :created }
+      else
+        format.html { render :new, status: :unprocessable_entity }
+        format.json { render json: { errors: @article.errors }, status: :unprocessable_entity }
+      end
+    end
   end
 
   def edit

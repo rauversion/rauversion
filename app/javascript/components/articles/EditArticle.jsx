@@ -360,6 +360,7 @@ export default function EditArticle() {
 
   if (!article) return <div>Loading...</div>
 
+  
   return (
     <div className="container mx-auto py-10">
       <Breadcrumb className="mb-6 flex items-center">
