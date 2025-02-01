@@ -144,6 +144,16 @@ class ArticlesController < ApplicationController
     end
   end
 
+  def destroy
+    @article = current_user.posts.find(params[:id])
+    @article.destroy
+
+    respond_to do |format|
+      format.html { redirect_to articles_url, notice: "Article was successfully destroyed." }
+      format.json { render json: { article: { id: @article.id, slug: @article.slug } }, status: :ok }
+    end
+  end
+
   def mine
     @tab = params[:tab] || "all"
     @posts = case @tab

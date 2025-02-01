@@ -21,7 +21,7 @@ import {
 } from "../ui/dropdown-menu"
 import { MoreHorizontal } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs"
-import { post } from '@rails/request.js'
+import { post, destroy } from '@rails/request.js'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
@@ -29,6 +29,16 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { useToast } from "@/hooks/use-toast"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 const formSchema = z.object({
   title: z.string().min(2, {
@@ -64,11 +74,15 @@ export default function MyArticles() {
   const navigate = useNavigate()
   const { toast } = useToast()
   const [open, setOpen] = React.useState(false)
+  const [deleteDialog, setDeleteDialog] = React.useState({ open: false, article: null })
   const [tab, setTab] = React.useState('all')
   const {
     items: posts,
+    setPosts,
     loading,
-    lastElementRef
+    lastElementRef,
+    setItems,
+    resetList
   } = useInfiniteScroll(`/articles/mine.json?tab=${tab}`)
 
   const form = useForm({
@@ -114,6 +128,36 @@ export default function MyArticles() {
         description: "No se pudo crear el artículo",
         variant: "destructive",
       })
+    }
+  }
+
+  const handleDelete = async () => {
+    const article = deleteDialog.article
+    try {
+      const response = await destroy(`/articles/${article.id}.json`)
+      if (response.ok) {
+        const { article: deletedArticle } = await response.json
+        setItems(posts.filter(p => p.id !== deletedArticle.id))
+        toast({
+          title: "Éxito",
+          description: "Artículo eliminado correctamente",
+        })
+      } else {
+        toast({
+          title: "Error",
+          description: "No se pudo eliminar el artículo",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error('Error deleting article:', error)
+      toast({
+        title: "Error",
+        description: "No se pudo eliminar el artículo",
+        variant: "destructive",
+      })
+    } finally {
+      setDeleteDialog({ open: false, article: null })
     }
   }
 
@@ -238,6 +282,12 @@ export default function MyArticles() {
                             Preview
                           </Link>
                         </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          className="text-red-600"
+                          onClick={() => setDeleteDialog({ open: true, article: post })}
+                        >
+                          Delete
+                        </DropdownMenuItem>
                         {post.slug && (
                           <>
                             <DropdownMenuSeparator />
@@ -263,6 +313,29 @@ export default function MyArticles() {
           </div>
         )}
       </div>
+      <AlertDialog 
+        open={deleteDialog.open} 
+        onOpenChange={(open) => setDeleteDialog(prev => ({ ...prev, open }))}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. Se eliminará permanentemente el artículo
+              {deleteDialog.article && ` "${deleteDialog.article.title}"`}.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDelete}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Eliminar
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
