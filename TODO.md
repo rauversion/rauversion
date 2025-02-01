@@ -1,9 +1,14 @@
 TODO:
 
-  + Playlist block
-    + Color accent on puck
-  + images too big , use variants
-  + slider is cluncky
+  + React app
+    + comments
+    + payment buttons
+    + session flow
+    + artist profile
+    + podcasters
+    + user admin area
+      + artiscles
+    + upload
 
   + featured artists
   + podcaster section

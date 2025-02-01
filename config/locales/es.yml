@@ -81,7 +81,7 @@ es:
     people_attending: Personas asistentes
     venue: recinto
     location: ubicación
-    copyright: Derechos de autor ©
+    copyright: Derechos de autor 
     all_rights: Todos los derechos reservados.
     get_tickets: Consigue tus entradas
     watch_live: Ver transmisión en vivo
@@ -144,19 +144,20 @@ es:
     artists: Artistas que deberías conocer
 
   profile:
+    all: "Todo"
+    albums: "Álbumes"
+    tracks: "Pistas"
+    podcasts: "Podcasts"
+    reposts: "Reposteos"
+    articles: "Artículos"
+    playlists: "Listas de reproducción"
+    followers: "Seguidores"
+    followings: "Siguiendo"
     stats: Tus estadísticas
     edit: Editar perfil
-    followings: Siguiendo
-    followers: Seguidores
     comments: Comentarios
     likes: Me gusta
-    tracks: Pistas
     go_to: Ir al perfil
-
-    albums: Álbumes
-    playlists: Listas de reproducción
-    reposts: Reposts
-    tracks: Pistas
 
   playlists:
     add_to_playlists: Añadir a lista

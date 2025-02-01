@@ -2,22 +2,24 @@ import React from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import ArticlesIndex from './articles/Index'
 import ArticleShow from './articles/Show'
-import EventsIndex from './events/Index'
-import EventShow from './events/Show'
-import AudioPlayer from './audio_player'
 import UserMenu from './shared/UserMenu'
-import TracksIndex from './tracks/Index'
+import AudioPlayer from './audio_player'
 import TrackShow from './tracks/Show'
 import Home from './home/Index'
 import PlaylistsIndex from './playlists/Index'
 import PlaylistShow from './playlists/Show'
-
+import UserShow from './users/Show'
+import UserTracks from './users/Tracks'
+import UserPlaylists from './users/Playlists'
+import UserArticles from './users/Articles'
+import UserReposts from './users/Reposts'
+import UserArtists from './users/Artists'
+import UserAlbums from './users/Albums'
 
 export default function AppRouter() {
   return (
     <BrowserRouter>
-      <UserMenu
-        currentUser={window.currentUser}
+      <UserMenu 
         labelUser={window.labelUser}
         cartItemCount={window.cartItemCount}
       />
@@ -25,12 +27,19 @@ export default function AppRouter() {
         <Route path="/" element={<Home />} />
         <Route path="/articles" element={<ArticlesIndex />} />
         <Route path="/articles/:slug" element={<ArticleShow />} />
-        <Route path="/events" element={<EventsIndex />} />
-        <Route path="/events/:slug" element={<EventShow />} />
-        <Route path="/tracks" element={<TracksIndex />} />
         <Route path="/tracks/:slug" element={<TrackShow />} />
         <Route path="/playlists" element={<PlaylistsIndex />} />
         <Route path="/playlists/:slug" element={<PlaylistShow />} />
+        <Route path="/:username/*" element={<UserShow />}>
+          <Route index element={<UserTracks />} />
+          <Route path="tracks" element={<UserTracks />} />
+          <Route path="playlists" element={<UserPlaylists />} />
+          <Route path="articles" element={<UserArticles />} />
+          <Route path="reposts" element={<UserReposts />} />
+          <Route path="artists" element={<UserArtists />} />
+          <Route path="albums" element={<UserAlbums />} />
+        </Route>
+
       </Routes>
       <AudioPlayer />
     </BrowserRouter>

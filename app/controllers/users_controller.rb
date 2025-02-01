@@ -11,28 +11,46 @@ class UsersController < ApplicationController
     if q.present?
       @artists = @artists.where("username ILIKE :q OR email ILIKE :q OR first_name ILIKE :q OR last_name ILIKE :q", q: "%#{q}%")
     end
-    #.with_attached_avatar
-    #.order("id desc")
     @artists = @artists.page(params[:page]).per(5)
+
+    respond_to do |format|
+      format.html
+      format.json
+    end
   end
 
   def show
     @title = "All"
     get_tracks
+    get_playlists
     get_meta_tags
     @as = :track
     @section = "tracks/track_item"
 
-    # render @user.label ? "labels/show" : "show"
+    respond_to do |format|
+      format.html # show.html.erb
+      format.json # show.json.jbuilder
+    end
   end
 
   def tracks
-    get_tracks
-    # @collection = @user.tracks.page(params[:page]).per(5)
-    @as = :track
     @title = "Tracks"
-    @section = "tracks/track_item"
-    paginated_render
+    @tracks = @user.tracks
+      .with_attached_cover
+      .includes(user: { avatar_attachment: :blob })
+      .order(created_at: :desc)
+      .page(params[:page])
+      .per(12)
+
+    @collection = @tracks
+    respond_to do |format|
+      format.html do
+        @as = :track
+        @section = "tracks/track_item"
+        paginated_render
+      end
+      format.json
+    end
   end
 
   def playlists_filter
@@ -55,7 +73,10 @@ class UsersController < ApplicationController
 
     @playlists = @playlists.page(params[:page]).per(5)
 
-    render "playlist_cards"
+    respond_to do |format|
+      format.html { render "playlist_cards" }
+      format.json
+    end
   end
 
   def playlists
@@ -76,14 +97,14 @@ class UsersController < ApplicationController
     .page(params[:page])
     .per(5)
 
-    @as = :playlist
-    @section = "playlists/playlist_item"
-    # render "show"
-
-    if request.format.json?
-      render "playlists" and return
+    respond_to do |format|
+      format.html do
+        @as = :playlist
+        @section = "playlists/playlist_item"
+        paginated_render
+      end
+      format.json
     end
-    paginated_render
   end
 
   def artists
@@ -96,7 +117,11 @@ class UsersController < ApplicationController
     @cta_label = "New account connection"
     @collection_class = "mt-6 grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-4 md:gap-y-0 lg:gap-x-8"
     @admin = current_user && current_user.id == @label&.id
-    render "show"
+
+    respond_to do |format|
+      format.html { render "show" }
+      format.json
+    end
   end
 
   def reposts
@@ -104,7 +129,11 @@ class UsersController < ApplicationController
     @collection = @user.reposts_preloaded.page(params[:page]).per(5)
     @as = :track
     @section = "tracks/track_item"
-    render "show"
+
+    respond_to do |format|
+      format.html { render "show" }
+      format.json
+    end
   end
 
   def albums
@@ -124,25 +153,34 @@ class UsersController < ApplicationController
     @collection = @collection.ransack(title_cont: params[:q]).result if params[:q].present?
     @collection = @collection.page(params[:page]).per(10)
 
-    if request.format.json?
-      render "playlists" and return
+    respond_to do |format|
+      format.html do
+        @as = :playlist
+        @namespace = :album
+        @section = "playlists/playlist_item"
+        paginated_render
+      end
+      format.json
     end
-    
-    @as = :playlist
-    @namespace = :album
-    @section = "playlists/playlist_item"
-    paginated_render
   end
 
   def about
     @title = "Albums"
     @section = "albums"
-    render "about"
+
+    respond_to do |format|
+      format.html { render "about" }
+      format.json
+    end
   end
 
   def articles
     @articles = @user.posts.order("id desc").page(params[:page]).per(10)
-    render "articles"
+
+    respond_to do |format|
+      format.html { render "articles" }
+      format.json
+    end
   end
 
   private
@@ -158,20 +196,23 @@ class UsersController < ApplicationController
   end
 
   def get_tracks
-    # @collection = @user.tracks.page(params[:page]).per(2)
-    @collection = if current_user && @user.id == current_user&.id 
-      User.track_preloaded_by_user(current_user_id: current_user&.id, user: @user )
-        #.where(user_id: @user.id)
-    else
-      User.track_preloaded_by_user_n(user: @user).where(private: [nil, false])
-      #.where(user_id: @user.id)
-        #@user.tracks.published
-    end
+    @tracks = @user.tracks
+      .with_attached_cover
+      .includes(user: { avatar_attachment: :blob })
+      .order(created_at: :desc)
+      .page(params[:page])
+      .per(12)
+  end
 
-    @collection = @collection
+  def get_playlists
+    @playlists = Playlist
+      .where(user_id: @user.id)
+      .or(Playlist.where(label_id: @user.id))
+      .where(private: false)
       .with_attached_cover
       .includes(user: {avatar_attachment: :blob})
-      .order("id desc").page(params[:page]).per(6)
+      .includes(tracks: {cover_attachment: :blob})
+      .order(created_at: :desc)
   end
 
   def find_user
