@@ -14,8 +14,8 @@ export default function UserAlbums() {
         const response = await get(`/${username}/albums.json`)
         if (response.ok) {
           const data = await response.json
-          setAlbums(data.playlists)
-          setPagination(data.pagination)
+          setAlbums(data.collection)
+          setPagination(data.metadata)
         }
       } catch (error) {
         console.error('Error fetching albums:', error)

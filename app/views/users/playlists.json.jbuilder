@@ -15,13 +15,21 @@ json.collection @collection do |playlist|
   json.slug playlist.slug
   json.playlist_type playlist.playlist_type
   json.release_date playlist.release_date
-  json.cover_url url_for(playlist.cover) if playlist.cover.attached?
+  json.cover_url do
+    json.medium playlist.cover_url(:medium)
+    json.small playlist.cover_url(:small)
+    json.large playlist.cover_url(:large)
+  end
   json.mp3_audio_url url_for(playlist.tracks.first.mp3_audio) if playlist.tracks.first.mp3_audio.attached?
   json.url playlist_path(playlist)
   json.tracks_count playlist.tracks.count
   json.user do
     json.id playlist.user.id
     json.username playlist.user.username
-    json.avatar_url url_for(playlist.user.avatar) if playlist.user.avatar.attached?
+    json.avatar_url do
+      json.medium playlist.user.avatar_url(:medium)
+      json.small playlist.user.avatar_url(:small)
+      json.large playlist.user.avatar_url(:large)
+    end
   end
 end

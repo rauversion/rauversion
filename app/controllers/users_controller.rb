@@ -140,18 +140,20 @@ class UsersController < ApplicationController
     @title = "Albums"
     @section = "albums"
     @collection = Playlist
-      .where(user_id: @user.id).or(Playlist.where(label_id: @user.id))
+      .where(user_id: @user.id)
+      .or(Playlist.where(label_id: @user.id))
       .where(playlist_type: ["album", "ep"])
       .with_attached_cover
       .includes(user: {avatar_attachment: :blob})
       .includes(tracks: {cover_attachment: :blob})
+      .order(created_at: :desc)
 
     if current_user.blank? || current_user != @user
       @collection = @collection.where(private: false)
     end
 
     @collection = @collection.ransack(title_cont: params[:q]).result if params[:q].present?
-    @collection = @collection.page(params[:page]).per(10)
+    @collection = @collection.page(params[:page]).per(12)
 
     respond_to do |format|
       format.html do
@@ -160,7 +162,7 @@ class UsersController < ApplicationController
         @section = "playlists/playlist_item"
         paginated_render
       end
-      format.json
+      format.json { render "playlists" }
     end
   end
 
