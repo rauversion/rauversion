@@ -49,14 +49,17 @@ import Dante, {
 } from 'dante3/package/esm'
 import { DirectUpload } from "@rails/activestorage"
 import { useDebounce } from '@/hooks/use_debounce'
+import { useDebounceCallback } from "@/hooks/use-debounce-callback"
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
+import { cn } from "@/lib/utils"
+import { ImageUploader } from "../ui/image-uploader"
 
 const formSchema = z.object({
   title: z.string().min(2, {
     message: "Title must be at least 2 characters.",
   }),
   excerpt: z.string().optional(),
-  body: z.any(),
+  // body: z.any(),
   category_id: z.string().refine((val) => val === "null" || /^\d+$/.test(val), {
     message: "Please select a valid category",
   }),
@@ -134,13 +137,111 @@ export default function EditArticle() {
   const [categories, setCategories] = React.useState([])
   const [states, setStates] = React.useState([])
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false)
+  const [dragActive, setDragActive] = React.useState(false)
+  const inputRef = React.useRef(null)
+
+  const handleDrag = (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true)
+    } else if (e.type === "dragleave") {
+      setDragActive(false)
+    }
+  }
+
+  const handleDrop = async (e) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setDragActive(false)
+    
+    const file = e.dataTransfer.files[0]
+    if (file) {
+      await handleUpload(file)
+    }
+  }
+
+  const handleUpload = async (file) => {
+    try {
+      const upload = new DirectUpload(
+        file,
+        '/rails/active_storage/direct_uploads'
+      )
+
+      upload.create((error, blob) => {
+        if (error) {
+          console.error('Error uploading file:', error)
+          toast({
+            title: "Error",
+            description: "No se pudo subir la imagen",
+            variant: "destructive",
+          })
+        } else {
+          put(`/articles/${id}`, {
+            body: JSON.stringify({
+              post: {
+                cover_blob_id: blob.signed_id
+              }
+            }),
+            responseKind: 'json'
+          }).then(async (response) => {
+            if (response.ok) {
+              toast({
+                title: "Éxito",
+                description: "Imagen subida correctamente",
+              })
+              const { article } = await response.json
+              setArticle(article)
+            }
+          })
+        }
+      })
+    } catch (error) {
+      console.error('Error in upload:', error)
+      toast({
+        title: "Error",
+        description: "No se pudo subir la imagen",
+        variant: "destructive",
+      })
+    }
+  }
+
+  const onButtonClick = () => {
+    inputRef.current.click()
+  }
+
+  const handleImageUpload = async (blobId, cropData) => {
+    try {
+      const response = await put(`/articles/${id}`, {
+        body: JSON.stringify({
+          post: {
+            cover_blob_id: blobId,
+            crop_data: cropData ? JSON.stringify(cropData) : null
+          }
+        }),
+        responseKind: 'json'
+      })
+
+      if (response.ok) {
+        const { article } = await response.json
+        setArticle(article)
+      }
+    } catch (error) {
+      console.error('Error updating article:', error)
+      toast({
+        title: "Error",
+        description: "No se pudo actualizar la imagen",
+        variant: "destructive",
+      })
+    }
+  }
 
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
       excerpt: "",
-      body: null,
+      // body: null,
       category_id: "null",
       private: false,
       state: "draft",
@@ -148,6 +249,36 @@ export default function EditArticle() {
       visibility: "public"
     },
   })
+
+  const handleSaveContent = React.useCallback(async (content) => {
+    try {
+      const response = await put(`/articles/${id}`, {
+        body: JSON.stringify({
+          post: {
+            body: content
+          }
+        }),
+        responseKind: 'json'
+      })
+
+      if (response.ok) {
+        const { article } = await response.json
+        // setArticle(article)
+        toast({
+          description: "Contenido guardado",
+        })
+      }
+    } catch (error) {
+      console.error('Error saving content:', error)
+      toast({
+        title: "Error",
+        description: "No se pudo guardar el contenido",
+        variant: "destructive",
+      })
+    }
+  }, [id])
+
+  const editorOnChangeHandler = useDebounceCallback(handleSaveContent, 500)
 
   React.useEffect(() => {
     const fetchArticle = async () => {
@@ -162,7 +293,7 @@ export default function EditArticle() {
           form.reset({
             title: article.title,
             excerpt: article.excerpt || "",
-            body: article.body,
+            // body: article.body,
             category_id: article.category?.id?.toString() || "null",
             private: article.private,
             state: article.state,
@@ -181,24 +312,6 @@ export default function EditArticle() {
     }
     fetchArticle()
   }, [id])
-
-  const handleUpload = async (file, callback) => {
-    if (!file) return
-    const url = '/api/v1/direct_uploads'
-    const upload = new DirectUpload(file, url)
-  
-    upload.create((error, blob) => {
-      if (error) {
-        toast({
-          variant: "destructive",
-          title: "Error",
-          description: "Failed to upload file",
-        })
-      } else {
-        callback(blob)
-      }
-    })
-  }
 
   const onSubmit = async (data) => {
     try {
@@ -273,22 +386,14 @@ export default function EditArticle() {
             <div className="flex-1 overflow-y-auto px-6">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 py-6">
-                  <div className="border border-dashed rounded-lg p-4 space-y-4">
-                    <div className="aspect-[16/9] bg-zinc-800 rounded-lg flex items-center justify-center">
-                      <div className="text-center">
-                        <div className="flex justify-center mb-2">
-                          <ImageIcon className="h-8 w-8 text-zinc-500" />
-                        </div>
-                        <p className="text-sm text-zinc-500">
-                          Subir cover o arrastra y suelta
-                        </p>
-                        <p className="text-xs text-zinc-600 mt-1">
-                          PNG, JPG, GIF hasta 10MB
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-
+                  <ImageUploader
+                    onUploadComplete={handleImageUpload}
+                    aspectRatio={16/9}
+                    maxSize={10}
+                    preview={true}
+                    enableCropper={true}
+                    imageUrl={article?.cover_url}
+                  />
                   <FormField
                     control={form.control}
                     name="title"
@@ -515,8 +620,8 @@ export default function EditArticle() {
           name="body"
           render={({ field }) => (
             <EditorComponent
-              value={field.value}
-              onChange={field.onChange}
+              value={article.body}
+              onChange={editorOnChangeHandler}
               onUpload={handleUpload}
             />
           )}

@@ -116,9 +116,23 @@ class ArticlesController < ApplicationController
 
   def update
     @article = current_user.posts.friendly.find(params[:id])
-    @article.assign_attributes(crop_data: JSON.parse(params[:post][:crop_data])) unless params.dig(:post, :crop_data).blank?
+    
+    # Handle cover attachment if blob_id is present
+    if params.dig(:post, :cover_blob_id).present?
+      @article.cover.attach(params[:post][:cover_blob_id])
+      
+      # Handle crop data if present
+      if params.dig(:post, :crop_data).present?
+        @article.update(crop_data: params[:post][:crop_data])
+      end
+    end
+
     if @article.update(article_params)
-      render json: { article: @article }
+      render json: { 
+        article: @article.as_json.merge(
+          cover_url: @article.cover.attached? ? url_for(@article.cover) : nil
+        ) 
+      }
     else
       render json: { errors: @article.errors }, status: :unprocessable_entity
     end
@@ -167,14 +181,14 @@ class ArticlesController < ApplicationController
 
   def article_params
     params.require(:post).permit(
-      :id, 
       :title, 
-      :private,
-      :cover,
-      :category_id, 
-      :state, 
+      :body, 
+      :crop_data,
       :excerpt, 
-      body: {}
+      :private, 
+      :state, 
+      :category_id,
+      tags: []
     )
   end
 end

@@ -30,6 +30,7 @@ import UserLinks from './users/Links'
 import MyArticles from './articles/MyArticles'
 import MyEvents from './events/MyEvents'
 import EditArticle from './articles/EditArticle'
+import { Toaster } from "./ui/toaster"
 
 export default function AppRouter() {
   return (
@@ -71,7 +72,8 @@ export default function AppRouter() {
         </Routes>
       </div>
 
-      {/* <AudioPlayer />*/}
+      <Toaster />
+      <AudioPlayer />
     </BrowserRouter>
   )
 }
