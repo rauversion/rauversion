@@ -1,5 +1,6 @@
 class EventsController < ApplicationController
   before_action :authenticate_user!, except: [:index, :show]
+  before_action :set_event, only: [:schedule, :team, :tickets, :streaming, :attendees, :recordings, :settings]
 
   def index
     @q = Event.ransack(params[:q])
@@ -86,7 +87,72 @@ class EventsController < ApplicationController
     end
   end
 
+  def schedule
+    respond_to do |format|
+      format.json
+    end
+  end
+
+  def team
+    respond_to do |format|
+      format.json
+    end
+  end
+
+  def tickets
+    respond_to do |format|
+      format.json
+    end
+  end
+
+  def streaming
+    respond_to do |format|
+      format.json
+    end
+  end
+
+  def attendees
+    @attendees = @event.attendees
+      .includes(:user, :ticket)
+      .order(created_at: :desc)
+      .page(params[:page])
+      .per(20)
+
+    if params[:query].present?
+      @attendees = @attendees.joins(:user)
+        .where("users.email ILIKE ? OR users.full_name ILIKE ?", 
+          "%#{params[:query]}%", "%#{params[:query]}%")
+    end
+
+    if params[:status].present? && params[:status] != "all"
+      @attendees = @attendees.where(status: params[:status])
+    end
+
+    respond_to do |format|
+      format.json
+    end
+  end
+
+  def recordings
+    @recordings = @event.recordings
+      .order(created_at: :desc)
+    
+    respond_to do |format|
+      format.json
+    end
+  end
+
+  def settings
+    respond_to do |format|
+      format.json
+    end
+  end
+
   private
+
+  def set_event
+    @event = current_user.events.friendly.find(params[:id])
+  end
 
   def event_params
     params.require(:event).permit(:title, :event_start, :event_ends,

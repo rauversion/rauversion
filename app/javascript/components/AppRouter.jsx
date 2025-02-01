@@ -31,6 +31,14 @@ import MyArticles from './articles/MyArticles'
 import MyEvents from './events/MyEvents'
 import EditArticle from './articles/EditArticle'
 import EventEdit from "./events/EventEdit"
+import Overview from "./events/sections/Overview"
+import Schedule from "./events/sections/Schedule"
+import Teams from "./events/sections/Teams"
+import Tickets from "./events/sections/Tickets"
+import Streaming from "./events/sections/Streaming"
+import Attendees from "./events/sections/Attendees"
+import Recordings from "./events/sections/Recordings"
+import Settings from "./events/sections/Settings"
 import { Toaster } from "./ui/toaster"
 
 export default function AppRouter() {
@@ -49,14 +57,14 @@ export default function AppRouter() {
           <Route path="/events/mine" element={<MyEvents />} />
           <Route path="/events/:slug" element={<EventShow />} />
           <Route path="/events/:slug/edit" element={<EventEdit />}>
-            <Route index element={<div>Overview</div>} />
-            <Route path="schedule" element={<div>Schedule</div>} />
-            <Route path="teams" element={<div>Teams</div>} />
-            <Route path="tickets" element={<div>Tickets</div>} />
-            <Route path="streaming" element={<div>Streaming</div>} />
-            <Route path="attendees" element={<div>Attendees</div>} />
-            <Route path="recordings" element={<div>Recordings</div>} />
-            <Route path="settings" element={<div>Settings</div>} />
+            <Route index element={<Overview />} />
+            <Route path="schedule" element={<Schedule />} />
+            <Route path="teams" element={<Teams />} />
+            <Route path="tickets" element={<Tickets />} />
+            <Route path="streaming" element={<Streaming />} />
+            <Route path="attendees" element={<Attendees />} />
+            <Route path="recordings" element={<Recordings />} />
+            <Route path="settings" element={<Settings />} />
           </Route>
           <Route path="/tracks" element={<TracksIndex />} />
           <Route path="/tracks/:slug" element={<TrackShow />} />

@@ -144,6 +144,13 @@ Rails.application.routes.draw do
       get :mine
     end
     member do
+      get :schedule
+      get :team
+      get :tickets
+      get :streaming
+      get :attendees
+      get :recordings
+      get :settings
     end
 
     resources :event_hosts
