@@ -240,6 +240,8 @@ Rails.application.routes.draw do
   resources :albums
 
   constraints(Constraints::UsernameRouteConstrainer.new) do
+    # get ':username/about', to: 'users#about', as: :user_about
+    # get ':username/stats', to: 'users#stats', as: :user_stats
     # Same route as before, only within the constraints block
     resources :users, path: "" do
       resource :insights

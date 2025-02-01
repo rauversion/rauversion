@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :find_user, except: [:index]
+  before_action :find_user, except: [:index, :stats]
   before_action :check_user_role, except: [:index]
 
   def index
@@ -26,7 +26,7 @@ class UsersController < ApplicationController
     get_meta_tags
     @as = :track
     @section = "tracks/track_item"
-
+    @collection = @tracks
     respond_to do |format|
       format.html # show.html.erb
       format.json # show.json.jbuilder
@@ -167,11 +167,8 @@ class UsersController < ApplicationController
   end
 
   def about
-    @title = "Albums"
-    @section = "albums"
-
     respond_to do |format|
-      format.html { render "about" }
+      format.html
       format.json
     end
   end
@@ -181,6 +178,19 @@ class UsersController < ApplicationController
 
     respond_to do |format|
       format.html { render "articles" }
+      format.json
+    end
+  end
+
+  def stats
+    @user = User.friendly.find(params[:username])
+    @stats = {
+      followers_count: @user.followers(User).size,
+      monthly_listeners: Track.series_by_month(@user.id, range: 1).first&.fetch(:count, 0),
+      top_countries: Track.top_countries(@user.id)
+    }
+
+    respond_to do |format|
       format.json
     end
   end

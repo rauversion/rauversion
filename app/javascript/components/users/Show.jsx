@@ -7,6 +7,7 @@ import useAudioStore from '../../stores/audioStore'
 import useAuthStore from '../../stores/authStore'
 import { ModernTrackCell } from '../tracks/TrackCell'
 import clsx from 'clsx'
+import Sidebar from './Sidebar'
 
 export default function UserShow() {
   const { username } = useParams()
@@ -137,7 +138,12 @@ export default function UserShow() {
 
       {/* Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 min-h-[400px]">
-        <Outlet context={{ user, handlePlay, currentTrackId, isPlaying }} />
+        <div className="flex">
+          <div className="flex-grow bg-default text-default">
+            <Outlet context={{ user, handlePlay, currentTrackId, isPlaying }} />
+          </div>
+          <Sidebar user={user} />
+        </div>
       </div>
     </div>
   )
