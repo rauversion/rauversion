@@ -37,7 +37,7 @@ export default function AppRouter() {
           <Route path="articles" element={<UserArticles />} />
           <Route path="reposts" element={<UserReposts />} />
           <Route path="artists" element={<UserArtists />} />
-          <Route path="albums" element={<UserAlbums />} />
+          <Route path="albums" element={<UserPlaylists namespace="albums"/>} />
         </Route>
 
       </Routes>

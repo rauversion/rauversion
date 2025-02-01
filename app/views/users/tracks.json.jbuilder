@@ -1,5 +1,7 @@
-json.tracks @tracks do |track|
+json.collection @tracks do |track|
   json.extract! track, :id, :title, :description, :duration, :slug, :created_at
+  json.peaks track.track_peak&.data || []
+  json.audio_url url_for(track.mp3_audio) if track.mp3_audio.attached?
   json.cover_url do
     json.small track.cover_url(:small)
     json.medium track.cover_url(:medium)
@@ -11,8 +13,12 @@ json.tracks @tracks do |track|
   end
 end
 
-json.pagination do
-  json.current_page @tracks.current_page
-  json.total_pages @tracks.total_pages
-  json.total_count @tracks.total_count
+json.metadata do
+  json.current_page @collection.current_page
+  json.total_pages @collection.total_pages
+  json.total_count @collection.total_count
+  json.next_page @collection.next_page
+  json.prev_page @collection.prev_page
+  json.is_first_page @collection.first_page?
+  json.is_last_page @collection.last_page?
 end

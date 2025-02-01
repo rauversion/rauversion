@@ -4,7 +4,7 @@ import { get } from '@rails/request.js'
 import { Play, Pause } from 'lucide-react'
 import useAudioStore from '../../stores/audioStore'
 
-export default function TrackPlayer({ url, peaks, height = 45, id, urlLink }) {
+export default function TrackPlayer({ url, peaks, height = 45, id, urlLink, disablePlayButton }) {
   const waveformRef = useRef(null)
   const wavesurfer = useRef(null)
   const { currentTrackId, isPlaying, setCurrentTrack, setIsPlaying, play, pause } = useAudioStore()
@@ -158,7 +158,7 @@ export default function TrackPlayer({ url, peaks, height = 45, id, urlLink }) {
 
   return (
     <div className="track-player">
-      <div className="controls flex items-center mb-4">
+      {!disablePlayButton && <div className="controls flex items-center mb-4">
         <button
           onClick={handlePlay}
           className="relative z-0 inline-flex ml-2 pl-6 pt-6 player-button"
@@ -170,7 +170,7 @@ export default function TrackPlayer({ url, peaks, height = 45, id, urlLink }) {
             <Play className="h-10 w-10 text-white" />
           )}
         </button>
-      </div>
+      </div>}
 
       <div ref={waveformRef} />
     </div>
