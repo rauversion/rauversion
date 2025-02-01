@@ -21,7 +21,7 @@ export default function AppRouter() {
         labelUser={window.labelUser}
         cartItemCount={window.cartItemCount}
       />
-      <Routes className="pb-10">
+      <Routes className="pb-20">
         <Route path="/" element={<Home />} />
         <Route path="/articles" element={<ArticlesIndex />} />
         <Route path="/articles/:slug" element={<ArticleShow />} />

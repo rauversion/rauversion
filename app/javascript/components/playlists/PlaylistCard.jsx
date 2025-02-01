@@ -35,7 +35,7 @@ export default function PlaylistCard({ playlist }) {
         {playlist.title}
       </h3>
       <p className="text-sm text-gray-400">
-        By {playlist.user.username} • {playlist.tracks.length} tracks
+        By {playlist.user.username} • {playlist.tracks_count} tracks
       </p>
     </div>
   )
