@@ -14,7 +14,7 @@ export default function LabelCard({ label }) {
       </div>
       <h3 className="font-bold mb-1">
         <Link
-          to={`/users/${label.username}`}
+          to={`/${label.username}`}
           className="hover:text-primary transition-colors"
         >
           {label.full_name}

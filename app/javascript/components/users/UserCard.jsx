@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 export default function UserCard({ user }) {
   return (
-    <Link to={`/users/${user.username}`}>
+    <Link to={`/${user.username}`}>
       <div className="group cursor-pointer">
         <div className="relative aspect-square overflow-hidden rounded-full mb-4">
           <img

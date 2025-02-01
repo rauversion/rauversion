@@ -57,7 +57,7 @@ export default function TrackShow() {
                 </div>
                 <div>
                   <Link 
-                    to={`/users/${track.user.username}`}
+                    to={`/${track.user.username}`}
                     className="text-sm font-medium text-gray-300 hover:text-white"
                   >
                     {track.user.username}

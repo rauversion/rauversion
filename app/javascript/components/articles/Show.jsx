@@ -131,7 +131,7 @@ export default function ArticleShow() {
       <div className="relative px-4 sm:px-6 lg:px-8">
         <div className="text-lg max-w-prose mx-auto">
           <h1>
-            <Link to={`/users/${article.author.username}`} className="flex items-center justify-center gap-2">
+            <Link to={`/${article.author.username}`} className="flex items-center justify-center gap-2">
               <img 
                 src={article.author.avatar_url.small} 
                 alt={article.author.name}

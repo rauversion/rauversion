@@ -23,6 +23,7 @@ import UserAbout from './users/About'
 import PodcastLayout from './podcasts/Layout'
 import PodcastsIndex from './podcasts/Index'
 import PodcastShow from './podcasts/Show'
+import UserHome from './users/Home'
 
 export default function AppRouter() {
   return (
@@ -47,13 +48,13 @@ export default function AppRouter() {
         </Route>
         <Route path="/:username/about" element={<UserAbout />} />
         <Route path="/:username/*" element={<UserShow />}>
-          <Route index element={<UserTracks />} />
+          <Route index element={<UserHome />} />
           <Route path="tracks" element={<UserTracks />} />
-          <Route path="playlists" element={<UserPlaylists />} />
+          <Route path="playlists" element={<UserPlaylists namespace="playlists" />} />
           <Route path="articles" element={<UserArticles />} />
           <Route path="reposts" element={<UserReposts />} />
           <Route path="artists" element={<UserArtists />} />
-          <Route path="albums" element={<UserAlbums />} />
+          <Route path="albums" element={<UserPlaylists namespace="albums" />} />
           <Route path="insights" element={<UserInsights />} />
         </Route>
       </Routes>

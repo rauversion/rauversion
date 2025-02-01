@@ -22,7 +22,7 @@ export default function UserMenu({ currentUser, labelUser, cartItemCount }) {
           <span className="text-xs">
             Acting on behalf of{' '}
             <span className="font-bold hover:underline">
-              <Link to={`/users/${currentUser.username}`}>{currentUser.username}</Link>
+              <Link to={`/${currentUser.username}`}>{currentUser.username}</Link>
             </span>
             <span className="font-bold underline">
               <Link to="/account/connections" className="text-default">
@@ -129,7 +129,7 @@ export default function UserMenu({ currentUser, labelUser, cartItemCount }) {
                       
                       {currentUser.is_creator && (
                         <DropdownMenuItem asChild>
-                          <Link to={`/users/${currentUser.username}`}>
+                          <Link to={`/${currentUser.username}`}>
                             {currentUser.label ? 'My Label' : 'My Music'}
                           </Link>
                         </DropdownMenuItem>
@@ -153,7 +153,7 @@ export default function UserMenu({ currentUser, labelUser, cartItemCount }) {
                       {currentUser.can_sell_products && (
                         <>
                           <DropdownMenuItem asChild>
-                            <Link to={`/users/${currentUser.username}/products`}>
+                            <Link to={`/${currentUser.username}/products`}>
                               My Products & Merch
                             </Link>
                           </DropdownMenuItem>
@@ -166,7 +166,7 @@ export default function UserMenu({ currentUser, labelUser, cartItemCount }) {
                       <DropdownMenuSeparator />
 
                       <DropdownMenuItem asChild>
-                        <Link to={`/users/${currentUser.username}/settings`}>Settings</Link>
+                        <Link to={`/${currentUser.username}/settings`}>Settings</Link>
                       </DropdownMenuItem>
 
                       <DropdownMenuItem asChild>
@@ -290,7 +290,7 @@ export default function UserMenu({ currentUser, labelUser, cartItemCount }) {
                 <div className="mt-3 px-2 space-y-1">
                   {currentUser.is_creator && currentUser.username && (
                     <Link
-                      to={`/users/${currentUser.username}`}
+                      to={`/${currentUser.username}`}
                       className="block rounded-md py-2 px-3 text-base font-medium text-gray-200 hover:text-default hover:bg-muted"
                     >
                       My Music
@@ -323,7 +323,7 @@ export default function UserMenu({ currentUser, labelUser, cartItemCount }) {
 
                   {currentUser.can_sell_products && (
                     <Link
-                      to={`/users/${currentUser.username}/products`}
+                      to={`/${currentUser.username}/products`}
                       className="block rounded-md py-2 px-3 text-base font-medium text-gray-200 hover:text-default hover:bg-muted"
                     >
                       My Products
