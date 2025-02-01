@@ -1,7 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { useParams } from 'react-router-dom'
-import useInfiniteScroll from '../../hooks/useInfiniteScroll'
+import {useInfiniteScroll} from '../../hooks/useInfiniteScroll'
 import { Button } from '../ui/button'
 
 export default function UserLinks() {

@@ -27,17 +27,24 @@ import UserHome from './users/Home'
 import UserProducts from './users/Products'
 import ProductShow from './users/ProductShow'
 import UserLinks from './users/Links'
+import MyArticles from './articles/MyArticles'
+import MyEvents from './events/MyEvents'
+import EditArticle from './articles/EditArticle'
 
 export default function AppRouter() {
   return (
     <BrowserRouter>
       <UserMenu />
+
       <div className="pb-24">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/articles" element={<ArticlesIndex />} />
+          <Route path="/articles/mine" element={<MyArticles />} />
+          <Route path="/articles/:id/edit" element={<EditArticle />} />
           <Route path="/articles/:slug" element={<ArticleShow />} />
           <Route path="/events" element={<EventsIndex />} />
+          <Route path="/events/mine" element={<MyEvents />} />
           <Route path="/events/:slug" element={<EventShow />} />
           <Route path="/tracks" element={<TracksIndex />} />
           <Route path="/tracks/:slug" element={<TrackShow />} />
@@ -63,7 +70,8 @@ export default function AppRouter() {
           </Route>
         </Routes>
       </div>
-      <AudioPlayer />
+
+      {/* <AudioPlayer />*/}
     </BrowserRouter>
   )
 }

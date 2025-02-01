@@ -117,8 +117,11 @@ class ArticlesController < ApplicationController
   def update
     @article = current_user.posts.friendly.find(params[:id])
     @article.assign_attributes(crop_data: JSON.parse(params[:post][:crop_data])) unless params.dig(:post, :crop_data).blank?
-    @article.update(article_params)
-    flash.now[:notice] = "aloha!!"
+    if @article.update(article_params)
+      render json: { article: @article }
+    else
+      render json: { errors: @article.errors }, status: :unprocessable_entity
+    end
   end
 
   def mine
@@ -132,7 +135,7 @@ class ArticlesController < ApplicationController
       current_user.posts
     end
 
-    @posts.page(params[:page]).per(10)
+    @posts = @posts.page(params[:page]).per(10)
   end
 
   def categories
