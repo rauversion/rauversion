@@ -1,4 +1,4 @@
-json.artists @artists do |artist|
+json.collection @artists do |artist|
   json.extract! artist, :id, :username, :first_name, :last_name, :role, :created_at
   json.avatar_url do
     json.small artist.avatar_url(:small)
@@ -17,7 +17,7 @@ json.label do
   end
 end
 
-json.pagination do
+json.metadata do
   json.current_page @artists.current_page
   json.total_pages @artists.total_pages
   json.total_count @artists.total_count

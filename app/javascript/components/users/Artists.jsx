@@ -1,36 +1,27 @@
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { get } from '@rails/request.js'
+import { useInfiniteScroll } from '../../hooks/useInfiniteScroll'
 
 export default function UserArtists() {
   const { username } = useParams()
-  const [artists, setArtists] = useState([])
   const [label, setLabel] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [pagination, setPagination] = useState(null)
 
-  useEffect(() => {
-    const fetchArtists = async () => {
-      try {
-        const response = await get(`/${username}/artists.json`)
-        if (response.ok) {
-          const data = await response.json
-          setArtists(data.artists)
-          setLabel(data.label)
-          setPagination(data.pagination)
-        }
-      } catch (error) {
-        console.error('Error fetching artists:', error)
-      } finally {
-        setLoading(false)
-      }
+  const {
+    items: artists,
+    loading,
+    lastElementRef
+  } = useInfiniteScroll(`/${username}/artists.json`, (data) => {
+    if (!label && data.label) {
+      setLabel(data.label)
     }
+  })
 
-    fetchArtists()
-  }, [username])
-
-  if (loading) {
-    return <div>Loading...</div>
+  if (loading && artists.length === 0) {
+    return (
+      <div className="flex justify-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500"></div>
+      </div>
+    )
   }
 
   return (
@@ -40,46 +31,67 @@ export default function UserArtists() {
           <img
             src={label.avatar_url.medium}
             alt={label.username}
-            className="w-16 h-16 rounded-full"
+            className="w-16 h-16 rounded-full object-cover"
           />
           <div>
-            <h2 className="text-xl font-semibold">{label.first_name} {label.last_name}</h2>
+            <h2 className="text-xl font-semibold">{label.full_name}</h2>
             <p className="text-gray-400">@{label.username}</p>
           </div>
         </div>
       )}
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
-        {artists.map((artist) => (
-          <Link
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {artists.map((artist, index) => (
+          <div
             key={artist.id}
-            to={`/${artist.username}`}
-            className="group"
+            ref={index === artists.length - 1 ? lastElementRef : null}
+            className="flex flex-col items-center p-6 bg-gray-800 rounded-lg"
           >
-            <div className="aspect-square relative overflow-hidden bg-gray-900 rounded-lg">
+            {artist.avatar_url ? (
               <img
                 src={artist.avatar_url.medium}
                 alt={artist.username}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
+                className="w-24 h-24 rounded-full object-cover mb-4"
               />
-              <div className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-30 transition-all duration-200" />
+            ) : (
+              <div className="w-24 h-24 rounded-full bg-gray-700 mb-4 flex items-center justify-center">
+                <span className="text-2xl text-gray-400">
+                  {artist.username[0].toUpperCase()}
+                </span>
+              </div>
+            )}
+
+            <h3 className="text-lg font-semibold mb-1">{artist.full_name}</h3>
+            <p className="text-gray-400 text-sm mb-4">@{artist.username}</p>
+
+            <div className="flex space-x-4 text-sm text-gray-400">
+              <div>
+                <span className="font-semibold text-default">{artist.tracks_count}</span> tracks
+              </div>
+              <div>
+                <span className="font-semibold text-default">{artist.albums_count}</span> albums
+              </div>
             </div>
-            <div className="mt-3">
-              <h3 className="font-medium group-hover:text-primary-500 transition-colors duration-200">
-                {artist.first_name} {artist.last_name}
-              </h3>
-              <p className="text-sm text-gray-400">@{artist.username}</p>
-              <p className="text-sm text-gray-400 mt-1">
-                {artist.tracks_count} tracks
+
+            {artist.bio && (
+              <p className="mt-4 text-sm text-gray-400 text-center line-clamp-3">
+                {artist.bio}
               </p>
-            </div>
-          </Link>
+            )}
+
+            <Link
+              to={`/${artist.username}`}
+              className="mt-4 px-4 py-2 bg-brand-600 text-white rounded-md hover:bg-brand-500 transition-colors"
+            >
+              View Profile
+            </Link>
+          </div>
         ))}
       </div>
-      
-      {artists.length === 0 && (
-        <div className="text-center py-12">
-          <p className="text-gray-400">No artists found</p>
+
+      {loading && artists.length > 0 && (
+        <div className="flex justify-center py-4">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500"></div>
         </div>
       )}
     </div>

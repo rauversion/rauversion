@@ -23,14 +23,7 @@ json.user do
     json.tracks_count @user.tracks.size
   end
 
-  json.menu_items [
-    { to: user_path(@user.username), name: t("profile.all"), key: "all" },
-    { to: user_albums_path(@user.username), name: t("profile.albums"), key: "albums" },
-    { to: user_tracks_path(@user.username), name: t("profile.tracks"), key: "tracks" },
-    @user&.podcaster_info&.active? ? { to: user_podcasts_path(@user.username), name: t("profile.podcasts"), key: "podcasts" } : nil,
-    { to: user_reposts_path(@user.username), name: t("profile.reposts"), key: "reposts" },
-    @user.is_admin? ? { to: user_articles_path(@user.username), name: t("profile.articles"), key: "articles" } : nil
-  ].compact
+  json.menu_items user_menu_items()
 
   json.tracks @tracks do |track|
     json.extract! track, :id, :title, :description, :duration, :slug

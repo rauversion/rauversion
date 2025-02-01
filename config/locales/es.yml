@@ -147,6 +147,7 @@ es:
     all: "Todo"
     albums: "Álbumes"
     tracks: "Pistas"
+    artists: "Artistas"
     podcasts: "Podcasts"
     reposts: "Reposteos"
     articles: "Artículos"

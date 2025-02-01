@@ -24,6 +24,8 @@ import PodcastLayout from './podcasts/Layout'
 import PodcastsIndex from './podcasts/Index'
 import PodcastShow from './podcasts/Show'
 import UserHome from './users/Home'
+import UserProducts from './users/Products'
+import ProductShow from './users/ProductShow'
 
 export default function AppRouter() {
   return (
@@ -32,32 +34,36 @@ export default function AppRouter() {
         labelUser={window.labelUser}
         cartItemCount={window.cartItemCount}
       />
-      <Routes className="pb-20">
-        <Route path="/" element={<Home />} />
-        <Route path="/articles" element={<ArticlesIndex />} />
-        <Route path="/articles/:slug" element={<ArticleShow />} />
-        <Route path="/events" element={<EventsIndex />} />
-        <Route path="/events/:slug" element={<EventShow />} />
-        <Route path="/tracks" element={<TracksIndex />} />
-        <Route path="/tracks/:slug" element={<TrackShow />} />
-        <Route path="/playlists" element={<PlaylistsIndex />} />
-        <Route path="/playlists/:slug" element={<PlaylistShow />} />
-        <Route path="/:username/podcasts" element={<PodcastLayout />}>
-          <Route index element={<PodcastsIndex />} />
-          <Route path=":id" element={<PodcastShow />} />
-        </Route>
-        <Route path="/:username/about" element={<UserAbout />} />
-        <Route path="/:username/*" element={<UserShow />}>
-          <Route index element={<UserHome />} />
-          <Route path="tracks" element={<UserTracks />} />
-          <Route path="playlists" element={<UserPlaylists namespace="playlists" />} />
-          <Route path="articles" element={<UserArticles />} />
-          <Route path="reposts" element={<UserReposts />} />
-          <Route path="artists" element={<UserArtists />} />
-          <Route path="albums" element={<UserPlaylists namespace="albums" />} />
-          <Route path="insights" element={<UserInsights />} />
-        </Route>
-      </Routes>
+      <div className="pb-24">
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/articles" element={<ArticlesIndex />} />
+          <Route path="/articles/:slug" element={<ArticleShow />} />
+          <Route path="/events" element={<EventsIndex />} />
+          <Route path="/events/:slug" element={<EventShow />} />
+          <Route path="/tracks" element={<TracksIndex />} />
+          <Route path="/tracks/:slug" element={<TrackShow />} />
+          <Route path="/playlists" element={<PlaylistsIndex />} />
+          <Route path="/playlists/:slug" element={<PlaylistShow />} />
+          <Route path="/:username/podcasts" element={<PodcastLayout />}>
+            <Route index element={<PodcastsIndex />} />
+            <Route path=":id" element={<PodcastShow />} />
+          </Route>
+          <Route path="/:username/about" element={<UserAbout />} />
+          <Route path="/:username/*" element={<UserShow />}>
+            <Route index element={<UserHome />} />
+            <Route path="tracks" element={<UserTracks />} />
+            <Route path="playlists" element={<UserPlaylists namespace="playlists" />} />
+            <Route path="articles" element={<UserArticles />} />
+            <Route path="reposts" element={<UserReposts />} />
+            <Route path="artists" element={<UserArtists />} />
+            <Route path="albums" element={<UserPlaylists namespace="albums" />} />
+            <Route path="insights" element={<UserInsights />} />
+            <Route path="products" element={<UserProducts />} />
+            <Route path="products/:slug" element={<ProductShow />} />
+          </Route>
+        </Routes>
+      </div>
       <AudioPlayer />
     </BrowserRouter>
   )
