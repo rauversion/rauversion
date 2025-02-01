@@ -4,6 +4,7 @@ Rails.application.routes.draw do
   # API routes
   namespace :api do
     namespace :v1 do
+      get 'me', to: 'me#show'
       resources :categories, only: [:index]
       get 'tags/popular', to: 'tags#popular'
     end

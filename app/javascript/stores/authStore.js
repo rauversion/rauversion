@@ -1,41 +1,55 @@
 import { create } from 'zustand'
-import { get } from '@rails/request.js'
+import { get as apiGet } from '@rails/request.js'
 
 const useAuthStore = create((set, get) => ({
   currentUser: null,
-  isAuthenticated: false,
-  loading: true,
+  labelUser: null,
+  cartItemCount: 0,
+  i18n: { locale: 'en' },
+  env: {},
+  loading: false,
   error: null,
 
   // Initialize auth state
   initAuth: async () => {
+    
     try {
-      const response = await get('/api/me.json')
+      set({ loading: true })
+      const response = await apiGet('/api/v1/me.json')
+      
       if (response.ok) {
+
         const data = await response.json
+        
         set({ 
-          currentUser: data.user,
-          isAuthenticated: true,
+          currentUser: data.current_user,
+          labelUser: data.label_user,
+          cartItemCount: data.cart_item_count,
+          i18n: data.i18n,
+          env: data.env,
           loading: false,
           error: null
         })
       } else {
         set({ 
           currentUser: null,
-          isAuthenticated: false,
+          labelUser: null,
+          cartItemCount: 0,
           loading: false,
-          error: null
+          error: 'Failed to load user data'
         })
       }
     } catch (error) {
       set({ 
         currentUser: null,
-        isAuthenticated: false,
+        labelUser: null,
+        cartItemCount: 0,
         loading: false,
         error: error.message
       })
     }
   },
+
 
   // Sign out
   signOut: async () => {
@@ -50,7 +64,8 @@ const useAuthStore = create((set, get) => ({
       if (response.ok) {
         set({ 
           currentUser: null,
-          isAuthenticated: false,
+          labelUser: null,
+          cartItemCount: 0,
           loading: false,
           error: null
         })
@@ -61,27 +76,39 @@ const useAuthStore = create((set, get) => ({
     }
   },
 
-  // Update current user data
-  updateCurrentUser: (userData) => {
-    set({ 
-      currentUser: { ...get().currentUser, ...userData },
-      error: null
-    })
+  // Update cart item count
+  updateCartItemCount: (count) => {
+    set({ cartItemCount: count })
   },
 
   // Clear any errors
-  clearError: () => set({ error: null }),
-
-  // Check if user has a specific role
-  hasRole: (role) => {
-    const { currentUser } = get()
-    return currentUser?.roles?.includes(role) || false
+  clearError: () => {
+    set({ error: null })
   },
 
-  // Check if user owns a resource
-  isOwner: (resourceUserId) => {
-    const { currentUser } = get()
-    return currentUser?.id === resourceUserId
+  // Helper functions
+  isAuthenticated: () => {
+    return !!get().currentUser
+  },
+
+  isAdmin: () => {
+    return get().currentUser?.is_admin || false
+  },
+
+  isCreator: () => {
+    return get().currentUser?.is_creator || false
+  },
+
+  canSellProducts: () => {
+    return get().currentUser?.can_sell_products || false
+  },
+
+  isLabel: () => {
+    return get().currentUser?.label || false
+  },
+
+  isEditor: () => {
+    return get().currentUser?.editor || false
   }
 }))
 
