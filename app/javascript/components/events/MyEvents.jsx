@@ -120,7 +120,7 @@ export default function MyEvents() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem asChild>
-                          <Link to={`/events/${event.id}/edit`}>
+                          <Link to={`/events/${event.slug}/edit`}>
                             Edit
                           </Link>
                         </DropdownMenuItem>
