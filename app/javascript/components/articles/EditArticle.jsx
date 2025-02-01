@@ -51,8 +51,9 @@ import { DirectUpload } from "@rails/activestorage"
 import { useDebounce } from '@/hooks/use_debounce'
 import { useDebounceCallback } from "@/hooks/use-debounce-callback"
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
-import { cn } from "@/lib/utils"
 import { ImageUploader } from "../ui/image-uploader"
+import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
+
 
 const formSchema = z.object({
   title: z.string().min(2, {
@@ -123,7 +124,7 @@ function EditorComponent({ value, onChange, onUpload }) {
         SpeechToTextBlockConfig(),
       ]}
       onUpdate={(editor) => {
-        onChange?.(editor.getJSON())
+        onChange && onChange(editor.getJSON())
       }}
     />
   )
@@ -361,6 +362,16 @@ export default function EditArticle() {
 
   return (
     <div className="container mx-auto py-10">
+      <Breadcrumb className="mb-6 flex items-center">
+        <BreadcrumbItem>
+          <BreadcrumbLink href="/articles/mine">Mis Artículos</BreadcrumbLink>
+        </BreadcrumbItem>
+        <BreadcrumbSeparator className="flex items-center" />
+        <BreadcrumbItem>
+          <BreadcrumbPage>{article?.title || 'Editar Artículo'}</BreadcrumbPage>
+        </BreadcrumbItem>
+      </Breadcrumb>
+
       <div className="flex justify-end mb-4">
         <Sheet open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
           <SheetTrigger asChild>
