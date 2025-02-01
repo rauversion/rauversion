@@ -15,6 +15,7 @@ import UserArticles from './users/Articles'
 import UserReposts from './users/Reposts'
 import UserArtists from './users/Artists'
 import UserAlbums from './users/Albums'
+import UserInsights from './users/Insights'
 
 export default function AppRouter() {
   return (
@@ -38,8 +39,8 @@ export default function AppRouter() {
           <Route path="reposts" element={<UserReposts />} />
           <Route path="artists" element={<UserArtists />} />
           <Route path="albums" element={<UserPlaylists namespace="albums"/>} />
+          <Route path="insights" element={<UserInsights />} />
         </Route>
-
       </Routes>
       <AudioPlayer />
     </BrowserRouter>

@@ -1,71 +1,95 @@
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { get } from '@rails/request.js'
+import { useInfiniteScroll } from '../../hooks/useInfiniteScroll'
+import { ChevronLeft } from 'lucide-react'
 
 export default function UserArticles() {
   const { username } = useParams()
-  const [articles, setArticles] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [pagination, setPagination] = useState(null)
-
-  useEffect(() => {
-    const fetchArticles = async () => {
-      try {
-        const response = await get(`/${username}/articles.json`)
-        if (response.ok) {
-          const data = await response.json
-          setArticles(data.articles)
-          setPagination(data.pagination)
-        }
-      } catch (error) {
-        console.error('Error fetching articles:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchArticles()
-  }, [username])
-
-  if (loading) {
-    return <div>Loading...</div>
-  }
+  const {
+    items: articles,
+    loading,
+    lastElementRef
+  } = useInfiniteScroll(`/${username}/articles.json`)
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      {articles.map((article) => (
-        <Link
-          key={article.id}
-          to={`/articles/${article.slug}`}
-          className="group"
-        >
-          <div className="aspect-video relative overflow-hidden bg-gray-900 rounded-lg">
-            <img
-              src={article.cover_url.medium}
-              alt={article.title}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
-            />
-            <div className="absolute inset-0 bg-black bg-opacity-20 group-hover:bg-opacity-30 transition-all duration-200" />
+    <div className="bg-default py-24 sm:py-32">
+      <div className="mx-auto max-w-7xl px-6 lg:px-8">
+        <div className="mx-auto max-w-2xl">
+          <h2 className="text-3xl font-bold tracking-tight text-default sm:text-4xl">
+            {articles[0]?.user?.first_name} {articles[0]?.user?.last_name}'s Blog
+          </h2>
+          
+          <p className="mt-2 text-lg leading-8 text-muted">
+            <Link 
+              to={`/${username}`} 
+              className="flex items-center text-sm font-semibold leading-6 text-brand-600"
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              back to {username}'s music
+            </Link>
+          </p>
+
+          <div className="mt-10 space-y-16 border-t border-subtle pt-10 sm:mt-16 sm:pt-16">
+            {articles.map((article, index) => (
+              <article 
+                key={article.id}
+                ref={articles.length === index + 1 ? lastElementRef : null}
+                className="flex max-w-xl flex-col items-start justify-between"
+              >
+                <div className="flex items-center gap-x-4 text-xs">
+                  <time dateTime={article.created_at} className="text-subtle">
+                    {new Date(article.created_at).toLocaleDateString(undefined, { 
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric'
+                    })}
+                  </time>
+                </div>
+
+                <div className="group relative">
+                  <h3 className="mt-3 text-lg font-semibold leading-6 text-default group-hover:text-muted">
+                    <Link to={`/articles/${article.slug}`}>
+                      <span className="absolute inset-0"></span>
+                      {article.title}
+                    </Link>
+                  </h3>
+                  <p className="mt-5 line-clamp-3 text-sm leading-6 text-muted">
+                    {article.excerpt}
+                  </p>
+                </div>
+
+                <div className="relative mt-8 flex items-center gap-x-4">
+                  <img 
+                    src={article.user.avatar_url.small} 
+                    alt={article.user.username}
+                    className="h-10 w-10 rounded-full bg-gray-50" 
+                  />
+                  <div className="text-sm leading-6">
+                    <p className="font-semibold text-default">
+                      <Link to={`/${article.user.username}`}>
+                        <span className="absolute inset-0"></span>
+                        {article.user.username}
+                      </Link>
+                    </p>
+                  </div>
+                </div>
+              </article>
+            ))}
+
+            {loading && (
+              <div className="flex justify-center p-4">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500"></div>
+              </div>
+            )}
+
+            {articles.length === 0 && !loading && (
+              <div className="text-center py-12">
+                <p className="text-gray-400">No articles found</p>
+              </div>
+            )}
           </div>
-          <div className="mt-3">
-            <h3 className="font-medium text-lg group-hover:text-primary-500 transition-colors duration-200">
-              {article.title}
-            </h3>
-            <p className="text-sm text-gray-400 mt-1 line-clamp-2">
-              {article.description}
-            </p>
-            <div className="flex items-center mt-2 text-sm text-gray-400">
-              <span>{new Date(article.created_at).toLocaleDateString()}</span>
-            </div>
-          </div>
-        </Link>
-      ))}
-      
-      {articles.length === 0 && (
-        <div className="col-span-full text-center py-12">
-          <p className="text-gray-400">No articles found</p>
         </div>
-      )}
+      </div>
     </div>
   )
 }
