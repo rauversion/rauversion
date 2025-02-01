@@ -267,6 +267,7 @@ Rails.application.routes.draw do
       resources :podcaster_hosts, only: [:new, :create, :destroy]
       resources :podcasts, controller: "podcasts" do
         collection do
+          get :podcaster_info
           get :about
         end
       end
