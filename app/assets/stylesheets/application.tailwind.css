@@ -1,4 +1,3 @@
-
 /*@tailwind base;
 @tailwind components;
 @tailwind utilities;*/
@@ -40,12 +39,17 @@
     --ring: 215 20.2% 65.1%;
     --radius: 0.5rem;
 
-
+    /* Rauversion specific variables - preserved */
     --rau-bg-emphasis: #e5e7eb;
     --rau-bg: white;
     --rau-bg-subtle: #f3f4f6;
     --rau-bg-muted: #f9fafb;
     --rau-bg-inverted: #111827;
+    --rau-bg-info: #dee9fc;
+    --rau-bg-success: #dcfce7;
+    --rau-bg-attention: #fef9c3;
+    --rau-bg-error: #fee2e2;
+    --rau-bg-dark-error: #dc2626;
 
     /* background -> components*/
     --rau-bg-info: #dee9fc;
@@ -133,8 +137,6 @@
     --rau-brand: #ea09e3;
     --rau-brand-emphasis: #002c63;
     --rau-brand-text: white;
-
-
 
     --background: 224 71% 4%;
     --foreground: 213 31% 91%;
@@ -311,7 +313,7 @@
 
   .select,
   select {
-    @apply block w-full rounded-md border-0 px-3 pl-3 pr-10 text-default ring-1 ring-inset ring-subtle focus:ring-2 focus:ring-brand-600 sm:text-sm sm:leading-6;
+    @apply block w-full rounded-md border-0 px-3 pl-3 pr-10 text-default ring-1 ring-inset ring-subtle focus:ring-2 focus:ring-inset focus:ring-brand-600 sm:text-sm sm:leading-6;
   }
 
   label {

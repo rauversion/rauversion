@@ -26,14 +26,12 @@ import PodcastShow from './podcasts/Show'
 import UserHome from './users/Home'
 import UserProducts from './users/Products'
 import ProductShow from './users/ProductShow'
+import UserLinks from './users/Links'
 
 export default function AppRouter() {
   return (
     <BrowserRouter>
-      <UserMenu 
-        labelUser={window.labelUser}
-        cartItemCount={window.cartItemCount}
-      />
+      <UserMenu />
       <div className="pb-24">
         <Routes>
           <Route path="/" element={<Home />} />
@@ -50,6 +48,7 @@ export default function AppRouter() {
             <Route path=":id" element={<PodcastShow />} />
           </Route>
           <Route path="/:username/about" element={<UserAbout />} />
+          <Route path="/:username/links" element={<UserLinks />} />
           <Route path="/:username/*" element={<UserShow />}>
             <Route index element={<UserHome />} />
             <Route path="tracks" element={<UserTracks />} />

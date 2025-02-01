@@ -7,6 +7,10 @@ Rails.application.routes.draw do
       get 'me', to: 'me#show'
       resources :categories, only: [:index]
       get 'tags/popular', to: 'tags#popular'
+      
+      resources :users, param: :username, only: [] do
+        resources :user_links, only: [:index]
+      end
     end
   end
 

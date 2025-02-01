@@ -10,14 +10,16 @@ import {
 } from "../ui/dropdown-menu"
 import { Button } from "../ui/button"
 import { useThemeStore } from "../../stores/theme"
+import useAuthStore from "../../stores/authStore"
 
-export default function UserMenu({ currentUser, labelUser, cartItemCount }) {
+export default function UserMenu() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { isDarkMode, toggleDarkMode } = useThemeStore()
+  const { currentUser, labelUser, cartItemCount, signOut } = useAuthStore()
 
   return (
     <>
-      {labelUser && (
+      {labelUser && currentUser && (
         <nav className="border-b-muted border-b bg-purple-600 text-white flex justify-center py-1">
           <span className="text-xs">
             Acting on behalf of{' '}
@@ -108,7 +110,7 @@ export default function UserMenu({ currentUser, labelUser, cartItemCount }) {
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="flex items-center space-x-2 h-8 px-2">
                         <img
-                          src={currentUser.avatar}
+                          src={currentUser.avatar.small}
                           alt={currentUser.username}
                           className="h-8 w-8 rounded-full"
                         />

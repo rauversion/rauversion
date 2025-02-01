@@ -14,7 +14,6 @@ function App() {
   }, [isDarkMode])
 
   useEffect(() => {
-    // Only fetch if we don't have the data from the window object
     initAuth()
   }, [])
 
@@ -25,21 +24,14 @@ function App() {
   )
 }
 
-// Create a function to initialize the React app
+let root = null
+
 const initReactApp = () => {
   const container = document.getElementById('react-root')
-  if (container) {
-    const root = createRoot(container)
-    root.render(
-      <React.StrictMode>
-        <App />
-      </React.StrictMode>
-    )
+  if (container && !root) {
+    root = createRoot(container)
+    root.render(<App />)
   }
 }
 
-// Initialize the app when the DOM is loaded
-document.addEventListener('DOMContentLoaded', initReactApp)
-
-// Export the initialization function for use in other contexts if needed
 export { initReactApp }
