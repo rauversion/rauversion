@@ -40,6 +40,7 @@ export function ImageUploader({
       setDragActive(false)
     }
   }
+  
 
   const handleDrop = async (e) => {
     e.preventDefault()

@@ -1,4 +1,4 @@
-json.invitations @invitations do |invitation|
+json.collection @invitations do |invitation|
   json.id invitation.id
   json.email invitation.email
   json.username invitation.username
@@ -20,8 +20,12 @@ json.invitations @invitations do |invitation|
   end
 end
 
-json.meta do
-  json.total_count @invitations.count
-  json.invitations_count current_user.invitations_count
-  json.invitations_left current_user.has_invitations_left?
+json.metadata do
+  json.current_page @invitations.current_page
+  json.total_pages @invitations.total_pages
+  json.total_count @invitations.total_count
+  json.next_page @invitations.next_page
+  json.prev_page @invitations.prev_page
+  json.is_first_page @invitations.first_page?
+  json.is_last_page @invitations.last_page?
 end

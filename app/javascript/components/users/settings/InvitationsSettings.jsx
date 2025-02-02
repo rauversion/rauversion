@@ -135,7 +135,7 @@ export default function InvitationsSettings() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {invitations.map((invitation, index) => (
+            {invitations && invitations.map((invitation, index) => (
               <div
                 key={invitation.id}
                 ref={index === invitations.length - 1 ? lastElementRef : null}

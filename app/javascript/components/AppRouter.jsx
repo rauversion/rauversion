@@ -61,6 +61,7 @@ import ReleasePreview from "./releases/ReleasePreview"
 
 import AlbumsList from "./albums/AlbumsList"
 import AlbumShow from "./albums/AlbumShow"
+import NewTrack from "./tracks/NewTrack"
 
 export default function AppRouter() {
   return (
@@ -95,7 +96,9 @@ export default function AppRouter() {
             <Route path="recordings" element={<Recordings />} />
             <Route path="settings" element={<Settings />} />
           </Route>
+          
           <Route path="/tracks" element={<TracksIndex />} />
+          <Route path="/tracks/new" element={<NewTrack />} />
           <Route path="/tracks/:slug" element={<TrackShow />} />
           <Route path="/playlists" element={<PlaylistsIndex />} />
           <Route path="/playlists/:slug" element={<PlaylistShow />} />

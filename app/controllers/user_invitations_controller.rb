@@ -2,7 +2,7 @@ class UserInvitationsController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    @invitations = User.where(invited_by_id: current_user.id)
+    @invitations = User.where(invited_by_id: current_user.id).page(params[:page]).per(10)
     respond_to do |format|
       format.json
     end

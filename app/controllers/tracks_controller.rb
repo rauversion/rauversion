@@ -79,6 +79,16 @@ class TracksController < ApplicationController
       @track_form.save
       if @track_form.errors.blank?
         @track_form.step = "share"
+        
+        respond_to do |format|
+          format.html { redirect_to track_path(@track_form.tracks.first) }
+          format.json
+        end
+      else
+        respond_to do |format|
+          format.html { render :new }
+          format.json
+        end
       end
     end
   end
@@ -184,7 +194,7 @@ class TracksController < ApplicationController
   end
 
   def track_bulk_params
-    params.require(:track_bulk_creator).permit(
+    params.require(:track_form).permit(
       :make_playlist, 
       :private,
       :enable_label,

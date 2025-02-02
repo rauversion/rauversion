@@ -19,8 +19,8 @@ class TrackBulkCreator
   end
 
   def tracks_attributes_objects=(attributes)
-    array = attributes.keys.map { |o| attributes[o] }
-    self.tracks_attributes = array # .map { |o| Track.new(o) }
+    # array = attributes.keys.map { |o| attributes[o] }
+    self.tracks_attributes = attributes # .map { |o| Track.new(o) }
     # array.map{|o| ScheduleRecord.new(o) }
   end
 
