@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom"
 import { useForm, useFieldArray } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { format } from "date-fns"
+import { format, isValid } from "date-fns"
 import { put } from '@rails/request.js'
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
@@ -17,15 +17,8 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 import { Plus, Trash2 } from "lucide-react"
+import { DateTimeRangePicker } from "@/components/ui/date-time-range-picker"
 
 const scheduleItemSchema = z.object({
   id: z.number().optional(),
@@ -43,6 +36,17 @@ const formSchema = z.object({
   event_schedules_attributes: z.array(scheduleItemSchema)
 })
 
+const formatDateSafely = (dateString) => {
+  if (!dateString) return ""
+  try {
+    const date = new Date(dateString)
+    return isValid(date) ? date.toISOString() : ""
+  } catch (error) {
+    console.error('Error formatting date:', error)
+    return ""
+  }
+}
+
 export default function Schedule() {
   const { slug } = useParams()
   const { toast } = useToast()
@@ -55,13 +59,14 @@ export default function Schedule() {
       const data = await response.json()
       setEvent(data)
       
+      
       return {
         event_schedules_attributes: data.event_schedules?.map(schedule => ({
           id: schedule.id,
           name: schedule.name,
           description: schedule.description,
-          start_date: format(new Date(schedule.start_date), "yyyy-MM-dd'T'HH:mm"),
-          end_date: format(new Date(schedule.end_date), "yyyy-MM-dd'T'HH:mm"),
+          start_date: formatDateSafely(schedule.start_date),
+          end_date: formatDateSafely(schedule.end_date),
           schedule_type: schedule.schedule_type
         })) || []
       }
@@ -129,8 +134,8 @@ export default function Schedule() {
                 append({
                   name: "",
                   description: "",
-                  start_date: "",
-                  end_date: "",
+                  start_date: new Date().toISOString(),
+                  end_date: new Date().toISOString(),
                   schedule_type: "session"
                 })
               }}
@@ -172,34 +177,22 @@ export default function Schedule() {
                     )}
                   />
 
-                  <div className="grid grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name={`event_schedules_attributes.${index}.start_date`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Start Date & Time</FormLabel>
-                          <FormControl>
-                            <Input type="datetime-local" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
+                  <div className="space-y-2">
+                    <FormLabel>Date & Time Range</FormLabel>
+                    <DateTimeRangePicker
+                      startDate={form.watch(`event_schedules_attributes.${index}.start_date`)}
+                      endDate={form.watch(`event_schedules_attributes.${index}.end_date`)}
+                      onStartDateChange={(date) => {
+                        form.setValue(`event_schedules_attributes.${index}.start_date`, date)
+                      }}
+                      onEndDateChange={(date) => {
+                        form.setValue(`event_schedules_attributes.${index}.end_date`, date)
+                      }}
                     />
-
-                    <FormField
-                      control={form.control}
-                      name={`event_schedules_attributes.${index}.end_date`}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>End Date & Time</FormLabel>
-                          <FormControl>
-                            <Input type="datetime-local" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <FormMessage>
+                      {form.formState.errors?.event_schedules_attributes?.[index]?.start_date?.message ||
+                       form.formState.errors?.event_schedules_attributes?.[index]?.end_date?.message}
+                    </FormMessage>
                   </div>
                 </div>
 
