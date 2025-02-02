@@ -8,7 +8,16 @@ json.user do
   json.country @user.country
   json.city @user.city
   json.email @user.email
-  json.avatar_url @user.avatar.present? ? url_for(@user.avatar) : nil
+  json.avatar_url do
+    json.small @user.avatar_url(:small)
+    json.medium @user.avatar_url(:medium)
+    json.large @user.avatar_url(:large)
+  end
+  json.profile_header_url do
+    json.small @user.profile_header_url(:small)
+    json.medium @user.profile_header_url(:medium)
+    json.large @user.profile_header_url(:large)
+  end
   
   # Notification settings
   json.new_follower_email @user.new_follower_email
@@ -76,5 +85,11 @@ json.menu_items [
     namespace: "transbank",
     title: I18n.t("user_settings.title_transbank"),
     sub: I18n.t("user_settings.sub_transbank")
+  },
+  {
+    to: "/settings/invitations",
+    namespace: "invitations",
+    title: I18n.t("user_settings.title_invitations"),
+    sub: I18n.t("user_settings.sub_invitations")
   }
 ]

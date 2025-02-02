@@ -121,7 +121,9 @@ class User < ApplicationRecord
       avatar.variant(resize_to_fill: [200, 200]) # &.processed&.url
     end
 
-    url || "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
+    return Rails.application.routes.url_helpers.rails_storage_proxy_url(url) if url.present?
+
+    "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
   end
 
   def self.track_preloaded_by_user(current_user_id:, user: )

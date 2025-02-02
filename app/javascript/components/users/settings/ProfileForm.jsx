@@ -5,47 +5,57 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
+import { Checkbox } from "@/components/ui/checkbox"
 import { useForm } from "react-hook-form"
 import { get, patch } from "@rails/request.js"
 import { useToast } from "@/hooks/use-toast"
+import { ImageUploader } from "@/components/ui/image-uploader"
+import { Separator } from "@/components/ui/separator"
 
 export default function ProfileForm() {
   const { username } = useParams()
   const { toast } = useToast()
   const [user, setUser] = React.useState(null)
+  const [avatarBlobId, setAvatarBlobId] = React.useState(null)
+  const [headerBlobId, setHeaderBlobId] = React.useState(null)
+
+  const { register, handleSubmit, reset, getValues } = useForm()
+
+  const fetchUser = async () => {
+    const response = await get(`/${username}/settings.json`)
+    if (response.ok) {
+      const data = await response.json
+      setUser(data.user)
+      setAvatarBlobId(data.user.avatar_blob_id)
+      setHeaderBlobId(data.user.profile_header_blob_id)
+      
+      // Reset form with user data
+      reset({
+        username: data.user.username,
+        hide_username_from_profile: data.user.hide_username_from_profile,
+        first_name: data.user.first_name,
+        last_name: data.user.last_name,
+        bio: data.user.bio,
+        country: data.user.country,
+        city: data.user.city,
+        // website: data.user.website,
+      })
+    }
+  }
 
   React.useEffect(() => {
-    const fetchUser = async () => {
-      const response = await get(`/${username}/settings.json`)
-      if (response.ok) {
-        const data = await response.json
-        debugger
-
-
-        setUser(data.user)
-      }
-    }
     fetchUser()
-  }, [username])
-
-  const { register, handleSubmit } = useForm({
-    defaultValues: {
-      username: user?.username || "",
-      first_name: user?.first_name || "",
-      last_name: user?.last_name || "",
-      bio: user?.bio || "",
-      location: user?.location || "",
-      website: user?.website || "",
-    },
-  })
+  }, [username, reset])
 
   const onSubmit = async (data) => {
     try {
-      const response = await patch(`/${username}/settings/profile`, {
-        body: JSON.stringify({ user: data }),
-        headers: {
-          'Content-Type': 'application/json'
-        }
+      const response = await patch(`/${username}/settings/profile.json`, {
+        body: JSON.stringify({ 
+          user: {
+            ...data
+          } 
+        }),
+        responseKind: "json"
       })
       
       if (response.ok) {
@@ -53,8 +63,12 @@ export default function ProfileForm() {
           title: "Success",
           description: "Your profile has been updated.",
         })
+        // Reset blob IDs after successful update
+        setAvatarBlobId(null)
+        setHeaderBlobId(null)
+        fetchUser()
       } else {
-        const error = await response.json()
+        const error = await response.json
         toast({
           title: "Error",
           description: error.message || "There was a problem updating your profile.",
@@ -68,6 +82,26 @@ export default function ProfileForm() {
         variant: "destructive",
       })
     }
+  }
+
+  const handleAvatarUpload = async (signedBlobId) => {
+    setAvatarBlobId(signedBlobId)
+    // Get current form values and submit with new avatar
+    // const currentValues = getValues()
+    await onSubmit({
+      avatar_blob_id: signedBlobId
+    })
+  }
+
+  const handleHeaderUpload = async (signedBlobId, cropData) => {
+    setHeaderBlobId(signedBlobId)
+    // Get current form values and submit with new header
+    const currentValues = getValues()
+    await onSubmit({
+      ...currentValues,
+      profile_header_blob_id: signedBlobId,
+      crop_data: cropData ? JSON.stringify(cropData) : null
+    })
   }
 
   if (!user) return null
@@ -84,10 +118,28 @@ export default function ProfileForm() {
         <CardContent className="space-y-6">
           <div className="space-y-2">
             <Label htmlFor="username">Username</Label>
-            <Input
-              id="username"
-              {...register("username")}
-            />
+            <div className="flex rounded-md">
+              <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-sm">
+                Rauversion
+              </span>
+              <Input
+                id="username"
+                {...register("username")}
+                className="rounded-l-none"
+              />
+            </div>
+            <div className="flex items-center space-x-2 pt-2">
+              <Checkbox
+                id="hide_username"
+                {...register("hide_username_from_profile")}
+              />
+              <Label 
+                htmlFor="hide_username" 
+                className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              >
+                Hide username from profile page
+              </Label>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -114,23 +166,81 @@ export default function ProfileForm() {
               {...register("bio")}
               className="min-h-[100px]"
             />
+            <p className="text-sm text-muted-foreground">
+              Write a few sentences about yourself.
+            </p>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="location">Location</Label>
-            <Input
-              id="location"
-              {...register("location")}
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="country">Country</Label>
+              <Input
+                id="country"
+                {...register("country")}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="city">City</Label>
+              <Input
+                id="city"
+                {...register("city")}
+              />
+            </div>
           </div>
 
-          <div className="space-y-2">
+          {/*<div className="space-y-2">
             <Label htmlFor="website">Website</Label>
             <Input
               id="website"
               type="url"
               {...register("website")}
             />
+          </div>*/}
+
+          <div className="space-y-6">
+            <div>
+              <h3 className="text-lg font-medium">Profile Images</h3>
+              <p className="text-sm text-muted-foreground">
+                Your avatar and header image will be shown on your profile page.
+              </p>
+            </div>
+
+            <div className="grid gap-6 lg:grid-cols-2">
+              <div className="space-y-2">
+                <Label>Avatar</Label>
+   
+                <ImageUploader
+                  aspectRatio={16/9}
+                  maxSize={10}
+                  preview={true}
+                  variant="avatar"
+                  imageUrl={user.avatar_url?.medium}
+                  onUploadComplete={handleAvatarUpload}
+                  className="w-1/4 mx-auto"
+                />
+                <p className="text-xs text-muted-foreground text-center">
+                  Recommended: Square image, at least 400x400px
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label>Profile Header</Label>
+     
+                <ImageUploader
+                  variant="header"
+                  aspectRatio={16/9}
+                  maxSize={10}
+                  preview={true}
+                  enableCropper={true}
+                  imageUrl={user.profile_header_url?.medium}
+                  onUploadComplete={handleHeaderUpload}
+                  className="w-full aspect-[3/1]"
+                />
+                <p className="text-xs text-muted-foreground text-center">
+                  Recommended: 1500x500px
+                </p>
+              </div>
+            </div>
           </div>
 
           <div className="flex justify-end">

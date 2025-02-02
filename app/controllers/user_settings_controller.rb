@@ -1,10 +1,10 @@
 class UserSettingsController < ApplicationController
   before_action :authenticate_user!
   before_action :disable_footer
+  before_action :set_user
 
   def show
     @section = params[:section] || "profile"
-    @user = current_user
     if @user.podcaster_info.blank? && params[:section] == "podcast"
       @user.build_podcaster_info
     end
@@ -13,28 +13,65 @@ class UserSettingsController < ApplicationController
 
   def index
     @section = params[:section] || "profile"
-    @user = current_user #User.find_by(username: params[:user_id])
+    respond_to do |format|
+      format.html
+      format.json
+    end
   end
 
   def update
-    @user = current_user
     @section = params[:section]
-    if @user.update(user_attributes)
-      flash.now[:notice] = "#{params[:section]} updated"
+
+
+    # Handle cover attachment if blob_id is present
+    if params.dig(:post, :avatar_blob_id).present?
+      @user.avatar.attach(params[:post][:avatar_blob_id])
+      
+      # Handle crop data if present
+      #if params.dig(:post, :crop_data).present?
+      #  @user.update(crop_data: params[:post][:crop_data])
+      #end
+    end
+
+    # Handle cover attachment if blob_id is present
+    if params.dig(:post, :profile_header_blob_id).present?
+      @user.profile_header.attach(params[:post][:profile_header_blob_id])
+      
+      # Handle crop data if present
+      #if params.dig(:post, :crop_data).present?
+      #  @user.update(crop_data: params[:post][:crop_data])
+      #end
+    end
+
+    respond_to do |format|
+      if @user.update(user_attributes)
+        format.html { flash.now[:notice] = "#{params[:section]} updated" }
+        format.json
+      else
+        format.html
+        format.json { render :update, status: :unprocessable_entity }
+      end
     end
   end
 
   private
 
+  def set_user
+    @user = current_user
+  end
+
   def user_attributes
-    params.require(:user).permit(
+    attrs = params.require(:user).permit(
       :username,
-      :hide_username_from_profile,
-      :last_name, 
-      :first_name, 
-      :bio, :avatar, 
-      :country, 
+      :first_name,
+      :last_name,
+      :bio,
+      :country,
       :city,
+      :website,
+      :hide_username_from_profile,
+      :avatar_blob_id,
+      :profile_header_blob_id,
       :email, :current_password,
       :new_follower_email,
       :new_follower_app,
@@ -49,7 +86,6 @@ class UserSettingsController < ApplicationController
       :suggested_content_app,
       :new_message_email,
       :new_message_app,
-      :profile_header,
       :like_and_plays_on_your_post_email,
       :tbk_commerce_code, :pst_enabled, :tbk_test_mode,
       
@@ -72,6 +108,17 @@ class UserSettingsController < ApplicationController
       ]
       
     )
+
+    # Attach blobs if provided
+    if attrs[:avatar_blob_id].present?
+      attrs[:avatar] = ActiveStorage::Blob.find_signed(attrs.delete(:avatar_blob_id))
+    end
+
+    if attrs[:profile_header_blob_id].present?
+      attrs[:profile_header] = ActiveStorage::Blob.find_signed(attrs.delete(:profile_header_blob_id))
+    end
+
+    attrs
   end
 
   def podcaster_info_params
