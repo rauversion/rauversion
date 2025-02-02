@@ -59,6 +59,9 @@ import ReleaseForm from "./releases/ReleaseForm"
 import ReleaseEditor from "./releases/ReleaseEditor"
 import ReleasePreview from "./releases/ReleasePreview"
 
+import AlbumsList from "./albums/AlbumsList"
+import AlbumShow from "./albums/AlbumShow"
+
 export default function AppRouter() {
   return (
     <BrowserRouter>
@@ -97,7 +100,8 @@ export default function AppRouter() {
           <Route path="/releases/:id/editor" element={<ReleaseEditor />} />
           <Route path="/releases/:id/preview" element={<ReleasePreview />} />
           <Route path="/releases/:id" element={<ReleasePreview />} />
-          
+          <Route path="/albums" element={<AlbumsList />} />
+          <Route path="/albums/:slug" element={<AlbumShow />} />
           <Route path="/:username/podcasts" element={<PodcastLayout />}>
             <Route index element={<PodcastsIndex />} />
             <Route path=":id" element={<PodcastShow />} />

@@ -1,7 +1,7 @@
 import React from 'react'
 import { Play, Pause } from 'lucide-react'
 
-function formatDuration(seconds) {
+export function formatDuration(seconds) {
   const minutes = Math.floor(seconds / 60)
   const remainingSeconds = seconds % 60
   return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
