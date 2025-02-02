@@ -13,6 +13,7 @@ json.playlist do
   json.user do
     json.id @playlist.user.id
     json.username @playlist.user.username
+    json.full_name @playlist.user.full_name
     json.avatar_url do
       json.small @playlist.user.avatar_url(:small)
       json.medium @playlist.user.avatar_url(:medium)

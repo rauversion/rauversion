@@ -54,6 +54,11 @@ import TransbankSettings from "./users/settings/TransbankSettings"
 import InvitationsSettings from "./users/settings/InvitationsSettings"
 import SecuritySettings from "./users/settings/SecuritySettings"
 
+import ReleasesList from "./releases/ReleasesList"
+import ReleaseForm from "./releases/ReleaseForm"
+import ReleaseEditor from "./releases/ReleaseEditor"
+import ReleasePreview from "./releases/ReleasePreview"
+
 export default function AppRouter() {
   return (
     <BrowserRouter>
@@ -86,6 +91,13 @@ export default function AppRouter() {
           <Route path="/tracks/:slug" element={<TrackShow />} />
           <Route path="/playlists" element={<PlaylistsIndex />} />
           <Route path="/playlists/:slug" element={<PlaylistShow />} />
+          <Route path="/releases" element={<ReleasesList />} />
+          <Route path="/releases/new" element={<ReleaseForm />} />
+          <Route path="/releases/:id/edit" element={<ReleaseForm />} />
+          <Route path="/releases/:id/editor" element={<ReleaseEditor />} />
+          <Route path="/releases/:id/preview" element={<ReleasePreview />} />
+          <Route path="/releases/:id" element={<ReleasePreview />} />
+          
           <Route path="/:username/podcasts" element={<PodcastLayout />}>
             <Route index element={<PodcastsIndex />} />
             <Route path=":id" element={<PodcastShow />} />
