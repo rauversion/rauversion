@@ -1,5 +1,5 @@
 import React from "react"
-import { useNavigate } from "react-router-dom"
+import { useNavigate, Link } from "react-router-dom"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
@@ -13,7 +13,8 @@ import Select from "react-select"
 import { Category } from "@/lib/constants"
 import { useThemeStore } from '@/stores/theme'
 import { ImageUploader } from "@/components/ui/image-uploader"
-
+import { Share2 } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
 import "@/styles/react-select.css"
 
 const selectTheme = (theme, isDark) => ({
@@ -51,6 +52,7 @@ export default function NewTrack() {
   const [uploadedFiles, setUploadedFiles] = React.useState([])
   const [makePlaylist, setMakePlaylist] = React.useState(false)
   const [privacy, setPrivacy] = React.useState("public")
+  const [completedTracks, setCompletedTracks] = React.useState([])
   const fileInputRef = React.useRef(null)
   const progressContainerRef = React.useRef(null)
 
@@ -171,6 +173,7 @@ export default function NewTrack() {
     
     try {
       const response = await post('/tracks', {
+        responseKind: 'json',
         body: JSON.stringify({
           track_form: {
             step: "info",
@@ -186,21 +189,26 @@ export default function NewTrack() {
             }))
           }
         }),
-        responseKind: "json",
       })
 
-      if (response.ok) {
-        const data = await response.json
-        toast({
-          description: "Successfully saved track information",
-          variant: "success",
-        })
-        navigate(data.redirect_to)
+      if (!response.ok) {
+        throw new Error('Network response was not ok')
+      }
+
+      const data = await response.json
+      
+      if (data.success) {
+        setCompletedTracks(data.tracks)
+        setStep("share")
       } else {
-        throw new Error('Failed to save track information')
+        toast({
+          title: "Error",
+          description: data.errors.join(", "),
+          variant: "destructive",
+        })
       }
     } catch (error) {
-      console.error('Save error:', error)
+      console.error('Error:', error)
       toast({
         title: "Error",
         description: "Failed to save track information",
@@ -322,6 +330,110 @@ export default function NewTrack() {
             </Button>
           </div>
         </form>
+      </div>
+    )
+  }
+
+  if (step === "share") {
+    return (
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="space-y-6">
+          {completedTracks.map((track) => (
+            <Card key={track.slug} className="overflow-hidden">
+              <CardContent className="p-6">
+                <div className="flex">
+                  {/* Cover Image */}
+                  <div className="mr-4">
+                    <div className="relative w-32 h-32">
+                      {track.cover_url ? (
+                        <img
+                          src={track.cover_url}
+                          alt={track.title}
+                          className="w-full h-full object-cover rounded-md"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-muted rounded-md">
+                          <Music className="h-12 w-12 text-muted-foreground" />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Track Info */}
+                  <div className="flex-1">
+                    <div className="mb-3">
+                      <h3 className="text-lg font-semibold">{track.title}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        {track.user.username}
+                      </p>
+                    </div>
+
+                    {track.private && (
+                      <Badge variant="secondary" className="mb-2">
+                        Private
+                      </Badge>
+                    )}
+
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm text-muted-foreground">
+                        <p>Upload complete.</p>
+                        <Link
+                          to={`/tracks/${track.id}`}
+                          className="text-primary hover:text-primary/90"
+                        >
+                          Go to track
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Share Section */}
+                  <div className="pl-4 w-56 border-l">
+                    <div className="space-y-4">
+                      <div>
+                        <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
+                          <Share2 className="h-4 w-4" />
+                          Share
+                        </h4>
+                        
+                        <div className="space-y-2">
+                          <Button
+                            variant="outline"
+                            className="w-full justify-start text-sm"
+                            onClick={() => {
+                              navigator.clipboard.writeText(`${window.location.origin}/tracks/${track.id}`)
+                              toast({
+                                description: "Link copied to clipboard",
+                              })
+                            }}
+                          >
+                            Copy Link
+                          </Button>
+                          
+                          <Button
+                            variant="outline"
+                            className="w-full justify-start text-sm"
+                            asChild
+                          >
+                            <a
+                              href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(
+                                `${window.location.origin}/tracks/${track.id}`
+                              )}&text=${encodeURIComponent(track.title)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              Share on Twitter
+                            </a>
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     )
   }

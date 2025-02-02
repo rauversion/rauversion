@@ -3,7 +3,7 @@ json.track do
   json.title @track.title
   json.url track_path(@track)
   json.audio_url @track.mp3_audio&.url if @track.mp3_audio.attached?
-  json.artwork_url @track.cover_url(:small) if @track.cover.attached?
+  json.artwork_url @track.cover_url(:small)
   
   json.user_username @track.user.username
   json.user_url user_path(@track.user)

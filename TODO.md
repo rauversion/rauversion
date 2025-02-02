@@ -5,13 +5,7 @@ TODO:
     + payment buttons
     + session flow
     + artist profile
-    + podcasters
-    + user admin area
-      + artiscles
-    + upload
-
-  + featured artists
-  + podcaster section
+    + track edit modal
 
   + Current.label_user not set on impersonate new track
   

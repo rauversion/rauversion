@@ -69,10 +69,11 @@ export default function UserMenu() {
               </div>
             </div>
 
+
             <div className="flex items-center justify-end space-x-4">
               {currentUser ? (
                 <>
-                  <Link to="/upload" className="rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted">
+                  <Link to="/tracks/new" className="rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted">
                     Upload
                   </Link>
 

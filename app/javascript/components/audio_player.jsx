@@ -160,7 +160,8 @@ export default function AudioPlayer({ id, url, peaks, height }) {
   const checkHalfwayEvent = (percent) => {
     if (percent >= 30 && !hasHalfwayEventFired) {
       setHasHalfwayEventFired(true);
-      trackEvent(audioRef.current.dataset.trackId);
+      const trackId = useAudioStore.getState().currentTrackId;
+      if(trackId) trackEvent(trackId);
     }
   };
 
