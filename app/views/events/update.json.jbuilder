@@ -12,6 +12,14 @@ if @event.errors.any?
         end
       end
     end
+
+    @event.event_tickets.each_with_index do |ticket, index|
+      if ticket.errors.any?
+        ticket.errors.messages.each do |field, messages|
+          json.set! "event_tickets_attributes.#{index}.#{field}", messages
+        end
+      end
+    end
   end
 end
 
