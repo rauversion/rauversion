@@ -41,7 +41,7 @@ class UserSettingsController < ApplicationController
 
         format.json { render :update }
       else
-        format.json { render json: { error: @user.errors.full_messages.join(", ") }, status: :unprocessable_entity }
+        format.json { render json: { errors: @user.errors.messages }, status: :unprocessable_entity }
       end
     end
   end
@@ -56,7 +56,17 @@ class UserSettingsController < ApplicationController
 
         format.json { render :update }
       else
-        format.json { render json: { error: @user.errors.full_messages.join(", ") }, status: :unprocessable_entity }
+        format.json { render json: { errors: @user.errors.messages }, status: :unprocessable_entity }
+      end
+    end
+  end
+
+  def social_links
+    respond_to do |format|
+      if update_user
+        format.json { render :update }
+      else
+        format.json { render json: { errors: @user.errors.messages }, status: :unprocessable_entity }
       end
     end
   end
@@ -74,16 +84,19 @@ class UserSettingsController < ApplicationController
   def user_attributes
     attrs = params.require(:user).permit(
       :username,
-      :first_name,
-      :last_name,
-      :bio,
-      :country,
-      :city,
-      :website,
-      :hide_username_from_profile,
+      :email,
+      :current_password,
+      :avatar,
       :avatar_blob_id,
+      :profile_header,
       :profile_header_blob_id,
-      :email, :current_password,
+      :page_title,
+      :page_description,
+      :google_analytics_id,
+      :facebook_pixel,
+      :mailing_list_subscription,
+      :display_sensitive_content,
+      :age_restriction,
       :new_follower_email,
       :new_follower_app,
       :repost_of_your_post_email,
@@ -98,38 +111,19 @@ class UserSettingsController < ApplicationController
       :new_message_email,
       :new_message_app,
       :like_and_plays_on_your_post_email,
-      :tbk_commerce_code, :pst_enabled, :tbk_test_mode,
-      
-      :mailing_list_provider,
-      :mailing_list_api_key,
-      :mailing_list_list_id,
-      :email_sign_up,
-      :google_analytics_id,
-      :facebook_pixel_id,
-      :social_title,
-      :social_description,
-      :sensitive_content,
-      :age_restriction,
-      
       podcaster_info_attributes: [
         :id,
         :title, :about, :description, :avatar, :active,
         :spotify_url, :apple_podcasts_url, :google_podcasts_url, :stitcher_url, :overcast_url, :pocket_casts_url,
         podcaster_hosts_ids: []
       ]
-      
     )
 
-    # Attach blobs if provided
-    if attrs[:avatar_blob_id].present?
-      attrs[:avatar] = ActiveStorage::Blob.find_signed(attrs.delete(:avatar_blob_id))
+    if attrs[:current_password].present?
+      attrs
+    else
+      attrs.except(:email, :current_password)
     end
-
-    if attrs[:profile_header_blob_id].present?
-      attrs[:profile_header] = ActiveStorage::Blob.find_signed(attrs.delete(:profile_header_blob_id))
-    end
-
-    attrs
   end
 
   def podcaster_info_params

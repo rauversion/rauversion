@@ -19,6 +19,34 @@ json.user do
     json.large @user.profile_header_url(:large)
   end
 
+  json.social_links_settings do
+    # Social Links & SEO Settings
+    json.social_title @user.social_title
+    json.social_description @user.social_description
+    json.google_analytics_id @user.google_analytics_id
+    json.facebook_pixel_id @user.facebook_pixel_id
+    json.email_sign_up @user.email_sign_up
+    json.sensitive_content @user.sensitive_content
+    json.age_restriction @user.age_restriction
+  end
+
+  # Notification settings
+  json.new_follower_email @user.new_follower_email
+  json.new_follower_app @user.new_follower_app
+  json.repost_of_your_post_email @user.repost_of_your_post_email
+  json.repost_of_your_post_app @user.repost_of_your_post_app
+  json.new_post_by_followed_user_email @user.new_post_by_followed_user_email
+  json.new_post_by_followed_user_app @user.new_post_by_followed_user_app
+  json.like_and_plays_on_your_post_app @user.like_and_plays_on_your_post_app
+  json.comment_on_your_post_email @user.comment_on_your_post_email
+  json.comment_on_your_post_app @user.comment_on_your_post_app
+  json.suggested_content_email @user.suggested_content_email
+  json.suggested_content_app @user.suggested_content_app
+  json.new_message_email @user.new_message_email
+  json.new_message_app @user.new_message_app
+  json.like_and_plays_on_your_post_email @user.like_and_plays_on_your_post_email
+
+  # Podcaster info
   json.podcaster_info do
     json.id @user.podcaster_info&.id
     json.active @user.podcaster_info&.active
@@ -41,21 +69,6 @@ json.user do
       json.pocket_casts_url @user.podcaster_info&.pocket_casts_url
     end
   end
-  
-  # Notification settings
-  json.new_follower_email @user.new_follower_email
-  json.new_follower_app @user.new_follower_app
-  json.repost_of_your_post_email @user.repost_of_your_post_email
-  json.repost_of_your_post_app @user.repost_of_your_post_app
-  json.new_post_by_followed_user_email @user.new_post_by_followed_user_email
-  json.new_post_by_followed_user_app @user.new_post_by_followed_user_app
-  json.like_and_plays_on_your_post_app @user.like_and_plays_on_your_post_app
-  json.comment_on_your_post_email @user.comment_on_your_post_email
-  json.comment_on_your_post_app @user.comment_on_your_post_app
-  json.suggested_content_email @user.suggested_content_email
-  json.suggested_content_app @user.suggested_content_app
-  json.new_message_email @user.new_message_email
-  json.new_message_app @user.new_message_app
 end
 
 json.section @section

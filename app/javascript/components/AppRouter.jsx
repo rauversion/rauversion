@@ -96,8 +96,8 @@ export default function AppRouter() {
             <Route index element={<ProfileForm />} />
             <Route path="profile" element={<ProfileForm />} />
             <Route path="email" element={<EmailSettings />} />
-            {/* <Route path="notifications" element={<NotificationSettings />} /> */}
-            <Route path="social-links" element={<SocialLinksSettings />} />
+            <Route path="notifications" element={<NotificationSettings />} />
+            <Route path="social_links" element={<SocialLinksSettings />} />
             <Route path="podcast" element={<PodcastSettings />} />
             <Route path="integrations" element={<IntegrationsSettings />} />
             <Route path="transbank" element={<TransbankSettings />} />
