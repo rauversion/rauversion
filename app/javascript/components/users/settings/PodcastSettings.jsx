@@ -15,57 +15,89 @@ export default function PodcastSettings() {
   const { toast } = useToast()
   const [user, setUser] = React.useState(null)
 
+  const defaultValues = {
+    podcaster_info_attributes: {
+      id: null,
+      title: "",
+      about: "",
+      description: "",
+      active: false,
+      spotify_url: "",
+      apple_podcasts_url: "",
+      google_podcasts_url: "",
+      stitcher_url: "",
+      overcast_url: "",
+      pocket_casts_url: "",
+    }
+  }
+
+  const { register, control, handleSubmit, reset } = useForm({
+    defaultValues
+  })
+
   React.useEffect(() => {
     const fetchUser = async () => {
-      const response = await get(`/${username}/settings.json`)
-      if (response.ok) {
-        const data = await response.json
-        setUser(data.user)
+      try {
+        const response = await get(`/${username}/settings.json`)
+        if (response.ok) {
+          const data = await response.json
+          setUser(data.user)
+          
+          const podcasterInfo = data.user.podcaster_info || {}
+          const podcastLinks = podcasterInfo.podcast_links || {}
+          
+          reset({
+            podcaster_info_attributes: {
+              id: podcasterInfo.id || "",
+              title: podcasterInfo.title || "",
+              about: podcasterInfo.about || "",
+              description: podcasterInfo.description || "",
+              active: Boolean(podcasterInfo.active),
+              spotify_url: podcastLinks.spotify_url || "",
+              apple_podcasts_url: podcastLinks.apple_podcasts_url || "",
+              google_podcasts_url: podcastLinks.google_podcasts_url || "",
+              stitcher_url: podcastLinks.stitcher_url || "",
+              overcast_url: podcastLinks.overcast_url || "",
+              pocket_casts_url: podcastLinks.pocket_casts_url || "",
+            }
+          })
+        }
+      } catch (error) {
+        console.error("Error fetching user:", error)
+        toast({
+          title: "Error",
+          description: "Could not load podcast settings.",
+          variant: "destructive",
+        })
       }
     }
     fetchUser()
   }, [username])
 
-  const { register, control, handleSubmit } = useForm({
-    defaultValues: {
-      podcast_title: user?.podcaster_info?.title || "",
-      podcast_description: user?.podcaster_info?.description || "",
-      podcast_category: user?.podcaster_info?.category || "",
-      podcast_language: user?.podcaster_info?.language || "",
-      podcast_explicit: user?.podcaster_info?.explicit || false,
-      podcast_website: user?.podcaster_info?.website || "",
-      podcast_copyright: user?.podcaster_info?.copyright || "",
-      podcast_owner_name: user?.podcaster_info?.owner_name || "",
-      podcast_owner_email: user?.podcaster_info?.owner_email || "",
-    },
-  })
-
   const onSubmit = async (data) => {
     try {
       const response = await patch(`/${username}/settings/podcast`, {
-        body: JSON.stringify({ user: { podcaster_info_attributes: data } }),
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        body: JSON.stringify({ user: { podcaster_info_attributes: data.podcaster_info_attributes } }),
+        responseKind: "json"
       })
-      
+
       if (response.ok) {
         toast({
           title: "Success",
-          description: "Your podcast settings have been updated.",
+          description: "Podcast settings updated successfully",
         })
       } else {
-        const error = await response.json()
+        const error = await response.json
         toast({
           title: "Error",
-          description: error.message || "There was a problem updating your podcast settings.",
+          description: error.message || "Failed to update podcast settings",
           variant: "destructive",
         })
       }
     } catch (error) {
       toast({
         title: "Error",
-        description: "There was a problem updating your podcast settings.",
+        description: "An error occurred while updating podcast settings",
         variant: "destructive",
       })
     }
@@ -73,59 +105,20 @@ export default function PodcastSettings() {
 
   if (!user) return null
 
+  console.log("Current form values:", user?.podcaster_info)
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
       <Card>
         <CardHeader>
           <CardTitle>Podcast Settings</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Configure your podcast channel settings and information.
+            Configure your podcast profile and settings.
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="podcast_title">Podcast Title</Label>
-            <Input
-              id="podcast_title"
-              {...register("podcast_title")}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="podcast_description">Description</Label>
-            <Textarea
-              id="podcast_description"
-              {...register("podcast_description")}
-              className="min-h-[100px]"
-            />
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="podcast_category">Category</Label>
-              <Input
-                id="podcast_category"
-                {...register("podcast_category")}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="podcast_language">Language</Label>
-              <Input
-                id="podcast_language"
-                {...register("podcast_language")}
-              />
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="space-y-0.5">
-              <Label>Explicit Content</Label>
-              <p className="text-sm text-muted-foreground">
-                Mark if your podcast contains explicit content
-              </p>
-            </div>
+          <div className="flex items-center space-x-2">
             <Controller
-              name="podcast_explicit"
+              name="podcaster_info_attributes.active"
               control={control}
               render={({ field }) => (
                 <Switch
@@ -134,45 +127,95 @@ export default function PodcastSettings() {
                 />
               )}
             />
+            <Label>Active Podcaster Profile</Label>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="podcast_website">Website</Label>
+            <Label htmlFor="title">Title</Label>
             <Input
-              id="podcast_website"
-              type="url"
-              {...register("podcast_website")}
+              id="title"
+              {...register("podcaster_info_attributes.title")}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="podcast_copyright">Copyright</Label>
-            <Input
-              id="podcast_copyright"
-              {...register("podcast_copyright")}
+            <Label htmlFor="about">About</Label>
+            <Textarea
+              id="about"
+              {...register("podcaster_info_attributes.about")}
+              className="min-h-[100px]"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="description">Description</Label>
+            <Textarea
+              id="description"
+              {...register("podcaster_info_attributes.description")}
+              className="min-h-[100px]"
+            />
+          </div>
+
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium">Distribution Links</h3>
+            
             <div className="space-y-2">
-              <Label htmlFor="podcast_owner_name">Owner Name</Label>
+              <Label htmlFor="spotify_url">Spotify URL</Label>
               <Input
-                id="podcast_owner_name"
-                {...register("podcast_owner_name")}
+                id="spotify_url"
+                type="url"
+                {...register("podcaster_info_attributes.spotify_url")}
               />
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="podcast_owner_email">Owner Email</Label>
+              <Label htmlFor="apple_podcasts_url">Apple Podcasts URL</Label>
               <Input
-                id="podcast_owner_email"
-                type="email"
-                {...register("podcast_owner_email")}
+                id="apple_podcasts_url"
+                type="url"
+                {...register("podcaster_info_attributes.apple_podcasts_url")}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="google_podcasts_url">Google Podcasts URL</Label>
+              <Input
+                id="google_podcasts_url"
+                type="url"
+                {...register("podcaster_info_attributes.google_podcasts_url")}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="stitcher_url">Stitcher URL</Label>
+              <Input
+                id="stitcher_url"
+                type="url"
+                {...register("podcaster_info_attributes.stitcher_url")}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="overcast_url">Overcast URL</Label>
+              <Input
+                id="overcast_url"
+                type="url"
+                {...register("podcaster_info_attributes.overcast_url")}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="pocket_casts_url">Pocket Casts URL</Label>
+              <Input
+                id="pocket_casts_url"
+                type="url"
+                {...register("podcaster_info_attributes.pocket_casts_url")}
               />
             </div>
           </div>
 
           <div className="flex justify-end">
-            <Button type="submit">Save podcast settings</Button>
+            <Button type="submit">Save changes</Button>
           </div>
         </CardContent>
       </Card>

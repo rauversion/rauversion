@@ -24,6 +24,25 @@ class PodcasterInfo < ApplicationRecord
   validates :overcast_url, url: true, allow_blank: true
   validates :pocket_casts_url, url: true, allow_blank: true
 
+  def avatar_url(size = :medium)
+    url = case size
+    when :medium
+      avatar.variant(resize_to_fill: [200, 200]) # &.processed&.url
+
+    when :large
+      avatar.variant(resize_to_fill: [500, 500]) # &.processed&.url
+
+    when :small
+      avatar.variant(resize_to_fill: [50, 50]) # &.processed&.url
+
+    else
+      avatar.variant(resize_to_fill: [200, 200]) # &.processed&.url
+    end
+
+    return Rails.application.routes.url_helpers.rails_storage_proxy_url(url) if url.present?
+
+    "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
+  end
   # You can add custom methods to work with these fields
   def has_podcast_links?
     spotify_url.present? || apple_podcasts_url.present? || google_podcasts_url.present? ||

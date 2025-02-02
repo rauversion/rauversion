@@ -18,6 +18,29 @@ json.user do
     json.medium @user.profile_header_url(:medium)
     json.large @user.profile_header_url(:large)
   end
+
+  json.podcaster_info do
+    json.id @user.podcaster_info&.id
+    json.active @user.podcaster_info&.active
+    json.title @user.podcaster_info&.title
+    json.about @user.podcaster_info&.about
+    json.description @user.podcaster_info&.description
+    json.avatar_url do
+      json.small @user.podcaster_info&.avatar_url(:small)
+      json.medium @user.podcaster_info&.avatar_url(:medium)
+      json.large @user.podcaster_info&.avatar_url(:large)
+    end
+    json.has_podcast_links @user.podcaster_info&.has_podcast_links?
+
+    json.podcast_links do
+      json.spotify_url @user.podcaster_info&.spotify_url
+      json.apple_podcasts_url @user.podcaster_info&.apple_podcasts_url
+      json.google_podcasts_url @user.podcaster_info&.google_podcasts_url
+      json.stitcher_url @user.podcaster_info&.stitcher_url
+      json.overcast_url @user.podcaster_info&.overcast_url
+      json.pocket_casts_url @user.podcaster_info&.pocket_casts_url
+    end
+  end
   
   # Notification settings
   json.new_follower_email @user.new_follower_email
