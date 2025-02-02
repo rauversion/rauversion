@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { useForm } from "react-hook-form"
-import axios from "axios"
+import { get, patch } from "@rails/request.js"
 import { useToast } from "@/hooks/use-toast"
 import { 
   User, Mail, Bell, Link as LinkIcon, Podcast, 
@@ -26,88 +26,6 @@ const menuIcons = {
   integrations: Settings2
 }
 
-export function ProfileForm({ user, onSubmit }) {
-  const { register, handleSubmit } = useForm({
-    defaultValues: {
-      username: user.username,
-      hide_username_from_profile: user.hide_username_from_profile,
-      first_name: user.first_name,
-      last_name: user.last_name,
-      country: user.country,
-      city: user.city,
-      bio: user.bio,
-    },
-  })
-
-  return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-      <Card>
-        <CardHeader>
-          <CardTitle>Contact Information</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            This information will be displayed publicly so be careful what you share.
-          </p>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
-            <div className="flex rounded-md">
-              <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-sm">
-                rauversion
-              </span>
-              <Input
-                {...register("username")}
-                className="rounded-l-none"
-              />
-            </div>
-            <div className="flex items-center space-x-2">
-              <Checkbox
-                id="hide_username"
-                {...register("hide_username_from_profile")}
-              />
-              <label
-                htmlFor="hide_username"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                Hide username from profile page
-              </label>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="first_name">First name</Label>
-              <Input {...register("first_name")} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="last_name">Last name</Label>
-              <Input {...register("last_name")} />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="country">Country</Label>
-              <Input {...register("country")} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="city">City</Label>
-              <Input {...register("city")} />
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="bio">Bio</Label>
-            <Textarea {...register("bio")} />
-          </div>
-
-          <Button type="submit">Save changes</Button>
-        </CardContent>
-      </Card>
-    </form>
-  )
-}
-
 export default function MySettings() {
   const { username } = useParams()
   const location = useLocation()
@@ -116,16 +34,24 @@ export default function MySettings() {
   const currentSection = location.pathname.split('/').slice(-1)[0] || 'profile'
 
   React.useEffect(() => {
-    axios.get(`/${username}/settings.json`).then((res) => {
-      setUser(res.data.user)
-      setMenuItems(res.data.menu_items)
-    })
+    const fetchSettings = async () => {
+      const response = await get(`/${username}/settings.json`)
+      if (response.ok) {
+        const data = await response.json
+        setUser(data.user)
+        setMenuItems(data.menu_items)
+      }
+    }
+    fetchSettings()
   }, [username])
 
   const handleSubmit = async (data) => {
     try {
-      const response = await axios.patch(`/${username}/settings/${currentSection}`, {
-        user: data,
+      const response = await patch(`/${username}/settings/${currentSection}`, {
+        body: JSON.stringify({ user: data }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
       })
       // toast({
       //   title: "Success",
@@ -191,9 +117,6 @@ export default function MySettings() {
         </aside>
 
         <main className="flex-1">
-          {currentSection === "profile" && (
-            <ProfileForm user={user} onSubmit={handleSubmit} />
-          )}
           <Outlet />
         </main>
       </div>

@@ -42,7 +42,17 @@ import Settings from "./events/sections/Settings"
 import { Toaster } from "./ui/toaster"
 import MySales from "./sales/MySales"
 import MyPurchases from "./purchases/MyPurchases"
-import MySettings, {ProfileForm} from "./users/MySettings"
+import MySettings from "./users/MySettings"
+
+import ProfileForm from "./users/settings/ProfileForm"
+import EmailSettings from "./users/settings/EmailSettings"
+import NotificationSettings from "./users/settings/NotificationSettings"
+import SocialLinksSettings from "./users/settings/SocialLinksSettings"
+import PodcastSettings from "./users/settings/PodcastSettings"
+import IntegrationsSettings from "./users/settings/IntegrationsSettings"
+import TransbankSettings from "./users/settings/TransbankSettings"
+import InvitationsSettings from "./users/settings/InvitationsSettings"
+import SecuritySettings from "./users/settings/SecuritySettings"
 
 export default function AppRouter() {
   return (
@@ -83,16 +93,16 @@ export default function AppRouter() {
           <Route path="/:username/about" element={<UserAbout />} />
           <Route path="/:username/links" element={<UserLinks />} />
           <Route path="/:username/settings" element={<MySettings />}>
-            <Route path=":section" element={<Outlet />}>
-              <Route path="profile" element={<ProfileForm />} />
-              <Route path="email" element={<p>Email settings coming soon</p>} />
-              <Route path="podcast" element={<p>Podcast settings coming soon</p>} />
-              <Route path="notifications" element={<p>Notifications settings coming soon</p>} />
-              <Route path="social_links" element={<p>Social links settings coming soon</p>} />
-              <Route path="integrations" element={<p>Integrations settings coming soon</p>} />
-              <Route path="transbank" element={<p>Transbank settings coming soon</p>} />
-              <Route path="invitations" element={<p>Invitations settings coming soon</p>} />
-            </Route>
+            <Route index element={<ProfileForm />} />
+            <Route path="profile" element={<ProfileForm />} />
+            <Route path="email" element={<EmailSettings />} />
+            <Route path="notifications" element={<NotificationSettings />} />
+            <Route path="social-links" element={<SocialLinksSettings />} />
+            <Route path="podcast" element={<PodcastSettings />} />
+            <Route path="integrations" element={<IntegrationsSettings />} />
+            <Route path="transbank" element={<TransbankSettings />} />
+            <Route path="invitations" element={<InvitationsSettings />} />
+            <Route path="security" element={<SecuritySettings />} />
           </Route>
 
 
