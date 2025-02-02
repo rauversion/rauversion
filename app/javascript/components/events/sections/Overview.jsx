@@ -3,10 +3,19 @@ import { useParams } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { format } from "date-fns"
+import { format, parse } from "date-fns"
 import { put } from '@rails/request.js'
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
+import { MapPicker } from "@/components/ui/map-picker"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { cn } from "@/lib/utils"
+import { CalendarIcon, Clock, MapPin } from "lucide-react"
 import {
   Form,
   FormControl,
@@ -31,11 +40,16 @@ const formSchema = z.object({
     message: "Title must be at least 2 characters.",
   }),
   timezone: z.string(),
-  event_start: z.string(),
-  event_ends: z.string(),
+  event_start_date: z.date(),
+  event_start_time: z.string(),
+  event_end_date: z.date(),
+  event_end_time: z.string(),
   description: z.string(),
   location: z.string(),
   venue: z.string(),
+  lat: z.string().optional(),
+  lng: z.string().optional(),
+  address: z.string().optional(),
   cover: z.any().optional(),
 })
 
@@ -49,25 +63,73 @@ export default function Overview() {
     defaultValues: async () => {
       const response = await fetch(`/events/${slug}.json`)
       const data = await response.json()
-      setEvent(data.event)
+      setEvent(data)
+      
+      const startDate = new Date(data.event_start)
+      const endDate = new Date(data.event_ends)
+      
       return {
-        title: data.event.title,
-        timezone: data.event.timezone,
-        event_start: format(new Date(data.event.event_start), "yyyy-MM-dd'T'HH:mm"),
-        event_ends: format(new Date(data.event.event_ends), "yyyy-MM-dd'T'HH:mm"),
-        description: data.event.description,
-        location: data.event.location,
-        venue: data.event.venue,
+        title: data.title,
+        timezone: data.timezone,
+        event_start_date: startDate,
+        event_start_time: format(startDate, "HH:mm"),
+        event_end_date: endDate,
+        event_end_time: format(endDate, "HH:mm"),
+        description: data.description,
+        location: data.location,
+        venue: data.venue,
+        lat: data.lat,
+        lng: data.lng,
       }
     }
   })
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (values) => {
     try {
       const formData = new FormData()
+      
+      // Combine date and time for start and end
+      const startDateTime = new Date(values.event_start_date)
+      const [startHours, startMinutes] = values.event_start_time.split(':')
+      startDateTime.setHours(parseInt(startHours), parseInt(startMinutes))
+      
+      const endDateTime = new Date(values.event_end_date)
+      const [endHours, endMinutes] = values.event_end_time.split(':')
+      endDateTime.setHours(parseInt(endHours), parseInt(endMinutes))
+      
+      const data = {
+        ...values,
+        event_start: startDateTime.toISOString(),
+        event_ends: endDateTime.toISOString(),
+      }
+      
+      // Clean up form fields that shouldn't be sent to API
+      delete data.event_start_date
+      delete data.event_start_time
+      delete data.event_end_date
+      delete data.event_end_time
+      
+      // Format location data
+      if (data.lat && data.lng) {
+        data.location_attributes = {
+          address: data.address || data.location,
+          lat: data.lat,
+          lng: data.lng
+        }
+        delete data.lat
+        delete data.lng
+        delete data.address
+      }
+      
       Object.keys(data).forEach(key => {
         if (data[key] !== undefined && data[key] !== null) {
-          formData.append(`event[${key}]`, data[key])
+          if (typeof data[key] === 'object') {
+            Object.keys(data[key]).forEach(subKey => {
+              formData.append(`event[${key}][${subKey}]`, data[key][subKey])
+            })
+          } else {
+            formData.append(`event[${key}]`, data[key])
+          }
         }
       })
 
@@ -103,69 +165,199 @@ export default function Overview() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <FormField
           control={form.control}
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Event Title</FormLabel>
+              <FormLabel>Title</FormLabel>
               <FormControl>
-                <Input placeholder="My awesome event" {...field} />
+                <Input placeholder="Event title" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <FormField
-            control={form.control}
-            name="timezone"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Timezone</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select timezone" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {Intl.supportedValuesOf('timeZone').map((tz) => (
-                      <SelectItem key={tz} value={tz}>
-                        {tz}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="event_start"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Start Date & Time</FormLabel>
+        
+        <FormField
+          control={form.control}
+          name="timezone"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Timezone</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
-                  <Input type="datetime-local" {...field} />
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select timezone" />
+                  </SelectTrigger>
                 </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+                <SelectContent>
+                  <SelectItem value="America/Santiago">America/Santiago</SelectItem>
+                  <SelectItem value="America/New_York">America/New_York</SelectItem>
+                  <SelectItem value="Europe/London">Europe/London</SelectItem>
+                  <SelectItem value="Asia/Tokyo">Asia/Tokyo</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-4">
+            <FormField
+              control={form.control}
+              name="event_start_date"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>Start Date</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={(date) =>
+                          date < new Date()
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="event_start_time"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Start Time</FormLabel>
+                  <FormControl>
+                    <div className="flex items-center">
+                      <Input
+                        type="time"
+                        {...field}
+                        className="w-full"
+                      />
+                      <Clock className="ml-2 h-4 w-4 opacity-50" />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          
+          <div className="space-y-4">
+            <FormField
+              control={form.control}
+              name="event_end_date"
+              render={({ field }) => (
+                <FormItem className="flex flex-col">
+                  <FormLabel>End Date</FormLabel>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          {field.value ? (
+                            format(field.value, "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={(date) =>
+                          date < form.watch("event_start_date")
+                        }
+                        initialFocus
+                      />
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
+            <FormField
+              control={form.control}
+              name="event_end_time"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>End Time</FormLabel>
+                  <FormControl>
+                    <div className="flex items-center">
+                      <Input
+                        type="time"
+                        {...field}
+                        className="w-full"
+                      />
+                      <Clock className="ml-2 h-4 w-4 opacity-50" />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        </div>
 
+        <div className="space-y-4">
           <FormField
             control={form.control}
-            name="event_ends"
+            name="location"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>End Date & Time</FormLabel>
+                <FormLabel>Location</FormLabel>
                 <FormControl>
-                  <Input type="datetime-local" {...field} />
+                  <div className="space-y-4">
+                    <MapPicker
+                      value={{
+                        lat: form.watch('lat'),
+                        lng: form.watch('lng'),
+                        address: field.value
+                      }}
+                      onChange={(location) => {
+                        field.onChange(location.address)
+                        form.setValue('lat', location.lat.toString())
+                        form.setValue('lng', location.lng.toString())
+                      }}
+                    />
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -181,7 +373,7 @@ export default function Overview() {
               <FormLabel>Description</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Tell us about your event"
+                  placeholder="Event description"
                   className="resize-none"
                   {...field}
                 />
@@ -191,54 +383,21 @@ export default function Overview() {
           )}
         />
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          <FormField
-            control={form.control}
-            name="location"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Location</FormLabel>
-                <FormControl>
-                  <Input placeholder="Event location" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="venue"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Venue</FormLabel>
-                <FormControl>
-                  <Input placeholder="Venue name" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
-
         <FormField
           control={form.control}
-          name="cover"
+          name="venue"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Cover Image</FormLabel>
+              <FormLabel>Venue</FormLabel>
               <FormControl>
-                <ImageUploader
-                  defaultValue={event?.cover_url}
-                  onChange={(file) => field.onChange(file)}
-                />
+                <Input placeholder="Event venue" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <Button type="submit">Save Changes</Button>
+        <Button type="submit">Save changes</Button>
       </form>
     </Form>
   )
