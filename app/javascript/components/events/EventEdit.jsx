@@ -81,11 +81,11 @@ export default function EventEdit() {
 
   return (
     <div className="container mx-auto py-6">
-      <Breadcrumb className="mb-6">
+      <Breadcrumb className="mb-6 flex items-center">
         <BreadcrumbItem>
           <BreadcrumbLink to="/events">Events</BreadcrumbLink>
         </BreadcrumbItem>
-        <BreadcrumbSeparator />
+        <BreadcrumbSeparator className="flex items-center" />
         <BreadcrumbItem>
           <BreadcrumbPage>{event?.title || 'Loading...'}</BreadcrumbPage>
         </BreadcrumbItem>

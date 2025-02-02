@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;*/
 
+
 @import "tailwindcss/base";
 @import "./puck_copy.css";
 @import "./cropper.css";

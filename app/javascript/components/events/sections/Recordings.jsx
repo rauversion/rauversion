@@ -45,7 +45,7 @@ import {
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
 import { Loader2, Plus } from "lucide-react"
-import { post, put, destroy } from "@rails/request.js"
+import { post, put, destroy, FetchRequest } from "@rails/request.js"
 
 const recordingSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -79,6 +79,8 @@ export default function Recordings() {
     loading,
     lastElementRef,
     resetList,
+    page,
+    fetchItems,
   } = useInfiniteScroll(`/events/${slug}/event_recordings.json`)
 
   const form = useForm({
@@ -98,11 +100,11 @@ export default function Recordings() {
         ? `/events/${slug}/event_recordings/${selectedRecording.id}.json`
         : `/events/${slug}/event_recordings.json`
       
-      const method = editMode ? 'put' : 'post'
-      const response = await window.Requests[method](url, {
-        body: JSON.stringify({ event_recording: data }),
-        responseKind: 'json',
-      })
+      const method = editMode ? 'PUT' : 'POST'
+
+      const request = new FetchRequest(method, url, { body: JSON.stringify({ event_recording: data }) })
+      const response = await request.perform()
+  
 
       if (response.ok) {
         const result = await response.json
@@ -159,28 +161,6 @@ export default function Recordings() {
     form.reset()
   }
 
-  const loadRecordings = async () => {
-    try {
-      setLoading(true)
-      const response = await fetch(`/events/${slug}/event_recordings.json`)
-      const data = await response.json()
-      resetList(data.recordings)
-    } catch (error) {
-      console.error('Error loading recordings:', error)
-      toast({
-        title: "Error",
-        description: "Could not load recordings",
-        variant: "destructive",
-      })
-    } finally {
-      setLoading(false)
-    }
-  }
-
- /* React.useEffect(() => {
-    loadRecordings()
-  }, [slug])*/
-
   const deleteRecording = async (recordingId) => {
     if (!confirm("Are you sure you want to delete this recording?")) return
 
@@ -188,7 +168,7 @@ export default function Recordings() {
       const response = await destroy(`/events/${slug}/event_recordings/${recordingId}.json`)
 
       if (response.ok) {
-        resetList()
+        setItems(recordings.filter(r => r.id !== recordingId))
         toast({
           title: "Success",
           description: "Recording deleted successfully",
@@ -214,13 +194,17 @@ export default function Recordings() {
           </p>
         </div>
 
+        <Button onClick={() => {
+          setEditMode(false)
+          setSelectedRecording(null)
+          form.reset()
+          setOpen(true)
+        }}>
+          <Plus className="mr-2 h-4 w-4" />
+          Add Recording
+        </Button>
+
         <Dialog open={open} onOpenChange={handleClose}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Recording
-            </Button>
-          </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{editMode ? 'Edit' : 'Add'} Recording</DialogTitle>

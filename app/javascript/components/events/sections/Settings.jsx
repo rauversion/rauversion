@@ -97,26 +97,26 @@ export default function Settings() {
   const form = useForm({
     resolver: zodResolver(settingsSchema),
     defaultValues: async () => {
-      const response = await fetch(`/events/${slug}/settings.json`)
+      const response = await fetch(`/events/${slug}.json`)
       const data = await response.json()
-      setEvent(data.event)
+      setEvent(data)
       setLoading(false)
       return {
-        slug: data.event.slug,
-        visibility: data.event.visibility || "public",
-        registration_type: data.event.registration_type || "open",
-        allow_comments: data.event.allow_comments ?? true,
-        show_attendees: data.event.show_attendees ?? true,
-        show_remaining_tickets: data.event.show_remaining_tickets ?? true,
-        social_sharing: data.event.social_sharing ?? true,
-        require_login: data.event.require_login ?? false,
+        slug: data.slug,
+        visibility: data.visibility || "public",
+        registration_type: data.registration_type || "open",
+        allow_comments: data.allow_comments ?? true,
+        show_attendees: data.show_attendees ?? true,
+        show_remaining_tickets: data.show_remaining_tickets ?? true,
+        social_sharing: data.social_sharing ?? true,
+        require_login: data.require_login ?? false,
       }
     }
   })
 
   const onSubmit = async (data) => {
     try {
-      const response = await put(`/events/${slug}/settings.json`, {
+      const response = await put(`/events/${slug}.json`, {
         body: JSON.stringify({
           event: data
         }),

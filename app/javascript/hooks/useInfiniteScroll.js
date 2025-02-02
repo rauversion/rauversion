@@ -59,6 +59,8 @@ export function useInfiniteScroll(fetchUrl, options = {}) {
     hasMore,
     lastElementRef,
     resetList,
-    setItems
+    setItems,
+    fetchItems,
+    page
   }
 }
