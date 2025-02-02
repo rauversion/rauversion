@@ -109,10 +109,13 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :sales, only: [:index]
+  
   resources :purchases do
     collection do
-      get :tickets
       get :music
+      get :tickets
+      get :products
     end
 
     member do
@@ -127,13 +130,6 @@ Rails.application.routes.draw do
     sessions: "users/sessions"
     # :invitations => 'users/invitations'
   }
-
-  resources :sales do
-    member do
-      get :product_show
-      post :refund
-    end
-  end
 
   resources :event_webhooks
 

@@ -2,17 +2,49 @@ class PurchasesController < ApplicationController
   before_action :authenticate_user!
 
   def index
-    @purchases = current_user.purchases.page
-  end
+    @tab = params[:tab].present? ? params[:tab] : "music"
+    
+    case @tab
+    when "music"
+      @collection = current_user.purchases.includes(:purchased_items).where(purchasable_type: ["Track", "Album"]).page(params[:page]).per(20)
+    when "tickets"
+      @collection = current_user.purchases.includes(:purchased_items).where(purchasable_type: "EventTicket").page(params[:page]).per(20)
+    when "products"
+      @collection = current_user.purchases.includes(:purchased_items).where(purchasable_type: "Product").page(params[:page]).per(20)
+    end
 
-  def tickets
-    @purchases = current_user.purchases.where(state: "paid", purchasable_type: "Event").page
+    respond_to do |format|
+      format.html
+      format.json
+    end
   end
 
   def music
-    kind = (params[:tab] == "tracks") ? "Track" : "Playlist"
-    type = params[:type] || "paid"
-    @collection = current_user.purchases.where(state: type, purchasable_type: kind).page
+    @section = params[:section] || "all"
+    @collection = current_user.purchases.includes(:purchased_items).where(purchasable_type: ["Track", "Album"]).page(params[:page]).per(20)
+
+    respond_to do |format|
+      format.html
+      format.json
+    end
+  end
+
+  def tickets
+    @collection = current_user.purchases.includes(:purchased_items).where(purchasable_type: "EventTicket").page(params[:page]).per(20)
+
+    respond_to do |format|
+      format.html
+      format.json
+    end
+  end
+
+  def products
+    @collection = current_user.purchases.includes(:purchased_items).where(purchasable_type: "Product").page(params[:page]).per(20)
+
+    respond_to do |format|
+      format.html
+      format.json
+    end
   end
 
   def download
