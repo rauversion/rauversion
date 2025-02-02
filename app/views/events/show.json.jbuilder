@@ -40,6 +40,7 @@ json.attendees_count @event.purchased_items.where(state: "paid").size
 
 # Event hosts/speakers
 json.event_hosts @event.event_hosts do |host|
+  json.id host.id
   json.name host.name
   json.description host.description
   json.listed_on_page host.listed_on_page

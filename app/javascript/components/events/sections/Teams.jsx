@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom"
 import { useForm, useFieldArray } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { put } from '@rails/request.js'
+import { post, put, get, destroy } from '@rails/request.js'
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
 import {
@@ -16,6 +16,7 @@ import {
   FormDescription,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import {
   Select,
   SelectContent,
@@ -40,6 +41,21 @@ import {
 } from "@/components/ui/card"
 import { Plus, Trash2, UserPlus } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Pencil } from "lucide-react"
+import { Switch } from "@/components/ui/switch"
+import { Loader2 } from "lucide-react"
+import { ImageUploader } from "@/components/ui/image-uploader"
 
 const teamMemberSchema = z.object({
   email: z.string().email(),
@@ -48,6 +64,14 @@ const teamMemberSchema = z.object({
 
 const formSchema = z.object({
   team_members: z.array(teamMemberSchema)
+})
+
+const hostSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  description: z.string().optional(),
+  listed_on_page: z.boolean().optional(),
+  event_manager: z.boolean().optional(),
+  avatar: z.any().optional()
 })
 
 const roleOptions = [
@@ -62,6 +86,9 @@ export default function Teams() {
   const [event, setEvent] = React.useState(null)
   const [pendingInvites, setPendingInvites] = React.useState([])
   const [currentTeam, setCurrentTeam] = React.useState([])
+  const [hostToDelete, setHostToDelete] = React.useState(null)
+  const [hostToEdit, setHostToEdit] = React.useState(null)
+  const [isEditLoading, setIsEditLoading] = React.useState(false)
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -70,55 +97,64 @@ export default function Teams() {
     }
   })
 
+  const editForm = useForm({
+    resolver: zodResolver(hostSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      listed_on_page: false,
+      event_manager: false,
+      avatar: null
+    }
+  })
+
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "team_members"
   })
 
-  React.useEffect(() => {
-    const fetchTeamData = async () => {
-      try {
-        const response = await fetch(`/events/${slug}/team.json`)
-        const data = await response.json()
-        setEvent(data.event)
-        setPendingInvites(data.event.pending_invites || [])
-        setCurrentTeam(data.event.team_members || [])
-        
-        // Reset form with current team members
-        form.reset({
-          team_members: data.event.team_members?.map(member => ({
-            email: member.email,
-            role: member.role
-          })) || []
-        })
-      } catch (error) {
-        console.error('Error fetching team data:', error)
-        toast({
-          title: "Error",
-          description: "Could not load team data",
-          variant: "destructive",
-        })
-      }
+  const fetchTeamData = async () => {
+    try {
+      const response = await get(`/events/${slug}.json`)
+      const data = await response.json
+      setEvent(data.event)
+      // setPendingInvites(data.event.pending_invites || [])
+      setCurrentTeam(data.event_hosts || [])
+      
+      // Reset form with current team members
+      form.reset({
+        team_members: data.event_hosts?.map(member => ({
+          role: member.role
+        })) || []
+      })
+    } catch (error) {
+      console.error('Error fetching team data:', error)
+      toast({
+        title: "Error",
+        description: "Could not load team data",
+        variant: "destructive",
+      })
     }
+  }
 
+  React.useEffect(() => {
     fetchTeamData()
   }, [slug])
 
   const onSubmit = async (data) => {
     try {
-      const response = await put(`/events/${slug}/team.json`, {
+      const response = await post(`/events/${slug}/event_hosts.json`, {
         body: JSON.stringify({
-          event: {
-            team_members_attributes: data.team_members
-          }
+          event_hosts_attributes: data.team_members
         }),
         responseKind: 'json'
       })
 
       if (response.ok) {
         const data = await response.json
-        setPendingInvites(data.pending_invites)
-        setCurrentTeam(data.team_members)
+        // setPendingInvites(data.pending_invites)
+        // setCurrentTeam(data.team_members)
+        fetchTeamData()
         form.reset({ team_members: [] })
         toast({
           title: "Success",
@@ -150,21 +186,29 @@ export default function Teams() {
     })
   }
 
-  const removeMember = async (memberId) => {
+  const handleDeleteConfirm = async () => {
+    if (!hostToDelete) return
+
     try {
-      const response = await put(`/events/${slug}/remove_team_member.json`, {
-        body: JSON.stringify({
-          member_id: memberId
-        }),
-        responseKind: 'json'
+      const response = await destroy(`/events/${slug}/event_hosts/${hostToDelete.id}.json`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        }
       })
 
       if (response.ok) {
-        const data = await response.json
-        setCurrentTeam(data.team_members)
+        setCurrentTeam(team => team.filter(member => member.id !== hostToDelete.id))
         toast({
           title: "Success",
           description: "Team member removed successfully",
+        })
+      } else {
+        const data = await response.json()
+        toast({
+          title: "Error",
+          description: data.message || "Could not remove team member",
+          variant: "destructive",
         })
       }
     } catch (error) {
@@ -174,8 +218,81 @@ export default function Teams() {
         description: "Could not remove team member",
         variant: "destructive",
       })
+    } finally {
+      setHostToDelete(null)
     }
   }
+
+  const handleEditSubmit = async (data) => {
+    setIsEditLoading(true)
+    try {
+      const formData = new FormData()
+      formData.append('event_host[name]', data.name)
+      formData.append('event_host[description]', data.description || '')
+      formData.append('event_host[listed_on_page]', data.listed_on_page)
+      formData.append('event_host[event_manager]', data.event_manager)
+      
+      if (data.avatar instanceof File) {
+        formData.append('event_host[avatar]', data.avatar)
+      }
+
+      const response = await put(`/events/${slug}/event_hosts/${hostToEdit.id}.json`, {
+        body: formData,
+      })
+
+      const responseData = await response.json
+
+      if (response.ok) {
+        setCurrentTeam(team => 
+          team.map(member => 
+            member.id === hostToEdit.id ? { ...member, ...responseData.event_host } : member
+          )
+        )
+        toast({
+          title: "Success",
+          description: "Team member updated successfully",
+        })
+        setHostToEdit(null)
+      } else {
+        // Set form errors if they exist
+        if (responseData.errors) {
+          Object.keys(responseData.errors).forEach(key => {
+            editForm.setError(key, {
+              type: 'server',
+              message: responseData.errors[key][0]
+            })
+          })
+        }
+        
+        toast({
+          title: "Error",
+          description: responseData.message || "Could not update team member",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error('Error updating team member:', error)
+      toast({
+        title: "Error",
+        description: "Could not update team member",
+        variant: "destructive",
+      })
+    } finally {
+      setIsEditLoading(false)
+    }
+  }
+
+  React.useEffect(() => {
+    if (hostToEdit) {
+      editForm.reset({
+        name: hostToEdit.name,
+        description: hostToEdit.description || "",
+        listed_on_page: hostToEdit.listed_on_page || false,
+        event_manager: hostToEdit.event_manager || false,
+        avatar: null
+      })
+    }
+  }, [hostToEdit])
 
   return (
     <div className="space-y-6">
@@ -187,46 +304,40 @@ export default function Teams() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Member</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="w-[50px]"></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+          <div className="space-y-4">
+            <h3 className="text-lg font-medium">Current Team Members</h3>
+            <div className="grid gap-4">
               {currentTeam.map((member) => (
-                <TableRow key={member.id}>
-                  <TableCell className="flex items-center gap-2">
-                    <Avatar>
-                      <AvatarImage src={member.avatar_url} />
-                      <AvatarFallback>{member.initials}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <div className="font-medium">{member.name}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {member.email}
-                      </div>
-                    </div>
-                  </TableCell>
-                  <TableCell className="capitalize">{member.role}</TableCell>
-                  <TableCell>{member.status}</TableCell>
-                  <TableCell>
+                <div
+                  key={member.id}
+                  className="flex items-center justify-between p-4 border rounded-lg"
+                >
+                  <div>
+                    <p className="font-medium">{member.name}</p>
+                    {member.description && (
+                      <p className="text-sm text-gray-600 mt-1">{member.description}</p>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
                     <Button
-                      type="button"
                       variant="ghost"
-                      size="icon"
-                      onClick={() => removeMember(member.id)}
+                      size="sm"
+                      onClick={() => setHostToEdit(member)}
+                    >
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setHostToDelete(member)}
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
-                  </TableCell>
-                </TableRow>
+                  </div>
+                </div>
               ))}
-            </TableBody>
-          </Table>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -317,26 +428,28 @@ export default function Teams() {
                           name={`team_members.${index}.role`}
                           render={({ field }) => (
                             <FormItem>
-                              <Select 
-                                onValueChange={field.onChange} 
-                                defaultValue={field.value}
-                              >
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select role" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {roleOptions.map((role) => (
-                                    <SelectItem 
-                                      key={role.value} 
-                                      value={role.value}
-                                    >
-                                      {role.label}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select>
+                              <FormControl>
+                                <Select 
+                                  onValueChange={field.onChange} 
+                                  defaultValue={field.value}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select role" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    {roleOptions.map((role) => (
+                                      <SelectItem 
+                                        key={role.value} 
+                                        value={role.value}
+                                      >
+                                        {role.label}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
@@ -364,6 +477,156 @@ export default function Teams() {
           </Form>
         </CardContent>
       </Card>
+
+      <AlertDialog open={!!hostToDelete} onOpenChange={(open) => !open && setHostToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will remove {hostToDelete?.name} from the team. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteConfirm}>
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <Dialog open={!!hostToEdit} onOpenChange={(open) => {
+        if (!open) {
+          setHostToEdit(null)
+          editForm.reset()
+        }
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Team Member</DialogTitle>
+          </DialogHeader>
+          <Form {...editForm}>
+            <form onSubmit={editForm.handleSubmit(handleEditSubmit)} className="space-y-4">
+              <div className="space-y-4">
+                <FormField
+                  control={editForm.control}
+                  name="avatar"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Profile Image</FormLabel>
+                      <FormControl>
+                        <ImageUploader
+                          value={field.value}
+                          onChange={field.onChange}
+                          disabled={isEditLoading}
+                          defaultPreview={hostToEdit?.avatar_url}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={editForm.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Name</FormLabel>
+                      <FormControl>
+                        <Input {...field} disabled={isEditLoading} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={editForm.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} disabled={isEditLoading} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={editForm.control}
+                  name="listed_on_page"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                      <div className="space-y-0.5">
+                        <FormLabel>Listed on Page</FormLabel>
+                        <FormDescription>
+                          Show this team member on the event page
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          disabled={isEditLoading}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={editForm.control}
+                  name="event_manager"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                      <div className="space-y-0.5">
+                        <FormLabel>Event Manager</FormLabel>
+                        <FormDescription>
+                          Allow this team member to manage the event
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          disabled={isEditLoading}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="flex justify-end space-x-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setHostToEdit(null)
+                    editForm.reset()
+                  }}
+                  disabled={isEditLoading}
+                >
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isEditLoading}>
+                  {isEditLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save Changes"
+                  )}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }
