@@ -40,6 +40,7 @@ import Attendees from "./events/sections/Attendees"
 import Recordings from "./events/sections/Recordings"
 import Settings from "./events/sections/Settings"
 import { Toaster } from "./ui/toaster"
+import MySales from "./sales/MySales"
 
 export default function AppRouter() {
   return (
@@ -49,6 +50,7 @@ export default function AppRouter() {
       <div className="pb-24">
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/sales" element={<MySales />} />
           <Route path="/articles" element={<ArticlesIndex />} />
           <Route path="/articles/mine" element={<MyArticles />} />
           <Route path="/articles/:id/edit" element={<EditArticle />} />
