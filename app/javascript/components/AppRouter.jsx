@@ -67,10 +67,15 @@ export default function AppRouter() {
     <BrowserRouter>
       <UserMenu />
 
+      <Routes>
+      </Routes>
 
       <div className="pb-24">
         <Routes>
+
           <Route path="/" element={<Home />} />
+          <Route path="/albums/:slug" element={<AlbumShow />} />
+
           <Route path="/sales" element={<MySales />} />
           <Route path="/purchases" element={<MyPurchases />} />
           <Route path="/articles" element={<ArticlesIndex />} />
@@ -101,7 +106,6 @@ export default function AppRouter() {
           <Route path="/releases/:id/preview" element={<ReleasePreview />} />
           <Route path="/releases/:id" element={<ReleasePreview />} />
           <Route path="/albums" element={<AlbumsList />} />
-          <Route path="/albums/:slug" element={<AlbumShow />} />
           <Route path="/:username/podcasts" element={<PodcastLayout />}>
             <Route index element={<PodcastsIndex />} />
             <Route path=":id" element={<PodcastShow />} />

@@ -41,6 +41,7 @@ function Editor({releaseId}) {
   const initialData = {};
   const [data, setData] = React.useState(initialData);
   const [loading, setLoading] = React.useState(true);
+  const { toast } = useToast();
 
   // Create Puck component config
   const config = {
@@ -204,7 +205,8 @@ function Editor({releaseId}) {
           release: {
             editor_data: data
           }
-        })
+        }),
+        responseKind: "json",
       });
 
       if (!response.ok) {
@@ -213,9 +215,17 @@ function Editor({releaseId}) {
 
       const result = await response.json;
       console.log("Save successful:", result);
+      toast({
+        description: "Release updated successfully",
+        variant: "success",
+      });
     } catch (error) {
       console.error("Error saving release data:", error);
-      // You might want to show an error notification here
+      toast({
+        title: "Error",
+        description: "Could not update release",
+        variant: "destructive",
+      });
     }
   }
 
@@ -290,65 +300,6 @@ export default function ReleaseEditor() {
     fetchRelease()
   }, [id])
 
-  const handleEditorSave = async (editorData) => {
-    try {
-      const response = await put(`/releases/${id}`, {
-        body: JSON.stringify({
-          release: {
-            editor_data: editorData,
-          },
-        }),
-        responseKind: "json",
-      })
-
-      if (response.ok) {
-        toast({
-          description: "Release updated successfully",
-        })
-      } else {
-        toast({
-          title: "Error",
-          description: "Could not update release",
-          variant: "destructive",
-        })
-      }
-    } catch (error) {
-      console.error("Error updating release:", error)
-      toast({
-        title: "Error",
-        description: "Could not update release",
-        variant: "destructive",
-      })
-    }
-  }
-
-  const handleImageUpload = async (file) => {
-    const formData = new FormData()
-    formData.append("file", file)
-
-    try {
-      const response = await fetch(release.urls.upload_image, {
-        method: "POST",
-        body: formData,
-      })
-
-      if (response.ok) {
-        const data = await response.json()
-        return data.url
-      } else {
-        throw new Error("Upload failed")
-      }
-    } catch (error) {
-      console.error("Error uploading image:", error)
-      toast({
-        title: "Error",
-        description: "Could not upload image",
-        variant: "destructive",
-      })
-      return null
-    }
-  }
-
   if (loading) {
     return (
       <div className="flex justify-center py-4">
@@ -361,7 +312,6 @@ export default function ReleaseEditor() {
 
   return (
     <div className="h-screen">
-      {/* Add your Puck Editor component here */}
       <Editor releaseId={id} />
     </div>
   )
