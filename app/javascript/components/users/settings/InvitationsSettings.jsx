@@ -5,8 +5,9 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { useForm } from "react-hook-form"
-import { get, post } from "@rails/request.js"
+import { post } from "@rails/request.js"
 import { useToast } from "@/hooks/use-toast"
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll"
 import { 
   Mail, Copy, CheckCircle2, XCircle, 
   Clock, RefreshCw 
@@ -15,9 +16,15 @@ import {
 export default function InvitationsSettings() {
   const { username } = useParams()
   const { toast } = useToast()
-  const [user, setUser] = React.useState(null)
-  const [invitations, setInvitations] = React.useState([])
   const [loading, setLoading] = React.useState(false)
+
+  const {
+    items: invitations,
+    setItems: setInvitations,
+    loading: fetchLoading,
+    lastElementRef,
+    resetList
+  } = useInfiniteScroll(`/${username}/invitations.json`)
 
   const { register, handleSubmit, reset } = useForm({
     defaultValues: {
@@ -26,54 +33,27 @@ export default function InvitationsSettings() {
     },
   })
 
-  React.useEffect(() => {
-    fetchInvitations()
-  }, [username])
-
-  const fetchInvitations = async () => {
-    try {
-      const response = await get(`/${username}/settings/invitations`)
-      if (response.ok) {
-        const data = await response.json
-        setInvitations(data.invitations)
-      } else {
-        toast({
-          title: "Error",
-          description: "Could not fetch invitations",
-          variant: "destructive",
-        })
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Could not fetch invitations",
-        variant: "destructive",
-      })
-    }
-  }
-
   const onSubmit = async (data) => {
     setLoading(true)
     try {
-      const response = await post(`/${username}/settings/invitations`, {
+      const response = await post(`/${username}/invitations`, {
         body: JSON.stringify({ invitation: data }),
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        responseKind: "json"
       })
       
       if (response.ok) {
+        const data = await response.json
+        setInvitations((prev) => [data.invitation, ...prev])
+        reset()
         toast({
           title: "Success",
-          description: "Invitation sent successfully.",
+          description: "Invitation sent successfully",
         })
-        reset()
-        fetchInvitations()
       } else {
-        const error = await response.json()
+        const data = await response.json
         toast({
           title: "Error",
-          description: error.message || "Could not send invitation",
+          description: data.error || "Could not send invitation",
           variant: "destructive",
         })
       }
@@ -88,64 +68,16 @@ export default function InvitationsSettings() {
     }
   }
 
-  const copyInviteLink = async (code) => {
-    const link = `${window.location.origin}/invite/${code}`
-    try {
-      await navigator.clipboard.writeText(link)
-      toast({
-        title: "Success",
-        description: "Invite link copied to clipboard",
-      })
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Could not copy link",
-        variant: "destructive",
-      })
-    }
-  }
-
-  const resendInvitation = async (id) => {
-    try {
-      const response = await post(`/${username}/settings/invitations/${id}/resend`, {
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-      
-      if (response.ok) {
-        toast({
-          title: "Success",
-          description: "Invitation resent successfully",
-        })
-        fetchInvitations()
-      } else {
-        const error = await response.json()
-        toast({
-          title: "Error",
-          description: error.message || "Could not resend invitation",
-          variant: "destructive",
-        })
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Could not resend invitation",
-        variant: "destructive",
-      })
-    }
-  }
-
   const getStatusIcon = (status) => {
     switch (status) {
-      case 'accepted':
-        return <CheckCircle2 className="h-4 w-4 text-green-500" />
-      case 'expired':
-        return <XCircle className="h-4 w-4 text-red-500" />
-      case 'pending':
-        return <Clock className="h-4 w-4 text-yellow-500" />
+      case "accepted":
+        return <CheckCircle2 className="text-green-500" />
+      case "pending":
+        return <Clock className="text-yellow-500" />
+      case "not_sent":
+        return <RefreshCw className="text-blue-500" />
       default:
-        return null
+        return <XCircle className="text-red-500" />
     }
   }
 
@@ -153,35 +85,42 @@ export default function InvitationsSettings() {
     <div className="space-y-8">
       <Card>
         <CardHeader>
-          <CardTitle>Send Invitation</CardTitle>
+          <CardTitle>Send Invitations</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Invite others to join your network.
+            Invite other users to join the platform
           </p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email Address</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
                 type="email"
-                {...register("email", { required: true })}
                 placeholder="Enter email address"
+                {...register("email", { required: true })}
               />
             </div>
-
             <div className="space-y-2">
-              <Label htmlFor="message">Personal Message (Optional)</Label>
+              <Label htmlFor="message">Message (optional)</Label>
               <Input
                 id="message"
+                placeholder="Add a personal message"
                 {...register("message")}
-                placeholder="Add a personal message to your invitation"
               />
             </div>
-
             <Button type="submit" disabled={loading}>
-              <Mail className="h-4 w-4 mr-2" />
-              Send Invitation
+              {loading ? (
+                <>
+                  <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <Mail className="mr-2 h-4 w-4" />
+                  Send Invitation
+                </>
+              )}
             </Button>
           </form>
         </CardContent>
@@ -191,52 +130,51 @@ export default function InvitationsSettings() {
         <CardHeader>
           <CardTitle>Sent Invitations</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Track and manage your sent invitations.
+            Track the status of your sent invitations
           </p>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {invitations.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-4">
-                No invitations sent yet
-              </p>
-            ) : (
-              invitations.map((invitation) => (
-                <div
-                  key={invitation.id}
-                  className="flex items-center justify-between p-4 border rounded-lg"
-                >
-                  <div className="space-y-1">
-                    <div className="flex items-center space-x-2">
-                      <p className="font-medium">{invitation.email}</p>
-                      {getStatusIcon(invitation.status)}
-                    </div>
+            {invitations.map((invitation, index) => (
+              <div
+                key={invitation.id}
+                ref={index === invitations.length - 1 ? lastElementRef : null}
+                className="flex items-center justify-between space-x-4 rounded-lg border p-4"
+              >
+                <div className="flex items-center space-x-4">
+                  <div className="rounded-lg border p-2">
+                    {getStatusIcon(invitation.status)}
+                  </div>
+                  <div>
+                    <h3 className="font-medium">{invitation.email}</h3>
                     <p className="text-sm text-muted-foreground">
-                      Sent {new Date(invitation.created_at).toLocaleDateString()}
+                      {invitation.status === "accepted"
+                        ? `Accepted on ${new Date(invitation.accepted_at).toLocaleDateString()}`
+                        : invitation.status === "pending"
+                        ? `Sent on ${new Date(invitation.sent_at).toLocaleDateString()}`
+                        : "Not sent yet"}
                     </p>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    {invitation.status === 'pending' && (
-                      <>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => copyInviteLink(invitation.code)}
-                        >
-                          <Copy className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => resendInvitation(invitation.id)}
-                        >
-                          <RefreshCw className="h-4 w-4" />
-                        </Button>
-                      </>
-                    )}
-                  </div>
                 </div>
-              ))
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    navigator.clipboard.writeText(invitation.email)
+                    toast({
+                      title: "Copied",
+                      description: "Email copied to clipboard",
+                    })
+                  }}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+            {fetchLoading && (
+              <div className="flex justify-center p-4">
+                <RefreshCw className="h-6 w-6 animate-spin" />
+              </div>
             )}
           </div>
         </CardContent>
