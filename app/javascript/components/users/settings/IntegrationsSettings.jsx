@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button"
 import { get } from "@rails/request.js"
 import { useToast } from "@/hooks/use-toast"
 import { Icons } from "@/components/icons"
-import { format } from "date-fns"
 
 export default function IntegrationsSettings() {
   const { username } = useParams()
   const { toast } = useToast()
   const [user, setUser] = React.useState(null)
+  const formRef = React.useRef()
 
   React.useEffect(() => {
     const fetchUser = async () => {
@@ -32,10 +32,15 @@ export default function IntegrationsSettings() {
     fetchUser()
   }, [username])
 
+  const handleAuth = (url) => {
+    formRef.current.action = url
+    formRef.current.submit()
+  }
+
   if (!user) return null
 
   const findCredential = (provider) => {
-    return user.integrations?.oauth_credentials?.find(
+    return user.oauth_credentials?.find(
       (cred) => cred.provider === provider
     )
   }
@@ -46,9 +51,9 @@ export default function IntegrationsSettings() {
       description: "Connect with Google for authentication and additional features.",
       icon: Icons.google,
       provider: "google_oauth2",
-      connected: user.integrations?.google_oauth2_connected,
-      connectUrl: `/${username}/auth/google_oauth2`,
-      disconnectUrl: `/${username}/auth/google_oauth2/disconnect`,
+      connected: findCredential("google_oauth2"),
+      connectUrl: "/users/auth/google_oauth2",
+      disconnectUrl: "/users/auth/google_oauth2/disconnect",
     },
     
     {
@@ -56,41 +61,50 @@ export default function IntegrationsSettings() {
       description: "Integrate with Zoom for live streaming and webinars.",
       icon: Icons.zoom,
       provider: "zoom",
-      connected: user.integrations?.zoom_connected,
-      connectUrl: `/${username}/auth/zoom`,
-      disconnectUrl: `/${username}/auth/zoom/disconnect`,
+      connected: findCredential("zoom"),
+      connectUrl: "/users/auth/zoom",
+      disconnectUrl: "/users/auth/zoom/disconnect",
     },
     {
       name: "Discord",
       description: "Connect your Discord server for community engagement.",
       icon: Icons.discord,
       provider: "discord",
-      connected: user.integrations?.discord_connected,
-      connectUrl: `/${username}/auth/discord`,
-      disconnectUrl: `/${username}/auth/discord/disconnect`,
+      connected: findCredential("discord"),
+      connectUrl: "/users/auth/discord",
+      disconnectUrl: "/users/auth/discord/disconnect",
     },
     {
       name: "Twitch",
       description: "Stream directly to your Twitch channel.",
       icon: Icons.twitch,
       provider: "twitch",
-      connected: user.integrations?.twitch_connected,
-      connectUrl: `/${username}/auth/twitch`,
-      disconnectUrl: `/${username}/auth/twitch/disconnect`,
+      connected: findCredential("twitch"),
+      connectUrl: "/users/auth/twitch",
+      disconnectUrl: "/users/auth/twitch/disconnect",
     },
     {
       name: "Stripe Connect",
       description: "Accept payments and manage your earnings.",
       icon: Icons.stripe,
       provider: "stripe_connect",
-      connected: user.integrations?.stripe_connected,
-      connectUrl: `/${username}/auth/stripe_connect`,
-      disconnectUrl: `/${username}/auth/stripe_connect/disconnect`,
+      connected: findCredential("stripe_connect"),
+      connectUrl: "/users/auth/stripe_connect",
+      disconnectUrl: "/users/auth/stripe_connect/disconnect",
     },
   ]
 
   return (
     <div className="space-y-8">
+      {/* Hidden form for POST requests */}
+      <form ref={formRef} method="post" className="hidden">
+        <input
+          type="hidden"
+          name="authenticity_token"
+          value={document.querySelector("[name='csrf-token']")?.content}
+        />
+      </form>
+
       <Card>
         <CardHeader>
           <CardTitle>Integrations</CardTitle>
@@ -117,22 +131,25 @@ export default function IntegrationsSettings() {
                     </p>
                     {credential && (
                       <p className="mt-1 text-xs text-muted-foreground">
-                        Connected {format(new Date(credential.created_at), "PPP")}
+                        Connected with ID: {credential.uid}
                       </p>
                     )}
                   </div>
                 </div>
                 <div>
-                  {integration.connected ? (
+                  {credential ? (
                     <Button
-                      variant="outline"
-                      onClick={() => window.location.href = integration.disconnectUrl}
+                      variant="destructive"
+                      size="sm"
+                      onClick={() => handleAuth(integration.disconnectUrl)}
                     >
                       Disconnect
                     </Button>
                   ) : (
                     <Button
-                      onClick={() => window.location.href = integration.connectUrl}
+                      variant="default"
+                      size="sm"
+                      onClick={() => handleAuth(integration.connectUrl)}
                     >
                       Connect
                     </Button>
