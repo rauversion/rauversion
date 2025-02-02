@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { format } from "date-fns"
-import { put } from '@rails/request.js'
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
 import {
@@ -31,32 +31,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Badge } from "@/components/ui/badge"
-import { 
-  Download,
-  MoreVertical, 
-  Search,
-  UserMinus,
-  Mail,
-  CheckCircle,
-  XCircle
-} from "lucide-react"
+import { Loader2, Download, Search } from "lucide-react"
+import {Badge} from "@/components/ui/badge"
+
 
 const searchSchema = z.object({
   query: z.string(),
@@ -72,13 +49,14 @@ const attendeeStatuses = {
 export default function Attendees() {
   const { slug } = useParams()
   const { toast } = useToast()
-  const [attendees, setAttendees] = React.useState([])
-  const [loading, setLoading] = React.useState(true)
-  const [pagination, setPagination] = React.useState({
-    currentPage: 1,
-    totalPages: 1,
-    totalCount: 0
-  })
+  const [searchParams, setSearchParams] = React.useState("")
+
+  const {
+    items: attendees,
+    loading,
+    lastElementRef,
+    resetList
+  } = useInfiniteScroll(`/events/${slug}/event_attendees.json${searchParams}`)
 
   const form = useForm({
     resolver: zodResolver(searchSchema),
@@ -88,56 +66,29 @@ export default function Attendees() {
     }
   })
 
-  const loadAttendees = async (page = 1, filters = {}) => {
-    try {
-      setLoading(true)
-      const queryParams = new URLSearchParams({
-        page,
-        ...filters
-      })
-      const response = await fetch(`/events/${slug}/attendees.json?${queryParams}`)
-      const data = await response.json()
-      setAttendees(data.attendees)
-      setPagination({
-        currentPage: data.current_page,
-        totalPages: data.total_pages,
-        totalCount: data.total_count
-      })
-    } catch (error) {
-      console.error('Error loading attendees:', error)
-      toast({
-        title: "Error",
-        description: "Could not load attendees",
-        variant: "destructive",
-      })
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  React.useEffect(() => {
-    loadAttendees()
-  }, [slug])
-
-  const onSubmit = async (data) => {
-    loadAttendees(1, data)
-  }
-
-  const handlePageChange = (page) => {
-    loadAttendees(page, form.getValues())
+  const onSubmit = (data) => {
+    const params = new URLSearchParams()
+    if (data.query) params.append("query", data.query)
+    if (data.status !== "all") params.append("status", data.status)
+    const queryString = params.toString()
+    setSearchParams(queryString ? `?${queryString}` : "")
+    resetList()
   }
 
   const updateAttendeeStatus = async (attendeeId, status) => {
     try {
-      const response = await put(`/events/${slug}/attendees/${attendeeId}.json`, {
+      const response = await fetch(`/events/${slug}/event_attendees/${attendeeId}.json`, {
+        method: 'PUT',
         body: JSON.stringify({
           status
         }),
-        responseKind: 'json'
+        headers: {
+          'Content-Type': 'application/json'
+        }
       })
 
       if (response.ok) {
-        loadAttendees(pagination.currentPage, form.getValues())
+        resetList()
         toast({
           title: "Success",
           description: "Attendee status updated successfully",
@@ -157,12 +108,12 @@ export default function Attendees() {
     if (!confirm("Are you sure you want to remove this attendee?")) return
 
     try {
-      const response = await fetch(`/events/${slug}/attendees/${attendeeId}.json`, {
+      const response = await fetch(`/events/${slug}/event_attendees/${attendeeId}.json`, {
         method: 'DELETE'
       })
 
       if (response.ok) {
-        loadAttendees(pagination.currentPage, form.getValues())
+        resetList()
         toast({
           title: "Success",
           description: "Attendee removed successfully",
@@ -178,217 +129,135 @@ export default function Attendees() {
     }
   }
 
-  const exportAttendees = async () => {
-    try {
-      const response = await fetch(`/events/${slug}/attendees/export.csv`)
-      const blob = await response.blob()
-      const url = window.URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = `${slug}-attendees-${format(new Date(), 'yyyy-MM-dd')}.csv`
-      document.body.appendChild(a)
-      a.click()
-      window.URL.revokeObjectURL(url)
-      document.body.removeChild(a)
-    } catch (error) {
-      console.error('Error exporting attendees:', error)
-      toast({
-        title: "Error",
-        description: "Could not export attendees",
-        variant: "destructive",
-      })
-    }
-  }
-
   return (
     <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <div className="flex justify-between items-center">
-            <div>
-              <CardTitle>Event Attendees</CardTitle>
-              <CardDescription>
-                Manage your event attendees and their status
-              </CardDescription>
-            </div>
-            <Button
-              variant="outline"
-              onClick={exportAttendees}
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Export CSV
-            </Button>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form 
-              onSubmit={form.handleSubmit(onSubmit)} 
-              className="flex gap-4 mb-6"
-            >
-              <FormField
-                control={form.control}
-                name="query"
-                render={({ field }) => (
-                  <FormItem className="flex-1">
-                    <div className="relative">
-                      <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                      <FormControl>
-                        <Input
-                          placeholder="Search by name or email"
-                          className="pl-8"
-                          {...field}
-                        />
-                      </FormControl>
+      <div className="flex justify-between items-center">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Event Attendees</h2>
+          <p className="text-sm text-muted-foreground">
+            Manage your event attendees and their status
+          </p>
+        </div>
+        <Button
+          variant="outline"
+          onClick={() => window.location.href = `/events/${slug}/attendees/export.csv`}
+        >
+          <Download className="h-4 w-4 mr-2" />
+          Export CSV
+        </Button>
+      </div>
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="flex gap-4 mb-6">
+          <FormField
+            control={form.control}
+            name="query"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <div className="relative">
+                  <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                  <FormControl>
+                    <Input
+                      placeholder="Search by name or email"
+                      className="pl-8"
+                      {...field}
+                    />
+                  </FormControl>
+                </div>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <FormItem>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="attending">Attending</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                  </SelectContent>
+                </Select>
+              </FormItem>
+            )}
+          />
+
+          <Button type="submit">Search</Button>
+        </form>
+      </Form>
+
+      <div className="rounded-md border">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Attendee</TableHead>
+              <TableHead>Ticket</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead>Purchase Date</TableHead>
+              <TableHead className="w-[50px]"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {attendees.map((item, index) => (
+              <TableRow 
+                key={item.id} 
+                ref={index === attendees.length - 1 ? lastElementRef : null}
+              >
+                <TableCell>
+                  <div className="flex items-center space-x-2">
+                    <div>
+                      <p className="font-medium">{item.user.name}</p>
+                      <p className="text-sm text-gray-500">{item.user.email}</p>
                     </div>
-                  </FormItem>
-                )}
-              />
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <div className="font-medium">{item.event_ticket.title}</div>
+                  <div className="text-sm text-gray-500">
+                    {item.event_ticket.currency} {item.event_ticket.price}
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <Badge 
+                    variant="secondary"
+                    className={attendeeStatuses[item.state]?.color || 'bg-gray-500'}
+                  >
+                    {attendeeStatuses[item.state]?.label || item.state}
+                  </Badge>
+                </TableCell>
+                <TableCell>
+                  {format(new Date(item.created_at), 'PPP')}
+                </TableCell>
+                <TableCell>
+                  {item.checked_in_at && (
+                    <Badge variant="success">
+                      Checked in at {format(new Date(item.checked_in_at), 'PPp')}
+                    </Badge>
+                  )}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
 
-              <FormField
-                control={form.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl>
-                        <SelectTrigger className="w-[180px]">
-                          <SelectValue placeholder="Filter by status" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        <SelectItem value="all">All Statuses</SelectItem>
-                        <SelectItem value="attending">Attending</SelectItem>
-                        <SelectItem value="cancelled">Cancelled</SelectItem>
-                        <SelectItem value="pending">Pending</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormItem>
-                )}
-              />
-
-              <Button type="submit">Search</Button>
-            </form>
-          </Form>
-
-          <div className="rounded-md border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Attendee</TableHead>
-                  <TableHead>Ticket</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Purchase Date</TableHead>
-                  <TableHead className="w-[50px]"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {attendees.map((attendee) => (
-                  <TableRow key={attendee.id}>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Avatar>
-                          <AvatarImage src={attendee.avatar_url} />
-                          <AvatarFallback>{attendee.initials}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="font-medium">{attendee.name}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {attendee.email}
-                          </div>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="font-medium">{attendee.ticket_name}</div>
-                      <div className="text-sm text-muted-foreground">
-                        {attendee.ticket_price}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge 
-                        variant="secondary"
-                        className={attendeeStatuses[attendee.status].color}
-                      >
-                        {attendeeStatuses[attendee.status].label}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {format(new Date(attendee.created_at), 'PPp')}
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            onClick={() => updateAttendeeStatus(attendee.id, 'attending')}
-                          >
-                            <CheckCircle className="h-4 w-4 mr-2" />
-                            Mark as Attending
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => updateAttendeeStatus(attendee.id, 'cancelled')}
-                          >
-                            <XCircle className="h-4 w-4 mr-2" />
-                            Mark as Cancelled
-                          </DropdownMenuItem>
-                          <DropdownMenuItem
-                            onClick={() => window.location.href = `mailto:${attendee.email}`}
-                          >
-                            <Mail className="h-4 w-4 mr-2" />
-                            Send Email
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem
-                            className="text-red-600"
-                            onClick={() => removeAttendee(attendee.id)}
-                          >
-                            <UserMinus className="h-4 w-4 mr-2" />
-                            Remove Attendee
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
-
-          {pagination.totalPages > 1 && (
-            <div className="flex justify-between items-center mt-4">
-              <div className="text-sm text-muted-foreground">
-                Showing {attendees.length} of {pagination.totalCount} attendees
-              </div>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  disabled={pagination.currentPage === 1}
-                  onClick={() => handlePageChange(pagination.currentPage - 1)}
-                >
-                  Previous
-                </Button>
-                <Button
-                  variant="outline"
-                  disabled={pagination.currentPage === pagination.totalPages}
-                  onClick={() => handlePageChange(pagination.currentPage + 1)}
-                >
-                  Next
-                </Button>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* Loading indicator */}
+      {loading && (
+        <div className="flex justify-center p-4">
+          <Loader2 className="h-6 w-6 animate-spin" />
+        </div>
+      )}
     </div>
   )
 }

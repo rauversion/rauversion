@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { put } from '@rails/request.js'
+import { put, get } from '@rails/request.js'
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
 import {
@@ -17,89 +17,101 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { Switch } from "@/components/ui/switch"
+import { Badge } from "@/components/ui/badge"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/tabs"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { Copy, Info } from "lucide-react"
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 
-const streamingSchema = z.object({
-  stream_type: z.enum(["rtmp", "youtube", "twitch", "custom"]),
-  stream_url: z.string().url().optional(),
-  stream_key: z.string().optional(),
-  custom_embed_code: z.string().optional(),
-  is_streaming: z.boolean().default(false),
-  chat_enabled: z.boolean().default(true),
-  chat_only_members: z.boolean().default(false),
-  recording_enabled: z.boolean().default(true),
-})
+import { CheckIcon, ArrowUpRight, Loader2 } from "lucide-react"
 
-const streamTypes = [
-  { value: "rtmp", label: "RTMP Stream" },
-  { value: "youtube", label: "YouTube Live" },
-  { value: "twitch", label: "Twitch" },
-  { value: "custom", label: "Custom Embed" },
+const streamingServices = [
+  {
+    name: "twitch",
+    active: true,
+    description: "Twitch is a streaming service"
+  },
+  {
+    name: "mux",
+    active: true,
+    description: "Mux is a streaming service"
+  },
+  {
+    name: "whereby",
+    active: true,
+    description: "Whereby is a streaming service"
+  },
+  {
+    name: "stream_yard",
+    active: true,
+    description: "Live Streaming to 15 services at once, including youtube, twitch, zoom etc..."
+  },
+  {
+    name: "zoom",
+    active: true,
+    description: "Zoom is a streaming service"
+  },
+  {
+    name: "jitsi",
+    active: false,
+    description: "Live Streaming on jitsi open source platform"
+  },
+  {
+    name: "restream",
+    active: true,
+    description: "Live Streaming to 15 services at once, including youtube, twitch, zoom etc..."
+  }
 ]
 
-export default function Streaming() {
+function StreamingServiceDialog({ fetchEvent, service, isOpen, onOpenChange }) {
   const { slug } = useParams()
   const { toast } = useToast()
-  const [event, setEvent] = React.useState(null)
-  const [activeTab, setActiveTab] = React.useState("settings")
+  const [loading, setLoading] = React.useState(true)
+  const [fields, setFields] = React.useState(null)
 
   const form = useForm({
-    resolver: zodResolver(streamingSchema),
     defaultValues: async () => {
-      const response = await fetch(`/events/${slug}/streaming.json`)
-      const data = await response.json()
-      setEvent(data.event)
-      return {
-        stream_type: data.event.stream_type || "rtmp",
-        stream_url: data.event.stream_url,
-        stream_key: data.event.stream_key,
-        custom_embed_code: data.event.custom_embed_code,
-        is_streaming: data.event.is_streaming || false,
-        chat_enabled: data.event.chat_enabled || true,
-        chat_only_members: data.event.chat_only_members || false,
-        recording_enabled: data.event.recording_enabled || true,
+      try {
+        const response = await get(`/events/${slug}/event_streaming_services/new?service=${service.name}`, {
+          responseKind: 'json'
+        })
+        const data = await response.json
+        setFields(data)
+        setLoading(false)
+        return data.default_values || {}
+      } catch (error) {
+        console.error('Error loading form:', error)
+        toast({
+          title: "Error",
+          description: "Could not load streaming service form",
+          variant: "destructive",
+        })
+        setLoading(false)
+        return {}
       }
     }
   })
 
   const onSubmit = async (data) => {
     try {
-      const response = await put(`/events/${slug}/streaming.json`, {
+      const response = await put(`/events/${slug}/event_streaming_services/${service.name}`, {
         body: JSON.stringify({
-          event: data
+          streaming_service: data
         }),
         responseKind: 'json'
       })
 
       if (response.ok) {
-        const { event } = await response.json
-        setEvent(event)
         toast({
           title: "Success",
-          description: "Streaming settings updated successfully",
+          description: "Streaming service configured successfully",
         })
+        onOpenChange(false)
+        fetchEvent()
       } else {
         const { errors } = await response.json
         Object.keys(errors).forEach((key) => {
@@ -110,273 +122,251 @@ export default function Streaming() {
         })
       }
     } catch (error) {
-      console.error('Error updating streaming settings:', error)
+      console.error('Error configuring streaming service:', error)
       toast({
         title: "Error",
-        description: "Could not update streaming settings",
+        description: "Could not configure streaming service",
         variant: "destructive",
       })
     }
   }
 
-  const copyToClipboard = (text) => {
-    navigator.clipboard.writeText(text)
-    toast({
-      title: "Copied",
-      description: "Copied to clipboard",
-    })
+  const renderFormField = (field) => {
+    switch (field.type) {
+      case 'text':
+      case 'url':
+      case 'email':
+        return (
+          <FormField
+            key={field.name}
+            control={form.control}
+            name={field.name}
+            render={({ field: formField }) => (
+              <FormItem>
+                <FormLabel>{field.label}</FormLabel>
+                {field.description && (
+                  <FormDescription>{field.description}</FormDescription>
+                )}
+                <FormControl>
+                  <Input type={field.type} {...formField} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )
+      case 'textarea':
+        return (
+          <FormField
+            key={field.name}
+            control={form.control}
+            name={field.name}
+            render={({ field: formField }) => (
+              <FormItem>
+                <FormLabel>{field.label}</FormLabel>
+                {field.description && (
+                  <FormDescription>{field.description}</FormDescription>
+                )}
+                <FormControl>
+                  <Textarea {...formField} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )
+      case 'datetime':
+        return (
+          <FormField
+            key={field.name}
+            control={form.control}
+            name={field.name}
+            render={({ field: formField }) => (
+              <FormItem>
+                <FormLabel>{field.label}</FormLabel>
+                {field.description && (
+                  <FormDescription>{field.description}</FormDescription>
+                )}
+                <FormControl>
+                  <Input type="datetime-local" {...formField} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )
+      case 'select':
+        return (
+          <FormField
+            key={field.name}
+            control={form.control}
+            name={field.name}
+            render={({ field: formField }) => (
+              <FormItem>
+                <FormLabel>{field.label}</FormLabel>
+                {field.description && (
+                  <FormDescription>{field.description}</FormDescription>
+                )}
+                <FormControl>
+                  <select 
+                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    {...formField}
+                  >
+                    <option value="">Select {field.label}</option>
+                    {field.options?.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )
+      default:
+        return null
+    }
   }
 
-  const streamType = form.watch("stream_type")
+  return (
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>Configure {service.name}</DialogTitle>
+          <DialogDescription>
+            Set up your {service.name} streaming integration
+          </DialogDescription>
+        </DialogHeader>
+        {loading ? (
+          <div className="flex items-center justify-center p-6">
+            <Loader2 className="h-6 w-6 animate-spin" />
+          </div>
+        ) : (
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              {fields?.fields?.map(renderFormField)}
+              <Button type="submit">Save Configuration</Button>
+            </form>
+          </Form>
+        )}
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+const streamingSchema = z.object({
+  streaming_service: z.object({
+    name: z.string(),
+  }),
+})
+
+export default function Streaming() {
+  const { slug } = useParams()
+  const { toast } = useToast()
+  const [event, setEvent] = React.useState(null)
+  const [selectedService, setSelectedService] = React.useState(null)
+  const [dialogOpen, setDialogOpen] = React.useState(false)
+
+  const fetchEvent = async () => {
+    const response = await fetch(`/events/${slug}.json`)
+    const data = await response.json()
+    setEvent(data)
+  }
+
+  React.useEffect(() => {
+    fetchEvent()
+  }, [slug])
+
+  const handleServiceClick = (service) => {
+    if (service.active) {
+      setSelectedService(service)
+      setDialogOpen(true)
+    }
+  }
+
+  console.log(event?.streaming_service?.name, streamingServices)
 
   return (
-    <div className="space-y-6">
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList>
-          <TabsTrigger value="settings">Stream Settings</TabsTrigger>
-          <TabsTrigger value="keys">Stream Keys</TabsTrigger>
-          <TabsTrigger value="chat">Chat Settings</TabsTrigger>
-        </TabsList>
+    <div className="m-4">
+      <div className="my-4 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-4xl text-center">
+          <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl">
+            Streaming services
+          </h2>
 
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <TabsContent value="settings">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Stream Configuration</CardTitle>
-                  <CardDescription>
-                    Configure your live streaming settings
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <FormField
-                    control={form.control}
-                    name="stream_type"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Stream Type</FormLabel>
-                        <Select 
-                          onValueChange={field.onChange} 
-                          defaultValue={field.value}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select stream type" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            {streamTypes.map((type) => (
-                              <SelectItem 
-                                key={type.value} 
-                                value={type.value}
-                              >
-                                {type.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+          <p className="my-3 text-xl text-gray-500 dark:text-gray-300 sm:mt-4">
+            Go live with a remote event via one of the following video streaming services
+          </p>
 
-                  {streamType === "custom" && (
-                    <FormField
-                      control={form.control}
-                      name="custom_embed_code"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Custom Embed Code</FormLabel>
-                          <FormControl>
-                            <Textarea 
-                              placeholder="Paste your embed code here"
-                              className="font-mono"
-                              {...field} 
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  )}
+          {event?.streaming_service?.streaming_type && (
+            <Button 
+              variant="default" 
+              size="sm"
+              asChild
+            >
+              <a href={`/events/${slug}/livestream`}>
+                Go to streaming event page
+              </a>
+            </Button>
+          )}
+        </div>
+      </div>
 
-                  <FormField
-                    control={form.control}
-                    name="is_streaming"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                        <div className="space-y-0.5">
-                          <FormLabel>Stream Status</FormLabel>
-                          <FormDescription>
-                            Enable when you start streaming
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
+      <div className="divide-y divide-gray-200 dark:divide-gray-800 border dark:border-gray-800 overflow-hidden rounded-lg bg-gray-200 dark:bg-gray-900 shadow sm:grid sm:grid-cols-2 sm:gap-px sm:divide-y-0">
+        {streamingServices.map((service) => (
+          <div 
+            key={service.name}
+            className={`relative group bg-default p-6 ${
+              service.active ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800' : ''
+            } focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-500`}
+            onClick={() => handleServiceClick(service)}
+          >
+            <div>
+              {event?.streaming_service?.name === service.name && (
+                <span className="rounded-lg inline-flex p-3 bg-green-100 text-green-700 ring-4 ring-white">
+                  <CheckIcon className="w-6 h-6" />
+                </span>
+              )}
+            </div>
 
-                  <FormField
-                    control={form.control}
-                    name="recording_enabled"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                        <div className="space-y-0.5">
-                          <FormLabel>Enable Recording</FormLabel>
-                          <FormDescription>
-                            Record the stream for later viewing
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="keys">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Stream Keys</CardTitle>
-                  <CardDescription>
-                    Your stream URL and key for broadcasting
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <Alert>
-                    <Info className="h-4 w-4" />
-                    <AlertTitle>Important</AlertTitle>
-                    <AlertDescription>
-                      Keep your stream key private. Never share it with anyone.
-                    </AlertDescription>
-                  </Alert>
-
-                  <div className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="stream_url"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Stream URL</FormLabel>
-                          <div className="flex gap-2">
-                            <FormControl>
-                              <Input {...field} readOnly />
-                            </FormControl>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="icon"
-                              onClick={() => copyToClipboard(field.value)}
-                            >
-                              <Copy className="h-4 w-4" />
-                            </Button>
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="stream_key"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Stream Key</FormLabel>
-                          <div className="flex gap-2">
-                            <FormControl>
-                              <Input 
-                                type="password" 
-                                {...field} 
-                                readOnly
-                              />
-                            </FormControl>
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="icon"
-                              onClick={() => copyToClipboard(field.value)}
-                            >
-                              <Copy className="h-4 w-4" />
-                            </Button>
-                          </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+            <div className="mt-8">
+              <h3 className="text-lg font-medium">
+                {service.active ? (
+                  <span>{service.name}</span>
+                ) : (
+                  <div className="flex space-x-2">
+                    <span>{service.name}</span>
+                    <Badge variant="secondary">SOON</Badge>
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
+                )}
+              </h3>
+              <p className="mt-2 text-sm text-gray-500">
+                {service.description}
+              </p>
+            </div>
 
-            <TabsContent value="chat">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Chat Settings</CardTitle>
-                  <CardDescription>
-                    Configure the live chat for your stream
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <FormField
-                    control={form.control}
-                    name="chat_enabled"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                        <div className="space-y-0.5">
-                          <FormLabel>Enable Chat</FormLabel>
-                          <FormDescription>
-                            Allow viewers to chat during the stream
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
+            {service.active && (
+              <span
+                className="pointer-events-none absolute top-6 right-6 text-gray-300 group-hover:text-gray-400"
+                aria-hidden="true"
+              >
+                <ArrowUpRight className="h-6 w-6" />
+              </span>
+            )}
+          </div>
+        ))}
+      </div>
 
-                  <FormField
-                    control={form.control}
-                    name="chat_only_members"
-                    render={({ field }) => (
-                      <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                        <div className="space-y-0.5">
-                          <FormLabel>Members Only Chat</FormLabel>
-                          <FormDescription>
-                            Only allow registered members to chat
-                          </FormDescription>
-                        </div>
-                        <FormControl>
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <Button type="submit">Save Changes</Button>
-          </form>
-        </Form>
-      </Tabs>
+      {selectedService && (
+        <StreamingServiceDialog 
+          fetchEvent={fetchEvent}
+          service={selectedService}
+          isOpen={dialogOpen}
+          onOpenChange={setDialogOpen}
+        />
+      )}
     </div>
   )
 }

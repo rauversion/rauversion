@@ -74,10 +74,27 @@ json.order_form @event.order_form if @event.order_form.present?
 json.widget_button @event.widget_button if @event.widget_button.present?
 json.tax_rates_settings @event.tax_rates_settings if @event.tax_rates_settings.present?
 json.attendee_list_settings @event.attendee_list_settings if @event.attendee_list_settings.present?
+
+if @event.streaming_service.present?
+  json.streaming_service do
+    json.name @event.streaming_service["name"]
+    
+    # Get the service class for the current provider
+    # service_klass = StreamingProviders::Service.find_module_by_type(@event.streaming_service["name"])
+    # if service_klass
+    #   # Get the field definitions for this service
+    #   fields = service_klass.definitions.map { |f| f[:name].to_s }
+    #   # Only include the fields that are valid for this service
+    #   fields.each do |field|
+    #     json.set! field, @event.streaming_service[field]
+    #   end
+    # end
+  end
+end
+
 json.scheduling_settings @event.scheduling_settings if @event.scheduling_settings.present?
 json.event_settings @event.event_settings if @event.event_settings.present?
 json.tickets @event.event_tickets if @event.event_tickets.present?
-json.streaming_service @event.streaming_service if @event.streaming_service.present?
 
 json.author do 
   json.id @event.user.id
