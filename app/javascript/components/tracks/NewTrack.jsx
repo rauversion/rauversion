@@ -339,7 +339,7 @@ export default function NewTrack() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-6">
           {completedTracks.map((track) => (
-            <Card key={track.slug} className="overflow-hidden">
+            <Card key={track.id} className="overflow-hidden">
               <CardContent className="p-6">
                 <div className="flex">
                   {/* Cover Image */}
@@ -378,7 +378,7 @@ export default function NewTrack() {
                       <div className="text-sm text-muted-foreground">
                         <p>Upload complete.</p>
                         <Link
-                          to={`/tracks/${track.id}`}
+                          to={`/tracks/${track.slug}`}
                           className="text-primary hover:text-primary/90"
                         >
                           Go to track

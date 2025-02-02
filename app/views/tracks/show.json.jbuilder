@@ -41,15 +41,9 @@ json.track do
   end
 
   json.cover_url do
-    if @track.cover.attached?
-      json.small cover_url(:small)
-      json.medium cover_url(:medium)
-      json.large cover_url(:large)
-    else
-      json.small "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
-      json.medium "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
-      json.large "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
-    end
+    json.small @track.cover_url(:small)
+    json.medium @track.cover_url(:medium)
+    json.large @track.cover_url(:large)
   end
 
   if @track.audio.attached?

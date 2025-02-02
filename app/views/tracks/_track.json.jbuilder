@@ -1,4 +1,4 @@
-json.extract! track, :id, :title, :description, :private, :tags, :created_at, :updated_at
+json.extract! track, :id, :title, :slug, :description, :private, :tags, :created_at, :updated_at
 
 json.cover_url track.cover.attached? ? url_for(track.cover) : nil
 json.audio_url track.audio.attached? ? url_for(track.audio) : nil
