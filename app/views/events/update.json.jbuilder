@@ -1,3 +1,20 @@
+if @event.errors.any?
+  json.errors do
+    @event.errors.messages.each do |field, messages|
+      json.set! field, messages
+    end
+    
+    # Include nested errors from event_schedules
+    @event.event_schedules.each_with_index do |schedule, index|
+      if schedule.errors.any?
+        schedule.errors.messages.each do |field, messages|
+          json.set! "event_schedules_attributes.#{index}.#{field}", messages
+        end
+      end
+    end
+  end
+end
+
 json.event do
   json.id @event.id
   json.slug @event.slug
@@ -59,3 +76,4 @@ json.event do
     json.streaming_service @event.streaming_service
   end
 end
+
