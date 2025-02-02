@@ -9,11 +9,13 @@ import { Switch } from "@/components/ui/switch"
 import { useForm, Controller } from "react-hook-form"
 import { get, patch } from "@rails/request.js"
 import { useToast } from "@/hooks/use-toast"
+import { ImageUploader } from "@/components/ui/image-uploader"
 
 export default function PodcastSettings() {
   const { username } = useParams()
   const { toast } = useToast()
   const [user, setUser] = React.useState(null)
+  const [avatarBlobId, setAvatarBlobId] = React.useState(null)
 
   const defaultValues = {
     podcaster_info_attributes: {
@@ -31,53 +33,67 @@ export default function PodcastSettings() {
     }
   }
 
-  const { register, control, handleSubmit, reset } = useForm({
+  const { register, control, handleSubmit, reset, getValues } = useForm({
     defaultValues
   })
 
-  React.useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const response = await get(`/${username}/settings.json`)
-        if (response.ok) {
-          const data = await response.json
-          setUser(data.user)
-          
-          const podcasterInfo = data.user.podcaster_info || {}
-          const podcastLinks = podcasterInfo.podcast_links || {}
-          
-          reset({
-            podcaster_info_attributes: {
-              id: podcasterInfo.id || "",
-              title: podcasterInfo.title || "",
-              about: podcasterInfo.about || "",
-              description: podcasterInfo.description || "",
-              active: Boolean(podcasterInfo.active),
-              spotify_url: podcastLinks.spotify_url || "",
-              apple_podcasts_url: podcastLinks.apple_podcasts_url || "",
-              google_podcasts_url: podcastLinks.google_podcasts_url || "",
-              stitcher_url: podcastLinks.stitcher_url || "",
-              overcast_url: podcastLinks.overcast_url || "",
-              pocket_casts_url: podcastLinks.pocket_casts_url || "",
-            }
-          })
-        }
-      } catch (error) {
-        console.error("Error fetching user:", error)
-        toast({
-          title: "Error",
-          description: "Could not load podcast settings.",
-          variant: "destructive",
+  const fetchUser = async () => {
+    try {
+      const response = await get(`/${username}/settings.json`)
+      if (response.ok) {
+        const data = await response.json
+        setUser(data.user)
+        
+        const podcasterInfo = data.user.podcaster_info || {}
+        const podcastLinks = podcasterInfo.podcast_links || {}
+        
+        console.log("Fetched podcaster info:", {
+          podcasterInfo,
+          avatarUrl: podcasterInfo.avatar_url
+        })
+        
+        reset({
+          podcaster_info_attributes: {
+            id: podcasterInfo.id || "",
+            title: podcasterInfo.title || "",
+            about: podcasterInfo.about || "",
+            description: podcasterInfo.description || "",
+            active: Boolean(podcasterInfo.active),
+            spotify_url: podcastLinks.spotify_url || "",
+            apple_podcasts_url: podcastLinks.apple_podcasts_url || "",
+            google_podcasts_url: podcastLinks.google_podcasts_url || "",
+            stitcher_url: podcastLinks.stitcher_url || "",
+            overcast_url: podcastLinks.overcast_url || "",
+            pocket_casts_url: podcastLinks.pocket_casts_url || "",
+          }
         })
       }
+    } catch (error) {
+      console.error("Error fetching user:", error)
+      toast({
+        title: "Error",
+        description: "Could not load podcast settings.",
+        variant: "destructive",
+      })
     }
+  }
+
+  React.useEffect(() => {
     fetchUser()
   }, [username])
 
   const onSubmit = async (data) => {
     try {
+      const formData = {
+        user: {
+          podcaster_info_attributes: {
+            ...data.podcaster_info_attributes,
+          }
+        }
+      }
+
       const response = await patch(`/${username}/settings/podcast`, {
-        body: JSON.stringify({ user: { podcaster_info_attributes: data.podcaster_info_attributes } }),
+        body: JSON.stringify(formData),
         responseKind: "json"
       })
 
@@ -86,6 +102,8 @@ export default function PodcastSettings() {
           title: "Success",
           description: "Podcast settings updated successfully",
         })
+        setAvatarBlobId(null)
+        fetchUser()
       } else {
         const error = await response.json
         toast({
@@ -103,9 +121,22 @@ export default function PodcastSettings() {
     }
   }
 
+  const handleAvatarUpload = async (signedBlobId) => {
+    setAvatarBlobId(signedBlobId)
+    const currentValues = getValues()
+    
+    await onSubmit({
+      podcaster_info_attributes: {
+        ...currentValues.podcaster_info_attributes,
+        avatar_blob_id: signedBlobId
+      }
+    })
+  }
+
   if (!user) return null
 
-  console.log("Current form values:", user?.podcaster_info)
+  const podcasterInfo = user.podcaster_info || {}
+
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
       <Card>
@@ -116,6 +147,22 @@ export default function PodcastSettings() {
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
+          <div className="space-y-2">
+            <Label>Podcast Avatar</Label>
+            <ImageUploader
+              variant="avatar"
+              aspectRatio={1}
+              maxSize={10}
+              preview={true}
+              imageUrl={podcasterInfo?.avatar_url?.medium}
+              onUploadComplete={handleAvatarUpload}
+              className="w-1/4 mx-auto"
+            />
+            <p className="text-xs text-muted-foreground text-center">
+              Recommended: Square image, at least 400x400px
+            </p>
+          </div>
+
           <div className="flex items-center space-x-2">
             <Controller
               name="podcaster_info_attributes.active"

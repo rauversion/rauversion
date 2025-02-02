@@ -38,9 +38,7 @@ export default function NotificationSettings() {
     try {
       const response = await patch(`/${username}/settings/notifications`, {
         body: JSON.stringify({ user: data }),
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        responseKind: "json"
       })
       
       if (response.ok) {
@@ -49,7 +47,7 @@ export default function NotificationSettings() {
           description: "Your notification preferences have been updated.",
         })
       } else {
-        const error = await response.json()
+        const error = await response.json
         toast({
           title: "Error",
           description: error.message || "There was a problem updating your notification settings.",

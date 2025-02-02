@@ -22,34 +22,41 @@ class UserSettingsController < ApplicationController
   def update
     @section = params[:section]
 
-
-    # Handle cover attachment if blob_id is present
-    if params.dig(:post, :avatar_blob_id).present?
-      @user.avatar.attach(params[:post][:avatar_blob_id])
-      
-      # Handle crop data if present
-      #if params.dig(:post, :crop_data).present?
-      #  @user.update(crop_data: params[:post][:crop_data])
-      #end
-    end
-
-    # Handle cover attachment if blob_id is present
-    if params.dig(:post, :profile_header_blob_id).present?
-      @user.profile_header.attach(params[:post][:profile_header_blob_id])
-      
-      # Handle crop data if present
-      #if params.dig(:post, :crop_data).present?
-      #  @user.update(crop_data: params[:post][:crop_data])
-      #end
-    end
-
     respond_to do |format|
-      if @user.update(user_attributes)
-        format.html { flash.now[:notice] = "#{params[:section]} updated" }
-        format.json
+      if update_user
+        # Attach avatar if blob_id is present
+        if params.dig(:user, :avatar_blob_id).present?
+          @user.avatar.attach(params[:user][:avatar_blob_id])
+        end
+
+        # Attach header if blob_id is present
+        if params.dig(:user, :profile_header_blob_id).present?
+          @user.profile_header.attach(params[:user][:profile_header_blob_id])
+        end
+
+        # Handle podcaster avatar separately
+        if params.dig(:user, :podcaster_info_attributes, :avatar_blob_id).present?
+          @user.podcaster_info.avatar.attach(params[:user][:podcaster_info_attributes][:avatar_blob_id])
+        end
+
+        format.json { render :update }
       else
-        format.html
-        format.json { render :update, status: :unprocessable_entity }
+        format.json { render json: { error: @user.errors.full_messages.join(", ") }, status: :unprocessable_entity }
+      end
+    end
+  end
+
+  def podcast
+    respond_to do |format|
+      if update_user
+        # Handle podcaster avatar separately
+        if params.dig(:user, :podcaster_info_attributes, :avatar_blob_id).present?
+          @user.podcaster_info.avatar.attach(params[:user][:podcaster_info_attributes][:avatar_blob_id])
+        end
+
+        format.json { render :update }
+      else
+        format.json { render json: { error: @user.errors.full_messages.join(", ") }, status: :unprocessable_entity }
       end
     end
   end
@@ -58,6 +65,10 @@ class UserSettingsController < ApplicationController
 
   def set_user
     @user = current_user
+  end
+
+  def update_user
+    @user.update(user_attributes)
   end
 
   def user_attributes
