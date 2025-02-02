@@ -13,8 +13,10 @@ import Select from "react-select"
 import { Category } from "@/lib/constants"
 import { useThemeStore } from '@/stores/theme'
 import { ImageUploader } from "@/components/ui/image-uploader"
-import { Share2 } from "lucide-react"
+import { Share2, X } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import "@/styles/react-select.css"
 
 const selectTheme = (theme, isDark) => ({
@@ -451,132 +453,160 @@ export default function NewTrack() {
             </p>
           </div>
 
-          <form onSubmit={handleUpload} className="mt-8">
-            <div
-              onDragOver={(e) => e.preventDefault()}
-              onDrop={handleDrop}
-              className="flex flex-col items-center justify-center w-full p-6 border-2 border-dashed rounded-lg border-muted hover:border-muted-foreground transition-colors"
+          <div
+            onDragEnter={(e) => e.preventDefault()}
+            onDragLeave={(e) => e.preventDefault()}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={handleDrop}
+            onClick={() => fileInputRef.current?.click()}
+            className="mt-8 flex flex-col items-center justify-center w-full p-6 border-2 border-dashed rounded-lg border-muted hover:border-muted-foreground transition-colors cursor-pointer"
+          >
+            <Music className="h-12 w-12 text-muted-foreground mb-4" />
+            
+            <Label
+              htmlFor="audio-upload"
+              className="text-sm font-medium text-primary hover:text-primary/80 cursor-pointer"
             >
-              <Music className="h-12 w-12 text-muted-foreground mb-4" />
-              
-              <Label
-                htmlFor="audio-upload"
-                className="text-sm font-medium text-primary hover:text-primary/80 cursor-pointer"
-              >
-                Upload audio files
-              </Label>
-              <p className="mt-1 text-sm text-muted-foreground">or drag and drop</p>
-              
-              <input
-                id="audio-upload"
-                type="file"
-                multiple
-                accept="audio/*"
-                onChange={handleFileSelect}
-                ref={fileInputRef}
-                className="hidden"
-              />
+              Upload audio files
+            </Label>
+            <p className="mt-1 text-sm text-muted-foreground">or drag and drop</p>
+            
+            <input
+              id="audio-upload"
+              type="file"
+              multiple
+              accept="audio/*"
+              onChange={handleFileSelect}
+              ref={fileInputRef}
+              className="hidden"
+            />
 
-              <p className="mt-2 text-xs text-muted-foreground">
-                Audio files up to 200MB
-              </p>
-            </div>
-
-            {files.length > 0 && (
-              <div className="mt-6 space-y-4" ref={progressContainerRef}>
-                {files.map((file, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between p-3 bg-muted rounded-lg"
-                  >
-                    <div className="flex items-center space-x-3 flex-1">
-                      <Music className="h-5 w-5 text-muted-foreground" />
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-default">
-                          {file.name}
-                        </p>
-                        <div className="w-full bg-secondary rounded-full h-1.5 mt-2">
-                          <div
-                            className="bg-primary h-1.5 rounded-full transition-all duration-300"
-                            style={{
-                              width: `${uploadProgress[file.name] || 0}%`,
-                            }}
-                          />
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {(file.size / 1024 / 1024).toFixed(2)} MB
-                          {uploadProgress[file.name] && ` • ${Math.round(uploadProgress[file.name])}%`}
-                        </p>
-                      </div>
-                    </div>
-                    {!uploading && (
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeFile(index)}
-                      >
-                        Remove
-                      </Button>
-                    )}
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {files.length > 1 && (
-              <div className="mt-6 flex items-center space-x-2">
-                <Switch
-                  id="make-playlist"
-                  checked={makePlaylist}
-                  onCheckedChange={setMakePlaylist}
-                />
-                <Label htmlFor="make-playlist">
-                  Create a playlist with these tracks
-                </Label>
-              </div>
-            )}
-
-            <div className="mt-6">
-              <Label className="text-sm font-medium">Privacy</Label>
-              <div className="mt-2 flex items-center space-x-4">
-                <Label className="flex items-center space-x-2">
-                  <input
-                    type="radio"
-                    name="privacy"
-                    value="public"
-                    checked={privacy === "public"}
-                    onChange={(e) => setPrivacy(e.target.value)}
-                    className="text-primary"
-                  />
-                  <span>Public</span>
-                </Label>
-                <Label className="flex items-center space-x-2">
-                  <input
-                    type="radio"
-                    name="privacy"
-                    value="private"
-                    checked={privacy === "private"}
-                    onChange={(e) => setPrivacy(e.target.value)}
-                    className="text-primary"
-                  />
-                  <span>Private</span>
-                </Label>
-              </div>
-            </div>
-
-            <div className="mt-6">
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={files.length === 0 || uploading}
-              >
-                {uploading ? "Uploading..." : "Continue"}
-              </Button>
-            </div>
-          </form>
+            <p className="mt-2 text-xs text-muted-foreground">
+              Audio files up to 200MB
+            </p>
+          </div>
         </div>
       </div>
+
+      {/* File List */}
+      {files.length > 0 && (
+        <div className="mt-8 max-w-3xl mx-auto space-y-4">
+          {files.map((file, index) => (
+            <Card key={file.name} className="relative">
+              <CardContent className="p-4">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 flex items-center justify-center bg-muted rounded-md">
+                    <Music className="h-6 w-6 text-muted-foreground" />
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="text-sm font-medium truncate">
+                          {file.name}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {(file.size / (1024 * 1024)).toFixed(2)} MB
+                        </p>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8"
+                        onClick={() => {
+                          setFiles(files.filter((_, i) => i !== index))
+                          setUploadProgress(prev => {
+                            const newProgress = { ...prev }
+                            delete newProgress[file.name]
+                            return newProgress
+                          })
+                        }}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+
+                    <div className="mt-2 space-y-1">
+                      <Progress
+                        value={uploadProgress[file.name] || 0}
+                        className="h-2"
+                      />
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>
+                          {uploadProgress[file.name]
+                            ? `${Math.round(uploadProgress[file.name])}%`
+                            : 'Waiting...'}
+                        </span>
+                        {uploadProgress[file.name] === 100 && (
+                          <span className="text-primary">Complete</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+
+          {/* Privacy and Playlist Controls */}
+          <Card>
+            <CardContent className="p-4 space-y-4">
+              {files.length > 1 && (
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    id="make-playlist"
+                    checked={makePlaylist}
+                    onCheckedChange={setMakePlaylist}
+                  />
+                  <Label htmlFor="make-playlist">
+                    Create a playlist with these tracks
+                  </Label>
+                </div>
+              )}
+
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Privacy</Label>
+                <div className="flex items-center space-x-4">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroup
+                      value={privacy}
+                      onValueChange={setPrivacy}
+                      className="flex space-x-4"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="public" id="public" />
+                        <Label htmlFor="public">Public</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="private" id="private" />
+                        <Label htmlFor="private">Private</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <div className="flex justify-end gap-4 mt-4">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setFiles([])
+                setUploadProgress({})
+              }}
+            >
+              Clear All
+            </Button>
+            <Button
+              onClick={handleUpload}
+              disabled={uploading || files.length === 0}
+            >
+              {uploading ? 'Uploading...' : 'Start Upload'}
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
