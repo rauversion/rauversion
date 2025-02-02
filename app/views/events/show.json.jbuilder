@@ -56,9 +56,10 @@ end
 json.event_schedules @event.event_schedules do |schedule|
   json.name schedule.name
   json.description schedule.description
-  json.starts_at schedule.start_date
-  json.ends_at schedule.end_date
+  json.start_date schedule.start_date
+  json.end_date schedule.end_date
   json.schedule_type schedule.schedule_type
+  json.id schedule.id
 end
 
 json.order_form @event.order_form if @event.order_form.present?
