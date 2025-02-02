@@ -148,7 +148,7 @@
     --accent-foreground: 60 9.1% 97.8%;
     --popover: 20 14.3% 4.1%;
     --popover-foreground: 60 9.1% 97.8%;
-    --border: 12 6.5% 15.1%;
+    --border: 20 3.6% 25%;
     --input: 12 6.5% 15.1%;
     --card: 20 14.3% 4.1%;
     --card-foreground: 60 9.1% 97.8%;
@@ -168,6 +168,13 @@
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%
+  }
+
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
   }
 
   .marquee {

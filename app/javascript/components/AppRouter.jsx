@@ -1,5 +1,5 @@
 import React from 'react'
-import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom'
 import ArticlesIndex from './articles/Index'
 import ArticleShow from './articles/Show'
 import UserMenu from './shared/UserMenu'
@@ -42,11 +42,13 @@ import Settings from "./events/sections/Settings"
 import { Toaster } from "./ui/toaster"
 import MySales from "./sales/MySales"
 import MyPurchases from "./purchases/MyPurchases"
+import MySettings, {ProfileForm} from "./users/MySettings"
 
 export default function AppRouter() {
   return (
     <BrowserRouter>
       <UserMenu />
+
 
       <div className="pb-24">
         <Routes>
@@ -80,6 +82,20 @@ export default function AppRouter() {
           </Route>
           <Route path="/:username/about" element={<UserAbout />} />
           <Route path="/:username/links" element={<UserLinks />} />
+          <Route path="/:username/settings" element={<MySettings />}>
+            <Route path=":section" element={<Outlet />}>
+              <Route path="profile" element={<ProfileForm />} />
+              <Route path="email" element={<p>Email settings coming soon</p>} />
+              <Route path="podcast" element={<p>Podcast settings coming soon</p>} />
+              <Route path="notifications" element={<p>Notifications settings coming soon</p>} />
+              <Route path="social_links" element={<p>Social links settings coming soon</p>} />
+              <Route path="integrations" element={<p>Integrations settings coming soon</p>} />
+              <Route path="transbank" element={<p>Transbank settings coming soon</p>} />
+              <Route path="invitations" element={<p>Invitations settings coming soon</p>} />
+            </Route>
+          </Route>
+
+
           <Route path="/:username/*" element={<UserShow />}>
             <Route index element={<UserHome />} />
             <Route path="tracks" element={<UserTracks />} />

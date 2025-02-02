@@ -180,6 +180,10 @@ es:
     sub_account: Información básica de la cuenta.
     title_email: Cambiar Email
     sub_email: Cambiar información del Email.
+    podcaster_info: Información de Podcaster
+    sub_podcasts: Gestiona tu información de podcaster.
+    title_social_links: Redes Sociales
+    sub_social_links: Gestiona tus enlaces a redes sociales.
     title_security: Seguridad
     sub_credentials: Cambiar tus credenciales
     title_notifications: Notificaciones
