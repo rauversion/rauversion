@@ -76,7 +76,7 @@ json.tax_rates_settings @event.tax_rates_settings if @event.tax_rates_settings.p
 json.attendee_list_settings @event.attendee_list_settings if @event.attendee_list_settings.present?
 json.scheduling_settings @event.scheduling_settings if @event.scheduling_settings.present?
 json.event_settings @event.event_settings if @event.event_settings.present?
-json.tickets @event.tickets if @event.tickets.present?
+json.tickets @event.event_tickets if @event.event_tickets.present?
 json.streaming_service @event.streaming_service if @event.streaming_service.present?
 
 json.author do 

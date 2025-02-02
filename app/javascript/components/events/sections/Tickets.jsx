@@ -4,7 +4,7 @@ import { useForm, useFieldArray } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { format } from "date-fns"
-import { put } from '@rails/request.js'
+import { get, put } from '@rails/request.js'
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
 import {
@@ -42,21 +42,26 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Plus, Ticket, Trash2 } from "lucide-react"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { cn } from "classnames"
+import { formatDateSafely } from "@/hooks/safeDate"
 
 const ticketSchema = z.object({
-  name: z.string().min(2, {
+  id: z.number().optional(),
+  title: z.string().min(2, {
     message: "Name must be at least 2 characters.",
   }),
-  description: z.string().optional(),
+  short_description: z.string().optional(),
   price: z.coerce.number().min(0),
-  quantity: z.coerce.number().min(1),
+  qty: z.coerce.number().min(1),
   currency: z.string(),
-  sale_start: z.string(),
-  sale_end: z.string(),
-  min_quantity: z.coerce.number().min(1),
-  max_quantity: z.coerce.number().min(1),
+  sale_start: z.date().nullable(),
+  sale_end: z.date().nullable(),
+  min_tickets_per_order: z.coerce.number().min(1),
+  max_tickets_per_order: z.coerce.number().min(1),
   requires_shipping: z.boolean().default(false),
   show_remaining_count: z.boolean().default(true),
+  _destroy: z.boolean().optional(),
 })
 
 const formSchema = z.object({
@@ -89,22 +94,24 @@ export default function Tickets() {
   React.useEffect(() => {
     const fetchTickets = async () => {
       try {
-        const response = await fetch(`/events/${slug}/tickets.json`)
-        const data = await response.json()
-        setEvent(data.event)
+        const response = await get(`/events/${slug}.json`)
+        const data = await response.json
+
+        setEvent(data)
         
         // Reset form with current tickets
         form.reset({
-          tickets: data.event.tickets?.map(ticket => ({
-            name: ticket.name,
-            description: ticket.description,
+          tickets: data.tickets?.map(ticket => ({
+            id: ticket.id,
+            title: ticket.title,
+            short_description: ticket.short_description,
             price: ticket.price,
-            quantity: ticket.quantity,
+            qty: ticket.qty,
             currency: ticket.currency,
-            sale_start: format(new Date(ticket.sale_start), "yyyy-MM-dd'T'HH:mm"),
-            sale_end: format(new Date(ticket.sale_end), "yyyy-MM-dd'T'HH:mm"),
-            min_quantity: ticket.min_quantity,
-            max_quantity: ticket.max_quantity,
+            sale_start: formatDateSafely(ticket.sale_start),
+            sale_end: formatDateSafely(ticket.sale_end),
+            min_tickets_per_order: ticket.min_tickets_per_order,
+            max_tickets_per_order: ticket.max_tickets_per_order,
             requires_shipping: ticket.requires_shipping,
             show_remaining_count: ticket.show_remaining_count
           })) || []
@@ -162,14 +169,14 @@ export default function Tickets() {
   const addTicket = () => {
     append({
       name: "",
-      description: "",
+      short_description: "",
       price: 0,
-      quantity: 1,
+      qty: 1,
       currency: "USD",
       sale_start: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
       sale_end: format(new Date(), "yyyy-MM-dd'T'HH:mm"),
-      min_quantity: 1,
-      max_quantity: 1,
+      min_tickets_per_order: 1,
+      max_tickets_per_order: 1,
       requires_shipping: false,
       show_remaining_count: true,
     })
@@ -206,7 +213,7 @@ export default function Tickets() {
                       <div className="flex items-center gap-2">
                         <Ticket className="h-5 w-5" />
                         <CardTitle className="text-lg">
-                          {field.name || "New Ticket"}
+                          {field.title || "New Ticket"}
                         </CardTitle>
                       </div>
                       <Button
@@ -223,10 +230,10 @@ export default function Tickets() {
                     <div className="grid grid-cols-2 gap-4">
                       <FormField
                         control={form.control}
-                        name={`tickets.${index}.name`}
+                        name={`tickets.${index}.title`}
                         render={({ field }) => (
                           <FormItem>
-                            <FormLabel>Name</FormLabel>
+                            <FormLabel>Title</FormLabel>
                             <FormControl>
                               <Input placeholder="VIP Pass" {...field} />
                             </FormControl>
@@ -237,7 +244,7 @@ export default function Tickets() {
 
                       <FormField
                         control={form.control}
-                        name={`tickets.${index}.description`}
+                        name={`tickets.${index}.short_description`}
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Description</FormLabel>
@@ -306,7 +313,7 @@ export default function Tickets() {
 
                       <FormField
                         control={form.control}
-                        name={`tickets.${index}.quantity`}
+                        name={`tickets.${index}.qty`}
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Total Quantity</FormLabel>
@@ -333,7 +340,12 @@ export default function Tickets() {
                             <FormControl>
                               <Input 
                                 type="datetime-local"
-                                {...field} 
+                                {...field}
+                                value={field.value ? format(field.value, "yyyy-MM-dd'T'HH:mm") : ""}
+                                onChange={(e) => {
+                                  const date = e.target.value ? new Date(e.target.value) : null
+                                  field.onChange(date)
+                                }}
                               />
                             </FormControl>
                             <FormMessage />
@@ -350,7 +362,12 @@ export default function Tickets() {
                             <FormControl>
                               <Input 
                                 type="datetime-local"
-                                {...field} 
+                                {...field}
+                                value={field.value ? format(field.value, "yyyy-MM-dd'T'HH:mm") : ""}
+                                onChange={(e) => {
+                                  const date = e.target.value ? new Date(e.target.value) : null
+                                  field.onChange(date)
+                                }}
                               />
                             </FormControl>
                             <FormMessage />
@@ -362,7 +379,7 @@ export default function Tickets() {
                     <div className="grid grid-cols-2 gap-4">
                       <FormField
                         control={form.control}
-                        name={`tickets.${index}.min_quantity`}
+                        name={`tickets.${index}.min_tickets_per_order`}
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Min Quantity per Order</FormLabel>
@@ -380,7 +397,7 @@ export default function Tickets() {
 
                       <FormField
                         control={form.control}
-                        name={`tickets.${index}.max_quantity`}
+                        name={`tickets.${index}.max_tickets_per_order`}
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel>Max Quantity per Order</FormLabel>
