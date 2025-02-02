@@ -1,6 +1,6 @@
 class EventsController < ApplicationController
   before_action :authenticate_user!, except: [:index, :show]
-  before_action :set_event, only: [:schedule, :team, :tickets, :streaming, :attendees, :recordings, :settings]
+  before_action :set_event, only: [:schedule, :team, :tickets, :streaming, :attendees, :recordings, :settings, :edit, :update]
 
   def index
     @q = Event.ransack(params[:q])
@@ -53,9 +53,6 @@ class EventsController < ApplicationController
   end
 
   def update
-    @section = params[:section]
-    @event = current_user.events.friendly.find(params[:id])
-
     if params[:toggle_published].present?
       @event.toggle_published!
       flash.now[:notice] = "event #{@event.state}"
@@ -64,7 +61,6 @@ class EventsController < ApplicationController
 
     if @event.update(event_params)
       flash.now[:notice] = "yes!"
-      # redirect_to edit_event_path(@event, section: @section)
     end
   end
 
@@ -87,31 +83,7 @@ class EventsController < ApplicationController
     end
   end
 
-  def schedule
-    respond_to do |format|
-      format.json
-    end
-  end
-
-  def team
-    respond_to do |format|
-      format.json
-    end
-  end
-
-  def tickets
-    respond_to do |format|
-      format.json
-    end
-  end
-
-  def streaming
-    respond_to do |format|
-      format.json
-    end
-  end
-
-  def attendees
+  def search_attendees
     @attendees = @event.attendees
       .includes(:user, :ticket)
       .order(created_at: :desc)
@@ -128,21 +100,6 @@ class EventsController < ApplicationController
       @attendees = @attendees.where(status: params[:status])
     end
 
-    respond_to do |format|
-      format.json
-    end
-  end
-
-  def recordings
-    @recordings = @event.recordings
-      .order(created_at: :desc)
-    
-    respond_to do |format|
-      format.json
-    end
-  end
-
-  def settings
     respond_to do |format|
       format.json
     end

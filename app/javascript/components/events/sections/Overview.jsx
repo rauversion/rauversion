@@ -63,6 +63,7 @@ export default function Overview() {
     defaultValues: async () => {
       const response = await fetch(`/events/${slug}.json`)
       const data = await response.json()
+      
       setEvent(data)
       
       const startDate = new Date(data.event_start)
