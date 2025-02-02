@@ -30,6 +30,11 @@ json.user do
     json.age_restriction @user.age_restriction
   end
 
+  json.oauth_credentials @user.oauth_credentials do |credential|
+    json.provider credential.provider
+    json.uid credential.uid
+  end
+
   # Notification settings
   json.new_follower_email @user.new_follower_email
   json.new_follower_app @user.new_follower_app

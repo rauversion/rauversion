@@ -1,134 +1,92 @@
 import React from "react"
 import { useParams } from "react-router-dom"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
-import { Switch } from "@/components/ui/switch"
-import { useForm, Controller } from "react-hook-form"
-import { get, post } from "@rails/request.js"
+import { get } from "@rails/request.js"
 import { useToast } from "@/hooks/use-toast"
-import { 
-  Youtube, Music, Twitch, RefreshCw, 
-  AlertTriangle, CheckCircle2 
-} from 'lucide-react'
+import { Icons } from "@/components/icons"
+import { format } from "date-fns"
 
 export default function IntegrationsSettings() {
   const { username } = useParams()
   const { toast } = useToast()
   const [user, setUser] = React.useState(null)
-  const [integrationStatus, setIntegrationStatus] = React.useState({
-    youtube: 'disconnected',
-    soundcloud: 'disconnected',
-    twitch: 'disconnected'
-  })
 
   React.useEffect(() => {
     const fetchUser = async () => {
-      const response = await get(`/${username}/settings.json`)
-      if (response.ok) {
-        const data = await response.json
-        setUser(data.user)
-        if (data.integrations) {
-          setIntegrationStatus(data.integrations)
+      try {
+        const response = await get(`/${username}/settings.json`)
+        if (response.ok) {
+          const data = await response.json
+          setUser(data.user)
         }
+      } catch (error) {
+        console.error("Error fetching user:", error)
+        toast({
+          title: "Error",
+          description: "Could not load integration settings.",
+          variant: "destructive",
+        })
       }
     }
     fetchUser()
   }, [username])
 
-  const { control } = useForm({
-    defaultValues: {
-      youtube_sync: false,
-      soundcloud_sync: false,
-      twitch_sync: false,
-    },
-  })
-
-  const handleConnect = async (service) => {
-    try {
-      const response = await post(`/${username}/settings/integrations/connect`, {
-        body: JSON.stringify({ service }),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-      
-      if (response.ok) {
-        const data = await response.json()
-        window.location.href = data.auth_url
-      } else {
-        const error = await response.json()
-        toast({
-          title: "Error",
-          description: error.message || `Could not connect to ${service}`,
-          variant: "destructive",
-        })
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: `Could not connect to ${service}`,
-        variant: "destructive",
-      })
-    }
-  }
-
-  const handleDisconnect = async (service) => {
-    try {
-      const response = await post(`/${username}/settings/integrations/disconnect`, {
-        body: JSON.stringify({ service }),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-      
-      if (response.ok) {
-        setIntegrationStatus(prev => ({
-          ...prev,
-          [service]: 'disconnected'
-        }))
-        toast({
-          title: "Success",
-          description: `Disconnected from ${service}`,
-        })
-      } else {
-        const error = await response.json()
-        toast({
-          title: "Error",
-          description: error.message || `Could not disconnect from ${service}`,
-          variant: "destructive",
-        })
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: `Could not disconnect from ${service}`,
-        variant: "destructive",
-      })
-    }
-  }
-
   if (!user) return null
+
+  const findCredential = (provider) => {
+    return user.integrations?.oauth_credentials?.find(
+      (cred) => cred.provider === provider
+    )
+  }
 
   const integrations = [
     {
-      name: 'youtube',
-      label: 'YouTube',
-      icon: Youtube,
-      description: 'Sync your videos and live streams'
+      name: "Google OAuth2",
+      description: "Connect with Google for authentication and additional features.",
+      icon: Icons.google,
+      provider: "google_oauth2",
+      connected: user.integrations?.google_oauth2_connected,
+      connectUrl: `/${username}/auth/google_oauth2`,
+      disconnectUrl: `/${username}/auth/google_oauth2/disconnect`,
+    },
+    
+    {
+      name: "Zoom",
+      description: "Integrate with Zoom for live streaming and webinars.",
+      icon: Icons.zoom,
+      provider: "zoom",
+      connected: user.integrations?.zoom_connected,
+      connectUrl: `/${username}/auth/zoom`,
+      disconnectUrl: `/${username}/auth/zoom/disconnect`,
     },
     {
-      name: 'soundcloud',
-      label: 'SoundCloud',
-      icon: Music,
-      description: 'Import your tracks and playlists'
+      name: "Discord",
+      description: "Connect your Discord server for community engagement.",
+      icon: Icons.discord,
+      provider: "discord",
+      connected: user.integrations?.discord_connected,
+      connectUrl: `/${username}/auth/discord`,
+      disconnectUrl: `/${username}/auth/discord/disconnect`,
     },
     {
-      name: 'twitch',
-      label: 'Twitch',
-      icon: Twitch,
-      description: 'Connect your live streams'
-    }
+      name: "Twitch",
+      description: "Stream directly to your Twitch channel.",
+      icon: Icons.twitch,
+      provider: "twitch",
+      connected: user.integrations?.twitch_connected,
+      connectUrl: `/${username}/auth/twitch`,
+      disconnectUrl: `/${username}/auth/twitch/disconnect`,
+    },
+    {
+      name: "Stripe Connect",
+      description: "Accept payments and manage your earnings.",
+      icon: Icons.stripe,
+      provider: "stripe_connect",
+      connected: user.integrations?.stripe_connected,
+      connectUrl: `/${username}/auth/stripe_connect`,
+      disconnectUrl: `/${username}/auth/stripe_connect/disconnect`,
+    },
   ]
 
   return (
@@ -137,78 +95,52 @@ export default function IntegrationsSettings() {
         <CardHeader>
           <CardTitle>Integrations</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Connect and manage your external service integrations.
+            Connect your account with other services to unlock additional features.
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
-          {integrations.map(({ name, label, icon: Icon, description }) => (
-            <div key={name} className="flex items-start justify-between p-4 border rounded-lg">
-              <div className="flex items-start space-x-4">
-                <div className="p-2 bg-muted rounded-lg">
-                  <Icon className="h-6 w-6" />
-                </div>
-                <div>
-                  <h4 className="font-medium">{label}</h4>
-                  <p className="text-sm text-muted-foreground">{description}</p>
-                  <div className="mt-2 flex items-center space-x-2">
-                    {integrationStatus[name] === 'connected' ? (
-                      <CheckCircle2 className="h-4 w-4 text-green-500" />
-                    ) : integrationStatus[name] === 'error' ? (
-                      <AlertTriangle className="h-4 w-4 text-red-500" />
-                    ) : null}
-                    <span className="text-sm capitalize">{integrationStatus[name]}</span>
+          {integrations.map((integration) => {
+            const credential = findCredential(integration.provider)
+            return (
+              <div
+                key={integration.name}
+                className="flex items-center justify-between space-x-4 rounded-lg border p-4"
+              >
+                <div className="flex items-center space-x-4">
+                  <div className="rounded-lg border p-2">
+                    <integration.icon className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-medium">{integration.name}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {integration.description}
+                    </p>
+                    {credential && (
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Connected {format(new Date(credential.created_at), "PPP")}
+                      </p>
+                    )}
                   </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                {integrationStatus[name] === 'connected' ? (
-                  <>
+                <div>
+                  {integration.connected ? (
                     <Button
                       variant="outline"
-                      size="sm"
-                      className="w-full"
-                      onClick={() => handleDisconnect(name)}
+                      onClick={() => window.location.href = integration.disconnectUrl}
                     >
                       Disconnect
                     </Button>
-                    <div className="flex items-center justify-between space-x-2">
-                      <Label className="text-sm">Auto-sync</Label>
-                      <Controller
-                        name={`${name}_sync`}
-                        control={control}
-                        render={({ field }) => (
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        )}
-                      />
-                    </div>
-                  </>
-                ) : (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="w-full"
-                    onClick={() => handleConnect(name)}
-                  >
-                    Connect
-                  </Button>
-                )}
-                {integrationStatus[name] === 'connected' && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="w-full"
-                    onClick={() => handleConnect(name)}
-                  >
-                    <RefreshCw className="h-4 w-4 mr-2" />
-                    Sync now
-                  </Button>
-                )}
+                  ) : (
+                    <Button
+                      onClick={() => window.location.href = integration.connectUrl}
+                    >
+                      Connect
+                    </Button>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            )
+          })}
         </CardContent>
       </Card>
     </div>
