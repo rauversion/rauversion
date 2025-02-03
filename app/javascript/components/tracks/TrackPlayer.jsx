@@ -66,7 +66,7 @@ export default function TrackPlayer({ url, peaks, height = 45, id, urlLink }) {
   }
 
   return (
-    <div className="track-player bg-black/20 rounded-lg p-4">
+    <div className="track-player  rounded-lg p-4">
       <div ref={waveformRef} className="w-full" />
     </div>
   )

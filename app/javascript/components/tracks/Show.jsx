@@ -69,7 +69,7 @@ export default function TrackShow() {
 
   return (
     <main className="flex-1 relative z-0 overflow-y-auto focus:outline-none xl:order-last">
-      <div className="bg-gray-900 dark:bg-black">
+      <div className="bg-background">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col lg:flex-row gap-8">
             <div className="flex-1">
@@ -78,24 +78,24 @@ export default function TrackShow() {
                   <img
                     src={track.user.avatar_url?.medium}
                     alt={track.user.username}
-                    className="h-10 w-10 rounded-full"
+                    className="h-10 w-10 rounded-full shadow-md"
                   />
                 </div>
                 <div>
                   <Link 
                     to={`/${track.user.username}`}
-                    className="text-sm font-medium text-gray-300 hover:text-white"
+                    className="text-sm font-medium text-muted-foreground hover:text-primary"
                   >
                     {track.user.username}
                   </Link>
-                  <h1 className="text-xl font-bold text-white">
+                  <h1 className="text-xl font-bold text-foreground">
                     {track.title}
                   </h1>
                 </div>
               </div>
 
               {track.processed && (
-                <div className="bg-black/30 rounded-lg p-6">
+                <div className="bg-card rounded-lg p-6">
                   <TrackPlayer
                     url={track.mp3_url}
                     peaks={track.peaks}
@@ -107,23 +107,22 @@ export default function TrackShow() {
               )}
             </div>
 
-
             <div className="lg:w-1/3">
               <div className="relative group">
                 <img
                   src={track.cover_url?.large || "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"}
                   alt={track.title}
-                  className="w-full h-auto rounded-lg"
+                  className="w-full h-auto rounded-lg shadow-lg"
                 />
                 
                 <button
                   onClick={() => handlePlay()}
-                  className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                  className="absolute inset-0 flex items-center justify-center bg-background/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                 >
                   {isPlaying && currentTrackId === track.id ? (
-                    <Pause className="h-16 w-16 text-white" />
+                    <Pause className="h-16 w-16 text-primary-foreground" />
                   ) : (
-                    <Play className="h-16 w-16 text-white" />
+                    <Play className="h-16 w-16 text-primary-foreground" />
                   )}
                 </button>
               </div>
@@ -182,7 +181,7 @@ export default function TrackShow() {
                     <Link
                       key={tag}
                       to={`/tracks?tag=${tag}`}
-                      className="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-primary-100 text-primary-800 hover:bg-primary-200"
+                      className="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-primary/10 text-primary hover:bg-primary/20"
                     >
                       {tag}
                     </Link>
@@ -193,11 +192,11 @@ export default function TrackShow() {
               {/* Description */}
               {track.description && (
                 <>
-                  <dt className="text-sm font-medium text-gray-500 dark:text-gray-300">
+                  <dt className="text-sm font-medium text-muted-foreground">
                     About
                   </dt>
                   <dd 
-                    className="whitespace-pre-line mt-1 mb-4 max-w-prose text-lg text-gray-900 dark:text-gray-100 space-y-5 prose lg:prose-xl dark:prose-invert"
+                    className="whitespace-pre-line mt-1 mb-4 max-w-prose text-lg text-foreground space-y-5 prose lg:prose-xl dark:prose-invert"
                     dangerouslySetInnerHTML={{ __html: track.description }}
                   />
                 </>
@@ -205,7 +204,7 @@ export default function TrackShow() {
 
               {/* Buy Link */}
               {track.buy_link && (
-                <Link to={track.buy_link} className="underline" target="_blank" rel="noopener noreferrer">
+                <Link to={track.buy_link} className="text-primary hover:text-primary/80 underline" target="_blank" rel="noopener noreferrer">
                   Buy Link
                 </Link>
               )}
@@ -214,10 +213,10 @@ export default function TrackShow() {
             {/* Created At */}
             {track.created_at && (
               <div className="sm:col-span-1">
-                <dt className="text-sm font-medium text-gray-500 dark:text-gray-300">
+                <dt className="text-sm font-medium text-muted-foreground">
                   Created at
                 </dt>
-                <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                <dd className="mt-1 text-sm text-foreground">
                   {new Date(track.created_at).toLocaleDateString('en-US', { 
                     year: 'numeric', 
                     month: 'long', 
@@ -230,10 +229,10 @@ export default function TrackShow() {
             {/* Genre */}
             {track.genre && (
               <div className="sm:col-span-1">
-                <dt className="text-sm font-medium text-gray-500 dark:text-gray-300">
+                <dt className="text-sm font-medium text-muted-foreground">
                   Genre
                 </dt>
-                <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                <dd className="mt-1 text-sm text-foreground">
                   {track.genre}
                 </dd>
               </div>
@@ -245,9 +244,9 @@ export default function TrackShow() {
           <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
             {track.description && (
               <div className="sm:col-span-2">
-                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Description</dt>
+                <dt className="text-sm font-medium text-muted-foreground">Description</dt>
                 <dd
-                  className="mt-1 max-w-prose text-sm text-gray-900 dark:text-gray-100 space-y-5"
+                  className="mt-1 max-w-prose text-sm text-foreground space-y-5"
                   dangerouslySetInnerHTML={{ __html: track.description }}
                 />
               </div>
@@ -255,8 +254,8 @@ export default function TrackShow() {
 
             {track.label && (
               <div>
-                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Label</dt>
-                <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                <dt className="text-sm font-medium text-muted-foreground">Label</dt>
+                <dd className="mt-1 text-sm text-foreground">
                   <Link to={`/labels/${track.label.slug}`} className="hover:underline">
                     {track.label.name}
                   </Link>
@@ -266,21 +265,21 @@ export default function TrackShow() {
 
             {track.genre && (
               <div>
-                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Genre</dt>
-                <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">{track.genre}</dd>
+                <dt className="text-sm font-medium text-muted-foreground">Genre</dt>
+                <dd className="mt-1 text-sm text-foreground">{track.genre}</dd>
               </div>
             )}
 
             {track.tags && track.tags.length > 0 && (
               <div className="sm:col-span-2">
-                <dt className="text-sm font-medium text-gray-500 dark:text-gray-400">Tags</dt>
-                <dd className="mt-1 text-sm text-gray-900 dark:text-gray-100">
+                <dt className="text-sm font-medium text-muted-foreground">Tags</dt>
+                <dd className="mt-1 text-sm text-foreground">
                   <div className="flex flex-wrap gap-2">
                     {track.tags.map((tag) => (
                       <Link
                         key={tag}
                         to={`/tracks?tag=${tag}`}
-                        className="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-primary-100 text-primary-800 hover:bg-primary-200"
+                        className="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium bg-primary/10 text-primary hover:bg-primary/20"
                       >
                         {tag}
                       </Link>
@@ -296,7 +295,7 @@ export default function TrackShow() {
       {/* Comments Section */}
       <div className="mt-12 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="border-t border-gray-200 dark:border-gray-800 pt-8">
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
+          <h2 className="text-xl font-bold text-foreground mb-6">
             Comments
           </h2>
           <Comments 

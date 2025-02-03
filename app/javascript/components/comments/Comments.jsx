@@ -91,7 +91,7 @@ export function Comments({ resourceType, resourceId }) {
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="Write a comment..."
-            className="min-h-[100px] bg-neutral-900 border-neutral-800"
+            className="min-h-[100px] bg-muted border-muted"
           />
           <Button type="submit" disabled={!newComment.trim()}>
             Post Comment
@@ -109,11 +109,11 @@ export function Comments({ resourceType, resourceId }) {
             <div className="flex-1 space-y-1">
               <div className="flex items-center gap-2">
                 <span className="font-medium">{comment.user.username}</span>
-                <span className="text-sm text-neutral-400">
+                <span className="text-sm text-default">
                   {format(new Date(comment.created_at), "MMM d, yyyy")}
                 </span>
               </div>
-              <p className="text-neutral-200">{comment.body}</p>
+              <p className="text-muted">{comment.body}</p>
             </div>
           </div>
         ))}
