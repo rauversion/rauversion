@@ -6,18 +6,33 @@ class ProductCartController < ApplicationController
   def add
     product = Product.find(params[:product_id])
     @cart.add_product(product)
-    redirect_back(fallback_location: root_path, notice: 'Item added to cart')
+    @cart_items = @cart.product_cart_items.includes(:product)
+    # redirect_back(fallback_location: root_path, notice: 'Item added to cart')
+  
+    respond_to do |format|
+      format.html { render "destroy" }
+      format.json { render "show" }
+    end
   end
 
   def show
     @cart_items = @cart.product_cart_items.includes(:product)
+    respond_to do |format|
+      format.html
+      format.json 
+    end
   end
 
   def remove
     item = @cart.product_cart_items.find_by(product_id: params[:product_id])
     item.destroy if item
     @cart_items = @cart.product_cart_items.includes(:product)
-    render "destroy"
+    
+    respond_to do |format|
+      format.html { render "destroy" }
+      format.json { render "show" }
+    end
+    
     # redirect_to( product_cart_path, notice: 'Item removed from cart')
   end
 

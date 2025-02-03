@@ -13,6 +13,8 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
 } from "../ui/dropdown-menu"
+import { CartIndicator } from '@/components/cart/CartIndicator'
+
 import { Button } from "../ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 import { useThemeStore } from "../../stores/theme"
@@ -70,13 +72,18 @@ export default function UserMenu() {
             </div>
 
 
+
             <div className="flex items-center justify-end space-x-4">
+              <div className="flex items-center gap-2">
+                <CartIndicator />
+              </div>
               {currentUser ? (
                 <>
                   <Link to="/tracks/new" className="rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted">
                     Upload
                   </Link>
 
+            
                   <Button
                     variant="ghost"
                     size="icon"

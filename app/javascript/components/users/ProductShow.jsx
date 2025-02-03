@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { get } from '@rails/request.js'
+import useCartStore from '@/stores/cartStore'
 
 export default function ProductShow() {
   const { username, slug } = useParams()
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
   const [selectedImage, setSelectedImage] = useState(null)
+  const { addToCart } = useCartStore()
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -129,6 +131,7 @@ export default function ProductShow() {
               <div className="pt-6">
                 <button
                   type="button"
+                  onClick={() => addToCart(product.id)}
                   className="w-full rounded-md bg-brand-600 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600"
                 >
                   Add to cart
