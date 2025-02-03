@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
-import { put, post } from "@rails/request.js"
+import { put, post, destroy } from "@rails/request.js"
 import { GripVertical, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -69,7 +69,7 @@ function SortableTrackItem({ track, onRemove }) {
       <Button
         variant="ghost"
         size="icon"
-        onClick={() => onRemove(track)}
+        onClick={(e) =>onRemove(track)}
         className="text-muted-foreground hover:text-destructive"
       >
         <Trash2 className="h-4 w-4" />
@@ -145,10 +145,11 @@ const PlaylistTracks = ({ playlist, onTrackOrderChange }) => {
       setTracks(newTracks)
       onTrackOrderChange?.(newTracks)
 
-      const response = await put(`/playlists/${playlist.slug}/track_playlists/${track.id}`, {
+      const response = await destroy(`/track_playlists/${playlist.id}`, {
         responseKind: "json",
         body: JSON.stringify({
           track_playlist: {
+            track_id: track.id,
             _destroy: true
           }
         })
