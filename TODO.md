@@ -5,7 +5,7 @@ TODO:
     + payment buttons
     + session flow
     + artist profile
-    + track edit modal
+    + merch crud
 
   + Current.label_user not set on impersonate new track
   

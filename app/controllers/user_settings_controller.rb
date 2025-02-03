@@ -85,6 +85,7 @@ class UserSettingsController < ApplicationController
     attrs = params.require(:user).permit(
       :username,
       :email,
+      :bio,
       :current_password,
       :avatar,
       :avatar_blob_id,
