@@ -20,16 +20,30 @@ import { Category, permissionDefinitions } from "@/lib/constants"
 import { useToast } from "@/hooks/use-toast"
 import { useThemeStore } from '@/stores/theme'
 
-import { put } from "@rails/request.js"
+
+import { put, destroy } from "@rails/request.js"
 import { Check, Copy, Facebook, Twitter, Link2, Code2 } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ImageUploader } from "@/components/ui/image-uploader"
 import Select from "react-select"
 import selectTheme from "@/components/ui/selectTheme"
+import { useNavigate } from "react-router-dom"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 export default function TrackEdit({ track, open, onOpenChange }) {
   const { toast } = useToast()
   const { isDarkMode } = useThemeStore()
+  const navigate = useNavigate()
   
   const { control, handleSubmit, setValue, watch } = useForm({
     defaultValues: {
@@ -167,6 +181,36 @@ export default function TrackEdit({ track, open, onOpenChange }) {
     return `<iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" 
       src="${trackUrl}">
     </iframe>`    
+  }
+
+  const handleDelete = async () => {
+    try {
+      const response = await destroy(`/tracks/${track.slug}`, {
+        responseKind: "json"
+      })
+      
+      if (response.ok) {
+        toast({
+          title: "Success",
+          description: "Track deleted successfully"
+        })
+        onOpenChange(false)
+        navigate('/')
+      } else {
+        const error = await response.json()
+        toast({
+          title: "Error",
+          description: error.message || "Error deleting track",
+          variant: "destructive"
+        })
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Error deleting track",
+        variant: "destructive"
+      })
+    }
   }
 
   return (
@@ -757,7 +801,30 @@ export default function TrackEdit({ track, open, onOpenChange }) {
           </div>
 
           <div className="border-t p-6 mt-auto">
-            <div className="flex justify-end">
+            <div className="flex justify-between items-center">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="destructive">
+                    Delete Track
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete your track
+                      and remove all associated data from our servers.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleDelete}>
+                      Delete Track
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+
               <Button type="submit">
                 Save Changes
               </Button>

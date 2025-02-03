@@ -1,10 +1,14 @@
 class LikesController < ApplicationController
-
   before_action :check_user
+  respond_to :json
 
   def create
     @resource = find_resource
-    @button_class = current_user.toggle_like!(@resource) ? "button-active" : "button"
+    @liked = current_user.toggle_like!(@resource)
+    
+    respond_to do |format|
+      format.json { render :show }
+    end
   end
 
   private
@@ -18,8 +22,10 @@ class LikesController < ApplicationController
   end
 
   def check_user
-    redirect_to new_user_session_path and return if current_user.blank?
+    unless current_user
+      respond_to do |format|
+        format.json { render json: { error: "Authentication required" }, status: :unauthorized }
+      end
+    end
   end
-
-   
 end

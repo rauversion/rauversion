@@ -30,17 +30,17 @@ export default function TrackItemMenu({ track }) {
     }
 
     try {
-      const response = await post(`/api/v1/tracks/${track.id}/likes`, {
+      const response = await post(`/tracks/${track.slug}/likes`, {
         responseKind: "json"
       })
       
       if (response.ok) {
-        const data = await response.json
-        setLikes(data.likes_count)
-        setIsLiked(true)
+        const { liked, resource } = await response.json
+        setLikes(resource.likes_count)
+        setIsLiked(liked)
         toast({
           title: "Success",
-          description: "Track liked!"
+          description: !liked ? "Unliked track!" : "Track liked!"
         })
       } else {
         const error = await response.json
@@ -51,6 +51,7 @@ export default function TrackItemMenu({ track }) {
         })
       }
     } catch (error) {
+      console.log(error)
       toast({
         title: "Error",
         description: "Error liking track",
@@ -79,7 +80,7 @@ export default function TrackItemMenu({ track }) {
   const handleDelete = async () => {
     if (window.confirm('Are you sure you want to delete this track?')) {
       try {
-        const response = await destroy(`/api/v1/tracks/${track.id}`, {
+        const response = await destroy(`/tracks/${track.id}`, {
           responseKind: "json"
         })
         
