@@ -66,7 +66,7 @@ json.track do
   json.comments @track.comments.includes(:user).order(created_at: :desc) do |comment|
     json.id comment.id
     json.body comment.body
-    json.track_minute comment.track_minute
+    # json.track_minute comment.track_minute
     json.created_at comment.created_at
     json.user do
       json.id comment.user.id

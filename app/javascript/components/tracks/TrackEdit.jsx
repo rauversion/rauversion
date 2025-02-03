@@ -42,7 +42,7 @@ import PermissionsForm from "@/components/shared/forms/PermissionsForm"
 import ShareForm from "@/components/shared/forms/ShareForm"
 import PricingForm from "@/components/shared/forms/PricingForm"
 
-export default function TrackEdit({ track, open, onOpenChange }) {
+export default function TrackEdit({ track, open, onOpenChange, onOk }) {
   const { toast } = useToast()
   const { isDarkMode } = useThemeStore()
   const navigate = useNavigate()
@@ -118,6 +118,7 @@ export default function TrackEdit({ track, open, onOpenChange }) {
           description: "Track updated successfully"
         })
         onOpenChange(false)
+        onOk && onOk(response)
       } else {
         const error = await response.json()
         toast({

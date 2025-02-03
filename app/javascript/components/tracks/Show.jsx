@@ -4,29 +4,42 @@ import TrackPlayer from './TrackPlayer'
 import { get } from '@rails/request.js'
 import { Comments } from "@/components/comments/Comments"
 import { ShareDialog } from "@/components/ui/share-dialog"
+import TrackEdit from './TrackEdit'
+import { Settings } from 'lucide-react'
+import { Button } from "@/components/ui/button"
+import useAuthStore from '@/stores/authStore'
 
 export default function TrackShow() {
   const { slug } = useParams()
   const [track, setTrack] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [isPlaying, setIsPlaying] = useState(false)
+  const [currentTrackId, setCurrentTrackId] = useState(null)
+  const [editOpen, setEditOpen] = useState(false)
+  const { currentUser } = useAuthStore()
+
+  const fetchTrack = async () => {
+    try {
+      const response = await get(`/tracks/${slug}.json`)
+      if (response.ok) {
+        const data = await response.json
+        setTrack(data.track)
+      }
+    } catch (error) {
+      console.error('Error fetching track:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    const fetchTrack = async () => {
-      try {
-        const response = await get(`/tracks/${slug}.json`)
-        if (response.ok) {
-          const data = await response.json
-          setTrack(data.track)
-        }
-      } catch (error) {
-        console.error('Error fetching track:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
     fetchTrack()
   }, [slug])
+
+  const handlePlay = () => {
+    setIsPlaying(!isPlaying)
+    setCurrentTrackId(track.id)
+  }
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>
@@ -84,11 +97,27 @@ export default function TrackShow() {
             </div>
 
             <div className="lg:w-1/3">
-              <img
-                src={track.cover_url?.large || "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"}
-                alt={track.title}
-                className="w-full h-auto rounded-lg"
-              />
+              <div className="relative group">
+                <img
+                  src={track.cover_url?.large || "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"}
+                  alt={track.title}
+                  className="w-full h-auto rounded-lg"
+                />
+                <button
+                  onClick={() => handlePlay()}
+                  className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                >
+                  {isPlaying && currentTrackId === track.id ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M10 9l4.5-4.5m0 4.5l-4.5 4.5m4.5-4.5L12 12m6.5 4.5l-4.5-4.5" />
+                    </svg>
+                  ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l-4 4m0 0l-4-4m4 4v-4a1 1 0 011 1v4a1 1 0 01-1 1z" />
+                    </svg>
+                  )}
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -127,12 +156,17 @@ export default function TrackShow() {
           </button>
 
           {/* Edit Button */}
-          <Link to={`/tracks/${track.slug}/edit`} className="button">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-            </svg>
-            <span>Edit</span>
-          </Link>
+          {currentUser?.id === track.user.id && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setEditOpen(true)}
+              className="text-muted-foreground hover:text-foreground"
+            >
+              <Settings className="h-4 w-4" />
+              <span className="sr-only">Edit track</span>
+            </Button>
+          )}
         </div>
 
         <div className="mt-6 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -268,6 +302,15 @@ export default function TrackShow() {
           />
         </div>
       </div>
+
+      {track && currentUser?.id === track.user.id && (
+        <TrackEdit
+          track={track}
+          open={editOpen}
+          onOpenChange={setEditOpen}
+          onOk={fetchTrack}
+        />
+      )}
     </main>
   )
 }
