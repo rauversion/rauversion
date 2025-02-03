@@ -25,7 +25,7 @@ export default function UserHome() {
     const fetchData = async () => {
       try {
         const [articlesResponse] = await Promise.all([
-          get(`/${username}/articles.json`),
+          get(`/${username}/articles.json?per=4&order=created_at`),
         ])
 
         if (articlesResponse.ok) {

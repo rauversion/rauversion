@@ -120,6 +120,27 @@ class PlaylistsController < ApplicationController
   def destroy
   end
 
+  def sort
+    @tab = params[:tab] || "tracks-tab"
+    @playlist = current_user.playlists.friendly.find(params[:id])
+    
+    positions = params[:positions]
+    
+    if positions.present?
+      ActiveRecord::Base.transaction do
+        positions.each do |position_data|
+          track_playlist = @playlist.track_playlists.find(position_data[:id])
+          track_playlist.insert_at(position_data[:position].to_i)
+        end
+      end
+    end
+
+    respond_to do |format|
+      format.html { render :update }
+      format.json { render json: { status: 'success', message: 'Playlist updated successfully' } }
+    end
+  end
+
   private
 
   def playlist_params
@@ -137,29 +158,6 @@ class PlaylistsController < ApplicationController
       ],
       :track_ids => []
     )
-  end
-
-  def sort
-    @tab = params[:tab] || "tracks-tab"
-    @playlist = current_user.playlists.friendly.find(params[:id])
-    id = params.dig("section", "id")
-    position = params.dig("section", "position")
-
-    collection = @playlist.track_playlists.find(id)
-    new_position = position-1
-    new_position = new_position <= 0 ? 1 : new_position
-    collection.insert_at(new_position)
-
-    flash.now[:notice] = "successfully updated"
-
-    render "update"
-
-
-    respond_to do |format|
-      format.html { render :update }
-      format.json { render :update }
-    end
-
   end
 
   def find_playlist

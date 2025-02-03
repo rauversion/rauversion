@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
-import { put } from "@rails/request.js"
+import { put, post } from "@rails/request.js"
 import { GripVertical, Trash2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -118,11 +118,11 @@ const PlaylistTracks = ({ playlist, onTrackOrderChange }) => {
   const updateTrackPositions = async (items) => {
     try {
       const positions = items.map((item, index) => ({
-        id: item.id,
+        id: item.track_playlist_id,
         position: index + 1
       }))
 
-      const response = await put(`/playlists/${playlist.slug}/sort`, {
+      const response = await post(`/playlists/${playlist.slug}/sort`, {
         responseKind: "json",
         body: JSON.stringify({ positions })
       })

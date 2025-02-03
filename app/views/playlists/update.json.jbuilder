@@ -5,7 +5,7 @@ json.playlist do
     :description,
     :private,
     :genre,
-    :contains_music,
+    # :contains_music,
     :artist,
     :publisher,
     :isrc,

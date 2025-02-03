@@ -174,7 +174,7 @@ class UsersController < ApplicationController
   end
 
   def articles
-    @articles = @user.posts.order("id desc").page(params[:page]).per(10)
+    @articles = @user.posts.order("id desc").page(params[:page]).per(params[:per] || 10)
 
     respond_to do |format|
       format.html { render "articles" }

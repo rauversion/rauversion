@@ -37,8 +37,9 @@ json.playlist do
   json.track_playlists @playlist.track_playlists do |track_playlist|
     track = track_playlist.track
 
-    json.position track_playlist.position
     json.id track.id
+    json.track_playlist_id track_playlist.id
+    json.position track_playlist.position
     json.title track.title
     json.description track.description
     json.slug track.slug

@@ -25,30 +25,30 @@ json.user do
 
   json.menu_items user_menu_items()
 
-  json.tracks @tracks do |track|
-    json.extract! track, :id, :title, :description, :duration, :slug
-    json.cover_url do
-      json.small track.cover_url(:small)
-      json.medium track.cover_url(:medium)
-      json.large track.cover_url(:large)
-    end
-    json.author do
-      json.extract! track.user, :id, :username, :first_name, :last_name
-      json.full_name "#{track.user.first_name} #{track.user.last_name}"
-    end
-  end
+  # json.tracks @tracks do |track|
+  #   json.extract! track, :id, :title, :description, :duration, :slug
+  #   json.cover_url do
+  #     json.small track.cover_url(:small)
+  #     json.medium track.cover_url(:medium)
+  #     json.large track.cover_url(:large)
+  #   end
+  #   json.author do
+  #     json.extract! track.user, :id, :username, :first_name, :last_name
+  #     json.full_name "#{track.user.first_name} #{track.user.last_name}"
+  #   end
+  # end
 
-  json.playlists @playlists do |playlist|
-    json.extract! playlist, :id, :title, :description, :playlist_type, :private, :slug
-    json.cover_url do
-      json.small playlist.cover_url(:small)
-      json.medium playlist.cover_url(:medium)
-      json.large playlist.cover_url(:large)
-    end
-    json.tracks_count playlist.tracks.count
-    json.user do
-      json.extract! playlist.user, :id, :username, :first_name, :last_name
-      json.full_name "#{playlist.user.first_name} #{playlist.user.last_name}"
-    end
-  end
+  # json.playlists @playlists do |playlist|
+  #   json.extract! playlist, :id, :title, :description, :playlist_type, :private, :slug
+  #   json.cover_url do
+  #     json.small playlist.cover_url(:small)
+  #     json.medium playlist.cover_url(:medium)
+  #     json.large playlist.cover_url(:large)
+  #   end
+  #   json.tracks_count playlist.tracks.count
+  #   json.user do
+  #     json.extract! playlist.user, :id, :username, :first_name, :last_name
+  #     json.full_name "#{playlist.user.first_name} #{playlist.user.last_name}"
+  #   end
+  # end
 end
