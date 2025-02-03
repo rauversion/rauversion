@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Share2, Heart, MoreHorizontal, Lock, Pencil, Trash2 } from 'lucide-react'
+import { Share2, Heart, MoreHorizontal, Lock, Pencil, Trash2, ListMusic } from 'lucide-react'
 import useAuthStore from '@/stores/authStore'
 import { post, destroy } from "@rails/request.js"
 import { useToast } from "@/hooks/use-toast"
@@ -10,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import TrackEdit from '../tracks/TrackEdit'
+import AddToPlaylist from '../playlists/AddToPlaylist'
 import { Link } from "react-router-dom"
 
 export default function TrackItemMenu({ track }) {
@@ -18,6 +19,7 @@ export default function TrackItemMenu({ track }) {
   const [isLiked, setIsLiked] = useState(track.like_id != null)
   const { toast } = useToast()
   const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [addToPlaylistOpen, setAddToPlaylistOpen] = useState(false)
 
   const handleLike = async () => {
     if (!isAuthenticated) {
@@ -110,7 +112,6 @@ export default function TrackItemMenu({ track }) {
 
   const isOwner = currentUser && currentUser.id === track.user.id
 
-  console.log("isOwner", isOwner)
   return (
     <>
       <div className="flex items-center gap-3">
@@ -146,32 +147,32 @@ export default function TrackItemMenu({ track }) {
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              {isAuthenticated && (
+                <DropdownMenuItem onClick={() => setAddToPlaylistOpen(true)} className="flex items-center gap-2">
+                  <ListMusic className="w-4 h-4" />
+                  Add to Playlist
+                </DropdownMenuItem>
+              )}
               {isOwner && (
                 <>
                   <DropdownMenuItem onClick={() => setEditDialogOpen(true)} className="flex items-center gap-2">
                     <Pencil className="w-4 h-4" />
-                    <span>Edit this track</span>
+                    Edit
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleDelete} className="flex items-center gap-2 text-destructive">
+                  <DropdownMenuItem onClick={handleDelete} 
+                    className="flex items-center gap-2 text-destructive">
                     <Trash2 className="w-4 h-4" />
-                    <span>Delete this track</span>
+                    Delete
                   </DropdownMenuItem>
                 </>
               )}
-              <DropdownMenuItem onClick={handleShare} className="flex items-center gap-2">
-                <Share2 className="w-4 h-4" />
-                <span>Share</span>
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         )}
       </div>
 
-      <TrackEdit 
-        track={track} 
-        open={editDialogOpen} 
-        onOpenChange={setEditDialogOpen} 
-      />
+      <TrackEdit track={track} open={editDialogOpen} onOpenChange={setEditDialogOpen} />
+      <AddToPlaylist track={track} open={addToPlaylistOpen} onOpenChange={setAddToPlaylistOpen} />
     </>
   )
 }

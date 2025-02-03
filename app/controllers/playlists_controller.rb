@@ -45,22 +45,53 @@ class PlaylistsController < ApplicationController
     @tab = params[:tab] || "basic-info-tab"
     @playlist = find_playlist
     @playlist.enable_label = @playlist.label_id.present?
+    respond_to do |format|
+      format.html
+      format.json
+    end
   end
 
   def new
-    @tab = params[:tab]
-    @track = Track.friendly.find(params[:track_id])
-    @playlist = current_user.playlists.new
-    @playlist.track_playlists << TrackPlaylist.new(track: @track)
+    @playlist = Playlist.new
+    @track = Track.find(params[:track_id]) if params[:track_id]
+    @tab = params[:tab] || "create"
+
+    respond_to do |format|
+      format.html
+      format.json {
+        @playlists = Playlist.list_playlists_by_user_with_track(params[:track_id], current_user.id)
+        render json: {
+          playlists: @playlists.map { |p| 
+            {
+              id: p.id,
+              title: p.title,
+              track_count: p.tracks.count,
+              has_track: p.track_playlists.exists?(track_id: params[:track_id])
+            }
+          }
+        }
+      }
+    end
   end
 
   def create
-    @tab = params[:tab] || "basic-info-tab"
-    @playlist = current_user.playlists.create(playlist_params)
-    if @playlist
-      flash.now[:notice] = "successfully created"
-    else
-      flash.now[:error] = "error in creating"
+    @playlist = current_user.playlists.new(playlist_params)
+    
+    respond_to do |format|
+      if @playlist.save
+        # Add track to playlist if track_ids are provided
+        if params[:playlist][:track_ids].present?
+          params[:playlist][:track_ids].each do |track_id|
+            @playlist.track_playlists.create(track_id: track_id)
+          end
+        end
+
+        format.html { redirect_to @playlist, notice: 'Playlist was successfully created.' }
+        format.json { render :show, status: :created, location: @playlist }
+      else
+        format.html { render :new, status: :unprocessable_entity }
+        format.json { render json: @playlist.errors, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -79,15 +110,20 @@ class PlaylistsController < ApplicationController
     if params[:nonpersist]
       @playlist.assign_attributes(playlist_params)
     end
+
+    respond_to do |format|
+      format.html
+      format.json
+    end
   end
 
   def destroy
   end
 
+  private
+
   def playlist_params
-    params.require(:playlist).permit(
-      :id,
-      :title, :description, :private, :price,
+    params.require(:playlist).permit(:title, :description, :private, :price,
       :playlist_type, :release_date, :cover,
       :record_label, :buy_link, :buy_link_title,
       :enable_label,
@@ -98,7 +134,8 @@ class PlaylistsController < ApplicationController
         :id,
         :_destroy,
         :track_id
-      ]
+      ],
+      :track_ids => []
     )
   end
 
@@ -116,6 +153,12 @@ class PlaylistsController < ApplicationController
     flash.now[:notice] = "successfully updated"
 
     render "update"
+
+
+    respond_to do |format|
+      format.html { render :update }
+      format.json { render :update }
+    end
 
   end
 
@@ -170,7 +213,7 @@ class PlaylistsController < ApplicationController
     end
 
     respond_to do |format|
-      format.json
+      format.json { render :albums }
     end
   end
 end

@@ -1,5 +1,5 @@
-import React from "react"
-import { useNavigate } from "react-router-dom"
+import React, { useState, useEffect } from "react"
+import { useNavigate, useParams } from "react-router-dom"
 import { cn } from "@/lib/utils"
 import { useForm, Controller } from "react-hook-form"
 import { useToast } from "@/hooks/use-toast"
@@ -36,29 +36,62 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Select from "react-select"
 import selectTheme from "@/components/ui/selectTheme"
 import PlaylistTracks from "./PlaylistTracks"
+import MetadataForm from "@/components/shared/forms/MetadataForm"
+import PermissionsForm from "@/components/shared/forms/PermissionsForm"
+import ShareForm from "@/components/shared/forms/ShareForm"
+import PricingForm from "@/components/shared/forms/PricingForm"
 
-export default function PlaylistEdit({ playlist, open, onOpenChange }) {
+
+export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenChange }) {
+  const [playlist, setPlaylist] = useState(initialPlaylist)
+  const [loading, setLoading] = useState(false)
+  const { slug } = useParams()
   const { toast } = useToast()
   const { isDarkMode } = useThemeStore()
   const navigate = useNavigate()
-  
+
+  useEffect(() => {
+    const fetchPlaylist = async () => {
+      setLoading(true)
+      try {
+        const response = await fetch(`/playlists/${slug}/edit.json`)
+        const data = await response.json()
+        setPlaylist(data.playlist)
+        
+        // Update form values with fetched data
+        Object.entries(data.playlist).forEach(([key, value]) => {
+          if (key === "metadata") {
+            Object.entries(value).forEach(([metaKey, metaValue]) => {
+              setValue(metaKey, metaValue)
+            })
+          } else {
+            setValue(key, value)
+          }
+        })
+      } catch (error) {
+        console.error("Error fetching playlist:", error)
+      }
+      setLoading(false)
+    }
+
+    fetchPlaylist()
+  }, [slug])
+
   const { control, handleSubmit, setValue, watch } = useForm({
     defaultValues: {
-      title: playlist.title || "",
-      description: playlist.description || "",
-      private: playlist.private || false,
-      enable_label: playlist.enable_label || false,
-      playlist_type: playlist.playlist_type || "",
-      release_date: playlist.release_date || "",
-      price: playlist.price || "0",
-      name_your_price: playlist.name_your_price || false,
-      buy_link: playlist.buy_link || "",
-      buy_link_title: playlist.buy_link_title || "",
-      record_label: playlist.record_label || "",
-      cover: playlist.cover || "",
-      attribution: playlist.attribution || false,
-      noncommercial: playlist.noncommercial || false,
-      copies: playlist.copies || "non_derivative_works",
+      title: playlist?.title || "",
+      description: playlist?.description || "",
+      private: playlist?.private || false,
+      genre: playlist?.genre || "",
+      custom_genre: playlist?.custom_genre || "",
+      playlist_type: playlist?.playlist_type || "",
+      release_date: playlist?.release_date || "",
+      buy_link: playlist?.metadata?.buy_link || "",
+      buy_link_title: playlist?.metadata?.buy_link_title || "",
+      buy: playlist?.metadata?.buy || false,
+      record_label: playlist?.metadata?.record_label || "",
+      cover: playlist?.cover || "",
+      tags: playlist?.tags || [],
     }
   })
 
@@ -144,6 +177,18 @@ export default function PlaylistEdit({ playlist, open, onOpenChange }) {
     { value: "compilation", label: "Compilation" },
   ]
 
+  if (loading) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-3xl h-[80vh] flex flex-col p-0">
+          <DialogHeader className="p-6 pb-0">
+            <DialogTitle>Loading...</DialogTitle>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+    )
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl h-[80vh] flex flex-col p-0">
@@ -160,8 +205,10 @@ export default function PlaylistEdit({ playlist, open, onOpenChange }) {
               <TabsList>
                 <TabsTrigger value="basic">Basic Info</TabsTrigger>
                 <TabsTrigger value="tracks">Tracks</TabsTrigger>
-                <TabsTrigger value="pricing">Pricing</TabsTrigger>
                 <TabsTrigger value="metadata">Metadata</TabsTrigger>
+                <TabsTrigger value="permissions">Permissions</TabsTrigger>
+                <TabsTrigger value="share">Share</TabsTrigger>
+                <TabsTrigger value="pricing">Pricing</TabsTrigger>
               </TabsList>
             </div>
 
@@ -263,127 +310,20 @@ export default function PlaylistEdit({ playlist, open, onOpenChange }) {
                 />
               </TabsContent>
 
-              <TabsContent value="pricing" className="p-6">
-                <div className="space-y-4">
-                  <div>
-                    <Label>Price</Label>
-                    <Controller
-                      name="price"
-                      control={control}
-                      render={({ field }) => (
-                        <Input
-                          type="number"
-                          step="0.01"
-                          {...field}
-                        />
-                      )}
-                    />
-                    <p className="text-sm text-muted-foreground mt-1">
-                      $0 or more. We apply a fee when price is higher than $0.
-                    </p>
-                  </div>
-
-                  <div className="flex items-center space-x-2">
-                    <Controller
-                      name="name_your_price"
-                      control={control}
-                      render={({ field }) => (
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      )}
-                    />
-                    <Label>Let fans pay more if they want</Label>
-                  </div>
-                </div>
+              <TabsContent value="metadata" className="p-6">
+                <MetadataForm control={control} />
               </TabsContent>
 
-              <TabsContent value="metadata" className="p-6">
-                <div className="space-y-4">
-                  <div>
-                    <Label>Buy Link</Label>
-                    <Controller
-                      name="buy_link"
-                      control={control}
-                      render={({ field }) => (
-                        <Input {...field} />
-                      )}
-                    />
-                  </div>
+              <TabsContent value="permissions" className="p-6">
+                <PermissionsForm control={control} watch={watch} />
+              </TabsContent>
 
-                  <div>
-                    <Label>Buy Link Title</Label>
-                    <Controller
-                      name="buy_link_title"
-                      control={control}
-                      render={({ field }) => (
-                        <Input {...field} />
-                      )}
-                    />
-                  </div>
+              <TabsContent value="share" className="p-6">
+                <ShareForm item={{ type: "playlist", slug: playlist.slug, user: playlist.user }} />
+              </TabsContent>
 
-                  <div>
-                    <Label>Record Label</Label>
-                    <Controller
-                      name="record_label"
-                      control={control}
-                      render={({ field }) => (
-                        <Input {...field} />
-                      )}
-                    />
-                  </div>
-
-                  <div className="space-y-4 pt-4 border-t">
-                    <h3 className="font-medium">Attribution Settings</h3>
-                    
-                    <div className="flex items-center space-x-2">
-                      <Controller
-                        name="attribution"
-                        control={control}
-                        render={({ field }) => (
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        )}
-                      />
-                      <Label>Attribution</Label>
-                    </div>
-
-                    <div className="flex items-center space-x-2">
-                      <Controller
-                        name="noncommercial"
-                        control={control}
-                        render={({ field }) => (
-                          <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
-                          />
-                        )}
-                      />
-                      <Label>Non-Commercial</Label>
-                    </div>
-
-                    <div>
-                      <Label>Copies</Label>
-                      <Controller
-                        name="copies"
-                        control={control}
-                        render={({ field }) => (
-                          <Select
-                            {...field}
-                            options={[
-                              { value: "non_derivative_works", label: "Non Derivative Works" },
-                              { value: "share_alike", label: "Share Alike" },
-                            ]}
-                            theme={(theme) => selectTheme(theme, isDarkMode)}
-                          />
-                        )}
-                      />
-                    </div>
-                  </div>
-                </div>
+              <TabsContent value="pricing" className="p-6">
+                <PricingForm control={control} />
               </TabsContent>
             </div>
           </Tabs>

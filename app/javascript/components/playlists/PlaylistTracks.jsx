@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
 import { put } from "@rails/request.js"
@@ -78,9 +78,15 @@ function SortableTrackItem({ track, onRemove }) {
   )
 }
 
-export default function PlaylistTracks({ playlist, onTracksChange }) {
+const PlaylistTracks = ({ playlist, onTrackOrderChange }) => {
   const { toast } = useToast()
-  const [tracks, setTracks] = useState(playlist.track_playlists || [])
+  const [tracks, setTracks] = useState(playlist?.track_playlists || [])
+
+  useEffect(() => {
+    if (playlist?.track_playlists) {
+      setTracks(playlist.track_playlists)
+    }
+  }, [playlist])
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -89,20 +95,23 @@ export default function PlaylistTracks({ playlist, onTracksChange }) {
     })
   )
 
-  const handleDragEnd = async (event) => {
+  const handleDragEnd = (event) => {
     const { active, over } = event
 
     if (active.id !== over.id) {
-      setTracks((items) => {
-        const oldIndex = items.findIndex((i) => i.id === active.id)
-        const newIndex = items.findIndex((i) => i.id === over.id)
-        const newItems = arrayMove(items, oldIndex, newIndex)
-        
-        // Update positions on the server
-        updateTrackPositions(newItems)
-        
-        return newItems
-      })
+      const oldIndex = tracks.findIndex((track) => track.id === active.id)
+      const newIndex = tracks.findIndex((track) => track.id === over.id)
+
+      const newTracks = arrayMove(tracks, oldIndex, newIndex).map((track, index) => ({
+        ...track,
+        position: index + 1
+      }))
+
+      setTracks(newTracks)
+      onTrackOrderChange?.(newTracks)
+
+      // Update positions on the server
+      updateTrackPositions(newTracks)
     }
   }
 
@@ -134,7 +143,7 @@ export default function PlaylistTracks({ playlist, onTracksChange }) {
     try {
       const newTracks = tracks.filter(t => t.id !== track.id)
       setTracks(newTracks)
-      onTracksChange?.(newTracks)
+      onTrackOrderChange?.(newTracks)
 
       const response = await put(`/playlists/${playlist.slug}/track_playlists/${track.id}`, {
         responseKind: "json",
@@ -193,3 +202,5 @@ export default function PlaylistTracks({ playlist, onTracksChange }) {
     </div>
   )
 }
+
+export default PlaylistTracks
