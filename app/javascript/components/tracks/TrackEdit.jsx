@@ -18,6 +18,8 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Category } from "@/lib/constants"
 import { useToast } from "@/hooks/use-toast"
 import { put } from "@rails/request.js"
+import { Check, Copy, Facebook, Twitter, Link2, Code2 } from "lucide-react"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 
 const permissionDefinitions = [
   {
@@ -109,6 +111,11 @@ export default function TrackEdit({ track, open, onOpenChange }) {
     enable_app_playblack: track.enable_app_playblack || false,
   })
 
+  const [copiedStates, setCopiedStates] = useState({
+    link: false,
+    embed: false
+  })
+
   const handleInputChange = (e) => {
     const { name, value } = e.target
     setFormData(prev => ({
@@ -146,6 +153,52 @@ export default function TrackEdit({ track, open, onOpenChange }) {
         variant: "destructive"
       })
     }
+  }
+
+  const handleCopy = async (type, text) => {
+    try {
+      await navigator.clipboard.writeText(text)
+      setCopiedStates(prev => ({ ...prev, [type]: true }))
+      toast({
+        title: "Copied!",
+        description: `${type === 'link' ? 'Link' : 'Embed code'} copied to clipboard`
+      })
+      setTimeout(() => {
+        setCopiedStates(prev => ({ ...prev, [type]: false }))
+      }, 2000)
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "Failed to copy to clipboard",
+        variant: "destructive"
+      })
+    }
+  }
+
+  const handleSocialShare = (platform) => {
+    const trackUrl = `${window.location.origin}/${track.user.username}/${track.slug}`
+    const text = `Check out "${track.title}" by ${track.user.username}`
+    
+    let shareUrl
+    switch (platform) {
+      case 'twitter':
+        shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(trackUrl)}&text=${encodeURIComponent(text)}`
+        break
+      case 'facebook':
+        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(trackUrl)}`
+        break
+      default:
+        return
+    }
+    
+    window.open(shareUrl, '_blank', 'width=600,height=400')
+  }
+
+  const getEmbedCode = () => {
+    const trackUrl = `${window.location.origin}/embed/${track.slug}`
+    return `<iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" 
+      src="${trackUrl}">
+    </iframe>`    
   }
 
   return (
@@ -474,7 +527,113 @@ export default function TrackEdit({ track, open, onOpenChange }) {
               </TabsContent>
 
               <TabsContent value="share" className="space-y-6 pb-6">
-                {/* Share content will go here */}
+                <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+                  {/* Share Link Card */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Link2 className="h-5 w-5" />
+                        Share Link
+                      </CardTitle>
+                      <CardDescription>
+                        Share your track directly using this link
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex items-center space-x-2">
+                        <Input
+                          readOnly
+                          value={`${window.location.origin}/${track.user.username}/${track.slug}`}
+                        />
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => handleCopy('link', `${window.location.origin}/${track.user.username}/${track.slug}`)}
+                          className="shrink-0"
+                        >
+                          {copiedStates.link ? (
+                            <Check className="h-4 w-4" />
+                          ) : (
+                            <Copy className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Social Share Card */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Share on Social Media</CardTitle>
+                      <CardDescription>
+                        Share your track on your favorite social platform
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex space-x-4">
+                        <Button
+                          variant="outline"
+                          className="flex-1"
+                          onClick={() => handleSocialShare('twitter')}
+                        >
+                          <Twitter className="mr-2 h-4 w-4" />
+                          Twitter
+                        </Button>
+                        <Button
+                          variant="outline"
+                          className="flex-1"
+                          onClick={() => handleSocialShare('facebook')}
+                        >
+                          <Facebook className="mr-2 h-4 w-4" />
+                          Facebook
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  {/* Embed Code Card */}
+                  <Card className="md:col-span-2">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <Code2 className="h-5 w-5" />
+                        Embed
+                      </CardTitle>
+                      <CardDescription>
+                        Add this track to your website by copying the embed code
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-4">
+                        <div className="relative">
+                          <Textarea
+                            readOnly
+                            value={getEmbedCode()}
+                            className="min-h-[100px] font-mono text-sm"
+                          />
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => handleCopy('embed', getEmbedCode())}
+                            className="absolute top-2 right-2"
+                          >
+                            {copiedStates.embed ? (
+                              <Check className="h-4 w-4" />
+                            ) : (
+                              <Copy className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </div>
+                        
+                        <div className="rounded-lg border bg-muted p-4">
+                          <div className="text-sm text-muted-foreground">
+                            Preview
+                          </div>
+                          <div className="mt-2" dangerouslySetInnerHTML={{ __html: getEmbedCode() }} />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
               </TabsContent>
             </div>
 
