@@ -52,7 +52,7 @@ export default function UserMenu() {
             <div className="flex items-center px-2 lg:px-0">
               <div className="flex-shrink-0 flex items-center">
                 <Link to="/" className="flex items-center space-x-3 text-default sm:text-2xl text-sm font-extrabold">
-                  <img src="/logo.png" className="h-12 w-auto" alt="Logo" />
+                  <img src={"/logo.png"} className="h-12 w-auto" alt="Logo" />
                   <span>{window.ENV.APP_NAME}</span>
                 </Link>
               </div>

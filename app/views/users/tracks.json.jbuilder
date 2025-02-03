@@ -8,6 +8,12 @@ json.collection @tracks do |track|
     json.medium track.cover_url(:medium)
     json.large track.cover_url(:large)
   end
+  json.likes_count track.likes.count
+
+  if track.respond_to?(:like_id)
+    json.liked_by_current_user track&.like_id.present?
+  end
+
   json.user do
     json.extract! track.user, :id, :username, :first_name, :last_name
     json.full_name "#{track.user.first_name} #{track.user.last_name}"

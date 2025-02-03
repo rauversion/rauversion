@@ -117,7 +117,7 @@ export default function TrackItemMenu({ track }) {
         <button 
           onClick={handleLike}
           className={`p-2 hover:text-white flex items-center gap-1 ${
-            isLiked ? 'text-brand-500' : 'text-gray-400'
+            isLiked || track.liked_by_current_user ? 'text-brand-500' : 'text-gray-400'
           }`}
         >
           <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
