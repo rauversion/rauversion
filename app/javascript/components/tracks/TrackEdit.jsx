@@ -548,7 +548,9 @@ export default function TrackEdit({ track, open, onOpenChange }) {
                         <Button
                           variant="outline"
                           size="icon"
-                          onClick={() => handleCopy('link', `${window.location.origin}/${track.user.username}/${track.slug}`)}
+                          onClick={(e) => {
+                            e.preventDefault(); handleCopy('link', `${window.location.origin}/${track.user.username}/${track.slug}`)
+                          }}
                           className="shrink-0"
                         >
                           {copiedStates.link ? (
@@ -574,7 +576,9 @@ export default function TrackEdit({ track, open, onOpenChange }) {
                         <Button
                           variant="outline"
                           className="flex-1"
-                          onClick={() => handleSocialShare('twitter')}
+                          onClick={(e) =>{
+                             e.preventDefault(); handleSocialShare('twitter')}
+                          }
                         >
                           <Twitter className="mr-2 h-4 w-4" />
                           Twitter
@@ -582,7 +586,9 @@ export default function TrackEdit({ track, open, onOpenChange }) {
                         <Button
                           variant="outline"
                           className="flex-1"
-                          onClick={() => handleSocialShare('facebook')}
+                          onClick={(e) => {
+                             e.preventDefault(); handleSocialShare('facebook')}
+                          }
                         >
                           <Facebook className="mr-2 h-4 w-4" />
                           Facebook
@@ -613,7 +619,9 @@ export default function TrackEdit({ track, open, onOpenChange }) {
                           <Button
                             variant="outline"
                             size="icon"
-                            onClick={() => handleCopy('embed', getEmbedCode())}
+                            onClick={(e) => {
+                              e.preventDefault(); handleCopy('embed', getEmbedCode())
+                            }}
                             className="absolute top-2 right-2"
                           >
                             {copiedStates.embed ? (
