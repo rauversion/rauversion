@@ -58,6 +58,45 @@ class Playlist < ApplicationRecord
   store_accessor :metadata, :price, :decimal
   store_accessor :metadata, :name_your_price, :boolean
 
+
+  # trck copied
+  store_attribute :metadata, :contains_music, :boolean
+  store_attribute :metadata, :artist, :string
+  store_attribute :metadata, :publisher, :string
+  store_attribute :metadata, :isrc, :string
+  store_attribute :metadata, :composer, :string
+  store_attribute :metadata, :release_title, :string
+  store_attribute :metadata, :buy_link, :string
+  store_attribute :metadata, :buy_link_title, :string
+  store_attribute :metadata, :buy, :boolean
+  store_attribute :metadata, :album_title, :string
+  store_attribute :metadata, :record_label, :string
+  store_attribute :metadata, :release_date, :date
+  store_attribute :metadata, :barcode, :string
+  store_attribute :metadata, :iswc, :string
+  store_attribute :metadata, :p_line, :string
+  store_attribute :metadata, :contains_explicit_content, :boolean
+  store_attribute :metadata, :copyright, :string
+  store_attribute :metadata, :genre, :string
+  store_attribute :metadata, :direct_download, :boolean
+  store_attribute :metadata, :display_embed, :boolean
+  store_attribute :metadata, :enable_comments, :boolean, default: true
+  store_attribute :metadata, :display_comments, :boolean, default: true
+  store_attribute :metadata, :display_stats, :boolean
+  store_attribute :metadata, :include_in_rss, :boolean
+  store_attribute :metadata, :offline_listening, :boolean
+  store_attribute :metadata, :enable_app_playblack, :boolean
+  store_attribute :metadata, :attribution, :boolean
+  store_attribute :metadata, :noncommercial, :boolean
+  store_attribute :metadata, :non_derivative_works, :boolean
+  store_attribute :metadata, :share_alike, :boolean
+  store_attribute :metadata, :copies, :string
+  store_attribute :metadata, :price, :decimal
+  store_attribute :metadata, :name_your_price, :boolean
+  store_attribute :metadata, :transcription, :string
+
+
+
   def self.ransackable_attributes(auth_object = nil)
     ["created_at", "custom_genre", "description", "editor_choice_position", "genre", "id", "id_value", "label_id", "likes_count", "metadata", "playlist_type", "private", "release_date", "slug", "tags", "title", "updated_at", "user_id"]
   end

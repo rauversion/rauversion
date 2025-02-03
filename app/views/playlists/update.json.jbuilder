@@ -33,22 +33,6 @@ json.playlist do
     :created_at,
     :updated_at
 
-  json.cover @playlist.cover.url if @playlist.cover.present?
-  
-  json.user do
-    json.extract! @playlist.user, :id, :username, :email
-  end
-
-  json.tracks @playlist.tracks do |track|
-    json.extract! track, 
-      :id, 
-      :title, 
-      :description,
-      :private,
-      :position
-    json.cover track.cover.url if track.cover.present?
-    json.audio track.audio.url if track.audio.present?
-  end
 end
 
 json.status "ok"

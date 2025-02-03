@@ -41,13 +41,14 @@ function SortableTrackItem({ track, onRemove }) {
       style={style}
       className="flex items-center space-x-4 py-4 px-2 border-b border-border hover:bg-accent/50 rounded-lg"
     >
-      <button
+      <div
         className="cursor-move text-muted-foreground hover:text-foreground"
         {...attributes}
         {...listeners}
+        onClick={(e) => e.preventDefault()}
       >
         <GripVertical className="h-5 w-5" />
-      </button>
+      </div>
 
       <div className="flex-shrink-0">
         <img
