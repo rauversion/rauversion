@@ -4,12 +4,15 @@ import { get } from '@rails/request.js'
 import useAudioStore from '../../stores/audioStore'
 import useAuthStore from '../../stores/authStore'
 import { format } from 'date-fns'
-import { Play, Pause } from 'lucide-react'
+import { Play, Pause, Settings } from 'lucide-react'
+import PlaylistEdit from './PlaylistEdit'
+import { Button } from "@/components/ui/button"
 
 export default function PlaylistShow() {
   const { slug } = useParams()
   const [playlist, setPlaylist] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [editOpen, setEditOpen] = useState(false)
   const { 
     currentTrackId, 
     isPlaying, 
@@ -89,23 +92,27 @@ export default function PlaylistShow() {
 
               <div className="flex items-center gap-4">
                 <button
-                  // href={playlist.tracks[0] ? `/player?id=${playlist.tracks[0].slug}&t=true` : ''}
-                  // data-action="track-detector#addGroup" 
-                  onClick={(e) => {
-                    if(isPlaying) {
-                      //audioElement.pause();
-                      useAudioStore.setState({ isPlaying: false });
-                      e.preventDefault();
-                    } else {
-                      // setTracksToStore(0);
-                      useAudioStore.setState({ currentTrackId: playlist.tracks[0].id + "", isPlaying: true });
-                    }
-                  }}
+                  onClick={() => isPlaying && currentTrackId === playlist.tracks[0]?.id ? pause() : handlePlay()}
+                  className="bg-brand-500 hover:bg-brand-600 text-white p-4 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
                   style={{ backgroundColor: accentColor }}
-                  className={`over:bg-white/10 border border-white/20 text-white px-6 py-2 rounded-full flex items-center gap-2`}
                 >
-                  {isPlaying ? <Pause size={24} /> : <Play size={24} />}
+                  {isPlaying && currentTrackId === playlist.tracks[0]?.id ? (
+                    <Pause className="w-8 h-8" />
+                  ) : (
+                    <Play className="w-8 h-8" />
+                  )}
                 </button>
+
+                {currentUser?.id === playlist.user.id && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setEditOpen(true)}
+                    className="text-muted-foreground hover:text-foreground"
+                  >
+                    <Settings className="h-5 w-5" />
+                  </Button>
+                )}
 
                 <button className="hover:bg-white/10 border border-white/20 text-white px-6 py-2 rounded-full flex items-center gap-2">
                   <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
@@ -177,6 +184,13 @@ export default function PlaylistShow() {
           ))}
         </div>
       </div>
+      {playlist && currentUser?.id === playlist.user.id && (
+        <PlaylistEdit
+          playlist={playlist}
+          open={editOpen}
+          onOpenChange={setEditOpen}
+        />
+      )}
     </div>
   )
 }
