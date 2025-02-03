@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import TrackPlayer from './TrackPlayer'
 import { get } from '@rails/request.js'
+import { Comments } from "@/components/comments/Comments"
+import { ShareDialog } from "@/components/ui/share-dialog"
 
 export default function TrackShow() {
   const { slug } = useParams()
@@ -95,12 +97,18 @@ export default function TrackShow() {
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex items-center justify-end space-x-4">
           {/* Share Button */}
-          <button className="button">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-            </svg>
-            <span>Share</span>
-          </button>
+          <ShareDialog 
+            url={`${window.location.origin}/${track.user.username}/tracks/${track.slug}`}
+            title={track.title}
+            description={`Listen to ${track.title} by ${track.user.username} on Rauversion`}
+          >
+            <button className="button">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+              </svg>
+              <span>Share</span>
+            </button>
+          </ShareDialog>
 
           {/* Like Button */}
           <button className="button">
@@ -245,6 +253,19 @@ export default function TrackShow() {
               </div>
             )}
           </dl>
+        </div>
+      </div>
+
+      {/* Comments Section */}
+      <div className="mt-12 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="border-t border-gray-200 dark:border-gray-800 pt-8">
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">
+            Comments
+          </h2>
+          <Comments 
+            resourceType="track" 
+            resourceId={track.slug} 
+          />
         </div>
       </div>
     </main>

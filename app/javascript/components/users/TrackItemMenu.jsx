@@ -12,6 +12,7 @@ import {
 import TrackEdit from '../tracks/TrackEdit'
 import AddToPlaylist from '../playlists/AddToPlaylist'
 import { Link } from "react-router-dom"
+import { ShareDialog } from "@/components/ui/share-dialog"
 
 export default function TrackItemMenu({ track }) {
   const { isAuthenticated, currentUser } = useAuthStore()
@@ -125,12 +126,15 @@ export default function TrackItemMenu({ track }) {
           <span className="text-sm">{likes}</span>
         </button>
 
-        <button 
-          onClick={handleShare}
-          className="p-2 text-gray-400 hover:text-white"
+        <ShareDialog 
+          url={`${window.location.origin}/${track.user.username}/tracks/${track.slug}`}
+          title={track.title}
+          description={`Listen to ${track.title} by ${track.user.username} on Rauversion`}
         >
-          <Share2 className="w-5 h-5" />
-        </button>
+          <button className="p-2 text-gray-400 hover:text-white">
+            <Share2 className="w-5 h-5" />
+          </button>
+        </ShareDialog>
 
         {track.private && (
           <div className="bg-brand-500 text-white text-xs p-1 rounded-md inline-flex space-x-1 items-center">

@@ -8,6 +8,7 @@ import { Play, Pause, Settings } from 'lucide-react'
 import PlaylistEdit from './PlaylistEdit'
 import { Button } from "@/components/ui/button"
 import { ShareDialog } from "@/components/ui/share-dialog"
+import { Comments } from "@/components/comments/Comments"
 
 export default function PlaylistShow() {
   const { slug } = useParams()
@@ -191,6 +192,19 @@ export default function PlaylistShow() {
           ))}
         </div>
       </div>
+
+      {/* Comments Section */}
+      <div className="max-w-7xl mx-auto p-8 border-t border-white/10">
+        <div className="mb-6">
+          <h2 className="text-xl font-bold mb-4">Comments</h2>
+        </div>
+        
+        <Comments 
+          resourceType="playlist" 
+          resourceId={playlist.slug} 
+        />
+      </div>
+
       {playlist && currentUser?.id === playlist.user.id && (
         <PlaylistEdit
           playlist={playlist}

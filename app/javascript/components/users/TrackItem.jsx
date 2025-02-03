@@ -42,7 +42,7 @@ export default function TrackItem({
           <div className="flex items-start justify-between">
             <div>
               <Link
-                to={`/${track.user.username}/${track.slug}`}
+                to={`/tracks/${track.slug}`}
                 className="text-lg font-semibold text-white hover:text-brand-500 truncate block"
               >
                 {track.title}

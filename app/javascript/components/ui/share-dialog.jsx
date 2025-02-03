@@ -117,7 +117,7 @@ export function ShareDialog({ url, title, description, children }) {
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col space-y-6 w-full overflow-auto">
-          <div className="flex justify-between px-2">
+          <div className="flex justify-between px-2 overflow-auto">
             {SHARE_BUTTONS.slice(0, 6).map((button) => (
               <Button
                 key={button.name}
@@ -140,24 +140,24 @@ export function ShareDialog({ url, title, description, children }) {
               </Button>
             )}
           </div>
-        </div>
 
-        <div className="flex items-center space-x-2 bg-neutral-900 rounded-lg p-2">
-          <div className="grid flex-1">
-            <div className="flex items-center">
-              <span className="text-sm text-neutral-400 truncate">
-                {url}
-              </span>
+          <div className="flex items-center space-x-2 bg-neutral-900 rounded-lg p-2">
+            <div className="grid flex-1">
+              <div className="flex- items-center w-20- overflow-hidden">
+                <span className="text-sm text-neutral-400 truncate">
+                  {url}
+                </span>
+              </div>
             </div>
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={handleCopyLink}
+              className="hover:bg-white/5"
+            >
+              <Copy className="h-4 w-4" />
+            </Button>
           </div>
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={handleCopyLink}
-            className="hover:bg-white/5"
-          >
-            <Copy className="h-4 w-4" />
-          </Button>
         </div>
       </DialogContent>
     </Dialog>
