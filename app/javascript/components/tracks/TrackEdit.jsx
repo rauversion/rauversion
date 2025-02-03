@@ -20,6 +20,7 @@ import { useToast } from "@/hooks/use-toast"
 import { put } from "@rails/request.js"
 import { Check, Copy, Facebook, Twitter, Link2, Code2 } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { ImageUploader } from "@/components/ui/image-uploader"
 
 const permissionDefinitions = [
   {
@@ -109,6 +110,7 @@ export default function TrackEdit({ track, open, onOpenChange }) {
     include_in_rss: track.include_in_rss || false,
     offline_listening: track.offline_listening || false,
     enable_app_playblack: track.enable_app_playblack || false,
+    cover: track.cover || "",
   })
 
   const [copiedStates, setCopiedStates] = useState({
@@ -201,6 +203,16 @@ export default function TrackEdit({ track, open, onOpenChange }) {
     </iframe>`    
   }
 
+  const handleCoverUpload = async (signedBlobId) => {
+    setFormData(prev => ({
+      ...prev,
+      cover: signedBlobId
+    }))
+    toast({
+      description: "Cover image updated successfully",
+    })
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl h-[80vh] flex flex-col p-0">
@@ -224,59 +236,68 @@ export default function TrackEdit({ track, open, onOpenChange }) {
 
             <div className="flex-1 overflow-y-auto px-6">
               <TabsContent value="basic-info" className="space-y-6 pb-6">
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="title" className="text-right">Title</Label>
-                    <Input
-                      id="title"
-                      name="title"
-                      value={formData.title}
-                      onChange={handleInputChange}
-                      className="col-span-3"
-                    />
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-4">
+                  <div className="sm:col-span-1">
+                    <Label>Cover Image</Label>
+                    <div className="mt-2 aspect-square">
+                      <ImageUploader
+                        onUploadComplete={handleCoverUpload}
+                        aspectRatio={1}
+                        maxSize={10}
+                        imageUrl={track.cover_url.medium}
+                        preview={true}
+                        enableCropper={true}
+                        className="w-full h-full"
+                      />
+                    </div>
                   </div>
 
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="description" className="text-right">Description</Label>
-                    <Textarea
-                      id="description"
-                      name="description"
-                      value={formData.description}
-                      onChange={handleInputChange}
-                      className="col-span-3"
-                    />
-                  </div>
+                  <div className="sm:col-span-3 space-y-6">
+                    <div>
+                      <Label htmlFor="title">Title</Label>
+                      <Input
+                        type="text"
+                        id="title"
+                        name="title"
+                        value={formData.title}
+                        onChange={handleInputChange}
+                        className="mt-2"
+                      />
+                    </div>
 
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label className="text-right">Privacy</Label>
-                    <RadioGroup
-                      name="private"
-                      value={formData.private?.toString()}
-                      onValueChange={(value) => 
-                        setFormData(prev => ({ ...prev, private: value === "true" }))
-                      }
-                      className="col-span-3"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="false" id="public" />
-                        <Label htmlFor="public">Public</Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="true" id="private" />
-                        <Label htmlFor="private">Private</Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
+                    <div>
+                      <Label htmlFor="description">Description</Label>
+                      <Textarea
+                        id="description"
+                        name="description"
+                        value={formData.description}
+                        onChange={handleInputChange}
+                        className="mt-2"
+                      />
+                    </div>
 
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label className="text-right">Podcast</Label>
-                    <div className="col-span-3">
+                    <div className="flex items-center space-x-2">
                       <Switch
-                        checked={formData.podcast}
+                        id="private"
+                        name="private"
+                        checked={formData.private}
                         onCheckedChange={(checked) =>
-                          setFormData(prev => ({ ...prev, podcast: checked }))
+                          setFormData((prev) => ({ ...prev, private: checked }))
                         }
                       />
+                      <Label htmlFor="private">Private</Label>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        id="podcast"
+                        name="podcast"
+                        checked={formData.podcast}
+                        onCheckedChange={(checked) =>
+                          setFormData((prev) => ({ ...prev, podcast: checked }))
+                        }
+                      />
+                      <Label htmlFor="podcast">Podcast</Label>
                     </div>
                   </div>
                 </div>
