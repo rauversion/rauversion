@@ -1,7 +1,8 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Play, Pause, Share2, Heart, MoreHorizontal } from 'lucide-react'
+import { Play, Pause } from 'lucide-react'
 import TrackPlayer from '../tracks/TrackPlayer'
+import TrackItemMenu from './TrackItemMenu'
 
 export default function TrackItem({ 
   track, 
@@ -54,17 +55,7 @@ export default function TrackItem({
               </Link>
             </div>
 
-            <div className="flex items-center gap-3">
-              <button className="p-2 text-gray-400 hover:text-white">
-                <Heart className="w-5 h-5" />
-              </button>
-              <button className="p-2 text-gray-400 hover:text-white">
-                <Share2 className="w-5 h-5" />
-              </button>
-              <button className="p-2 text-gray-400 hover:text-white">
-                <MoreHorizontal className="w-5 h-5" />
-              </button>
-            </div>
+            <TrackItemMenu track={track} />
           </div>
 
           <div className="mt-4">
@@ -76,6 +67,20 @@ export default function TrackItem({
               urlLink={`/${track.user.username}/${track.slug}`}
             />
           </div>
+          
+          {track.tag_list && track.tag_list.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-4">
+              {track.tag_list.map((tag, index) => (
+                <Link
+                  key={index}
+                  to={`/tracks/tags/${tag}`}
+                  className="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                >
+                  {tag}
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

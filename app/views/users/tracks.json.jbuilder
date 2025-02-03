@@ -2,6 +2,7 @@ json.collection @tracks do |track|
   json.extract! track, :id, :title, :description, :duration, :slug, :created_at
   json.peaks track.track_peak&.data || []
   json.audio_url url_for(track.mp3_audio) if track.mp3_audio.attached?
+  json.tag_list track.tags
   json.cover_url do
     json.small track.cover_url(:small)
     json.medium track.cover_url(:medium)

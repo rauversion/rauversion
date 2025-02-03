@@ -200,7 +200,7 @@ export default function AlbumShow() {
   React.useEffect(() => {
     const fetchAlbum = async () => {
       try {
-        const response = await get(`/releases/${slug}.json`)
+        const response = await get(`/albums/${slug}.json`)
         if (response.ok) {
           const data = await response.json
           setLoading(false)
