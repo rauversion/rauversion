@@ -8,6 +8,15 @@ import { post, destroy } from "@rails/request.js"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+
+const PLAYLIST_TYPES = [
+  "playlist",
+  "album",
+  "ep",
+  "single",
+  "compilation"
+]
 
 export default function AddToPlaylist({ track, open, onOpenChange }) {
   const [playlists, setPlaylists] = useState([])
@@ -19,6 +28,7 @@ export default function AddToPlaylist({ track, open, onOpenChange }) {
     defaultValues: {
       title: "",
       description: "",
+      playlist_type: "playlist"
     }
   })
 
@@ -132,7 +142,8 @@ export default function AddToPlaylist({ track, open, onOpenChange }) {
         reset()
         setActiveTab("add-to-playlist")
         // Refresh playlists list
-        fetchPlaylists()
+        // fetchPlaylists()
+        onOpenChange(false)
         
         toast({
           title: "Success",
@@ -140,6 +151,7 @@ export default function AddToPlaylist({ track, open, onOpenChange }) {
         })
       }
     } catch (error) {
+      debugger
       toast({
         title: "Error",
         description: "Failed to create playlist",
@@ -203,6 +215,32 @@ export default function AddToPlaylist({ track, open, onOpenChange }) {
                             <p className="text-sm text-destructive">{error.message}</p>
                           )}
                         </>
+                      )}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="playlist_type">Type</Label>
+                    <Controller
+                      name="playlist_type"
+                      control={control}
+                      rules={{ required: "Type is required" }}
+                      render={({ field }) => (
+                        <Select 
+                          onValueChange={field.onChange} 
+                          defaultValue={field.value}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {PLAYLIST_TYPES.map((type) => (
+                              <SelectItem key={type} value={type}>
+                                {type.charAt(0).toUpperCase() + type.slice(1)}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       )}
                     />
                   </div>
