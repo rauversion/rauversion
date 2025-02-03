@@ -5,18 +5,22 @@ import { get } from '@rails/request.js'
 import { Comments } from "@/components/comments/Comments"
 import { ShareDialog } from "@/components/ui/share-dialog"
 import TrackEdit from './TrackEdit'
-import { Settings } from 'lucide-react'
+import { Settings, Share2, Heart, Repeat, Play, Pause } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import useAuthStore from '@/stores/authStore'
+import { useAudioPlaying , } from '@/hooks/useAudioPlaying'
+import useAudioStore from '@/stores/audioStore';
 
 export default function TrackShow() {
   const { slug } = useParams()
   const [track, setTrack] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [currentTrackId, setCurrentTrackId] = useState(null)
+  // const [currentTrackId, setCurrentTrackId] = useState(null)
   const [editOpen, setEditOpen] = useState(false)
   const { currentUser } = useAuthStore()
+  const isPlaying = useAudioPlaying()
+
+  const {currentTrackId} = useAudioStore()
 
   const fetchTrack = async () => {
     try {
@@ -37,8 +41,15 @@ export default function TrackShow() {
   }, [slug])
 
   const handlePlay = () => {
-    setIsPlaying(!isPlaying)
-    setCurrentTrackId(track.id)
+    //setCurrentTrackId(track.id)
+    if(isPlaying) {
+      //audioElement.pause();
+      useAudioStore.setState({ isPlaying: false });
+      e.preventDefault();
+    } else {
+      // setTracksToStore(0);
+      useAudioStore.setState({ currentTrackId: track.id + "", isPlaying: true });
+    }
   }
 
   if (loading) {
@@ -96,6 +107,7 @@ export default function TrackShow() {
               )}
             </div>
 
+
             <div className="lg:w-1/3">
               <div className="relative group">
                 <img
@@ -103,18 +115,15 @@ export default function TrackShow() {
                   alt={track.title}
                   className="w-full h-auto rounded-lg"
                 />
+                
                 <button
                   onClick={() => handlePlay()}
                   className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                 >
                   {isPlaying && currentTrackId === track.id ? (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M10 9l4.5-4.5m0 4.5l-4.5 4.5m4.5-4.5L12 12m6.5 4.5l-4.5-4.5" />
-                    </svg>
+                    <Pause className="h-16 w-16 text-white" />
                   ) : (
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 10l-4 4m0 0l-4-4m4 4v-4a1 1 0 011 1v4a1 1 0 01-1 1z" />
-                    </svg>
+                    <Play className="h-16 w-16 text-white" />
                   )}
                 </button>
               </div>
@@ -131,29 +140,23 @@ export default function TrackShow() {
             title={track.title}
             description={`Listen to ${track.title} by ${track.user.username} on Rauversion`}
           >
-            <button className="button">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
-              </svg>
-              <span>Share</span>
-            </button>
+            <Button variant="ghost" size="icon">
+              <Share2 className="h-4 w-4" />
+              <span className="sr-only">Share</span>
+            </Button>
           </ShareDialog>
 
           {/* Like Button */}
-          <button className="button">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-            </svg>
-            <span>Like</span>
-          </button>
+          <Button variant="ghost" size="icon">
+            <Heart className="h-4 w-4" />
+            <span className="sr-only">Like</span>
+          </Button>
 
           {/* Repost Button */}
-          <button className="button">
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            <span>Repost</span>
-          </button>
+          <Button variant="ghost" size="icon">
+            <Repeat className="h-4 w-4" />
+            <span className="sr-only">Repost</span>
+          </Button>
 
           {/* Edit Button */}
           {currentUser?.id === track.user.id && (
