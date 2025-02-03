@@ -1,4 +1,4 @@
-const selectTheme = (theme, isDark) => ({
+const selectTheme = (theme: any, isDark: boolean) => ({
   ...theme,
   colors: {
     ...theme.colors,

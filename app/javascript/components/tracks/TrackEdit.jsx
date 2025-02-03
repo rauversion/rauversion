@@ -1,4 +1,5 @@
 import React, { useState } from "react"
+import { useForm, Controller } from "react-hook-form"
 import {
   Dialog,
   DialogContent,
@@ -28,66 +29,70 @@ import selectTheme from "@/components/ui/selectTheme"
 
 export default function TrackEdit({ track, open, onOpenChange }) {
   const { toast } = useToast()
-  const [formData, setFormData] = useState({
-    title: track.title || "",
-    description: track.description || "",
-    private: track.private || false,
-    podcast: track.podcast || false,
-    genre: track.genre || "",
-    contains_music: track.contains_music || "",
-    artist: track.artist || "",
-    publisher: track.publisher || "",
-    isrc: track.isrc || "",
-    composer: track.composer || "",
-    release_title: track.release_title || "",
-    buy_link: track.buy_link || "",
-    album_title: track.album_title || "",
-    record_label: track.record_label || "",
-    copyright: track.copyright || "all-rights",
-    attribution: track.attribution || false,
-    noncommercial: track.noncommercial || false,
-    copies: track.copies || "non_derivative_works",
-    direct_download: track.direct_download || false,
-    display_embed: track.display_embed || false,
-    enable_comments: track.enable_comments || false,
-    display_comments: track.display_comments || false,
-    display_stats: track.display_stats || false,
-    include_in_rss: track.include_in_rss || false,
-    offline_listening: track.offline_listening || false,
-    enable_app_playblack: track.enable_app_playblack || false,
-    cover: track.cover || "",
-    price: track.price || "0",
-    name_your_price: track.name_your_price || false,
-    tags: track.tags || [],
-  })
-
   const { isDarkMode } = useThemeStore()
+  
+  const { control, handleSubmit, setValue, watch } = useForm({
+    defaultValues: {
+      title: track.title || "",
+      description: track.description || "",
+      private: track.private || false,
+      podcast: track.podcast || false,
+      genre: track.genre || "",
+      contains_music: track.contains_music || "",
+      artist: track.artist || "",
+      publisher: track.publisher || "",
+      isrc: track.isrc || "",
+      composer: track.composer || "",
+      release_title: track.release_title || "",
+      buy_link: track.buy_link || "",
+      album_title: track.album_title || "",
+      record_label: track.record_label || "",
+      copyright: track.copyright || "all-rights",
+      attribution: track.attribution || false,
+      noncommercial: track.noncommercial || false,
+      copies: track.copies || "non_derivative_works",
+      direct_download: track.direct_download || false,
+      display_embed: track.display_embed || false,
+      enable_comments: track.enable_comments || false,
+      display_comments: track.display_comments || false,
+      display_stats: track.display_stats || false,
+      include_in_rss: track.include_in_rss || false,
+      offline_listening: track.offline_listening || false,
+      enable_app_playblack: track.enable_app_playblack || false,
+      price: track.price || "0",
+      name_your_price: track.name_your_price || false,
+      tags: track.tags || [],
+      cover: track.cover || "",
+    }
+  })
 
   const [copiedStates, setCopiedStates] = useState({
     link: false,
     embed: false
   })
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }))
+  const watchCopyright = watch('copyright')
+  const watchPermissions = permissionDefinitions.reduce((acc, permission) => {
+    acc[permission.name] = watch(permission.name)
+    return acc
+  }, {})
+
+  const handleCoverUpload = async (signedBlobId) => {
+    setValue('cover', signedBlobId)
+    toast({
+      description: "Cover image updated successfully",
+    })
   }
 
-  const handleTagsChange = (selectedOptions) => {
-    setFormData(prev => ({
-      ...prev,
-      tags: selectedOptions ? selectedOptions.map(option => option.value) : []
-    }))
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
+  const onSubmit = async (data) => {
     try {
+      const payload = { ...data }
+      if (!payload.cover) {
+        delete payload.cover
+      }
+
       const response = await put(`/tracks/${track.slug}`, {
-        body: JSON.stringify({ track: formData }),
+        body: JSON.stringify({ track: payload }),
         responseKind: "json"
       })
       
@@ -112,6 +117,10 @@ export default function TrackEdit({ track, open, onOpenChange }) {
         variant: "destructive"
       })
     }
+  }
+
+  const handleTagsChange = (selectedOptions) => {
+    setValue('tags', selectedOptions ? selectedOptions.map(option => option.value) : [])
   }
 
   const handleCopy = async (type, text) => {
@@ -160,16 +169,6 @@ export default function TrackEdit({ track, open, onOpenChange }) {
     </iframe>`    
   }
 
-  const handleCoverUpload = async (signedBlobId) => {
-    setFormData(prev => ({
-      ...prev,
-      cover: signedBlobId
-    }))
-    toast({
-      description: "Cover image updated successfully",
-    })
-  }
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl h-[80vh] flex flex-col p-0">
@@ -180,7 +179,7 @@ export default function TrackEdit({ track, open, onOpenChange }) {
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="flex flex-col h-full">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col h-full">
           <div className="border-b px-6">
             <Tabs defaultValue="basic-info" className="h-full">
               <TabsList>
@@ -212,67 +211,83 @@ export default function TrackEdit({ track, open, onOpenChange }) {
                     <div className="sm:col-span-3 space-y-6">
                       <div>
                         <Label htmlFor="title">Title</Label>
-                        <Input
-                          type="text"
-                          id="title"
+                        <Controller
                           name="title"
-                          value={formData.title}
-                          onChange={handleInputChange}
-                          className="mt-2"
+                          control={control}
+                          render={({ field }) => (
+                            <Input
+                              {...field}
+                              className="mt-2"
+                            />
+                          )}
                         />
                       </div>
 
                       <div>
                         <Label htmlFor="tags">Tags</Label>
-                        <Select
-                          id="tags"
+                        <Controller
                           name="tags"
-                          isMulti
-                          className="mt-2"
-                          theme={(theme) => selectTheme(theme, isDarkMode)}
-                          options={Category.Genres.map(genre => ({
-                            value: genre.toLowerCase(),
-                            label: genre
-                          }))}
-                          value={formData.tags.map(tag => ({
-                            value: tag,
-                            label: tag.charAt(0).toUpperCase() + tag.slice(1)
-                          }))}
-                          onChange={handleTagsChange}
+                          control={control}
+                          render={({ field }) => (
+                            <Select
+                              {...field}
+                              isMulti
+                              className="mt-2"
+                              theme={(theme) => selectTheme(theme, isDarkMode)}
+                              options={Category.Genres.map(genre => ({
+                                value: genre.toLowerCase(),
+                                label: genre
+                              }))}
+                              value={field.value.map(tag => ({
+                                value: tag,
+                                label: tag.charAt(0).toUpperCase() + tag.slice(1)
+                              }))}
+                              onChange={handleTagsChange}
+                            />
+                          )}
                         />
                       </div>
 
                       <div>
                         <Label htmlFor="description">Description</Label>
-                        <Textarea
-                          id="description"
+                        <Controller
                           name="description"
-                          value={formData.description}
-                          onChange={handleInputChange}
-                          className="mt-2"
+                          control={control}
+                          render={({ field }) => (
+                            <Textarea
+                              {...field}
+                              className="mt-2"
+                            />
+                          )}
                         />
                       </div>
 
                       <div className="flex items-center space-x-2">
-                        <Switch
-                          id="private"
+                        <Controller
                           name="private"
-                          checked={formData.private}
-                          onCheckedChange={(checked) =>
-                            setFormData((prev) => ({ ...prev, private: checked }))
-                          }
+                          control={control}
+                          render={({ field }) => (
+                            <Switch
+                              {...field}
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          )}
                         />
                         <Label htmlFor="private">Private</Label>
                       </div>
 
                       <div className="flex items-center space-x-2">
-                        <Switch
-                          id="podcast"
+                        <Controller
                           name="podcast"
-                          checked={formData.podcast}
-                          onCheckedChange={(checked) =>
-                            setFormData((prev) => ({ ...prev, podcast: checked }))
-                          }
+                          control={control}
+                          render={({ field }) => (
+                            <Switch
+                              {...field}
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          )}
                         />
                         <Label htmlFor="podcast">Podcast</Label>
                       </div>
@@ -284,33 +299,41 @@ export default function TrackEdit({ track, open, onOpenChange }) {
                   <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <div className="space-y-2">
                       <Label>License</Label>
-                      <RadioGroup
+                      <Controller
                         name="copyright"
-                        value={formData.copyright}
-                        onValueChange={(value) => 
-                          setFormData(prev => ({ ...prev, copyright: value }))
-                        }
-                      >
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="all-rights" id="all-rights" />
-                          <Label htmlFor="all-rights">All rights reserved</Label>
-                        </div>
-                        <div className="flex items-center space-x-2">
-                          <RadioGroupItem value="common" id="common" />
-                          <Label htmlFor="common">Creative commons</Label>
-                        </div>
-                      </RadioGroup>
+                        control={control}
+                        render={({ field }) => (
+                          <RadioGroup
+                            {...field}
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="all-rights" id="all-rights" />
+                              <Label htmlFor="all-rights">All rights reserved</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="common" id="common" />
+                              <Label htmlFor="common">Creative commons</Label>
+                            </div>
+                          </RadioGroup>
+                        )}
+                      />
                     </div>
 
-                    {formData.copyright === "common" && (
+                    {watchCopyright === "common" && (
                       <div className="space-y-4">
                         <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="attribution"
-                            checked={formData.attribution}
-                            onCheckedChange={(checked) =>
-                              setFormData(prev => ({ ...prev, attribution: checked }))
-                            }
+                          <Controller
+                            name="attribution"
+                            control={control}
+                            render={({ field }) => (
+                              <Checkbox
+                                {...field}
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            )}
                           />
                           <Label htmlFor="attribution" className="text-sm">
                             Allow others to copy, distribute, display and perform your copyrighted work but only if they give credit the way you request.
@@ -318,12 +341,16 @@ export default function TrackEdit({ track, open, onOpenChange }) {
                         </div>
 
                         <div className="flex items-center space-x-2">
-                          <Checkbox
-                            id="noncommercial"
-                            checked={formData.noncommercial}
-                            onCheckedChange={(checked) =>
-                              setFormData(prev => ({ ...prev, noncommercial: checked }))
-                            }
+                          <Controller
+                            name="noncommercial"
+                            control={control}
+                            render={({ field }) => (
+                              <Checkbox
+                                {...field}
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            )}
                           />
                           <Label htmlFor="noncommercial" className="text-sm">
                             Allow others to distribute, display and perform your work—and derivative works based upon it—but for noncommercial purposes only.
@@ -332,163 +359,198 @@ export default function TrackEdit({ track, open, onOpenChange }) {
 
                         <div className="space-y-2">
                           <Label>Usage Rights</Label>
-                          <RadioGroup
+                          <Controller
                             name="copies"
-                            value={formData.copies}
-                            onValueChange={(value) => 
-                              setFormData(prev => ({ ...prev, copies: value }))
-                            }
-                          >
-
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="non_derivative_works" id="non_derivative_works" />
-                              <div className="space-y-1">
-                                <Label htmlFor="non_derivative_works">Non derivative works</Label>
-                                <p className="text-sm text-gray-500">
-                                  Allow others to copy, distribute, display and perform only verbatim copies of your work, not derivative works based upon it.
-                                </p>
-                              </div>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <RadioGroupItem value="share_alike" id="share_alike" />
-                              <div className="space-y-1">
-                                <Label htmlFor="share_alike">Share Alike</Label>
-                                <p className="text-sm text-gray-500">
-                                  Allow others to distribute derivative works only under a license identical to the license that governs your work.
-                                </p>
-                              </div>
-                            </div>
-                          </RadioGroup>
+                            control={control}
+                            render={({ field }) => (
+                              <RadioGroup
+                                {...field}
+                                value={field.value}
+                                onValueChange={field.onChange}
+                              >
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="non_derivative_works" id="non_derivative_works" />
+                                  <div className="space-y-1">
+                                    <Label htmlFor="non_derivative_works">Non derivative works</Label>
+                                    <p className="text-sm text-gray-500">
+                                      Allow others to copy, distribute, display and perform only verbatim copies of your work, not derivative works based upon it.
+                                    </p>
+                                  </div>
+                                </div>
+                                <div className="flex items-center space-x-2">
+                                  <RadioGroupItem value="share_alike" id="share_alike" />
+                                  <div className="space-y-1">
+                                    <Label htmlFor="share_alike">Share Alike</Label>
+                                    <p className="text-sm text-gray-500">
+                                      Allow others to distribute derivative works only under a license identical to the license that governs your work.
+                                    </p>
+                                  </div>
+                                </div>
+                              </RadioGroup>
+                            )}
+                          />
                         </div>
                       </div>
                     )}
 
                     <div className="space-y-2">
                       <Label htmlFor="genre" className="text-right">Genre</Label>
-                      <BaseSelect
+                      <Controller
                         name="genre"
-                        value={formData.genre}
-                        onValueChange={(value) =>
-                          setFormData(prev => ({ ...prev, genre: value }))
-                        }
-                      >
-                        <SelectTrigger className="col-span-3">
-                          <SelectValue placeholder="Select genre" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Category.Genres.map((genre) => (
-                            <SelectItem key={genre} value={genre}>
-                              {genre}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </BaseSelect>
+                        control={control}
+                        render={({ field }) => (
+                          <BaseSelect
+                            {...field}
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
+                            <SelectTrigger className="col-span-3">
+                              <SelectValue placeholder="Select genre" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {Category.Genres.map((genre) => (
+                                <SelectItem key={genre} value={genre}>
+                                  {genre}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </BaseSelect>
+                        )}
+                      />
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="contains_music" className="text-right">Contains Music</Label>
-                      <BaseSelect
+                      <Controller
                         name="contains_music"
-                        value={formData.contains_music}
-                        onValueChange={(value) =>
-                          setFormData(prev => ({ ...prev, contains_music: value }))
-                        }
-                      >
-                        <SelectTrigger className="col-span-3">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Yes">Yes</SelectItem>
-                          <SelectItem value="No">No</SelectItem>
-                        </SelectContent>
-                      </BaseSelect>
+                        control={control}
+                        render={({ field }) => (
+                          <BaseSelect
+                            {...field}
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
+                            <SelectTrigger className="col-span-3">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Yes">Yes</SelectItem>
+                              <SelectItem value="No">No</SelectItem>
+                            </SelectContent>
+                          </BaseSelect>
+                        )}
+                      />
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="artist" className="text-right">Artist</Label>
-                      <Input
-                        id="artist"
+                      <Controller
                         name="artist"
-                        value={formData.artist}
-                        onChange={handleInputChange}
-                        className="col-span-3"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            className="col-span-3"
+                          />
+                        )}
                       />
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="publisher" className="text-right">Publisher</Label>
-                      <Input
-                        id="publisher"
+                      <Controller
                         name="publisher"
-                        value={formData.publisher}
-                        onChange={handleInputChange}
-                        className="col-span-3"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            className="col-span-3"
+                          />
+                        )}
                       />
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="isrc" className="text-right">ISRC</Label>
-                      <Input
-                        id="isrc"
+                      <Controller
                         name="isrc"
-                        value={formData.isrc}
-                        onChange={handleInputChange}
-                        className="col-span-3"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            className="col-span-3"
+                          />
+                        )}
                       />
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="composer" className="text-right">Composer</Label>
-                      <Input
-                        id="composer"
+                      <Controller
                         name="composer"
-                        value={formData.composer}
-                        onChange={handleInputChange}
-                        className="col-span-3"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            className="col-span-3"
+                          />
+                        )}
                       />
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="release_title" className="text-right">Release Title</Label>
-                      <Input
-                        id="release_title"
+                      <Controller
                         name="release_title"
-                        value={formData.release_title}
-                        onChange={handleInputChange}
-                        className="col-span-3"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            className="col-span-3"
+                          />
+                        )}
                       />
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="buy_link" className="text-right">Buy Link</Label>
-                      <Input
-                        id="buy_link"
+                      <Controller
                         name="buy_link"
-                        value={formData.buy_link}
-                        onChange={handleInputChange}
-                        className="col-span-3"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            className="col-span-3"
+                          />
+                        )}
                       />
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="album_title" className="text-right">Album Title</Label>
-                      <Input
-                        id="album_title"
+                      <Controller
                         name="album_title"
-                        value={formData.album_title}
-                        onChange={handleInputChange}
-                        className="col-span-3"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            className="col-span-3"
+                          />
+                        )}
                       />
                     </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="record_label" className="text-right">Record Label</Label>
-                      <Input
-                        id="record_label"
+                      <Controller
                         name="record_label"
-                        value={formData.record_label}
-                        onChange={handleInputChange}
-                        className="col-span-3"
+                        control={control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            className="col-span-3"
+                          />
+                        )}
                       />
                     </div>
                   </div>
@@ -499,14 +561,17 @@ export default function TrackEdit({ track, open, onOpenChange }) {
                     <div className="sm:col-span-2">
                       <Label htmlFor="price">Price</Label>
                       <div className="mt-2">
-                        <Input
-                          type="number"
-                          min="0"
-                          step="0.01"
-                          id="price"
+                        <Controller
                           name="price"
-                          value={formData.price}
-                          onChange={handleInputChange}
+                          control={control}
+                          render={({ field }) => (
+                            <Input
+                              type="number"
+                              min="0"
+                              step="0.01"
+                              {...field}
+                            />
+                          )}
                         />
                       </div>
                       <p className="mt-2 text-sm text-muted-foreground">
@@ -516,13 +581,16 @@ export default function TrackEdit({ track, open, onOpenChange }) {
 
                     <div className="sm:col-span-4 flex items-center">
                       <div className="flex items-center space-x-2">
-                        <Switch
-                          id="name_your_price"
+                        <Controller
                           name="name_your_price"
-                          checked={formData.name_your_price}
-                          onCheckedChange={(checked) =>
-                            setFormData(prev => ({ ...prev, name_your_price: checked }))
-                          }
+                          control={control}
+                          render={({ field }) => (
+                            <Switch
+                              {...field}
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                            />
+                          )}
                         />
                         <div>
                           <Label htmlFor="name_your_price">Let fans pay more if they want</Label>
@@ -538,12 +606,16 @@ export default function TrackEdit({ track, open, onOpenChange }) {
                       <div key={permission.name} className={permission.wrapperClass}>
                         <div className="flex items-center justify-between">
                           <div className="flex items-center space-x-2">
-                            <Checkbox
-                              id={permission.name}
-                              checked={formData[permission.name]}
-                              onCheckedChange={(checked) =>
-                                setFormData(prev => ({ ...prev, [permission.name]: checked }))
-                              }
+                            <Controller
+                              name={permission.name}
+                              control={control}
+                              render={({ field }) => (
+                                <Checkbox
+                                  {...field}
+                                  checked={field.value}
+                                  onCheckedChange={field.onChange}
+                                />
+                              )}
                             />
                             <Label 
                               htmlFor={permission.name} 
@@ -556,7 +628,7 @@ export default function TrackEdit({ track, open, onOpenChange }) {
                           </div>
                         </div>
                         <p className="text-sm text-muted-foreground mt-2 ml-6">
-                          {formData[permission.name] ? permission.checkedHint : permission.uncheckedHint}
+                          {watchPermissions[permission.name] ? permission.checkedHint : permission.uncheckedHint}
                         </p>
                       </div>
                     ))}
