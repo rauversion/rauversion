@@ -6,9 +6,9 @@ class PurchasesController < ApplicationController
     
     case @tab
     when "music"
-      @collection = current_user.purchases.includes(:purchased_items).where(purchasable_type: ["Track", "Album"]).page(params[:page]).per(20)
+      @collection = current_user.purchases.includes(:purchased_items).where(purchasable_type: ["Track", "Album"]).order(created_at: :desc).page(params[:page]).per(20)
     when "tickets"
-      @collection = current_user.purchases.includes(:purchased_items).where(purchasable_type: "EventTicket").page(params[:page]).per(20)
+      @collection = current_user.purchases.includes(:purchased_items).where(purchasable_type: "EventTicket").order(created_at: :desc).page(params[:page]).per(20)
     when "products"
       @collection = current_user.product_purchases
       .order(created_at: :desc)
@@ -25,7 +25,7 @@ class PurchasesController < ApplicationController
 
   def music
     @section = params[:section] || "all"
-    @collection = current_user.purchases.includes(:purchased_items).where(purchasable_type: ["Track", "Album"]).page(params[:page]).per(20)
+    @collection = current_user.purchases.includes(:purchased_items).where(purchasable_type: ["Track", "Album"]).order(created_at: :desc).page(params[:page]).per(20)
 
     respond_to do |format|
       format.html
@@ -34,7 +34,7 @@ class PurchasesController < ApplicationController
   end
 
   def tickets
-    @collection = current_user.purchases.includes(:purchased_items).where(purchasable_type: "EventTicket").page(params[:page]).per(20)
+    @collection = current_user.purchases.includes(:purchased_items).where(purchasable_type: "EventTicket").order(created_at: :desc).page(params[:page]).per(20)
 
     respond_to do |format|
       format.html
@@ -43,7 +43,7 @@ class PurchasesController < ApplicationController
   end
 
   def products
-    @collection = current_user.purchases.includes(:purchased_items).where(purchasable_type: "Product").page(params[:page]).per(20)
+    @collection = current_user.purchases.includes(:purchased_items).where(purchasable_type: "Product").order(created_at: :desc).page(params[:page]).per(20)
 
     respond_to do |format|
       format.html

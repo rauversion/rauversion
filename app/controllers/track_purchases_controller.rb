@@ -29,6 +29,15 @@ class TrackPurchasesController < ApplicationController
     ]
 
     handle_stripe_session
+
+    respond_to do |format|
+      format.html { render "create" }
+      format.json { 
+        render json: {
+          checkout_url: @payment_url
+        }
+      }
+    end
   end
 
   def handle_stripe_session
@@ -74,9 +83,20 @@ class TrackPurchasesController < ApplicationController
         line_items: line_items,
         payment_intent_data: payment_intent_data,
         customer_email: current_user.email,
+
+        success_url: checkout_success_url(purchase_id: @purchase.id),
+        cancel_url: checkout_failure_url,
+        client_reference_id: @purchase.id.to_s,
+        customer_email: current_user.email,
+        tax_id_collection: {enabled: true},
+        metadata: { 
+          purchase_id: @purchase.id,
+          # cart_id: @cart.id,
+          source_type: "track"
+        },
         mode: "payment",
-        success_url: success_track_track_purchase_url(@track, @purchase), # Replace with your success URL
-        cancel_url: failure_track_track_purchase_url(@track, @purchase)   # Replace with your cancel URL
+        #success_url: success_track_track_purchase_url(@track, @purchase), # Replace with your success URL
+        #cancel_url: failure_track_track_purchase_url(@track, @purchase)   # Replace with your cancel URL
       )
 
       @purchase.update(

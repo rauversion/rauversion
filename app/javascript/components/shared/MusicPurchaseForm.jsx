@@ -15,6 +15,7 @@ export default function MusicPurchaseForm({
   type,
   onSuccess 
 }) {
+  const [loading, setLoading] = useState(false)
   const { register, handleSubmit, formState: { errors } } = useForm({
     defaultValues: {
       price: resource.price || '',
@@ -25,6 +26,7 @@ export default function MusicPurchaseForm({
 
   const onSubmit = async (data) => {
     try {
+      setLoading(true)
       const endpoint = type === 'Track' 
         ? `/tracks/${resource.slug}/track_purchases`
         : `/playlists/${resource.slug}/playlist_purchases`
@@ -39,23 +41,22 @@ export default function MusicPurchaseForm({
         })
       })
 
-      if (response.ok) {
-        const result = await response.json
-        toast({
-          title: "Success!",
-          description: "Your purchase was successful."
-        })
-        onSuccess?.(result)
-        onOpenChange(false)
+      const result = await response.json
+      
+      if (result.checkout_url) {
+        window.location.href = result.checkout_url
       } else {
-        throw new Error('Purchase failed')
+        throw new Error('No checkout URL provided')
       }
     } catch (error) {
+      console.error("Purchase error:", error)
       toast({
         title: "Error",
         description: "There was a problem processing your purchase.",
         variant: "destructive"
       })
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -113,8 +114,8 @@ export default function MusicPurchaseForm({
             Your purchase includes unlimited streaming via the Rauversion app, plus high-quality download in MP3, FLAC and more.
           </div>
 
-          <Button type="submit" className="w-full">
-            Complete Purchase
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? 'Processing...' : 'Complete Purchase'}
           </Button>
         </form>
       </DialogContent>

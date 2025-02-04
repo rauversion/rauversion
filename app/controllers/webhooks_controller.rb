@@ -58,6 +58,8 @@ class WebhooksController < ApplicationController
 
       handle_product_purchase(event_object&.metadata)
 
+    elsif event_object&.metadata&.source_type == "track"
+      handle_track_purchase(event_object&.metadata)
     else
 
       purchase = Purchase.find_by(checkout_type: "stripe", checkout_id: event_object.id)
@@ -66,6 +68,11 @@ class WebhooksController < ApplicationController
       end
 
     end
+  end
+
+  def handle_track_purchase(event_object)
+    @purchase = current_user.purchases.find(params[:id])
+    @purchase.complete_purchase!
   end
 
 
