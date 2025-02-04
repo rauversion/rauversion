@@ -24,7 +24,7 @@ export default function UserLinks() {
         <div className="flex flex-col items-center justify-between mb-6">
           <div className="relative aspect-square overflow-hidden rounded-full mb-4">
             <img 
-              src={user.avatar.medium} 
+              src={user.avatar_url.medium} 
               alt={user.username}
               className="object-cover w-40 h-40 group-hover:scale-105 transition-transform duration-500"
             />

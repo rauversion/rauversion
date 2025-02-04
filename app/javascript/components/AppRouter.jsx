@@ -1,9 +1,12 @@
 import React from 'react'
-import { BrowserRouter, Routes, Route, Outlet } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Outlet, Navigate, useLocation } from 'react-router-dom'
+import useAuthStore from '@/stores/authStore'
 import ArticlesIndex from './articles/Index'
 import ArticleShow from './articles/Show'
 import UserMenu from './shared/UserMenu'
 import AudioPlayer from './audio_player'
+import Login from './auth/Login'
+import Register from './auth/Register'
 import TrackShow from './tracks/Show'
 import TracksIndex from './tracks/Index'
 import Home from './home/Index'
@@ -66,30 +69,41 @@ import NewTrack from "./tracks/NewTrack"
 import CheckoutSuccess from "./checkout/CheckoutSuccess"
 import CheckoutFailure from "./checkout/CheckoutFailure"
 
+function RequireAuth({ children }) {
+  const { currentUser } = useAuthStore()
+  const location = useLocation()
+
+  debugger
+  if (!currentUser) {
+    return <Navigate to="/login" state={{ from: location }} replace />
+  }
+
+  return children
+}
+
 export default function AppRouter() {
   return (
     <BrowserRouter>
       <UserMenu />
 
-      <Routes>
-      </Routes>
-
       <div className="pb-24">
         <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
 
           <Route path="/" element={<Home />} />
           <Route path="/albums/:slug" element={<AlbumShow />} />
 
-          <Route path="/sales" element={<MySales />} />
-          <Route path="/purchases" element={<MyPurchases />} />
+          <Route path="/sales" element={<RequireAuth><MySales /></RequireAuth>} />
+          <Route path="/purchases" element={<RequireAuth><MyPurchases /></RequireAuth>} />
           <Route path="/articles" element={<ArticlesIndex />} />
-          <Route path="/articles/mine" element={<MyArticles />} />
-          <Route path="/articles/:id/edit" element={<EditArticle />} />
+          <Route path="/articles/mine" element={<RequireAuth><MyArticles /></RequireAuth>} />
+          <Route path="/articles/:id/edit" element={<RequireAuth><EditArticle /></RequireAuth>} />
           <Route path="/articles/:slug" element={<ArticleShow />} />
           <Route path="/events" element={<EventsIndex />} />
-          <Route path="/events/mine" element={<MyEvents />} />
+          <Route path="/events/mine" element={<RequireAuth><MyEvents /></RequireAuth>} />
           <Route path="/events/:slug" element={<EventShow />} />
-          <Route path="/events/:slug/edit" element={<EventEdit />}>
+          <Route path="/events/:slug/edit" element={<RequireAuth><EventEdit /></RequireAuth>}>
             <Route index element={<Overview />} />
             <Route path="schedule" element={<Schedule />} />
             <Route path="teams" element={<Teams />} />
@@ -142,7 +156,7 @@ export default function AppRouter() {
             <Route path="reposts" element={<UserReposts />} />
             <Route path="artists" element={<UserArtists />} />
             <Route path="albums" element={<UserPlaylists namespace="albums" />} />
-            <Route path="insights" element={<UserInsights />} />
+            <Route path="insights" element={<RequireAuth><UserInsights /></RequireAuth>} />
             <Route path="products" element={<UserProducts />} />
             <Route path="products/:slug" element={<ProductShow />} />
           </Route>

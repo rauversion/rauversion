@@ -4,7 +4,7 @@ class ProductCartController < ApplicationController
   before_action :set_cart
 
   def add
-    product = Product.find(params[:product_id])
+    product = Product.find_by(params[:product_id])
     @cart.add_product(product)
     @cart_items = @cart.product_cart_items.includes(:product)
     # redirect_back(fallback_location: root_path, notice: 'Item added to cart')
@@ -16,6 +16,7 @@ class ProductCartController < ApplicationController
   end
 
   def show
+    render json: {} and return if @cart.blank?
     @cart_items = @cart.product_cart_items.includes(:product)
     respond_to do |format|
       format.html
@@ -40,7 +41,7 @@ class ProductCartController < ApplicationController
 
   def set_cart
     @cart = current_cart
-    if @cart.blank?
+    if @cart.blank? && request.format.html?
       redirect_to root_path, notice: "Log in first to access your cart" and return
     end
   end

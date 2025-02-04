@@ -10,7 +10,7 @@ json.collection @events do |event|
   
   json.user do
     json.extract! event.user, :id, :username
-    json.avatar do
+    json.avatar_url do
       json.small event.user.avatar_url(:small)
     end
   end

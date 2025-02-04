@@ -1,7 +1,7 @@
 if current_user
   json.current_user do
-    json.extract! current_user, :id, :email, :username
-    json.avatar do 
+    json.extract! current_user, :id, :email, :username, :full_name, :first_name, :last_name, :bio, :is_publisher, :is_admin, :is_creator, :can_sell_products, :label, :created_at, :updated_at
+    json.avatar_url do 
       json.small current_user.avatar_url(:small)
       json.medium current_user.avatar_url(:medium)
       json.large current_user.avatar_url(:large)  
@@ -19,7 +19,7 @@ end
 if label_user
   json.label_user do
     json.extract! label_user, :id, :username
-    json.avatar do 
+    json.avatar_url do 
       json.small label_user.avatar_url(:small)
       json.medium label_user.avatar_url(:medium)
       json.large label_user.avatar_url(:large)  
@@ -28,6 +28,7 @@ if label_user
 else
   json.label_user nil
 end
+
 
 json.cart_item_count cart_item_count
 json.i18n do

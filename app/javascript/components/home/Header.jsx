@@ -27,7 +27,7 @@ export default function Header({ posts }) {
       <div className="relative z-10 px-4 sm:px-8 pt-16 md:pt-32">
         <Link to={`/articles/${post.slug}`}>
           <div className="max-w-6xl mx-auto">
-            <h1 className="text-[10vw] md:text-[6vw] font-bold leading-none tracking-tighter mb-6 text-default">
+            <h1 className="text-[10vw] md:text-[6vw] font-bold leading-none tracking-tighter mb-6 text-white">
               {post.title}
             </h1>
             <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-6 md:gap-0">

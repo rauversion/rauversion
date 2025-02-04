@@ -30,6 +30,11 @@ export default function UserMenu() {
   const { currentUser, labelUser, cartItemCount, signOut } = useAuthStore()
   const navigate = useNavigate()
 
+  const handleSignOut = async () => {
+    await signOut()
+    navigate('/login')
+  }
+
   return (
     <>
       {labelUser && currentUser && (
@@ -71,8 +76,6 @@ export default function UserMenu() {
               </div>
             </div>
 
-
-
             <div className="flex items-center justify-end space-x-4">
               <div className="flex items-center gap-2">
                 <CartIndicator />
@@ -83,7 +86,6 @@ export default function UserMenu() {
                     Upload
                   </Link>
 
-            
                   <Button
                     variant="ghost"
                     size="icon"
@@ -97,7 +99,7 @@ export default function UserMenu() {
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="relative h-10 w-10 rounded-full">
                         <Avatar>
-                          <AvatarImage src={currentUser.avatar?.small} alt={currentUser.username} />
+                          <AvatarImage src={currentUser.avatar_url?.small} alt={currentUser.username} />
                           <AvatarFallback>{currentUser.username?.charAt(0)}</AvatarFallback>
                         </Avatar>
                       </Button>
@@ -169,7 +171,7 @@ export default function UserMenu() {
                         </DropdownMenuItem>
                       </DropdownMenuGroup>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={signOut} className="text-red-600">
+                      <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
                         <LogOut className="mr-2 h-4 w-4" />
                         <span>Log out</span>
                       </DropdownMenuItem>
@@ -179,13 +181,13 @@ export default function UserMenu() {
               ) : (
                 <div className="flex items-center">
                   <Link
-                    to="/users/sign_in"
+                    to="/login"
                     className="rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted"
                   >
                     Log in
                   </Link>
                   <Link
-                    to="/users/sign_up"
+                    to="/register"
                     className="ml-4 inline-flex items-center justify-center rounded-md border border-transparent bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-brand-700"
                   >
                     Register

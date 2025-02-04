@@ -2,7 +2,7 @@ json.user do
   json.extract! @user, :id, :username
   json.social_title @user.social_title
   json.social_description @user.social_description
-  json.avatar do
+  json.avatar_url do
     json.small @user.avatar_url(:small)
     json.medium @user.avatar_url(:medium)
     json.large @user.avatar_url(:large)

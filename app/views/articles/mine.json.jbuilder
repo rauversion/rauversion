@@ -5,7 +5,7 @@ json.collection @posts do |post|
   
   json.user do
     json.extract! post.user, :id, :username
-    json.avatar do
+    json.avatar_url do
       json.small post.user.avatar_url(:small)
     end
   end

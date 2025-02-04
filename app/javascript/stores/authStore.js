@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { get as apiGet } from '@rails/request.js'
+import { get as apiGet, destroy } from '@rails/request.js'
 
 const useAuthStore = create((set, get) => ({
   currentUser: null,
@@ -54,13 +54,8 @@ const useAuthStore = create((set, get) => ({
   // Sign out
   signOut: async () => {
     try {
-      const response = await fetch('/users/sign_out', {
-        method: 'DELETE',
-        headers: {
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content
-        }
-      })
-      
+      const response = await destroy('/users/sign_out.json')
+
       if (response.ok) {
         set({ 
           currentUser: null,
@@ -79,6 +74,10 @@ const useAuthStore = create((set, get) => ({
   // Update cart item count
   updateCartItemCount: (count) => {
     set({ cartItemCount: count })
+  },
+
+  setCurrentUser: (user) => {
+    set({ currentUser: user })
   },
 
   // Clear any errors
