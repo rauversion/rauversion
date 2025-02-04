@@ -63,6 +63,9 @@ import AlbumsList from "./albums/AlbumsList"
 import AlbumShow from "./albums/AlbumShow"
 import NewTrack from "./tracks/NewTrack"
 
+import CheckoutSuccess from "./checkout/CheckoutSuccess"
+import CheckoutFailure from "./checkout/CheckoutFailure"
+
 export default function AppRouter() {
   return (
     <BrowserRouter>
@@ -128,6 +131,8 @@ export default function AppRouter() {
             <Route path="security" element={<SecuritySettings />} />
           </Route>
 
+          <Route path="/checkout/success" element={<CheckoutSuccess />} />
+          <Route path="/checkout/failure" element={<CheckoutFailure />} />
 
           <Route path="/:username/*" element={<UserShow />}>
             <Route index element={<UserHome />} />

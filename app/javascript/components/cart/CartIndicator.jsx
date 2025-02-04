@@ -32,7 +32,6 @@ export function CartIndicator() {
     }
   }, [error, toast, clearError])
 
-  console.log(cart, "CAAAAA")
   if (loading || !cart) return null
 
   return (
@@ -90,12 +89,21 @@ export function CartIndicator() {
                 <span>Total</span>
                 <span className="font-medium">${cart.total_price}</span>
               </div>
-              <Link 
-                to="/cart"
-                className="block w-full text-center bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-md"
-              >
-                View Cart
-              </Link>
+              <div className="space-y-2">
+                <Button 
+                  className="w-full"
+                  onClick={() => useCartStore.getState().checkout()}
+                  disabled={loading}
+                >
+                  {loading ? "Processing..." : "Checkout"}
+                </Button>
+                <Link 
+                  to="/cart"
+                  className="block w-full text-center text-muted-foreground hover:text-foreground text-sm"
+                >
+                  View Cart Details
+                </Link>
+              </div>
             </div>
           </>
         )}

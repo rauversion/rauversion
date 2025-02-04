@@ -11,7 +11,7 @@ function PurchaseItem({ purchase }) {
   return (
     <div className="flex items-center justify-between py-4">
       <div className="flex items-center space-x-4">
-        {purchase.purchased_items.map((item) => (
+        {purchase.purchased_items && purchase.purchased_items.map((item) => (
           <div key={item.id} className="flex items-center space-x-4">
             <Avatar>
               <AvatarImage 
@@ -39,11 +39,24 @@ function PurchaseItem({ purchase }) {
       </div>
 
       <div className="flex items-center space-x-2">
-        <Badge variant={purchase.state === "paid" ? "success" : "secondary"}>
-          {purchase.state}
-        </Badge>
+        {purchase.price && (
+          <Badge variant={purchase.state === "paid" ? "success" : "secondary"}>
+            {purchase.state}
+          </Badge>
+        )}
+
+        {purchase.total_amount && (
+          <Badge variant={purchase.status === "completed" ? "success" : "secondary"}>
+            {purchase.status}
+          </Badge>
+        )}  
+
         {purchase.price && (
           <Badge variant="outline">${purchase.price}</Badge>
+        )}
+
+        {purchase.total_amount && (
+          <Badge variant="outline">${purchase.total_amount}</Badge>
         )}
       </div>
     </div>

@@ -10,7 +10,11 @@ class PurchasesController < ApplicationController
     when "tickets"
       @collection = current_user.purchases.includes(:purchased_items).where(purchasable_type: "EventTicket").page(params[:page]).per(20)
     when "products"
-      @collection = current_user.purchases.includes(:purchased_items).where(purchasable_type: "Product").page(params[:page]).per(20)
+      @collection = current_user.product_purchases
+      .order(created_at: :desc)
+      .page(params[:page]).per(30)
+      render "product_purchases/index"
+      # @collection = current_user.purchases.includes(:purchased_items).where(purchasable_type: "Product").page(params[:page]).per(20)
     end
 
     respond_to do |format|

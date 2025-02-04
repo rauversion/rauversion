@@ -61,6 +61,9 @@ Rails.application.routes.draw do
     end
   end
   
+  get 'checkout/success', to: 'product_checkout#success', as: :checkout_success
+  get 'checkout/failure', to: 'product_checkout#cancel', as: :checkout_failure
+
   root to: "home#index"
   get "/home", to: "home#index"
 
