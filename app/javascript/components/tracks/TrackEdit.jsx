@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { useForm, Controller } from "react-hook-form"
 import {
   Dialog,
@@ -42,10 +42,12 @@ import PermissionsForm from "@/components/shared/forms/PermissionsForm"
 import ShareForm from "@/components/shared/forms/ShareForm"
 import PricingForm from "@/components/shared/forms/PricingForm"
 
-export default function TrackEdit({ track, open, onOpenChange, onOk }) {
+export default function TrackEdit({ track: initialTrack, open, onOpenChange, onOk }) {
   const { toast } = useToast()
   const { isDarkMode } = useThemeStore()
   const navigate = useNavigate()
+  const [track, setTrack] = useState(initialTrack)
+  const [loading, setLoading] = useState(false)
   
   const { control, handleSubmit, setValue, watch } = useForm({
     defaultValues: {
@@ -82,16 +84,34 @@ export default function TrackEdit({ track, open, onOpenChange, onOk }) {
     }
   })
 
-  const [copiedStates, setCopiedStates] = useState({
-    link: false,
-    embed: false
-  })
 
-  const watchCopyright = watch('copyright')
-  const watchPermissions = permissionDefinitions.reduce((acc, permission) => {
-    acc[permission.name] = watch(permission.name)
-    return acc
-  }, {})
+  const fetchTrack = async () => {
+    setLoading(true)
+    try {
+      const response = await fetch(`/tracks/${track.slug}.json`)
+      const data = await response.json()
+      setTrack(data.track)
+      
+      // Update form values with fetched data
+      Object.entries(data.track).forEach(([key, value]) => {
+        if (key === "metadata") {
+          Object.entries(value).forEach(([metaKey, metaValue]) => {
+            setValue(metaKey, metaValue)
+          })
+        } else {
+          setValue(key, value)
+        }
+      })
+    } catch (error) {
+      console.error("Error fetching track:", error)
+    }
+    setLoading(false)
+  }
+
+  useEffect(() => {
+    if (!open) return
+    fetchTrack()
+  }, [open])
 
   const handleCoverUpload = async (signedBlobId) => {
     setValue('cover', signedBlobId)
@@ -140,52 +160,6 @@ export default function TrackEdit({ track, open, onOpenChange, onOk }) {
     setValue('tags', selectedOptions ? selectedOptions.map(option => option.value) : [])
   }
 
-  const handleCopy = async (type, text) => {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedStates(prev => ({ ...prev, [type]: true }))
-      toast({
-        title: "Copied!",
-        description: `${type === 'link' ? 'Link' : 'Embed code'} copied to clipboard`
-      })
-      setTimeout(() => {
-        setCopiedStates(prev => ({ ...prev, [type]: false }))
-      }, 2000)
-    } catch (err) {
-      toast({
-        title: "Error",
-        description: "Failed to copy to clipboard",
-        variant: "destructive"
-      })
-    }
-  }
-
-  const handleSocialShare = (platform) => {
-    const trackUrl = `${window.location.origin}/${track.user.username}/${track.slug}`
-    const text = `Check out "${track.title}" by ${track.user.username}`
-    
-    let shareUrl
-    switch (platform) {
-      case 'twitter':
-        shareUrl = `https://twitter.com/intent/tweet?url=${encodeURIComponent(trackUrl)}&text=${encodeURIComponent(text)}`
-        break
-      case 'facebook':
-        shareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(trackUrl)}`
-        break
-      default:
-        return
-    }
-    
-    window.open(shareUrl, '_blank', 'width=600,height=400')
-  }
-
-  const getEmbedCode = () => {
-    const trackUrl = `${window.location.origin}/embed/${track.slug}`
-    return `<iframe width="100%" height="166" scrolling="no" frameborder="no" allow="autoplay" 
-      src="${trackUrl}">
-    </iframe>`    
-  }
-
   const handleDelete = async () => {
     try {
       const response = await destroy(`/tracks/${track.slug}`, {
@@ -214,6 +188,18 @@ export default function TrackEdit({ track, open, onOpenChange, onOk }) {
         variant: "destructive"
       })
     }
+  }
+
+  if (loading) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-3xl h-[80vh] flex flex-col p-0">
+          <DialogHeader className="p-6 pb-0">
+            <DialogTitle>Loading...</DialogTitle>
+          </DialogHeader>
+        </DialogContent>
+      </Dialog>
+    )
   }
 
   return (

@@ -17,6 +17,10 @@ json.track do
   json.updated_at @track.updated_at
   json.processed  @track.processed?
 
+  json.buy_link @track.buy_link
+  json.price @track.price
+  json.name_your_price @track.name_your_price
+
   json.user do
     json.id @track.user.id
     json.username @track.user.username

@@ -1,10 +1,13 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState } from 'react'
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
 import { ShoppingCart } from "lucide-react"
+import MusicPurchaseForm from './MusicPurchaseForm'
 
 export default function MusicPurchase({ resource, type, variant = 'default' }) {
+  const [purchaseOpen, setPurchaseOpen] = useState(false)
+
+  
   const classes = variant === 'mini' ? {
     wrapper: "inline-flex",
     text: "text-sm",
@@ -17,15 +20,20 @@ export default function MusicPurchase({ resource, type, variant = 'default' }) {
     m: "my-4"
   }
 
-  const renderPurchaseLink = () => {
+  const handlePurchaseClick = (e) => {
+    e.preventDefault()
+    setPurchaseOpen(true)
+  }
+
+  const renderPurchaseButton = () => {
     if (type === 'Track') {
       return (
         <motion.div
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
-          <Link 
-            to={`/tracks/${resource.id}/track_purchases/new`}
+          <button 
+            onClick={handlePurchaseClick}
             className={cn(
               classes.wrapper,
               classes.pad,
@@ -40,7 +48,7 @@ export default function MusicPurchase({ resource, type, variant = 'default' }) {
           >
             <ShoppingCart className="w-4 h-4" />
             <span>Buy Digital Track</span>
-          </Link>
+          </button>
         </motion.div>
       )
     }
@@ -51,8 +59,8 @@ export default function MusicPurchase({ resource, type, variant = 'default' }) {
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
-          <Link 
-            to={`/playlists/${resource.id}/playlist_purchases/new`}
+          <button 
+            onClick={handlePurchaseClick}
             className={cn(
               classes.wrapper,
               classes.pad,
@@ -70,7 +78,7 @@ export default function MusicPurchase({ resource, type, variant = 'default' }) {
             <span className="ml-2 px-2 py-0.5 bg-white/20 rounded-md text-sm">
               ${resource.price} USD
             </span>
-          </Link>
+          </button>
         </motion.div>
       )
     }
@@ -80,17 +88,17 @@ export default function MusicPurchase({ resource, type, variant = 'default' }) {
 
   return (
     <div className={classes.m}>
-      <div className={cn(classes.text, "space-x-2")}>
-        {renderPurchaseLink()}
-        
-        {resource.price}
-        {resource.name_your_price}
-        {resource?.name_your_price && resource.name_your_price !== "0" && (
-          <span className="text-gray-700 dark:text-gray-300 text-sm italic ml-2">
-            (or more)
-          </span>
-        )}
-      </div>
+      {(resource?.name_your_price || resource.price !== "$0.00") && (
+        <div className={cn(classes.text, "space-x-2")}>
+          {renderPurchaseButton()}
+          
+          {resource?.name_your_price && (
+            <span className="text-muted text-sm italic ml-2">
+              (or more)
+            </span>
+          )}
+        </div>
+      )}
 
       {resource?.supporters?.length > 0 && (
         <div className="sm:text-xl text-sm container mx-auto my-4 flex flex-col space-y-4">
@@ -115,6 +123,13 @@ export default function MusicPurchase({ resource, type, variant = 'default' }) {
           </div>
         </div>
       )}
+
+      <MusicPurchaseForm
+        open={purchaseOpen}
+        onOpenChange={setPurchaseOpen}
+        resource={resource}
+        type={type}
+      />
     </div>
   )
 }
