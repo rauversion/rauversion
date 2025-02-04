@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { get } from '@rails/request.js'
 import useAudioStore from '../../stores/audioStore'
 import { Play, Pause } from 'lucide-react'
+import MusicPurchase from '../shared/MusicPurchase'
 import { useInfiniteScroll } from '../../hooks/useInfiniteScroll'
 import PlaylistListItem from './PlaylistItem'
 
@@ -146,6 +147,13 @@ export default function UserPlaylists({ namespace = 'playlists' }) {
                               onPlay={() => handlePlayTrack(track, playlist)}
                             />
                           ))}
+                          <div className="mt-4 flex justify-end">
+                            <MusicPurchase 
+                              resource={playlist}
+                              type="Playlist"
+                              variant="mini"
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -255,6 +263,13 @@ export default function UserPlaylists({ namespace = 'playlists' }) {
                               onPlay={() => handlePlayTrack(track, playlist)}
                             />
                           ))}
+                          <div className="mt-4 flex justify-end">
+                            <MusicPurchase 
+                              resource={playlist}
+                              type="Playlist"
+                              variant="mini"
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>

@@ -4,6 +4,10 @@ json.collection @collection do |playlist|
   json.slug playlist.slug
   json.playlist_type playlist.playlist_type
   json.release_date playlist.release_date
+  json.price number_to_currency(playlist.price) unless playlist.price.nil?
+  json.name_your_price playlist.name_your_price
+
+  json.private playlist.private
   json.cover_url do
     json.medium playlist.cover_url(:medium)
     json.small playlist.cover_url(:small)

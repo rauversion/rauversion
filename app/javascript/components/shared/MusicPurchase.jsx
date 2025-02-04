@@ -26,69 +26,61 @@ export default function MusicPurchase({ resource, type, variant = 'default' }) {
   }
 
   const renderPurchaseButton = () => {
-    if (type === 'Track') {
-      return (
-        <motion.div
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
-        >
-          <button 
-            onClick={handlePurchaseClick}
-            className={cn(
-              classes.wrapper,
-              classes.pad,
-              "items-center gap-2 font-medium",
-              "bg-gradient-to-r from-violet-600 to-indigo-600",
-              "text-white rounded-lg shadow-lg",
-              "hover:from-violet-500 hover:to-indigo-500",
-              "transition-all duration-200 ease-in-out",
-              "hover:shadow-indigo-500/25 hover:shadow-xl",
-              "border border-indigo-700/20"
-            )}
-          >
-            <ShoppingCart className="w-4 h-4" />
-            <span>Buy Digital Track</span>
-          </button>
-        </motion.div>
-      )
-    }
+    const showFixedPrice = !resource?.name_your_price && resource.price !== "$0.00";
+    const buttonText = type === 'Track' ? 'Buy Digital Track' : 'Buy Playlist';
 
-    if (type === 'Playlist') {
-      return (
-        <motion.div
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+    return (
+      <motion.div
+        whileHover={{ scale: 1.02 }}
+        whileTap={{ scale: 0.98 }}
+        className="relative"
+      >
+        <button 
+          onClick={handlePurchaseClick}
+          className={cn(
+            classes.wrapper,
+            classes.pad,
+            "items-center gap-2 font-medium group",
+            "bg-gradient-to-r from-violet-600 to-indigo-600",
+            "text-white rounded-lg shadow-lg",
+            "hover:from-violet-500 hover:to-indigo-500",
+            "transition-all duration-200 ease-in-out",
+            "hover:shadow-indigo-500/25 hover:shadow-xl",
+            "border border-indigo-700/20"
+          )}
         >
-          <button 
-            onClick={handlePurchaseClick}
-            className={cn(
-              classes.wrapper,
-              classes.pad,
-              "items-center gap-2 font-medium",
-              "bg-gradient-to-r from-violet-600 to-indigo-600",
-              "text-white rounded-lg shadow-lg",
-              "hover:from-violet-500 hover:to-indigo-500",
-              "transition-all duration-200 ease-in-out",
-              "hover:shadow-indigo-500/25 hover:shadow-xl",
-              "border border-indigo-700/20"
-            )}
-          >
-            <ShoppingCart className="w-4 h-4" />
-            <span>Buy Playlist</span>
-            <span className="ml-2 px-2 py-0.5 bg-white/20 rounded-md text-sm">
-              ${resource.price} USD
-            </span>
-          </button>
-        </motion.div>
-      )
-    }
-
-    return null
+          <ShoppingCart className="w-4 h-4" />
+          <span>{buttonText}</span>
+          
+          {showFixedPrice && (
+            <motion.span 
+              className={cn(
+                "ml-2 px-2 py-0.5 rounded-md",
+                "bg-gradient-to-r from-pink-500/20 to-purple-500/20",
+                "backdrop-blur-sm",
+                "border border-white/10",
+                "text-white font-medium",
+                variant === 'mini' ? "text-xs" : "text-sm",
+                "shadow-inner"
+              )}
+              initial={{ opacity: 0.8 }}
+              whileHover={{ 
+                opacity: 1,
+                scale: 1.05,
+                background: "linear-gradient(to right, rgba(236,72,153,0.3), rgba(168,85,247,0.3))"
+              }}
+            >
+              {resource.price} USD
+            </motion.span>
+          )}
+        </button>
+      </motion.div>
+    )
   }
 
   return (
     <div className={classes.m}>
-      {(resource?.name_your_price || resource.price !== "$0.00") && (
+      {(resource?.name_your_price || (resource.price && resource.price !== "$0.00")) && (
         <div className={cn(classes.text, "space-x-2")}>
           {renderPurchaseButton()}
           

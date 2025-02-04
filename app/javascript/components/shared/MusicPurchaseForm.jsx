@@ -31,6 +31,7 @@ export default function MusicPurchaseForm({
         ? `/tracks/${resource.slug}/track_purchases`
         : `/playlists/${resource.slug}/playlist_purchases`
 
+        
       const response = await post(endpoint, {
         responseKind: "json",
         body: JSON.stringify({
@@ -92,9 +93,19 @@ export default function MusicPurchaseForm({
                 />
               </div>
             ) : (
-              <div className="text-xl font-medium">
-                ${resource.price}
-              </div>
+              <>
+                <div className="flex items-center space-x-2">
+                  <div className="text-xl font-medium">
+                    ${resource.price}
+                  </div>
+                  <span className="text-sm text-muted-foreground">USD</span>
+                </div>
+                <Input
+                  type="hidden"
+                  {...register('price')}
+                  value={resource.price}
+                />
+              </>
             )}
             {errors.price && (
               <p className="text-sm text-destructive">{errors.price.message}</p>
