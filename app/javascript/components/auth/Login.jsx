@@ -8,7 +8,8 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Mail, Lock, LogIn } from 'lucide-react'
+import { Mail, Lock, LogIn, ArrowRight } from 'lucide-react'
+import { GoogleIcon, DiscordIcon } from './SocialIcons'
 
 export default function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -150,10 +151,52 @@ export default function Login() {
               </Link>
             </motion.div>
 
+            <div className="relative my-8">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-muted" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-2 bg-card text-muted-foreground">Or continue with</span>
+              </div>
+            </div>
+
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
+              className="grid gap-4"
+            >
+              <form action="/users/auth/google_oauth2" method="post" className="contents">
+                <input type="hidden" name="authenticity_token" value={document.querySelector('meta[name="csrf-token"]')?.content} />
+                <Button
+                  type="submit"
+                  variant="outline"
+                  className="w-full flex items-center justify-center gap-2 hover:bg-muted/50 transition-colors"
+                >
+                  <GoogleIcon />
+                  <span>Sign in with Google</span>
+                  <ArrowRight className="w-4 h-4 ml-auto" />
+                </Button>
+              </form>
+
+              <form action="/users/auth/discord" method="post" className="contents">
+                <input type="hidden" name="authenticity_token" value={document.querySelector('meta[name="csrf-token"]')?.content} />
+                <Button
+                  type="submit"
+                  variant="outline"
+                  className="w-full flex items-center justify-center gap-2 hover:bg-muted/50 transition-colors"
+                >
+                  <DiscordIcon />
+                  <span>Sign in with Discord</span>
+                  <ArrowRight className="w-4 h-4 ml-auto" />
+                </Button>
+              </form>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
             >
               <Button
                 type="submit"

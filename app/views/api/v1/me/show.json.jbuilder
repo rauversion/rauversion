@@ -1,6 +1,6 @@
 if current_user
   json.current_user do
-    json.extract! current_user, :id, :email, :username, :full_name, :first_name, :last_name, :bio, :is_publisher, :is_admin, :is_creator, :can_sell_products, :label, :created_at, :updated_at
+    json.extract! current_user, :id, :email, :username, :full_name, :first_name, :last_name, :bio, :label, :created_at, :updated_at
     json.avatar_url do 
       json.small current_user.avatar_url(:small)
       json.medium current_user.avatar_url(:medium)
@@ -9,7 +9,6 @@ if current_user
     json.is_admin current_user.is_admin?
     json.is_creator current_user.is_creator?
     json.can_sell_products current_user.can_sell_products?
-    json.label current_user.label
     json.editor current_user.is_publisher?
   end
 else
