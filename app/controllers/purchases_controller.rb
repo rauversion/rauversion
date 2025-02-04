@@ -6,7 +6,7 @@ class PurchasesController < ApplicationController
     
     case @tab
     when "music"
-      @collection = current_user.purchases.includes(:purchased_items).where(purchasable_type: ["Track", "Album"]).order(created_at: :desc).page(params[:page]).per(20)
+      @collection = current_user.purchases.includes(:purchased_items).where(purchasable_type: ["Track", "Album", "Playlist"]).order(created_at: :desc).page(params[:page]).per(20)
     when "tickets"
       @collection = current_user.purchases.includes(:purchased_items).where(purchasable_type: "EventTicket").order(created_at: :desc).page(params[:page]).per(20)
     when "products"

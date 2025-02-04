@@ -5,11 +5,12 @@ import { get } from '@rails/request.js'
 import { Comments } from "@/components/comments/Comments"
 import { ShareDialog } from "@/components/ui/share-dialog"
 import TrackEdit from './TrackEdit'
-import { Settings, Share2, Heart, Repeat, Play, Pause } from 'lucide-react'
+import { Settings, Share2, Heart, Repeat, Play, Pause, ShoppingCart } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import useAuthStore from '@/stores/authStore'
 import { useAudioPlaying , } from '@/hooks/useAudioPlaying'
-import useAudioStore from '@/stores/audioStore';
+import useAudioStore from '@/stores/audioStore'
+import MusicPurchase from '@/components/shared/MusicPurchase'
 
 export default function TrackShow() {
   const { slug } = useParams()
@@ -133,6 +134,8 @@ export default function TrackShow() {
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         <div className="flex items-center justify-end space-x-4">
+          <MusicPurchase resource={track} type="Track" variant="mini" />
+
           {/* Share Button */}
           <ShareDialog 
             url={`${window.location.origin}/${track.user.username}/tracks/${track.slug}`}

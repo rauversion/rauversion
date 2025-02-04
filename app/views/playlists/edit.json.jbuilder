@@ -10,6 +10,8 @@ json.playlist do
   json.created_at @playlist.created_at
   json.updated_at @playlist.updated_at
 
+  json.price @playlist.price
+  json.name_your_price @playlist.name_your_price
   json.user do
     json.id @playlist.user.id
     json.username @playlist.user.username

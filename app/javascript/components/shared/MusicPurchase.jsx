@@ -25,9 +25,16 @@ export default function MusicPurchase({ resource, type, variant = 'default' }) {
     setPurchaseOpen(true)
   }
 
+  const getPriceDisplay = () => {
+    if (resource?.name_your_price) {
+      return resource.price ? `${resource.price} or more` : 'Name your price'
+    }
+    return resource.price ? `${resource.price} USD` : ''
+  }
+
   const renderPurchaseButton = () => {
-    const showFixedPrice = !resource?.name_your_price && resource.price !== "$0.00";
-    const buttonText = type === 'Track' ? 'Buy Digital Track' : 'Buy Playlist';
+    const buttonText = type === 'Track' ? 'Buy Digital Track' : 'Buy Playlist'
+    const priceDisplay = getPriceDisplay()
 
     return (
       <motion.div
@@ -52,7 +59,7 @@ export default function MusicPurchase({ resource, type, variant = 'default' }) {
           <ShoppingCart className="w-4 h-4" />
           <span>{buttonText}</span>
           
-          {showFixedPrice && (
+          {priceDisplay && (
             <motion.span 
               className={cn(
                 "ml-2 px-2 py-0.5 rounded-md",
@@ -70,7 +77,7 @@ export default function MusicPurchase({ resource, type, variant = 'default' }) {
                 background: "linear-gradient(to right, rgba(236,72,153,0.3), rgba(168,85,247,0.3))"
               }}
             >
-              {resource.price} USD
+              {priceDisplay}
             </motion.span>
           )}
         </button>
@@ -84,11 +91,6 @@ export default function MusicPurchase({ resource, type, variant = 'default' }) {
         <div className={cn(classes.text, "space-x-2")}>
           {renderPurchaseButton()}
           
-          {resource?.name_your_price && (
-            <span className="text-muted text-sm italic ml-2">
-              (or more)
-            </span>
-          )}
         </div>
       )}
 

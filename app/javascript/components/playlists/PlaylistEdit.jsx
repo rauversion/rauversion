@@ -42,40 +42,40 @@ import ShareForm from "@/components/shared/forms/ShareForm"
 import PricingForm from "@/components/shared/forms/PricingForm"
 
 
-export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenChange }) {
+export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenChange, onOk }) {
   const [playlist, setPlaylist] = useState(initialPlaylist)
   const [loading, setLoading] = useState(false)
-  const { slug } = useParams()
   const { toast } = useToast()
   const { isDarkMode } = useThemeStore()
   const navigate = useNavigate()
 
-  useEffect(() => {
-    const fetchPlaylist = async () => {
-      setLoading(true)
-      try {
-        const response = await fetch(`/playlists/${slug}/edit.json`)
-        const data = await response.json()
-        setPlaylist(data.playlist)
-        
-        // Update form values with fetched data
-        Object.entries(data.playlist).forEach(([key, value]) => {
-          if (key === "metadata") {
-            Object.entries(value).forEach(([metaKey, metaValue]) => {
-              setValue(metaKey, metaValue)
-            })
-          } else {
-            setValue(key, value)
-          }
-        })
-      } catch (error) {
-        console.error("Error fetching playlist:", error)
-      }
-      setLoading(false)
+  const fetchPlaylist = async () => {
+    setLoading(true)
+    try {
+      const response = await fetch(`/playlists/${playlist.slug}.json`)
+      const data = await response.json()
+      setPlaylist(data.playlist)
+      
+      // Update form values with fetched data
+      Object.entries(data.playlist).forEach(([key, value]) => {
+        if (key === "metadata") {
+          Object.entries(value).forEach(([metaKey, metaValue]) => {
+            setValue(metaKey, metaValue)
+          })
+        } else {
+          setValue(key, value)
+        }
+      })
+    } catch (error) {
+      console.error("Error fetching playlist:", error)
     }
+    setLoading(false)
+  }
 
+  useEffect(() => {
+    if (!open) return
     fetchPlaylist()
-  }, [slug])
+  }, [open])
 
   const { control, handleSubmit, setValue, watch } = useForm({
     defaultValues: {
@@ -123,6 +123,7 @@ export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenCh
           description: "Playlist updated successfully"
         })
         onOpenChange(false)
+        onOk && onOk(response)
       } else {
         const error = await response.json()
         toast({

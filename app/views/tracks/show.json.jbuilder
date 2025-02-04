@@ -18,7 +18,7 @@ json.track do
   json.processed  @track.processed?
 
   json.buy_link @track.buy_link
-  json.price @track.price
+  json.price number_to_currency(@track.price)
   json.name_your_price @track.name_your_price
 
   json.user do

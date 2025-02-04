@@ -4,11 +4,13 @@ import { get } from '@rails/request.js'
 import useAudioStore from '../../stores/audioStore'
 import useAuthStore from '../../stores/authStore'
 import { format } from 'date-fns'
-import { Play, Pause, Settings } from 'lucide-react'
+import { Play, Pause, Settings, ShoppingCart } from 'lucide-react'
 import PlaylistEdit from './PlaylistEdit'
 import { Button } from "@/components/ui/button"
 import { ShareDialog } from "@/components/ui/share-dialog"
 import { Comments } from "@/components/comments/Comments"
+import MusicPurchase from '@/components/shared/MusicPurchase'
+
 
 export default function PlaylistShow() {
   const { slug } = useParams()
@@ -26,24 +28,23 @@ export default function PlaylistShow() {
   } = useAudioStore()
   const { currentUser } = useAuthStore()
   const accentColor = '#1DB954' // Spotify-like accent color
+  const fetchPlaylist = async () => {
+    try {
+      const response = await get(`/playlists/${slug}.json`)
+      if (response.ok) {
+        const data = await response.json
+        setPlaylist(data.playlist)
+        // Set the playlist in the audio store
+        setAudioPlaylist(data.playlist.tracks)
+      }
+    } catch (error) {
+      console.error('Error fetching playlist:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   useEffect(() => {
-    const fetchPlaylist = async () => {
-      try {
-        const response = await get(`/playlists/${slug}.json`)
-        if (response.ok) {
-          const data = await response.json
-          setPlaylist(data.playlist)
-          // Set the playlist in the audio store
-          setAudioPlaylist(data.playlist.tracks)
-        }
-      } catch (error) {
-        console.error('Error fetching playlist:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
     fetchPlaylist()
   }, [slug, setAudioPlaylist])
 
@@ -115,6 +116,8 @@ export default function PlaylistShow() {
                     <Settings className="h-5 w-5" />
                   </Button>
                 )}
+
+                <MusicPurchase resource={playlist} type="Playlist" variant="mini" />
 
                 <ShareDialog 
                   url={`${window.location.origin}/${playlist.user.username}/playlists/${playlist.slug}`}
@@ -210,6 +213,7 @@ export default function PlaylistShow() {
           playlist={playlist}
           open={editOpen}
           onOpenChange={setEditOpen}
+          onOk={fetchPlaylist}
         />
       )}
     </div>
