@@ -4,7 +4,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
   before_action :configure_sign_up_params, only: [:create]
   before_action :configure_account_update_params, only: [:update]
 
-  invisible_captcha only: [:create, :update], on_spam: :spam_callback_method
+  # invisible_captcha only: [:create, :update], on_spam: :spam_callback_method
 
   # GET /resource/sign_up
   # def new
@@ -22,7 +22,11 @@ class Users::RegistrationsController < Devise::RegistrationsController
     end
 
     yield resource if block_given?
-    respond_with resource
+    
+    respond_to do |format|
+      format.html { respond_with resource }
+      format.json { render :new }
+    end
   end
 
   respond_to :html, :json
@@ -154,6 +158,9 @@ class Users::RegistrationsController < Devise::RegistrationsController
   private
 
   def spam_callback_method
-    redirect_to root_path
+    respond_to do |format|
+      format.html { redirect_to root_path }
+      format.json { render json: { error: 'Spam detected' }, status: :unprocessable_entity }
+    end
   end
 end

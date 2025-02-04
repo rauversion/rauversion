@@ -1,8 +1,8 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate, Link } from 'react-router-dom'
 import { useToast } from '@/hooks/use-toast'
-import { post } from '@rails/request.js'
+import { get, post } from '@rails/request.js'
 import useAuthStore from '@/stores/authStore'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Check, ArrowRight, ArrowLeft, Mail, User, Lock } from 'lucide-react'
 import { GoogleIcon, DiscordIcon } from './SocialIcons'
+import ConfirmationMessage from './ConfirmationMessage'
 
 const steps = [
   {
@@ -35,11 +36,31 @@ const steps = [
 export default function Register() {
   const [currentStep, setCurrentStep] = useState(0)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [captchaField, setCaptchaField] = useState('')
+  const [showConfirmation, setShowConfirmation] = useState(false)
+  const [registeredEmail, setRegisteredEmail] = useState('')
+  const [spinner, setSpinner] = useState('')
   const navigate = useNavigate()
   const { toast } = useToast()
   const { setCurrentUser } = useAuthStore()
   const { register, handleSubmit, watch, formState: { errors }, trigger } = useForm()
   const password = watch('password')
+
+  useEffect(() => {
+    const fetchCaptchaField = async () => {
+      try {
+        const response = await get('/users/sign_up', {
+          responseKind: 'json'
+        })
+        const data = await response.json
+        setCaptchaField(data.invisible_captcha.field_name)
+        setSpinner(data.invisible_captcha.spinner)
+      } catch (error) {
+        console.error('Error fetching captcha field:', error)
+      }
+    }
+    fetchCaptchaField()
+  }, [])
 
   const nextStep = async () => {
     const fields = steps[currentStep].fields
@@ -57,28 +78,43 @@ export default function Register() {
     setIsSubmitting(true)
 
     try {
+      
+      const payload = {
+        email: data.email,
+        username: data.username,
+        password: data.password,
+        password_confirmation: data.password_confirmation,
+        spinner: spinner,
+        [captchaField]: null //data[captchaField] // dynamic honeypot field
+      }
+
       const response = await post('/users', {
         responseKind: 'json',
         body: JSON.stringify({
-          user: {
-            email: data.email,
-            username: data.username,
-            password: data.password,
-            password_confirmation: data.password_confirmation
-          }
+          user: payload
         })
       })
 
       const result = await response.json
 
       if (response.ok) {
-        setCurrentUser(result.user)
-        toast({
-          title: 'Welcome aboard! 🎉',
-          description: 'Your account has been created successfully'
-        })
-        navigate('/')
+        if (result.error === 'unconfirmed') {
+          setRegisteredEmail(data.email)
+          setShowConfirmation(true)
+        } else {
+          setCurrentUser(result.user)
+          toast({
+            title: 'Welcome aboard! 🎉',
+            description: 'Your account has been created successfully'
+          })
+          navigate('/')
+        }
       } else {
+        if (result.error === 'unconfirmed') {
+          setRegisteredEmail(data.email)
+          setShowConfirmation(true)
+          return
+        }
         toast({
           title: 'Error',
           description: result.errors?.join(', ') || 'Registration failed',
@@ -94,6 +130,10 @@ export default function Register() {
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  if (showConfirmation) {
+    return <ConfirmationMessage email={registeredEmail} />
   }
 
   return (
@@ -150,6 +190,15 @@ export default function Register() {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            {captchaField && (
+              <input
+                {...register(captchaField)}
+                type="text"
+                tabIndex="-1"
+                autoComplete="off"
+                className="absolute top-0 left-0 w-1 h-1 -z-10 opacity-0"
+              />
+            )}
             <AnimatePresence mode="wait">
               <motion.div
                 key={currentStep}

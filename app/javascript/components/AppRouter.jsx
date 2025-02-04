@@ -7,6 +7,7 @@ import UserMenu from './shared/UserMenu'
 import AudioPlayer from './audio_player'
 import Login from './auth/Login'
 import Register from './auth/Register'
+import ForgotPassword from './auth/ForgotPassword'
 import TrackShow from './tracks/Show'
 import TracksIndex from './tracks/Index'
 import Home from './home/Index'
@@ -73,7 +74,6 @@ function RequireAuth({ children }) {
   const { currentUser } = useAuthStore()
   const location = useLocation()
 
-  debugger
   if (!currentUser) {
     return <Navigate to="/login" state={{ from: location }} replace />
   }
@@ -90,6 +90,7 @@ export default function AppRouter() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
 
           <Route path="/" element={<Home />} />
           <Route path="/albums/:slug" element={<AlbumShow />} />

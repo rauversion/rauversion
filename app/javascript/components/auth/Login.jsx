@@ -144,7 +144,7 @@ export default function Login() {
               className="flex items-center justify-between"
             >
               <Link
-                to="/users/password/new"
+                to="/forgot-password"
                 className="text-sm text-primary hover:underline"
               >
                 Forgot your password?
