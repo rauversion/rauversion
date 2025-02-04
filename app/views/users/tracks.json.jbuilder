@@ -3,6 +3,8 @@ json.collection @tracks do |track|
   json.peaks track.track_peak&.data || []
   json.audio_url url_for(track.mp3_audio) if track.mp3_audio.attached?
   json.tag_list track.tags
+  json.price number_to_currency(track.price) unless track.price.nil?
+  json.name_your_price track.name_your_price
   json.cover_url do
     json.small track.cover_url(:small)
     json.medium track.cover_url(:medium)

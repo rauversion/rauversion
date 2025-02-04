@@ -54,14 +54,14 @@ export default function UserShow() {
   }
 
   return (
-    <div className="bg-black text-white min-h-screen">
+    <div className="bg-default text-default min-h-screen">
       {/* Profile Header */}
       <div className="relative h-56">
         <div 
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url('${user.profile_header_url.large}')` }}
         >
-          <div className="absolute inset-0 bg-black bg-opacity-50" />
+          <div className="absolute inset-0 bg-default bg-opacity-50" />
         </div>
         
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -69,7 +69,7 @@ export default function UserShow() {
             <img
               src={user.avatar_url.medium}
               alt={user.username}
-              className="w-32 h-32 rounded-full border-4 border-black"
+              className="w-32 h-32 rounded-full border-4 border-default"
             />
             
             <div>
@@ -112,7 +112,7 @@ export default function UserShow() {
       </div>
 
       {/* Navigation */}
-      <nav className="mb-8 border-b border-gray-800">
+      <nav className="mb-8 border-b border-default">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <ul className="flex space-x-8">
             {menuItems.map((item) => (

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { Play, Pause } from 'lucide-react'
 import TrackPlayer from '../tracks/TrackPlayer'
 import TrackItemMenu from './TrackItemMenu'
+import MusicPurchase from '@/components/shared/MusicPurchase'
 
 export default function TrackItem({ 
   track, 
@@ -17,7 +18,7 @@ export default function TrackItem({
   return (
     <div
       ref={elementRef}
-      className="bg-gray-900 rounded-lg p-4 space-y-4"
+      className="bg-muted rounded-lg p-4 space-y-4"
     >
       <div className="flex items-center gap-4">
         <div className="relative w-20 h-20 flex-shrink-0">
@@ -28,12 +29,12 @@ export default function TrackItem({
           />
           <button
             onClick={() => onPlay(track.id)}
-            className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 transition-opacity hover:bg-opacity-50"
+            className="absolute inset-0 flex items-center justify-center bg-default bg-opacity-40 transition-opacity hover:bg-opacity-50"
           >
             {isCurrentlyPlaying ? (
-              <Pause className="w-8 h-8 text-white" />
+              <Pause className="w-8 h-8 text-default" />
             ) : (
-              <Play className="w-8 h-8 text-white" />
+              <Play className="w-8 h-8 text-default" />
             )}
           </button>
         </div>
@@ -43,13 +44,13 @@ export default function TrackItem({
             <div>
               <Link
                 to={`/tracks/${track.slug}`}
-                className="text-lg font-semibold text-white hover:text-brand-500 truncate block"
+                className="text-lg font-semibold text-default hover:text-brand-500 truncate block"
               >
                 {track.title}
               </Link>
               <Link
                 to={`/${track.user.username}`}
-                className="text-sm text-gray-400 hover:text-white"
+                className="text-sm text-gray-400 hover:text-default"
               >
                 {track.user.full_name}
               </Link>
@@ -81,6 +82,8 @@ export default function TrackItem({
               ))}
             </div>
           )}
+
+          <MusicPurchase resource={track} type="Track" variant="mini" />
         </div>
       </div>
     </div>

@@ -3,6 +3,9 @@ json.tracks @tracks do |track|
   json.title track.title
   json.slug track.slug
   json.description track.description
+  json.price track.price
+  json.price number_to_currency(track.price) unless track.price.nil?
+
   json.cover_url do
     json.medium track.cover_url(:medium)
     json.small track.cover_url(:small)

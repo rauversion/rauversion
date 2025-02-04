@@ -17,7 +17,9 @@ json.extract! track,
   :buy_link,
   :album_title,
   :record_label,
-  :podcast
+  :podcast,
+  :price,
+  :name_your_price
 
 json.tag_list track.tags
 json.cover_url do
