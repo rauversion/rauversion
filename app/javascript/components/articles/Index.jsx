@@ -1,11 +1,120 @@
 import React, { useState, useEffect } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import { Badge } from '../ui/badge'
+import { Button } from '../ui/button'
+import { Skeleton } from '../ui/skeleton'
+
+function LoadingSkeleton() {
+  return (
+    <div className="min-h-screen bg-black px-4 sm:px-8 py-12">
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col md:flex-row gap-8">
+          {/* Sidebar Skeleton */}
+          <div className="w-full md:w-64 space-y-8">
+            <div className="space-y-4">
+              <Skeleton className="h-8 w-32" />
+              <div className="space-y-2">
+                {[...Array(5)].map((_, i) => (
+                  <Skeleton key={i} className="h-10 w-full" />
+                ))}
+              </div>
+            </div>
+            <div className="space-y-4">
+              <Skeleton className="h-8 w-32" />
+              <div className="flex flex-wrap gap-2">
+                {[...Array(8)].map((_, i) => (
+                  <Skeleton key={i} className="h-6 w-20" />
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Main Content Skeleton */}
+          <div className="flex-1 space-y-8">
+            <Skeleton className="h-12 w-64" />
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="space-y-4">
+                  <Skeleton className="h-48 w-full" />
+                  <Skeleton className="h-6 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function ArticleCard({ article, featured = false }) {
+  return (
+    <Link to={`/articles/${article.slug}`}>
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        whileHover={{ scale: 1.02 }}
+        className={`group relative bg-black border border-white/10 rounded-xl overflow-hidden hover:border-white/30 transition-all duration-300 ${
+          featured ? 'col-span-2 row-span-2' : ''
+        }`}
+      >
+        <div className={`relative ${featured ? 'aspect-[16/9]' : 'aspect-[4/3]'}`}>
+          {/* Background Image with Gradient */}
+          <img 
+            src={article.cover_url?.horizontal || article.cover_url} 
+            alt={article.title}
+            className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-300" 
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-60 group-hover:opacity-80 transition-all duration-300" />
+          
+          {/* Content */}
+          <div className="absolute inset-x-0 bottom-0 p-6">
+            <div className="space-y-4">
+              {/* Category Badge */}
+              {article.category && (
+                <Badge 
+                  variant="outline" 
+                  className="bg-white text-black border-white text-xs font-mono uppercase tracking-wider"
+                >
+                  {article.category.name}
+                </Badge>
+              )}
+
+              {/* Title */}
+              <h3 className={`font-black tracking-tight text-white line-clamp-2 mix-blend-difference ${
+                featured ? 'text-4xl md:text-5xl' : 'text-xl'
+              }`}>
+                {article.title}
+              </h3>
+
+              {/* Excerpt */}
+              <p className="text-gray-300 line-clamp-2 font-mono">
+                {article.excerpt}
+              </p>
+
+              {/* Metadata */}
+              <div className="flex items-center gap-3 text-sm text-gray-400 font-mono">
+                <span>{new Date(article.created_at).toLocaleDateString()}</span>
+                {article.reading_time && (
+                  <>
+                    <span className="w-1 h-1 rounded-full bg-gray-500" />
+                    <span>{article.reading_time} min read</span>
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    </Link>
+  )
+}
 
 export default function ArticlesIndex() {
   const [searchParams] = useSearchParams()
   const [articles, setArticles] = useState([])
-  const [categories, setCategories] = useState([])
-  const [popularTags, setPopularTags] = useState([])
   const [loading, setLoading] = useState(true)
   
   const currentCategory = searchParams.get('category')
@@ -27,32 +136,28 @@ export default function ArticlesIndex() {
     fetchData()
   }, [searchParams])
 
-  if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>
-  }
+  if (loading) return <LoadingSkeleton />
 
   return (
-    <div className="min-h-screen bg-default text-default px-4 sm:px-8 py-12">
-      <div className="max-w-7xl mx-auto py-16 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-black text-white px-4 sm:px-8 py-12">
+      <div className="max-w-7xl mx-auto">
         <div className="flex flex-col md:flex-row gap-8">
-          {/* Sidebar with categories and tags */}
+          {/* Sidebar */}
           <div className="w-full md:w-64 space-y-8">
             <div>
-              <h3 className="text-lg font-semibold mb-4">Categories</h3>
+              <h3 className="text-lg font-black tracking-tight mb-4">Categories</h3>
               <div className="space-y-2">
                 <Link 
                   to="/articles"
-                  className={`block px-3 py-2 rounded-lg ${
+                  className={`block px-4 py-3 rounded-lg border transition-colors ${
                     !currentCategory 
-                      ? 'bg-primary text-white' 
-                      : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                      ? 'bg-white text-black border-white' 
+                      : 'border-white/10 hover:border-white/30'
                   }`}
                 >
-                  <div className="flex justify-between items-center">
+                  <div className="flex justify-between items-center font-mono">
                     <span>All</span>
-                    <span className="text-sm text-gray-500 dark:text-gray-400">
-                      {articles.total_count}
-                    </span>
+                    <span>{articles.total_count}</span>
                   </div>
                 </Link>
 
@@ -60,17 +165,15 @@ export default function ArticlesIndex() {
                   <Link
                     key={category.slug}
                     to={`/articles?category=${category.slug}`}
-                    className={`block px-3 py-2 rounded-lg ${
+                    className={`block px-4 py-3 rounded-lg border transition-colors ${
                       currentCategory === category.slug
-                        ? 'bg-primary text-white'
-                        : 'hover:bg-gray-100 dark:hover:bg-gray-800'
+                        ? 'bg-white text-black border-white'
+                        : 'border-white/10 hover:border-white/30'
                     }`}
                   >
-                    <div className="flex justify-between items-center">
+                    <div className="flex justify-between items-center font-mono">
                       <span>{category.name}</span>
-                      <span className="text-sm text-gray-500 dark:text-gray-400">
-                        {category.posts_count}
-                      </span>
+                      <span>{category.posts_count}</span>
                     </div>
                   </Link>
                 ))}
@@ -78,16 +181,16 @@ export default function ArticlesIndex() {
             </div>
 
             <div>
-              <h3 className="text-lg font-semibold mb-4">Popular Tags</h3>
+              <h3 className="text-lg font-black tracking-tight mb-4">Popular Tags</h3>
               <div className="flex flex-wrap gap-2">
                 {articles.popular_tags?.map(tag => (
                   <Link
                     key={tag.tag}
                     to={`/articles?tag=${tag.tag}`}
-                    className={`px-3 py-1 text-sm rounded-full ${
+                    className={`px-3 py-1 text-sm rounded-full border transition-colors ${
                       currentTag === tag.tag
-                        ? 'bg-primary text-white'
-                        : 'bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700'
+                        ? 'bg-white text-black border-white'
+                        : 'border-white/10 hover:border-white/30'
                     }`}
                   >
                     {tag.tag}
@@ -97,59 +200,28 @@ export default function ArticlesIndex() {
             </div>
           </div>
 
-          {/* Main content */}
+          {/* Main Content */}
           <div className="flex-1">
-            <h1 className="text-3xl font-extrabold tracking-tight mb-8">
-              {currentCategory 
-                ? articles.categories?.find(c => c.slug === currentCategory)?.name 
-                : "All Articles"}
-            </h1>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {articles.items?.map(article => (
-                <ArticleCard key={article.id} article={article} />
-              ))}
+            <div className="flex justify-between items-center mb-8">
+              <h1 className="text-4xl md:text-6xl font-black tracking-tighter">
+                {currentCategory 
+                  ? articles.categories?.find(c => c.slug === currentCategory)?.name 
+                  : "Magazine"}
+              </h1>
             </div>
 
-            {/* Pagination component will go here */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-max gap-6">
+              {articles.items?.map((article, index) => (
+                <ArticleCard 
+                  key={article.id} 
+                  article={article}
+                  featured={index === 0}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </div>
     </div>
-  )
-}
-
-function ArticleCard({ article }) {
-  return (
-    <Link to={`/articles/${article.slug}`} className="block group">
-      <div className="bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
-        {article.cover_url && (
-          <div className="aspect-w-16 aspect-h-9">
-            <img 
-              src={article.cover_url.horizontal} 
-              alt={article.title}
-              className="object-cover w-full h-full"
-            />
-          </div>
-        )}
-        <div className="p-4">
-          <h2 className="text-lg font-semibold group-hover:text-primary transition-colors">
-            {article.title}
-          </h2>
-          <p className="text-sm text-muted mt-2">
-            {article.excerpt}
-          </p>
-          <div className="mt-4 flex items-center text-sm text-muted">
-            <span>{new Date(article.created_at).toLocaleDateString()}</span>
-            {article.reading_time && (
-              <>
-                <span className="mx-2">•</span>
-                <span>{article.reading_time} min read</span>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    </Link>
   )
 }
