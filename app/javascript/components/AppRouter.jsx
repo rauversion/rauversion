@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Outlet, Navigate, useLocation } from 'react-router-dom'
 import useAuthStore from '@/stores/authStore'
+import { useActionCable } from '../hooks/useActionCable'
 import ArticlesIndex from './articles/Index'
 import ArticleShow from './articles/Show'
 import UserMenu from './shared/UserMenu'
@@ -43,7 +44,9 @@ import Streaming from "./events/sections/Streaming"
 import Attendees from "./events/sections/Attendees"
 import Recordings from "./events/sections/Recordings"
 import Settings from "./events/sections/Settings"
-import { Toaster } from "./ui/toaster"
+import { Toaster } from "@/components/ui/toaster"
+import { useToast } from '@/hooks/use-toast'
+
 import MySales from "./sales/MySales"
 import MyPurchases from "./purchases/MyPurchases"
 import MySettings from "./users/MySettings"
@@ -81,11 +84,58 @@ function RequireAuth({ children }) {
   return children
 }
 
-export default function AppRouter() {
-  return (
-    <BrowserRouter>
-      <UserMenu />
+function AppContent() {
+  const { currentUser } = useAuthStore()
+  const { subscribe, unsubscribe, subscription } = useActionCable()
+  const { toast } = useToast()
 
+
+  const handleNotification = (data) => {
+    const { type, message, title, ...rest } = data
+
+    console.log('Received notification:', data)
+    switch (type) {
+      case 'success':
+      case 'error':
+      case 'warning':
+      case 'info':
+        toast({
+          title: title || type.charAt(0).toUpperCase() + type.slice(1),
+          description: message,
+          variant: type === 'error' ? 'destructive' : undefined,
+          ...rest
+        })
+        break
+      default:
+        console.log('Unhandled notification:', data)
+    }
+  }
+
+  useEffect(() => {
+    if (currentUser) {
+      // Subscribe to user-specific notifications
+      const userChannel = subscribe(`NotificationsChannel`, 
+        { user_id: currentUser.id },
+        {
+          received: handleNotification
+        }
+      )
+
+      // Subscribe to global events
+      const globalChannel = subscribe('GlobalChannel', {}, {
+        received: handleNotification
+      })
+
+      return () => {
+        unsubscribe('NotificationsChannel')
+        unsubscribe('GlobalChannel')
+      }
+    }
+  }, [currentUser, subscription])
+
+  return (
+    <>
+      <UserMenu />
       <div className="pb-24">
         <Routes>
           <Route path="/login" element={<Login />} />
@@ -164,8 +214,16 @@ export default function AppRouter() {
         </Routes>
       </div>
 
-      <Toaster />
-      <AudioPlayer />
+        <Toaster />
+        <AudioPlayer />
+    </>
+  )
+}
+
+export default function AppRouter() {
+  return (
+    <BrowserRouter>
+      <AppContent />
     </BrowserRouter>
   )
 }

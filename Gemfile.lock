@@ -340,6 +340,7 @@ GEM
       activemodel (>= 6.0.0)
       activesupport (>= 6.0.0)
       redis (>= 4.2, < 6)
+    langchain (0.1.0)
     language_server-protocol (3.17.0.3)
     lint_roller (1.1.0)
     llhttp-ffi (0.5.0)
@@ -708,6 +709,7 @@ DEPENDENCIES
   jsbundling-rails
   kaminari
   kredis (~> 1.5)
+  langchain (~> 0.1.0)
   mercadopago (~> 2.3)
   meta-tags!
   mission_control-jobs

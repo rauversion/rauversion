@@ -15,6 +15,10 @@ class ProductsController < ApplicationController
     #@products = @profile.products.active.includes(:user, :album).order(created_at: :desc)
     @products = @products.by_category(params[:category]) if params[:category].present?
     @products = @products.page(params[:page]).per(20) # Assuming you're using Kaminari for pagination
+    respond_to do |format| 
+      format.html { render inline: "", layout: "react" }
+      format.json { render 'index' }
+    end
   end
 
   def used_gear
