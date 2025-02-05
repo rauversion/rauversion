@@ -180,6 +180,10 @@ export default function Home() {
             </motion.div>
 
             <motion.div variants={fadeInUp}>
+              <LatestReleases />
+            </motion.div>
+
+            <motion.div variants={fadeInUp}>
               <FeaturedArtists artists={artists} />
             </motion.div>
 
@@ -187,9 +191,6 @@ export default function Home() {
               <CuratedPlaylists playlists={playlists} />
             </motion.div>
 
-            <motion.div variants={fadeInUp}>
-              <LatestReleases />
-            </motion.div>
           </motion.div>
         </div>
       </>

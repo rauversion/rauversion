@@ -1,11 +1,8 @@
 TODO:
 
   + React app
-    + payment buttons
-    + session flow
     + merch crud
     + blank render for all pages
-    + ws pub sub
 
   + Current.label_user not set on impersonate new track
   
