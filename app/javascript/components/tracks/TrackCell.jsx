@@ -141,4 +141,76 @@ export function ModernTrackCell({ track }) {
 }
 
 // Default export for backward compatibility
+// Minimal brutalist style
+export function MinimalTrackCell({ track }) {
+  const { play, pause, currentTrackId, isPlaying } = useAudioStore()
+  const isCurrentTrack = currentTrackId === track.id
+  const shouldShowPause = isCurrentTrack && isPlaying
+
+  const handlePlay = (e) => {
+    e.preventDefault()
+    if (isCurrentTrack && isPlaying) {
+      pause()
+    } else {
+      play(track.id)
+    }
+  }
+
+  return (
+    <Link to={`/tracks/${track.slug}`}>
+      <div 
+        data-track-id={track.id}
+        data-audio-id={track.id}
+        className="group relative bg-black border border-white/10 rounded-xl overflow-hidden hover:border-white/30 transition-all duration-300"
+      >
+        <div className="relative aspect-[4/3]">
+          {/* Background Image with Gradient */}
+          <img 
+            src={track.cover_url.medium} 
+            alt={track.title}
+            className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-300" 
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-60 group-hover:opacity-80 transition-all duration-300" />
+          
+          {/* Play Button */}
+          <button 
+            onClick={handlePlay}
+            className="absolute inset-0 flex items-center justify-center"
+          >
+            <div className="relative w-12 h-12 flex items-center justify-center">
+              <div className="absolute inset-0 bg-white rounded-full opacity-10 group-hover:opacity-20 transition-opacity" />
+              {shouldShowPause ? (
+                <PauseIcon className="w-6 h-6 text-white relative z-10" />
+              ) : (
+                <PlayIcon className="w-6 h-6 text-white relative z-10" />
+              )}
+            </div>
+          </button>
+
+          {/* Content */}
+          <div className="absolute inset-x-0 bottom-0 p-4">
+            <div className="space-y-1">
+              <h3 className="text-lg font-bold tracking-tight text-white line-clamp-1 mix-blend-difference">
+                {track.title}
+              </h3>
+              <p className="text-sm text-gray-300 font-mono">
+                {track.user.username}
+              </p>
+            </div>
+          </div>
+
+          {/* Top Badge */}
+          {track.price && (
+            <div className="absolute top-3 right-3">
+              <div className="px-2 py-1 bg-white text-black text-xs font-mono rounded">
+                ${track.price}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </Link>
+  )
+}
+
 export default ModernTrackCell

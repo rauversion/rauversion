@@ -1,11 +1,45 @@
 import React, { useEffect, useState } from 'react'
 import { get } from '@rails/request.js'
+import { motion } from 'framer-motion'
+import { useInView } from 'react-intersection-observer'
+import { Skeleton } from '../ui/skeleton'
 import Header from './Header'
 import MainArticles from './MainArticles'
 import AlbumReleases from './AlbumReleases'
 import FeaturedArtists from './FeaturedArtists'
 import CuratedPlaylists from './CuratedPlaylists'
 import LatestReleases from './LatestReleases'
+
+const fadeInUp = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+}
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1
+    }
+  }
+}
+
+function LoadingSkeleton() {
+  return (
+    <div className="space-y-12 px-4 sm:px-8 py-12">
+      <Skeleton className="h-[60vh] w-full rounded-xl" />
+      <div className="space-y-4">
+        <Skeleton className="h-8 w-48" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <Skeleton className="h-64 w-full" />
+          <Skeleton className="h-64 w-full" />
+          <Skeleton className="h-64 w-full" />
+        </div>
+      </div>
+    </div>
+  )
+}
 
 export default function Home() {
   const [data, setData] = useState({
@@ -20,6 +54,11 @@ export default function Home() {
   })
 
   const [loading, setLoading] = useState(true)
+  const { ref, inView } = useInView({
+    triggerOnce: true,
+    threshold: 0,
+    initialInView: true
+  })
 
   useEffect(() => {
     const fetchData = async () => {
@@ -37,11 +76,7 @@ export default function Home() {
     fetchData()
   }, [])
 
-  if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">
-      <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-brand-600"></div>
-    </div>
-  }
+  if (loading) return <LoadingSkeleton />
 
   const { 
     currentUser, 
@@ -55,43 +90,109 @@ export default function Home() {
   } = data
 
   return (
-    <main className="dark:bg-black">
+    <motion.main
+      initial="hidden"
+      animate="visible"
+      variants={staggerContainer}
+      className="dark:bg-black min-h-screen"
+    >
       {/* Hero Section */}
       {!currentUser && displayHero === "true" && (
-        <div className="relative">
-          <div aria-hidden="true" className="hidden absolute w-1/2 h-full bg-gray-100 dark:bg-gray-900 lg:block"></div>
+        <motion.div 
+          variants={fadeInUp}
+          className="relative"
+        >
+          <div aria-hidden="true" className="hidden absolute w-1/2 h-full bg-gradient-to-r from-gray-100 to-transparent dark:from-gray-900 lg:block"></div>
           <div className="relative bg-black lg:bg-transparent">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 lg:grid lg:grid-cols-2">
-              <div className="max-w-2xl mx-auto py-6 lg:py-64 lg:max-w-none">
+              <div className="max-w-2xl mx-auto py-24 lg:py-64 lg:max-w-none">
                 <div className="lg:pr-16">
-                  <a href="/" className="text-white text-sm xl:text-xl font-extrabold">
+                  <motion.a 
+                    href="/"
+                    whileHover={{ scale: 1.05 }}
+                    className="text-white text-sm xl:text-xl font-extrabold"
+                  >
                     {appName}
-                  </a>
+                  </motion.a>
 
-                  <h1 className="tracking-tight text-gray-900 dark:text-gray-100 text-3xl xl:text-6xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-brand-200 to-brand-600">
+                  <motion.h1 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.2 }}
+                    className="tracking-tight text-gray-900 dark:text-gray-100 text-4xl xl:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-brand-200 to-brand-600 mt-4"
+                  >
                     Be your own music industry
-                  </h1>
-                  <p className="mt-4 text-xl text-gray-100">
+                  </motion.h1>
+                  <motion.p 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.3 }}
+                    className="mt-6 text-xl text-gray-100"
+                  >
                     Empowering independent music communities on the internet
-                  </p>
-                  <div className="mt-6">
-                    <a href="/users/register" className="inline-block bg-brand-600 border border-transparent py-3 px-8 rounded-md font-medium text-white hover:bg-brand-700">
+                  </motion.p>
+                  <motion.div 
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="mt-8"
+                  >
+                    <motion.a 
+                      href="/users/register"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="inline-block bg-brand-600 border border-transparent py-4 px-8 rounded-md text-lg font-medium text-white hover:bg-brand-700 transition-colors"
+                    >
                       Start now
-                    </a>
-                  </div>
+                    </motion.a>
+                  </motion.div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </motion.div>
       )}
 
-      <Header posts={posts} />
-      <MainArticles posts={posts} />
-      <AlbumReleases albums={albums} />
-      <FeaturedArtists artists={artists} />
-      <CuratedPlaylists playlists={playlists} />
-      <LatestReleases releases={latestReleases} />
-    </main>
+      <>
+        <motion.div variants={fadeInUp}>
+          <Header posts={posts} />
+        </motion.div>
+
+        <div ref={ref}>
+          <motion.div
+            initial="hidden"
+            animate={inView ? "visible" : "hidden"}
+            variants={{
+              hidden: {},
+              visible: {
+                transition: {
+                  staggerChildren: 0.2
+                }
+              }
+            }}
+          >
+            <motion.div variants={fadeInUp}>
+              <MainArticles posts={posts} />
+            </motion.div>
+
+            <motion.div variants={fadeInUp}>
+              <AlbumReleases albums={albums} />
+            </motion.div>
+
+            <motion.div variants={fadeInUp}>
+              <FeaturedArtists artists={artists} />
+            </motion.div>
+
+            <motion.div variants={fadeInUp}>
+              <CuratedPlaylists playlists={playlists} />
+            </motion.div>
+
+            <motion.div variants={fadeInUp}>
+              <LatestReleases />
+            </motion.div>
+          </motion.div>
+        </div>
+      </>
+    </motion.main>
   )
 }

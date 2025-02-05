@@ -80,20 +80,22 @@ export default function UserMenu() {
               <div className="flex items-center gap-2">
                 <CartIndicator />
               </div>
+
+
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleDarkMode}
+                className="mr-2"
+              >
+                {isDarkMode ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+              </Button>
+
               {currentUser ? (
                 <>
                   <Link to="/tracks/new" className="rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted">
                     Upload
                   </Link>
-
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={toggleDarkMode}
-                    className="mr-2"
-                  >
-                    {isDarkMode ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
-                  </Button>
 
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
