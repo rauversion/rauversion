@@ -5,6 +5,7 @@ import { motion } from 'framer-motion'
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
+import I18n from '@/stores/locales'
 
 export default function UserArtists() {
   const { username } = useParams()
@@ -95,11 +96,12 @@ export default function UserArtists() {
                   <div className="flex gap-4 text-lg">
                     <div className="border border-white/20 px-4 py-2">
                       <span className="font-bold text-white">{artist.tracks_count}</span>
-                      <span className="text-gray-400 uppercase text-sm ml-2">tracks</span>
+
+                      <span className="text-gray-400 uppercase text-sm ml-2">{I18n.t('users.artist_page.tracks')}</span>
                     </div>
                     <div className="border border-white/20 px-4 py-2">
                       <span className="font-bold text-white">{artist.albums_count}</span>
-                      <span className="text-gray-400 uppercase text-sm ml-2">albums</span>
+                      <span className="text-gray-400 uppercase text-sm ml-2">{I18n.t('users.artist_page.albums')}</span>
                     </div>
                   </div>
 
@@ -113,7 +115,7 @@ export default function UserArtists() {
                     to={`/${artist.username}`}
                     className="block w-full bg-white text-black py-4 text-center text-lg font-bold uppercase hover:bg-gray-200 transition-colors"
                   >
-                    View Profile
+                    {I18n.t('users.artist_page.view_profile')}
                   </Link>
                 </div>
               </div>

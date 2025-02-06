@@ -3,11 +3,11 @@ import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
 import { ShoppingCart } from "lucide-react"
 import MusicPurchaseForm from './MusicPurchaseForm'
+import I18n from 'stores/locales'
 
 export default function MusicPurchase({ resource, type, variant = 'default' }) {
   const [purchaseOpen, setPurchaseOpen] = useState(false)
 
-  
   const classes = variant === 'mini' ? {
     wrapper: "inline-flex",
     text: "text-sm",
@@ -27,13 +27,15 @@ export default function MusicPurchase({ resource, type, variant = 'default' }) {
 
   const getPriceDisplay = () => {
     if (resource?.name_your_price) {
-      return resource.price ? `${resource.price} or more` : 'Name your price'
+      return resource.price ? `${resource.price} ${I18n.t('shared.music_purchase.price.or_more')}` : I18n.t('shared.music_purchase.price.name_your_price')
     }
-    return resource.price ? `${resource.price} USD` : ''
+    return resource.price ? `${resource.price} ${I18n.t('shared.music_purchase.price.currency')}` : ''
   }
 
   const renderPurchaseButton = () => {
-    const buttonText = type === 'Track' ? 'Buy Digital Track' : 'Buy Playlist'
+    const buttonText = type === 'Track' ? 
+      I18n.t('shared.music_purchase.track.button') : 
+      I18n.t('shared.music_purchase.playlist.button')
     const priceDisplay = getPriceDisplay()
 
     return (
@@ -90,13 +92,12 @@ export default function MusicPurchase({ resource, type, variant = 'default' }) {
       {(resource?.name_your_price || (resource.price && resource.price !== "$0.00")) && (
         <div className={cn(classes.text, "space-x-2")}>
           {renderPurchaseButton()}
-          
         </div>
       )}
 
       {resource?.supporters?.length > 0 && (
         <div className="sm:text-xl text-sm container mx-auto my-4 flex flex-col space-y-4">
-          <h3 className="font-bold font-medium">Supporters</h3>
+          <h3 className="font-bold font-medium">{I18n.t('shared.music_purchase.supporters.title')}</h3>
           <div className="-space-x-4 flex items-center">
             {resource.supporters.map((supporter) => (
               <motion.div

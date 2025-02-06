@@ -796,6 +796,14 @@ en:
     unfollow: Unfollow
     following: Following
     artists: Artists
+    artist_page:
+      loading: Loading...
+      tracks: tracks
+      albums: albums
+      bio: Bio
+      view_profile: View Profile
+      label:
+        back_to_label: Back to label
 
   user_settings:
     title_account: Account
@@ -1120,6 +1128,35 @@ en:
       cta: Contact support
 
   shared:
+    music_purchase_form:
+      title: Buy Digital %{type}
+      price:
+        label: Price
+        name_your_price_placeholder: Name your price (minimum $%{price})
+        required: Price is required
+        minimum: Minimum price is $%{price}
+        currency: USD
+      message:
+        label: Message (optional)
+        placeholder: Add a message to the artist...
+      purchase_includes: Your purchase includes unlimited streaming via the Rauversion app, plus high-quality download in MP3, FLAC and more.
+      buttons:
+        processing: Processing...
+        complete: Complete Purchase
+      errors:
+        title: Error
+        description: There was a problem processing your purchase.
+    music_purchase:
+      track:
+        button: Buy Digital Track
+      playlist:
+        button: Buy Playlist
+      price:
+        name_your_price: Name your price
+        or_more: or more
+        currency: USD
+      supporters:
+        title: Supporters
     forms:
       pricing:
         price:

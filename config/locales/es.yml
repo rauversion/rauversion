@@ -858,6 +858,14 @@ es:
     unfollow: Dejar de seguir
     following: Siguiendo
     artists: Artistas
+    artist_page:
+      loading: Cargando...
+      tracks: pistas
+      albums: álbumes
+      bio: Biografía
+      view_profile: Ver Perfil
+      label:
+        back_to_label: Volver al sello
     show:
       not_found: Usuario no encontrado
       error_fetching: Error al cargar el usuario
@@ -1149,6 +1157,35 @@ es:
       cta: Contactar soporte
 
   shared:
+    music_purchase_form:
+      title: Comprar %{type} Digital
+      price:
+        label: Precio
+        name_your_price_placeholder: Elige tu precio (mínimo $%{price})
+        required: El precio es requerido
+        minimum: El precio mínimo es $%{price}
+        currency: USD
+      message:
+        label: Mensaje (opcional)
+        placeholder: Añade un mensaje para el artista...
+      purchase_includes: Tu compra incluye transmisión ilimitada a través de la app Rauversion, más descarga de alta calidad en MP3, FLAC y más.
+      buttons:
+        processing: Procesando...
+        complete: Completar Compra
+      errors:
+        title: Error
+        description: Hubo un problema al procesar tu compra.
+    music_purchase:
+      track:
+        button: Comprar Pista Digital
+      playlist:
+        button: Comprar Lista
+      price:
+        name_your_price: Elige tu precio
+        or_more: o más
+        currency: USD
+      supporters:
+        title: Seguidores
     forms:
       pricing:
         price:

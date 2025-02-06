@@ -7,6 +7,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Button } from '@/components/ui/button'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { post } from '@rails/request.js'
+import I18n from 'stores/locales'
 
 export default function MusicPurchaseForm({ 
   open, 
@@ -52,8 +53,8 @@ export default function MusicPurchaseForm({
     } catch (error) {
       console.error("Purchase error:", error)
       toast({
-        title: "Error",
-        description: "There was a problem processing your purchase.",
+        title: I18n.t('shared.music_purchase_form.errors.title'),
+        description: I18n.t('shared.music_purchase_form.errors.description'),
         variant: "destructive"
       })
     } finally {
@@ -66,13 +67,13 @@ export default function MusicPurchaseForm({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
-            Buy Digital {type}
+            {I18n.t('shared.music_purchase_form.title', { type })}
           </DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="price">Price</Label>
+            <Label htmlFor="price">{I18n.t('shared.music_purchase_form.price.label')}</Label>
             {resource.name_your_price ? (
               <div className="flex">
                 <span className="inline-flex items-center rounded-l-md border border-r-0 border-input bg-muted px-3 text-sm text-muted-foreground">
@@ -80,15 +81,15 @@ export default function MusicPurchaseForm({
                 </span>
                 <Input
                   {...register('price', {
-                    required: 'Price is required',
+                    required: I18n.t('shared.music_purchase_form.price.required'),
                     min: {
                       value: resource.price,
-                      message: `Minimum price is $${resource.price}`
+                      message: I18n.t('shared.music_purchase_form.price.minimum', { price: resource.price })
                     }
                   })}
                   type="number"
                   step="0.01"
-                  placeholder={`Name your price (minimum $${resource.price})`}
+                  placeholder={I18n.t('shared.music_purchase_form.price.name_your_price_placeholder', { price: resource.price })}
                   className="rounded-l-none"
                 />
               </div>
@@ -98,7 +99,9 @@ export default function MusicPurchaseForm({
                   <div className="text-xl font-medium">
                     ${resource.price}
                   </div>
-                  <span className="text-sm text-muted-foreground">USD</span>
+                  <span className="text-sm text-muted-foreground">
+                    {I18n.t('shared.music_purchase_form.price.currency')}
+                  </span>
                 </div>
                 <Input
                   type="hidden"
@@ -113,20 +116,23 @@ export default function MusicPurchaseForm({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="optional_message">Message (optional)</Label>
+            <Label htmlFor="optional_message">{I18n.t('shared.music_purchase_form.message.label')}</Label>
             <Textarea
               {...register('optional_message')}
-              placeholder="Add a message to the artist..."
+              placeholder={I18n.t('shared.music_purchase_form.message.placeholder')}
               className="resize-none"
             />
           </div>
 
           <div className="text-sm text-muted-foreground">
-            Your purchase includes unlimited streaming via the Rauversion app, plus high-quality download in MP3, FLAC and more.
+            {I18n.t('shared.music_purchase_form.purchase_includes')}
           </div>
 
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? 'Processing...' : 'Complete Purchase'}
+            {loading ? 
+              I18n.t('shared.music_purchase_form.buttons.processing') : 
+              I18n.t('shared.music_purchase_form.buttons.complete')
+            }
           </Button>
         </form>
       </DialogContent>
