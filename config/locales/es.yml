@@ -683,6 +683,36 @@ es:
         subtitle: Colecciones seleccionadas para cada estado de ánimo
       featured_labels: Sellos Destacados
       view_all: Ver Todo
+    edit:
+      dialog:
+        loading: Cargando...
+        title: Editar Pista
+        description: Realiza cambios en tu pista aquí. Haz clic en guardar cuando hayas terminado.
+        save: Guardar Cambios
+      tabs:
+        basic_info: Información Básica
+        metadata: Metadatos
+        pricing: Precios
+        permissions: Permisos
+        share: Compartir
+      form:
+        cover: Imagen de Portada
+        title: Título
+        tags: Etiquetas
+        description: Descripción
+        private: Privado
+        podcast: Podcast
+      delete:
+        button: Eliminar Pista
+        confirm_title: ¿Estás absolutamente seguro?
+        confirm_description: Esta acción no se puede deshacer. Esto eliminará permanentemente tu pista y todos los datos asociados de nuestros servidores.
+        cancel: Cancelar
+      messages:
+        cover_success: Imagen de portada actualizada exitosamente
+        update_success: Pista actualizada exitosamente
+        update_error: Error al actualizar la pista
+        delete_success: Pista eliminada exitosamente
+        delete_error: Error al eliminar la pista
     new:
       upload:
         title: Arrastra y suelta tus pistas aquí

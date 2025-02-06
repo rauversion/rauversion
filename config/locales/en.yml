@@ -622,6 +622,36 @@ en:
         subtitle: Handpicked collections for every mood
       featured_labels: Featured Labels
       view_all: View All
+    edit:
+      dialog:
+        loading: Loading...
+        title: Edit Track
+        description: Make changes to your track here. Click save when you're done.
+        save: Save Changes
+      tabs:
+        basic_info: Basic Info
+        metadata: Metadata
+        pricing: Pricing
+        permissions: Permissions
+        share: Share
+      form:
+        cover: Cover Image
+        title: Title
+        tags: Tags
+        description: Description
+        private: Private
+        podcast: Podcast
+      delete:
+        button: Delete Track
+        confirm_title: Are you absolutely sure?
+        confirm_description: This action cannot be undone. This will permanently delete your track and remove all associated data from our servers.
+        cancel: Cancel
+      messages:
+        cover_success: Cover image updated successfully
+        update_success: Track updated successfully
+        update_error: Error updating track
+        delete_success: Track deleted successfully
+        delete_error: Error deleting track
     new:
       upload:
         title: Drag and drop your tracks here

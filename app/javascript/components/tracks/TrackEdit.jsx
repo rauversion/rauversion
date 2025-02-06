@@ -41,6 +41,7 @@ import MetadataForm from "@/components/shared/forms/MetadataForm"
 import PermissionsForm from "@/components/shared/forms/PermissionsForm"
 import ShareForm from "@/components/shared/forms/ShareForm"
 import PricingForm from "@/components/shared/forms/PricingForm"
+import I18n from 'stores/locales'
 
 export default function TrackEdit({ track: initialTrack, open, onOpenChange, onOk }) {
   const { toast } = useToast()
@@ -84,7 +85,6 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
     }
   })
 
-
   const fetchTrack = async () => {
     setLoading(true)
     try {
@@ -116,7 +116,7 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
   const handleCoverUpload = async (signedBlobId) => {
     setValue('cover', signedBlobId)
     toast({
-      description: "Cover image updated successfully",
+      description: I18n.t('tracks.edit.messages.cover_success'),
     })
   }
 
@@ -135,7 +135,7 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
       if (response.ok) {
         toast({
           title: "Success",
-          description: "Track updated successfully"
+          description: I18n.t('tracks.edit.messages.update_success')
         })
         onOpenChange(false)
         onOk && onOk(response)
@@ -143,14 +143,14 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
         const error = await response.json()
         toast({
           title: "Error",
-          description: error.message || "Error updating track",
+          description: error.message || I18n.t('tracks.edit.messages.update_error'),
           variant: "destructive"
         })
       }
     } catch (error) {
       toast({
         title: "Error",
-        description: "Error updating track",
+        description: I18n.t('tracks.edit.messages.update_error'),
         variant: "destructive"
       })
     }
@@ -169,7 +169,7 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
       if (response.ok) {
         toast({
           title: "Success",
-          description: "Track deleted successfully"
+          description: I18n.t('tracks.edit.messages.delete_success')
         })
         onOpenChange(false)
         navigate('/')
@@ -177,14 +177,14 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
         const error = await response.json()
         toast({
           title: "Error",
-          description: error.message || "Error deleting track",
+          description: error.message || I18n.t('tracks.edit.messages.delete_error'),
           variant: "destructive"
         })
       }
     } catch (error) {
       toast({
         title: "Error",
-        description: "Error deleting track",
+        description: I18n.t('tracks.edit.messages.delete_error'),
         variant: "destructive"
       })
     }
@@ -195,7 +195,7 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-3xl h-[80vh] flex flex-col p-0">
           <DialogHeader className="p-6 pb-0">
-            <DialogTitle>Loading...</DialogTitle>
+            <DialogTitle>{I18n.t('tracks.edit.dialog.loading')}</DialogTitle>
           </DialogHeader>
         </DialogContent>
       </Dialog>
@@ -206,9 +206,9 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl h-[80vh] flex flex-col p-0">
         <DialogHeader className="p-6 pb-0">
-          <DialogTitle>Edit Track</DialogTitle>
+          <DialogTitle>{I18n.t('tracks.edit.dialog.title')}</DialogTitle>
           <DialogDescription>
-            Make changes to your track here. Click save when you're done.
+            {I18n.t('tracks.edit.dialog.description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -216,18 +216,18 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
           <div className="border-b px-6">
             <Tabs defaultValue="basic-info" className="h-full">
               <TabsList>
-                <TabsTrigger value="basic-info">Basic Info</TabsTrigger>
-                <TabsTrigger value="metadata">Metadata</TabsTrigger>
-                <TabsTrigger value="pricing">Pricing</TabsTrigger>
-                <TabsTrigger value="permissions">Permissions</TabsTrigger>
-                <TabsTrigger value="share">Share</TabsTrigger>
+                <TabsTrigger value="basic-info">{I18n.t('tracks.edit.tabs.basic_info')}</TabsTrigger>
+                <TabsTrigger value="metadata">{I18n.t('tracks.edit.tabs.metadata')}</TabsTrigger>
+                <TabsTrigger value="pricing">{I18n.t('tracks.edit.tabs.pricing')}</TabsTrigger>
+                <TabsTrigger value="permissions">{I18n.t('tracks.edit.tabs.permissions')}</TabsTrigger>
+                <TabsTrigger value="share">{I18n.t('tracks.edit.tabs.share')}</TabsTrigger>
               </TabsList>
 
               <div className="flex-1 overflow-y-auto" style={{ height: 'calc(70vh - 180px)' }}>
                 <TabsContent value="basic-info" className="px-6 space-y-6 pb-6">
                   <div className="grid grid-cols-1 gap-6 sm:grid-cols-4">
                     <div className="sm:col-span-1">
-                      <Label>Cover Image</Label>
+                      <Label>{I18n.t('tracks.edit.form.cover')}</Label>
                       <div className="mt-2 aspect-square">
                         <ImageUploader
                           onUploadComplete={handleCoverUpload}
@@ -243,7 +243,7 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
 
                     <div className="sm:col-span-3 space-y-6">
                       <div>
-                        <Label htmlFor="title">Title</Label>
+                        <Label htmlFor="title">{I18n.t('tracks.edit.form.title')}</Label>
                         <Controller
                           name="title"
                           control={control}
@@ -257,7 +257,7 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
                       </div>
 
                       <div>
-                        <Label htmlFor="tags">Tags</Label>
+                        <Label htmlFor="tags">{I18n.t('tracks.edit.form.tags')}</Label>
                         <Controller
                           name="tags"
                           control={control}
@@ -282,7 +282,7 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
                       </div>
 
                       <div>
-                        <Label htmlFor="description">Description</Label>
+                        <Label htmlFor="description">{I18n.t('tracks.edit.form.description')}</Label>
                         <Controller
                           name="description"
                           control={control}
@@ -307,7 +307,7 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
                             />
                           )}
                         />
-                        <Label htmlFor="private">Private</Label>
+                        <Label htmlFor="private">{I18n.t('tracks.edit.form.private')}</Label>
                       </div>
 
                       <div className="flex items-center space-x-2">
@@ -322,7 +322,7 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
                             />
                           )}
                         />
-                        <Label htmlFor="podcast">Podcast</Label>
+                        <Label htmlFor="podcast">{I18n.t('tracks.edit.form.podcast')}</Label>
                       </div>
                     </div>
                   </div>
@@ -352,28 +352,27 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="destructive">
-                    Delete Track
+                    {I18n.t('tracks.edit.delete.button')}
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogTitle>{I18n.t('tracks.edit.delete.confirm_title')}</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete your track
-                      and remove all associated data from our servers.
+                      {I18n.t('tracks.edit.delete.confirm_description')}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel>{I18n.t('tracks.edit.delete.cancel')}</AlertDialogCancel>
                     <AlertDialogAction onClick={handleDelete}>
-                      Delete Track
+                      {I18n.t('tracks.edit.delete.button')}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
 
               <Button type="submit">
-                Save Changes
+                {I18n.t('tracks.edit.dialog.save')}
               </Button>
             </div>
           </div>
