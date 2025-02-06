@@ -6,6 +6,7 @@ import * as z from "zod"
 import { post, put, get, destroy } from '@rails/request.js'
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
+import I18n from 'stores/locales'
 import {
   Form,
   FormControl,
@@ -67,7 +68,7 @@ const formSchema = z.object({
 })
 
 const hostSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  name: z.string().min(1, I18n.t('events.edit.teams.edit_member.name.required')),
   description: z.string().optional(),
   listed_on_page: z.boolean().optional(),
   event_manager: z.boolean().optional(),
@@ -75,9 +76,9 @@ const hostSchema = z.object({
 })
 
 const roleOptions = [
-  { value: "host", label: "Host" },
-  { value: "manager", label: "Manager" },
-  { value: "special_guest", label: "Special Guest" },
+  { value: "host", label: I18n.t('events.edit.teams.roles.host') },
+  { value: "manager", label: I18n.t('events.edit.teams.roles.manager') },
+  { value: "special_guest", label: I18n.t('events.edit.teams.roles.special_guest') },
 ]
 
 export default function Teams() {
@@ -118,10 +119,8 @@ export default function Teams() {
       const response = await get(`/events/${slug}.json`)
       const data = await response.json
       setEvent(data.event)
-      // setPendingInvites(data.event.pending_invites || [])
       setCurrentTeam(data.event_hosts || [])
       
-      // Reset form with current team members
       form.reset({
         team_members: data.event_hosts?.map(member => ({
           role: member.role
@@ -131,7 +130,7 @@ export default function Teams() {
       console.error('Error fetching team data:', error)
       toast({
         title: "Error",
-        description: "Could not load team data",
+        description: I18n.t('events.edit.teams.messages.load_error'),
         variant: "destructive",
       })
     }
@@ -152,13 +151,11 @@ export default function Teams() {
 
       if (response.ok) {
         const data = await response.json
-        // setPendingInvites(data.pending_invites)
-        // setCurrentTeam(data.team_members)
         fetchTeamData()
         form.reset({ team_members: [] })
         toast({
           title: "Success",
-          description: "Invitations sent successfully",
+          description: I18n.t('events.edit.teams.messages.invites_success'),
         })
       } else {
         const { errors } = await response.json
@@ -173,7 +170,7 @@ export default function Teams() {
       console.error('Error updating team:', error)
       toast({
         title: "Error",
-        description: "Could not send invitations",
+        description: I18n.t('events.edit.teams.messages.invites_error'),
         variant: "destructive",
       })
     }
@@ -201,13 +198,13 @@ export default function Teams() {
         setCurrentTeam(team => team.filter(member => member.id !== hostToDelete.id))
         toast({
           title: "Success",
-          description: "Team member removed successfully",
+          description: I18n.t('events.edit.teams.messages.remove_success'),
         })
       } else {
         const data = await response.json()
         toast({
           title: "Error",
-          description: data.message || "Could not remove team member",
+          description: data.message || I18n.t('events.edit.teams.messages.remove_error'),
           variant: "destructive",
         })
       }
@@ -215,7 +212,7 @@ export default function Teams() {
       console.error('Error removing team member:', error)
       toast({
         title: "Error",
-        description: "Could not remove team member",
+        description: I18n.t('events.edit.teams.messages.remove_error'),
         variant: "destructive",
       })
     } finally {
@@ -250,11 +247,10 @@ export default function Teams() {
         )
         toast({
           title: "Success",
-          description: "Team member updated successfully",
+          description: I18n.t('events.edit.teams.messages.update_success'),
         })
         setHostToEdit(null)
       } else {
-        // Set form errors if they exist
         if (responseData.errors) {
           Object.keys(responseData.errors).forEach(key => {
             editForm.setError(key, {
@@ -266,7 +262,7 @@ export default function Teams() {
         
         toast({
           title: "Error",
-          description: responseData.message || "Could not update team member",
+          description: responseData.message || I18n.t('events.edit.teams.messages.update_error'),
           variant: "destructive",
         })
       }
@@ -274,7 +270,7 @@ export default function Teams() {
       console.error('Error updating team member:', error)
       toast({
         title: "Error",
-        description: "Could not update team member",
+        description: I18n.t('events.edit.teams.messages.update_error'),
         variant: "destructive",
       })
     } finally {
@@ -298,14 +294,14 @@ export default function Teams() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Current Team</CardTitle>
+          <CardTitle>{I18n.t('events.edit.teams.current_team.title')}</CardTitle>
           <CardDescription>
-            People who are currently part of your event team
+            {I18n.t('events.edit.teams.current_team.description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <h3 className="text-lg font-medium">Current Team Members</h3>
+            <h3 className="text-lg font-medium">{I18n.t('events.edit.teams.current_team.members')}</h3>
             <div className="grid gap-4">
               {currentTeam.map((member) => (
                 <div
@@ -343,18 +339,18 @@ export default function Teams() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Pending Invitations</CardTitle>
+          <CardTitle>{I18n.t('events.edit.teams.pending.title')}</CardTitle>
           <CardDescription>
-            Invitations that have been sent but not yet accepted
+            {I18n.t('events.edit.teams.pending.description')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Email</TableHead>
-                <TableHead>Role</TableHead>
-                <TableHead>Sent At</TableHead>
+                <TableHead>{I18n.t('events.edit.teams.pending.table.email')}</TableHead>
+                <TableHead>{I18n.t('events.edit.teams.pending.table.role')}</TableHead>
+                <TableHead>{I18n.t('events.edit.teams.pending.table.sent_at')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -374,9 +370,9 @@ export default function Teams() {
         <CardHeader>
           <div className="flex justify-between items-center">
             <div>
-              <CardTitle>Add Team Members</CardTitle>
+              <CardTitle>{I18n.t('events.edit.teams.add_members.title')}</CardTitle>
               <CardDescription>
-                Invite new people to help manage your event
+                {I18n.t('events.edit.teams.add_members.description')}
               </CardDescription>
             </div>
             <Button
@@ -386,7 +382,7 @@ export default function Teams() {
               onClick={addTeamMember}
             >
               <UserPlus className="h-4 w-4 mr-2" />
-              Add Person
+              {I18n.t('events.edit.teams.add_members.add_person')}
             </Button>
           </div>
         </CardHeader>
@@ -396,8 +392,8 @@ export default function Teams() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Email</TableHead>
-                    <TableHead>Role</TableHead>
+                    <TableHead>{I18n.t('events.edit.teams.pending.table.email')}</TableHead>
+                    <TableHead>{I18n.t('events.edit.teams.pending.table.role')}</TableHead>
                     <TableHead className="w-[50px]"></TableHead>
                   </TableRow>
                 </TableHeader>
@@ -413,7 +409,7 @@ export default function Teams() {
                               <FormControl>
                                 <Input 
                                   type="email" 
-                                  placeholder="email@example.com"
+                                  placeholder={I18n.t('events.edit.teams.add_members.email_placeholder')}
                                   {...field} 
                                 />
                               </FormControl>
@@ -435,7 +431,7 @@ export default function Teams() {
                                 >
                                   <FormControl>
                                     <SelectTrigger>
-                                      <SelectValue placeholder="Select role" />
+                                      <SelectValue placeholder={I18n.t('events.edit.teams.add_members.role_placeholder')} />
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
@@ -471,7 +467,7 @@ export default function Teams() {
               </Table>
 
               {fields.length > 0 && (
-                <Button type="submit">Send Invitations</Button>
+                <Button type="submit">{I18n.t('events.edit.teams.add_members.send_invitations')}</Button>
               )}
             </form>
           </Form>
@@ -481,15 +477,15 @@ export default function Teams() {
       <AlertDialog open={!!hostToDelete} onOpenChange={(open) => !open && setHostToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+            <AlertDialogTitle>{I18n.t('events.edit.teams.delete_member.title')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will remove {hostToDelete?.name} from the team. This action cannot be undone.
+              {I18n.t('events.edit.teams.delete_member.description', { name: hostToDelete?.name })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{I18n.t('events.edit.teams.delete_member.cancel')}</AlertDialogCancel>
             <AlertDialogAction onClick={handleDeleteConfirm}>
-              Continue
+              {I18n.t('events.edit.teams.delete_member.continue')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -503,7 +499,7 @@ export default function Teams() {
       }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Team Member</DialogTitle>
+            <DialogTitle>{I18n.t('events.edit.teams.edit_member.title')}</DialogTitle>
           </DialogHeader>
           <Form {...editForm}>
             <form onSubmit={editForm.handleSubmit(handleEditSubmit)} className="space-y-4">
@@ -513,7 +509,7 @@ export default function Teams() {
                   name="avatar"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Profile Image</FormLabel>
+                      <FormLabel>{I18n.t('events.edit.teams.edit_member.profile_image')}</FormLabel>
                       <FormControl>
                         <ImageUploader
                           value={field.value}
@@ -532,7 +528,7 @@ export default function Teams() {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Name</FormLabel>
+                      <FormLabel>{I18n.t('events.edit.teams.edit_member.name.label')}</FormLabel>
                       <FormControl>
                         <Input {...field} disabled={isEditLoading} />
                       </FormControl>
@@ -546,7 +542,7 @@ export default function Teams() {
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Description</FormLabel>
+                      <FormLabel>{I18n.t('events.edit.teams.edit_member.description')}</FormLabel>
                       <FormControl>
                         <Textarea {...field} disabled={isEditLoading} />
                       </FormControl>
@@ -561,9 +557,9 @@ export default function Teams() {
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                       <div className="space-y-0.5">
-                        <FormLabel>Listed on Page</FormLabel>
+                        <FormLabel>{I18n.t('events.edit.teams.edit_member.listed.label')}</FormLabel>
                         <FormDescription>
-                          Show this team member on the event page
+                          {I18n.t('events.edit.teams.edit_member.listed.description')}
                         </FormDescription>
                       </div>
                       <FormControl>
@@ -583,9 +579,9 @@ export default function Teams() {
                   render={({ field }) => (
                     <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                       <div className="space-y-0.5">
-                        <FormLabel>Event Manager</FormLabel>
+                        <FormLabel>{I18n.t('events.edit.teams.edit_member.manager.label')}</FormLabel>
                         <FormDescription>
-                          Allow this team member to manage the event
+                          {I18n.t('events.edit.teams.edit_member.manager.description')}
                         </FormDescription>
                       </div>
                       <FormControl>
@@ -610,16 +606,16 @@ export default function Teams() {
                   }}
                   disabled={isEditLoading}
                 >
-                  Cancel
+                  {I18n.t('events.edit.teams.edit_member.cancel')}
                 </Button>
                 <Button type="submit" disabled={isEditLoading}>
                   {isEditLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Saving...
+                      {I18n.t('events.edit.teams.edit_member.saving')}
                     </>
                   ) : (
-                    "Save Changes"
+                    I18n.t('events.edit.teams.edit_member.save')
                   )}
                 </Button>
               </div>

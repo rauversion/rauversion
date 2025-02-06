@@ -6,6 +6,6 @@ const i18n = new I18n(translations);
 i18n.defaultLocale = "es";
 i18n.locale = "es";
 
-//window.i18n = i18n;
+window.i18n = i18n;
 
 export default i18n

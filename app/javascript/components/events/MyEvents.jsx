@@ -2,6 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import {useInfiniteScroll} from '../../hooks/useInfiniteScroll'
 import { Button } from '../ui/button'
+import I18n from 'stores/locales'
 
 import {
   Table,
@@ -23,13 +24,13 @@ import { MoreHorizontal } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs"
 
 function formatEventLocation(event) {
-  if (event.online) return 'Online Event'
+  if (event.online) return I18n.t('events.my_events.location.online')
   if (event.venue) return event.venue
-  return event.location || 'Location TBD'
+  return I18n.t('events.my_events.location.tbd')
 }
 
 function formatEventDate(date) {
-  if (!date) return 'Date TBD'
+  if (!date) return I18n.t('events.my_events.date.tbd')
   return new Date(date).toLocaleDateString(undefined, {
     weekday: 'short',
     year: 'numeric',
@@ -49,7 +50,7 @@ export default function MyEvents() {
     lastElementRef
   } = useInfiniteScroll(`/events/mine.json?tab=${tab}`)
 
-  if (loading && !posts.length) return <div>Loading...</div>
+  if (loading && !posts.length) return <div>{I18n.t('events.my_events.loading.initial')}</div>
   if (!posts) return null
 
   return (
@@ -57,10 +58,10 @@ export default function MyEvents() {
       <div className="mb-6 my-4">
         <Tabs defaultValue={tab} onValueChange={setTab}>
           <TabsList>
-            <TabsTrigger value="all">All Events</TabsTrigger>
-            <TabsTrigger value="drafts">Drafts</TabsTrigger>
-            <TabsTrigger value="published">Published</TabsTrigger>
-            <TabsTrigger value="manager">Manager</TabsTrigger>
+            <TabsTrigger value="all">{I18n.t('events.my_events.tabs.all')}</TabsTrigger>
+            <TabsTrigger value="drafts">{I18n.t('events.my_events.tabs.drafts')}</TabsTrigger>
+            <TabsTrigger value="published">{I18n.t('events.my_events.tabs.published')}</TabsTrigger>
+            <TabsTrigger value="manager">{I18n.t('events.my_events.tabs.manager')}</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
@@ -68,16 +69,16 @@ export default function MyEvents() {
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
           <h1 className="text-xl font-semibold text-default">
-            {tab.charAt(0).toUpperCase() + tab.slice(1)} Events
+            {I18n.t('events.my_events.title', { tab: tab.charAt(0).toUpperCase() + tab.slice(1) })}
           </h1>
           <p className="mt-2 text-sm text-muted">
-            Your events.
+            {I18n.t('events.my_events.subtitle')}
           </p>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
           <Button asChild>
             <Link to="/events/new">
-              New Event
+              {I18n.t('events.my_events.new_event')}
             </Link>
           </Button>
         </div>
@@ -88,11 +89,11 @@ export default function MyEvents() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Location</TableHead>
-                <TableHead>Start Date</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{I18n.t('events.my_events.table.title')}</TableHead>
+                <TableHead>{I18n.t('events.my_events.table.location')}</TableHead>
+                <TableHead>{I18n.t('events.my_events.table.start_date')}</TableHead>
+                <TableHead>{I18n.t('events.my_events.table.status')}</TableHead>
+                <TableHead className="text-right">{I18n.t('events.my_events.table.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -103,7 +104,7 @@ export default function MyEvents() {
                 >
                   <TableCell className="font-medium">
                     <div className="w-56 truncate">
-                      {event.title || "-- untitled"}
+                      {event.title || I18n.t('events.my_events.untitled')}
                     </div>
                   </TableCell>
                   <TableCell>{formatEventLocation(event)}</TableCell>
@@ -113,21 +114,21 @@ export default function MyEvents() {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">
-                          <span className="sr-only">Open menu</span>
+                          <span className="sr-only">{I18n.t('events.my_events.table.actions')}</span>
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuLabel>{I18n.t('events.my_events.table.actions')}</DropdownMenuLabel>
                         <DropdownMenuItem asChild>
                           <Link to={`/events/${event.slug}/edit`}>
-                            Edit
+                            {I18n.t('events.my_events.table.menu.edit')}
                           </Link>
                         </DropdownMenuItem>
                         {event.slug && (
                           <DropdownMenuItem asChild>
                             <Link to={`/events/${event.slug}`}>
-                              View
+                              {I18n.t('events.my_events.table.menu.view')}
                             </Link>
                           </DropdownMenuItem>
                         )}
@@ -142,7 +143,7 @@ export default function MyEvents() {
 
         {loading && posts.length > 0 && (
           <div className="py-4 text-center text-muted">
-            Loading more events...
+            {I18n.t('events.my_events.loading.more')}
           </div>
         )}
       </div>

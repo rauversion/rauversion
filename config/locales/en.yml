@@ -92,6 +92,467 @@ en:
     people_attending: People Attending
     venue: venue
     location: location
+    loading: Loading...
+    no_image: No image
+    online: Online
+    edit:
+      overview: Event Overview
+      form:
+        save: Guardar
+
+        title:
+          label: Title
+          placeholder: Título del evento
+        timezone:
+          label: Zona Horaria
+          placeholder: Seleccionar zona horaria
+        start_date:
+          label: Fecha de Inicio
+        start_time:
+          label: Hora de Inicio
+        end_date:
+          label: Fecha de Finalización
+        end_time:
+          label: Hora de Finalización
+        location:
+          label: Ubicación
+        venue:
+          label: Lugar
+        description:
+          description: Descripción del evento
+        save: Guardar cambios
+      attendees:
+        title: Event Attendees
+        description: View and manage event attendees
+        export: Export Attendee List
+        export_csv: Export CSV
+        table:
+          attendee: Asistente
+        search:
+          placeholder: Search by name or email
+          filter: Filter by status
+          all: All Statuses
+          button: Search
+        table:
+          name: Name
+          email: Email
+          ticket: Ticket
+          status: Status
+          purchase_date: Purchase Date
+          actions: Actions
+        status:
+          attending: Attending
+          cancelled: Cancelled
+          pending: Pending
+          checked_in: Checked in at %{time}
+        messages:
+          update_success: Attendee status updated successfully
+          update_error: Could not update attendee status
+          remove_confirm: Are you sure you want to remove this attendee?
+          remove_success: Attendee removed successfully
+          remove_error: Could not remove attendee
+      settings:
+        general:
+          title: General Settings
+          description: Configure basic event settings
+          url:
+            label: Event URL
+            description: The unique URL for your event
+          remaining_tickets:
+            label: Show Remaining Tickets
+            description: Display the number of remaining tickets for each ticket type
+          attendee_list:
+            label: Show Attendee List
+            description: Display the list of attendees on the event page
+          comments:
+            label: Allow Comments
+            description: Let attendees leave comments on your event page
+          social_sharing:
+            label: Social Sharing
+            description: Enable social media sharing buttons
+      teams:
+        title: Teams & Managers
+        description: Manage event team members and roles
+        current_team:
+          title: Current Team
+          description: People currently part of your event team
+        add_member:
+          title: Add Team Member
+          description: Invite new people to help manage your event
+        roles:
+          host: Host
+          manager: Manager
+          special_guest: Special Guest
+        form:
+          name: Name
+          email: Email
+          role: Role
+          listed: Listed on Page
+          manager: Event Manager
+        messages:
+          add_success: Team member added successfully
+          add_error: Could not add team member
+          update_success: Team member updated successfully
+          update_error: Could not update team member
+          remove_confirm: Are you sure you want to remove this team member?
+          remove_success: Team member removed successfully
+          remove_error: Could not remove team member
+      streaming:
+        title: Live Streaming
+        description: Configure live streaming settings
+        platform:
+          label: Streaming Platform
+          description: Select your streaming platform
+          options:
+            twitch: Twitch
+            youtube: YouTube
+            custom: Custom RTMP
+        stream_key:
+          label: Stream Key
+          description: Your unique streaming key
+        embed_code:
+          label: Embed Code
+          description: Code to embed your stream
+        status:
+          live: Live
+          offline: Offline
+        messages:
+          update_success: Streaming settings updated successfully
+          update_error: Could not update streaming settings
+      schedule:
+        name: Event Schedule
+        description: Manage event schedule and sessions
+        add_item: Add Schedule Item
+
+        title: Schedule Items
+        add_item: Add Item
+        name: Name
+        description: Description
+        date_time_range: Date & Time Range
+        schedulings:
+          title: Schedulings
+          add: Add Scheduling
+          name: Name
+          short_description: Short Description
+          date_time_range: Date & Time Range
+
+        item:
+          name: Item Name
+          description: Description
+          start_time: Start Time
+          end_time: End Time
+          type: Item Type
+        types:
+          session: Session
+          break: Break
+          activity: Activity
+        messages:
+          add_success: Schedule item added successfully
+          add_error: Could not add schedule item
+          update_success: Schedule updated successfully
+          update_error: Could not update schedule
+          remove_confirm: Are you sure you want to remove this schedule item?
+          remove_success: Schedule item removed successfully
+          remove_error: Could not remove schedule item
+      recordings:
+        title: Event Recordings
+        description: Add recordings from Twitch, YouTube, or other platforms
+        add_recording: Add Recording
+        edit_recording: Edit Recording
+        dialog:
+          add_description: Add a recording to highlight it on the event page
+          edit_description: Update the recording details
+        form:
+          title:
+            label: Title
+            placeholder: Recording title
+            required: Title is required
+          description:
+            label: Description
+            placeholder: Recording description
+          platform:
+            label: Platform
+            placeholder: Select platform
+            description: Select the platform where your recording is hosted
+            options:
+              twitch: Twitch
+              youtube: YouTube
+              iframe: Other (iframe)
+          embed:
+            label: Embed Code
+            placeholder: Paste the embed code or URL here
+            description: For YouTube/Twitch paste the embed code. For other platforms, use the full iframe HTML code.
+            required: Iframe code is required
+        buttons:
+          add: Add Recording
+          update: Update Recording
+          edit: Edit
+          delete: Delete
+        messages:
+          create_success: Recording created successfully
+          update_success: Recording updated successfully
+          delete_success: Recording deleted successfully
+          create_error: Failed to create recording
+          update_error: Failed to update recording
+          delete_error: Could not delete recording
+          delete_confirm: Are you sure you want to delete this recording?
+          general_error: Something went wrong
+      teams:
+        title: Teams & Managers
+        description: Manage event team members and roles
+        current_team:
+          title: Current Team
+          description: People who are currently part of your event team
+          members: Current Team Members
+        pending:
+          title: Pending Invitations
+          description: Invitations that have been sent but not yet accepted
+          table:
+            email: Email
+            role: Role
+            sent_at: Sent At
+        add_members:
+          title: Add Team Members
+          description: Invite new people to help manage your event
+          add_person: Add Person
+          email_placeholder: email@example.com
+          role_placeholder: Select role
+          send_invitations: Send Invitations
+        roles:
+          host: Host
+          manager: Manager
+          special_guest: Special Guest
+        edit_member:
+          title: Edit Team Member
+          profile_image: Profile Image
+          name:
+            label: Name
+            required: Name is required
+          description: Description
+          listed:
+            label: Listed on Page
+            description: Show this team member on the event page
+          manager:
+            label: Event Manager
+            description: Allow this team member to manage the event
+          cancel: Cancel
+          save: Save Changes
+          saving: Saving...
+        delete_member:
+          title: Are you absolutely sure?
+          description: This will remove %{name} from the team. This action cannot be undone.
+          cancel: Cancel
+          continue: Continue
+        messages:
+          invites_success: Invitations sent successfully
+          invites_error: Could not send invitations
+          update_success: Team member updated successfully
+          update_error: Could not update team member
+          remove_success: Team member removed successfully
+          remove_error: Could not remove team member
+          load_error: Could not load team data
+    my_events:
+      tabs:
+        all: All Events
+        drafts: Drafts
+        published: Published
+        manager: Manager
+      title: "%{tab} Events"
+      subtitle: Your events.
+      new_event: New Event
+      table:
+        title: Title
+        location: Location
+        start_date: Start Date
+        status: Status
+        actions: Actions
+        menu:
+          edit: Edit
+          view: View
+      location:
+        online: Online Event
+        tbd: Location TBD
+      date:
+        tbd: Date TBD
+      loading:
+        initial: Loading...
+        more: Loading more events...
+      untitled: -- untitled
+      settings:
+        tabs:
+          general: General
+          privacy: Privacy & Access
+          danger: Danger Zone
+        general:
+          title: General Settings
+          description: Configure basic event settings and preferences
+          url:
+            label: Event URL
+            description: This is your event's unique URL on our platform
+          remaining_tickets:
+            label: Show Remaining Tickets
+            description: Display the number of remaining tickets for each ticket type
+          attendee_list:
+            label: Show Attendee List
+            description: Display the list of attendees on the event page
+          comments:
+            label: Allow Comments
+            description: Let attendees leave comments on your event page
+          social_sharing:
+            label: Social Sharing
+            description: Show social media sharing buttons
+        privacy:
+          title: Privacy & Access
+          description: Control who can view and register for your event
+          visibility:
+            label: Event Visibility
+            placeholder: Select visibility
+            options:
+              public: Public
+              private: Private
+              unlisted: Unlisted
+          registration:
+            label: Registration Type
+            placeholder: Select registration type
+            options:
+              open:
+                label: Open Registration
+                description: Anyone can register
+              invite:
+                label: Invite Only
+                description: Only invited users can register
+              approval:
+                label: Approval Required
+                description: Registration requires approval
+          require_login:
+            label: Require Login
+            description: Users must be logged in to view event details
+        danger:
+          title: Danger Zone
+          description: Actions here can't be undone
+          warning:
+            title: Warning
+            description: Deleting your event will permanently remove all associated data, including tickets, attendees, and recordings.
+          delete:
+            button: Delete Event
+            confirm_title: Are you absolutely sure?
+            confirm_description: This action cannot be undone. This will permanently delete your event and remove all associated data from our servers.
+            cancel: Cancel
+        save: Save Changes
+        messages:
+          success: Settings updated successfully
+          error: Could not update settings
+          delete_success: Event deleted successfully
+          delete_error: Could not delete event
+        validation:
+          slug_min: Slug must be at least 2 characters.
+          slug_format: Slug can only contain lowercase letters, numbers, and hyphens.
+      schedule:
+        title: Schedule Items
+        add_item: Add Item
+        name: Name
+        description: Description
+        date_time_range: Date & Time Range
+        schedulings:
+          title: Schedulings
+          add: Add Scheduling
+          name: Name
+          short_description: Short Description
+          date_time_range: Date & Time Range
+        save: Save Schedule
+        messages:
+          success: Schedule updated successfully
+          error: Could not update schedule
+          form_error: Please check the form for errors
+          validation:
+            name_min: Name must be at least 2 characters.
+            start_date_required: Start date is required
+            end_date_required: End date is required
+      attendees:
+        title: Event Attendees
+        subtitle: Manage your event attendees and their status
+        export_csv: Export CSV
+        search:
+          placeholder: Search by name or email
+          filter_status: Filter by status
+          all_statuses: All Statuses
+          button: Search
+        table:
+          attendee: Attendee
+          ticket: Ticket
+          status: Status
+          purchase_date: Purchase Date
+        status:
+          attending: Attending
+          cancelled: Cancelled
+          pending: Pending
+          checked_in: Checked in at %{time}
+        messages:
+          update_success: Attendee status updated successfully
+          update_error: Could not update attendee status
+          remove_confirm: Are you sure you want to remove this attendee?
+          remove_success: Attendee removed successfully
+          remove_error: Could not remove attendee
+        title:
+          label: Title
+          placeholder: Event title
+        timezone:
+          label: Timezone
+          placeholder: Select timezone
+        start_date:
+          label: Start Date
+          placeholder: Pick a date
+        start_time:
+          label: Start Time
+        end_date:
+          label: End Date
+          placeholder: Pick a date
+        end_time:
+          label: End Time
+        location:
+          label: Location
+        description:
+          label: Description
+          placeholder: Event description
+        venue:
+          label: Venue
+          placeholder: Event venue
+        save: Save changes
+        success: Event updated successfully
+        error: Could not update event
+    show:
+      not_found: Event not found
+      back_to_events: Back to events
+      get_tickets: Get tickets
+      speakers: Speakers
+      people_attending: People Attending
+      venue: Venue
+      location: Location
+      event_manager: Event Manager
+      all_rights: All rights reserved
+      schedule:
+        title: Schedule
+        description: Edit event scheduling
+      teams:
+        title: Teams & Managers
+        description: Add hosts, special guests, and event managers
+      tickets:
+        title: Tickets
+        description: Manage the event tickets
+      streaming:
+        title: Streaming
+        description: Manage live streaming sources
+      attendees:
+        title: Attendees
+        description: View the event's attendees list
+      recordings:
+        title: Recordings
+        description: Manage event recordings
+      settings:
+        title: Settings
+        description: Event settings
+      breadcrumb:
+        events: Events
     copyright: Copyright ©
     all_rights: All rights reserved.
     get_tickets: Get your tickets

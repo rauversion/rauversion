@@ -1,6 +1,7 @@
 import React from "react"
 import { Link, Outlet, useParams } from "react-router-dom"
 import { cn } from "@/lib/utils"
+import I18n from 'stores/locales'
 
 import {
   Settings,
@@ -24,51 +25,51 @@ import {
 
 const menuItems = [
   {
-    title: "Event Overview",
+    title: I18n.t('events.edit.overview'),
     icon: LayoutDashboard,
     path: "",
   },
   {
-    title: "Schedule",
+    title: I18n.t('events.edit.schedule.title'),
     icon: Calendar,
     path: "schedule",
-    description: "Edit event scheduling"
+    description: I18n.t('events.edit.schedule.description')
   },
   {
-    title: "Teams & Managers",
+    title: I18n.t('events.edit.teams.title'),
     icon: Users,
     path: "teams",
-    description: "Add hosts, special guests, and event managers"
+    description: I18n.t('events.edit.teams.description')
   },
   {
-    title: "Tickets",
+    title: I18n.t('events.edit.tickets.title'),
     icon: Ticket,
     path: "tickets",
-    description: "Manage the event tickets"
+    description: I18n.t('events.edit.tickets.description')
   },
   {
-    title: "Streaming",
+    title: I18n.t('events.edit.streaming.title'),
     icon: Video,
     path: "streaming",
-    description: "Manage live streaming sources"
+    description: I18n.t('events.edit.streaming.description')
   },
   {
-    title: "Attendees",
+    title: I18n.t('events.edit.attendees.title'),
     icon: Users2,
     path: "attendees",
-    description: "View the event's attendees list"
+    description: I18n.t('events.edit.attendees.description')
   },
   {
-    title: "Recordings",
+    title: I18n.t('events.edit.recordings.title'),
     icon: Mic2,
     path: "recordings",
-    description: "Manage event recordings"
+    description: I18n.t('events.edit.recordings.description')
   },
   {
-    title: "Settings",
+    title: I18n.t('events.edit.settings.title'),
     icon: Settings,
     path: "settings",
-    description: "Event settings"
+    description: I18n.t('events.edit.settings.description')
   },
 ]
 
@@ -84,11 +85,11 @@ export default function EventEdit() {
     <div className="container mx-auto py-6">
       <Breadcrumb className="mb-6 flex items-center">
         <BreadcrumbItem>
-          <BreadcrumbLink to="/events">Events</BreadcrumbLink>
+          <BreadcrumbLink to="/events">{I18n.t('events.edit.breadcrumb.events')}</BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator className="flex items-center" />
         <BreadcrumbItem>
-          <BreadcrumbPage>{event?.title || 'Loading...'}</BreadcrumbPage>
+          <BreadcrumbPage>{event?.title || I18n.t('events.loading')}</BreadcrumbPage>
         </BreadcrumbItem>
       </Breadcrumb>
 

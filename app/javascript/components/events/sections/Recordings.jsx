@@ -6,6 +6,7 @@ import * as z from "zod"
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
+import I18n from 'stores/locales'
 import {
   Card,
   CardContent,
@@ -48,23 +49,11 @@ import { Loader2, Plus } from "lucide-react"
 import { post, put, destroy, FetchRequest } from "@rails/request.js"
 
 const recordingSchema = z.object({
-  title: z.string().min(1, "Title is required"),
+  title: z.string().min(1, I18n.t('events.edit.recordings.form.title.required')),
   description: z.string().optional(),
   type: z.enum(["twitch", "youtube", "iframe"]),
-  iframe: z.string().min(1, "Iframe code is required"),
+  iframe: z.string().min(1, I18n.t('events.edit.recordings.form.embed.required')),
 })
-
-const visibilityOptions = [
-  { value: "public", label: "Public" },
-  { value: "private", label: "Private" },
-  { value: "unlisted", label: "Unlisted" },
-]
-
-const recordingStatuses = {
-  processing: { label: "Processing", color: "bg-yellow-500" },
-  ready: { label: "Ready", color: "bg-green-500" },
-  failed: { label: "Failed", color: "bg-red-500" },
-}
 
 export default function Recordings() {
   const { slug } = useParams()
@@ -105,7 +94,6 @@ export default function Recordings() {
       const request = new FetchRequest(method, url, { body: JSON.stringify({ event_recording: data }) })
       const response = await request.perform()
   
-
       if (response.ok) {
         const result = await response.json
         if (result.errors) {
@@ -115,7 +103,7 @@ export default function Recordings() {
         } else {
           toast({
             title: "Success",
-            description: `Recording ${editMode ? 'updated' : 'created'} successfully`,
+            description: I18n.t(editMode ? 'events.edit.recordings.messages.update_success' : 'events.edit.recordings.messages.create_success'),
           })
           setOpen(false)
           setEditMode(false)
@@ -126,7 +114,7 @@ export default function Recordings() {
       } else {
         toast({
           title: "Error",
-          description: `Failed to ${editMode ? 'update' : 'create'} recording`,
+          description: I18n.t(editMode ? 'events.edit.recordings.messages.update_error' : 'events.edit.recordings.messages.create_error'),
           variant: "destructive",
         })
       }
@@ -134,7 +122,7 @@ export default function Recordings() {
       console.error(`Error ${editMode ? 'updating' : 'creating'} recording:`, error)
       toast({
         title: "Error",
-        description: "Something went wrong",
+        description: I18n.t('events.edit.recordings.messages.general_error'),
         variant: "destructive",
       })
     } finally {
@@ -162,7 +150,7 @@ export default function Recordings() {
   }
 
   const deleteRecording = async (recordingId) => {
-    if (!confirm("Are you sure you want to delete this recording?")) return
+    if (!confirm(I18n.t('events.edit.recordings.messages.delete_confirm'))) return
 
     try {
       const response = await destroy(`/events/${slug}/event_recordings/${recordingId}.json`)
@@ -171,14 +159,14 @@ export default function Recordings() {
         setItems(recordings.filter(r => r.id !== recordingId))
         toast({
           title: "Success",
-          description: "Recording deleted successfully",
+          description: I18n.t('events.edit.recordings.messages.delete_success'),
         })
       }
     } catch (error) {
       console.error('Error deleting recording:', error)
       toast({
         title: "Error",
-        description: "Could not delete recording",
+        description: I18n.t('events.edit.recordings.messages.delete_error'),
         variant: "destructive",
       })
     }
@@ -188,9 +176,9 @@ export default function Recordings() {
     <div className="space-y-4 p-8">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Event Recordings</h2>
+          <h2 className="text-3xl font-bold tracking-tight">{I18n.t('events.edit.recordings.title')}</h2>
           <p className="text-sm text-muted-foreground">
-            Add recordings from Twitch, YouTube, or other platforms
+            {I18n.t('events.edit.recordings.description')}
           </p>
         </div>
 
@@ -201,18 +189,17 @@ export default function Recordings() {
           setOpen(true)
         }}>
           <Plus className="mr-2 h-4 w-4" />
-          Add Recording
+          {I18n.t('events.edit.recordings.add_recording')}
         </Button>
 
         <Dialog open={open} onOpenChange={handleClose}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>{editMode ? 'Edit' : 'Add'} Recording</DialogTitle>
+              <DialogTitle>
+                {I18n.t(editMode ? 'events.edit.recordings.edit_recording' : 'events.edit.recordings.add_recording')}
+              </DialogTitle>
               <DialogDescription>
-                {editMode 
-                  ? 'Update the recording details'
-                  : 'Add a recording to highlight it on the event page'
-                }
+                {I18n.t(editMode ? 'events.edit.recordings.dialog.edit_description' : 'events.edit.recordings.dialog.add_description')}
               </DialogDescription>
             </DialogHeader>
 
@@ -223,9 +210,9 @@ export default function Recordings() {
                   name="title"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Title</FormLabel>
+                      <FormLabel>{I18n.t('events.edit.recordings.form.title.label')}</FormLabel>
                       <FormControl>
-                        <Input placeholder="Recording title" {...field} />
+                        <Input placeholder={I18n.t('events.edit.recordings.form.title.placeholder')} {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -237,10 +224,10 @@ export default function Recordings() {
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Description</FormLabel>
+                      <FormLabel>{I18n.t('events.edit.recordings.form.description.label')}</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Recording description"
+                          placeholder={I18n.t('events.edit.recordings.form.description.placeholder')}
                           {...field}
                         />
                       </FormControl>
@@ -254,24 +241,24 @@ export default function Recordings() {
                   name="type"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Platform</FormLabel>
+                      <FormLabel>{I18n.t('events.edit.recordings.form.platform.label')}</FormLabel>
                       <Select
                         onValueChange={field.onChange}
                         defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select platform" />
+                            <SelectValue placeholder={I18n.t('events.edit.recordings.form.platform.placeholder')} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
-                          <SelectItem value="twitch">Twitch</SelectItem>
-                          <SelectItem value="youtube">YouTube</SelectItem>
-                          <SelectItem value="iframe">Other (iframe)</SelectItem>
+                          <SelectItem value="twitch">{I18n.t('events.edit.recordings.form.platform.options.twitch')}</SelectItem>
+                          <SelectItem value="youtube">{I18n.t('events.edit.recordings.form.platform.options.youtube')}</SelectItem>
+                          <SelectItem value="iframe">{I18n.t('events.edit.recordings.form.platform.options.iframe')}</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormDescription>
-                        Select the platform where your recording is hosted
+                        {I18n.t('events.edit.recordings.form.platform.description')}
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -283,16 +270,15 @@ export default function Recordings() {
                   name="iframe"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Embed Code</FormLabel>
+                      <FormLabel>{I18n.t('events.edit.recordings.form.embed.label')}</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Paste the embed code or URL here"
+                          placeholder={I18n.t('events.edit.recordings.form.embed.placeholder')}
                           {...field}
                         />
                       </FormControl>
                       <FormDescription>
-                        For YouTube/Twitch: paste the embed code. For other platforms,
-                        use the full iframe HTML code.
+                        {I18n.t('events.edit.recordings.form.embed.description')}
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
@@ -307,7 +293,7 @@ export default function Recordings() {
                     {submitting && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     )}
-                    {editMode ? 'Update' : 'Add'} Recording
+                    {I18n.t(editMode ? 'events.edit.recordings.buttons.update' : 'events.edit.recordings.buttons.add')}
                   </Button>
                 </DialogFooter>
               </form>
@@ -340,14 +326,14 @@ export default function Recordings() {
                   size="sm"
                   onClick={() => editRecording(recording)}
                 >
-                  Edit
+                  {I18n.t('events.edit.recordings.buttons.edit')}
                 </Button>
                 <Button
                   variant="destructive"
                   size="sm"
                   onClick={() => deleteRecording(recording.id)}
                 >
-                  Delete
+                  {I18n.t('events.edit.recordings.buttons.delete')}
                 </Button>
               </div>
             </div>

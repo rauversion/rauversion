@@ -7,6 +7,7 @@ import { format } from "date-fns"
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
+import I18n from 'stores/locales'
 import {
   Form,
   FormControl,
@@ -34,16 +35,15 @@ import {
 import { Loader2, Download, Search } from "lucide-react"
 import {Badge} from "@/components/ui/badge"
 
-
 const searchSchema = z.object({
   query: z.string(),
   status: z.enum(["all", "attending", "cancelled", "pending"]).default("all"),
 })
 
 const attendeeStatuses = {
-  attending: { label: "Attending", color: "bg-green-500" },
-  cancelled: { label: "Cancelled", color: "bg-red-500" },
-  pending: { label: "Pending", color: "bg-yellow-500" },
+  attending: { label: I18n.t('events.edit.attendees.status.attending'), color: "bg-green-500" },
+  cancelled: { label: I18n.t('events.edit.attendees.status.cancelled'), color: "bg-red-500" },
+  pending: { label: I18n.t('events.edit.attendees.status.pending'), color: "bg-yellow-500" },
 }
 
 export default function Attendees() {
@@ -91,21 +91,21 @@ export default function Attendees() {
         resetList()
         toast({
           title: "Success",
-          description: "Attendee status updated successfully",
+          description: I18n.t('events.edit.attendees.messages.update_success'),
         })
       }
     } catch (error) {
       console.error('Error updating attendee:', error)
       toast({
         title: "Error",
-        description: "Could not update attendee status",
+        description: I18n.t('events.edit.attendees.messages.update_error'),
         variant: "destructive",
       })
     }
   }
 
   const removeAttendee = async (attendeeId) => {
-    if (!confirm("Are you sure you want to remove this attendee?")) return
+    if (!confirm(I18n.t('events.edit.attendees.messages.remove_confirm'))) return
 
     try {
       const response = await fetch(`/events/${slug}/event_attendees/${attendeeId}.json`, {
@@ -116,14 +116,14 @@ export default function Attendees() {
         resetList()
         toast({
           title: "Success",
-          description: "Attendee removed successfully",
+          description: I18n.t('events.edit.attendees.messages.remove_success'),
         })
       }
     } catch (error) {
       console.error('Error removing attendee:', error)
       toast({
         title: "Error",
-        description: "Could not remove attendee",
+        description: I18n.t('events.edit.attendees.messages.remove_error'),
         variant: "destructive",
       })
     }
@@ -133,9 +133,9 @@ export default function Attendees() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight">Event Attendees</h2>
+          <h2 className="text-3xl font-bold tracking-tight">{I18n.t('events.edit.attendees.title')}</h2>
           <p className="text-sm text-muted-foreground">
-            Manage your event attendees and their status
+            {I18n.t('events.edit.attendees.subtitle')}
           </p>
         </div>
         <Button
@@ -143,7 +143,7 @@ export default function Attendees() {
           onClick={() => window.location.href = `/events/${slug}/attendees/export.csv`}
         >
           <Download className="h-4 w-4 mr-2" />
-          Export CSV
+          {I18n.t('events.edit.attendees.export_csv')}
         </Button>
       </div>
 
@@ -158,7 +158,7 @@ export default function Attendees() {
                   <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                   <FormControl>
                     <Input
-                      placeholder="Search by name or email"
+                      placeholder={I18n.t('events.edit.attendees.search.placeholder')}
                       className="pl-8"
                       {...field}
                     />
@@ -179,21 +179,21 @@ export default function Attendees() {
                 >
                   <FormControl>
                     <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Filter by status" />
+                      <SelectValue placeholder={I18n.t('events.edit.attendees.search.filter_status')} />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="all">All Statuses</SelectItem>
-                    <SelectItem value="attending">Attending</SelectItem>
-                    <SelectItem value="cancelled">Cancelled</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="all">{I18n.t('events.edit.attendees.search.all_statuses')}</SelectItem>
+                    <SelectItem value="attending">{I18n.t('events.edit.attendees.status.attending')}</SelectItem>
+                    <SelectItem value="cancelled">{I18n.t('events.edit.attendees.status.cancelled')}</SelectItem>
+                    <SelectItem value="pending">{I18n.t('events.edit.attendees.status.pending')}</SelectItem>
                   </SelectContent>
                 </Select>
               </FormItem>
             )}
           />
 
-          <Button type="submit">Search</Button>
+          <Button type="submit">{I18n.t('events.edit.attendees.search.button')}</Button>
         </form>
       </Form>
 
@@ -201,10 +201,10 @@ export default function Attendees() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Attendee</TableHead>
-              <TableHead>Ticket</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Purchase Date</TableHead>
+              <TableHead>{I18n.t('events.edit.attendees.table.attendee')}</TableHead>
+              <TableHead>{I18n.t('events.edit.attendees.table.ticket')}</TableHead>
+              <TableHead>{I18n.t('events.edit.attendees.table.status')}</TableHead>
+              <TableHead>{I18n.t('events.edit.attendees.table.purchase_date')}</TableHead>
               <TableHead className="w-[50px]"></TableHead>
             </TableRow>
           </TableHeader>
@@ -242,7 +242,7 @@ export default function Attendees() {
                 <TableCell>
                   {item.checked_in_at && (
                     <Badge variant="success">
-                      Checked in at {format(new Date(item.checked_in_at), 'PPp')}
+                      {I18n.t('events.edit.attendees.status.checked_in', { time: format(new Date(item.checked_in_at), 'PPp') })}
                     </Badge>
                   )}
                 </TableCell>

@@ -1,6 +1,7 @@
 import React from "react"
 import { useParams } from "react-router-dom"
 import { useForm } from "react-hook-form"
+import I18n from 'stores/locales'
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { format, parse } from "date-fns"
@@ -143,7 +144,7 @@ export default function Overview() {
         setEvent(event)
         toast({
           title: "Success",
-          description: "Event updated successfully",
+          description: I18n.t('events.edit.form.success'),
         })
       } else {
         const { errors } = await response.json
@@ -158,7 +159,7 @@ export default function Overview() {
       console.error('Error updating event:', error)
       toast({
         title: "Error",
-        description: "Could not update event",
+        description: I18n.t('events.edit.form.error'),
         variant: "destructive",
       })
     }
@@ -172,9 +173,9 @@ export default function Overview() {
           name="title"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Title</FormLabel>
+              <FormLabel>{I18n.t('events.edit.form.title.label')}</FormLabel>
               <FormControl>
-                <Input placeholder="Event title" {...field} />
+                <Input placeholder={I18n.t('events.edit.form.title.placeholder')} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -186,11 +187,11 @@ export default function Overview() {
           name="timezone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Timezone</FormLabel>
+              <FormLabel>{I18n.t('events.edit.form.timezone.label')}</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select timezone" />
+                    <SelectValue placeholder={I18n.t('events.edit.form.timezone.placeholder')} />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
@@ -212,7 +213,7 @@ export default function Overview() {
               name="event_start_date"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>Start Date</FormLabel>
+                  <FormLabel>{I18n.t('events.edit.form.start_date.label')}</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -226,7 +227,7 @@ export default function Overview() {
                           {field.value ? (
                             format(field.value, "PPP")
                           ) : (
-                            <span>Pick a date</span>
+                            <span>{I18n.t('events.edit.form.start_date.placeholder')}</span>
                           )}
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                         </Button>
@@ -254,7 +255,7 @@ export default function Overview() {
               name="event_start_time"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Start Time</FormLabel>
+                  <FormLabel>{I18n.t('events.edit.form.start_time.label')}</FormLabel>
                   <FormControl>
                     <div className="flex items-center">
                       <Input
@@ -277,7 +278,7 @@ export default function Overview() {
               name="event_end_date"
               render={({ field }) => (
                 <FormItem className="flex flex-col">
-                  <FormLabel>End Date</FormLabel>
+                  <FormLabel>{I18n.t('events.edit.form.end_date.label')}</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -291,7 +292,7 @@ export default function Overview() {
                           {field.value ? (
                             format(field.value, "PPP")
                           ) : (
-                            <span>Pick a date</span>
+                            <span>{I18n.t('events.edit.form.end_date.placeholder')}</span>
                           )}
                           <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                         </Button>
@@ -319,7 +320,7 @@ export default function Overview() {
               name="event_end_time"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>End Time</FormLabel>
+                  <FormLabel>{I18n.t('events.edit.form.end_time.label')}</FormLabel>
                   <FormControl>
                     <div className="flex items-center">
                       <Input
@@ -343,7 +344,7 @@ export default function Overview() {
             name="location"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Location</FormLabel>
+                <FormLabel>{I18n.t('events.edit.form.location.label')}</FormLabel>
                 <FormControl>
                   <div className="space-y-4">
                     <MapPicker
@@ -371,10 +372,10 @@ export default function Overview() {
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description</FormLabel>
+              <FormLabel>{I18n.t('events.edit.form.description.label')}</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Event description"
+                  placeholder={I18n.t('events.edit.form.description.placeholder')}
                   className="resize-none"
                   {...field}
                 />
@@ -389,16 +390,16 @@ export default function Overview() {
           name="venue"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Venue</FormLabel>
+              <FormLabel>{I18n.t('events.edit.form.venue.label')}</FormLabel>
               <FormControl>
-                <Input placeholder="Event venue" {...field} />
+                <Input placeholder={I18n.t('events.edit.form.venue.placeholder')} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
 
-        <Button type="submit">Save changes</Button>
+        <Button type="submit">{I18n.t('events.edit.form.save')}</Button>
       </form>
     </Form>
   )

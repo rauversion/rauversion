@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { formatDateRange } from '../utils/dateHelpers'
+import I18n from 'stores/locales'
 
 export default function EventShow() {
   const { slug } = useParams()
@@ -24,15 +25,15 @@ export default function EventShow() {
   }, [slug])
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>
+    return <div className="min-h-screen flex items-center justify-center">{I18n.t('events.loading')}</div>
   }
 
   if (!event) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
-        <h1 className="text-2xl font-bold mb-4">Event not found</h1>
+        <h1 className="text-2xl font-bold mb-4">{I18n.t('events.show.not_found')}</h1>
         <Link to="/events" className="text-primary hover:underline">
-          Back to events
+          {I18n.t('events.show.back_to_events')}
         </Link>
       </div>
     )
@@ -55,7 +56,7 @@ export default function EventShow() {
               to={`/events/${event.slug}/purchases/new`}
               className="inline-flex justify-center rounded-2xl bg-brand-600 p-4 text-base font-semibold text-white hover:bg-brand-500 focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 active:text-white/70"
             >
-              Get tickets
+              {I18n.t('events.show.get_tickets')}
             </Link>
           </div>
         </div>
@@ -92,7 +93,7 @@ export default function EventShow() {
               <dl className="mt-10 grid grid-cols-2 gap-y-6 gap-x-10 sm:mt-16 sm:gap-y-10 sm:gap-x-16 sm:text-center lg:auto-cols-auto lg:grid-flow-col lg:grid-cols-none lg:justify-start lg:text-left">
                 <div>
                   <dt className="font-mono text-sm text-brand-600">
-                    {event.participant_label || "Speakers"}
+                    {event.participant_label || I18n.t('events.show.speakers')}
                   </dt>
                   <dd className="mt-0.5 text-xl sm:text-2xl font-semibold tracking-tight text-brand-100">
                     {event.event_hosts_count}
@@ -101,7 +102,7 @@ export default function EventShow() {
 
                 <div>
                   <dt className="font-mono text-sm text-brand-600">
-                    People Attending
+                    {I18n.t('events.show.people_attending')}
                   </dt>
                   <dd className="mt-0.5 text-xl sm:text-2xl font-semibold tracking-tight text-brand-100">
                     {event.attendees_count}
@@ -110,7 +111,7 @@ export default function EventShow() {
 
                 <div>
                   <dt className="font-mono text-sm text-brand-600">
-                    Venue
+                    {I18n.t('events.show.venue')}
                   </dt>
                   <dd className="mt-0.5 text-xl sm:text-2xl font-semibold tracking-tight text-brand-100">
                     {event.venue}
@@ -119,7 +120,7 @@ export default function EventShow() {
 
                 <div>
                   <dt className="font-mono text-sm text-brand-600">
-                    Location
+                    {I18n.t('events.show.location')}
                   </dt>
                   <dd className="mt-0.5 text-xl sm:text-2xl font-semibold tracking-tight text-brand-100">
                     {event.city}
@@ -159,7 +160,7 @@ export default function EventShow() {
                       {host.name}
                     </h3>
                     {host.event_manager && (
-                      <p className="text-base leading-7 text-brand-600">Event Manager</p>
+                      <p className="text-base leading-7 text-brand-600">{I18n.t('events.show.event_manager')}</p>
                     )}
                     <p className="mt-4 text-sm leading-6 text-brand-100">{host.description}</p>
                   </div>
@@ -203,7 +204,7 @@ export default function EventShow() {
       <footer className="py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-between md:flex-row">
           <p className="mt-6 text-base dark:text-gray-300 md:mt-0">
-            {new Date().getFullYear()} {event.title}. All rights reserved.
+            {new Date().getFullYear()} {event.title}. {I18n.t('events.show.all_rights')}
           </p>
         </div>
       </footer>

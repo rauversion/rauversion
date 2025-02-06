@@ -85,6 +85,469 @@ es:
     people_attending: Personas asistentes
     venue: recinto
     location: ubicación
+    loading: Cargando...
+    no_image: Sin imagen
+    online: En línea
+    edit:
+      overview: Resumen del Evento
+      form:
+        title:
+          label: Título
+          placeholder: Título del evento
+        timezone:
+          label: Zona Horaria
+          placeholder: Seleccionar zona horaria
+        start_date:
+          label: Fecha de Inicio
+        start_time:
+          label: Hora de Inicio
+        end_date:
+          label: Fecha de Finalización
+        end_time:
+          label: Hora de Finalización
+        location:
+          label: Ubicación
+      tickets:
+        title: Entradas
+      breadcrumb:
+        events: Eventos
+
+      settings:
+        tabs:
+          general: General
+          privacy: Privacidad
+          danger: Zona de Peligro
+      attendees:
+        export_csv: Exportar CSV
+        table:
+          attendee: Asistente
+        title: Asistentes al Evento
+        description: Ver y gestionar asistentes al evento
+        export: Exportar Lista de Asistentes
+        search:
+          placeholder: Buscar por nombre o email
+          filter: Filtrar por estado
+          all: Todos los Estados
+          button: Buscar
+        table:
+          name: Nombre
+          email: Email
+          ticket: Entrada
+          status: Estado
+          purchase_date: Fecha de Compra
+          actions: Acciones
+        status:
+          attending: Asistiendo
+          cancelled: Cancelado
+          pending: Pendiente
+          checked_in: Registrado a las %{time}
+        messages:
+          update_success: Estado del asistente actualizado exitosamente
+          update_error: No se pudo actualizar el estado del asistente
+          remove_confirm: ¿Estás seguro de que deseas eliminar este asistente?
+          remove_success: Asistente eliminado exitosamente
+          remove_error: No se pudo eliminar el asistente
+      settings:
+        general:
+          title: Configuración General
+          description: Configurar ajustes básicos del evento
+          url:
+            label: URL del Evento
+            description: La URL única para tu evento
+          remaining_tickets:
+            label: Mostrar Entradas Restantes
+            description: Mostrar el número de entradas restantes para cada tipo
+          attendee_list:
+            label: Mostrar Lista de Asistentes
+            description: Mostrar la lista de asistentes en la página del evento
+          comments:
+            label: Permitir Comentarios
+            description: Permitir que los asistentes dejen comentarios
+          social_sharing:
+            label: Compartir en Redes
+            description: Habilitar botones para compartir en redes sociales
+      streaming:
+        title: Transmisión en Vivo
+        description: Configurar ajustes de transmisión en vivo
+        platform:
+          label: Plataforma de Transmisión
+          description: Selecciona tu plataforma de transmisión
+          options:
+            twitch: Twitch
+            youtube: YouTube
+            custom: RTMP Personalizado
+        stream_key:
+          label: Clave de Transmisión
+          description: Tu clave única de transmisión
+        embed_code:
+          label: Código de Inserción
+          description: Código para insertar tu transmisión
+        status:
+          live: En Vivo
+          offline: Fuera de Línea
+        messages:
+          update_success: Configuración de transmisión actualizada exitosamente
+          update_error: No se pudo actualizar la configuración de transmisión
+      schedule:
+        title: Horario del Evento
+        description: Gestionar horario y sesiones del evento
+        add_item: Agregar Elemento al Horario
+        name: Nombre
+        date_time_range: Rango de Fecha y Hora
+        add_item: Add Item
+        name: Name
+
+        schedulings:
+          title: Programaciones
+          add: Agregar Programación
+          name: Nombre
+          short_description: Descripción Corta
+          date_time_range: Rango de Fecha y Hora
+        save: Guardar Horario
+
+        item:
+          name: Nombre del Elemento
+          description: Descripción
+          start_time: Hora de Inicio
+          end_time: Hora de Finalización
+          type: Tipo de Elemento
+        types:
+          session: Sesión
+          break: Descanso
+          activity: Actividad
+        messages:
+          add_success: Elemento agregado exitosamente
+          add_error: No se pudo agregar el elemento
+          update_success: Horario actualizado exitosamente
+          update_error: No se pudo actualizar el horario
+          remove_confirm: ¿Estás seguro de que deseas eliminar este elemento?
+          remove_success: Elemento eliminado exitosamente
+          remove_error: No se pudo eliminar el elemento
+      recordings:
+        title: Grabaciones del Evento
+        description: Agregar grabaciones de Twitch, YouTube u otras plataformas
+        add_recording: Agregar Grabación
+        edit_recording: Editar Grabación
+        dialog:
+          add_description: Agrega una grabación para destacarla en la página del evento
+          edit_description: Actualizar los detalles de la grabación
+        form:
+          title:
+            label: Título
+            placeholder: Título de la grabación
+            required: El título es requerido
+          description:
+            label: Descripción
+            placeholder: Descripción de la grabación
+          platform:
+            label: Plataforma
+            placeholder: Seleccionar plataforma
+            description: Selecciona la plataforma donde está alojada tu grabación
+            options:
+              twitch: Twitch
+              youtube: YouTube
+              iframe: Otro (iframe)
+          embed:
+            label: Código de Inserción
+            placeholder: Pega el código de inserción o URL aquí
+            description: Para YouTube/Twitch pega el código de inserción. Para otras plataformas, usa el código HTML iframe completo.
+            required: El código iframe es requerido
+        buttons:
+          add: Agregar Grabación
+          update: Actualizar Grabación
+          edit: Editar
+          delete: Eliminar
+        messages:
+          create_success: Grabación creada exitosamente
+          update_success: Grabación actualizada exitosamente
+          delete_success: Grabación eliminada exitosamente
+          create_error: No se pudo crear la grabación
+          update_error: No se pudo actualizar la grabación
+          delete_error: No se pudo eliminar la grabación
+          delete_confirm: ¿Estás seguro de que deseas eliminar esta grabación?
+          general_error: Algo salió mal
+      teams:
+
+        title: Equipos y Gestores
+        description: Gestionar miembros del equipo y roles
+        current_team:
+          title: Equipo Actual
+          description: Personas que actualmente forman parte del equipo
+        add_member:
+          title: Agregar Miembro
+          description: Invitar nuevas personas para ayudar a gestionar el evento
+        roles:
+          host: Anfitrión
+          manager: Gestor
+          special_guest: Invitado Especial
+        form:
+          name: Nombre
+          email: Email
+          role: Rol
+          listed: Listado en Página
+          manager: Gestor del Evento
+        messages:
+          add_success: Miembro agregado exitosamente
+          add_error: No se pudo agregar el miembro
+          update_success: Miembro actualizado exitosamente
+          update_error: No se pudo actualizar el miembro
+          remove_confirm: ¿Estás seguro de que deseas eliminar este miembro?
+          remove_success: Miembro eliminado exitosamente
+          remove_error: No se pudo eliminar el miembro
+      
+        current_team:
+          title: Equipo Actual
+          description: Personas que actualmente forman parte del equipo de tu evento
+          members: Miembros del Equipo Actual
+        pending:
+          title: Invitaciones Pendientes
+          description: Invitaciones que han sido enviadas pero aún no han sido aceptadas
+          table:
+            email: Email
+            role: Rol
+            sent_at: Enviado el
+        add_members:
+          title: Agregar Miembros al Equipo
+          description: Invita a nuevas personas para ayudar a gestionar tu evento
+          add_person: Agregar Persona
+          email_placeholder: email@ejemplo.com
+          role_placeholder: Seleccionar rol
+          send_invitations: Enviar Invitaciones
+        roles:
+          host: Anfitrión
+          manager: Gestor
+          special_guest: Invitado Especial
+        edit_member:
+          title: Editar Miembro del Equipo
+          profile_image: Imagen de Perfil
+          name:
+            label: Nombre
+            required: El nombre es requerido
+          description: Descripción
+          listed:
+            label: Listado en Página
+            description: Mostrar este miembro del equipo en la página del evento
+          manager:
+            label: Gestor del Evento
+            description: Permitir que este miembro gestione el evento
+          cancel: Cancelar
+          save: Guardar Cambios
+          saving: Guardando...
+        delete_member:
+          title: ¿Estás absolutamente seguro?
+          description: Esto eliminará a %{name} del equipo. Esta acción no se puede deshacer.
+          cancel: Cancelar
+          continue: Continuar
+        messages:
+          invites_success: Invitaciones enviadas exitosamente
+          invites_error: No se pudieron enviar las invitaciones
+          update_success: Miembro del equipo actualizado exitosamente
+          update_error: No se pudo actualizar el miembro del equipo
+          remove_success: Miembro del equipo eliminado exitosamente
+          remove_error: No se pudo eliminar el miembro del equipo
+          load_error: No se pudieron cargar los datos del equipo
+    my_events:
+      tabs:
+        all: Todos los Eventos
+        drafts: Borradores
+        published: Publicados
+        manager: Gestor
+      title: "Eventos %{tab}"
+      subtitle: Tus eventos.
+      new_event: Nuevo Evento
+      table:
+        title: Título
+        location: Ubicación
+        start_date: Fecha de Inicio
+        status: Estado
+        actions: Acciones
+        menu:
+          edit: Editar
+          view: Ver
+      location:
+        online: Evento en Línea
+        tbd: Ubicación por Determinar
+      date:
+        tbd: Fecha por Determinar
+      loading:
+        initial: Cargando...
+        more: Cargando más eventos...
+      untitled: -- sin título
+      settings:
+        tabs:
+          general: General
+          privacy: Privacidad y Acceso
+          danger: Zona de Peligro
+        general:
+          title: Configuración General
+          description: Configura los ajustes básicos y preferencias del evento
+          url:
+            label: URL del Evento
+            description: Esta es la URL única de tu evento en nuestra plataforma
+          remaining_tickets:
+            label: Mostrar Entradas Restantes
+            description: Mostrar el número de entradas restantes para cada tipo de entrada
+          attendee_list:
+            label: Mostrar Lista de Asistentes
+            description: Mostrar la lista de asistentes en la página del evento
+          comments:
+            label: Permitir Comentarios
+            description: Permitir que los asistentes dejen comentarios en la página del evento
+          social_sharing:
+            label: Compartir en Redes Sociales
+            description: Mostrar botones para compartir en redes sociales
+        privacy:
+          title: Privacidad y Acceso
+          description: Controla quién puede ver y registrarse en tu evento
+          visibility:
+            label: Visibilidad del Evento
+            placeholder: Seleccionar visibilidad
+            options:
+              public: Público
+              private: Privado
+              unlisted: No listado
+          registration:
+            label: Tipo de Registro
+            placeholder: Seleccionar tipo de registro
+            options:
+              open:
+                label: Registro Abierto
+                description: Cualquiera puede registrarse
+              invite:
+                label: Solo por Invitación
+                description: Solo usuarios invitados pueden registrarse
+              approval:
+                label: Requiere Aprobación
+                description: El registro requiere aprobación
+          require_login:
+            label: Requerir Inicio de Sesión
+            description: Los usuarios deben iniciar sesión para ver los detalles del evento
+        danger:
+          title: Zona de Peligro
+          description: Las acciones aquí no se pueden deshacer
+          warning:
+            title: Advertencia
+            description: Eliminar tu evento eliminará permanentemente todos los datos asociados, incluyendo entradas, asistentes y grabaciones.
+          delete:
+            button: Eliminar Evento
+            confirm_title: ¿Estás absolutamente seguro?
+            confirm_description: Esta acción no se puede deshacer. Esto eliminará permanentemente tu evento y todos los datos asociados de nuestros servidores.
+            cancel: Cancelar
+        save: Guardar Cambios
+        messages:
+          success: Configuración actualizada exitosamente
+          error: No se pudo actualizar la configuración
+          delete_success: Evento eliminado exitosamente
+          delete_error: No se pudo eliminar el evento
+        validation:
+          slug_min: El slug debe tener al menos 2 caracteres.
+          slug_format: El slug solo puede contener letras minúsculas, números y guiones.
+      schedule:
+        title: Elementos del Horario
+        add_item: Agregar Elemento
+        name: Nombre
+        description: Descripción
+        date_time_range: Rango de Fecha y Hora
+        schedulings:
+          title: Programaciones
+          add: Agregar Programación
+          name: Nombre
+          short_description: Descripción Corta
+          date_time_range: Rango de Fecha y Hora
+        save: Guardar Horario
+        messages:
+          success: Horario actualizado exitosamente
+          error: No se pudo actualizar el horario
+          form_error: Por favor revisa el formulario por errores
+          validation:
+            name_min: El nombre debe tener al menos 2 caracteres.
+            start_date_required: La fecha de inicio es requerida
+            end_date_required: La fecha de finalización es requerida
+      attendees:
+        title: Asistentes al Evento
+        subtitle: Gestiona los asistentes al evento y su estado
+        export_csv: Exportar CSV
+        search:
+          placeholder: Buscar por nombre o email
+          filter_status: Filtrar por estado
+          all_statuses: Todos los Estados
+          button: Buscar
+        table:
+          attendee: Asistente
+          ticket: Entrada
+          status: Estado
+          purchase_date: Fecha de Compra
+        status:
+          attending: Asistiendo
+          cancelled: Cancelado
+          pending: Pendiente
+          checked_in: Registrado a las %{time}
+        messages:
+          update_success: Estado del asistente actualizado exitosamente
+          update_error: No se pudo actualizar el estado del asistente
+          remove_confirm: ¿Estás seguro de que deseas eliminar este asistente?
+          remove_success: Asistente eliminado exitosamente
+          remove_error: No se pudo eliminar el asistente
+        title:
+          label: Título
+          placeholder: Título del evento
+        timezone:
+          label: Zona horaria
+          placeholder: Seleccionar zona horaria
+        start_date:
+          label: Fecha de inicio
+          placeholder: Seleccionar fecha
+        start_time:
+          label: Hora de inicio
+        end_date:
+          label: Fecha de finalización
+          placeholder: Seleccionar fecha
+        end_time:
+          label: Hora de finalización
+        location:
+          label: Ubicación
+        description:
+          label: Descripción
+          placeholder: Descripción del evento
+        venue:
+          label: Recinto
+          placeholder: Recinto del evento
+        save: Guardar cambios
+        success: Evento actualizado exitosamente
+        error: No se pudo actualizar el evento
+    show:
+      not_found: Evento no encontrado
+      back_to_events: Volver a eventos
+      get_tickets: Obtener entradas
+      speakers: Ponentes
+      people_attending: Personas Asistentes
+      venue: Recinto
+      location: Ubicación
+      event_manager: Gestor del Evento
+      all_rights: Todos los derechos reservados
+      schedule:
+        title: Horario
+        description: Editar programación del evento
+      teams:
+        title: Equipos y Gestores
+        description: Agregar anfitriones, invitados especiales y gestores del evento
+      tickets:
+        title: Entradas
+        description: Gestionar las entradas del evento
+      streaming:
+        title: Transmisión
+        description: Gestionar fuentes de transmisión en vivo
+      attendees:
+        title: Asistentes
+        description: Ver la lista de asistentes al evento
+      recordings:
+        title: Grabaciones
+        description: Gestionar grabaciones del evento
+      settings:
+        title: Configuración
+        description: Configuración del evento
+      breadcrumb:
+        events: Eventos
     copyright: Derechos de autor 
     all_rights: Todos los derechos reservados.
     get_tickets: Consigue tus entradas
@@ -95,14 +558,14 @@ es:
     past_events: Eventos pasados
     view_more: Ver más
 
-    my_events: Mis Eventos
+    # my_events: Mis Eventos
     your_events: Tus eventos
     drafts: Borradores
     published: Publicados
     manager: Eventos que gestiono
     new_event: Nuevo Evento
 
-    edit: Editar Evento
+    # edit: Editar Evento
     create: Crear Evento
 
     published: Tu evento ha sido publicado

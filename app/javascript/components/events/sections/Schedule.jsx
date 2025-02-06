@@ -7,6 +7,7 @@ import { format, isValid, parseISO } from "date-fns"
 import { get, put } from '@rails/request.js'
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
+import I18n from 'stores/locales'
 import {
   Form,
   FormControl,
@@ -22,25 +23,23 @@ import { DateTimeRangePicker } from "@/components/ui/date-time-range-picker"
 import cn from "classnames"
 import { formatDateSafely } from "@/hooks/safeDate"
 
-
-
 const schedulingSchema = z.object({
   id: z.number().optional(),
-  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
+  name: z.string().min(2, { message: I18n.t('events.edit.schedule.messages.validation.name_min') }),
   short_description: z.string().optional(),
-  start_date: z.string().min(1, { message: "Start date is required" }),
-  end_date: z.string().min(1, { message: "End date is required" }),
+  start_date: z.string().min(1, { message: I18n.t('events.edit.schedule.messages.validation.start_date_required') }),
+  end_date: z.string().min(1, { message: I18n.t('events.edit.schedule.messages.validation.end_date_required') }),
   _destroy: z.boolean().optional(),
 })
 
 const scheduleItemSchema = z.object({
   id: z.number().optional(),
   name: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
+    message: I18n.t('events.edit.schedule.messages.validation.name_min'),
   }),
   description: z.string().optional(),
-  start_date: z.string().min(1, { message: "Start date is required" }),
-  end_date: z.string().min(1, { message: "End date is required" }),
+  start_date: z.string().min(1, { message: I18n.t('events.edit.schedule.messages.validation.start_date_required') }),
+  end_date: z.string().min(1, { message: I18n.t('events.edit.schedule.messages.validation.end_date_required') }),
   schedule_type: z.string().optional(),
   _destroy: z.boolean().optional(),
   schedule_schedulings_attributes: z.array(schedulingSchema).optional(),
@@ -62,16 +61,13 @@ export default function Schedule() {
     defaultValues: async () => {
       const response = await get(`/events/${slug}.json`)
       const data = await response.json
-      console.log("Initial form data:", data)
       
       setEvent(data)
       
       const schedules = data.event_schedules?.map(schedule => {
-        // Ensure we have valid dates
         const start_date = formatDateSafely(schedule.start_date)
         const end_date = formatDateSafely(schedule.end_date)
         
-        // Format schedulings if they exist
         const schedule_schedulings_attributes = schedule.schedulings?.map(scheduling => ({
           id: scheduling.id,
           name: scheduling.name || "",
@@ -92,8 +88,6 @@ export default function Schedule() {
           schedule_schedulings_attributes
         }
       }) || []
-
-      console.log("Formatted schedules:", schedules)
       
       return {
         event_schedules_attributes: schedules
@@ -102,12 +96,11 @@ export default function Schedule() {
     mode: "onChange"
   })
 
-  const { fields, append, remove, update } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "event_schedules_attributes"
   })
 
-  // Filter out destroyed items from display
   const visibleFields = React.useMemo(() => {
     return fields.filter((field, index) => {
       const values = form.getValues(`event_schedules_attributes.${index}`)
@@ -115,21 +108,17 @@ export default function Schedule() {
     })
   }, [fields, destroyedItems, form])
 
-  console.log("Visible Fields:", visibleFields, "Destroyed Items:", destroyedItems)
-
   const handleSchedulingDelete = (scheduleIndex, schedulingIndex) => {
     const schedulingId = form.getValues(
       `event_schedules_attributes.${scheduleIndex}.schedule_schedulings_attributes.${schedulingIndex}.id`
     )
 
     if (schedulingId) {
-      // For existing schedulings, mark as destroyed
       form.setValue(
         `event_schedules_attributes.${scheduleIndex}.schedule_schedulings_attributes.${schedulingIndex}._destroy`,
         true,
         { shouldDirty: true }
       )
-      // Update visibility state
       setDestroyedSchedulings(prev => ({
         ...prev,
         [scheduleIndex]: {
@@ -138,7 +127,6 @@ export default function Schedule() {
         }
       }))
     } else {
-      // For new schedulings, remove from array
       const currentSchedulings = form.getValues(
         `event_schedules_attributes.${scheduleIndex}.schedule_schedulings_attributes`
       )
@@ -159,18 +147,15 @@ export default function Schedule() {
       const formData = new FormData()
       
       values.event_schedules_attributes.forEach((item, index) => {
-        // Always send id if it exists
         if (item.id) {
           formData.append(`event[event_schedules_attributes][${index}][id]`, item.id)
         }
 
-        // If marked for destruction, only send id and _destroy
         if (item._destroy) {
           formData.append(`event[event_schedules_attributes][${index}][_destroy]`, '1')
           return
         }
 
-        // Format dates for Rails
         const start_date = formatDateSafely(item.start_date)
         const end_date = formatDateSafely(item.end_date)
 
@@ -180,10 +165,8 @@ export default function Schedule() {
         formData.append(`event[event_schedules_attributes][${index}][description]`, item.description || '')
         formData.append(`event[event_schedules_attributes][${index}][schedule_type]`, item.schedule_type || 'session')
 
-        // Handle nested schedulings
         if (item.schedule_schedulings_attributes) {
           item.schedule_schedulings_attributes.forEach((scheduling, schedulingIndex) => {
-            // Always send id for existing schedulings
             if (scheduling.id) {
               formData.append(
                 `event[event_schedules_attributes][${index}][schedule_schedulings_attributes][${schedulingIndex}][id]`, 
@@ -191,7 +174,6 @@ export default function Schedule() {
               )
             }
 
-            // If marked for destruction, only send id and _destroy
             if (scheduling._destroy) {
               formData.append(
                 `event[event_schedules_attributes][${index}][schedule_schedulings_attributes][${schedulingIndex}][_destroy]`, 
@@ -200,7 +182,6 @@ export default function Schedule() {
               return
             }
 
-            // Format dates for Rails
             const schedulingStartDate = formatDateSafely(scheduling.start_date)
             const schedulingEndDate = formatDateSafely(scheduling.end_date)
 
@@ -224,27 +205,20 @@ export default function Schedule() {
         }
       })
 
-      console.log("Submitting form data:", Object.fromEntries(formData))
-
       const response = await put(`/events/${slug}.json`, {
         body: formData,
       })
 
       const data = await response.json
-      console.log("Response data:", data)
       
       if (data.errors) {
         form.clearErrors()
         
         Object.entries(data.errors).forEach(([key, messages]) => {
-          console.log("Setting error for:", key, messages)
-          
           if (key.includes('schedule_schedulings.')) {
-            // Handle nested scheduling errors
             const [_, scheduleIndex, __, field] = key.split('.')
             const schedulingPath = `event_schedules_attributes.${scheduleIndex}.schedule_schedulings_attributes`
             
-            // Set error on all schedulings in this schedule
             const schedulings = form.getValues(schedulingPath) || []
             schedulings.forEach((_, schedulingIndex) => {
               form.setError(`${schedulingPath}.${schedulingIndex}.${field}`, {
@@ -253,14 +227,12 @@ export default function Schedule() {
               })
             })
           } else if (key.startsWith('event_schedules_attributes.')) {
-            // Handle schedule errors
             const [_, index, field] = key.split('.')
             form.setError(`event_schedules_attributes.${index}.${field}`, {
               type: 'server',
               message: Array.isArray(messages) ? messages[0] : messages
             })
           } else {
-            // Handle other errors
             form.setError(key, {
               type: 'server',
               message: Array.isArray(messages) ? messages[0] : messages
@@ -270,47 +242,32 @@ export default function Schedule() {
 
         toast({
           title: "Error",
-          description: "Please check the form for errors",
+          description: I18n.t('events.edit.schedule.messages.form_error'),
           variant: "destructive",
         })
       } else {
         setEvent(data.event)
         toast({
           title: "Success",
-          description: "Schedule updated successfully",
+          description: I18n.t('events.edit.schedule.messages.success'),
         })
       }
     } catch (error) {
       console.error('Error updating schedule:', error)
       toast({
         title: "Error",
-        description: "Could not update schedule",
+        description: I18n.t('events.edit.schedule.messages.error'),
         variant: "destructive",
       })
     }
   }
-
-  // Debug current form values
-  React.useEffect(() => {
-    const subscription = form.watch((value) => {
-      console.log("Form Values:", value)
-    })
-    return () => subscription.unsubscribe()
-  }, [form])
-
-  React.useEffect(() => {
-    const subscription = form.watch((value) => {
-      console.log("Form values changed:", value)
-    })
-    return () => subscription.unsubscribe()
-  }, [form])
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
         <div className="space-y-4">
           <div className="flex justify-between items-center">
-            <h2 className="text-lg font-semibold">Schedule Items</h2>
+            <h2 className="text-lg font-semibold">{I18n.t('events.edit.schedule.title')}</h2>
             <Button
               type="button"
               variant="outline"
@@ -328,7 +285,7 @@ export default function Schedule() {
               }}
             >
               <Plus className="h-4 w-4 mr-2" />
-              Add Item
+              {I18n.t('events.edit.schedule.add_item')}
             </Button>
           </div>
 
@@ -336,7 +293,6 @@ export default function Schedule() {
             {visibleFields.map((field, index) => (
               <div key={field.id} className="flex gap-4 items-start p-4 border rounded-lg">
                 <div className="flex-1 space-y-4">
-                  {/* Hidden fields for id and _destroy */}
                   <FormField
                     control={form.control}
                     name={`event_schedules_attributes.${index}.id`}
@@ -358,7 +314,7 @@ export default function Schedule() {
                     name={`event_schedules_attributes.${index}.name`}
                     render={({ field, fieldState }) => (
                       <FormItem>
-                        <FormLabel>Name</FormLabel>
+                        <FormLabel>{I18n.t('events.edit.schedule.name')}</FormLabel>
                         <FormControl>
                           <Input 
                             {...field} 
@@ -381,7 +337,7 @@ export default function Schedule() {
                     name={`event_schedules_attributes.${index}.description`}
                     render={({ field, fieldState }) => (
                       <FormItem>
-                        <FormLabel>Description</FormLabel>
+                        <FormLabel>{I18n.t('events.edit.schedule.description')}</FormLabel>
                         <FormControl>
                           <Textarea 
                             {...field}
@@ -400,7 +356,7 @@ export default function Schedule() {
                   />
 
                   <div className="space-y-2">
-                    <FormLabel>Date & Time Range</FormLabel>
+                    <FormLabel>{I18n.t('events.edit.schedule.date_time_range')}</FormLabel>
                     <DateTimeRangePicker
                       startDate={form.watch(`event_schedules_attributes.${index}.start_date`)}
                       endDate={form.watch(`event_schedules_attributes.${index}.end_date`)}
@@ -433,7 +389,7 @@ export default function Schedule() {
 
                   <div className="space-y-4 mt-4 pl-4 border-l">
                     <div className="flex justify-between items-center">
-                      <h3 className="text-sm font-medium">Schedulings</h3>
+                      <h3 className="text-sm font-medium">{I18n.t('events.edit.schedule.schedulings.title')}</h3>
                       <Button
                         type="button"
                         variant="outline"
@@ -453,14 +409,13 @@ export default function Schedule() {
                         }}
                       >
                         <Plus className="h-3 w-3 mr-1" />
-                        Add Scheduling
+                        {I18n.t('events.edit.schedule.schedulings.add')}
                       </Button>
                     </div>
 
                     {form.watch(`event_schedules_attributes.${index}.schedule_schedulings_attributes`)?.map((scheduling, schedulingIndex) => (
                       isSchedulingVisible(index, schedulingIndex) && (
                         <div key={schedulingIndex} className="space-y-4 p-3 bg-muted rounded-md">
-                          {/* Hidden fields for scheduling id and _destroy */}
                           <FormField
                             control={form.control}
                             name={`event_schedules_attributes.${index}.schedule_schedulings_attributes.${schedulingIndex}.id`}
@@ -482,7 +437,7 @@ export default function Schedule() {
                             name={`event_schedules_attributes.${index}.schedule_schedulings_attributes.${schedulingIndex}.name`}
                             render={({ field, fieldState }) => (
                               <FormItem>
-                                <FormLabel>Name</FormLabel>
+                                <FormLabel>{I18n.t('events.edit.schedule.schedulings.name')}</FormLabel>
                                 <FormControl>
                                   <Input 
                                     {...field} 
@@ -508,7 +463,7 @@ export default function Schedule() {
                             name={`event_schedules_attributes.${index}.schedule_schedulings_attributes.${schedulingIndex}.short_description`}
                             render={({ field, fieldState }) => (
                               <FormItem>
-                                <FormLabel>Short Description</FormLabel>
+                                <FormLabel>{I18n.t('events.edit.schedule.schedulings.short_description')}</FormLabel>
                                 <FormControl>
                                   <Textarea 
                                     {...field} 
@@ -530,8 +485,7 @@ export default function Schedule() {
                           />
 
                           <div className="space-y-2">
-                            <FormLabel>Date & Time Range</FormLabel>
-                            
+                            <FormLabel>{I18n.t('events.schedule.schedulings.date_time_range')}</FormLabel>
                             <DateTimeRangePicker
                               startDate={form.watch(`event_schedules_attributes.${index}.schedule_schedulings_attributes.${schedulingIndex}.start_date`)}
                               endDate={form.watch(`event_schedules_attributes.${index}.schedule_schedulings_attributes.${schedulingIndex}.end_date`)}
@@ -553,11 +507,7 @@ export default function Schedule() {
                                 form.formState.errors?.event_schedules_attributes?.[index]
                                   ?.schedule_schedulings_attributes?.[schedulingIndex]?.start_date ||
                                 form.formState.errors?.event_schedules_attributes?.[index]
-                                  ?.schedule_schedulings_attributes?.[schedulingIndex]?.end_date || 
-
-                                  form.formState.errors?.event_schedules_attributes?.[index]
-                                  ?.schedule_schedulings?.base
-
+                                  ?.schedule_schedulings_attributes?.[schedulingIndex]?.end_date
                               }
                             />
                             <div className="text-sm font-medium text-destructive">
@@ -596,7 +546,6 @@ export default function Schedule() {
                   onClick={() => {
                     const id = form.getValues(`event_schedules_attributes.${index}.id`)
                     if (id) {
-                      // For existing items, mark as destroyed and update visibility
                       form.setValue(`event_schedules_attributes.${index}._destroy`, true, {
                         shouldDirty: true,
                         shouldTouch: true,
@@ -604,7 +553,6 @@ export default function Schedule() {
                       })
                       setDestroyedItems(prev => new Set([...prev, index]))
                     } else {
-                      // For new items, remove completely
                       remove(index)
                     }
                   }}
@@ -616,7 +564,7 @@ export default function Schedule() {
           </div>
         </div>
 
-        <Button type="submit">Save Schedule</Button>
+        <Button type="submit">{I18n.t('events.edit.schedule.save')}</Button>
       </form>
     </Form>
   )

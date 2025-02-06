@@ -6,6 +6,7 @@ import * as z from "zod"
 import { put } from '@rails/request.js'
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
+import I18n from 'stores/locales'
 import {
   Form,
   FormControl,
@@ -62,9 +63,9 @@ import {
 
 const settingsSchema = z.object({
   slug: z.string().min(2, {
-    message: "Slug must be at least 2 characters.",
+    message: I18n.t('events.edit.settings.validation.slug_min'),
   }).regex(/^[a-z0-9-]+$/, {
-    message: "Slug can only contain lowercase letters, numbers, and hyphens.",
+    message: I18n.t('events.edit.settings.validation.slug_format'),
   }),
   visibility: z.enum(["public", "private", "unlisted"]),
   registration_type: z.enum(["open", "invite", "approval"]),
@@ -76,15 +77,27 @@ const settingsSchema = z.object({
 })
 
 const visibilityOptions = [
-  { value: "public", label: "Public", icon: Globe },
-  { value: "private", label: "Private", icon: Lock },
-  { value: "unlisted", label: "Unlisted", icon: Share2 },
+  { value: "public", label: I18n.t('events.edit.settings.privacy.visibility.options.public'), icon: Globe },
+  { value: "private", label: I18n.t('events.edit.settings.privacy.visibility.options.private'), icon: Lock },
+  { value: "unlisted", label: I18n.t('events.edit.settings.privacy.visibility.options.unlisted'), icon: Share2 },
 ]
 
 const registrationOptions = [
-  { value: "open", label: "Open Registration", description: "Anyone can register" },
-  { value: "invite", label: "Invite Only", description: "Only invited users can register" },
-  { value: "approval", label: "Approval Required", description: "Registration requires approval" },
+  { 
+    value: "open", 
+    label: I18n.t('events.edit.settings.privacy.registration.options.open.label'), 
+    description: I18n.t('events.edit.settings.privacy.registration.options.open.description') 
+  },
+  { 
+    value: "invite", 
+    label: I18n.t('events.edit.settings.privacy.registration.options.invite.label'), 
+    description: I18n.t('events.edit.settings.privacy.registration.options.invite.description') 
+  },
+  { 
+    value: "approval", 
+    label: I18n.t('events.edit.settings.privacy.registration.options.approval.label'), 
+    description: I18n.t('events.edit.settings.privacy.registration.options.approval.description') 
+  },
 ]
 
 export default function Settings() {
@@ -127,14 +140,13 @@ export default function Settings() {
         const { event } = await response.json
         setEvent(event)
         
-        // If slug changed, redirect to new URL
         if (event.slug !== slug) {
           navigate(`/events/${event.slug}/edit/settings`, { replace: true })
         }
 
         toast({
           title: "Success",
-          description: "Settings updated successfully",
+          description: I18n.t('events.edit.settings.messages.success'),
         })
       } else {
         const { errors } = await response.json
@@ -149,7 +161,7 @@ export default function Settings() {
       console.error('Error updating settings:', error)
       toast({
         title: "Error",
-        description: "Could not update settings",
+        description: I18n.t('events.edit.settings.messages.error'),
         variant: "destructive",
       })
     }
@@ -165,30 +177,30 @@ export default function Settings() {
         navigate('/events', { replace: true })
         toast({
           title: "Success",
-          description: "Event deleted successfully",
+          description: I18n.t('events.edit.settings.messages.delete_success'),
         })
       }
     } catch (error) {
       console.error('Error deleting event:', error)
       toast({
         title: "Error",
-        description: "Could not delete event",
+        description: I18n.t('events.edit.settings.messages.delete_error'),
         variant: "destructive",
       })
     }
   }
 
   if (loading) {
-    return <div>Loading...</div>
+    return <div>{I18n.t('events.loading')}</div>
   }
 
   return (
     <div className="space-y-6">
       <Tabs defaultValue="general">
         <TabsList>
-          <TabsTrigger value="general">General</TabsTrigger>
-          <TabsTrigger value="privacy">Privacy & Access</TabsTrigger>
-          <TabsTrigger value="danger">Danger Zone</TabsTrigger>
+          <TabsTrigger value="general">{I18n.t('events.edit.settings.tabs.general')}</TabsTrigger>
+          <TabsTrigger value="privacy">{I18n.t('events.edit.settings.tabs.privacy')}</TabsTrigger>
+          <TabsTrigger value="danger">{I18n.t('events.edit.settings.tabs.danger')}</TabsTrigger>
         </TabsList>
 
         <Form {...form}>
@@ -196,9 +208,9 @@ export default function Settings() {
             <TabsContent value="general">
               <Card>
                 <CardHeader>
-                  <CardTitle>General Settings</CardTitle>
+                  <CardTitle>{I18n.t('events.edit.settings.general.title')}</CardTitle>
                   <CardDescription>
-                    Configure basic event settings and preferences
+                    {I18n.t('events.edit.settings.general.description')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -207,9 +219,9 @@ export default function Settings() {
                     name="slug"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Event URL</FormLabel>
+                        <FormLabel>{I18n.t('events.edit.settings.general.url.label')}</FormLabel>
                         <FormDescription>
-                          This is your event's unique URL on our platform
+                          {I18n.t('events.edit.settings.general.url.description')}
                         </FormDescription>
                         <div className="flex items-center gap-2">
                           <div className="text-sm text-muted-foreground">
@@ -230,9 +242,9 @@ export default function Settings() {
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                         <div className="space-y-0.5">
-                          <FormLabel>Show Remaining Tickets</FormLabel>
+                          <FormLabel>{I18n.t('events.edit.settings.general.remaining_tickets.label')}</FormLabel>
                           <FormDescription>
-                            Display the number of remaining tickets for each ticket type
+                            {I18n.t('events.edit.settings.general.remaining_tickets.description')}
                           </FormDescription>
                         </div>
                         <FormControl>
@@ -251,9 +263,9 @@ export default function Settings() {
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                         <div className="space-y-0.5">
-                          <FormLabel>Show Attendee List</FormLabel>
+                          <FormLabel>{I18n.t('events.edit.settings.general.attendee_list.label')}</FormLabel>
                           <FormDescription>
-                            Display the list of attendees on the event page
+                            {I18n.t('events.edit.settings.general.attendee_list.description')}
                           </FormDescription>
                         </div>
                         <FormControl>
@@ -272,9 +284,9 @@ export default function Settings() {
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                         <div className="space-y-0.5">
-                          <FormLabel>Allow Comments</FormLabel>
+                          <FormLabel>{I18n.t('events.edit.settings.general.comments.label')}</FormLabel>
                           <FormDescription>
-                            Let attendees leave comments on your event page
+                            {I18n.t('events.edit.settings.general.comments.description')}
                           </FormDescription>
                         </div>
                         <FormControl>
@@ -293,9 +305,9 @@ export default function Settings() {
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                         <div className="space-y-0.5">
-                          <FormLabel>Social Sharing</FormLabel>
+                          <FormLabel>{I18n.t('events.edit.settings.general.social_sharing.label')}</FormLabel>
                           <FormDescription>
-                            Show social media sharing buttons
+                            {I18n.t('events.edit.settings.general.social_sharing.description')}
                           </FormDescription>
                         </div>
                         <FormControl>
@@ -314,9 +326,9 @@ export default function Settings() {
             <TabsContent value="privacy">
               <Card>
                 <CardHeader>
-                  <CardTitle>Privacy & Access</CardTitle>
+                  <CardTitle>{I18n.t('events.edit.settings.privacy.title')}</CardTitle>
                   <CardDescription>
-                    Control who can view and register for your event
+                    {I18n.t('events.edit.settings.privacy.description')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -325,14 +337,14 @@ export default function Settings() {
                     name="visibility"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Event Visibility</FormLabel>
+                        <FormLabel>{I18n.t('events.edit.settings.privacy.visibility.label')}</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select visibility" />
+                              <SelectValue placeholder={I18n.t('events.edit.settings.privacy.visibility.placeholder')} />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -359,14 +371,14 @@ export default function Settings() {
                     name="registration_type"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Registration Type</FormLabel>
+                        <FormLabel>{I18n.t('events.edit.settings.privacy.registration.label')}</FormLabel>
                         <Select
                           onValueChange={field.onChange}
                           defaultValue={field.value}
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select registration type" />
+                              <SelectValue placeholder={I18n.t('events.edit.settings.privacy.registration.placeholder')} />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
@@ -396,9 +408,9 @@ export default function Settings() {
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                         <div className="space-y-0.5">
-                          <FormLabel>Require Login</FormLabel>
+                          <FormLabel>{I18n.t('events.edit.settings.privacy.require_login.label')}</FormLabel>
                           <FormDescription>
-                            Users must be logged in to view event details
+                            {I18n.t('events.edit.settings.privacy.require_login.description')}
                           </FormDescription>
                         </div>
                         <FormControl>
@@ -417,18 +429,17 @@ export default function Settings() {
             <TabsContent value="danger">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-red-600">Danger Zone</CardTitle>
+                  <CardTitle className="text-red-600">{I18n.t('events.edit.settings.danger.title')}</CardTitle>
                   <CardDescription>
-                    Actions here can't be undone
+                    {I18n.t('events.edit.settings.danger.description')}
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <Alert variant="destructive">
                     <AlertTriangle className="h-4 w-4" />
-                    <AlertTitle>Warning</AlertTitle>
+                    <AlertTitle>{I18n.t('events.edit.settings.danger.warning.title')}</AlertTitle>
                     <AlertDescription>
-                      Deleting your event will permanently remove all associated data,
-                      including tickets, attendees, and recordings.
+                      {I18n.t('events.edit.settings.danger.warning.description')}
                     </AlertDescription>
                   </Alert>
 
@@ -436,24 +447,23 @@ export default function Settings() {
                     <AlertDialogTrigger asChild>
                       <Button variant="destructive">
                         <Trash2 className="h-4 w-4 mr-2" />
-                        Delete Event
+                        {I18n.t('events.edit.settings.danger.delete.button')}
                       </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                        <AlertDialogTitle>{I18n.t('events.edit.settings.danger.delete.confirm_title')}</AlertDialogTitle>
                         <AlertDialogDescription>
-                          This action cannot be undone. This will permanently delete your
-                          event and remove all associated data from our servers.
+                          {I18n.t('events.edit.settings.danger.delete.confirm_description')}
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel>{I18n.t('events.edit.settings.danger.delete.cancel')}</AlertDialogCancel>
                         <AlertDialogAction
                           onClick={deleteEvent}
                           className="bg-red-600 hover:bg-red-700"
                         >
-                          Delete Event
+                          {I18n.t('events.edit.settings.danger.delete.button')}
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
@@ -462,7 +472,7 @@ export default function Settings() {
               </Card>
             </TabsContent>
 
-            <Button type="submit">Save Changes</Button>
+            <Button type="submit">{I18n.t('events.edit.settings.save')}</Button>
           </form>
         </Form>
       </Tabs>

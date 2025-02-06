@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import I18n from 'stores/locales'
 
 export default function EventsIndex() {
   const [events, setEvents] = useState({ events: [], past_events: [] })
@@ -22,7 +23,7 @@ export default function EventsIndex() {
   }, [])
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>
+    return <div className="min-h-screen flex items-center justify-center">{I18n.t('events.loading')}</div>
   }
 
   return (
@@ -31,7 +32,7 @@ export default function EventsIndex() {
         <div className="space-y-12">
           <section>
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-8">
-              Upcoming Events
+              {I18n.t('events.upcoming')}
             </h2>
             <div className="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8">
               {events.events.map(event => (
@@ -43,7 +44,7 @@ export default function EventsIndex() {
           {events.past_events.length > 0 && (
             <section>
               <h2 className="text-3xl font-bold tracking-tight sm:text-4xl mb-8">
-                Past Events
+                {I18n.t('events.past')}
               </h2>
               <div className="grid grid-cols-1 gap-y-10 gap-x-6 sm:grid-cols-2 lg:grid-cols-3 xl:gap-x-8">
                 {events.past_events.map(event => (
@@ -70,7 +71,7 @@ function EventCard({ event }) {
           />
         ) : (
           <div className="flex h-full items-center justify-center bg-gray-200">
-            <span className="text-gray-400">No image</span>
+            <span className="text-gray-400">{I18n.t('events.no_image')}</span>
           </div>
         )}
       </div>
@@ -79,7 +80,7 @@ function EventCard({ event }) {
         <div className="flex flex-col items-end">
           {event.online ? (
             <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
-              Online
+              {I18n.t('events.online')}
             </span>
           ) : (
             <span className="text-sm text-gray-500">{event.venue || event.city}</span>
