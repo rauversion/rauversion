@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { get } from '@rails/request.js'
 import { motion } from 'framer-motion'
 import { useInView } from 'react-intersection-observer'
+import I18n from 'stores/locales'
 import { Skeleton } from '../ui/skeleton'
 import Header from './Header'
 import MainArticles from './MainArticles'
@@ -9,6 +10,7 @@ import AlbumReleases from './AlbumReleases'
 import FeaturedArtists from './FeaturedArtists'
 import CuratedPlaylists from './CuratedPlaylists'
 import LatestReleases from './LatestReleases'
+
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
@@ -121,7 +123,7 @@ export default function Home() {
                     transition={{ delay: 0.2 }}
                     className="tracking-tight text-gray-900 dark:text-gray-100 text-4xl xl:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-brand-200 to-brand-600 mt-4"
                   >
-                    Be your own music industry
+                    {I18n.t('home.hero.title')}
                   </motion.h1>
                   <motion.p 
                     initial={{ opacity: 0, y: 20 }}
@@ -129,7 +131,7 @@ export default function Home() {
                     transition={{ delay: 0.3 }}
                     className="mt-6 text-xl text-gray-100"
                   >
-                    Empowering independent music communities on the internet
+                    {I18n.t('home.hero.subtitle')}
                   </motion.p>
                   <motion.div 
                     initial={{ opacity: 0, y: 20 }}
@@ -143,7 +145,7 @@ export default function Home() {
                       whileTap={{ scale: 0.95 }}
                       className="inline-block bg-brand-600 border border-transparent py-4 px-8 rounded-md text-lg font-medium text-white hover:bg-brand-700 transition-colors"
                     >
-                      Start now
+                      {I18n.t('home.hero.start_now')}
                     </motion.a>
                   </motion.div>
                 </div>

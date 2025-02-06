@@ -38,7 +38,7 @@ en:
     music: Music
     events: Events
     magazine: Magazine
-    upload: "upload"
+    upload: "Upload"
     register: "Register"
     log_in: "Log in"
     notifications: "notifications"
@@ -47,8 +47,12 @@ en:
     my_events: My events
     my_purchases: My purchases
     my_sales: My sales
+    my_products: My Products
     settings: Settings
     log_out: Log out
+    profile: Profile
+    acting_on_behalf: Acting on behalf of
+    back_to_label: "back to: %{username} label"
 
   podcasters:
     all: All Podcasters
@@ -151,6 +155,39 @@ en:
 
   home:
     artists: Artists you should know
+    hero:
+      title: Be your own music industry
+      subtitle: Empowering independent music communities on the internet
+      start_now: Start now
+    header:
+      explore: EXPLORE
+    main_articles:
+      latest_publications: Latest Publications
+      view_all: View All
+    album_releases:
+      new_release: New Release
+      tracks_count: Tracks
+      default_genre: Music
+      title: Latest Releases
+      subtitle: Fresh drops from the underground
+      browse_all: Browse All
+    featured_artists:
+      tracks: Tracks
+      followers: Followers
+      view_profile: View Profile
+      title: Featured Artists
+      subtitle: Discover emerging talent and established creators
+      view_all: View All
+    curated_playlists:
+      tracks: Tracks
+      by: By
+      title: Curated Playlists
+      subtitle: Handpicked collections for every mood
+      view_all: View All
+    latest_tracks:
+      title: Latest Tracks
+      subtitle: Fresh beats from the underground
+      browse_all: Browse All
 
   profile:
     stats: Your stats
@@ -276,3 +313,12 @@ en:
     episodes: "Episodes"
     show_more: "Show More"
     listen: Listen
+
+  products:
+    added_to_cart: "Added to cart"
+    added_to_cart_message: "%{title} has been added to your cart"
+    add_to_cart_error: "Could not add to cart. Please try again"
+    quick_view: "Quick view"
+    stock:
+      low_stock: "Only %{count} left in stock"
+      out_of_stock: "Out of stock"

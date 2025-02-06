@@ -31,8 +31,12 @@ es:
     my_events: Mis eventos
     my_purchases: Mis compras
     my_sales: Mis ventas
+    my_products: Mis Productos
     settings: Configuraciones
     log_out: Cerrar sesión
+    profile: Perfil
+    acting_on_behalf: Actuando en nombre de
+    back_to_label: "volver a: sello %{username}"
 
   notifications:
     title: Notificaciones
@@ -142,6 +146,39 @@ es:
 
   home:
     artists: Artistas que deberías conocer
+    hero:
+      title: Sé tu propia industria musical
+      subtitle: Empoderando comunidades musicales independientes en internet
+      start_now: Empezar ahora
+    header:
+      explore: EXPLORAR
+    main_articles:
+      latest_publications: Últimas Publicaciones
+      view_all: Ver Todo
+    album_releases:
+      new_release: Nuevo Lanzamiento
+      tracks_count: Pistas
+      default_genre: Música
+      title: Últimos Lanzamientos
+      subtitle: Novedades del underground
+      browse_all: Ver Todo
+    featured_artists:
+      tracks: Pistas
+      followers: Seguidores
+      view_profile: Ver Perfil
+      title: Artistas Destacados
+      subtitle: Descubre talento emergente y creadores establecidos
+      view_all: Ver Todo
+    curated_playlists:
+      tracks: Pistas
+      by: Por
+      title: Listas de Reproducción Curadas
+      subtitle: Colecciones seleccionadas para cada estado de ánimo
+      view_all: Ver Todo
+    latest_tracks:
+      title: Últimas Pistas
+      subtitle: Ritmos frescos del underground
+      browse_all: Ver Todo
 
   profile:
     all: "Todo"
@@ -268,3 +305,12 @@ es:
       default: "%Y-%m-%d"
       short: "%b %d"
       long: "%B %d, %Y"
+
+  products:
+    added_to_cart: "Añadido al carrito"
+    added_to_cart_message: "%{title} ha sido añadido a tu carrito"
+    add_to_cart_error: "No se pudo añadir al carrito. Por favor, inténtalo de nuevo"
+    quick_view: "Vista rápida"
+    stock:
+      low_stock: "Solo quedan %{count} en stock"
+      out_of_stock: "Agotado"

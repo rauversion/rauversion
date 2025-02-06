@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { motion, useScroll, useTransform } from 'framer-motion'
+import I18n from 'stores/locales'
 
 function truncate(str, length = 220) {
   if (!str) return ''
@@ -81,7 +82,7 @@ export default function Header({ posts }) {
                 whileTap={{ scale: 0.95 }}
                 className="group flex items-center gap-2 text-sm font-medium text-white hover:text-primary transition-colors"
               >
-                EXPLORE
+                {I18n.t('home.header.explore')}
                 <motion.svg 
                   xmlns="http://www.w3.org/2000/svg" 
                   width="24" 

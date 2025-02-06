@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '../ui/button'
+import I18n from 'stores/locales'
 
 const ArtistCard = ({ artist }) => {
   const [isHovered, setIsHovered] = useState(false)
@@ -74,9 +75,9 @@ const ArtistCard = ({ artist }) => {
 
               {/* Stats */}
               <div className="flex items-center gap-4 text-sm text-gray-400">
-                <span>{artist.tracks_count || 0} Tracks</span>
+                <span>{artist.tracks_count || 0} {I18n.t('home.featured_artists.tracks')}</span>
                 <span className="w-1 h-1 rounded-full bg-gray-500" />
-                <span>{artist.followers_count || 0} Followers</span>
+                <span>{artist.followers_count || 0} {I18n.t('home.featured_artists.followers')}</span>
               </div>
 
               {/* View Profile Button */}
@@ -90,7 +91,7 @@ const ArtistCard = ({ artist }) => {
                   size="lg"
                   className="w-full bg-black/50 border-white/20 text-white hover:bg-white hover:text-black transition-all duration-300"
                 >
-                  View Profile
+                  {I18n.t('home.featured_artists.view_profile')}
                 </Button>
               </motion.div>
             </motion.div>
@@ -128,10 +129,10 @@ export default function FeaturedArtists({ artists }) {
             className="space-y-2"
           >
             <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white">
-              Featured Artists
+              {I18n.t('home.featured_artists.title')}
             </h2>
             <p className="text-lg text-gray-400">
-              Discover emerging talent and established creators
+              {I18n.t('home.featured_artists.subtitle')}
             </p>
           </motion.div>
           
@@ -141,7 +142,7 @@ export default function FeaturedArtists({ artists }) {
               size="lg"
               className="group border-white/20 text-white hover:bg-white hover:text-black transition-all duration-300"
             >
-              View All
+              {I18n.t('home.featured_artists.view_all')}
               <motion.svg 
                 xmlns="http://www.w3.org/2000/svg" 
                 width="24" 

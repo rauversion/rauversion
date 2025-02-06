@@ -18,14 +18,14 @@ export default function ProductItem({ product, elementRef }) {
       const response = await post(`/${product.user.username}/product_cart/add/${product.id}`)
       if (response.ok) {
         toast({
-          title: "Added to cart",
-          description: `${product.title} has been added to your cart.`,
+          title: I18n.t('products.added_to_cart'),
+          description: I18n.t('products.added_to_cart_message', { title: product.title }),
         })
       }
     } catch (error) {
       toast({
         title: "Error",
-        description: "Could not add to cart. Please try again.",
+        description: I18n.t('products.add_to_cart_error'),
         variant: "destructive",
       })
     }
@@ -55,7 +55,7 @@ export default function ProductItem({ product, elementRef }) {
             to={`/${product.user.username}/products/${product.slug}`}
             className="inline-flex items-center justify-center rounded-full w-9 h-9 bg-white text-gray-900 hover:bg-gray-100"
           >
-            <Eye className="h-4 w-4" />
+            <Eye className="h-4 w-4" aria-label={I18n.t('products.quick_view')} />
           </Link>
         </motion.div>
         <img
@@ -85,12 +85,12 @@ export default function ProductItem({ product, elementRef }) {
         </div>
         {product.stock_quantity <= 5 && product.stock_quantity > 0 && (
           <p className="text-xs text-orange-500 mt-1">
-            Only {product.stock_quantity} left in stock
+            {I18n.t('products.stock.low_stock', { count: product.stock_quantity })}
           </p>
         )}
         {product.stock_quantity === 0 && (
           <p className="text-xs text-destructive mt-1">
-            Out of stock
+            {I18n.t('products.stock.out_of_stock')}
           </p>
         )}
       </div>

@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { format } from 'date-fns'
+import I18n from 'stores/locales'
 
 export default function MainArticles({ posts }) {
   if (!posts || posts.length === 0) return null
@@ -13,13 +14,13 @@ export default function MainArticles({ posts }) {
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8 md:mb-12">
           <h2 className="text-2xl md:text-3xl font-bold">
-            Latest Publications
+            {I18n.t('home.main_articles.latest_publications')}
           </h2>
           <Link 
             to="/articles" 
             className="group flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors"
           >
-            View All
+            {I18n.t('home.main_articles.view_all')}
             <svg 
               xmlns="http://www.w3.org/2000/svg" 
               width="24" 

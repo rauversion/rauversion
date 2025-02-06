@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
+import I18n from 'stores/locales'
 
 const PlaylistCard = ({ playlist }) => {
   return (
@@ -37,7 +38,7 @@ const PlaylistCard = ({ playlist }) => {
                 variant="outline" 
                 className="bg-black/50 text-white border-white/20"
               >
-                {playlist.tracks_count} Tracks
+                {playlist.tracks_count} {I18n.t('home.curated_playlists.tracks')}
               </Badge>
             </motion.div>
 
@@ -69,7 +70,7 @@ const PlaylistCard = ({ playlist }) => {
                     {playlist.title}
                   </h3>
                   <p className="text-gray-300 font-medium">
-                    By {playlist.user.username}
+                    {I18n.t('home.curated_playlists.by')} {playlist.user.username}
                   </p>
                 </div>
               </div>
@@ -131,10 +132,10 @@ export default function CuratedPlaylists({ playlists }) {
             className="space-y-2"
           >
             <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white">
-              Curated Playlists
+              {I18n.t('home.curated_playlists.title')}
             </h2>
             <p className="text-lg text-gray-400">
-              Handpicked collections for every mood
+              {I18n.t('home.curated_playlists.subtitle')}
             </p>
           </motion.div>
           
@@ -144,7 +145,7 @@ export default function CuratedPlaylists({ playlists }) {
               size="lg"
               className="group border-white/20 text-white hover:bg-white hover:text-black transition-all duration-300"
             >
-              View All
+              {I18n.t('home.curated_playlists.view_all')}
               <motion.svg 
                 xmlns="http://www.w3.org/2000/svg" 
                 width="24" 

@@ -3,6 +3,7 @@ import { get } from '@rails/request.js'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Button } from '../ui/button'
+import I18n from 'stores/locales'
 import { MinimalTrackCell } from '../tracks/TrackCell'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import {
@@ -78,10 +79,10 @@ export default function LatestReleases() {
             className="space-y-2"
           >
             <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white">
-              Latest Tracks
+              {I18n.t('home.latest_tracks.title')}
             </h2>
             <p className="text-lg text-gray-400">
-              Fresh beats from the underground
+              {I18n.t('home.latest_tracks.subtitle')}
             </p>
           </motion.div>
           
@@ -91,7 +92,7 @@ export default function LatestReleases() {
               size="lg"
               className="group border-white/20 text-white hover:bg-white hover:text-black transition-all duration-300"
             >
-              Browse All
+              {I18n.t('home.latest_tracks.browse_all')}
               <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
           </Link>

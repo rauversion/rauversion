@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
+import I18n from 'stores/locales'
 
 const PlayButton = () => (
   <motion.button 
@@ -86,7 +87,7 @@ const AlbumCard = ({ album, isLarge = false }) => {
                 variant="outline" 
                 className="bg-black/50 text-white border-white/20"
               >
-                New Release
+                {I18n.t('home.album_releases.new_release')}
               </Badge>
 
               {album.price && (
@@ -128,9 +129,9 @@ const AlbumCard = ({ album, isLarge = false }) => {
               </div>
 
               <div className="flex items-center gap-3 text-sm text-gray-400">
-                <span>{album.tracks_count || 0} Tracks</span>
+                <span>{album.tracks_count || 0} {I18n.t('home.album_releases.tracks_count')}</span>
                 <span className="w-1 h-1 rounded-full bg-gray-500" />
-                <span>{album.genre || 'Music'}</span>
+                <span>{album.genre || I18n.t('home.album_releases.default_genre')}</span>
               </div>
             </motion.div>
           </div>
@@ -167,10 +168,10 @@ export default function AlbumReleases({ albums }) {
             className="space-y-2"
           >
             <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white">
-              Latest Releases
+              {I18n.t('home.album_releases.title')}
             </h2>
             <p className="text-lg text-gray-400">
-              Fresh drops from the underground
+              {I18n.t('home.album_releases.subtitle')}
             </p>
           </motion.div>
           
@@ -180,7 +181,7 @@ export default function AlbumReleases({ albums }) {
               size="lg"
               className="group border-white/20 text-white hover:bg-white hover:text-black transition-all duration-300"
             >
-              Browse All
+              {I18n.t('home.album_releases.browse_all')}
               <motion.svg 
                 xmlns="http://www.w3.org/2000/svg" 
                 width="24" 

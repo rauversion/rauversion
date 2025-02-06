@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
+
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -14,6 +15,7 @@ import {
   DropdownMenuSubTrigger,
 } from "../ui/dropdown-menu"
 import { CartIndicator } from '@/components/cart/CartIndicator'
+import I18n from '@/stores/locales'
 
 import { Button } from "../ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
@@ -40,13 +42,13 @@ export default function UserMenu() {
       {labelUser && currentUser && (
         <nav className="border-b-muted border-b bg-purple-600 text-white flex justify-center py-1">
           <span className="text-xs">
-            Acting on behalf of{' '}
+            {I18n.t('menu.acting_on_behalf')}{' '}
             <span className="font-bold hover:underline">
               <Link to={`/${currentUser.username}`}>{currentUser.username}</Link>
             </span>
             <span className="font-bold underline">
               <Link to="/account/connections" className="text-default">
-                back to: {labelUser.username} label
+                {I18n.t('menu.back_to_label', { username: labelUser.username })}
               </Link>
             </span>
           </span>
@@ -65,13 +67,13 @@ export default function UserMenu() {
               </div>
               <div className="hidden lg:ml-8 lg:flex lg:space-x-4">
                 <Link to="/tracks" className="rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted">
-                  Music
+                  {I18n.t('menu.music')}
                 </Link>
                 <Link to="/events" className="rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted">
-                  Events
+                  {I18n.t('menu.events')}
                 </Link>
                 <Link to="/articles" className="rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted">
-                  Magazine
+                  {I18n.t('menu.magazine')}
                 </Link>
               </div>
             </div>
@@ -80,7 +82,6 @@ export default function UserMenu() {
               <div className="flex items-center gap-2">
                 <CartIndicator />
               </div>
-
 
               <Button
                 variant="ghost"
@@ -94,7 +95,7 @@ export default function UserMenu() {
               {currentUser ? (
                 <>
                   <Link to="/tracks/new" className="rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted">
-                    Upload
+                    {I18n.t('menu.upload')}
                   </Link>
 
                   <DropdownMenu>
@@ -120,13 +121,13 @@ export default function UserMenu() {
                         <DropdownMenuItem asChild>
                           <Link to={`/${currentUser.username}`}>
                             <User className="mr-2 h-4 w-4" />
-                            <span>Profile</span>
+                            <span>{I18n.t('menu.profile')}</span>
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link to={`/${currentUser.username}/settings`}>
                             <Settings className="mr-2 h-4 w-4" />
-                            <span>Settings</span>
+                            <span>{I18n.t('menu.settings')}</span>
                           </Link>
                         </DropdownMenuItem>
                       </DropdownMenuGroup>
@@ -135,19 +136,19 @@ export default function UserMenu() {
                         <DropdownMenuItem asChild>
                           <Link to="/my-music">
                             <Music className="mr-2 h-4 w-4" />
-                            <span>My Music</span>
+                            <span>{I18n.t('menu.my_music')}</span>
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link to="/articles/mine">
                             <FileText className="mr-2 h-4 w-4" />
-                            <span>My Articles</span>
+                            <span>{I18n.t('menu.my_articles')}</span>
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link to="/events/mine">
                             <Calendar className="mr-2 h-4 w-4" />
-                            <span>My Events</span>
+                            <span>{I18n.t('menu.my_events')}</span>
                           </Link>
                         </DropdownMenuItem>
                       </DropdownMenuGroup>
@@ -156,26 +157,26 @@ export default function UserMenu() {
                         <DropdownMenuItem asChild>
                           <Link to="/purchases">
                             <ShoppingCart className="mr-2 h-4 w-4" />
-                            <span>My Purchases</span>
+                            <span>{I18n.t('menu.my_purchases')}</span>
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link to="/sales">
                             <Store className="mr-2 h-4 w-4" />
-                            <span>My Sales</span>
+                            <span>{I18n.t('menu.my_sales')}</span>
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link to={`/${currentUser.username}/products`}>
                             <Package className="mr-2 h-4 w-4" />
-                            <span>My Products</span>
+                            <span>{I18n.t('menu.my_products')}</span>
                           </Link>
                         </DropdownMenuItem>
                       </DropdownMenuGroup>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
                         <LogOut className="mr-2 h-4 w-4" />
-                        <span>Log out</span>
+                        <span>{I18n.t('menu.log_out')}</span>
                       </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
@@ -186,13 +187,13 @@ export default function UserMenu() {
                     to="/login"
                     className="rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted"
                   >
-                    Log in
+                    {I18n.t('menu.log_in')}
                   </Link>
                   <Link
                     to="/register"
                     className="ml-4 inline-flex items-center justify-center rounded-md border border-transparent bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-brand-700"
                   >
-                    Register
+                    {I18n.t('menu.register')}
                   </Link>
                 </div>
               )}
