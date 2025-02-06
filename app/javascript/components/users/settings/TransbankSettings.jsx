@@ -9,6 +9,7 @@ import { useForm, Controller } from "react-hook-form"
 import { get, post, patch } from "@rails/request.js"
 import { useToast } from "@/hooks/use-toast"
 import { CreditCard, AlertTriangle, CheckCircle2 } from 'lucide-react'
+import I18n from 'stores/locales'
 
 export default function TransbankSettings() {
   const { username } = useParams()
@@ -51,20 +52,20 @@ export default function TransbankSettings() {
       if (response.ok) {
         toast({
           title: "Success",
-          description: "Your Transbank settings have been updated.",
+          description: I18n.t('user_settings.transbank.messages.success'),
         })
       } else {
         const error = await response.json()
         toast({
           title: "Error",
-          description: error.message || "There was a problem updating your Transbank settings.",
+          description: error.message || I18n.t('user_settings.transbank.messages.error'),
           variant: "destructive",
         })
       }
     } catch (error) {
       toast({
         title: "Error",
-        description: "There was a problem updating your Transbank settings.",
+        description: I18n.t('user_settings.transbank.messages.error'),
         variant: "destructive",
       })
     }
@@ -85,14 +86,14 @@ export default function TransbankSettings() {
         const error = await response.json()
         toast({
           title: "Error",
-          description: error.message || "Could not verify Transbank credentials",
+          description: error.message || I18n.t('user_settings.transbank.messages.verify_error'),
           variant: "destructive",
         })
       }
     } catch (error) {
       toast({
         title: "Error",
-        description: "Could not verify Transbank credentials",
+        description: I18n.t('user_settings.transbank.messages.verify_error'),
         variant: "destructive",
       })
     }
@@ -104,9 +105,9 @@ export default function TransbankSettings() {
     <div className="space-y-8">
       <Card>
         <CardHeader>
-          <CardTitle>Transbank Integration</CardTitle>
+          <CardTitle>{I18n.t('user_settings.transbank.title')}</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Configure your Transbank payment settings.
+            {I18n.t('user_settings.transbank.subtitle')}
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -121,16 +122,16 @@ export default function TransbankSettings() {
               )}
             </div>
             <div>
-              <p className="font-medium">Integration Status</p>
+              <p className="font-medium">{I18n.t('user_settings.transbank.status.title')}</p>
               <p className="text-sm text-muted-foreground capitalize">
-                {verificationStatus}
+                {I18n.t(`user_settings.transbank.status.${verificationStatus}`)}
               </p>
             </div>
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="space-y-2">
-              <Label htmlFor="commerce_code">Commerce Code</Label>
+              <Label htmlFor="commerce_code">{I18n.t('user_settings.transbank.form.commerce_code.label')}</Label>
               <Input
                 id="commerce_code"
                 {...register("commerce_code")}
@@ -138,7 +139,7 @@ export default function TransbankSettings() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="api_key">API Key</Label>
+              <Label htmlFor="api_key">{I18n.t('user_settings.transbank.form.api_key.label')}</Label>
               <Input
                 id="api_key"
                 type="password"
@@ -148,9 +149,9 @@ export default function TransbankSettings() {
 
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>Test Mode</Label>
+                <Label>{I18n.t('user_settings.transbank.form.test_mode.label')}</Label>
                 <p className="text-sm text-muted-foreground">
-                  Use Transbank test environment
+                  {I18n.t('user_settings.transbank.form.test_mode.description')}
                 </p>
               </div>
               <Controller
@@ -167,9 +168,9 @@ export default function TransbankSettings() {
 
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>Automatic Transfer</Label>
+                <Label>{I18n.t('user_settings.transbank.form.automatic_transfer.label')}</Label>
                 <p className="text-sm text-muted-foreground">
-                  Automatically transfer funds to your bank account
+                  {I18n.t('user_settings.transbank.form.automatic_transfer.description')}
                 </p>
               </div>
               <Controller
@@ -190,9 +191,9 @@ export default function TransbankSettings() {
                 variant="outline"
                 onClick={verifyCredentials}
               >
-                Verify Credentials
+                {I18n.t('user_settings.transbank.buttons.verify')}
               </Button>
-              <Button type="submit">Save settings</Button>
+              <Button type="submit">{I18n.t('user_settings.transbank.buttons.save')}</Button>
             </div>
           </form>
         </CardContent>

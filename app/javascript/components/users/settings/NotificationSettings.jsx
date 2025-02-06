@@ -6,8 +6,9 @@ import { Label } from "@/components/ui/label"
 import { useForm, Controller } from "react-hook-form"
 import { get, patch } from "@rails/request.js"
 import { useToast } from "@/hooks/use-toast"
+import I18n from 'stores/locales'
 
-export default function EmailSettings() {
+export default function NotificationSettings() {
   const { username } = useParams()
   const { toast } = useToast()
   const [user, setUser] = React.useState(null)
@@ -27,7 +28,6 @@ export default function EmailSettings() {
     new_message_email: false,
     new_message_app: false,
     like_and_plays_on_your_post_email: false,
-
   }
 
   const { control, handleSubmit, reset } = useForm({
@@ -63,7 +63,7 @@ export default function EmailSettings() {
         console.error("Error fetching user:", error)
         toast({
           title: "Error",
-          description: "Could not load email settings.",
+          description: I18n.t('user_settings.notifications.messages.load_error'),
           variant: "destructive",
         })
       }
@@ -80,20 +80,20 @@ export default function EmailSettings() {
       
       if (response.ok) {
         toast({
-          description: "Your email settings have been updated.",
+          description: I18n.t('user_settings.notifications.messages.success'),
         })
       } else {
         const error = await response.json
         toast({
           title: "Error",
-          description: error.message || "There was a problem updating your email settings.",
+          description: error.message || I18n.t('user_settings.notifications.messages.error'),
           variant: "destructive",
         })
       }
     } catch (error) {
       toast({
         title: "Error",
-        description: "There was a problem updating your email settings.",
+        description: I18n.t('user_settings.notifications.messages.error'),
         variant: "destructive",
       })
     }
@@ -113,18 +113,18 @@ export default function EmailSettings() {
     <form className="space-y-8">
       <Card>
         <CardHeader>
-          <CardTitle>Email & App Notification Settings</CardTitle>
+          <CardTitle>{I18n.t('user_settings.notifications.title')}</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Manage your email and in-app notification preferences.
+            {I18n.t('user_settings.notifications.subtitle')}
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>New Follower</Label>
+                <Label>{I18n.t('user_settings.notifications.form.sections.new_follower.title')}</Label>
                 <p className="text-sm text-muted-foreground">
-                  When someone follows you
+                  {I18n.t('user_settings.notifications.form.sections.new_follower.description')}
                 </p>
               </div>
               <div className="flex gap-4">
@@ -142,7 +142,7 @@ export default function EmailSettings() {
                       />
                     )}
                   />
-                  <Label>Email</Label>
+                  <Label>{I18n.t('user_settings.notifications.form.labels.email')}</Label>
                 </div>
                 <div className="flex items-center gap-2">
                   <Controller
@@ -158,16 +158,16 @@ export default function EmailSettings() {
                       />
                     )}
                   />
-                  <Label>App</Label>
+                  <Label>{I18n.t('user_settings.notifications.form.labels.app')}</Label>
                 </div>
               </div>
             </div>
 
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>Reposts</Label>
+                <Label>{I18n.t('user_settings.notifications.form.sections.reposts.title')}</Label>
                 <p className="text-sm text-muted-foreground">
-                  When someone reposts your content
+                  {I18n.t('user_settings.notifications.form.sections.reposts.description')}
                 </p>
               </div>
               <div className="flex gap-4">
@@ -185,7 +185,7 @@ export default function EmailSettings() {
                       />
                     )}
                   />
-                  <Label>Email</Label>
+                  <Label>{I18n.t('user_settings.notifications.form.labels.email')}</Label>
                 </div>
                 <div className="flex items-center gap-2">
                   <Controller
@@ -201,16 +201,16 @@ export default function EmailSettings() {
                       />
                     )}
                   />
-                  <Label>App</Label>
+                  <Label>{I18n.t('user_settings.notifications.form.labels.app')}</Label>
                 </div>
               </div>
             </div>
 
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>New Posts</Label>
+                <Label>{I18n.t('user_settings.notifications.form.sections.new_posts.title')}</Label>
                 <p className="text-sm text-muted-foreground">
-                  When someone you follow posts new content
+                  {I18n.t('user_settings.notifications.form.sections.new_posts.description')}
                 </p>
               </div>
               <div className="flex gap-4">
@@ -228,7 +228,7 @@ export default function EmailSettings() {
                       />
                     )}
                   />
-                  <Label>Email</Label>
+                  <Label>{I18n.t('user_settings.notifications.form.labels.email')}</Label>
                 </div>
                 <div className="flex items-center gap-2">
                   <Controller
@@ -244,16 +244,16 @@ export default function EmailSettings() {
                       />
                     )}
                   />
-                  <Label>App</Label>
+                  <Label>{I18n.t('user_settings.notifications.form.labels.app')}</Label>
                 </div>
               </div>
             </div>
 
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>Likes & Plays</Label>
+                <Label>{I18n.t('user_settings.notifications.form.sections.likes_plays.title')}</Label>
                 <p className="text-sm text-muted-foreground">
-                  When someone likes or plays your content
+                  {I18n.t('user_settings.notifications.form.sections.likes_plays.description')}
                 </p>
               </div>
               <div className="flex gap-4">
@@ -271,7 +271,7 @@ export default function EmailSettings() {
                       />
                     )}
                   />
-                  <Label>Email</Label>
+                  <Label>{I18n.t('user_settings.notifications.form.labels.email')}</Label>
                 </div>
                 <div className="flex items-center gap-2">
                   <Controller
@@ -287,16 +287,16 @@ export default function EmailSettings() {
                       />
                     )}
                   />
-                  <Label>App</Label>
+                  <Label>{I18n.t('user_settings.notifications.form.labels.app')}</Label>
                 </div>
               </div>
             </div>
 
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>Comments</Label>
+                <Label>{I18n.t('user_settings.notifications.form.sections.comments.title')}</Label>
                 <p className="text-sm text-muted-foreground">
-                  When someone comments on your content
+                  {I18n.t('user_settings.notifications.form.sections.comments.description')}
                 </p>
               </div>
               <div className="flex gap-4">
@@ -314,7 +314,7 @@ export default function EmailSettings() {
                       />
                     )}
                   />
-                  <Label>Email</Label>
+                  <Label>{I18n.t('user_settings.notifications.form.labels.email')}</Label>
                 </div>
                 <div className="flex items-center gap-2">
                   <Controller
@@ -330,16 +330,16 @@ export default function EmailSettings() {
                       />
                     )}
                   />
-                  <Label>App</Label>
+                  <Label>{I18n.t('user_settings.notifications.form.labels.app')}</Label>
                 </div>
               </div>
             </div>
 
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>Suggested Content</Label>
+                <Label>{I18n.t('user_settings.notifications.form.sections.suggested.title')}</Label>
                 <p className="text-sm text-muted-foreground">
-                  Recommendations based on your interests
+                  {I18n.t('user_settings.notifications.form.sections.suggested.description')}
                 </p>
               </div>
               <div className="flex gap-4">
@@ -357,7 +357,7 @@ export default function EmailSettings() {
                       />
                     )}
                   />
-                  <Label>Email</Label>
+                  <Label>{I18n.t('user_settings.notifications.form.labels.email')}</Label>
                 </div>
                 <div className="flex items-center gap-2">
                   <Controller
@@ -373,16 +373,16 @@ export default function EmailSettings() {
                       />
                     )}
                   />
-                  <Label>App</Label>
+                  <Label>{I18n.t('user_settings.notifications.form.labels.app')}</Label>
                 </div>
               </div>
             </div>
 
             <div className="flex items-center justify-between">
               <div className="space-y-0.5">
-                <Label>Messages</Label>
+                <Label>{I18n.t('user_settings.notifications.form.sections.messages.title')}</Label>
                 <p className="text-sm text-muted-foreground">
-                  When you receive new messages
+                  {I18n.t('user_settings.notifications.form.sections.messages.description')}
                 </p>
               </div>
               <div className="flex gap-4">
@@ -400,7 +400,7 @@ export default function EmailSettings() {
                       />
                     )}
                   />
-                  <Label>Email</Label>
+                  <Label>{I18n.t('user_settings.notifications.form.labels.email')}</Label>
                 </div>
                 <div className="flex items-center gap-2">
                   <Controller
@@ -416,7 +416,7 @@ export default function EmailSettings() {
                       />
                     )}
                   />
-                  <Label>App</Label>
+                  <Label>{I18n.t('user_settings.notifications.form.labels.app')}</Label>
                 </div>
               </div>
             </div>

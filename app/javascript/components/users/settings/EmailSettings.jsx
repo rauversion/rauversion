@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form"
 import { get, put } from "@rails/request.js"
 import { useToast } from "@/hooks/use-toast"
 import { Loader2 } from "lucide-react"
+import I18n from 'stores/locales'
 
 export default function EmailSettings() {
   const { username } = useParams()
@@ -34,7 +35,7 @@ export default function EmailSettings() {
         console.error("Error fetching user:", error)
         toast({
           title: "Error",
-          description: "Could not load email settings.",
+          description: I18n.t('user_settings.email.messages.load_error'),
           variant: "destructive",
         })
       }
@@ -52,20 +53,20 @@ export default function EmailSettings() {
       
       if (response.ok) {
         toast({
-          description: "Your email has been updated successfully.",
+          description: I18n.t('user_settings.email.messages.success'),
         })
       } else {
         const error = await response.json
         toast({
           title: "Error",
-          description: error.message || "There was a problem updating your email.",
+          description: error.message || I18n.t('user_settings.email.messages.error'),
           variant: "destructive",
         })
       }
     } catch (error) {
       toast({
         title: "Error",
-        description: "There was a problem updating your email.",
+        description: I18n.t('user_settings.email.messages.error'),
         variant: "destructive",
       })
     } finally {
@@ -77,35 +78,35 @@ export default function EmailSettings() {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
       <Card>
         <CardHeader>
-          <CardTitle>Email Settings</CardTitle>
+          <CardTitle>{I18n.t('user_settings.email.title')}</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Update your email address. You'll need to verify any new email address.
+            {I18n.t('user_settings.email.subtitle')}
           </p>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email Address</Label>
+            <Label htmlFor="email">{I18n.t('user_settings.email.form.email.label')}</Label>
             <Input
               id="email"
               type="email"
               {...register("email", {
-                required: "Email is required",
+                required: I18n.t('user_settings.email.form.email.required'),
                 pattern: {
                   value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                  message: "Invalid email address"
+                  message: I18n.t('user_settings.email.form.email.invalid')
                 }
               })}
-              placeholder="Enter your email"
+              placeholder={I18n.t('user_settings.email.form.email.placeholder')}
             />
           </div>
           <Button type="submit" disabled={loading}>
             {loading ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Updating...
+                {I18n.t('user_settings.email.buttons.updating')}
               </>
             ) : (
-              "Update Email"
+              I18n.t('user_settings.email.buttons.update')
             )}
           </Button>
         </CardContent>

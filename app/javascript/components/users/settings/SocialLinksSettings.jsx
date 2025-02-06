@@ -11,6 +11,7 @@ import { get, patch } from "@rails/request.js"
 import { useToast } from "@/hooks/use-toast"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import I18n from 'stores/locales'
 
 export default function SocialLinksSettings() {
   const { username } = useParams()
@@ -56,7 +57,7 @@ export default function SocialLinksSettings() {
         console.error("Error fetching user:", error)
         toast({
           title: "Error",
-          description: "Could not load social links settings.",
+          description: I18n.t('user_settings.social_links.messages.load_error'),
           variant: "destructive",
         })
       }
@@ -73,12 +74,11 @@ export default function SocialLinksSettings() {
       
       if (response.ok) {
         toast({
-          description: "Your social links settings have been updated.",
+          description: I18n.t('user_settings.social_links.messages.success'),
         })
       } else {
         const error = await response.json
         if (error.errors) {
-          // Set errors for each field
           Object.keys(error.errors).forEach((key) => {
             setError(key, {
               type: "manual",
@@ -88,13 +88,13 @@ export default function SocialLinksSettings() {
           
           toast({
             title: "Error",
-            description: "Please check the form for errors.",
+            description: I18n.t('user_settings.social_links.messages.form_error'),
             variant: "destructive",
           })
         } else {
           toast({
             title: "Error",
-            description: "There was a problem updating your settings.",
+            description: I18n.t('user_settings.social_links.messages.error'),
             variant: "destructive",
           })
         }
@@ -102,7 +102,7 @@ export default function SocialLinksSettings() {
     } catch (error) {
       toast({
         title: "Error",
-        description: "There was a problem updating your settings.",
+        description: I18n.t('user_settings.social_links.messages.error'),
         variant: "destructive",
       })
     }
@@ -115,9 +115,9 @@ export default function SocialLinksSettings() {
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
         <Card>
           <CardHeader>
-            <CardTitle>SEO Settings</CardTitle>
+            <CardTitle>{I18n.t('user_settings.social_links.seo.title')}</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Customize how your profile appears in search engines.
+              {I18n.t('user_settings.social_links.seo.subtitle')}
             </p>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -127,9 +127,9 @@ export default function SocialLinksSettings() {
                 name="social_title"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Social Title</FormLabel>
+                    <FormLabel>{I18n.t('user_settings.social_links.seo.form.social_title.label')}</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="Your social title" />
+                      <Input {...field} placeholder={I18n.t('user_settings.social_links.seo.form.social_title.placeholder')} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -141,11 +141,11 @@ export default function SocialLinksSettings() {
                 name="social_description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Social Description</FormLabel>
+                    <FormLabel>{I18n.t('user_settings.social_links.seo.form.social_description.label')}</FormLabel>
                     <FormControl>
                       <Textarea
                         {...field}
-                        placeholder="A brief description of your page"
+                        placeholder={I18n.t('user_settings.social_links.seo.form.social_description.placeholder')}
                         className="min-h-[100px]"
                       />
                     </FormControl>
@@ -159,9 +159,9 @@ export default function SocialLinksSettings() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Analytics Integration</CardTitle>
+            <CardTitle>{I18n.t('user_settings.social_links.analytics.title')}</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Connect your analytics accounts to track your profile performance.
+              {I18n.t('user_settings.social_links.analytics.subtitle')}
             </p>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -171,9 +171,9 @@ export default function SocialLinksSettings() {
                 name="google_analytics_id"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Google Analytics ID</FormLabel>
+                    <FormLabel>{I18n.t('user_settings.social_links.analytics.form.google.label')}</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="UA-XXXXXXXXX-X or G-XXXXXXXXXX" />
+                      <Input {...field} placeholder={I18n.t('user_settings.social_links.analytics.form.google.placeholder')} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -185,9 +185,9 @@ export default function SocialLinksSettings() {
                 name="facebook_pixel_id"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Facebook Pixel ID</FormLabel>
+                    <FormLabel>{I18n.t('user_settings.social_links.analytics.form.facebook.label')}</FormLabel>
                     <FormControl>
-                      <Input {...field} placeholder="XXXXXXXXXXXXXXXXXX" />
+                      <Input {...field} placeholder={I18n.t('user_settings.social_links.analytics.form.facebook.placeholder')} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -199,9 +199,9 @@ export default function SocialLinksSettings() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Mailing List Integration</CardTitle>
+            <CardTitle>{I18n.t('user_settings.social_links.mailing.title')}</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Configure your mailing list preferences.
+              {I18n.t('user_settings.social_links.mailing.subtitle')}
             </p>
           </CardHeader>
           <CardContent>
@@ -211,9 +211,9 @@ export default function SocialLinksSettings() {
               render={({ field }) => (
                 <FormItem className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <FormLabel>Email Sign-up</FormLabel>
+                    <FormLabel>{I18n.t('user_settings.social_links.mailing.form.email_signup.label')}</FormLabel>
                     <p className="text-sm text-muted-foreground">
-                      Let fans sign up to get updates on new content
+                      {I18n.t('user_settings.social_links.mailing.form.email_signup.description')}
                     </p>
                   </div>
                   <FormControl>
@@ -231,9 +231,9 @@ export default function SocialLinksSettings() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Content Settings</CardTitle>
+            <CardTitle>{I18n.t('user_settings.social_links.content.title')}</CardTitle>
             <p className="text-sm text-muted-foreground">
-              Manage your content display preferences.
+              {I18n.t('user_settings.social_links.content.subtitle')}
             </p>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -243,9 +243,9 @@ export default function SocialLinksSettings() {
               render={({ field }) => (
                 <FormItem className="flex items-center justify-between">
                   <div className="space-y-0.5">
-                    <FormLabel>Display Sensitive Content</FormLabel>
+                    <FormLabel>{I18n.t('user_settings.social_links.content.form.sensitive.label')}</FormLabel>
                     <p className="text-sm text-muted-foreground">
-                      Show content that may be sensitive to some viewers
+                      {I18n.t('user_settings.social_links.content.form.sensitive.description')}
                     </p>
                   </div>
                   <FormControl>
@@ -264,21 +264,21 @@ export default function SocialLinksSettings() {
               name="age_restriction"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Age Restriction</FormLabel>
+                  <FormLabel>{I18n.t('user_settings.social_links.content.form.age.label')}</FormLabel>
                   <FormControl>
                     <Select
                       value={field.value}
                       onValueChange={field.onChange}
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select age restriction" />
+                        <SelectValue placeholder={I18n.t('user_settings.social_links.content.form.age.placeholder')} />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="all">All Ages</SelectItem>
-                        <SelectItem value="13">13+</SelectItem>
-                        <SelectItem value="16">16+</SelectItem>
-                        <SelectItem value="18">18+</SelectItem>
-                        <SelectItem value="21">21+</SelectItem>
+                        <SelectItem value="all">{I18n.t('user_settings.social_links.content.form.age.options.all')}</SelectItem>
+                        <SelectItem value="13">{I18n.t('user_settings.social_links.content.form.age.options.13')}</SelectItem>
+                        <SelectItem value="16">{I18n.t('user_settings.social_links.content.form.age.options.16')}</SelectItem>
+                        <SelectItem value="18">{I18n.t('user_settings.social_links.content.form.age.options.18')}</SelectItem>
+                        <SelectItem value="21">{I18n.t('user_settings.social_links.content.form.age.options.21')}</SelectItem>
                       </SelectContent>
                     </Select>
                   </FormControl>
@@ -290,7 +290,7 @@ export default function SocialLinksSettings() {
         </Card>
 
         <div className="flex justify-end">
-          <Button type="submit">Update Settings</Button>
+          <Button type="submit">{I18n.t('user_settings.social_links.buttons.update')}</Button>
         </div>
       </form>
     </Form>

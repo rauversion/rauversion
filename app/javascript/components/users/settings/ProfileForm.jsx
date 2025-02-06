@@ -11,6 +11,7 @@ import { get, patch } from "@rails/request.js"
 import { useToast } from "@/hooks/use-toast"
 import { ImageUploader } from "@/components/ui/image-uploader"
 import { Separator } from "@/components/ui/separator"
+import I18n from 'stores/locales'
 
 export default function ProfileForm() {
   const { username } = useParams()
@@ -38,7 +39,6 @@ export default function ProfileForm() {
         bio: data.user.bio,
         country: data.user.country,
         city: data.user.city,
-        // website: data.user.website,
       })
     }
   }
@@ -61,7 +61,7 @@ export default function ProfileForm() {
       if (response.ok) {
         toast({
           title: "Success",
-          description: "Your profile has been updated.",
+          description: I18n.t('user_settings.profile.messages.success'),
         })
         // Reset blob IDs after successful update
         setAvatarBlobId(null)
@@ -71,14 +71,14 @@ export default function ProfileForm() {
         const error = await response.json
         toast({
           title: "Error",
-          description: error.message || "There was a problem updating your profile.",
+          description: error.message || I18n.t('user_settings.profile.messages.error'),
           variant: "destructive",
         })
       }
     } catch (error) {
       toast({
         title: "Error",
-        description: "There was a problem updating your profile.",
+        description: I18n.t('user_settings.profile.messages.error'),
         variant: "destructive",
       })
     }
@@ -86,8 +86,6 @@ export default function ProfileForm() {
 
   const handleAvatarUpload = async (signedBlobId) => {
     setAvatarBlobId(signedBlobId)
-    // Get current form values and submit with new avatar
-    // const currentValues = getValues()
     await onSubmit({
       avatar_blob_id: signedBlobId
     })
@@ -95,7 +93,6 @@ export default function ProfileForm() {
 
   const handleHeaderUpload = async (signedBlobId, cropData) => {
     setHeaderBlobId(signedBlobId)
-    // Get current form values and submit with new header
     const currentValues = getValues()
     await onSubmit({
       ...currentValues,
@@ -110,17 +107,17 @@ export default function ProfileForm() {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
       <Card>
         <CardHeader>
-          <CardTitle>Profile Information</CardTitle>
+          <CardTitle>{I18n.t('user_settings.profile.title')}</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Update your profile information and personal details.
+            {I18n.t('user_settings.profile.subtitle')}
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="username">Username</Label>
+            <Label htmlFor="username">{I18n.t('user_settings.profile.form.username.label')}</Label>
             <div className="flex rounded-md">
               <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-sm">
-                Rauversion
+                {I18n.t('user_settings.profile.form.username.prefix')}
               </span>
               <Input
                 id="username"
@@ -137,21 +134,21 @@ export default function ProfileForm() {
                 htmlFor="hide_username" 
                 className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
-                Hide username from profile page
+                {I18n.t('user_settings.profile.form.username.hide')}
               </Label>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="first_name">First Name</Label>
+              <Label htmlFor="first_name">{I18n.t('user_settings.profile.form.name.first')}</Label>
               <Input
                 id="first_name"
                 {...register("first_name")}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="last_name">Last Name</Label>
+              <Label htmlFor="last_name">{I18n.t('user_settings.profile.form.name.last')}</Label>
               <Input
                 id="last_name"
                 {...register("last_name")}
@@ -160,27 +157,27 @@ export default function ProfileForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="bio">Bio</Label>
+            <Label htmlFor="bio">{I18n.t('user_settings.profile.form.bio.label')}</Label>
             <Textarea
               id="bio"
               {...register("bio")}
               className="min-h-[100px]"
             />
             <p className="text-sm text-muted-foreground">
-              Write a few sentences about yourself.
+              {I18n.t('user_settings.profile.form.bio.help')}
             </p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="country">Country</Label>
+              <Label htmlFor="country">{I18n.t('user_settings.profile.form.location.country')}</Label>
               <Input
                 id="country"
                 {...register("country")}
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="city">City</Label>
+              <Label htmlFor="city">{I18n.t('user_settings.profile.form.location.city')}</Label>
               <Input
                 id="city"
                 {...register("city")}
@@ -188,26 +185,17 @@ export default function ProfileForm() {
             </div>
           </div>
 
-          {/*<div className="space-y-2">
-            <Label htmlFor="website">Website</Label>
-            <Input
-              id="website"
-              type="url"
-              {...register("website")}
-            />
-          </div>*/}
-
           <div className="space-y-6">
             <div>
-              <h3 className="text-lg font-medium">Profile Images</h3>
+              <h3 className="text-lg font-medium">{I18n.t('user_settings.profile.form.images.title')}</h3>
               <p className="text-sm text-muted-foreground">
-                Your avatar and header image will be shown on your profile page.
+                {I18n.t('user_settings.profile.form.images.subtitle')}
               </p>
             </div>
 
             <div className="grid gap-6 lg:grid-cols-2">
               <div className="space-y-2">
-                <Label>Avatar</Label>
+                <Label>{I18n.t('user_settings.profile.form.images.avatar.label')}</Label>
    
                 <ImageUploader
                   aspectRatio={16/9}
@@ -219,12 +207,12 @@ export default function ProfileForm() {
                   className="w-1/4 mx-auto"
                 />
                 <p className="text-xs text-muted-foreground text-center">
-                  Recommended: Square image, at least 400x400px
+                  {I18n.t('user_settings.profile.form.images.avatar.help')}
                 </p>
               </div>
 
               <div className="space-y-2">
-                <Label>Profile Header</Label>
+                <Label>{I18n.t('user_settings.profile.form.images.header.label')}</Label>
      
                 <ImageUploader
                   variant="header"
@@ -237,14 +225,14 @@ export default function ProfileForm() {
                   className="w-full aspect-[3/1]"
                 />
                 <p className="text-xs text-muted-foreground text-center">
-                  Recommended: 1500x500px
+                  {I18n.t('user_settings.profile.form.images.header.help')}
                 </p>
               </div>
             </div>
           </div>
 
           <div className="flex justify-end">
-            <Button type="submit">Save changes</Button>
+            <Button type="submit">{I18n.t('user_settings.profile.buttons.save')}</Button>
           </div>
         </CardContent>
       </Card>

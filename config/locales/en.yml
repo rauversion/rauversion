@@ -747,6 +747,267 @@ en:
     sub_transbank: Manage your transbank commerce (Chile only).
     title_invitations: Invitations
     sub_invitations: Invite other artists to your account.
+    profile:
+      title: Profile Information
+      subtitle: Update your profile information and personal details
+    email:
+      title: Email Settings
+      subtitle: Update your email address. You'll need to verify any new email address.
+    security:
+      title: Security Settings
+      subtitle: Update your password to keep your account secure.
+    notifications:
+      title: Email & App Notification Settings
+      subtitle: Manage your email and in-app notification preferences
+    integrations:
+      title: Integrations
+      subtitle: Connect your account with other services to unlock additional features
+    invitations:
+      title: Send Invitations
+      subtitle: Invite other users to join the platform
+    social_links:
+      seo:
+        title: SEO Settings
+        subtitle: Customize how your profile appears in search engines.
+    transbank:
+      title: Transbank Integration
+      subtitle: Configure your Transbank payment settings.
+    podcast:
+      title: Podcast Settings
+      subtitle: Configure your podcast profile and settings.
+      form:
+        avatar:
+          label: Podcast Avatar
+          help: "Recommended: Square image, at least 400x400px"
+        active:
+          label: Active Podcaster Profile
+        title:
+          label: Title
+        about:
+          label: About
+        description:
+          label: Description
+        distribution:
+          title: Distribution Links
+          spotify:
+            label: Spotify URL
+          apple:
+            label: Apple Podcasts URL
+          google:
+            label: Google Podcasts URL
+          stitcher:
+            label: Stitcher URL
+          overcast:
+            label: Overcast URL
+          pocket:
+            label: Pocket Casts URL
+      buttons:
+        save: Save changes
+      messages:
+        success: Podcast settings updated successfully
+        error: Failed to update podcast settings
+        load_error: Could not load podcast settings.
+        general_error: An error occurred while updating podcast settings
+      status:
+        title: Integration Status
+        verified: Verified
+        error: Error
+        unverified: Unverified
+      form:
+        commerce_code:
+          label: Commerce Code
+        api_key:
+          label: API Key
+        test_mode:
+          label: Test Mode
+          description: Use Transbank test environment
+        automatic_transfer:
+          label: Automatic Transfer
+          description: Automatically transfer funds to your bank account
+      buttons:
+        verify: Verify Credentials
+        save: Save settings
+      messages:
+        success: Your Transbank settings have been updated.
+        error: There was a problem updating your Transbank settings.
+        verify_error: Could not verify Transbank credentials
+        form:
+          social_title:
+            label: Social Title
+            placeholder: Your social title
+          social_description:
+            label: Social Description
+            placeholder: A brief description of your page
+      analytics:
+        title: Analytics Integration
+        subtitle: Connect your analytics accounts to track your profile performance.
+        form:
+          google:
+            label: Google Analytics ID
+            placeholder: UA-XXXXXXXXX-X or G-XXXXXXXXXX
+          facebook:
+            label: Facebook Pixel ID
+            placeholder: XXXXXXXXXXXXXXXXXX
+      mailing:
+        title: Mailing List Integration
+        subtitle: Configure your mailing list preferences.
+        form:
+          email_signup:
+            label: Email Sign-up
+            description: Let fans sign up to get updates on new content
+      content:
+        title: Content Settings
+        subtitle: Manage your content display preferences.
+        form:
+          sensitive:
+            label: Display Sensitive Content
+            description: Show content that may be sensitive to some viewers
+          age:
+            label: Age Restriction
+            placeholder: Select age restriction
+            options:
+              all: All Ages
+              13: 13+
+              16: 16+
+              18: 18+
+              21: 21+
+      messages:
+        success: Your social links settings have been updated.
+        error: There was a problem updating your settings.
+        load_error: Could not load social links settings.
+        form_error: Please check the form for errors.
+      buttons:
+        update: Update Settings
+      form:
+        email:
+          label: Email
+          placeholder: Enter email address
+          required: Email is required
+        message:
+          label: Message (optional)
+          placeholder: Add a personal message
+      sent:
+        title: Sent Invitations
+        subtitle: Track the status of your sent invitations
+        status:
+          accepted: Accepted on %{date}
+          pending: Sent on %{date}
+          not_sent: Not sent yet
+      buttons:
+        send: Send Invitation
+        sending: Sending...
+        copy: Copy Email
+      messages:
+        success: Invitation sent successfully
+        error: Could not send invitation
+        copy_success: Email copied to clipboard
+      messages:
+        load_error: Could not load integration settings.
+      providers:
+        google:
+          name: Google OAuth2
+          description: Connect with Google for authentication and additional features.
+        zoom:
+          name: Zoom
+          description: Integrate with Zoom for live streaming and webinars.
+        discord:
+          name: Discord
+          description: Connect your Discord server for community engagement.
+        twitch:
+          name: Twitch
+          description: Stream directly to your Twitch channel.
+        stripe:
+          name: Stripe Connect
+          description: Accept payments and manage your earnings.
+      connected_with: Connected with ID
+      buttons:
+        connect: Connect
+        disconnect: Disconnect
+      form:
+        labels:
+          email: Email
+          app: App
+        sections:
+          new_follower:
+            title: New Follower
+            description: When someone follows you
+          reposts:
+            title: Reposts
+            description: When someone reposts your content
+          new_posts:
+            title: New Posts
+            description: When someone you follow posts new content
+          likes_plays:
+            title: Likes & Plays
+            description: When someone likes or plays your content
+          comments:
+            title: Comments
+            description: When someone comments on your content
+          suggested:
+            title: Suggested Content
+            description: Recommendations based on your interests
+          messages:
+            title: Messages
+            description: When you receive new messages
+      messages:
+        success: Your notification settings have been updated.
+        error: There was a problem updating your notification settings.
+        load_error: Could not load notification settings.
+      form:
+        password:
+          label: New Password
+          required: Password is required
+          min_length: Password must be at least 8 characters
+        confirm_password:
+          label: Confirm New Password
+          required: Please confirm your password
+          mismatch: The passwords do not match
+      messages:
+        success: Your password has been updated.
+        error: There was a problem updating your password.
+      buttons:
+        update: Update password
+      form:
+        email:
+          label: Email Address
+          placeholder: Enter your email
+          required: Email is required
+          invalid: Invalid email address
+      messages:
+        success: Your email has been updated successfully.
+        error: There was a problem updating your email.
+        load_error: Could not load email settings.
+      buttons:
+        update: Update Email
+        updating: Updating...
+      form:
+        username:
+          label: Username
+          prefix: Rauversion
+          hide: Hide username from profile page
+        name:
+          first: First Name
+          last: Last Name
+        bio:
+          label: Bio
+          help: Write a few sentences about yourself
+        location:
+          country: Country
+          city: City
+        images:
+          title: Profile Images
+          subtitle: Your avatar and header image will be shown on your profile page
+          avatar:
+            label: Avatar
+            help: "Recommended: Square image, at least 400x400px"
+          header:
+            label: Profile Header
+            help: "Recommended: 1500x500px"
+      messages:
+        success: Your profile has been updated
+        error: There was a problem updating your profile
+      buttons:
+        save: Save changes
 
   purchases:
     title: Purchases

@@ -10,6 +10,7 @@ import { useForm, Controller } from "react-hook-form"
 import { get, patch } from "@rails/request.js"
 import { useToast } from "@/hooks/use-toast"
 import { ImageUploader } from "@/components/ui/image-uploader"
+import I18n from 'stores/locales'
 
 export default function PodcastSettings() {
   const { username } = useParams()
@@ -72,7 +73,7 @@ export default function PodcastSettings() {
       console.error("Error fetching user:", error)
       toast({
         title: "Error",
-        description: "Could not load podcast settings.",
+        description: I18n.t('user_settings.podcast.messages.load_error'),
         variant: "destructive",
       })
     }
@@ -100,7 +101,7 @@ export default function PodcastSettings() {
       if (response.ok) {
         toast({
           title: "Success",
-          description: "Podcast settings updated successfully",
+          description: I18n.t('user_settings.podcast.messages.success'),
         })
         setAvatarBlobId(null)
         fetchUser()
@@ -108,14 +109,14 @@ export default function PodcastSettings() {
         const error = await response.json
         toast({
           title: "Error",
-          description: error.message || "Failed to update podcast settings",
+          description: error.message || I18n.t('user_settings.podcast.messages.error'),
           variant: "destructive",
         })
       }
     } catch (error) {
       toast({
         title: "Error",
-        description: "An error occurred while updating podcast settings",
+        description: I18n.t('user_settings.podcast.messages.general_error'),
         variant: "destructive",
       })
     }
@@ -141,14 +142,14 @@ export default function PodcastSettings() {
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
       <Card>
         <CardHeader>
-          <CardTitle>Podcast Settings</CardTitle>
+          <CardTitle>{I18n.t('user_settings.podcast.title')}</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Configure your podcast profile and settings.
+            {I18n.t('user_settings.podcast.subtitle')}
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2">
-            <Label>Podcast Avatar</Label>
+            <Label>{I18n.t('user_settings.podcast.form.avatar.label')}</Label>
             <ImageUploader
               variant="avatar"
               aspectRatio={1}
@@ -159,7 +160,7 @@ export default function PodcastSettings() {
               className="w-1/4 mx-auto"
             />
             <p className="text-xs text-muted-foreground text-center">
-              Recommended: Square image, at least 400x400px
+              {I18n.t('user_settings.podcast.form.avatar.help')}
             </p>
           </div>
 
@@ -174,11 +175,11 @@ export default function PodcastSettings() {
                 />
               )}
             />
-            <Label>Active Podcaster Profile</Label>
+            <Label>{I18n.t('user_settings.podcast.form.active.label')}</Label>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="title">Title</Label>
+            <Label htmlFor="title">{I18n.t('user_settings.podcast.form.title.label')}</Label>
             <Input
               id="title"
               {...register("podcaster_info_attributes.title")}
@@ -186,7 +187,7 @@ export default function PodcastSettings() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="about">About</Label>
+            <Label htmlFor="about">{I18n.t('user_settings.podcast.form.about.label')}</Label>
             <Textarea
               id="about"
               {...register("podcaster_info_attributes.about")}
@@ -195,7 +196,7 @@ export default function PodcastSettings() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{I18n.t('user_settings.podcast.form.description.label')}</Label>
             <Textarea
               id="description"
               {...register("podcaster_info_attributes.description")}
@@ -204,10 +205,10 @@ export default function PodcastSettings() {
           </div>
 
           <div className="space-y-4">
-            <h3 className="text-lg font-medium">Distribution Links</h3>
+            <h3 className="text-lg font-medium">{I18n.t('user_settings.podcast.form.distribution.title')}</h3>
             
             <div className="space-y-2">
-              <Label htmlFor="spotify_url">Spotify URL</Label>
+              <Label htmlFor="spotify_url">{I18n.t('user_settings.podcast.form.distribution.spotify.label')}</Label>
               <Input
                 id="spotify_url"
                 type="url"
@@ -216,7 +217,7 @@ export default function PodcastSettings() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="apple_podcasts_url">Apple Podcasts URL</Label>
+              <Label htmlFor="apple_podcasts_url">{I18n.t('user_settings.podcast.form.distribution.apple.label')}</Label>
               <Input
                 id="apple_podcasts_url"
                 type="url"
@@ -225,7 +226,7 @@ export default function PodcastSettings() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="google_podcasts_url">Google Podcasts URL</Label>
+              <Label htmlFor="google_podcasts_url">{I18n.t('user_settings.podcast.form.distribution.google.label')}</Label>
               <Input
                 id="google_podcasts_url"
                 type="url"
@@ -234,7 +235,7 @@ export default function PodcastSettings() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="stitcher_url">Stitcher URL</Label>
+              <Label htmlFor="stitcher_url">{I18n.t('user_settings.podcast.form.distribution.stitcher.label')}</Label>
               <Input
                 id="stitcher_url"
                 type="url"
@@ -243,7 +244,7 @@ export default function PodcastSettings() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="overcast_url">Overcast URL</Label>
+              <Label htmlFor="overcast_url">{I18n.t('user_settings.podcast.form.distribution.overcast.label')}</Label>
               <Input
                 id="overcast_url"
                 type="url"
@@ -252,7 +253,7 @@ export default function PodcastSettings() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="pocket_casts_url">Pocket Casts URL</Label>
+              <Label htmlFor="pocket_casts_url">{I18n.t('user_settings.podcast.form.distribution.pocket.label')}</Label>
               <Input
                 id="pocket_casts_url"
                 type="url"
@@ -262,7 +263,7 @@ export default function PodcastSettings() {
           </div>
 
           <div className="flex justify-end">
-            <Button type="submit">Save changes</Button>
+            <Button type="submit">{I18n.t('user_settings.podcast.buttons.save')}</Button>
           </div>
         </CardContent>
       </Card>

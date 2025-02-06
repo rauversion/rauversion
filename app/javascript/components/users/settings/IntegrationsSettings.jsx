@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { get } from "@rails/request.js"
 import { useToast } from "@/hooks/use-toast"
 import { Icons } from "@/components/icons"
+import I18n from 'stores/locales'
 
 export default function IntegrationsSettings() {
   const { username } = useParams()
@@ -24,7 +25,7 @@ export default function IntegrationsSettings() {
         console.error("Error fetching user:", error)
         toast({
           title: "Error",
-          description: "Could not load integration settings.",
+          description: I18n.t('user_settings.integrations.messages.load_error'),
           variant: "destructive",
         })
       }
@@ -47,18 +48,17 @@ export default function IntegrationsSettings() {
 
   const integrations = [
     {
-      name: "Google OAuth2",
-      description: "Connect with Google for authentication and additional features.",
+      name: I18n.t('user_settings.integrations.providers.google.name'),
+      description: I18n.t('user_settings.integrations.providers.google.description'),
       icon: Icons.google,
       provider: "google_oauth2",
       connected: findCredential("google_oauth2"),
       connectUrl: "/users/auth/google_oauth2",
       disconnectUrl: "/users/auth/google_oauth2/disconnect",
     },
-    
     {
-      name: "Zoom",
-      description: "Integrate with Zoom for live streaming and webinars.",
+      name: I18n.t('user_settings.integrations.providers.zoom.name'),
+      description: I18n.t('user_settings.integrations.providers.zoom.description'),
       icon: Icons.zoom,
       provider: "zoom",
       connected: findCredential("zoom"),
@@ -66,8 +66,8 @@ export default function IntegrationsSettings() {
       disconnectUrl: "/users/auth/zoom/disconnect",
     },
     {
-      name: "Discord",
-      description: "Connect your Discord server for community engagement.",
+      name: I18n.t('user_settings.integrations.providers.discord.name'),
+      description: I18n.t('user_settings.integrations.providers.discord.description'),
       icon: Icons.discord,
       provider: "discord",
       connected: findCredential("discord"),
@@ -75,8 +75,8 @@ export default function IntegrationsSettings() {
       disconnectUrl: "/users/auth/discord/disconnect",
     },
     {
-      name: "Twitch",
-      description: "Stream directly to your Twitch channel.",
+      name: I18n.t('user_settings.integrations.providers.twitch.name'),
+      description: I18n.t('user_settings.integrations.providers.twitch.description'),
       icon: Icons.twitch,
       provider: "twitch",
       connected: findCredential("twitch"),
@@ -84,8 +84,8 @@ export default function IntegrationsSettings() {
       disconnectUrl: "/users/auth/twitch/disconnect",
     },
     {
-      name: "Stripe Connect",
-      description: "Accept payments and manage your earnings.",
+      name: I18n.t('user_settings.integrations.providers.stripe.name'),
+      description: I18n.t('user_settings.integrations.providers.stripe.description'),
       icon: Icons.stripe,
       provider: "stripe_connect",
       connected: findCredential("stripe_connect"),
@@ -107,9 +107,9 @@ export default function IntegrationsSettings() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Integrations</CardTitle>
+          <CardTitle>{I18n.t('user_settings.integrations.title')}</CardTitle>
           <p className="text-sm text-muted-foreground">
-            Connect your account with other services to unlock additional features.
+            {I18n.t('user_settings.integrations.subtitle')}
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -131,7 +131,7 @@ export default function IntegrationsSettings() {
                     </p>
                     {credential && (
                       <p className="mt-1 text-xs text-muted-foreground">
-                        Connected with ID: {credential.uid}
+                        {I18n.t('user_settings.integrations.connected_with')}: {credential.uid}
                       </p>
                     )}
                   </div>
@@ -143,7 +143,7 @@ export default function IntegrationsSettings() {
                       size="sm"
                       onClick={() => handleAuth(integration.disconnectUrl)}
                     >
-                      Disconnect
+                      {I18n.t('user_settings.integrations.buttons.disconnect')}
                     </Button>
                   ) : (
                     <Button
@@ -151,7 +151,7 @@ export default function IntegrationsSettings() {
                       size="sm"
                       onClick={() => handleAuth(integration.connectUrl)}
                     >
-                      Connect
+                      {I18n.t('user_settings.integrations.buttons.connect')}
                     </Button>
                   )}
                 </div>
