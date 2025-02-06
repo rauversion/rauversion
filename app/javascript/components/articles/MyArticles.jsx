@@ -39,10 +39,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import I18n from '@/stores/locales'
 
 const formSchema = z.object({
   title: z.string().min(2, {
-    message: "Title must be at least 2 characters.",
+    message: I18n.t('articles.mine.form.validation.title_min'),
   }),
 })
 
@@ -52,19 +53,19 @@ function getStatusBadge(status_raw) {
     case 'published':
       return (
         <Badge variant="success" className="capitalize">
-          {status}
+          {I18n.t(`articles.mine.status.${status}`)}
         </Badge>
       )
     case 'draft':
       return (
         <Badge variant="warning" className="capitalize">
-          {status}
+          {I18n.t(`articles.mine.status.${status}`)}
         </Badge>
       )
     default:
       return (
         <Badge variant="secondary" className="capitalize">
-          {status}
+          {I18n.t(`articles.mine.status.${status}`)}
         </Badge>
       )
   }
@@ -107,8 +108,8 @@ export default function MyArticles() {
       if (response.ok) {
         const { article } = await response.json
         toast({
-          title: "Éxito",
-          description: "Artículo creado correctamente",
+          title: I18n.t('articles.mine.messages.save_success'),
+          description: I18n.t('articles.mine.messages.save_success'),
         })
         setOpen(false)
         navigate(`/articles/${article.slug}/edit`)
@@ -124,8 +125,8 @@ export default function MyArticles() {
     } catch (error) {
       console.error('Error creating article:', error)
       toast({
-        title: "Error",
-        description: "No se pudo crear el artículo",
+        title: I18n.t('articles.mine.messages.save_error'),
+        description: I18n.t('articles.mine.messages.save_error'),
         variant: "destructive",
       })
     }
@@ -139,21 +140,21 @@ export default function MyArticles() {
         const { article: deletedArticle } = await response.json
         setItems(posts.filter(p => p.id !== deletedArticle.id))
         toast({
-          title: "Éxito",
-          description: "Artículo eliminado correctamente",
+          title: I18n.t('articles.mine.messages.delete_success'),
+          description: I18n.t('articles.mine.messages.delete_success'),
         })
       } else {
         toast({
-          title: "Error",
-          description: "No se pudo eliminar el artículo",
+          title: I18n.t('articles.mine.messages.delete_error'),
+          description: I18n.t('articles.mine.messages.delete_error'),
           variant: "destructive",
         })
       }
     } catch (error) {
       console.error('Error deleting article:', error)
       toast({
-        title: "Error",
-        description: "No se pudo eliminar el artículo",
+        title: I18n.t('articles.mine.messages.delete_error'),
+        description: I18n.t('articles.mine.messages.delete_error'),
         variant: "destructive",
       })
     } finally {
@@ -161,7 +162,7 @@ export default function MyArticles() {
     }
   }
 
-  if (loading && !posts.length) return <div>Loading...</div>
+  if (loading && !posts.length) return <div>{I18n.t('articles.mine.loading.initial')}</div>
   if (!posts) return null
 
   return (
@@ -169,9 +170,9 @@ export default function MyArticles() {
       <div className="mb-6 my-4">
         <Tabs defaultValue={tab} onValueChange={setTab}>
           <TabsList>
-            <TabsTrigger value="all">All Articles</TabsTrigger>
-            <TabsTrigger value="draft">Drafts</TabsTrigger>
-            <TabsTrigger value="published">Published</TabsTrigger>
+            <TabsTrigger value="all">{I18n.t('articles.mine.tabs.all')}</TabsTrigger>
+            <TabsTrigger value="draft">{I18n.t('articles.mine.tabs.drafts')}</TabsTrigger>
+            <TabsTrigger value="published">{I18n.t('articles.mine.tabs.published')}</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
@@ -179,24 +180,24 @@ export default function MyArticles() {
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
           <h1 className="text-xl font-semibold text-default">
-            {tab.charAt(0).toUpperCase() + tab.slice(1)} Articles
+            {I18n.t('articles.mine.title')}
           </h1>
           <p className="mt-2 text-sm text-muted">
-            Your articles.
+            {I18n.t('articles.mine.subtitle')}
           </p>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button asChild>
-              <Button variant="outline">New Article</Button>
+              <Button variant="outline">{I18n.t('articles.mine.new_article')}</Button>
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Create New Article</DialogTitle>
+                <DialogTitle>{I18n.t('articles.mine.new_article')}</DialogTitle>
                 <DialogDescription>
-                  Enter the title of your new article. You can edit it later.
+                  {I18n.t('articles.mine.form.title.placeholder')}
                 </DialogDescription>
               </DialogHeader>
 
@@ -207,9 +208,9 @@ export default function MyArticles() {
                     name="title"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Title</FormLabel>
+                        <FormLabel>{I18n.t('articles.mine.form.title.label')}</FormLabel>
                         <FormControl>
-                          <Input placeholder="My new article" {...field} />
+                          <Input placeholder={I18n.t('articles.mine.form.title.placeholder')} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -221,10 +222,10 @@ export default function MyArticles() {
                       variant="outline"
                       onClick={() => setOpen(false)}
                     >
-                      Cancel
+                      {I18n.t('sharer.cancel')}
                     </Button>
                     <Button type="submit">
-                      Create
+                      {I18n.t('articles.create')}
                     </Button>
                   </div>
                 </form>
@@ -239,10 +240,10 @@ export default function MyArticles() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Title</TableHead>
-                <TableHead>Author</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead>{I18n.t('articles.mine.table.title')}</TableHead>
+                <TableHead>{I18n.t('articles.by')}</TableHead>
+                <TableHead>{I18n.t('articles.mine.table.status')}</TableHead>
+                <TableHead className="text-right">{I18n.t('articles.mine.table.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -257,7 +258,7 @@ export default function MyArticles() {
                       to={`/articles/${post.slug}/edit`}
                       className="w-56 truncate hover:text-primary hover:underline block"
                     >
-                      {post.title || "-- untitled"}
+                      {post.title || I18n.t('events.my_events.untitled')}
                     </Link>
                   </TableCell>
                   <TableCell>{post.user.username}</TableCell>
@@ -266,34 +267,34 @@ export default function MyArticles() {
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">
-                          <span className="sr-only">Open menu</span>
+                          <span className="sr-only">{I18n.t('articles.mine.table.menu.open')}</span>
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuLabel>{I18n.t('articles.mine.table.actions')}</DropdownMenuLabel>
                         <DropdownMenuItem asChild>
                           <Link to={`/articles/${post.slug}/edit`}>
-                            Edit
+                            {I18n.t('articles.mine.table.menu.edit')}
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
                           <Link to={`/articles/preview/${post.signed_id}`}>
-                            Preview
+                            {I18n.t('articles.mine.buttons.preview')}
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem 
                           className="text-red-600"
                           onClick={() => setDeleteDialog({ open: true, article: post })}
                         >
-                          Delete
+                          {I18n.t('articles.mine.table.menu.delete')}
                         </DropdownMenuItem>
                         {post.slug && (
                           <>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem asChild>
                               <Link to={`/articles/${post.slug}`}>
-                                View
+                                {I18n.t('articles.mine.table.menu.view')}
                               </Link>
                             </DropdownMenuItem>
                           </>
@@ -309,7 +310,7 @@ export default function MyArticles() {
 
         {loading && posts.length > 0 && (
           <div className="py-4 text-center text-muted">
-            Loading more articles...
+            {I18n.t('articles.mine.loading.more')}
           </div>
         )}
       </div>
@@ -319,19 +320,19 @@ export default function MyArticles() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+            <AlertDialogTitle>{I18n.t('articles.mine.messages.delete_confirm')}</AlertDialogTitle>
             <AlertDialogDescription>
-              Esta acción no se puede deshacer. Se eliminará permanentemente el artículo
+              {I18n.t('articles.mine.messages.delete_error')}
               {deleteDialog.article && ` "${deleteDialog.article.title}"`}.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel>{I18n.t('sharer.cancel')}</AlertDialogCancel>
             <AlertDialogAction 
               onClick={handleDelete}
               className="bg-red-600 hover:bg-red-700"
             >
-              Eliminar
+              {I18n.t('articles.mine.buttons.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

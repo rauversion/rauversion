@@ -63,10 +63,77 @@ es:
     my_articles: Mis artículos
     drafts: Borradores
     published: Publicados
-    new_article: nuevo_artículo
+    new_article: Nuevo Artículo
     view: Ver Artículo
     edit: Editar Artículo
-    create: Crear Artículo 
+    create: Crear Artículo
+    mine:
+      title: Mis Artículos
+      subtitle: Gestiona tus artículos y publicaciones
+      tabs:
+        all: Todos
+        drafts: Borradores
+        published: Publicados
+      table:
+        title: Título
+        status: Estado
+        date: Fecha
+        actions: Acciones
+        menu:
+          edit: Editar
+          view: Ver
+          delete: Eliminar
+          open: Abrir menú
+      status:
+        draft: Borrador
+        published: Publicado
+      empty:
+        title: No hay artículos
+        description: Comienza a escribir tu primer artículo
+      new_article: Escribir Nuevo Artículo
+      edit_article: Editar Artículo
+      delete_article: Eliminar Artículo
+      form:
+        title:
+          label: Título
+          placeholder: Título del artículo
+        content:
+          label: Contenido
+          placeholder: Escribe tu artículo aquí...
+        cover:
+          label: Imagen de Portada
+          help: "Recomendado: 1200x630px para redes sociales"
+        tags:
+          label: Etiquetas
+          placeholder: Añade etiquetas relevantes
+        visibility:
+          label: Visibilidad
+          options:
+            public: Público
+            private: Privado
+        validation:
+          title_min: El título debe tener al menos 2 caracteres
+      messages:
+        delete_confirm: ¿Estás seguro de que deseas eliminar este artículo?
+        delete_success: Artículo eliminado exitosamente
+        delete_error: No se pudo eliminar el artículo
+        save_success: Artículo guardado exitosamente
+        save_error: No se pudo guardar el artículo
+        publish_success: Artículo publicado exitosamente
+        publish_error: No se pudo publicar el artículo
+        unpublish_success: Artículo despublicado exitosamente
+        unpublish_error: No se pudo despublicar el artículo
+        load_error: No se pudo cargar el artículo
+      buttons:
+        save: Guardar
+        publish: Publicar
+        unpublish: Despublicar
+        delete: Eliminar
+        preview: Vista Previa
+        back: Volver a Mis Artículos
+      loading:
+        initial: Cargando artículos...
+        more: Cargando más artículos...
 
   attribution:
     some: Algunos derechos reservados
@@ -782,22 +849,153 @@ es:
     security:
       title: Configuración de Seguridad
       subtitle: Actualiza tu contraseña para mantener tu cuenta segura.
+      buttons:
+        update: Actualizar Contraseña
+      form:
+        password:
+          label: Contraseña Actual
+        confirm_password:
+          label: Confirmar Contraseña
+
     notifications:
       title: Configuración de Notificaciones por Email y App
       subtitle: Gestiona tus preferencias de notificaciones por email y en la aplicación
+      form:
+        labels:
+          email: Notificaciones por Email
+          app: Notificaciones en la App
+        sections:
+          new_follower:
+            title: Nuevo Seguidor
+            description: Cuando alguien te sigue
+          reposts:
+            title: Reposteos
+            description: Cuando alguien repostea tu contenido
+          new_posts:
+            title: Nuevas Publicaciones
+            description: Cuando alguien que sigues publica nuevo contenido
+          likes_plays:
+            title: Me gusta y Reproducciones
+            description: Cuando alguien da me gusta o reproduce tu contenido
+          comments:
+            title: Comentarios
+            description: Cuando alguien comenta en tu contenido
+          suggested:
+            title: Contenido Sugerido
+            description: Recomendaciones basadas en tus intereses
+          messages:
+            title: Mensajes
+            description: Cuando recibes nuevos mensajes
     integrations:
       title: Integraciones
       subtitle: Conecta tu cuenta con otros servicios para desbloquear funciones adicionales
+      providers:
+        google:
+          name: Google OAuth2
+          description: Conéctate con Google para autenticación y funciones adicionales
+        zoom:
+          name: Zoom
+          description: Integra con Zoom para transmisiones en vivo y webinars
+        discord:
+          name: Discord
+          description: Conecta tu servidor de Discord para interacción con la comunidad
+        twitch:
+          name: Twitch
+          description: Transmite directamente a tu canal de Twitch
+        stripe:
+          name: Stripe Connect
+          description: Acepta pagos y gestiona tus ganancias
+      connected_with: Conectado con ID
+      buttons:
+        connect: Conectar
+        disconnect: Desconectar
     invitations:
       title: Enviar Invitaciones
       subtitle: Invita a otros usuarios a unirse a la plataforma
+      form:
+        email:
+          label: Email
+          placeholder: Ingresa dirección de email
+        message:
+          label: Mensaje
+          placeholder: Añade un mensaje personal (opcional)
+      buttons:
+        send: Enviar Invitación
+      sent:
+        title: Invitaciones Enviadas
+        subtitle: Rastrea el estado de tus invitaciones enviadas
+        status:
+          pending: Enviada el %{date}
+          accepted: Aceptada el %{date}
+          not_sent: No enviada aún
     social_links:
       seo:
         title: Configuración SEO
         subtitle: Personaliza cómo aparece tu perfil en los motores de búsqueda.
+        form:
+          social_title:
+            label: Título para Redes Sociales
+            placeholder: Tu título social
+          social_description:
+            label: Descripción para Redes Sociales
+            placeholder: Una breve descripción de tu página
+      analytics:
+        title: Integración de Analíticas
+        subtitle: Conecta tus cuentas de analíticas para rastrear el rendimiento de tu perfil
+        form:
+          google:
+            label: ID de Google Analytics
+            placeholder: UA-XXXXXXXXX-X o G-XXXXXXXXXX
+          facebook:
+            label: ID de Facebook Pixel
+            placeholder: XXXXXXXXXXXXXXXXXX
+      mailing:
+        title: Lista de Correo
+        subtitle: Configura tus preferencias de lista de correo
+        form:
+          email_signup:
+            label: Suscripción por Email
+            description: Permite que los fans se suscriban para recibir actualizaciones sobre nuevo contenido
+      content:
+        title: Configuración de Contenido
+        subtitle: Gestiona tus preferencias de visualización de contenido
+        form:
+          sensitive:
+            label: Mostrar Contenido Sensible
+            description: Mostrar contenido que puede ser sensible para algunos espectadores
+          age:
+            label: Restricción de Edad
+            placeholder: Seleccionar restricción de edad
+            options:
+              all: Todas las Edades
+              13: 13+
+              16: 16+
+              18: 18+
+              21: 21+
+      buttons:
+        update: Actualizar Configuraciones
     transbank:
       title: Integración Transbank
       subtitle: Configura tus ajustes de pago de Transbank.
+      status:
+        title: Estado de Integración
+        verified: Verificado
+        error: Error
+        unverified: No Verificado
+      form:
+        commerce_code:
+          label: Código de Comercio
+        api_key:
+          label: Clave API
+        test_mode:
+          label: Modo de Prueba
+          description: Usar entorno de prueba de Transbank
+        automatic_transfer:
+          label: Transferencia Automática
+          description: Transferir fondos automáticamente a tu cuenta bancaria
+      buttons:
+        verify: Verificar Credenciales
+        save: Guardar Configuración
     podcast:
       title: Configuración de Podcast
       subtitle: Configura tu perfil y ajustes de podcast.
@@ -834,206 +1032,6 @@ es:
         error: No se pudo actualizar la configuración de podcast
         load_error: No se pudieron cargar las configuraciones de podcast.
         general_error: Ocurrió un error al actualizar las configuraciones de podcast
-      status:
-        title: Estado de Integración
-        verified: Verificado
-        error: Error
-        unverified: No verificado
-      form:
-        commerce_code:
-          label: Código de Comercio
-        api_key:
-          label: Clave API
-        test_mode:
-          label: Modo de Prueba
-          description: Usar entorno de prueba de Transbank
-        automatic_transfer:
-          label: Transferencia Automática
-          description: Transferir fondos automáticamente a tu cuenta bancaria
-      buttons:
-        verify: Verificar Credenciales
-        save: Guardar configuración
-      messages:
-        success: Tus configuraciones de Transbank han sido actualizadas.
-        error: Hubo un problema al actualizar tus configuraciones de Transbank.
-        verify_error: No se pudieron verificar las credenciales de Transbank
-        form:
-          social_title:
-            label: Título Social
-            placeholder: Tu título social
-          social_description:
-            label: Descripción Social
-            placeholder: Una breve descripción de tu página
-      analytics:
-        title: Integración de Analíticas
-        subtitle: Conecta tus cuentas de analíticas para rastrear el rendimiento de tu perfil.
-        form:
-          google:
-            label: ID de Google Analytics
-            placeholder: UA-XXXXXXXXX-X o G-XXXXXXXXXX
-          facebook:
-            label: ID de Facebook Pixel
-            placeholder: XXXXXXXXXXXXXXXXXX
-      mailing:
-        title: Integración de Lista de Correo
-        subtitle: Configura tus preferencias de lista de correo.
-        form:
-          email_signup:
-            label: Suscripción por Email
-            description: Permite que los fans se suscriban para recibir actualizaciones sobre nuevo contenido
-      content:
-        title: Configuración de Contenido
-        subtitle: Gestiona tus preferencias de visualización de contenido.
-        form:
-          sensitive:
-            label: Mostrar Contenido Sensible
-            description: Mostrar contenido que puede ser sensible para algunos espectadores
-          age:
-            label: Restricción de Edad
-            placeholder: Seleccionar restricción de edad
-            options:
-              all: Todas las Edades
-              13: 13+
-              16: 16+
-              18: 18+
-              21: 21+
-      messages:
-        success: Tus configuraciones de enlaces sociales han sido actualizadas.
-        error: Hubo un problema al actualizar tus configuraciones.
-        load_error: No se pudieron cargar las configuraciones de enlaces sociales.
-        form_error: Por favor revisa el formulario por errores.
-      buttons:
-        update: Actualizar Configuraciones
-      form:
-        email:
-          label: Email
-          placeholder: Ingresa dirección de email
-          required: El email es requerido
-        message:
-          label: Mensaje (opcional)
-          placeholder: Añade un mensaje personal
-      sent:
-        title: Invitaciones Enviadas
-        subtitle: Rastrea el estado de tus invitaciones enviadas
-        status:
-          accepted: Aceptada el %{date}
-          pending: Enviada el %{date}
-          not_sent: No enviada aún
-      buttons:
-        send: Enviar Invitación
-        sending: Enviando...
-        copy: Copiar Email
-      messages:
-        success: Invitación enviada exitosamente
-        error: No se pudo enviar la invitación
-        copy_success: Email copiado al portapapeles
-      messages:
-        load_error: No se pudieron cargar las configuraciones de integración.
-      providers:
-        google:
-          name: Google OAuth2
-          description: Conéctate con Google para autenticación y funciones adicionales.
-        zoom:
-          name: Zoom
-          description: Integra con Zoom para transmisiones en vivo y webinars.
-        discord:
-          name: Discord
-          description: Conecta tu servidor de Discord para interacción con la comunidad.
-        twitch:
-          name: Twitch
-          description: Transmite directamente a tu canal de Twitch.
-        stripe:
-          name: Stripe Connect
-          description: Acepta pagos y gestiona tus ganancias.
-      connected_with: Conectado con ID
-      buttons:
-        connect: Conectar
-        disconnect: Desconectar
-      form:
-        labels:
-          email: Email
-          app: App
-        sections:
-          new_follower:
-            title: Nuevo Seguidor
-            description: Cuando alguien te sigue
-          reposts:
-            title: Reposteos
-            description: Cuando alguien repostea tu contenido
-          new_posts:
-            title: Nuevas Publicaciones
-            description: Cuando alguien que sigues publica nuevo contenido
-          likes_plays:
-            title: Me gusta y Reproducciones
-            description: Cuando alguien da me gusta o reproduce tu contenido
-          comments:
-            title: Comentarios
-            description: Cuando alguien comenta en tu contenido
-          suggested:
-            title: Contenido Sugerido
-            description: Recomendaciones basadas en tus intereses
-          messages:
-            title: Mensajes
-            description: Cuando recibes nuevos mensajes
-      messages:
-        success: Tus configuraciones de notificaciones han sido actualizadas.
-        error: Hubo un problema al actualizar tus configuraciones de notificaciones.
-        load_error: No se pudieron cargar las configuraciones de notificaciones.
-      form:
-        password:
-          label: Nueva Contraseña
-          required: La contraseña es requerida
-          min_length: La contraseña debe tener al menos 8 caracteres
-        confirm_password:
-          label: Confirmar Nueva Contraseña
-          required: Por favor confirma tu contraseña
-          mismatch: Las contraseñas no coinciden
-      messages:
-        success: Tu contraseña ha sido actualizada.
-        error: Hubo un problema al actualizar tu contraseña.
-      buttons:
-        update: Actualizar contraseña
-      form:
-        email:
-          label: Dirección de Email
-          placeholder: Ingresa tu email
-          required: El email es requerido
-          invalid: Dirección de email inválida
-      messages:
-        success: Tu email ha sido actualizado exitosamente.
-        error: Hubo un problema al actualizar tu email.
-        load_error: No se pudieron cargar las configuraciones de email.
-      buttons:
-        update: Actualizar Email
-        updating: Actualizando...
-      form:
-        username:
-          label: Nombre de Usuario
-          prefix: Rauversion
-          hide: Ocultar nombre de usuario en la página de perfil
-        name:
-          first: Nombre
-          last: Apellido
-        bio:
-          label: Biografía
-          help: Escribe algunas frases sobre ti
-        location:
-          country: País
-          city: Ciudad
-        images:
-          title: Imágenes del Perfil
-          subtitle: Tu avatar e imagen de cabecera se mostrarán en tu página de perfil
-          avatar:
-            label: Avatar
-            help: "Recomendado: Imagen cuadrada, mínimo 400x400px"
-          header:
-            label: Cabecera del Perfil
-            help: "Recomendado: 1500x500px"
-      messages:
-        success: Tu perfil ha sido actualizado
-        error: Hubo un problema al actualizar tu perfil
-      buttons:
-        save: Guardar cambios
 
   purchases:
     title: Compras
