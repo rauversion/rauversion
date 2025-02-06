@@ -791,6 +791,11 @@ es:
     unfollow: Dejar de seguir
     following: Siguiendo
     artists: Artistas
+    show:
+      not_found: Usuario no encontrado
+      error_fetching: Error al cargar el usuario
+      location:
+        separator: ", "
 
   user_settings:
     title_account: Cuenta

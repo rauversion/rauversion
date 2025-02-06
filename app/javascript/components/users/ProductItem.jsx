@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useToast } from '@/hooks/use-toast'
 import { post } from '@rails/request.js'
-
+import I18n from '@/stores/locales'
 
 export default function ProductItem({ product, elementRef }) {
   const coverImage = product.product_images[0]?.image_url

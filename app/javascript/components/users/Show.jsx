@@ -8,6 +8,7 @@ import useAuthStore from '../../stores/authStore'
 import { ModernTrackCell } from '../tracks/TrackCell'
 import clsx from 'clsx'
 import Sidebar from './Sidebar'
+import I18n from '@/stores/locales'
 
 export default function UserShow() {
   const { username } = useParams()
@@ -28,7 +29,7 @@ export default function UserShow() {
           setMenuItems(data.user.menu_items)
         }
       } catch (error) {
-        console.error('Error fetching user:', error)
+        console.error(I18n.t('users.show.error_fetching'), error)
       } finally {
         setLoading(false)
       }
@@ -46,11 +47,11 @@ export default function UserShow() {
   }
 
   if (loading) {
-    return <div>Loading...</div>
+    return <div>{I18n.t('loading')}</div>
   }
 
   if (!user) {
-    return <div>User not found</div>
+    return <div>{I18n.t('users.show.not_found')}</div>
   }
 
   return (
@@ -88,22 +89,22 @@ export default function UserShow() {
               
               {(user.city || user.country) && (
                 <p className="text-gray-400">
-                  {user.city} {user.country}
+                  {[user.city, user.country].filter(Boolean).join(I18n.t('users.show.location.separator'))}
                 </p>
               )}
 
               <div className="mt-4 flex space-x-4 text-sm">
                 <div>
                   <span className="font-medium">{user.stats.tracks_count}</span>
-                  <span className="text-gray-400 ml-1">tracks</span>
+                  <span className="text-gray-400 ml-1">{I18n.t('profile.tracks').toLowerCase()}</span>
                 </div>
                 <div>
                   <span className="font-medium">{user.stats.followers_count}</span>
-                  <span className="text-gray-400 ml-1">followers</span>
+                  <span className="text-gray-400 ml-1">{I18n.t('profile.followers').toLowerCase()}</span>
                 </div>
                 <div>
                   <span className="font-medium">{user.stats.following_count}</span>
-                  <span className="text-gray-400 ml-1">following</span>
+                  <span className="text-gray-400 ml-1">{I18n.t('profile.followings').toLowerCase()}</span>
                 </div>
               </div>
             </div>
