@@ -1,6 +1,10 @@
 import React, { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useInfiniteScroll } from '../../hooks/useInfiniteScroll'
+import { motion } from 'framer-motion'
+import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 
 export default function UserArtists() {
   const { username } = useParams()
@@ -27,65 +31,94 @@ export default function UserArtists() {
   return (
     <div className="space-y-8">
       {label && (
-        <div className="flex items-center space-x-4 p-4 bg-gray-900 rounded-lg">
-          <img
-            src={label.avatar_url.medium}
-            alt={label.username}
-            className="w-16 h-16 rounded-full object-cover"
-          />
-          <div>
-            <h2 className="text-xl font-semibold">{label.full_name}</h2>
-            <p className="text-gray-400">@{label.username}</p>
-          </div>
-        </div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="relative"
+        >
+          <Card className="relative h-[200px] overflow-hidden border-0 bg-black">
+            <div className="absolute inset-0 opacity-30">
+              <img
+                src={label.avatar_url.medium}
+                alt=""
+                className="h-full w-full object-cover filter blur-sm scale-110"
+              />
+            </div>
+            
+            <div className="relative h-full flex items-center p-8">
+              <div className="space-y-2">
+                <h2 className="text-5xl font-black tracking-tight text-white uppercase">
+                  {label.full_name}
+                </h2>
+                <p className="text-2xl font-mono text-gray-400">
+                  @{label.username}
+                </p>
+              </div>
+            </div>
+          </Card>
+        </motion.div>
       )}
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {artists.map((artist, index) => (
-          <div
+          <motion.div
             key={artist.id}
             ref={index === artists.length - 1 ? lastElementRef : null}
-            className="flex flex-col items-center p-6 bg-gray-800 rounded-lg"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, delay: index * 0.1 }}
           >
-            {artist.avatar_url ? (
-              <img
-                src={artist.avatar_url.medium}
-                alt={artist.username}
-                className="w-24 h-24 rounded-full object-cover mb-4"
-              />
-            ) : (
-              <div className="w-24 h-24 rounded-full bg-gray-700 mb-4 flex items-center justify-center">
-                <span className="text-2xl text-gray-400">
-                  {artist.username[0].toUpperCase()}
-                </span>
+            <Card className="group relative h-[400px] overflow-hidden border-0 bg-black">
+              {/* Background Image */}
+              <div className="absolute inset-0 opacity-40 transition-opacity group-hover:opacity-30">
+                {artist.avatar_url ? (
+                  <img
+                    src={artist.avatar_url.medium}
+                    alt=""
+                    className="h-full w-full object-cover filter blur-sm scale-110"
+                  />
+                ) : (
+                  <div className="h-full w-full bg-gradient-to-br from-gray-800 to-gray-900" />
+                )}
               </div>
-            )}
 
-            <h3 className="text-lg font-semibold mb-1">{artist.full_name}</h3>
-            <p className="text-gray-400 text-sm mb-4">@{artist.username}</p>
+              {/* Content Overlay */}
+              <div className="relative h-full flex flex-col justify-between p-6">
+                <div className="space-y-4">
+                  <h3 className="text-4xl font-black tracking-tight text-white uppercase">
+                    {artist.full_name}
+                  </h3>
+                  <p className="text-xl font-mono text-gray-400">@{artist.username}</p>
+                </div>
 
-            <div className="flex space-x-4 text-sm text-gray-400">
-              <div>
-                <span className="font-semibold text-default">{artist.tracks_count}</span> tracks
+                <div className="space-y-6">
+                  <div className="flex gap-4 text-lg">
+                    <div className="border border-white/20 px-4 py-2">
+                      <span className="font-bold text-white">{artist.tracks_count}</span>
+                      <span className="text-gray-400 uppercase text-sm ml-2">tracks</span>
+                    </div>
+                    <div className="border border-white/20 px-4 py-2">
+                      <span className="font-bold text-white">{artist.albums_count}</span>
+                      <span className="text-gray-400 uppercase text-sm ml-2">albums</span>
+                    </div>
+                  </div>
+
+                  {artist.bio && (
+                    <p className="text-base text-gray-400 line-clamp-2 font-mono">
+                      {artist.bio}
+                    </p>
+                  )}
+
+                  <Link
+                    to={`/${artist.username}`}
+                    className="block w-full bg-white text-black py-4 text-center text-lg font-bold uppercase hover:bg-gray-200 transition-colors"
+                  >
+                    View Profile
+                  </Link>
+                </div>
               </div>
-              <div>
-                <span className="font-semibold text-default">{artist.albums_count}</span> albums
-              </div>
-            </div>
-
-            {artist.bio && (
-              <p className="mt-4 text-sm text-gray-400 text-center line-clamp-3">
-                {artist.bio}
-              </p>
-            )}
-
-            <Link
-              to={`/${artist.username}`}
-              className="mt-4 px-4 py-2 bg-brand-600 text-white rounded-md hover:bg-brand-500 transition-colors"
-            >
-              View Profile
-            </Link>
-          </div>
+            </Card>
+          </motion.div>
         ))}
       </div>
 

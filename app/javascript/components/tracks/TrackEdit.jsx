@@ -341,7 +341,7 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
                 </TabsContent>
 
                 <TabsContent value="share" className="p-6">
-                  <ShareForm item={{ type: "track", slug: track.slug }} />
+                  <ShareForm item={{ type: "track", slug: track.slug, user: {username: track.user.username} }} />
                 </TabsContent>
               </div>
             </Tabs>

@@ -1,8 +1,10 @@
 json.collection @artists do |artist|
   json.extract! artist, :id, :username, :full_name, :bio
-  
-  if artist.avatar.attached?
-    json.avatar_url rails_blob_url(artist.avatar)
+
+  json.avatar_url do
+    json.small artist.avatar_url(:small)
+    json.medium artist.avatar_url(:medium)
+    json.large artist.avatar_url(:large)
   end
 
   json.tracks_count artist.tracks.size
