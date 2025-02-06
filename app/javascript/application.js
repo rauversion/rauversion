@@ -4,6 +4,16 @@
 // import "./controllers"
 import { initReactApp } from "./react_app"
 
+import { I18n } from "i18n-js";
+import translations from "./locales.json";
+
+const i18n = new I18n(translations);
+
+i18n.defaultLocale = "es";
+i18n.locale = "es";
+
+window.i18n = i18n;
+
 window.dispatchMapsEvent = function (...args) {
   const event = document.createEvent("Events")
   event.initEvent("google-maps-callback", true, true)
