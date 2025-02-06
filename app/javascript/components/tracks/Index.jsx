@@ -10,7 +10,7 @@ import { truncate } from '../../utils/text'
 import { Skeleton } from '../ui/skeleton'
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-
+import I18n from '@/stores/locales'
 
 function LoadingSkeleton() {
   return (
@@ -126,7 +126,7 @@ export default function TracksIndex() {
                 className="max-w-2xl"
               >
                 <span className="inline-block px-3 py-1 bg-white/10 text-white text-sm font-mono rounded-full mb-4 border border-white/20">
-                  New Release
+                  {I18n.t('tracks.index.new_release')}
                 </span>
                 <h1 className="text-4xl md:text-6xl font-black tracking-tighter mb-4 mix-blend-difference">
                   {highlightedPlaylist.title}
@@ -139,7 +139,7 @@ export default function TracksIndex() {
                     to={`/playlists/${highlightedPlaylist.slug}`}
                     className="bg-white text-black hover:bg-white/90 px-6 py-3 rounded-lg font-medium transition-colors"
                   >
-                    View Album
+                    {I18n.t('tracks.index.view_album')}
                   </Link>
                 </div>
               </motion.div>
@@ -155,7 +155,7 @@ export default function TracksIndex() {
             animate={{ opacity: 1, x: 0 }}
             className="text-4xl md:text-6xl font-black tracking-tighter mb-8"
           >
-            Discover Music
+            {I18n.t('tracks.index.discover')}
           </motion.h1>
           
           <div className="flex flex-wrap gap-3 my-8">
@@ -171,7 +171,7 @@ export default function TracksIndex() {
                   : 'border-white/10 hover:border-white/30'
               }`}
             >
-              All
+              {I18n.t('tracks.index.all')}
             </motion.button>
             {popularTags.map((tag, index) => (
               <motion.button
@@ -219,10 +219,10 @@ export default function TracksIndex() {
               className="space-y-2"
             >
               <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white">
-                Featured Albums
+                {I18n.t('tracks.index.featured_albums.title')}
               </h2>
               <p className="text-lg text-gray-400">
-                Latest releases from our artists
+                {I18n.t('tracks.index.featured_albums.subtitle')}
               </p>
             </motion.div>
             
@@ -232,7 +232,7 @@ export default function TracksIndex() {
                 size="lg"
                 className="group border-white/20 text-white hover:bg-white hover:text-black transition-all duration-300"
               >
-                View All
+                {I18n.t('tracks.index.view_all')}
                 <motion.svg 
                   xmlns="http://www.w3.org/2000/svg" 
                   width="24" 
@@ -319,12 +319,12 @@ export default function TracksIndex() {
                             animate={{ opacity: 1, y: 0 }}
                             className="flex justify-between items-start"
                           >
-                            <Badge 
-                              variant="outline" 
-                              className="bg-black/50 text-white border-white/20"
-                            >
-                              {playlist.tracks_count} Tracks
-                            </Badge>
+              <Badge 
+                variant="outline" 
+                className="bg-black/50 text-white border-white/20"
+              >
+                {I18n.t('tracks.count', { count: playlist.tracks_count })}
+              </Badge>
                           </motion.div>
 
                           {/* Bottom Section */}
@@ -405,10 +405,10 @@ export default function TracksIndex() {
               className="space-y-2"
             >
               <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white">
-                Curated Playlists
+                {I18n.t('tracks.index.curated_playlists.title')}
               </h2>
               <p className="text-lg text-gray-400">
-                Handpicked collections for every mood
+                {I18n.t('tracks.index.curated_playlists.subtitle')}
               </p>
             </motion.div>
             
@@ -418,7 +418,7 @@ export default function TracksIndex() {
                 size="lg"
                 className="group border-white/20 text-white hover:bg-white hover:text-black transition-all duration-300"
               >
-                View All
+                {I18n.t('tracks.index.view_all')}
                 <motion.svg 
                   xmlns="http://www.w3.org/2000/svg" 
                   width="24" 
@@ -509,7 +509,7 @@ export default function TracksIndex() {
                               variant="outline" 
                               className="bg-black/50 text-white border-white/20"
                             >
-                              {playlist.tracks_count} Tracks
+                              {I18n.t('tracks.count', { count: playlist.tracks_count })}
                             </Badge>
                           </motion.div>
 
@@ -541,7 +541,7 @@ export default function TracksIndex() {
                                   {playlist.title}
                                 </h3>
                                 <p className="text-gray-300 font-medium">
-                                  By {playlist.user.username}
+                                  {I18n.t('by', { name: playlist.user.username })}
                                 </p>
                               </div>
                             </div>
@@ -585,7 +585,7 @@ export default function TracksIndex() {
       <section className="px-4 sm:px-8 py-12 md:py-24 bg-white/5">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-black tracking-tighter mb-8">
-            Featured Labels
+            {I18n.t('tracks.index.featured_labels')}
           </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
             {labels.map((label) => (

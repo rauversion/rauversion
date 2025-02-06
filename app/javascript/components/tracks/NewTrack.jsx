@@ -18,6 +18,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Progress } from "@/components/ui/progress"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import selectTheme from "@/components/ui/selectTheme"
+import I18n from 'stores/locales'
 
 import "@/styles/react-select.css"
 
@@ -52,8 +53,8 @@ export default function NewTrack() {
     const audioFiles = newFiles.filter(file => file.type.startsWith('audio/'))
     if (audioFiles.length !== newFiles.length) {
       toast({
-        title: "Invalid files",
-        description: "Only audio files are allowed",
+        title: I18n.t('tracks.new.messages.invalid_files'),
+        description: I18n.t('tracks.new.messages.audio_only'),
         variant: "destructive",
       })
     }
@@ -90,8 +91,8 @@ export default function NewTrack() {
     e.preventDefault()
     if (files.length === 0) {
       toast({
-        title: "No files selected",
-        description: "Please select at least one audio file",
+        title: I18n.t('tracks.new.messages.no_files'),
+        description: I18n.t('tracks.new.messages.select_files'),
         variant: "destructive",
       })
       return
@@ -116,14 +117,17 @@ export default function NewTrack() {
 
       setStep("info")
       toast({
-        description: `Successfully uploaded ${files.length} track${files.length > 1 ? 's' : ''}`,
+        description: I18n.t('tracks.new.messages.upload_success', {
+          count: files.length,
+          plural: files.length > 1 ? 's' : ''
+        }),
         variant: "success",
       })
     } catch (error) {
       console.error('Upload error:', error)
       toast({
         title: "Error",
-        description: "Failed to upload tracks",
+        description: I18n.t('tracks.new.messages.upload_error'),
         variant: "destructive",
       })
     } finally {
@@ -142,7 +146,7 @@ export default function NewTrack() {
       console.error('Cover upload error:', error)
       toast({
         title: "Error",
-        description: "Failed to upload cover image",
+        description: I18n.t('tracks.new.messages.cover_error'),
         variant: "destructive",
       })
     }
@@ -191,7 +195,7 @@ export default function NewTrack() {
       console.error('Error:', error)
       toast({
         title: "Error",
-        description: "Failed to save track information",
+        description: I18n.t('tracks.new.messages.save_error'),
         variant: "destructive",
       })
     }
@@ -213,7 +217,6 @@ export default function NewTrack() {
   }
 
   if (step === "info") {
-
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <form onSubmit={handleSubmitInfo} className="mt-8 sm:mx-auto sm:w-full sm:max-w-4xl space-y-4">
@@ -248,7 +251,7 @@ export default function NewTrack() {
                 {/* Right side - Form Fields */}
                 <div className="flex-1 space-y-4">
                   <div>
-                    <Label htmlFor={`title-${index}`}>Title</Label>
+                    <Label htmlFor={`title-${index}`}>{I18n.t('tracks.new.form.title')}</Label>
                     <Input
                       id={`title-${index}`}
                       value={file.title}
@@ -257,7 +260,7 @@ export default function NewTrack() {
                   </div>
 
                   <div>
-                    <Label htmlFor={`tags-${index}`}>Tags</Label>
+                    <Label htmlFor={`tags-${index}`}>{I18n.t('tracks.new.form.tags')}</Label>
                     <Select
                       id={`tags-${index}`}
                       value={file.tags.map(tag => ({ value: tag, label: tag }))}
@@ -276,12 +279,12 @@ export default function NewTrack() {
                       isMulti
                       className="react-select-container"
                       classNamePrefix="react-select"
-                      placeholder="Select tags"
+                      placeholder={I18n.t('tracks.new.form.tags_placeholder')}
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor={`description-${index}`}>Description</Label>
+                    <Label htmlFor={`description-${index}`}>{I18n.t('tracks.new.form.description')}</Label>
                     <Textarea
                       id={`description-${index}`}
                       value={file.description}
@@ -296,7 +299,7 @@ export default function NewTrack() {
                       onCheckedChange={(checked) => updateTrackInfo(index, 'private', checked)}
                     />
                     <Label htmlFor={`private-${index}`}>
-                      Private Track
+                      {I18n.t('tracks.new.form.private_track')}
                     </Label>
                   </div>
                 </div>
@@ -306,7 +309,7 @@ export default function NewTrack() {
 
           <div className="mt-6">
             <Button type="submit" className="w-full">
-              Save All Tracks
+              {I18n.t('tracks.new.form.save')}
             </Button>
           </div>
         </form>
@@ -350,18 +353,18 @@ export default function NewTrack() {
 
                     {track.private && (
                       <Badge variant="secondary" className="mb-2">
-                        Private
+                        {I18n.t('tracks.private')}
                       </Badge>
                     )}
 
                     <div className="flex items-center justify-between">
                       <div className="text-sm text-muted-foreground">
-                        <p>Upload complete.</p>
+                        <p>{I18n.t('tracks.new.share.upload_complete')}</p>
                         <Link
                           to={`/tracks/${track.slug}`}
                           className="text-primary hover:text-primary/90"
                         >
-                          Go to track
+                          {I18n.t('tracks.new.share.go_to_track')}
                         </Link>
                       </div>
                     </div>
@@ -373,7 +376,7 @@ export default function NewTrack() {
                       <div>
                         <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
                           <Share2 className="h-4 w-4" />
-                          Share
+                          {I18n.t('tracks.new.share.share')}
                         </h4>
                         
                         <div className="space-y-2">
@@ -383,11 +386,11 @@ export default function NewTrack() {
                             onClick={() => {
                               navigator.clipboard.writeText(`${window.location.origin}/tracks/${track.id}`)
                               toast({
-                                description: "Link copied to clipboard",
+                                description: I18n.t('tracks.new.messages.link_copied'),
                               })
                             }}
                           >
-                            Copy Link
+                            {I18n.t('tracks.new.share.copy_link')}
                           </Button>
                           
                           <Button
@@ -402,7 +405,7 @@ export default function NewTrack() {
                               target="_blank"
                               rel="noopener noreferrer"
                             >
-                              Share on Twitter
+                              {I18n.t('tracks.new.share.share_twitter')}
                             </a>
                           </Button>
                         </div>
@@ -424,10 +427,10 @@ export default function NewTrack() {
         <div className="flex-col max-w-2xl w-full">
           <div className="text-center">
             <h3 className="text-2xl font-semibold text-default">
-              Drag and drop your tracks here
+              {I18n.t('tracks.new.upload.title')}
             </h3>
             <p className="mt-2 text-sm text-muted-foreground">
-              Provide FLAC, WAV, ALAC, or AIFF for highest audio quality.
+              {I18n.t('tracks.new.upload.subtitle')}
             </p>
           </div>
 
@@ -445,9 +448,9 @@ export default function NewTrack() {
               htmlFor="audio-upload"
               className="text-sm font-medium text-primary hover:text-primary/80 cursor-pointer"
             >
-              Upload audio files
+              {I18n.t('tracks.new.upload.button')}
             </Label>
-            <p className="mt-1 text-sm text-muted-foreground">or drag and drop</p>
+            <p className="mt-1 text-sm text-muted-foreground">{I18n.t('tracks.new.upload.or_drop')}</p>
             
             <input
               id="audio-upload"
@@ -460,7 +463,7 @@ export default function NewTrack() {
             />
 
             <p className="mt-2 text-xs text-muted-foreground">
-              Audio files up to 200MB
+              {I18n.t('tracks.new.upload.size_limit')}
             </p>
           </div>
         </div>
@@ -513,10 +516,10 @@ export default function NewTrack() {
                         <span>
                           {uploadProgress[file.name]
                             ? `${Math.round(uploadProgress[file.name])}%`
-                            : 'Waiting...'}
+                            : I18n.t('tracks.new.controls.waiting')}
                         </span>
                         {uploadProgress[file.name] === 100 && (
-                          <span className="text-primary">Complete</span>
+                          <span className="text-primary">{I18n.t('tracks.new.controls.complete')}</span>
                         )}
                       </div>
                     </div>
@@ -537,13 +540,13 @@ export default function NewTrack() {
                     onCheckedChange={setMakePlaylist}
                   />
                   <Label htmlFor="make-playlist">
-                    Create a playlist with these tracks
+                    {I18n.t('tracks.new.controls.create_playlist')}
                   </Label>
                 </div>
               )}
 
               <div className="space-y-2">
-                <Label className="text-sm font-medium">Privacy</Label>
+                <Label className="text-sm font-medium">{I18n.t('tracks.new.controls.privacy')}</Label>
                 <div className="flex items-center space-x-4">
                   <div className="flex items-center space-x-2">
                     <RadioGroup
@@ -553,11 +556,11 @@ export default function NewTrack() {
                     >
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="public" id="public" />
-                        <Label htmlFor="public">Public</Label>
+                        <Label htmlFor="public">{I18n.t('tracks.new.controls.public')}</Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="private" id="private" />
-                        <Label htmlFor="private">Private</Label>
+                        <Label htmlFor="private">{I18n.t('tracks.new.controls.private')}</Label>
                       </div>
                     </RadioGroup>
                   </div>
@@ -574,13 +577,13 @@ export default function NewTrack() {
                 setUploadProgress({})
               }}
             >
-              Clear All
+              {I18n.t('tracks.new.controls.clear_all')}
             </Button>
             <Button
               onClick={handleUpload}
               disabled={uploading || files.length === 0}
             >
-              {uploading ? 'Uploading...' : 'Start Upload'}
+              {uploading ? I18n.t('tracks.new.controls.uploading') : I18n.t('tracks.new.controls.start_upload')}
             </Button>
           </div>
         </div>

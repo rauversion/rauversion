@@ -594,6 +594,7 @@ es:
     or_more: o más
     supporters: Partidarios
     edit: Editar esta pista
+    count: "%{count} Pistas"
 
     private_label: Privado 
     private_hint: Acceso privado. Oculto para el mundo
@@ -602,10 +603,59 @@ es:
     public_hint: Acceso público para todos
     pending_state_message: "Espera, esta pista está en estado %{state}"
 
-    new_releases: New Releases
-    featured_albums: Featured Albums
-    curated_playlists: Curated Playlists
-    featured_labels: Featured Labels
+    index:
+      new_release: Nuevo Lanzamiento
+      view_album: Ver Álbum
+      discover: Descubrir Música
+      all: Todo
+      featured_albums:
+        title: Álbumes Destacados
+        subtitle: Últimos lanzamientos de nuestros artistas
+      curated_playlists:
+        title: Listas de Reproducción Curadas
+        subtitle: Colecciones seleccionadas para cada estado de ánimo
+      featured_labels: Sellos Destacados
+      view_all: Ver Todo
+    new:
+      upload:
+        title: Arrastra y suelta tus pistas aquí
+        subtitle: Proporciona FLAC, WAV, ALAC o AIFF para la mejor calidad de audio
+        button: Subir archivos de audio
+        or_drop: o arrastra y suelta
+        size_limit: Archivos de audio hasta 200MB
+      form:
+        title: Título
+        tags: Etiquetas
+        tags_placeholder: Seleccionar etiquetas
+        description: Descripción
+        private_track: Pista Privada
+        save: Guardar Todas las Pistas
+      share:
+        upload_complete: Subida completada
+        go_to_track: Ir a la pista
+        share: Compartir
+        copy_link: Copiar Enlace
+        share_twitter: Compartir en Twitter
+      messages:
+        invalid_files: Archivos inválidos
+        audio_only: Solo se permiten archivos de audio
+        no_files: No hay archivos seleccionados
+        select_files: Por favor selecciona al menos un archivo de audio
+        upload_success: "Se ha%{plural} subido %{count} pista%{plural} exitosamente"
+        upload_error: Error al subir las pistas
+        cover_error: Error al subir la imagen de portada
+        save_error: Error al guardar la información de la pista
+        link_copied: Enlace copiado al portapapeles
+      controls:
+        create_playlist: Crear una lista de reproducción con estas pistas
+        privacy: Privacidad
+        public: Público
+        private: Privado
+        clear_all: Limpiar Todo
+        start_upload: Iniciar Subida
+        uploading: Subiendo...
+        waiting: Esperando...
+        complete: Completado
 
   home:
     artists: Artistas que deberías conocer

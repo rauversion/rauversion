@@ -600,6 +600,7 @@ en:
     or_more: or more
     supporters: Supporters
     edit: Edit this track
+    count: "%{count} Tracks"
 
     private_label: Private 
     private_hint: Private access. Hidden to the world
@@ -608,10 +609,59 @@ en:
     public_hint: Public access to everyone
     pending_state_message: "Hold on, this track is in %{state} state"
 
-    new_releases: New Releases
-    featured_albums: Featured Albums
-    curated_playlists: Curated Playlists
-    featured_labels: Featured Labels
+    index:
+      new_release: New Release
+      view_album: View Album
+      discover: Discover Music
+      all: All
+      featured_albums:
+        title: Featured Albums
+        subtitle: Latest releases from our artists
+      curated_playlists:
+        title: Curated Playlists
+        subtitle: Handpicked collections for every mood
+      featured_labels: Featured Labels
+      view_all: View All
+    new:
+      upload:
+        title: Drag and drop your tracks here
+        subtitle: Provide FLAC, WAV, ALAC, or AIFF for highest audio quality
+        button: Upload audio files
+        or_drop: or drag and drop
+        size_limit: Audio files up to 200MB
+      form:
+        title: Title
+        tags: Tags
+        tags_placeholder: Select tags
+        description: Description
+        private_track: Private Track
+        save: Save All Tracks
+      share:
+        upload_complete: Upload complete
+        go_to_track: Go to track
+        share: Share
+        copy_link: Copy Link
+        share_twitter: Share on Twitter
+      messages:
+        invalid_files: Invalid files
+        audio_only: Only audio files are allowed
+        no_files: No files selected
+        select_files: Please select at least one audio file
+        upload_success: "Successfully uploaded %{count} track%{plural}"
+        upload_error: Failed to upload tracks
+        cover_error: Failed to upload cover image
+        save_error: Failed to save track information
+        link_copied: Link copied to clipboard
+      controls:
+        create_playlist: Create a playlist with these tracks
+        privacy: Privacy
+        public: Public
+        private: Private
+        clear_all: Clear All
+        start_upload: Start Upload
+        uploading: Uploading...
+        waiting: Waiting...
+        complete: Complete
 
 
   home:
