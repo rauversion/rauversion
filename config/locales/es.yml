@@ -812,6 +812,43 @@ es:
     create: Crear una lista
     remove_from_playlist: Quitar de la lista
     available_products: "Productos disponibles"
+    edit:
+      dialog:
+        loading: Cargando...
+        title: Editar Lista de Reproducción
+        description: Realiza cambios en tu lista de reproducción aquí. Haz clic en guardar cuando hayas terminado.
+        save: Guardar Cambios
+      tabs:
+        basic_info: Información Básica
+        tracks: Pistas
+        metadata: Metadatos
+        permissions: Permisos
+        share: Compartir
+        pricing: Precios
+      form:
+        title: Título
+        description: Descripción
+        cover: Imagen de Portada
+        playlist_type: Tipo de Lista
+        release_date: Fecha de Lanzamiento
+        private: Privado
+        enable_label: Habilitar Sello
+        types:
+          album: Álbum
+          single: Sencillo
+          ep: EP
+          compilation: Compilación
+      delete:
+        button: Eliminar Lista
+        confirm_title: ¿Estás absolutamente seguro?
+        confirm_description: Esta acción no se puede deshacer. Esto eliminará permanentemente tu lista de reproducción y todos los datos asociados de nuestros servidores.
+        cancel: Cancelar
+      messages:
+        cover_success: Imagen de portada subida exitosamente
+        update_success: Lista de reproducción actualizada exitosamente
+        update_error: Error al actualizar la lista de reproducción
+        delete_success: Lista de reproducción eliminada exitosamente
+        delete_error: Error al eliminar la lista de reproducción
 
   users:
     sign_in: Iniciar sesión en tu cuenta
@@ -1110,6 +1147,57 @@ es:
       desc: Por favor, revisa la URL y prueba de nuevo
       action: Volver al inicio
       cta: Contactar soporte
+
+  shared:
+    forms:
+      pricing:
+        price:
+          label: Precio
+          hint: $0 o más. Aplicamos una tarifa cuando el precio es mayor que $0.
+        name_your_price:
+          label: Permitir que los fans paguen más si lo desean
+      share:
+        link:
+          title: Enlace para Compartir
+          description: Comparte tu %{type} directamente usando este enlace
+        social:
+          title: Compartir en Redes Sociales
+          description: Comparte tu %{type} en tu plataforma social favorita
+          twitter: Twitter
+          facebook: Facebook
+        embed:
+          title: Insertar
+          description: Añade este %{type} a tu sitio web copiando el código de inserción
+          preview: Vista Previa
+      permissions:
+        license:
+          label: Licencia
+          all_rights: Todos los derechos reservados
+          common: Creative commons
+        attribution:
+          label: Atribución
+          description: Permite a otros copiar, distribuir, mostrar y ejecutar tu trabajo con derechos de autor solo si te dan crédito de la manera que solicitas.
+        noncommercial:
+          label: No Comercial
+        usage_rights:
+          label: Derechos de Uso
+          non_derivative:
+            label: Sin trabajos derivados
+            description: Permite a otros copiar, distribuir, mostrar y ejecutar solo copias textuales de tu trabajo, no trabajos derivados basados en él.
+          share_alike:
+            label: Compartir Igual
+            description: Permite a otros distribuir trabajos derivados solo bajo una licencia idéntica a la licencia que gobierna tu trabajo.
+      metadata:
+        buy_link: Enlace de Compra
+        buy_link_title: Título del Enlace de Compra
+        record_label: Sello Discográfico
+        isrc: ISRC
+        composer: Compositor
+        release_title: Título del Lanzamiento
+        album_title: Título del Álbum
+        publisher: Editorial
+        artist: Artista
+        genre: Género
 
   sharer:
     share: "Compartir"

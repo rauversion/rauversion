@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import I18n from 'stores/locales'
 
 export default function ShareForm({ item }) {
   const [copiedStates, setCopiedStates] = useState({
@@ -48,10 +49,10 @@ export default function ShareForm({ item }) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Link2 className="h-5 w-5" />
-            Share Link
+            {I18n.t('shared.forms.share.link.title')}
           </CardTitle>
           <CardDescription>
-            Share your {item.type} directly using this link
+            {I18n.t('shared.forms.share.link.description', { type: item.type })}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -82,9 +83,9 @@ export default function ShareForm({ item }) {
       {/* Social Share Card */}
       <Card>
         <CardHeader>
-          <CardTitle>Share on Social Media</CardTitle>
+          <CardTitle>{I18n.t('shared.forms.share.social.title')}</CardTitle>
           <CardDescription>
-            Share your {item.type} on your favorite social platform
+            {I18n.t('shared.forms.share.social.description', { type: item.type })}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -98,7 +99,7 @@ export default function ShareForm({ item }) {
               }}
             >
               <Twitter className="mr-2 h-4 w-4" />
-              Twitter
+              {I18n.t('shared.forms.share.social.twitter')}
             </Button>
             <Button
               variant="outline"
@@ -109,7 +110,7 @@ export default function ShareForm({ item }) {
               }}
             >
               <Facebook className="mr-2 h-4 w-4" />
-              Facebook
+              {I18n.t('shared.forms.share.social.facebook')}
             </Button>
           </div>
         </CardContent>
@@ -120,10 +121,10 @@ export default function ShareForm({ item }) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Code2 className="h-5 w-5" />
-            Embed
+            {I18n.t('shared.forms.share.embed.title')}
           </CardTitle>
           <CardDescription>
-            Add this {item.type} to your website by copying the embed code
+            {I18n.t('shared.forms.share.embed.description', { type: item.type })}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -153,7 +154,7 @@ export default function ShareForm({ item }) {
             
             <div className="rounded-lg border bg-muted p-4">
               <div className="text-sm text-muted-foreground">
-                Preview
+                {I18n.t('shared.forms.share.embed.preview')}
               </div>
               <div className="mt-2" dangerouslySetInnerHTML={{ __html: getEmbedCode() }} />
             </div>

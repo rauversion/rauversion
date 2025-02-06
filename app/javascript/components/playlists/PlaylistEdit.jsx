@@ -5,6 +5,7 @@ import { useForm, Controller } from "react-hook-form"
 import { useToast } from "@/hooks/use-toast"
 import { useThemeStore } from '@/stores/theme'
 import { put, destroy } from "@rails/request.js"
+import I18n from 'stores/locales'
 
 import {
   Dialog,
@@ -40,7 +41,6 @@ import MetadataForm from "@/components/shared/forms/MetadataForm"
 import PermissionsForm from "@/components/shared/forms/PermissionsForm"
 import ShareForm from "@/components/shared/forms/ShareForm"
 import PricingForm from "@/components/shared/forms/PricingForm"
-
 
 export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenChange, onOk }) {
   const [playlist, setPlaylist] = useState(initialPlaylist)
@@ -99,7 +99,7 @@ export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenCh
     setValue('cover', signedBlobId)
     toast({
       title: "Success",
-      description: "Cover image uploaded successfully"
+      description: I18n.t('playlists.edit.messages.cover_success')
     })
   }
 
@@ -120,7 +120,7 @@ export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenCh
       if (response.ok) {
         toast({
           title: "Success",
-          description: "Playlist updated successfully"
+          description: I18n.t('playlists.edit.messages.update_success')
         })
         onOpenChange(false)
         onOk && onOk(response)
@@ -128,14 +128,14 @@ export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenCh
         const error = await response.json()
         toast({
           title: "Error",
-          description: error.message || "Error updating playlist",
+          description: error.message || I18n.t('playlists.edit.messages.update_error'),
           variant: "destructive"
         })
       }
     } catch (error) {
       toast({
         title: "Error",
-        description: "Error updating playlist",
+        description: I18n.t('playlists.edit.messages.update_error'),
         variant: "destructive"
       })
     }
@@ -150,7 +150,7 @@ export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenCh
       if (response.ok) {
         toast({
           title: "Success",
-          description: "Playlist deleted successfully"
+          description: I18n.t('playlists.edit.messages.delete_success')
         })
         onOpenChange(false)
         navigate('/')
@@ -158,24 +158,24 @@ export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenCh
         const error = await response.json()
         toast({
           title: "Error",
-          description: error.message || "Error deleting playlist",
+          description: error.message || I18n.t('playlists.edit.messages.delete_error'),
           variant: "destructive"
         })
       }
     } catch (error) {
       toast({
         title: "Error",
-        description: "Error deleting playlist",
+        description: I18n.t('playlists.edit.messages.delete_error'),
         variant: "destructive"
       })
     }
   }
 
   const playlistTypes = [
-    { value: "album", label: "Album" },
-    { value: "single", label: "Single" },
-    { value: "ep", label: "EP" },
-    { value: "compilation", label: "Compilation" },
+    { value: "album", label: I18n.t('playlists.edit.form.types.album') },
+    { value: "single", label: I18n.t('playlists.edit.form.types.single') },
+    { value: "ep", label: I18n.t('playlists.edit.form.types.ep') },
+    { value: "compilation", label: I18n.t('playlists.edit.form.types.compilation') },
   ]
 
   if (loading) {
@@ -183,7 +183,7 @@ export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenCh
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-3xl h-[80vh] flex flex-col p-0">
           <DialogHeader className="p-6 pb-0">
-            <DialogTitle>Loading...</DialogTitle>
+            <DialogTitle>{I18n.t('playlists.edit.dialog.loading')}</DialogTitle>
           </DialogHeader>
         </DialogContent>
       </Dialog>
@@ -194,9 +194,9 @@ export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenCh
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl h-[80vh] flex flex-col p-0">
         <DialogHeader className="p-6 pb-0">
-          <DialogTitle>Edit Playlist</DialogTitle>
+          <DialogTitle>{I18n.t('playlists.edit.dialog.title')}</DialogTitle>
           <DialogDescription>
-            Make changes to your playlist here. Click save when you're done.
+            {I18n.t('playlists.edit.dialog.description')}
           </DialogDescription>
         </DialogHeader>
 
@@ -204,12 +204,12 @@ export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenCh
           <Tabs defaultValue="basic" className="flex-1 overflow-hidden flex flex-col">
             <div className="px-6 border-b">
               <TabsList>
-                <TabsTrigger value="basic">Basic Info</TabsTrigger>
-                <TabsTrigger value="tracks">Tracks</TabsTrigger>
-                <TabsTrigger value="metadata">Metadata</TabsTrigger>
-                <TabsTrigger value="permissions">Permissions</TabsTrigger>
-                <TabsTrigger value="share">Share</TabsTrigger>
-                <TabsTrigger value="pricing">Pricing</TabsTrigger>
+                <TabsTrigger value="basic">{I18n.t('playlists.edit.tabs.basic_info')}</TabsTrigger>
+                <TabsTrigger value="tracks">{I18n.t('playlists.edit.tabs.tracks')}</TabsTrigger>
+                <TabsTrigger value="metadata">{I18n.t('playlists.edit.tabs.metadata')}</TabsTrigger>
+                <TabsTrigger value="permissions">{I18n.t('playlists.edit.tabs.permissions')}</TabsTrigger>
+                <TabsTrigger value="share">{I18n.t('playlists.edit.tabs.share')}</TabsTrigger>
+                <TabsTrigger value="pricing">{I18n.t('playlists.edit.tabs.pricing')}</TabsTrigger>
               </TabsList>
             </div>
 
@@ -217,7 +217,7 @@ export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenCh
               <TabsContent value="basic" className="p-6 space-y-6">
                 <div className="space-y-4">
                   <div>
-                    <Label>Title</Label>
+                    <Label>{I18n.t('playlists.edit.form.title')}</Label>
                     <Controller
                       name="title"
                       control={control}
@@ -228,7 +228,7 @@ export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenCh
                   </div>
 
                   <div>
-                    <Label>Description</Label>
+                    <Label>{I18n.t('playlists.edit.form.description')}</Label>
                     <Controller
                       name="description"
                       control={control}
@@ -239,7 +239,7 @@ export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenCh
                   </div>
 
                   <div>
-                    <Label>Cover Image</Label>
+                    <Label>{I18n.t('playlists.edit.form.cover')}</Label>
                     <ImageUploader
                       onUpload={handleCoverUpload}
                       preview={playlist.cover_url?.medium}
@@ -247,7 +247,7 @@ export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenCh
                   </div>
 
                   <div>
-                    <Label>Playlist Type</Label>
+                    <Label>{I18n.t('playlists.edit.form.playlist_type')}</Label>
                     <Controller
                       name="playlist_type"
                       control={control}
@@ -262,7 +262,7 @@ export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenCh
                   </div>
 
                   <div>
-                    <Label>Release Date</Label>
+                    <Label>{I18n.t('playlists.edit.form.release_date')}</Label>
                     <Controller
                       name="release_date"
                       control={control}
@@ -283,7 +283,7 @@ export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenCh
                         />
                       )}
                     />
-                    <Label>Private</Label>
+                    <Label>{I18n.t('playlists.edit.form.private')}</Label>
                   </div>
 
                   <div className="flex items-center space-x-2">
@@ -297,7 +297,7 @@ export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenCh
                         />
                       )}
                     />
-                    <Label>Enable Label</Label>
+                    <Label>{I18n.t('playlists.edit.form.enable_label')}</Label>
                   </div>
                 </div>
               </TabsContent>
@@ -334,28 +334,27 @@ export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenCh
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="destructive">
-                    Delete Playlist
+                    {I18n.t('playlists.edit.delete.button')}
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogTitle>{I18n.t('playlists.edit.delete.confirm_title')}</AlertDialogTitle>
                     <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete your playlist
-                      and remove all associated data from our servers.
+                      {I18n.t('playlists.edit.delete.confirm_description')}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogCancel>{I18n.t('playlists.edit.delete.cancel')}</AlertDialogCancel>
                     <AlertDialogAction onClick={handleDelete}>
-                      Delete Playlist
+                      {I18n.t('playlists.edit.delete.button')}
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
 
               <Button type="submit">
-                Save Changes
+                {I18n.t('playlists.edit.dialog.save')}
               </Button>
             </div>
           </div>

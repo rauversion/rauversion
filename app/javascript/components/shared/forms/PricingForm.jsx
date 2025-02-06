@@ -3,12 +3,13 @@ import { Controller } from "react-hook-form"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
+import I18n from 'stores/locales'
 
 export default function PricingForm({ control }) {
   return (
     <div className="space-y-4">
       <div>
-        <Label>Price</Label>
+        <Label>{I18n.t('shared.forms.pricing.price.label')}</Label>
         <Controller
           name="price"
           control={control}
@@ -21,7 +22,7 @@ export default function PricingForm({ control }) {
           )}
         />
         <p className="text-sm text-muted-foreground mt-1">
-          $0 or more. We apply a fee when price is higher than $0.
+          {I18n.t('shared.forms.pricing.price.hint')}
         </p>
       </div>
 
@@ -36,7 +37,7 @@ export default function PricingForm({ control }) {
             />
           )}
         />
-        <Label>Let fans pay more if they want</Label>
+        <Label>{I18n.t('shared.forms.pricing.name_your_price.label')}</Label>
       </div>
     </div>
   )

@@ -8,6 +8,7 @@ import Select from "react-select"
 import selectTheme from "@/components/ui/selectTheme"
 import { useThemeStore } from '@/stores/theme'
 import { permissionDefinitions } from "@/lib/constants"
+import I18n from 'stores/locales'
 
 export default function PermissionsForm({ control, watch }) {
   const { isDarkMode } = useThemeStore()
@@ -20,7 +21,7 @@ export default function PermissionsForm({ control, watch }) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
       <div className="space-y-2">
-        <Label>License</Label>
+        <Label>{I18n.t('shared.forms.permissions.license.label')}</Label>
         <Controller
           name="copyright"
           control={control}
@@ -32,11 +33,11 @@ export default function PermissionsForm({ control, watch }) {
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="all-rights" id="all-rights" />
-                <Label htmlFor="all-rights">All rights reserved</Label>
+                <Label htmlFor="all-rights">{I18n.t('shared.forms.permissions.license.all_rights')}</Label>
               </div>
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="common" id="common" />
-                <Label htmlFor="common">Creative commons</Label>
+                <Label htmlFor="common">{I18n.t('shared.forms.permissions.license.common')}</Label>
               </div>
             </RadioGroup>
           )}
@@ -58,7 +59,7 @@ export default function PermissionsForm({ control, watch }) {
               )}
             />
             <Label htmlFor="attribution" className="text-sm">
-              Allow others to copy, distribute, display and perform your copyrighted work but only if they give credit the way you request.
+              {I18n.t('shared.forms.permissions.attribution.description')}
             </Label>
           </div>
 
@@ -73,11 +74,11 @@ export default function PermissionsForm({ control, watch }) {
                 />
               )}
             />
-            <Label>Non-Commercial</Label>
+            <Label>{I18n.t('shared.forms.permissions.noncommercial.label')}</Label>
           </div>
 
           <div className="space-y-2">
-            <Label>Usage Rights</Label>
+            <Label>{I18n.t('shared.forms.permissions.usage_rights.label')}</Label>
             <Controller
               name="copies"
               control={control}
@@ -90,18 +91,18 @@ export default function PermissionsForm({ control, watch }) {
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="non_derivative_works" id="non_derivative_works" />
                     <div className="space-y-1">
-                      <Label htmlFor="non_derivative_works">Non derivative works</Label>
+                      <Label htmlFor="non_derivative_works">{I18n.t('shared.forms.permissions.usage_rights.non_derivative.label')}</Label>
                       <p className="text-sm text-gray-500">
-                        Allow others to copy, distribute, display and perform only verbatim copies of your work, not derivative works based upon it.
+                        {I18n.t('shared.forms.permissions.usage_rights.non_derivative.description')}
                       </p>
                     </div>
                   </div>
                   <div className="flex items-center space-x-2">
                     <RadioGroupItem value="share_alike" id="share_alike" />
                     <div className="space-y-1">
-                      <Label htmlFor="share_alike">Share Alike</Label>
+                      <Label htmlFor="share_alike">{I18n.t('shared.forms.permissions.usage_rights.share_alike.label')}</Label>
                       <p className="text-sm text-gray-500">
-                        Allow others to distribute derivative works only under a license identical to the license that governs your work.
+                        {I18n.t('shared.forms.permissions.usage_rights.share_alike.description')}
                       </p>
                     </div>
                   </div>

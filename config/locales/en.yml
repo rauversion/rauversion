@@ -750,6 +750,43 @@ en:
     create: Create a playlist
     remove_from_playlist: Remove from playlist
     available_products: "Available products"
+    edit:
+      dialog:
+        loading: Loading...
+        title: Edit Playlist
+        description: Make changes to your playlist here. Click save when you're done.
+        save: Save Changes
+      tabs:
+        basic_info: Basic Info
+        tracks: Tracks
+        metadata: Metadata
+        permissions: Permissions
+        share: Share
+        pricing: Pricing
+      form:
+        title: Title
+        description: Description
+        cover: Cover Image
+        playlist_type: Playlist Type
+        release_date: Release Date
+        private: Private
+        enable_label: Enable Label
+        types:
+          album: Album
+          single: Single
+          ep: EP
+          compilation: Compilation
+      delete:
+        button: Delete Playlist
+        confirm_title: Are you absolutely sure?
+        confirm_description: This action cannot be undone. This will permanently delete your playlist and remove all associated data from our servers.
+        cancel: Cancel
+      messages:
+        cover_success: Cover image uploaded successfully
+        update_success: Playlist updated successfully
+        update_error: Error updating playlist
+        delete_success: Playlist deleted successfully
+        delete_error: Error deleting playlist
 
   users:
     sign_in: Sign in to your account
@@ -1081,6 +1118,57 @@ en:
       desc: Please check the URL in the address bar and try again
       action: Go back home
       cta: Contact support
+
+  shared:
+    forms:
+      pricing:
+        price:
+          label: Price
+          hint: $0 or more. We apply a fee when price is higher than $0.
+        name_your_price:
+          label: Let fans pay more if they want
+      share:
+        link:
+          title: Share Link
+          description: Share your %{type} directly using this link
+        social:
+          title: Share on Social Media
+          description: Share your %{type} on your favorite social platform
+          twitter: Twitter
+          facebook: Facebook
+        embed:
+          title: Embed
+          description: Add this %{type} to your website by copying the embed code
+          preview: Preview
+      permissions:
+        license:
+          label: License
+          all_rights: All rights reserved
+          common: Creative commons
+        attribution:
+          label: Attribution
+          description: Allow others to copy, distribute, display and perform your copyrighted work but only if they give credit the way you request.
+        noncommercial:
+          label: Non-Commercial
+        usage_rights:
+          label: Usage Rights
+          non_derivative:
+            label: Non derivative works
+            description: Allow others to copy, distribute, display and perform only verbatim copies of your work, not derivative works based upon it.
+          share_alike:
+            label: Share Alike
+            description: Allow others to distribute derivative works only under a license identical to the license that governs your work.
+      metadata:
+        buy_link: Buy Link
+        buy_link_title: Buy Link Title
+        record_label: Record Label
+        isrc: ISRC
+        composer: Composer
+        release_title: Release Title
+        album_title: Album Title
+        publisher: Publisher
+        artist: Artist
+        genre: Genre
 
   sharer:
     share: "Share"
