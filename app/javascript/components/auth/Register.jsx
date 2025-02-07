@@ -11,23 +11,24 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Check, ArrowRight, ArrowLeft, Mail, User, Lock } from 'lucide-react'
 import { GoogleIcon, DiscordIcon } from './SocialIcons'
 import ConfirmationMessage from './ConfirmationMessage'
+import I18n from '@/stores/locales.js'
 
 const steps = [
   {
     id: 'email',
-    label: 'What\'s your email?',
+    label: I18n.t('sessions.register.steps.email.label'),
     icon: Mail,
     fields: ['email']
   },
   {
     id: 'username',
-    label: 'Choose a username',
+    label: I18n.t('sessions.register.steps.username.label'),
     icon: User,
     fields: ['username']
   },
   {
     id: 'password',
-    label: 'Create a password',
+    label: I18n.t('sessions.register.steps.password.label'),
     icon: Lock,
     fields: ['password', 'password_confirmation']
   }
@@ -78,14 +79,13 @@ export default function Register() {
     setIsSubmitting(true)
 
     try {
-      
       const payload = {
         email: data.email,
         username: data.username,
         password: data.password,
         password_confirmation: data.password_confirmation,
         spinner: spinner,
-        [captchaField]: null //data[captchaField] // dynamic honeypot field
+        [captchaField]: null
       }
 
       const response = await post('/users', {
@@ -104,8 +104,8 @@ export default function Register() {
         } else {
           setCurrentUser(result.user)
           toast({
-            title: 'Welcome aboard! 🎉',
-            description: 'Your account has been created successfully'
+            title: I18n.t('sessions.register.toast.success.title'),
+            description: I18n.t('sessions.register.toast.success.message')
           })
           navigate('/')
         }
@@ -116,15 +116,15 @@ export default function Register() {
           return
         }
         toast({
-          title: 'Error',
-          description: result.errors?.join(', ') || 'Registration failed',
+          title: I18n.t('sessions.register.toast.error.title'),
+          description: result.errors?.join(', ') || I18n.t('sessions.register.toast.error.generic'),
           variant: 'destructive'
         })
       }
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Something went wrong',
+        title: I18n.t('sessions.register.toast.error.title'),
+        description: I18n.t('sessions.register.toast.error.generic'),
         variant: 'destructive'
       })
     } finally {
@@ -150,8 +150,8 @@ export default function Register() {
             transition={{ delay: 0.2 }}
             className="text-center mb-8"
           >
-            <h1 className="text-3xl font-bold mb-2">Create your account</h1>
-            <p className="text-muted-foreground">Join our community of creators</p>
+            <h1 className="text-3xl font-bold mb-2">{I18n.t('sessions.register.title')}</h1>
+            <p className="text-muted-foreground">{I18n.t('sessions.register.subtitle')}</p>
           </motion.div>
 
           <div className="relative mb-8">
@@ -209,17 +209,17 @@ export default function Register() {
               >
                 {currentStep === 0 && (
                   <div className="space-y-4">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email">{I18n.t('sessions.register.steps.email.label')}</Label>
                     <div className="relative">
                       <Input
                         id="email"
                         type="email"
                         className="pl-10"
                         {...register('email', {
-                          required: 'Email is required',
+                          required: I18n.t('sessions.register.steps.email.required'),
                           pattern: {
                             value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                            message: 'Invalid email address'
+                            message: I18n.t('sessions.register.steps.email.invalid')
                           }
                         })}
                       />
@@ -239,20 +239,20 @@ export default function Register() {
 
                 {currentStep === 1 && (
                   <div className="space-y-4">
-                    <Label htmlFor="username">Username</Label>
+                    <Label htmlFor="username">{I18n.t('sessions.register.steps.username.label')}</Label>
                     <div className="relative">
                       <Input
                         id="username"
                         className="pl-10"
                         {...register('username', {
-                          required: 'Username is required',
+                          required: I18n.t('sessions.register.steps.username.required'),
                           pattern: {
                             value: /^[a-zA-Z0-9_-]+$/,
-                            message: 'Username can only contain letters, numbers, underscores and dashes'
+                            message: I18n.t('sessions.register.steps.username.pattern')
                           },
                           minLength: {
                             value: 3,
-                            message: 'Username must be at least 3 characters'
+                            message: I18n.t('sessions.register.steps.username.min_length')
                           }
                         })}
                       />
@@ -273,17 +273,17 @@ export default function Register() {
                 {currentStep === 2 && (
                   <div className="space-y-4">
                     <div>
-                      <Label htmlFor="password">Password</Label>
+                      <Label htmlFor="password">{I18n.t('sessions.register.steps.password.label')}</Label>
                       <div className="relative">
                         <Input
                           id="password"
                           type="password"
                           className="pl-10"
                           {...register('password', {
-                            required: 'Password is required',
+                            required: I18n.t('sessions.register.steps.password.required'),
                             minLength: {
                               value: 6,
-                              message: 'Password must be at least 6 characters'
+                              message: I18n.t('sessions.register.steps.password.min_length')
                             }
                           })}
                         />
@@ -301,16 +301,18 @@ export default function Register() {
                     </div>
 
                     <div>
-                      <Label htmlFor="password_confirmation">Confirm Password</Label>
+                      <Label htmlFor="password_confirmation">
+                        {I18n.t('sessions.register.steps.password.confirm_label')}
+                      </Label>
                       <div className="relative">
                         <Input
                           id="password_confirmation"
                           type="password"
                           className="pl-10"
                           {...register('password_confirmation', {
-                            required: 'Please confirm your password',
+                            required: I18n.t('sessions.register.steps.password.confirm_required'),
                             validate: value =>
-                              value === password || 'The passwords do not match'
+                              value === password || I18n.t('sessions.register.steps.password.mismatch')
                           })}
                         />
                         <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -339,7 +341,7 @@ export default function Register() {
                   className="flex items-center gap-2"
                 >
                   <ArrowLeft className="w-4 h-4" />
-                  Back
+                  {I18n.t('sessions.register.navigation.back')}
                 </Button>
               ) : (
                 <div />
@@ -351,7 +353,7 @@ export default function Register() {
                   onClick={nextStep}
                   className="flex items-center gap-2"
                 >
-                  Next
+                  {I18n.t('sessions.register.navigation.next')}
                   <ArrowRight className="w-4 h-4" />
                 </Button>
               ) : (
@@ -367,12 +369,12 @@ export default function Register() {
                         transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                         className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
                       />
-                      Creating account...
+                      {I18n.t('sessions.register.progress.creating')}
                     </>
                   ) : (
                     <>
                       <Check className="w-4 h-4" />
-                      Complete Registration
+                      {I18n.t('sessions.register.navigation.complete')}
                     </>
                   )}
                 </Button>
@@ -385,7 +387,9 @@ export default function Register() {
               <div className="w-full border-t border-muted" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-card text-muted-foreground">Or register with</span>
+              <span className="px-2 bg-card text-muted-foreground">
+                {I18n.t('sessions.register.social.or_register')}
+              </span>
             </div>
           </div>
 
@@ -403,7 +407,7 @@ export default function Register() {
                 className="w-full flex items-center justify-center gap-2 hover:bg-muted/50 transition-colors"
               >
                 <GoogleIcon />
-                <span>Continue with Google</span>
+                <span>{I18n.t('sessions.register.social.google')}</span>
                 <ArrowRight className="w-4 h-4 ml-auto" />
               </Button>
             </form>
@@ -416,7 +420,7 @@ export default function Register() {
                 className="w-full flex items-center justify-center gap-2 hover:bg-muted/50 transition-colors"
               >
                 <DiscordIcon />
-                <span>Continue with Discord</span>
+                <span>{I18n.t('sessions.register.social.discord')}</span>
                 <ArrowRight className="w-4 h-4 ml-auto" />
               </Button>
             </form>
@@ -428,9 +432,9 @@ export default function Register() {
             transition={{ delay: 0.5 }}
             className="text-center text-sm mt-6"
           >
-            Already have an account?{' '}
+            {I18n.t('sessions.register.have_account')}{' '}
             <Link to="/login" className="text-primary hover:underline">
-              Login
+              {I18n.t('sessions.register.login_link')}
             </Link>
           </motion.p>
         </div>

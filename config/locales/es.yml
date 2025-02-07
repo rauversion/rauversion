@@ -65,6 +65,10 @@ es:
     published: Publicados
     new_article: Nuevo Artículo
     view: Ver Artículo
+    blog_title: "Blog de %{name}"
+    back_to_music: "volver a la música de %{username}"
+    no_articles: No se encontraron artículos
+    loading: Cargando...
     edit: Editar Artículo
     create: Crear Artículo
     mine:
@@ -864,8 +868,14 @@ es:
       albums: álbumes
       bio: Biografía
       view_profile: Ver Perfil
+      name: "%{name}"
+      username: "@%{username}"
+      tracks_count: "%{count} pistas"
+      albums_count: "%{count} álbumes"
       label:
         back_to_label: Volver al sello
+        name: "%{name}"
+        username: "@%{username}"
     show:
       not_found: Usuario no encontrado
       error_fetching: Error al cargar el usuario
@@ -1138,6 +1148,68 @@ es:
   sessions:
     forgot_pass: "¿Olvidaste tu contraseña?"
     sign_in: Iniciar sesión
+    title: "¡Bienvenido de nuevo!"
+    subtitle: "Inicia sesión en tu cuenta"
+    register:
+      title: "Crea tu cuenta"
+      subtitle: "Únete a nuestra comunidad de creadores"
+      steps:
+        email:
+          label: "¿Cuál es tu correo electrónico?"
+          required: "El correo electrónico es requerido"
+          invalid: "Correo electrónico inválido"
+        username:
+          label: "Elige un nombre de usuario"
+          required: "El nombre de usuario es requerido"
+          pattern: "El nombre de usuario solo puede contener letras, números, guiones bajos y guiones"
+          min_length: "El nombre de usuario debe tener al menos 3 caracteres"
+        password:
+          label: "Crea una contraseña"
+          required: "La contraseña es requerida"
+          min_length: "La contraseña debe tener al menos 6 caracteres"
+          confirm_label: "Confirmar Contraseña"
+          confirm_required: "Por favor confirma tu contraseña"
+          mismatch: "Las contraseñas no coinciden"
+      navigation:
+        back: "Atrás"
+        next: "Siguiente"
+        complete: "Completar Registro"
+      progress:
+        creating: "Creando cuenta..."
+      social:
+        or_register: "O regístrate con"
+        google: "Continuar con Google"
+        discord: "Continuar con Discord"
+      have_account: "¿Ya tienes una cuenta?"
+      login_link: "Iniciar sesión"
+      toast:
+        success:
+          title: "¡Bienvenido a bordo! 🎉"
+          message: "Tu cuenta ha sido creada exitosamente"
+        error:
+          title: "Error"
+          generic: "Algo salió mal"
+    email:
+      label: "Correo electrónico"
+      required: "El correo electrónico es requerido"
+      invalid: "Correo electrónico inválido"
+    password:
+      label: "Contraseña"
+      required: "La contraseña es requerida"
+    or_continue_with: "O continuar con"
+    google: "Iniciar sesión con Google"
+    discord: "Iniciar sesión con Discord"
+    signing_in: "Iniciando sesión..."
+    no_account: "¿No tienes una cuenta?"
+    register_link: "Regístrate"
+    toast:
+      success:
+        title: "¡Bienvenido de nuevo! 👋"
+        message: "Has iniciado sesión exitosamente"
+      error:
+        title: "Error"
+        invalid_credentials: "Correo electrónico o contraseña inválidos"
+        generic: "Algo salió mal"
 
   errors:
     404:
@@ -1274,3 +1346,25 @@ es:
     stock:
       low_stock: "Solo quedan %{count} en stock"
       out_of_stock: "Agotado"
+    cart:
+      title: "Carrito de Compras"
+      empty: "Tu carrito está vacío"
+      total: "Total"
+      remove: "Eliminar"
+      checkout: "Pagar"
+      processing: "Procesando..."
+      view_details: "Ver Detalles del Carrito"
+      error: "Error"
+      sr_label: "Carrito de compras"
+    checkout:
+      success:
+        title: "¡Pago Exitoso!"
+        message: "Gracias por tu compra. Recibirás un correo de confirmación en breve."
+        view_orders: "Ver Pedidos"
+        continue_shopping: "Continuar Comprando"
+      failure:
+        title: "Pago Fallido"
+        message: "No pudimos procesar tu pago. No te preocupes, los artículos de tu carrito siguen guardados."
+        return_to_cart: "Volver al Carrito"
+        continue_shopping: "Continuar Comprando"
+        support_message: "Si continúas experimentando problemas, por favor contacta a nuestro equipo de soporte."

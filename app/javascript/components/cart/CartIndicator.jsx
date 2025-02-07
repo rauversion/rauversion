@@ -12,6 +12,7 @@ import {
 import { Link } from 'react-router-dom'
 import useCartStore from '@/stores/cartStore'
 import { useToast } from "@/hooks/use-toast"
+import I18n from '@/stores/locales'
 
 export function CartIndicator() {
   const { cart, loading, error, fetchCart, clearError } = useCartStore()
@@ -25,7 +26,7 @@ export function CartIndicator() {
     if (error) {
       toast({
         variant: "destructive",
-        title: "Error",
+        title: I18n.t('products.cart.error'),
         description: error
       })
       clearError()
@@ -44,15 +45,15 @@ export function CartIndicator() {
               {cart.total_items}
             </span>
           )}
-          <span className="sr-only">Shopping cart</span>
+          <span className="sr-only">{I18n.t('products.cart.sr_label')}</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-80">
-        <DropdownMenuLabel>Shopping Cart</DropdownMenuLabel>
+        <DropdownMenuLabel>{I18n.t('products.cart.title')}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {cart && cart.items.length === 0 ? (
           <div className="px-2 py-4 text-center text-muted-foreground">
-            Your cart is empty
+            {I18n.t('products.cart.empty')}
           </div>
         ) : (
           <>
@@ -79,14 +80,14 @@ export function CartIndicator() {
                   className="text-destructive hover:text-destructive"
                   onClick={() => useCartStore.getState().removeFromCart(item.product.id)}
                 >
-                  Remove
+                  {I18n.t('products.cart.remove')}
                 </Button>
               </DropdownMenuItem>
             ))}
             <DropdownMenuSeparator />
             <div className="p-4">
               <div className="flex justify-between text-sm mb-4">
-                <span>Total</span>
+                <span>{I18n.t('products.cart.total')}</span>
                 <span className="font-medium">${cart.total_price}</span>
               </div>
               <div className="space-y-2">
@@ -95,13 +96,13 @@ export function CartIndicator() {
                   onClick={() => useCartStore.getState().checkout()}
                   disabled={loading}
                 >
-                  {loading ? "Processing..." : "Checkout"}
+                  {loading ? I18n.t('products.cart.processing') : I18n.t('products.cart.checkout')}
                 </Button>
                 <Link 
                   to="/cart"
                   className="block w-full text-center text-muted-foreground hover:text-foreground text-sm"
                 >
-                  View Cart Details
+                  {I18n.t('products.cart.view_details')}
                 </Link>
               </div>
             </div>

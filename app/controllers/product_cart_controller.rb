@@ -4,7 +4,7 @@ class ProductCartController < ApplicationController
   before_action :set_cart
 
   def add
-    product = Product.find_by(params[:product_id])
+    product = Product.find_by(id: params[:product_id])
     @cart.add_product(product)
     @cart_items = @cart.product_cart_items.includes(:product)
     # redirect_back(fallback_location: root_path, notice: 'Item added to cart')

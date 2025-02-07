@@ -10,6 +10,7 @@ export default function ProductShow() {
   const [selectedImage, setSelectedImage] = useState(null)
   const { addToCart } = useCartStore()
 
+  
   useEffect(() => {
     const fetchProduct = async () => {
       try {

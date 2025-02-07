@@ -131,8 +131,8 @@ class UsersController < ApplicationController
     @section = "tracks/track_item"
 
     respond_to do |format|
-      format.html { render "show" }
-      format.json
+      format.html 
+      format.json { render "tracks" }
     end
   end
 

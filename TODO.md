@@ -3,6 +3,7 @@ TODO:
   + React app
     + merch crud
     + blank render for all pages
+    + tickets obtain
 
   + Current.label_user not set on impersonate new track
   

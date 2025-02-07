@@ -17,7 +17,7 @@ export default function UserReposts() {
         const response = await get(`/${username}/reposts.json`)
         if (response.ok) {
           const data = await response.json
-          setReposts(data.reposts)
+          setReposts(data.collection)
           setPagination(data.pagination)
         }
       } catch (error) {

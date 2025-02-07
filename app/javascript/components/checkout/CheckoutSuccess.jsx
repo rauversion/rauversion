@@ -3,6 +3,7 @@ import { motion } from "framer-motion"
 import { CheckCircle } from "lucide-react"
 import { Button } from "../ui/button"
 import { Link } from "react-router-dom"
+import I18n from '@/stores/locales'
 
 export default function CheckoutSuccess() {
   return (
@@ -27,9 +28,9 @@ export default function CheckoutSuccess() {
           transition={{ delay: 0.4 }}
           className="space-y-4"
         >
-          <h1 className="text-3xl font-bold tracking-tight">Payment Successful!</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{I18n.t('products.checkout.success.title')}</h1>
           <p className="text-muted-foreground">
-            Thank you for your purchase. You will receive an email confirmation shortly.
+            {I18n.t('products.checkout.success.message')}
           </p>
         </motion.div>
 
@@ -40,11 +41,11 @@ export default function CheckoutSuccess() {
           className="space-y-4"
         >
           <Button asChild className="w-full">
-            <Link to="/purchases">View Orders</Link>
+            <Link to="/purchases">{I18n.t('products.checkout.success.view_orders')}</Link>
           </Button>
           
           <Button asChild variant="outline" className="w-full">
-            <Link to="/">Continue Shopping</Link>
+            <Link to="/">{I18n.t('products.checkout.success.continue_shopping')}</Link>
           </Button>
         </motion.div>
       </motion.div>

@@ -24,7 +24,7 @@ export default function UserArtists() {
   if (loading && artists.length === 0) {
     return (
       <div className="flex justify-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500" aria-label={I18n.t('loading')}></div>
       </div>
     )
   }
@@ -48,10 +48,10 @@ export default function UserArtists() {
             
             <div className="relative h-full flex items-center p-8">
               <div className="space-y-2">
-                <h2 className="text-5xl font-black tracking-tight text-white uppercase">
+                <h2 className="text-5xl font-black tracking-tight text-white uppercase" title={I18n.t('users.artist_page.label.name', { name: label.full_name })}>
                   {label.full_name}
                 </h2>
-                <p className="text-2xl font-mono text-gray-400">
+                <p className="text-2xl font-mono text-gray-400" title={I18n.t('users.artist_page.label.username', { username: label.username })}>
                   @{label.username}
                 </p>
               </div>
@@ -86,27 +86,30 @@ export default function UserArtists() {
               {/* Content Overlay */}
               <div className="relative h-full flex flex-col justify-between p-6">
                 <div className="space-y-4">
-                  <h3 className="text-4xl font-black tracking-tight text-white uppercase">
+                  <h3 className="text-4xl font-black tracking-tight text-white uppercase" title={I18n.t('users.artist_page.name', { name: artist.full_name })}>
                     {artist.full_name}
                   </h3>
-                  <p className="text-xl font-mono text-gray-400">@{artist.username}</p>
+                  <p className="text-xl font-mono text-gray-400" title={I18n.t('users.artist_page.username', { username: artist.username })}>@{artist.username}</p>
                 </div>
 
                 <div className="space-y-6">
                   <div className="flex gap-4 text-lg">
                     <div className="border border-white/20 px-4 py-2">
-                      <span className="font-bold text-white">{artist.tracks_count}</span>
-
+                      <span className="font-bold text-white" title={I18n.t('users.artist_page.tracks_count', { count: artist.tracks_count })}>
+                        {artist.tracks_count}
+                      </span>
                       <span className="text-gray-400 uppercase text-sm ml-2">{I18n.t('users.artist_page.tracks')}</span>
                     </div>
                     <div className="border border-white/20 px-4 py-2">
-                      <span className="font-bold text-white">{artist.albums_count}</span>
+                      <span className="font-bold text-white" title={I18n.t('users.artist_page.albums_count', { count: artist.albums_count })}>
+                        {artist.albums_count}
+                      </span>
                       <span className="text-gray-400 uppercase text-sm ml-2">{I18n.t('users.artist_page.albums')}</span>
                     </div>
                   </div>
 
                   {artist.bio && (
-                    <p className="text-base text-gray-400 line-clamp-2 font-mono">
+                    <p className="text-base text-gray-400 line-clamp-2 font-mono" title={I18n.t('users.artist_page.bio')}>
                       {artist.bio}
                     </p>
                   )}
@@ -126,7 +129,7 @@ export default function UserArtists() {
 
       {loading && artists.length > 0 && (
         <div className="flex justify-center py-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500"></div>
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500" aria-label={I18n.t('loading')}></div>
         </div>
       )}
     </div>

@@ -103,10 +103,7 @@ const ProductCard = ({
     setAdding(true);
     try {
       const response = await post(`/${userId}/product_cart/add/${product.id}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content,
-        }
+        responseKind: 'json',
       });
       
       if (response.ok) {

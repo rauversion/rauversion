@@ -29,7 +29,7 @@ export default function AudioPlayer({ id, url, peaks, height }) {
     const fetchAndPlayTrack = async () => {
       
       if (!currentTrackId) return;
-
+      debugger
       try {
         const response = await get(`/player.json?id=${currentTrackId}`, {
           responseKind: "json"
@@ -299,8 +299,8 @@ export default function AudioPlayer({ id, url, peaks, height }) {
       stopAudio();
       setHasHalfwayEventFired(false);
 
-      const nextTrackId = getNextTrackIndex();
-
+      const nextTrack = getNextTrackIndex();
+      const nextTrackId = nextTrack?.id
       if (nextTrackId) {
         useAudioStore.setState({ currentTrackId: nextTrackId });
       } else {
@@ -314,8 +314,8 @@ export default function AudioPlayer({ id, url, peaks, height }) {
       stopAudio();
       setHasHalfwayEventFired(false);
 
-      const prevTrackId = getPreviousTrackIndex();
-
+      const prevTrack = getPreviousTrackIndex();
+      const prevTrackId = prevTrack?.id;
       if (prevTrackId) {
         useAudioStore.setState({ currentTrackId: prevTrackId });
       } else {

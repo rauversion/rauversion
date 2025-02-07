@@ -74,6 +74,10 @@ en:
     published: Published
     new_article: new_article
     view: View Article
+    blog_title: "%{name}'s Blog"
+    back_to_music: "back to %{username}'s music"
+    no_articles: No articles found
+    loading: Loading...
 
   attribution:
     some: Some rights reserved
@@ -802,8 +806,14 @@ en:
       albums: albums
       bio: Bio
       view_profile: View Profile
+      name: "%{name}"
+      username: "@%{username}"
+      tracks_count: "%{count} tracks"
+      albums_count: "%{count} albums"
       label:
         back_to_label: Back to label
+        name: "%{name}"
+        username: "@%{username}"
 
   user_settings:
     title_account: Account
@@ -1109,6 +1119,68 @@ en:
   sessions:
     forgot_pass: "Forgot your password?"
     sign_in: Sign in
+    title: "Welcome back"
+    subtitle: "Sign in to your account"
+    register:
+      title: "Create your account"
+      subtitle: "Join our community of creators"
+      steps:
+        email:
+          label: "What's your email?"
+          required: "Email is required"
+          invalid: "Invalid email address"
+        username:
+          label: "Choose a username"
+          required: "Username is required"
+          pattern: "Username can only contain letters, numbers, underscores and dashes"
+          min_length: "Username must be at least 3 characters"
+        password:
+          label: "Create a password"
+          required: "Password is required"
+          min_length: "Password must be at least 6 characters"
+          confirm_label: "Confirm Password"
+          confirm_required: "Please confirm your password"
+          mismatch: "The passwords do not match"
+      navigation:
+        back: "Back"
+        next: "Next"
+        complete: "Complete Registration"
+      progress:
+        creating: "Creating account..."
+      social:
+        or_register: "Or register with"
+        google: "Continue with Google"
+        discord: "Continue with Discord"
+      have_account: "Already have an account?"
+      login_link: "Login"
+      toast:
+        success:
+          title: "Welcome aboard! 🎉"
+          message: "Your account has been created successfully"
+        error:
+          title: "Error"
+          generic: "Something went wrong"
+    email:
+      label: "Email"
+      required: "Email is required"
+      invalid: "Invalid email address"
+    password:
+      label: "Password"
+      required: "Password is required"
+    or_continue_with: "Or continue with"
+    google: "Sign in with Google"
+    discord: "Sign in with Discord"
+    signing_in: "Signing in..."
+    no_account: "Don't have an account?"
+    register_link: "Register"
+    toast:
+      success:
+        title: "Welcome back! 👋"
+        message: "Successfully logged in"
+      error:
+        title: "Error"
+        invalid_credentials: "Invalid email or password"
+        generic: "Something went wrong"
 
   errors:
     404:
@@ -1249,3 +1321,25 @@ en:
     stock:
       low_stock: "Only %{count} left in stock"
       out_of_stock: "Out of stock"
+    cart:
+      title: "Shopping Cart"
+      empty: "Your cart is empty"
+      total: "Total"
+      remove: "Remove"
+      checkout: "Checkout"
+      processing: "Processing..."
+      view_details: "View Cart Details"
+      error: "Error"
+      sr_label: "Shopping cart"
+    checkout:
+      success:
+        title: "Payment Successful!"
+        message: "Thank you for your purchase. You will receive an email confirmation shortly."
+        view_orders: "View Orders"
+        continue_shopping: "Continue Shopping"
+      failure:
+        title: "Payment Failed"
+        message: "We couldn't process your payment. Don't worry, your cart items are still saved."
+        return_to_cart: "Return to Cart"
+        continue_shopping: "Continue Shopping"
+        support_message: "If you continue to experience issues, please contact our support team."

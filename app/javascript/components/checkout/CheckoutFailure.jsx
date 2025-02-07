@@ -4,10 +4,10 @@ import { XCircle } from "lucide-react"
 import { Button } from "../ui/button"
 import { Link } from "react-router-dom"
 import useCartStore from "@/stores/cartStore"
+import I18n from '@/stores/locales'
 
 export default function CheckoutFailure() {
   const { cart } = useCartStore()
-
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -31,9 +31,9 @@ export default function CheckoutFailure() {
           transition={{ delay: 0.4 }}
           className="space-y-4"
         >
-          <h1 className="text-3xl font-bold tracking-tight">Payment Failed</h1>
+          <h1 className="text-3xl font-bold tracking-tight">{I18n.t('products.checkout.failure.title')}</h1>
           <p className="text-muted-foreground">
-            We couldn't process your payment. Don't worry, your cart items are still saved.
+            {I18n.t('products.checkout.failure.message')}
           </p>
         </motion.div>
 
@@ -45,16 +45,16 @@ export default function CheckoutFailure() {
         >
           {cart && cart.items?.length > 0 && (
             <Button asChild className="w-full">
-              <Link to="/cart">Return to Cart</Link>
+              <Link to="/cart">{I18n.t('products.checkout.failure.return_to_cart')}</Link>
             </Button>
           )}
           
           <Button asChild variant="outline" className="w-full">
-            <Link to="/">Continue Shopping</Link>
+            <Link to="/">{I18n.t('products.checkout.failure.continue_shopping')}</Link>
           </Button>
 
           <p className="text-sm text-muted-foreground">
-            If you continue to experience issues, please contact our support team.
+            {I18n.t('products.checkout.failure.support_message')}
           </p>
         </motion.div>
       </motion.div>

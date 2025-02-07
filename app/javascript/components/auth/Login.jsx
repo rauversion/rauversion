@@ -10,6 +10,7 @@ import { Label } from '@/components/ui/label'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Mail, Lock, LogIn, ArrowRight } from 'lucide-react'
 import { GoogleIcon, DiscordIcon } from './SocialIcons'
+import I18n from '@/stores/locales'
 
 export default function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -36,21 +37,21 @@ export default function Login() {
       if (response.ok) {
         setCurrentUser(result.user)
         toast({
-          title: 'Welcome back! 👋',
-          description: 'Successfully logged in'
+          title: I18n.t('sessions.toast.success.title'),
+          description: I18n.t('sessions.toast.success.message')
         })
         navigate('/')
       } else {
         toast({
-          title: 'Error',
-          description: 'Invalid email or password',
+          title: I18n.t('sessions.toast.error.title'),
+          description: I18n.t('sessions.toast.error.invalid_credentials'),
           variant: 'destructive'
         })
       }
     } catch (error) {
       toast({
-        title: 'Error',
-        description: 'Something went wrong',
+        title: I18n.t('sessions.toast.error.title'),
+        description: I18n.t('sessions.toast.error.generic'),
         variant: 'destructive'
       })
     } finally {
@@ -72,8 +73,8 @@ export default function Login() {
             transition={{ delay: 0.2 }}
             className="text-center mb-8"
           >
-            <h1 className="text-3xl font-bold mb-2">Welcome back</h1>
-            <p className="text-muted-foreground">Sign in to your account</p>
+            <h1 className="text-3xl font-bold mb-2">{I18n.t('sessions.title')}</h1>
+            <p className="text-muted-foreground">{I18n.t('sessions.subtitle')}</p>
           </motion.div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
@@ -82,17 +83,17 @@ export default function Login() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.3 }}
             >
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{I18n.t('sessions.email.label')}</Label>
               <div className="relative mt-2">
                 <Input
                   id="email"
                   type="email"
                   className="pl-10"
                   {...register('email', {
-                    required: 'Email is required',
+                    required: I18n.t('sessions.email.required'),
                     pattern: {
                       value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                      message: 'Invalid email address'
+                      message: I18n.t('sessions.email.invalid')
                     }
                   })}
                 />
@@ -114,14 +115,14 @@ export default function Login() {
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.4 }}
             >
-              <Label htmlFor="password">Password</Label>
+              <Label htmlFor="password">{I18n.t('sessions.password.label')}</Label>
               <div className="relative mt-2">
                 <Input
                   id="password"
                   type="password"
                   className="pl-10"
                   {...register('password', {
-                    required: 'Password is required'
+                    required: I18n.t('sessions.password.required')
                   })}
                 />
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -147,7 +148,7 @@ export default function Login() {
                 to="/forgot-password"
                 className="text-sm text-primary hover:underline"
               >
-                Forgot your password?
+                {I18n.t('sessions.forgot_pass')}
               </Link>
             </motion.div>
 
@@ -156,7 +157,9 @@ export default function Login() {
                 <div className="w-full border-t border-muted" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-card text-muted-foreground">Or continue with</span>
+                <span className="px-2 bg-card text-muted-foreground">
+                  {I18n.t('sessions.or_continue_with')}
+                </span>
               </div>
             </div>
 
@@ -174,7 +177,7 @@ export default function Login() {
                   className="w-full flex items-center justify-center gap-2 hover:bg-muted/50 transition-colors"
                 >
                   <GoogleIcon />
-                  <span>Sign in with Google</span>
+                  <span>{I18n.t('sessions.google')}</span>
                   <ArrowRight className="w-4 h-4 ml-auto" />
                 </Button>
               </form>
@@ -187,7 +190,7 @@ export default function Login() {
                   className="w-full flex items-center justify-center gap-2 hover:bg-muted/50 transition-colors"
                 >
                   <DiscordIcon />
-                  <span>Sign in with Discord</span>
+                  <span>{I18n.t('sessions.discord')}</span>
                   <ArrowRight className="w-4 h-4 ml-auto" />
                 </Button>
               </form>
@@ -210,12 +213,12 @@ export default function Login() {
                       transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                       className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
                     />
-                    Signing in...
+                    {I18n.t('sessions.signing_in')}
                   </>
                 ) : (
                   <>
                     <LogIn className="w-4 h-4" />
-                    Sign in
+                    {I18n.t('sessions.sign_in')}
                   </>
                 )}
               </Button>
@@ -228,9 +231,9 @@ export default function Login() {
             transition={{ delay: 0.7 }}
             className="text-center text-sm mt-6"
           >
-            Don't have an account?{' '}
+            {I18n.t('sessions.no_account')}{' '}
             <Link to="/register" className="text-primary hover:underline">
-              Register
+              {I18n.t('sessions.register_link')}
             </Link>
           </motion.p>
         </div>
