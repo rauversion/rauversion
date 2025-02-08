@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Button } from '../ui/button'
 import I18n from 'stores/locales'
+import useAudioStore from "@/stores/audioStore"
 import { MinimalTrackCell } from '../tracks/TrackCell'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import {
@@ -17,7 +18,7 @@ import {
 export default function LatestReleases() {
   const [tracks, setTracks] = useState([])
   const [loading, setLoading] = useState(true)
-
+  const { addMultipleToPlaylist } = useAudioStore()
   useEffect(() => {
     const loadTracks = async () => {
       try {
@@ -25,6 +26,8 @@ export default function LatestReleases() {
         if (response.ok) {
           const data = await response.json
           setTracks(data.tracks.slice(0, 10))
+          
+          addMultipleToPlaylist(data.tracks)
         } else {
           console.error('Failed to fetch tracks:', response.statusText)
         }

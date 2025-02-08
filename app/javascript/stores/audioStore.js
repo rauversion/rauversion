@@ -56,9 +56,9 @@ const useAudioStore = create(
       finish: () => {
         set({ isPlaying: false, currentTime: 0 })
         const state = get()
-        const currentIndex = state.playlist.findIndex(track => track.id === state.currentTrackId)
+        const currentIndex = state.playlist.indexOf(state.currentTrackId)
         if (currentIndex < state.playlist.length - 1) {
-          state.play(state.playlist[currentIndex + 1].id)
+          state.play(state.playlist[currentIndex + 1])
         }
       },
 
@@ -78,31 +78,41 @@ const useAudioStore = create(
       // Playlist management
       addToPlaylist: (track) => {
         const state = get()
-        if (!state.playlist.find(t => t.id === track.id)) {
-          set({ playlist: [...state.playlist, track] })
+        if (!state.playlist.find(t => t === track.id)) {
+          set({ playlist: [...state.playlist, track.id] })
         }
       },
 
       removeFromPlaylist: (trackId) => {
         const state = get()
-        set({ playlist: state.playlist.filter(track => track.id !== trackId) })
+        set({ playlist: state.playlist.filter(id => id !== trackId) })
       },
 
       clearPlaylist: () => set({ playlist: [] }),
 
       playNext: () => {
         const state = get()
-        const currentIndex = state.playlist.findIndex(track => track.id === state.currentTrackId)
+        const currentIndex = state.playlist.indexOf(state.currentTrackId)
         if (currentIndex < state.playlist.length - 1) {
-          state.play(state.playlist[currentIndex + 1].id)
+          state.play(state.playlist[currentIndex + 1])
         }
       },
 
       playPrevious: () => {
         const state = get()
-        const currentIndex = state.playlist.findIndex(track => track.id === state.currentTrackId)
+        const currentIndex = state.playlist.indexOf(state.currentTrackId)
         if (currentIndex > 0) {
-          state.play(state.playlist[currentIndex - 1].id)
+          state.play(state.playlist[currentIndex - 1])
+        }
+      },
+
+      addMultipleToPlaylist: (tracks) => {
+        const state = get()
+        const uniqueTrackIds = tracks
+          .map(track => track.id)
+          .filter(trackId => !state.playlist.includes(trackId))
+        if (uniqueTrackIds.length > 0) {
+          set({ playlist: [...state.playlist, ...uniqueTrackIds] })
         }
       }
     }),

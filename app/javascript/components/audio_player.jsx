@@ -22,14 +22,14 @@ export default function AudioPlayer({ id, url, peaks, height }) {
   const [isMuted, setIsMuted] = useState(false);
   const [hasHalfwayEventFired, setHasHalfwayEventFired] = useState(false);
   const debounceTimeoutRef = useRef(null);
-  const { currentTrackId, isPlaying } = useAudioStore();
+  const { currentTrackId, isPlaying, playNext, playPrevious } = useAudioStore();
   const [playerData, setPlayerData] = useState(null);
 
   useEffect(() => {
     const fetchAndPlayTrack = async () => {
       
       if (!currentTrackId) return;
-      debugger
+      
       try {
         const response = await get(`/player.json?id=${currentTrackId}`, {
           responseKind: "json"
@@ -299,13 +299,15 @@ export default function AudioPlayer({ id, url, peaks, height }) {
       stopAudio();
       setHasHalfwayEventFired(false);
 
-      const nextTrack = getNextTrackIndex();
-      const nextTrackId = nextTrack?.id
+      playNext()
+      /*const nextTrack = getNextTrackIndex();
+
+      const nextTrackId = nextTrack
       if (nextTrackId) {
         useAudioStore.setState({ currentTrackId: nextTrackId });
       } else {
         console.log("No more songs in queue");
-      }
+      }*/
     }, 200);
   };
 
@@ -314,13 +316,14 @@ export default function AudioPlayer({ id, url, peaks, height }) {
       stopAudio();
       setHasHalfwayEventFired(false);
 
-      const prevTrack = getPreviousTrackIndex();
+      playPrevious()
+      /*const prevTrack = getPreviousTrackIndex();
       const prevTrackId = prevTrack?.id;
       if (prevTrackId) {
         useAudioStore.setState({ currentTrackId: prevTrackId });
       } else {
         console.log("No previous song in queue");
-      }
+      }*/
     }, 200);
   };
 
