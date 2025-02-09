@@ -1,5 +1,4 @@
 TODO:
-
   + Playlist block
     + Color accent on puck
   + images too big , use variants
