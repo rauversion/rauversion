@@ -6,4 +6,4 @@ translations:
       - "!*.activerecord"
       - "!*.errors"
       - "!*.number.nth"
-
+      - "!.faker"
