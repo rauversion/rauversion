@@ -254,3 +254,521 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
     t.datetime "created_at", precision: nil, null: false
     t.datetime "updated_at", precision: nil, null: false
   end
+
+  create_table "photos", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.text "description"
+    t.string "tags", default: [], array: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_photos_on_user_id"
+  end
+
+  create_table "plain_conversations", force: :cascade do |t|
+    t.string "subject"
+    t.datetime "pinned_at"
+    t.boolean "pinned"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "plain_messages", force: :cascade do |t|
+    t.string "role"
+    t.text "content"
+    t.bigint "plain_conversation_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["plain_conversation_id"], name: "index_plain_messages_on_plain_conversation_id"
+  end
+
+  create_table "playlists", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "title"
+    t.string "slug"
+    t.text "description"
+    t.jsonb "metadata"
+    t.boolean "private"
+    t.string "playlist_type"
+    t.datetime "release_date", precision: nil
+    t.string "genre"
+    t.string "custom_genre"
+    t.integer "likes_count"
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
+    t.string "tags", default: [], array: true
+    t.integer "label_id"
+    t.integer "editor_choice_position"
+    t.index ["label_id"], name: "index_playlists_on_label_id"
+  end
+
+  create_table "podcaster_hosts", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "podcaster_info_id", null: false
+    t.string "role", default: "host"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["podcaster_info_id"], name: "index_podcaster_hosts_on_podcaster_info_id"
+    t.index ["user_id", "podcaster_info_id"], name: "index_podcaster_hosts_on_user_id_and_podcaster_info_id", unique: true
+    t.index ["user_id"], name: "index_podcaster_hosts_on_user_id"
+  end
+
+  create_table "podcaster_infos", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.text "description"
+    t.text "title"
+    t.text "about"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.jsonb "settings"
+    t.boolean "highlight"
+    t.jsonb "data"
+    t.boolean "active"
+    t.index ["user_id"], name: "index_podcaster_infos_on_user_id"
+  end
+
+  create_table "posts", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.jsonb "body"
+    t.jsonb "settings"
+    t.boolean "private"
+    t.text "excerpt"
+    t.string "title"
+    t.string "slug"
+    t.string "state"
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
+    t.bigint "category_id"
+    t.string "tags", default: [], array: true
+  end
+
+  create_table "preview_cards", force: :cascade do |t|
+    t.string "url"
+    t.string "title"
+    t.text "description"
+    t.string "type"
+    t.string "author_name"
+    t.string "author_url"
+    t.text "html"
+    t.string "image"
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
+  end
+
+  create_table "product_cart_items", force: :cascade do |t|
+    t.bigint "product_cart_id", null: false
+    t.bigint "product_id", null: false
+    t.integer "quantity"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["product_cart_id"], name: "index_product_cart_items_on_product_cart_id"
+    t.index ["product_id"], name: "index_product_cart_items_on_product_id"
+  end
+
+  create_table "product_carts", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_product_carts_on_user_id"
+  end
+
+  create_table "product_images", force: :cascade do |t|
+    t.bigint "product_id", null: false
+    t.string "title"
+    t.string "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["product_id"], name: "index_product_images_on_product_id"
+  end
+
+  create_table "product_options", force: :cascade do |t|
+    t.bigint "product_id", null: false
+    t.string "name", null: false
+    t.integer "quantity"
+    t.string "sku", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["product_id"], name: "index_product_options_on_product_id"
+    t.index ["sku"], name: "index_product_options_on_sku", unique: true
+  end
+
+  create_table "product_purchase_items", force: :cascade do |t|
+    t.bigint "product_purchase_id", null: false
+    t.bigint "product_id", null: false
+    t.integer "quantity"
+    t.decimal "price"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.decimal "shipping_cost"
+    t.index ["product_id"], name: "index_product_purchase_items_on_product_id"
+    t.index ["product_purchase_id"], name: "index_product_purchase_items_on_product_purchase_id"
+  end
+
+  create_table "product_purchases", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.decimal "total_amount"
+    t.string "status"
+    t.string "stripe_session_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.jsonb "shipping_address"
+    t.string "shipping_name"
+    t.string "phone"
+    t.decimal "shipping_cost"
+    t.string "tracking_code"
+    t.string "payment_intent_id"
+    t.string "shipping_status"
+    t.index ["shipping_status"], name: "index_product_purchases_on_shipping_status"
+    t.index ["user_id"], name: "index_product_purchases_on_user_id"
+  end
+
+  create_table "product_shippings", force: :cascade do |t|
+    t.bigint "product_id", null: false
+    t.string "country"
+    t.decimal "base_cost", precision: 10, scale: 2
+    t.decimal "additional_cost", precision: 10, scale: 2
+    t.boolean "is_default", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["product_id"], name: "index_product_shippings_on_product_id"
+  end
+
+  create_table "product_variants", force: :cascade do |t|
+    t.string "name"
+    t.decimal "price"
+    t.integer "stock_quantity"
+    t.bigint "product_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["product_id"], name: "index_product_variants_on_product_id"
+  end
+
+  create_table "products", force: :cascade do |t|
+    t.string "title"
+    t.text "description"
+    t.decimal "price"
+    t.integer "stock_quantity"
+    t.string "sku"
+    t.string "category"
+    t.string "status"
+    t.bigint "user_id", null: false
+    t.bigint "playlist_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.boolean "limited_edition", default: false
+    t.integer "limited_edition_count"
+    t.boolean "include_digital_album", default: false
+    t.string "visibility", default: "private"
+    t.boolean "name_your_price", default: false
+    t.integer "shipping_days"
+    t.date "shipping_begins_on"
+    t.decimal "shipping_within_country_price", precision: 10, scale: 2
+    t.decimal "shipping_worldwide_price", precision: 10, scale: 2
+    t.integer "quantity"
+    t.string "slug"
+    t.datetime "deleted_at"
+    t.bigint "coupon_id"
+    t.string "condition"
+    t.string "brand"
+    t.string "model"
+    t.integer "year"
+    t.boolean "accept_barter", default: false
+    t.text "barter_description"
+    t.index ["accept_barter"], name: "index_products_on_accept_barter"
+    t.index ["brand"], name: "index_products_on_brand"
+    t.index ["condition"], name: "index_products_on_condition"
+    t.index ["coupon_id"], name: "index_products_on_coupon_id"
+    t.index ["deleted_at"], name: "index_products_on_deleted_at"
+    t.index ["model"], name: "index_products_on_model"
+    t.index ["playlist_id"], name: "index_products_on_playlist_id"
+    t.index ["slug"], name: "index_products_on_slug"
+    t.index ["user_id"], name: "index_products_on_user_id"
+    t.index ["year"], name: "index_products_on_year"
+  end
+
+  create_table "purchased_items", force: :cascade do |t|
+    t.bigint "purchase_id", null: false
+    t.string "purchased_item_type", null: false
+    t.bigint "purchased_item_id", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
+    t.string "state"
+    t.boolean "checked_in"
+    t.datetime "checked_in_at", precision: nil
+  end
+
+  create_table "purchases", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
+    t.string "state"
+    t.string "checkout_type"
+    t.string "checkout_id"
+    t.string "purchasable_type"
+    t.bigint "purchasable_id"
+    t.decimal "price"
+  end
+
+  create_table "release_playlists", force: :cascade do |t|
+    t.bigint "release_id", null: false
+    t.bigint "playlist_id", null: false
+    t.integer "position"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["playlist_id"], name: "index_release_playlists_on_playlist_id"
+    t.index ["position"], name: "index_release_playlists_on_position"
+    t.index ["release_id", "playlist_id"], name: "index_release_playlists_on_release_id_and_playlist_id", unique: true
+    t.index ["release_id"], name: "index_release_playlists_on_release_id"
+  end
+
+  create_table "release_section_images", force: :cascade do |t|
+    t.string "caption"
+    t.integer "order"
+    t.bigint "release_section_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["release_section_id"], name: "index_release_section_images_on_release_section_id"
+  end
+
+  create_table "release_sections", force: :cascade do |t|
+    t.string "title"
+    t.text "body"
+    t.integer "position"
+    t.jsonb "data"
+    t.bigint "release_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["release_id"], name: "index_release_sections_on_release_id"
+  end
+
+  create_table "releases", force: :cascade do |t|
+    t.bigint "playlist_id", null: false
+    t.string "slug"
+    t.string "title"
+    t.jsonb "config"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "product_id"
+    t.bigint "user_id"
+    t.jsonb "editor_data"
+    t.boolean "published"
+    t.index ["playlist_id"], name: "index_releases_on_playlist_id"
+    t.index ["product_id"], name: "index_releases_on_product_id"
+    t.index ["user_id"], name: "index_releases_on_user_id"
+  end
+
+  create_table "reposts", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "track_id", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
+  end
+
+  create_table "schedule_schedulings", force: :cascade do |t|
+    t.bigint "event_schedule_id", null: false
+    t.datetime "start_date", precision: nil
+    t.datetime "end_date", precision: nil
+    t.string "name"
+    t.string "short_description"
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
+  end
+
+  create_table "spotlights", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "spotlightable_type", null: false
+    t.bigint "spotlightable_id", null: false
+    t.integer "position"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["spotlightable_type", "spotlightable_id"], name: "index_spotlights_on_spotlightable"
+    t.index ["user_id"], name: "index_spotlights_on_user_id"
+  end
+
+  create_table "terms_and_conditions", force: :cascade do |t|
+    t.string "title"
+    t.string "category"
+    t.text "content"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "tickets", force: :cascade do |t|
+    t.string "title"
+    t.decimal "price"
+    t.decimal "early_bird_price"
+    t.decimal "standard_price"
+    t.integer "qty"
+    t.datetime "selling_start", precision: nil
+    t.datetime "selling_end", precision: nil
+    t.string "short_description"
+    t.jsonb "settings"
+    t.bigint "event_id", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
+  end
+
+  create_table "track_comments", force: :cascade do |t|
+    t.bigint "track_id", null: false
+    t.string "body"
+    t.integer "track_minute"
+    t.bigint "user_id", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
+  end
+
+  create_table "track_peaks", force: :cascade do |t|
+    t.bigint "track_id", null: false
+    t.jsonb "data"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["track_id"], name: "index_track_peaks_on_track_id"
+  end
+
+  create_table "track_playlists", force: :cascade do |t|
+    t.bigint "track_id", null: false
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
+    t.bigint "playlist_id", null: false
+    t.integer "position"
+  end
+
+  create_table "tracks", force: :cascade do |t|
+    t.string "title"
+    t.boolean "private"
+    t.string "slug"
+    t.string "caption"
+    t.bigint "user_id", null: false
+    t.jsonb "notification_settings"
+    t.jsonb "metadata"
+    t.integer "likes_count"
+    t.integer "reposts_count"
+    t.string "state"
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
+    t.text "description"
+    t.string "genre"
+    t.string "tags", default: [], array: true
+    t.integer "label_id"
+    t.boolean "podcast"
+    t.index ["label_id"], name: "index_tracks_on_label_id"
+  end
+
+  create_table "user_links", force: :cascade do |t|
+    t.string "title"
+    t.string "url"
+    t.integer "position"
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "type"
+    t.string "username"
+    t.string "custom_url"
+    t.index ["position"], name: "index_user_links_on_position"
+    t.index ["type"], name: "index_user_links_on_type"
+    t.index ["user_id"], name: "index_user_links_on_user_id"
+  end
+
+  create_table "users", force: :cascade do |t|
+    t.string "username"
+    t.boolean "label"
+    t.string "support_link"
+    t.string "first_name"
+    t.string "last_name"
+    t.string "country"
+    t.string "city"
+    t.text "bio"
+    t.jsonb "settings"
+    t.string "role"
+    t.datetime "created_at", precision: nil, null: false
+    t.datetime "updated_at", precision: nil, null: false
+    t.string "email", default: "", null: false
+    t.string "encrypted_password", default: "", null: false
+    t.string "reset_password_token"
+    t.datetime "reset_password_sent_at", precision: nil
+    t.datetime "remember_created_at", precision: nil
+    t.integer "sign_in_count", default: 0, null: false
+    t.datetime "current_sign_in_at", precision: nil
+    t.datetime "last_sign_in_at", precision: nil
+    t.string "current_sign_in_ip"
+    t.string "last_sign_in_ip"
+    t.string "confirmation_token"
+    t.datetime "confirmed_at", precision: nil
+    t.datetime "confirmation_sent_at", precision: nil
+    t.string "unconfirmed_email"
+    t.integer "failed_attempts", default: 0, null: false
+    t.string "unlock_token"
+    t.datetime "locked_at", precision: nil
+    t.jsonb "notification_settings"
+    t.string "invitation_token"
+    t.datetime "invitation_created_at", precision: nil
+    t.datetime "invitation_sent_at", precision: nil
+    t.datetime "invitation_accepted_at", precision: nil
+    t.integer "invitation_limit"
+    t.string "invited_by_type"
+    t.bigint "invited_by_id"
+    t.integer "invitations_count", default: 0
+    t.boolean "editor"
+    t.boolean "seller"
+    t.jsonb "social_links_settings", default: {}, null: false
+    t.boolean "featured", default: false
+    t.index ["featured"], name: "index_users_on_featured"
+    t.index ["seller"], name: "index_users_on_seller"
+    t.index ["social_links_settings"], name: "index_users_on_social_links_settings", using: :gin
+  end
+
+  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id", name: "active_storage_attachments_blob_id_fkey"
+  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id", name: "active_storage_variant_records_blob_id_fkey"
+  add_foreign_key "comments", "users", name: "comments_user_id_fkey"
+  add_foreign_key "connected_accounts", "users"
+  add_foreign_key "connected_accounts", "users", column: "parent_id"
+  add_foreign_key "coupons", "users"
+  add_foreign_key "event_hosts", "events", name: "event_hosts_event_id_fkey"
+  add_foreign_key "event_hosts", "users", name: "event_hosts_user_id_fkey"
+  add_foreign_key "event_recordings", "events", name: "event_recordings_event_id_fkey"
+  add_foreign_key "event_schedules", "events", name: "event_schedules_event_id_fkey"
+  add_foreign_key "event_tickets", "events", name: "event_tickets_event_id_fkey"
+  add_foreign_key "events", "users", name: "events_user_id_fkey"
+  add_foreign_key "oauth_credentials", "users", name: "oauth_credentials_user_id_fkey"
+  add_foreign_key "photos", "users"
+  add_foreign_key "plain_messages", "plain_conversations"
+  add_foreign_key "playlists", "users", name: "playlists_user_id_fkey"
+  add_foreign_key "podcaster_hosts", "podcaster_infos"
+  add_foreign_key "podcaster_hosts", "users"
+  add_foreign_key "podcaster_infos", "users"
+  add_foreign_key "posts", "categories", name: "posts_category_id_fkey"
+  add_foreign_key "posts", "users", name: "posts_user_id_fkey"
+  add_foreign_key "product_cart_items", "product_carts"
+  add_foreign_key "product_cart_items", "products"
+  add_foreign_key "product_carts", "users"
+  add_foreign_key "product_images", "products"
+  add_foreign_key "product_options", "products"
+  add_foreign_key "product_purchase_items", "product_purchases"
+  add_foreign_key "product_purchase_items", "products"
+  add_foreign_key "product_purchases", "users"
+  add_foreign_key "product_shippings", "products"
+  add_foreign_key "product_variants", "products"
+  add_foreign_key "products", "coupons"
+  add_foreign_key "products", "playlists"
+  add_foreign_key "products", "users"
+  add_foreign_key "purchased_items", "purchases", name: "purchased_items_purchase_id_fkey"
+  add_foreign_key "purchases", "users", name: "purchases_user_id_fkey"
+  add_foreign_key "release_playlists", "playlists"
+  add_foreign_key "release_playlists", "releases"
+  add_foreign_key "release_section_images", "release_sections"
+  add_foreign_key "release_sections", "releases"
+  add_foreign_key "releases", "playlists"
+  add_foreign_key "releases", "products"
+  add_foreign_key "releases", "users"
+  add_foreign_key "reposts", "tracks", name: "reposts_track_id_fkey"
+  add_foreign_key "reposts", "users", name: "reposts_user_id_fkey"
+  add_foreign_key "schedule_schedulings", "event_schedules", name: "schedule_schedulings_event_schedule_id_fkey"
+  add_foreign_key "spotlights", "users"
+  add_foreign_key "tickets", "events", name: "tickets_event_id_fkey"
+  add_foreign_key "track_comments", "tracks", name: "track_comments_track_id_fkey"
+  add_foreign_key "track_comments", "users", name: "track_comments_user_id_fkey"
+  add_foreign_key "track_peaks", "tracks"
+  add_foreign_key "track_playlists", "playlists", name: "track_playlists_playlist_id_fkey"
+  add_foreign_key "track_playlists", "tracks", name: "track_playlists_track_id_fkey"
+  add_foreign_key "tracks", "users", name: "tracks_user_id_fkey"
+  add_foreign_key "user_links", "users"
+end
