@@ -33,6 +33,11 @@ json.albums @albums do |album|
     json.medium album.cover_url(:medium)
     json.small album.cover_url(:small)
   end
+  json.releases do
+    json.array! album.releases do |release|
+      json.extract! release, :id, :title, :slug, :created_at
+    end
+  end
   json.user do
     json.extract! album.user, :id, :username
     json.avatar_url do
