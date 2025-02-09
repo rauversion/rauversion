@@ -82,8 +82,6 @@ class TrackPurchasesController < ApplicationController
         payment_method_types: ["card"],
         line_items: line_items,
         payment_intent_data: payment_intent_data,
-        customer_email: current_user.email,
-
         success_url: checkout_success_url(purchase_id: @purchase.id),
         cancel_url: checkout_failure_url,
         client_reference_id: @purchase.id.to_s,

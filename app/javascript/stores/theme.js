@@ -9,8 +9,8 @@ const getInitialTheme = () => {
     return state.isDarkMode
   }
   
-  // If no stored theme, check system preference
-  return window.matchMedia('(prefers-color-scheme: dark)').matches
+  // Default to dark mode
+  return true
 }
 
 export const useThemeStore = create(
@@ -27,13 +27,3 @@ export const useThemeStore = create(
     }
   )
 )
-
-// Listen for system theme changes
-if (typeof window !== 'undefined') {
-  window
-    .matchMedia('(prefers-color-scheme: dark)')
-    .addEventListener('change', (e) => {
-      const { setDarkMode } = useThemeStore.getState()
-      setDarkMode(e.matches)
-    })
-}
