@@ -123,7 +123,7 @@ const AlbumCard = ({ album, isLarge = false }) => {
                     {album.title}
                   </motion.h3>
                   <p className="text-gray-300 font-medium">
-                    {album.user.username}
+                    {album?.user?.username}
                   </p>
                 </div>
               </div>

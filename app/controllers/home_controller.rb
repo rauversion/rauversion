@@ -36,6 +36,7 @@ class HomeController < ApplicationController
     @latest_releases = Track.published.latests
     .with_attached_cover
     .includes(user: { avatar_attachment: :blob })
+    .where(published: true)
     .limit(12)
 
     respond_with(@artists, @posts, @albums, @playlists, @latest_releases)

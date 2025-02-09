@@ -35,10 +35,12 @@ json.releases @releases do |release|
     json.large release.cover_url(:large)
   end
   json.user do
-    json.extract! release.user, :id, :username
-    json.avatar_url do
-      json.medium release.user.avatar_url(:medium)
-      json.small release.user.avatar_url(:small)
+    unless release.user.nil?
+      json.extract! release.user, :id, :username 
+      json.avatar_url do
+        json.medium release.user.avatar_url(:medium)
+        json.small release.user.avatar_url(:small)
+      end
     end
   end
 end
