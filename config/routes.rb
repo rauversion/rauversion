@@ -1,6 +1,19 @@
 require_relative "../lib/constraints/username_route_contrainer"
 
 Rails.application.routes.draw do
+  # API routes
+  namespace :api do
+    namespace :v1 do
+      get 'me', to: 'me#show'
+      resources :categories, only: [:index]
+      get 'tags/popular', to: 'tags#popular'
+      
+      resources :users, param: :username, only: [] do
+        resources :user_links, only: [:index]
+      end
+    end
+  end
+
   # devise_for :users
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
@@ -48,7 +61,11 @@ Rails.application.routes.draw do
     end
   end
   
+  get 'checkout/success', to: 'product_checkout#success', as: :checkout_success
+  get 'checkout/failure', to: 'product_checkout#cancel', as: :checkout_failure
+
   root to: "home#index"
+  get "/home", to: "home#index"
 
   get "/searchables", to: "users#index", as: :searchable_users
   # resource :oembed, controller: 'oembed', only: :show
@@ -90,13 +107,18 @@ Rails.application.routes.draw do
     end
     collection do
       get :mine
+      get :categories
+      get :tags
     end
   end
 
+  resources :sales, only: [:index]
+  
   resources :purchases do
     collection do
-      get :tickets
       get :music
+      get :tickets
+      get :products
     end
 
     member do
@@ -112,13 +134,6 @@ Rails.application.routes.draw do
     # :invitations => 'users/invitations'
   }
 
-  resources :sales do
-    member do
-      get :product_show
-      post :refund
-    end
-  end
-
   resources :event_webhooks
 
   get "/events/:id/livestream", to: "event_streaming_services#show", as: :event_livestream
@@ -128,12 +143,20 @@ Rails.application.routes.draw do
       get :mine
     end
     member do
+      get :schedule
+      get :team
+      get :tickets
+      get :streaming
+      get :attendees
+      get :recordings
+      get :settings
     end
 
     resources :event_hosts
     resources :event_recordings
     resources :event_tickets
-    resources :event_streaming_services
+    resources :event_streaming_services, only: [:new, :update]
+    resources :event_attendees, only: [:index]
     resources :event_purchases do
       member do
         get :success
@@ -229,6 +252,8 @@ Rails.application.routes.draw do
   resources :albums
 
   constraints(Constraints::UsernameRouteConstrainer.new) do
+    # get ':username/about', to: 'users#about', as: :user_about
+    # get ':username/stats', to: 'users#stats', as: :user_stats
     # Same route as before, only within the constraints block
     resources :users, path: "" do
       resource :insights
@@ -256,6 +281,7 @@ Rails.application.routes.draw do
       resources :podcaster_hosts, only: [:new, :create, :destroy]
       resources :podcasts, controller: "podcasts" do
         collection do
+          get :podcaster_info
           get :about
         end
       end
@@ -263,6 +289,7 @@ Rails.application.routes.draw do
       get "followers", to: "user_follows#followers"
       get "followees", to: "user_follows#followees"
       get "/tracks", to: "users#tracks"
+      get "/tracks/search", to: "users#search_tracks"
       get "/playlists", to: "users#playlists"
       get "/playlists_filter", to: "users#playlists_filter"
       get "/reposts", to: "users#reposts"

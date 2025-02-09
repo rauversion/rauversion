@@ -28,6 +28,15 @@ class PlaylistPurchasesController < ApplicationController
     ]
 
     handle_stripe_session
+
+    respond_to do |format|
+      format.html { render "create" }
+      format.json { 
+        render json: {
+          checkout_url: @payment_url
+        }
+      }
+    end
   end
 
   def handle_stripe_session
@@ -66,8 +75,14 @@ class PlaylistPurchasesController < ApplicationController
         payment_intent_data: payment_intent_data,
         customer_email: current_user.email,
         mode: "payment",
-        success_url: success_playlist_playlist_purchase_url(@playlist, @purchase),
-        cancel_url: failure_playlist_playlist_purchase_url(@playlist, @purchase)
+        success_url: checkout_success_url(purchase_id: @purchase.id),
+        cancel_url: checkout_failure_url,
+        client_reference_id: @purchase.id.to_s,
+        tax_id_collection: {enabled: true},
+        metadata: { 
+          purchase_id: @purchase.id,
+          source_type: "playlist"
+        }
       )
 
       @purchase.update(

@@ -22,6 +22,11 @@ class AlbumsController < ApplicationController
         image: (url_for(@release.cover) rescue nil)
       }
     )
+
+    respond_to do |format|
+      format.html
+      format.json
+    end
   end
 
   def index

@@ -28,8 +28,9 @@
         </div>
         <div class="flex space-x-4 mt-4 lg:mt-0" data-id="17">
           <%= link_to "#",
+            "data-track-id": @playlist&.ordered_tracks&.first,
             "data-track-init-path": player_path(id: @playlist&.ordered_tracks&.first, t: true), 
-            "data-action": "track-detector#addGroup", class: "justify-center rounded-md bg-primary text-primary-foreground h-10 px-4 py-2 flex items-center space-x-2" do %>
+            "data-action": "click->track-player#play click->track-detector#addGroup", class: "justify-center rounded-md bg-primary text-primary-foreground h-10 px-4 py-2 flex items-center space-x-2" do %>
             <svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-play w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
               <polygon points="6 3 20 12 6 21 6 3"></polygon>
             </svg>

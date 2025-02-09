@@ -10,8 +10,16 @@ class SalesController < ApplicationController
       @collection = ProductPurchase.for_seller(current_user)
                                 .order(created_at: :desc)
                                 .page(params[:page])
+                                .per(20)
     else
-      @collection = current_user.user_sales_for(@tab)                            
+      @collection = current_user.user_sales_for(@tab)
+                              .page(params[:page])
+                              .per(20)
+    end
+
+    respond_to do |format|
+      format.html
+      format.json
     end
   end
 
@@ -31,56 +39,57 @@ class SalesController < ApplicationController
 
   def update
     if @purchase.update(purchase_params)
-      if @purchase.saved_change_to_shipping_status? or 
-        @purchase.saved_change_to_tracking_code? or
-        @purchase.saved_change_to_status? 
+      if @purchase.saved_change_to_shipping_status? || 
+         @purchase.saved_change_to_tracking_code? || 
+         @purchase.saved_change_to_status?
         ProductPurchaseMailer.status_update(@purchase).deliver_later 
       end
-      # flash[:notice] = 'Purchase was successfully updated.'
-      redirect_to sales_path(tab: "Product"), notice: 'Purchase was successfully updated.'
+      respond_to do |format|
+        format.html { redirect_to sales_path(tab: "Product"), notice: 'Purchase was successfully updated.' }
+        format.json { render json: @purchase, status: :ok }
+      end
     else
-      # render :product_show
-      # flash[:notice] = 'no.'
-      redirect_to sales_path(tab: "Product"), notice: 'no'
+      respond_to do |format|
+        format.html { redirect_to sales_path(tab: "Product"), alert: @purchase.errors.full_messages.join(", ") }
+        format.json { render json: @purchase.errors, status: :unprocessable_entity }
+      end
     end
   end
 
   def refund
-    # @product_item = @purchase.product_purchase_items.find(params[:id])
-    
-    stripe_refund = Stripe::Refund.create({
-      payment_intent: @purchase.payment_intent_id,
-      # amount: (@product_item.price * 100).to_i # Refund amount in cents
-    })
-
-    Rails.logger.info(stripe_refund)
-    if stripe_refund.status == 'succeeded'
-      @purchase.update(status: :refunded)
-      # @product_item.update(refunded: true)
-      flash.now[:notice] = 'Product was successfully refunded.'
-      # redirect_to product_show_sale_path(@purchase), notice: 'Product was successfully refunded.'
-    else
-      flash.now[:notice] = 'Refund failed. Please try again.'
-      # redirect_to product_show_sale_path(@purchase), alert: 'Refund failed. Please try again.'
+    begin
+      stripe_refund = Stripe::Refund.create({
+        payment_intent: @purchase.payment_intent,
+        amount: (params[:amount].to_f * 100).to_i
+      })
+      
+      @purchase.update(refunded: true, refund_id: stripe_refund.id)
+      respond_to do |format|
+        format.html { redirect_to sales_path, notice: 'Refund was successfully processed.' }
+        format.json { render json: @purchase, status: :ok }
+      end
+    rescue Stripe::StripeError => e
+      respond_to do |format|
+        format.html { redirect_to sales_path, alert: "Refund failed: #{e.message}" }
+        format.json { render json: { error: "Refund failed: #{e.message}" }, status: :unprocessable_entity }
+      end
     end
-  rescue Stripe::StripeError => e
-    flash.now[:notice] = "Refund failed: #{e.message}"
-    # redirect_to product_show_sale_path(@purchase), alert: "Refund failed: #{e.message}"
   end
 
   private
 
-  def ensure_seller
-    redirect_to root_path, alert: 'Access denied.' unless current_user.can_sell_products?
-  end
-
   def set_purchase
-    @purchase = ProductPurchase.for_seller(current_user).find(params[:id])
+    @purchase = ProductPurchase.find(params[:id])
   rescue ActiveRecord::RecordNotFound
     redirect_to admin_product_purchases_path, alert: 'Purchase not found.'
   end
 
   def purchase_params
-    params.require(:product_purchase).permit(:shipping_status, :tracking_code)
+    params.require(:product_purchase).permit(:shipping_status, :tracking_code, :status)
   end
+
+  def ensure_seller
+    redirect_to root_path, alert: 'Access denied. Seller account required.' unless current_user.can_sell_products?
+  end
+
 end

@@ -15,7 +15,7 @@ class ProductPurchase < ApplicationRecord
   }
   
   def total_with_shipping
-    total_amount + shipping_cost
+    total_amount + shipping_cost.to_f
   end
 
   enum :status, {

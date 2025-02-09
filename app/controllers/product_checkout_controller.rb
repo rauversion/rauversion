@@ -16,6 +16,14 @@ class ProductCheckoutController < ApplicationController
       }
     end
 
+    if cart_items.empty?
+      respond_to do |format|
+        format.html { redirect_to "/product_cart", notice: "Cart is empty" }
+        format.json { render json: { error: "Cart is empty" }, status: :unprocessable_entity }
+      end
+      return
+    end
+
     @purchase = current_user.product_purchases.create(
       total_amount: @cart.total_price,
       status: :pending
@@ -36,7 +44,8 @@ class ProductCheckoutController < ApplicationController
       tax_id_collection: {enabled: true},
       metadata: { 
         purchase_id: @purchase.id,
-        cart_id: @cart.id
+        cart_id: @cart.id,
+        source_type: "product"
       },
       shipping_address_collection: {
         allowed_countries: shipping_countries
@@ -51,7 +60,13 @@ class ProductCheckoutController < ApplicationController
       checkout_params.merge!({discounts: [{ coupon: params[:promo_code] }]}) 
 
       @cart.product_cart_items.map(&:product).each do |product|
-        redirect_to( "/product_cart", notice: "Invalid promo code") and return if product.coupon&.code != params[:promo_code]
+        if product.coupon&.code != params[:promo_code]
+          respond_to do |format|
+            format.html { redirect_to "/product_cart", notice: "Invalid promo code" }
+            format.json { render json: { error: "Invalid promo code" }, status: :unprocessable_entity }
+          end
+          return
+        end
       end
     end
 
@@ -60,76 +75,29 @@ class ProductCheckoutController < ApplicationController
     begin
     session = Stripe::Checkout::Session.create(checkout_params)
     rescue Stripe::InvalidRequestError => e
-      redirect_to "/product_cart", notice: e 
+      respond_to do |format|
+        format.html { redirect_to "/product_cart", notice: e }
+        format.json { render json: { error: e.message }, status: :unprocessable_entity }
+      end
       return
     end
 
     @purchase.update(stripe_session_id: session.id)
-    redirect_to session.url, allow_other_host: true
-  end
-
-  def success
-    @purchase = ProductPurchase.find(params[:purchase_id])
     
-    if @purchase.pending?
-      stripe_session = Stripe::Checkout::Session.retrieve(@purchase.stripe_session_id)
-      
-      if stripe_session.payment_status == 'paid'
-        shipping_cost = stripe_session.shipping_cost.amount_total / 100.0 rescue 0
-        total_amount = stripe_session.amount_total / 100.0
-  
-        payment_intent = Stripe::PaymentIntent.retrieve(stripe_session.payment_intent)
-
-        @purchase.update(
-          status: :completed,
-          shipping_address: stripe_session&.shipping_details&.address&.to_h,
-          shipping_name: stripe_session&.shipping_details&.name,
-          phone: stripe_session&.customer_details&.phone,
-          shipping_cost: shipping_cost,
-          total_amount: total_amount,
-          payment_intent_id: payment_intent["id"]
-        )
-        
-        cart = ProductCart.find(stripe_session.metadata.cart_id)
-        
-        @purchase.product_purchase_items.create(cart.product_cart_items.map { |item|
-          product = item.product
-          shipping = nil
-          additional_shipping_cost = 0
-          if stripe_session.shipping_details.present?
-            shipping = product.product_shippings.find_by(country: stripe_session.shipping_details.address.country) ||
-                      product.product_shippings.find_by(country: 'Rest of World')
-            
-            additional_shipping_cost = shipping ? (item.quantity - 1) * shipping.additional_cost.to_i : 0
-          end
-          {
-            product: product,
-            quantity: item.quantity,
-            price: product.price,
-            shipping_cost: (shipping&.base_cost || 0) + additional_shipping_cost
-          }
-        })
-  
-        @purchase.product_purchase_items.each do |item|
-          item.product.decrease_quantity(item.quantity)
-        end
-  
-        ProductPurchaseMailer.purchase_confirmation(@purchase).deliver_later
-  
-        cart.product_cart_items.destroy_all
-        
-        redirect_to root_path, notice: 'Payment successful! Thank you for your purchase.'
-      else
-        @purchase.update(status: :failed)
-        redirect_to product_cart_path, alert: 'Payment was not successful. Please try again.'
-      end
-    else
-      redirect_to root_path, notice: 'This purchase has already been processed.'
+    respond_to do |format|
+      format.html { redirect_to session.url, allow_other_host: true }
+      format.json { render json: { checkout_url: session.url } }
     end
   end
 
+  def success
+    render "shared/blank"
+    #redirect_to root_path, notice: 'Payment successful! Thank you for your purchase.'
+  end
+
   def cancel
-    redirect_to product_cart_path, alert: 'Payment cancelled.'
+    render "shared/blank"
+    #redirect_to product_cart_path, alert: 'Payment cancelled.'
   end
 
   private
@@ -147,11 +115,11 @@ class ProductCheckoutController < ApplicationController
   end
 
   def success_url(options)
-    success_product_checkout_index_url(options)
+    checkout_success_url(options)
   end
 
   def cancel_url
-    cancel_product_checkout_index_url
+    checkout_failure_url
   end
 
   def generate_shipping_options

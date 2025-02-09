@@ -9,8 +9,18 @@ class ApplicationController < ActionController::Base
 
   helper_method :flash_stream
 
+  layout :layout_by_resource
+
   def flash_stream
     turbo_stream.replace("flash", partial: "shared/flash", locals: { flash: flash })
+  end
+
+  def layout_by_resource
+    if request.headers["Turbo-Frame"] == "content" or request.headers["X-Turbo-Request-Id"].present?
+      false
+    else
+      "react"
+    end
   end
 
   helper_method :impersonating?

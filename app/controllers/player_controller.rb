@@ -10,25 +10,20 @@ class PlayerController < ApplicationController
     @track = Track.friendly.find(id)
 
     render status: :ok and return if @track.blank? 
-    # @next_track = next_track(@track.id)
-    # @prev_track = previous(@track.id)
 
-    if params[:t]
-      render turbo_stream: [
-
-
-        turbo_stream.update(
-          "player-frame",
-          partial: "player",
-          locals: {track: @track}
-        )
-
-        #turbo_stream.update(
-        #  "track-info-wrapper",
-        #  partial: "track_info",
-        #  locals: {track: @track}
-        #)
-      ]
+    respond_to do |format|
+      format.json
+      format.html do
+        if params[:t]
+          render turbo_stream: [
+            turbo_stream.update(
+              "player-frame",
+              partial: "player",
+              locals: {track: @track}
+            )
+          ]
+        end
+      end
     end
   end
 

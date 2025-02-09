@@ -25,7 +25,7 @@
           <% end %>
         </div>
         <div class="hidden lg:ml-8 lg:flex lg:space-x-4">
-          <%= link_to "/tracks", class: "rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted" do %>
+          <%= link_to "/tracks", data: {turbo_frame: "content", turbo_action: "advance"}, class: "rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted" do %>
             <%= t("menu.music") %>
           <% end %>
 
@@ -33,11 +33,11 @@
           <% # = gettext "Account" %>
           <% # end %>
 
-          <%= link_to "/events", class: "rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted" do %>
+          <%= link_to "/events", data: {turbo_frame: "content", turbo_action: "advance"}, class: "rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted" do %>
             <%= t("menu.events") %>
           <% end %>
 
-          <%= link_to "/articles", class: "rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted" do %>
+          <%= link_to "/articles", data: {turbo_frame: "content", turbo_action: "advance"}, class: "rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted" do %>
             <%= t("menu.magazine") %>
           <% end %>
 

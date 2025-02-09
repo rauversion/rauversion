@@ -20,6 +20,7 @@ import select_controller from "./select_controller"
 import animate_controller from "./animate_controller"
 import removals_controller from "./removals_controller"
 import track_player_controller from "./track_player_controller"
+import track_player_stimulus_controller from "./track_player_stimulus_controller"
 import player_controller from "./player_controller"
 import editor from "./editor"
 import input_submitter from "./input_submitter"
@@ -53,6 +54,7 @@ import puck_editor_controller from "./puck_editor_controller.js"
 import puck_renderer_controller from "./puck_renderer_controller.js"
 //import GeoChart from './geo_chart_controller'
 import player_sidebar_loader_controller from './player_sidebar_loader_controller'
+
 // Configure Stimulus development experience
 application.debug = true
 // window.Stimulus   = application
@@ -104,3 +106,4 @@ application.register("playlist-widget", playlist_widget_controller)
 application.register("puck-editor", puck_editor_controller)
 application.register("puck-renderer", puck_renderer_controller)
 application.register("player-sidebar-loader", player_sidebar_loader_controller)
+application.register("track-player", track_player_stimulus_controller)

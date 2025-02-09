@@ -3,8 +3,9 @@
   <div class="<%= local_assigns[:class] || "space-y-2" %>">
     <% playlist.ordered_tracks.each do |track| %>
       <a
-        href="<%= player_path(id: track, t: true) %>"
+        data-action="click->track-player#play"
         data-track-id="<%= track.id %>"
+        href="<%= player_path(id: track, t: true) %>"
         data-track-detector-target="track"
         class="flex items-center space-x-4 p-2 hover:bg-muted rounded-md transition-colors">
         <!--<svg xmlns="http://www.w3.org/2000/svg" class="lucide lucide-music2 w-4 h-4 text-muted" viewBox="0 0 24 24" fill="none" stroke="currentColor">

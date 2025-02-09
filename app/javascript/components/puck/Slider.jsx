@@ -39,8 +39,6 @@ const Slider = ({
       if (playlistIds.length === 0) return;
       
       try {
-        const releaseId = document.querySelector('meta[name="current-release-id"]')?.content;
-
         // const response = await fetch(`/releases/${releaseId}.json`);
         const response = await get(`/playlists/albums.json?ids=${playlistIds.join(",")}`);
         const data = await response.json;

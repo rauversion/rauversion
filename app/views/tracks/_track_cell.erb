@@ -40,6 +40,8 @@
         data-track-detector-target="track"
         data-track-id="<%= track.id %>"
         data-audio-id="<%= track.id %>" 
+        data-action="click->track-player#play"
+        data-track-id="<%= track.id %>"
         data-play-button-url-value="<%= player_path(id: track, t: true) %>"
         class="group cursor-pointer">
         <div class="relative aspect-square overflow-hidden rounded-lg mb-4">

@@ -20,9 +20,17 @@ class PodcastsController < ApplicationController
     @podcast = Track.published.podcasts
                       .where(user_id: [host_ids + [@user.id]].flatten)
                       .friendly.find(params[:id])
+    @track = @podcast
   end
 
   def about
+  end
+
+  def podcaster_info
+    @podcaster_info = @user.podcaster_info
+    respond_to do |format|
+      format.json
+    end
   end
 
   private

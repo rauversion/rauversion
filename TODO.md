@@ -1,12 +1,9 @@
 TODO:
 
-  + Playlist block
-    + Color accent on puck
-  + images too big , use variants
-  + slider is cluncky
-
-  + featured artists
-  + podcaster section
+  + React app
+    + merch crud
+    + blank render for all pages
+    + tickets obtain
 
   + Current.label_user not set on impersonate new track
   
