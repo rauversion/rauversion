@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import useAudioStore from '../stores/audioStore';
 import { get } from '@rails/request.js';
-
-import PlayerSidebar from "./player_sidebar"
+import { cn } from "@/lib/utils"
+import { motion, AnimatePresence } from "framer-motion"
 import {
   Sheet,
   SheetContent,
@@ -11,11 +11,147 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "./ui/sheet"
-import { List } from "lucide-react"
+import { 
+  List,
+  Play,
+  Pause,
+  SkipBack,
+  SkipForward,
+  Volume2,
+  VolumeX,
+  Music2
+} from "lucide-react"
+import PlayerSidebar from "./player_sidebar"
+
+const ProgressBar = ({ progress, duration, currentTime, onSeek, formatTime }) => (
+  <div className="flex items-center w-full max-w-2xl mx-auto">
+    <span className="text-xs text-white/80 w-12 text-right">{formatTime(currentTime)}</span>
+    <div className="relative w-full mx-2 group" onClick={onSeek}>
+      <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+        <div
+          className="h-full bg-gradient-to-r from-primary/80 to-primary transition-transform duration-100"
+          style={{ width: `${progress}%` }}
+        />
+      </div>
+      <div 
+        className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 bg-primary rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+        style={{ left: `${progress}%` }}
+      />
+    </div>
+    <span className="text-xs text-white/80 w-12">{formatTime(duration)}</span>
+  </div>
+);
+
+const VolumeControl = ({ volume, isMuted, onVolumeChange, onToggleMute }) => (
+  <div className="flex items-center space-x-2">
+    <button 
+      onClick={onToggleMute}
+      className="p-2 hover:bg-white/10 rounded-full transition-colors"
+    >
+      {!isMuted ? <Volume2 size={20} /> : <VolumeX size={20} />}
+    </button>
+    <div className="w-24 group relative">
+      <input
+        type="range"
+        className="w-full h-1 bg-white/10 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:opacity-0 group-hover:[&::-webkit-slider-thumb]:opacity-100 transition-opacity"
+        min="0"
+        max="1"
+        step="0.1"
+        value={volume}
+        onChange={onVolumeChange}
+      />
+      <div 
+        className="absolute top-1/2 -translate-y-1/2 left-0 h-1 bg-primary rounded-full pointer-events-none"
+        style={{ width: `${volume * 100}%` }}
+      />
+    </div>
+  </div>
+);
+
+const TrackInfo = ({ playerData }) => (
+  <div className="flex items-center space-x-4">
+    <motion.div
+      initial={{ scale: 0.9, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
+      className="relative group"
+    >
+      {playerData?.track?.artwork_url ? (
+        <img 
+          alt={`${playerData.track.title} Cover Art`} 
+          className="w-14 h-14 rounded-xl object-cover shadow-lg group-hover:shadow-xl transition-all duration-300"
+          src={playerData.track.artwork_url}
+        />
+      ) : (
+        <div className="w-14 h-14 rounded-xl bg-white/5 flex items-center justify-center">
+          <Music2 className="w-6 h-6 text-white/40" />
+        </div>
+      )}
+      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl" />
+    </motion.div>
+    
+    <div className="flex flex-col">
+      <motion.div
+        initial={{ y: 10, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className="font-medium text-sm group overflow-hidden"
+      >
+        <a 
+          href={playerData?.track?.url}
+          className="hover:text-primary transition-colors whitespace-nowrap w-[200px] block overflow-hidden hover:overflow-visible"
+          style={{
+            animation: playerData?.track?.title?.length > 24 ? 'marquee 10s linear infinite' : 'none'
+          }}
+          data-turbo-frame="_top"
+        >
+          {playerData?.track?.title}
+        </a>
+      </motion.div>
+      <motion.div
+        initial={{ y: 10, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ delay: 0.1 }}
+        className="text-xs text-white/60"
+      >
+        <a 
+          href={playerData?.track?.user_url}
+          className="hover:text-white/80 transition-colors"
+          data-turbo-frame="_top"
+        >
+          {playerData?.track?.user_username}
+        </a>
+      </motion.div>
+    </div>
+  </div>
+);
+
+const PlaybackControls = ({ onPrevious, onPlayPause, onNext, isPlaying }) => (
+  <div className="flex items-center justify-center space-x-4">
+    <button 
+      onClick={onPrevious}
+      className="p-2 hover:bg-white/10 rounded-full transition-colors"
+    >
+      <SkipBack size={20} />
+    </button>
+    
+    <motion.button
+      whileTap={{ scale: 0.9 }}
+      onClick={onPlayPause}
+      className="p-3 bg-default hover:bg-default/90 rounded-full transition-colors"
+    >
+      {!isPlaying ? <Play size={22} /> : <Pause size={22} />}
+    </motion.button>
+    
+    <button 
+      onClick={onNext}
+      className="p-2 hover:bg-white/10 rounded-full transition-colors"
+    >
+      <SkipForward size={20} />
+    </button>
+  </div>
+);
 
 export default function AudioPlayer({ id, url, peaks, height }) {
   const audioRef = useRef(null);
-  //const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(window.store?.getState()?.volume || 1);
@@ -27,7 +163,6 @@ export default function AudioPlayer({ id, url, peaks, height }) {
 
   useEffect(() => {
     const fetchAndPlayTrack = async () => {
-      
       if (!currentTrackId) return;
       
       try {
@@ -39,7 +174,6 @@ export default function AudioPlayer({ id, url, peaks, height }) {
           const data = await response.json;
           setPlayerData(data);
           useAudioStore.setState({ isPlaying: true});
-          // Wait a bit for the audio source to be updated
         }
       } catch (error) {
         console.error('Error loading track:', error);
@@ -55,7 +189,7 @@ export default function AudioPlayer({ id, url, peaks, height }) {
         playAudio();
       }, 100);
     } else {
-      audioRef.current.pause();
+      audioRef.current?.pause();
     }
   }, [isPlaying]);
 
@@ -117,11 +251,17 @@ export default function AudioPlayer({ id, url, peaks, height }) {
 
   const checkHalfwayEvent = (percent) => {
     if (percent >= 30 && !hasHalfwayEventFired) {
+      console.log("Setting halfway event");
       setHasHalfwayEventFired(true);
-      const trackId = currentTrackId
-      if(trackId) trackEvent(trackId);
     }
   };
+
+  useEffect(() => {
+    if (hasHalfwayEventFired && currentTrackId) {
+      console.log("Tracking event after state update");
+      trackEvent(currentTrackId);
+    }
+  }, [hasHalfwayEventFired, currentTrackId]);
 
   const trackEvent = async (trackId) => {
     try {
@@ -153,11 +293,8 @@ export default function AudioPlayer({ id, url, peaks, height }) {
     if (!audioRef.current) return;
 
     if (audioRef.current.paused) {
-      // audioRef.current.play();
       useAudioStore.setState({ currentTrackId: currentTrackId, isPlaying: true });
     } else {
-      // audioRef.current.pause();
-      // setIsPlaying(false);
       useAudioStore.setState({ isPlaying: false });
     }
   };
@@ -202,32 +339,6 @@ export default function AudioPlayer({ id, url, peaks, height }) {
     }
   };
 
-  const getNextTrackIndex = () => {
-    const { playlist, currentTrackId } = useAudioStore.getState();
-    const currentIndex = playlist.indexOf(currentTrackId + "");
-    
-    if (currentIndex === -1 || currentIndex === playlist.length - 1) return playlist[0];
-    return playlist[currentIndex + 1];
-
-  };
-
-  const getPreviousTrackIndex = () => {
-    const { playlist, currentTrackId } = useAudioStore.getState();
-    const currentIndex = playlist.indexOf(currentTrackId + "");
-    
-
-    if (currentIndex <= 0) return null;
-    
-    return playlist[currentIndex - 1];
-  };
-
-  const debounce = (func, delay) => {
-    if (debounceTimeoutRef.current) {
-      clearTimeout(debounceTimeoutRef.current);
-    }
-    debounceTimeoutRef.current = setTimeout(func, delay);
-  };
-
   const stopAudio = () => {
     if (!audioRef.current) return;
     audioRef.current.pause();
@@ -242,257 +353,111 @@ export default function AudioPlayer({ id, url, peaks, height }) {
       const playPromise = audioRef.current.play();
       if (playPromise !== undefined) {
         await playPromise;
-        // setIsPlaying(true);
         useAudioStore.setState({ isPlaying: true });
       }
     } catch (error) {
       console.error("Error playing audio:", error);
-      // setIsPlaying(false);
       useAudioStore.setState({ isPlaying: false });
     }
   };
 
   const handleNextSong = () => {
-    debounce(async () => {
+    debounce(() => {
       stopAudio();
       setHasHalfwayEventFired(false);
-
-      playNext()
-      /*const nextTrack = getNextTrackIndex();
-
-      const nextTrackId = nextTrack
-      if (nextTrackId) {
-        useAudioStore.setState({ currentTrackId: nextTrackId });
-      } else {
-        console.log("No more songs in queue");
-      }*/
+      playNext();
     }, 200);
   };
 
   const handlePrevSong = () => {
-    debounce(async () => {
+    debounce(() => {
       stopAudio();
       setHasHalfwayEventFired(false);
-
-      playPrevious()
-      /*const prevTrack = getPreviousTrackIndex();
-      const prevTrackId = prevTrack?.id;
-      if (prevTrackId) {
-        useAudioStore.setState({ currentTrackId: prevTrackId });
-      } else {
-        console.log("No previous song in queue");
-      }*/
+      playPrevious();
     }, 200);
+  };
+
+  const debounce = (func, delay) => {
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+    debounceTimeoutRef.current = setTimeout(func, delay);
   };
 
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div id="main-player" className="z-50 fixed bottom-0 w-full h-[6rem]-- py-2 bg-transparent sm:bg-default border-t dark:border-none border-muted-">
+    <motion.div
+      initial={{ y: 100, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      className={cn(
+        "fixed bottom-0 w-full z-50",
+        "before:absolute before:inset-0 before:backdrop-blur-2xl before:backdrop-saturate-200 before:bg-black/30 before:-z-10",
+        "border-t border-white/5",
+      )}
+    >
       {/* Mobile View */}
-      <div className="flex sm:hidden items-center bg-subtle px-2 rounded-lg p-2 shadow-lg w-full- max-w-md- mx-auto- mx-2">
-        {/* Album Art */}
-        <div className="flex-shrink-0">
-          <a data-turbo-frame="_top" href={playerData?.track?.url}>
-            {playerData?.track?.artwork_url ? (
-              <img 
-                alt={`${playerData.track.title} Cover Art`} 
-                className="w-12 h-12 rounded-md object-cover" 
-                src={playerData.track.artwork_url}
-              />
-            ) : (
-              <div className="w-12 h-12 rounded-md bg-muted flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground">
-                  <circle cx="12" cy="12" r="4"></circle>
-                  <path d="M12 8v8"></path>
-                  <path d="M8 12h8"></path>
-                </svg>
-              </div>
-            )}
-          </a>
-        </div>
-
-        {/* Track Information */}
-        <div className="ml-3 flex-grow">
-          <div className="font-semibold text-sm w-[212px] truncate" data-controller="marquee">
-            <span data-marquee-target="marquee" className="inline-block w-full">
-              <a data-turbo-frame="_top" href={playerData?.track?.url}>
-                {playerData?.track?.title}
-              </a>
-            </span>
-          </div>
-
-          <div className="text-gray-400 text-xs truncate">
-            <a data-turbo-frame="_top" href={playerData?.track?.user_url}>
-              {playerData?.track?.user_username}
-            </a>
-          </div>
-        </div>
-
-        {/* Rest of the mobile controls */}
-        <div className="flex items-center space-x-2">
-          <button className="text-default" onClick={handlePrevSong}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-left">
-              <path d="m15 18-6-6 6-6"></path>
-            </svg>
-          </button>
-          
-          <button className="text-default" onClick={handlePlayPause}>
-            {!isPlaying ? (
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-play">
-                <polygon points="6 3 20 12 6 21 6 3"></polygon>
-              </svg>
-            ) : (
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-pause">
-                <rect x="14" y="4" width="4" height="16" rx="1"></rect>
-                <rect x="6" y="4" width="4" height="16" rx="1"></rect>
-              </svg>
-            )}
-          </button>
-
-          <button className="text-default" onClick={handleNextSong}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-right">
-              <path d="m9 18 6-6-6-6"></path>
-            </svg>
-          </button>
-        </div>
+      <div className="flex sm:hidden items-center p-3 space-x-3">
+        <TrackInfo playerData={playerData} />
+        <PlaybackControls
+          onPrevious={handlePrevSong}
+          onPlayPause={handlePlayPause}
+          onNext={handleNextSong}
+          isPlaying={isPlaying}
+        />
       </div>
 
       {/* Desktop View */}
-      <div className="hidden sm:block">
-        <div className="flex items-center justify-between pt-2 px-2">
-          {/* Album Art and Track Info */}
-          <div className="flex items-center space-x-2 w-[168px] md:w-auto">
-            <a data-turbo-frame="_top" href={playerData?.track?.url}>
-              {playerData?.track?.artwork_url ? (
-                <img 
-                  alt={`${playerData.track.title} Cover Art`} 
-                  className="w-12 h-12 rounded-md object-cover" 
-                  src={playerData.track.artwork_url}
-                />
-              ) : (
-                <div className="w-12 h-12 rounded-md bg-muted flex items-center justify-center">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground">
-                    <circle cx="12" cy="12" r="4"></circle>
-                    <path d="M12 8v8"></path>
-                    <path d="M8 12h8"></path>
-                  </svg>
-                </div>
-              )}
-            </a>
+      <div className="hidden sm:block p-4">
+        <div className="max-w-7xl mx-auto space-y-3">
+          <div className="flex items-center justify-between">
+            <TrackInfo playerData={playerData} />
             
-            <div className="text-default">
-              <div className="font-semibold text-sm w-[129px] truncate marquee-active" data-controller="marquee">
-                <span data-marquee-target="marquee" className="inline-block w-full">
-                  <a data-turbo-frame="_top" href={playerData?.track?.url}>
-                    {playerData?.track?.title}
-                  </a>
-                </span>
-              </div>
-              <div className="text-xs text-gray-400 truncate w-48">
-                <a data-turbo-frame="_top" href={playerData?.track?.user_url}>
-                  {playerData?.track?.user_username}
-                </a>
-              </div>
+            <div className="flex-1 max-w-2xl mx-8">
+              <PlaybackControls
+                onPrevious={handlePrevSong}
+                onPlayPause={handlePlayPause}
+                onNext={handleNextSong}
+                isPlaying={isPlaying}
+              />
+            </div>
+
+            <div className="flex items-center space-x-4">
+              <VolumeControl
+                volume={volume}
+                isMuted={isMuted}
+                onVolumeChange={handleVolumeChange}
+                onToggleMute={handleToggleMute}
+              />
+
+              <Sheet>
+                <SheetTrigger asChild>
+                  <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                    <List size={20} />
+                  </button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-[400px] sm:w-[540px] bg-default">
+                  <SheetHeader>
+                    <SheetTitle>Queue</SheetTitle>
+                    <SheetDescription>Your current playlist queue</SheetDescription>
+                  </SheetHeader>
+                  <div className="h-[calc(100vh-120px)]">
+                    <PlayerSidebar />
+                  </div>
+                </SheetContent>
+              </Sheet>
             </div>
           </div>
 
-          {/* Controls */}
-          <div className="flex items-center space-x-4">
-            <button className="text-default hidden sm:block" onClick={handlePrevSong}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-left">
-                <path d="m15 18-6-6 6-6"></path>
-              </svg>
-            </button>
-
-            <button className="text-default bg-muted rounded-full p-2" onClick={handlePlayPause}>
-              {!isPlaying ? (
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-play">
-                  <polygon points="6 3 20 12 6 21 6 3"></polygon>
-                </svg>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-pause">
-                  <rect x="14" y="4" width="4" height="16" rx="1"></rect>
-                  <rect x="6" y="4" width="4" height="16" rx="1"></rect>
-                </svg>
-              )}
-            </button>
-
-            <button className="text-default hidden sm:block" onClick={handleNextSong}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-chevron-right">
-                <path d="m9 18 6-6-6-6"></path>
-              </svg>
-            </button>
-          </div>
-
-          {/* Volume and Settings */}
-          <div className="items-center space-x-4 hidden sm:flex">
-            <div className="text-default cursor-pointer" onClick={handleToggleMute}>
-              {!isMuted ? (
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-volume-2">
-                  <path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"></path>
-                  <path d="M16 9a5 5 0 0 1 0 6"></path>
-                  <path d="M19.364 18.364a9 9 0 0 0 0-12.728"></path>
-                </svg>
-              ) : (
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-volume-off">
-                  <path d="M16 9a5 5 0 0 1 .95 2.293"></path>
-                  <path d="M19.364 5.636a9 9 0 0 1 1.889 9.96"></path>
-                  <path d="m2 2 20 20"></path>
-                  <path d="m7 7-.587.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298V11"></path>
-                  <path d="M9.828 4.172A.686.686 0 0 1 11 4.657v.686"></path>
-                </svg>
-              )}
-            </div>
-
-            <input
-              type="range"
-              className="w-24 h-1 bg-gray-700 rounded-full"
-              min="0"
-              max="1"
-              step="0.1"
-              value={volume}
-              onChange={handleVolumeChange}
-            />
-          </div>
-
-          {/* Queue */}
-          <Sheet>
-            <SheetTrigger asChild>
-              <button className="rounded-full p-2 hover:bg-accent">
-                <List className="h-5 w-5" />
-              </button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-[400px] sm:w-[540px] bg-default">
-              <SheetHeader>
-                <SheetTitle>Queue</SheetTitle>
-                <SheetDescription>
-                  Your current playlist queue
-                </SheetDescription>
-              </SheetHeader>
-              <div className="h-[calc(100vh-120px)]">
-                <PlayerSidebar />
-              </div>
-            </SheetContent>
-          </Sheet>
+          <ProgressBar
+            progress={progress}
+            duration={duration}
+            currentTime={currentTime}
+            onSeek={handleSeek}
+            formatTime={formatTime}
+          />
         </div>
 
-        {/* Track Progress Bar */}
-        <div className="flex items-center space-x-2 mb-2 justify-center">
-          <span className="text-default text-xs">{formatTime(currentTime)}</span>
-          <div
-            className="w-2/4 relative h-1 bg-gray-700 rounded-full cursor-pointer"
-            onClick={handleSeek}
-          >
-            <div
-              className="absolute top-0 left-0 h-1 bg-green-500 rounded-full"
-              style={{ width: `${progress}%` }}
-            />
-          </div>
-          <span className="text-default text-xs">{formatTime(duration)}</span>
-        </div>
-
-        {/* Audio Element */}
         <audio
           ref={audioRef}
           src={playerData?.track?.audio_url}
@@ -500,6 +465,6 @@ export default function AudioPlayer({ id, url, peaks, height }) {
           id="audioElement"
         />
       </div>
-    </div>
+    </motion.div>
   );
 }

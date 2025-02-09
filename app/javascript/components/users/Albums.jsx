@@ -1,17 +1,25 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { get } from '@rails/request.js'
+import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
+
+const CATEGORIES = ['Playlist', 'Album', 'Ep', 'Single', 'Compilation']
 
 export default function UserAlbums() {
   const { username } = useParams()
   const [albums, setAlbums] = useState([])
   const [loading, setLoading] = useState(true)
   const [pagination, setPagination] = useState(null)
+  const [selectedCategories, setSelectedCategories] = useState([])
 
   useEffect(() => {
     const fetchAlbums = async () => {
       try {
-        const response = await get(`/${username}/albums.json`)
+        const queryParams = selectedCategories.length > 0 
+          ? `?kind=${selectedCategories.join(',')}`
+          : ''
+        const response = await get(`/${username}/albums.json${queryParams}`)
         if (response.ok) {
           const data = await response.json
           setAlbums(data.collection)
@@ -25,7 +33,17 @@ export default function UserAlbums() {
     }
 
     fetchAlbums()
-  }, [username])
+  }, [username, selectedCategories])
+
+  const toggleCategory = (category) => {
+    setSelectedCategories(prev => {
+      if (prev.includes(category)) {
+        return prev.filter(c => c !== category)
+      } else {
+        return [...prev, category]
+      }
+    })
+  }
 
   if (loading) {
     return <div>Loading...</div>
@@ -33,7 +51,25 @@ export default function UserAlbums() {
 
   return (
     <div>
-      <h2 className="text-md font-medium text-gray-500">Albums</h2>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-md font-medium text-gray-500">Albums</h2>
+        <div className="flex gap-2">
+          {CATEGORIES.map((category) => (
+            <Button
+              key={category}
+              variant="outline"
+              size="sm"
+              onClick={() => toggleCategory(category.toLowerCase())}
+              className={cn(
+                "rounded-full",
+                selectedCategories.includes(category.toLowerCase()) && "bg-primary text-primary-foreground hover:bg-primary/90"
+              )}
+            >
+              {category}
+            </Button>
+          ))}
+        </div>
+      </div>
 
       <ul role="list" className="mt-3 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
         {albums.map((album) => (
