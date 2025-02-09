@@ -810,6 +810,8 @@ es:
     comments: Comentarios
     likes: Me gusta
     go_to: Ir al perfil
+    follow: Seguir
+    following: Siguendo
 
   playlists:
     add_to_playlists: Añadir a lista

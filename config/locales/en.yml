@@ -773,6 +773,8 @@ en:
     comments: Comments
     likes: I like
     go_to: Go to profile
+    follow: Follow
+    following: Following
   playlists:
     add_to_playlists: Add to list
     create: Create a list

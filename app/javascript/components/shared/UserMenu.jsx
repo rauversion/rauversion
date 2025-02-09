@@ -48,9 +48,9 @@ export default function UserMenu() {
               <Link to={`/${currentUser.username}`}>{currentUser.username}</Link>
             </span>
             <span className="font-bold underline">
-              <Link to="/account/connections" className="text-default">
+              <a href="/account_connections/impersonate" className="text-default">
                 {I18n.t('menu.back_to_label', { username: labelUser.username })}
-              </Link>
+              </a>
             </span>
           </span>
         </nav>

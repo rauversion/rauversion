@@ -14,6 +14,8 @@ json.user do
     json.large @user.profile_header_url(:large)
   end
 
+  json.is_following current_user.follows?(@user) if current_user.present?
+
   json.is_label @user.label?
   json.can_sell_products @user.can_sell_products?
   

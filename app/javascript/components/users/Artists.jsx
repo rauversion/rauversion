@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { useInfiniteScroll } from '../../hooks/useInfiniteScroll'
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll'
 import { motion } from 'framer-motion'
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import I18n from '@/stores/locales'
+import useAuthStore from '@/stores/authStore'
 
 export default function UserArtists() {
   const { username } = useParams()
@@ -114,12 +115,23 @@ export default function UserArtists() {
                     </p>
                   )}
 
-                  <Link
-                    to={`/${artist.username}`}
-                    className="block w-full bg-white text-black py-4 text-center text-lg font-bold uppercase hover:bg-gray-200 transition-colors"
-                  >
-                    {I18n.t('users.artist_page.view_profile')}
-                  </Link>
+                  <div className="space-y-2">
+                    <Link
+                      to={`/${artist.username}`}
+                      className="block w-full bg-white text-black py-4 text-center text-lg font-bold uppercase hover:bg-gray-200 transition-colors"
+                    >
+                      {I18n.t('users.artist_page.view_profile')}
+                    </Link>
+
+                    { useAuthStore.getState().currentUser?.username === username && (
+                      <a
+                        href={`/account_connections/impersonate?username=${artist.username}`}
+                        className="block w-full bg-primary text-white py-4 text-center text-lg font-bold uppercase hover:bg-primary/90 transition-colors"
+                      >
+                        {I18n.t('users.artist_page.impersonate')}
+                      </a>
+                    )}
+                  </div>
                 </div>
               </div>
             </Card>

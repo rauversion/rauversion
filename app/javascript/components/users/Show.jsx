@@ -1,9 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, Link, Outlet, useLocation } from 'react-router-dom'
-import { get } from '@rails/request.js'
+import { get, post } from '@rails/request.js'
 import { format } from 'date-fns'
 import { Play, Pause, Share2, ThumbsUp, Menu } from 'lucide-react'
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import {Button } from "@/components/ui/button"
+
 import useAudioStore from '../../stores/audioStore'
 import useAuthStore from '../../stores/authStore'
 import { ModernTrackCell } from '../tracks/TrackCell'
@@ -94,19 +96,55 @@ export default function UserShow() {
                 </p>
               )}
 
-              <div className="mt-4 flex space-x-4 text-sm">
-                <div>
-                  <span className="font-medium">{user.stats.tracks_count}</span>
-                  <span className="text-gray-400 ml-1">{I18n.t('profile.tracks').toLowerCase()}</span>
+              <div className="mt-4 flex items-center space-x-6">
+                <div className="flex space-x-4 text-sm">
+                  <div>
+                    <span className="font-medium">{user.stats.tracks_count}</span>
+                    <span className="text-gray-400 ml-1">{I18n.t('profile.tracks').toLowerCase()}</span>
+                  </div>
+                  <div>
+                    <span className="font-medium">{user.stats.followers_count}</span>
+                    <span className="text-gray-400 ml-1">{I18n.t('profile.followers').toLowerCase()}</span>
+                  </div>
+                  <div>
+                    <span className="font-medium">{user.stats.following_count}</span>
+                    <span className="text-gray-400 ml-1">{I18n.t('profile.followings').toLowerCase()}</span>
+                  </div>
                 </div>
-                <div>
-                  <span className="font-medium">{user.stats.followers_count}</span>
-                  <span className="text-gray-400 ml-1">{I18n.t('profile.followers').toLowerCase()}</span>
-                </div>
-                <div>
-                  <span className="font-medium">{user.stats.following_count}</span>
-                  <span className="text-gray-400 ml-1">{I18n.t('profile.followings').toLowerCase()}</span>
-                </div>
+
+                {currentUser && currentUser.id !== user.id && (
+                  <Button
+                    variant="outline"
+                    onClick={async () => {
+                      try {
+                        const response = await post(`/${username}/follows.json`)
+                        if (response.ok) {
+                          const data = await response.json
+                          setUser(prev => ({
+                            ...prev,
+                            stats: {
+                              ...prev.stats,
+                              followers_count: data.is_following 
+                                ? prev.stats.followers_count + 1 
+                                : prev.stats.followers_count - 1
+                            },
+                            is_following: data.is_following
+                          }))
+                        }
+                      } catch (error) {
+                        console.error('Error following user:', error)
+                      }
+                    }}
+
+                    className={`px-4 py-2 rounded-full font-medium transition-colors ${
+                      user.is_following
+                        ? 'bg-default/10 text-default hover:bg-default/20'
+                        : 'bg-default text-default hover:bg-default/90'
+                    }`}
+                  >
+                    {user.is_following ? I18n.t('profile.following') : I18n.t('profile.follow')}
+                  </Button>
+                )}
               </div>
             </div>
           </div>
