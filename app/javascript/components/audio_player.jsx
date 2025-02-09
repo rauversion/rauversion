@@ -136,7 +136,7 @@ const PlaybackControls = ({ onPrevious, onPlayPause, onNext, isPlaying }) => (
     <motion.button
       whileTap={{ scale: 0.9 }}
       onClick={onPlayPause}
-      className="p-3 bg-default hover:bg-default/90 rounded-full transition-colors"
+      className="p-3 hover:bg-white/10 rounded-full transition-colors"
     >
       {!isPlaying ? <Play size={22} /> : <Pause size={22} />}
     </motion.button>
