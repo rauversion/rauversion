@@ -141,6 +141,26 @@ class PlaylistsController < ApplicationController
     end
   end
 
+
+  def albums
+    base_query = Playlist
+      .where(playlist_type: ["album", "ep"])
+      .with_attached_cover
+      .includes(user: {avatar_attachment: :blob})
+      .includes(tracks: {cover_attachment: :blob})
+
+    if params[:ids].present?
+      @playlists = base_query.where(id: params[:ids].split(",")).limit(50)
+    else
+      @playlists = base_query.ransack(title_cont: params[:q]).result
+      @playlists = @playlists.page(params[:page]).per(10)
+    end
+
+    respond_to do |format|
+      format.json { render :albums }
+    end
+  end
+
   private
 
   def playlist_params
@@ -196,22 +216,4 @@ class PlaylistsController < ApplicationController
 
   end
 
-  def albums
-    base_query = Playlist
-      .where(playlist_type: ["album", "ep"])
-      .with_attached_cover
-      .includes(user: {avatar_attachment: :blob})
-      .includes(tracks: {cover_attachment: :blob})
-
-    if params[:ids].present?
-      @playlists = base_query.where(id: params[:ids].split(",")).limit(50)
-    else
-      @playlists = base_query.ransack(title_cont: params[:q]).result
-      @playlists = @playlists.page(params[:page]).per(10)
-    end
-
-    respond_to do |format|
-      format.json { render :albums }
-    end
-  end
 end
