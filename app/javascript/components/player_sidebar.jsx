@@ -7,7 +7,7 @@ import { Button } from "./ui/button";
 const PlayerSidebar = () => {
   const [tracks, setTracks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { currentTrackId, isPlaying } = useAudioStore();
+  const { currentTrackId, isPlaying, play } = useAudioStore();
   const audioElement = document.getElementById("audioElement");
 
   const audioPlaying = () => {
@@ -80,18 +80,9 @@ const PlayerSidebar = () => {
               key={track.id}
               className="flex items-center gap-2 px-2 py-1 hover:bg-accent rounded-lg group cursor-pointer"
             >
-              <a
-                href={`/player?id=${track.slug}&t=true`}
-                onClick={(e) => {
-                  if (audioPlaying() && currentTrackId === track.id) {
-                    audioElement.pause();
-                    useAudioStore.setState({ isPlaying: false });
-                    e.preventDefault();
-                  } else {
-                    const trackIndex = tracks.findIndex((t) => t.id === track.id);
-                    setTracksToStore(trackIndex);
-                  }
-                }}
+              <button
+                // href={`/player?id=${track.slug}&t=true`}
+                onClick={()=> play(track.id) }
                 className="flex items-center gap-2 flex-1"
               >
                 <div className="w-10 h-10 relative group">
@@ -121,7 +112,7 @@ const PlayerSidebar = () => {
                     {track.user.username}
                   </span>
                 </div>
-              </a>
+              </button>
               
               <Button
                 variant="ghost"

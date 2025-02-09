@@ -50,43 +50,6 @@ export default function AudioPlayer({ id, url, peaks, height }) {
   }, [currentTrackId]);
 
   useEffect(() => {
-    const fetchPlayerData = async () => {
-      try {
-        const response = await get(`/player.json?id=${id}`, {
-          responseKind: "json"
-        });
-        
-        if(response.ok) {
-          const data = await response.json;
-          
-          setPlayerData(data);
-
-          // Update audio source if needed
-          if (audioRef.current && data.track?.audio_url) {
-            audioRef.current.src = data.track.audio_url;
-          }
-
-          // Update the store with the playlist if available
-          if (data.playlist) {
-            useAudioStore.setState({ 
-              playlist: data.playlist,
-              currentTrackId: id 
-            });
-          }
-        } else {
-          console.error('Error fetching player data:', response.statusText);
-        }
-      } catch (error) {
-        console.error('Error fetching player data:', error);
-      }
-    };
-
-    if (id) {
-      fetchPlayerData();
-    }
-  }, [id]);
-
-  useEffect(() => {
     if(isPlaying) {
       setTimeout(() => {
         playAudio();
@@ -112,16 +75,11 @@ export default function AudioPlayer({ id, url, peaks, height }) {
     };
 
     const handleLoadedData = () => {
-      if (!audio.dataset.ap) {
-        console.log("Skip AutoPlay");
-        return;
-      }
-      
       const playPromise = audio.play();
       if (playPromise !== undefined) {
         playPromise
           .then(() => {
-            useAudioStore.setState({ currentTrackId: id, isPlaying: true });
+            useAudioStore.setState({ isPlaying: true });
           })
           .catch((error) => {
             console.error("Playback failed:", error);
@@ -160,7 +118,7 @@ export default function AudioPlayer({ id, url, peaks, height }) {
   const checkHalfwayEvent = (percent) => {
     if (percent >= 30 && !hasHalfwayEventFired) {
       setHasHalfwayEventFired(true);
-      const trackId = useAudioStore.getState().currentTrackId;
+      const trackId = currentTrackId
       if(trackId) trackEvent(trackId);
     }
   };
@@ -196,7 +154,7 @@ export default function AudioPlayer({ id, url, peaks, height }) {
 
     if (audioRef.current.paused) {
       // audioRef.current.play();
-      useAudioStore.setState({ currentTrackId: id, isPlaying: true });
+      useAudioStore.setState({ currentTrackId: currentTrackId, isPlaying: true });
     } else {
       // audioRef.current.pause();
       // setIsPlaying(false);

@@ -24,7 +24,8 @@ export default function PlaylistShow() {
     play,
     pause,
     setPlaylist: setAudioPlaylist,
-    formatTime
+    formatTime,
+    addMultipleToPlaylist
   } = useAudioStore()
   const { currentUser } = useAuthStore()
   const accentColor = '#1DB954' // Spotify-like accent color
@@ -45,6 +46,12 @@ export default function PlaylistShow() {
   }
 
   useEffect(() => {
+    if(playlist && playlist.tracks) { 
+      addMultipleToPlaylist(playlist.tracks)
+    }
+  }, [playlist])
+
+  useEffect(() => {
     fetchPlaylist()
   }, [slug, setAudioPlaylist])
 
@@ -58,6 +65,7 @@ export default function PlaylistShow() {
     if (currentTrackId === trackId && isPlaying) {
       pause()
     } else {
+      pause()
       play(trackId)
     }
   }
@@ -99,7 +107,7 @@ export default function PlaylistShow() {
                   className="bg-brand-500 hover:bg-brand-600 text-white p-4 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
                   style={{ backgroundColor: accentColor }}
                 >
-                  {isPlaying && currentTrackId === playlist.tracks[0]?.id ? (
+                  {isPlaying && playlist.tracks?.find((o)=> o.id === currentTrackId) ? (
                     <Pause className="w-8 h-8" />
                   ) : (
                     <Play className="w-8 h-8" />

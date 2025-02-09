@@ -143,9 +143,11 @@ export default function CuratedPlaylists({ playlists }) {
             <Button 
               variant="outline" 
               size="lg"
-              className="group border-white/20 text-white hover:bg-white hover:text-black transition-all duration-300"
             >
-              {I18n.t('home.curated_playlists.view_all')}
+              <span class="text-default">
+                {I18n.t('home.curated_playlists.view_all')}
+              </span>
+              
               <motion.svg 
                 xmlns="http://www.w3.org/2000/svg" 
                 width="24" 

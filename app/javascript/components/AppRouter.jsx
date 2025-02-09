@@ -73,6 +73,8 @@ import NewTrack from "./tracks/NewTrack"
 import CheckoutSuccess from "./checkout/CheckoutSuccess"
 import CheckoutFailure from "./checkout/CheckoutFailure"
 
+import { Footer, ScrollRestoration } from '@/components/shared'
+
 function RequireAuth({ children }) {
   const { currentUser } = useAuthStore()
   const location = useLocation()
@@ -216,6 +218,8 @@ function AppContent() {
 
         <Toaster />
         <AudioPlayer />
+
+        <Footer/>
     </>
   )
 }
@@ -223,6 +227,7 @@ function AppContent() {
 export default function AppRouter() {
   return (
     <BrowserRouter>
+      <ScrollRestoration />
       <AppContent />
     </BrowserRouter>
   )
