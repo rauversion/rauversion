@@ -681,7 +681,7 @@ es:
       all: Todo
       featured_albums:
         title: Álbumes
-        subtitle: Últimos lanzamientos de nuestros artistas
+        subtitle: Últimos lanzamientos
       curated_playlists:
         title: Listas de Reproducción Curadas
         subtitle: Colecciones seleccionadas para cada estado de ánimo
@@ -774,7 +774,7 @@ es:
       tracks_count: Pistas
       default_genre: Música
       title: Últimos Lanzamientos
-      subtitle: Últimos lanzamientos de nuestros artistas
+      subtitle: Últimos lanzamientos
       browse_all: Ver Todo
     featured_artists:
       tracks: Pistas

@@ -17,10 +17,13 @@ class HomeController < ApplicationController
       .includes(user: { avatar_attachment: :blob })
       .order("id desc").limit(4)
 
+    @releases = Release.limit(10).order("id desc")
+
     @albums = Playlist.published
     .latests
     .includes(:releases)
     .where(playlist_type: ["ep", "album"])
+    .where("editor_choice_position is not null")
     .order("editor_choice_position asc, release_date desc, id desc")
 
     @playlists = Playlist.published

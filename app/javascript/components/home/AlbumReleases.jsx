@@ -26,7 +26,7 @@ const PlayButton = () => (
 
 const AlbumCard = ({ album, isLarge = false }) => {
   const [isHovered, setIsHovered] = useState(false)
-  const albumPath = album.releases?.length > 0 ? `/albums/${album.releases[0].slug}` : `/playlists/${album.slug}`
+  const albumPath = `/albums/${album.slug}`
 
   return (
     <motion.div
@@ -42,7 +42,7 @@ const AlbumCard = ({ album, isLarge = false }) => {
           {/* Album Cover with Glitch Effect */}
           <motion.div 
             className="absolute inset-0 bg-cover bg-center"
-            style={{ backgroundImage: `url(${album.cover_image})` }}
+            // style={{ backgroundImage: `url(${album.cover_url.medium})` }}
             animate={isHovered ? {
               scale: [1.1, 1.12, 1.1],
               filter: ["brightness(1)", "brightness(1.1)", "brightness(1)"]
@@ -66,7 +66,7 @@ const AlbumCard = ({ album, isLarge = false }) => {
                 transition={{ duration: 1, repeat: Infinity }}
                 className="absolute inset-0 mix-blend-difference"
                 style={{
-                  backgroundImage: `url(${album.cover_url.medium})`,
+                  backgroundImage: `url(${album.cover_url.large})`,
                   backgroundPosition: 'center',
                   backgroundSize: 'cover',
                   transform: 'translate(5px, 5px)'

@@ -85,6 +85,7 @@ export default function Home() {
     artists, 
     posts, 
     albums, 
+    releases,
     playlists, 
     latestReleases, 
     appName, 
@@ -177,8 +178,18 @@ export default function Home() {
               <MainArticles posts={posts} />
             </motion.div>
 
+
             <motion.div variants={fadeInUp}>
-              <AlbumReleases albums={albums} />
+              <AlbumReleases albums={releases} />
+            </motion.div>
+
+
+            <motion.div variants={fadeInUp}>
+              <CuratedPlaylists 
+                playlists={albums} 
+                title={"Lanzamientos recientes"}
+                subtitle={"Escucha los últimos lanzamientos en Rauversion"}
+              />
             </motion.div>
 
             <motion.div variants={fadeInUp}>
@@ -190,7 +201,11 @@ export default function Home() {
             </motion.div>
 
             <motion.div variants={fadeInUp}>
-              <CuratedPlaylists playlists={playlists} />
+              <CuratedPlaylists 
+                title={I18n.t('home.curated_playlists.title')}
+                subtitle={I18n.t('home.curated_playlists.subtitle')}
+                playlists={playlists} 
+              />
             </motion.div>
 
           </motion.div>

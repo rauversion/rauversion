@@ -27,11 +27,28 @@ json.posts @posts do |post|
   end
 end
 
+json.releases @releases do |release|
+  json.extract! release, :id, :title, :slug, :created_at
+  json.cover_url do
+    json.medium release.cover_url(:medium)
+    json.small release.cover_url(:small)
+    json.large release.cover_url(:large)
+  end
+  json.user do
+    json.extract! release.user, :id, :username
+    json.avatar_url do
+      json.medium release.user.avatar_url(:medium)
+      json.small release.user.avatar_url(:small)
+    end
+  end
+end
+
 json.albums @albums do |album|
   json.extract! album, :id, :title, :slug, :created_at, :description
   json.cover_url do
     json.medium album.cover_url(:medium)
     json.small album.cover_url(:small)
+    json.large album.cover_url(:large)
   end
   json.releases do
     json.array! album.releases do |release|
