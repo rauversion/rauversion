@@ -774,14 +774,14 @@ es:
       tracks_count: Pistas
       default_genre: Música
       title: Últimos Lanzamientos
-      subtitle: Novedades del underground
+      subtitle: Últimos lanzamientos de nuestros artistas
       browse_all: Ver Todo
     featured_artists:
       tracks: Pistas
       followers: Seguidores
       view_profile: Ver Perfil
       title: Artistas Destacados
-      subtitle: Descubre talento emergente y creadores establecidos
+      subtitle: Descubre nuevos artistas y música
       view_all: Ver Todo
     curated_playlists:
       tracks: Pistas
@@ -791,7 +791,7 @@ es:
       view_all: Ver Todo
     latest_tracks:
       title: Últimas Pistas
-      subtitle: Ritmos frescos del underground
+      subtitle: Escucha la musica más reciente de nuestra comunidad
       browse_all: Ver Todo
 
   profile:

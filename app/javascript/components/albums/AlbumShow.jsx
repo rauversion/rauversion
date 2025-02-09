@@ -1,5 +1,5 @@
 import React from "react"
-import { useParams } from "react-router-dom"
+import { useParams, Navigate } from "react-router-dom"
 import { get } from "@rails/request.js"
 import { useToast } from "@/hooks/use-toast"
 import PlaylistShow from "../playlists/Show"
@@ -249,6 +249,7 @@ export default function AlbumShow() {
     )
   }
 
-  // Otherwise, render the regular playlist show component
-  return <PlaylistShow />
+
+  // If no editor_data, redirect to playlist view
+  return album && album.playlist && <Navigate to={`/playlists/${album.playlist.slug}`} replace />
 }

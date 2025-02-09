@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from 'react'
 import WaveSurfer from 'wavesurfer.js'
-import { get } from '@rails/request.js'
 import useAudioStore from '../../stores/audioStore'
 
 export default function TrackPlayer({ url, peaks, height = 45, id, urlLink }) {
@@ -33,11 +32,22 @@ export default function TrackPlayer({ url, peaks, height = 45, id, urlLink }) {
       wavesurfer.current.getWrapper().addEventListener('click', handleDrawerClick)
     })
 
+    // Handle window resize
+    const handleResize = () => {
+      if (wavesurfer.current) {
+        wavesurfer.current.empty()
+        wavesurfer.current.drawBuffer()
+      }
+    }
+
+    // window.addEventListener('resize', handleResize)
+
     return () => {
       if (wavesurfer.current) {
         wavesurfer.current.getWrapper()?.removeEventListener('click', handleDrawerClick)
         wavesurfer.current.destroy()
       }
+      window.removeEventListener('resize', handleResize)
     }
   }, [url, peaks, height, id])
 

@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react'
 import { useParams, Link, Outlet, useLocation } from 'react-router-dom'
 import { get } from '@rails/request.js'
 import { format } from 'date-fns'
-import { Play, Pause, Share2, ThumbsUp } from 'lucide-react'
+import { Play, Pause, Share2, ThumbsUp, Menu } from 'lucide-react'
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import useAudioStore from '../../stores/audioStore'
 import useAuthStore from '../../stores/authStore'
 import { ModernTrackCell } from '../tracks/TrackCell'
@@ -115,7 +116,8 @@ export default function UserShow() {
       {/* Navigation */}
       <nav className="mb-8 border-b border-default">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <ul className="flex space-x-8">
+          {/* Desktop Navigation */}
+          <ul className="hidden md:flex space-x-8">
             {menuItems.map((item) => (
               !item.hidden && (
                 <li key={item.name}>
@@ -134,6 +136,40 @@ export default function UserShow() {
               )
             ))}
           </ul>
+
+          {/* Mobile Navigation */}
+          <div className="md:hidden">
+            <Sheet>
+              <SheetTrigger asChild>
+                <button className="p-2 text-gray-400 hover:text-gray-300">
+                  <Menu className="h-6 w-6" />
+                </button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="h-[50vh]">
+                <nav className="mt-6">
+                  <ul className="space-y-4">
+                    {menuItems.map((item) => (
+                      !item.hidden && (
+                        <li key={item.name}>
+                          <Link
+                            to={item.to}
+                            className={clsx(
+                              'block py-2 px-4 text-base font-medium rounded-lg',
+                              location.pathname === item.to
+                                ? 'bg-primary-500 text-white'
+                                : 'text-gray-400 hover:bg-gray-700 hover:text-gray-300'
+                            )}
+                          >
+                            {item.name}
+                          </Link>
+                        </li>
+                      )
+                    ))}
+                  </ul>
+                </nav>
+              </SheetContent>
+            </Sheet>
+          </div>
         </div>
       </nav>
 

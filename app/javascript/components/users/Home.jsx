@@ -51,7 +51,7 @@ export default function UserHome() {
   }
 
   return (
-    <div className="space-y-12">
+    <div className="space-y-12 px-4">
       {/* Recent Tracks Section */}
       <Albums/>
       {/* Articles Section */}

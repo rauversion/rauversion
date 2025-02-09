@@ -2,11 +2,16 @@
 json.extract! @release,
   :id,
   :title,
+  :slug,
   :subtitle,
   :template,
   :created_at,
   :updated_at,
   :editor_data
+
+json.playlist do
+  json.extract! @release.playlist, :id, :title, :description, :slug if @release.playlist.present?
+end
 
 # Config attributes
 json.config do
