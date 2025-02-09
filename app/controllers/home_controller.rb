@@ -17,7 +17,10 @@ class HomeController < ApplicationController
       .includes(user: { avatar_attachment: :blob })
       .order("id desc").limit(4)
 
-    @releases = Release.limit(10).order("id desc")
+    @releases = Release
+    .where(published: true)
+    .limit(10)
+    .order("id desc")
 
     @albums = Playlist.published
     .latests
@@ -36,7 +39,6 @@ class HomeController < ApplicationController
     @latest_releases = Track.published.latests
     .with_attached_cover
     .includes(user: { avatar_attachment: :blob })
-    .where(published: true)
     .limit(12)
 
     respond_with(@artists, @posts, @albums, @playlists, @latest_releases)
