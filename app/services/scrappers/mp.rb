@@ -114,5 +114,5 @@ end
 #puts "Total artist links scraped: #{artist_links.size}"
 
 
-artist_links = File.open("links.txt").readlines.map(&:chomp)
+# artist_links = File.open("links.txt").readlines.map(&:chomp)
 #Scrappers::Mp.save_artists_csv(artist_links)
