@@ -16,10 +16,7 @@ export default function UserAlbums() {
   useEffect(() => {
     const fetchAlbums = async () => {
       try {
-        const queryParams = selectedCategories.length > 0 
-          ? `?kind=${selectedCategories.join(',')}`
-          : ''
-        const response = await get(`/${username}/albums.json${queryParams}`)
+        const response = await get(`/${username}/playlists_filter.json?kind=${selectedCategories.join(',')}`)
         if (response.ok) {
           const data = await response.json
           setAlbums(data.collection)
@@ -32,15 +29,35 @@ export default function UserAlbums() {
       }
     }
 
-    fetchAlbums()
+    if (selectedCategories.length > 0) {
+      fetchAlbums()
+    } else {
+      // Fetch all albums when no category is selected
+      const fetchAllAlbums = async () => {
+        try {
+          const response = await get(`/${username}/albums.json`)
+          if (response.ok) {
+            const data = await response.json
+            setAlbums(data.collection)
+            setPagination(data.metadata)
+          }
+        } catch (error) {
+          console.error('Error fetching albums:', error)
+        } finally {
+          setLoading(false)
+        }
+      }
+      fetchAllAlbums()
+    }
   }, [username, selectedCategories])
 
   const toggleCategory = (category) => {
+    setLoading(true)
     setSelectedCategories(prev => {
       if (prev.includes(category)) {
         return prev.filter(c => c !== category)
       } else {
-        return [...prev, category]
+        return [category] // Only allow one category at a time
       }
     })
   }
@@ -98,7 +115,7 @@ export default function UserAlbums() {
                 <button
                   type="button"
                   onClick={() => console.log('Play album:', album.title)}
-                  className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent text-gray-400 hover:text-white hover:bg-brand-700"
+                  className="hidden inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent text-gray-400 hover:text-white hover:bg-brand-700"
                 >
                   <span className="sr-only">Play album</span>
                   <svg

@@ -23,13 +23,13 @@ export default function TrackItem({
       <div className="flex items-center gap-4">
         <div className="relative w-20 h-20 flex-shrink-0">
           <img
-            src={track.cover_url.small}
+            src={track.cover_url.medium}
             alt={track.title}
             className="w-full h-full object-cover rounded"
           />
           <button
             onClick={() => onPlay(track.id)}
-            className="absolute inset-0 flex items-center justify-center bg-default bg-opacity-40 transition-opacity hover:bg-opacity-50"
+            className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 transition-opacity hover:bg-opacity-50"
           >
             {isCurrentlyPlaying ? (
               <Pause className="w-8 h-8 text-default" />

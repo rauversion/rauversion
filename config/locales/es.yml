@@ -680,12 +680,12 @@ es:
       discover: Descubrir Música
       all: Todo
       featured_albums:
-        title: Álbumes Destacados
+        title: Álbumes
         subtitle: Últimos lanzamientos de nuestros artistas
       curated_playlists:
         title: Listas de Reproducción Curadas
         subtitle: Colecciones seleccionadas para cada estado de ánimo
-      featured_labels: Sellos Destacados
+      featured_labels: Sellos
       view_all: Ver Todo
     edit:
       dialog:
@@ -905,6 +905,9 @@ es:
     profile:
       title: Información del Perfil
       subtitle: Actualiza tu información personal y detalles del perfil
+      messages: 
+        success: Perfil actualizado exitosamente
+        error: No se pudo actualizar el perfil
       form:
         username:
           label: Nombre de Usuario
@@ -936,6 +939,10 @@ es:
           label: Dirección de Email
       buttons:
         update: Actualizar Email
+      messages: 
+        success: Email actualizado exitosamente
+        error: No se pudo actualizar el email
+  
     security:
       title: Configuración de Seguridad
       subtitle: Actualiza tu contraseña para mantener tu cuenta segura.
@@ -946,10 +953,15 @@ es:
           label: Contraseña Actual
         confirm_password:
           label: Confirmar Contraseña
-
+      messages: 
+        success: Contraseña actualizada exitosamente
+        error: No se pudo actualizar la contraseña
     notifications:
       title: Configuración de Notificaciones por Email y App
       subtitle: Gestiona tus preferencias de notificaciones por email y en la aplicación
+      messages: 
+        success:  Preferencias de notificación actualizadas exitosamente
+        error:  No se pudieron actualizar las preferencias de notificación
       form:
         labels:
           email: Notificaciones por Email
@@ -999,9 +1011,15 @@ es:
       buttons:
         connect: Conectar
         disconnect: Desconectar
+      messages: 
+        success: Conexión exitosa
+        error:  No se pudo conectar
     invitations:
       title: Enviar Invitaciones
       subtitle: Invita a otros usuarios a unirse a la plataforma
+      messages: 
+        success: Invitaciones enviadas exitosamente
+        error: No se pudieron enviar las invitaciones
       form:
         email:
           label: Email
@@ -1019,9 +1037,15 @@ es:
           accepted: Aceptada el %{date}
           not_sent: No enviada aún
     social_links:
+      messages: 
+        success: Enlaces sociales actualizados exitosamente 
+        error: No se pudieron actualizar los enlaces sociales
       seo:
         title: Configuración SEO
         subtitle: Personaliza cómo aparece tu perfil en los motores de búsqueda.
+        messages: 
+          success: Configuración SEO actualizada exitosamente
+          error: No se pudo actualizar la configuración SEO
         form:
           social_title:
             label: Título para Redes Sociales
@@ -1067,6 +1091,9 @@ es:
     transbank:
       title: Integración Transbank
       subtitle: Configura tus ajustes de pago de Transbank.
+      messages: 
+        success: Configuración de Transbank actualizada exitosamente
+        error: No se pudo actualizar la configuración de Transbank
       status:
         title: Estado de Integración
         verified: Verificado
@@ -1089,6 +1116,9 @@ es:
     podcast:
       title: Configuración de Podcast
       subtitle: Configura tu perfil y ajustes de podcast.
+      messages: 
+        success: Configuración de podcast actualizada exitosamente
+        error: No se pudo actualizar la configuración de podcast
       form:
         avatar:
           label: Avatar del Podcast
