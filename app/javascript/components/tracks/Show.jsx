@@ -72,8 +72,8 @@ export default function TrackShow() {
     <main className="flex-1 relative z-0 overflow-y-auto focus:outline-none xl:order-last">
       <div className="bg-background">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex flex-col lg:flex-row gap-8">
-            <div className="flex-1">
+          <div className="flex flex-row gap-8 items-center">
+            <div className="flex-1 w-2/3">
               <div className="flex items-center gap-4 mb-4">
                 <div className="flex-shrink-0">
                   <img
@@ -108,7 +108,7 @@ export default function TrackShow() {
               )}
             </div>
 
-            <div className="lg:w-1/3">
+            <div className="w-1/3">
               <div className="relative group">
                 <img
                   src={track.cover_url?.large || "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"}

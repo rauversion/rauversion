@@ -60,13 +60,13 @@ export default function UserMenu() {
         <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 text-default">
           <div className="flex justify-between h-16">
             <div className="flex items-center px-2 lg:px-0">
-              <div className="flex-shrink-0 flex items-center">
+              <div className="md:flex flex-shrink-0 items-center">
                 <Link to="/" className="flex items-center space-x-3 text-default sm:text-2xl text-sm font-extrabold">
                   <img src={"/logo.png"} className="h-12 w-auto" alt="Logo" />
-                  <span>{window.ENV.APP_NAME}</span>
+                  <span class="hidden md:block">{window.ENV.APP_NAME}</span>
                 </Link>
               </div>
-              <div className="hidden lg:ml-8 lg:flex lg:space-x-4">
+              <div className="lg:ml-8 lg:flex lg:space-x-4">
                 <Link to="/tracks" className="rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted">
                   {I18n.t('menu.music')}
                 </Link>
@@ -79,7 +79,152 @@ export default function UserMenu() {
               </div>
             </div>
 
-            <div className="flex items-center justify-end space-x-4">
+            {/* Mobile Menu Button */}
+            <div className="lg:hidden mt-3 flex items-center space-x-2">
+
+              <div className="flex items-center gap-2">
+                <CartIndicator />
+              </div>
+
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                    </svg>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem asChild>
+                      <Link to="/tracks">
+                        <Music className="mr-2 h-4 w-4" />
+                        <span>{I18n.t('menu.music')}</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/events">
+                        <Calendar className="mr-2 h-4 w-4" />
+                        <span>{I18n.t('menu.events')}</span>
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/articles">
+                        <FileText className="mr-2 h-4 w-4" />
+                        <span>{I18n.t('menu.magazine')}</span>
+                      </Link>
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+
+                  <DropdownMenuSeparator />
+                  
+                  {currentUser ? (
+                    <>
+                      <DropdownMenuItem asChild>
+                        <Link to="/tracks/new">
+                          <Music className="mr-2 h-4 w-4" />
+                          <span>{I18n.t('menu.upload')}</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuGroup>
+                        <DropdownMenuItem asChild>
+                          <Link to={`/${currentUser.username}`}>
+                            <User className="mr-2 h-4 w-4" />
+                            <span>{I18n.t('menu.profile')}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link to={`/${currentUser.username}/settings`}>
+                            <Settings className="mr-2 h-4 w-4" />
+                            <span>{I18n.t('menu.settings')}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                      </DropdownMenuGroup>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuGroup>
+                        <DropdownMenuItem asChild>
+                          <Link to={`/${currentUser.username}`}>
+                            <Music className="mr-2 h-4 w-4" />
+                            <span>{I18n.t('menu.my_music')}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link to="/articles/mine">
+                            <FileText className="mr-2 h-4 w-4" />
+                            <span>{I18n.t('menu.my_articles')}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link to="/events/mine">
+                            <Calendar className="mr-2 h-4 w-4" />
+                            <span>{I18n.t('menu.my_events')}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                      </DropdownMenuGroup>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuGroup>
+                        <DropdownMenuItem asChild>
+                          <Link to="/purchases">
+                            <ShoppingCart className="mr-2 h-4 w-4" />
+                            <span>{I18n.t('menu.my_purchases')}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link to="/sales">
+                            <Store className="mr-2 h-4 w-4" />
+                            <span>{I18n.t('menu.my_sales')}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link to={`/${currentUser.username}/products`}>
+                            <Package className="mr-2 h-4 w-4" />
+                            <span>{I18n.t('menu.my_products')}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                      </DropdownMenuGroup>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>{I18n.t('menu.log_out')}</span>
+                      </DropdownMenuItem>
+                    </>
+                  ) : (
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem asChild>
+                        <Link to="/login">
+                          <User className="mr-2 h-4 w-4" />
+                          <span>{I18n.t('menu.log_in')}</span>
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/register" className="text-primary">
+                          <User className="mr-2 h-4 w-4" />
+                          <span>{I18n.t('menu.register')}</span>
+                        </Link>
+                      </DropdownMenuItem>
+                    </DropdownMenuGroup>
+                  )}
+
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={toggleDarkMode}>
+                    {isDarkMode ? (
+                      <>
+                        <Moon className="mr-2 h-4 w-4" />
+                        <span>{I18n.t('menu.dark_mode')}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Sun className="mr-2 h-4 w-4" />
+                        <span>{I18n.t('menu.light_mode')}</span>
+                      </>
+                    )}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            <div className="hidden lg:flex items-center justify-end space-x-4">
               <div className="flex items-center gap-2">
                 <CartIndicator />
               </div>
@@ -95,7 +240,7 @@ export default function UserMenu() {
 
               {currentUser ? (
                 <>
-                  <Link to="/tracks/new" className="rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted">
+                  <Link to="/tracks/new" className="hidden lg:block rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted">
                     {I18n.t('menu.upload')}
                   </Link>
 

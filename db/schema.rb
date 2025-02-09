@@ -19,7 +19,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
     t.string "record_type", null: false
     t.bigint "record_id", null: false
     t.bigint "blob_id", null: false
-    t.datetime "created_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
+    t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
   end
 
   create_table "active_storage_blobs", force: :cascade do |t|
@@ -30,19 +32,21 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
     t.string "service_name", null: false
     t.bigint "byte_size", null: false
     t.string "checksum"
-    t.datetime "created_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
   create_table "active_storage_variant_records", force: :cascade do |t|
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
+    t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
   end
 
   create_table "categories", force: :cascade do |t|
     t.string "name"
     t.string "slug"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "comments", force: :cascade do |t|
@@ -51,8 +55,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
     t.bigint "user_id", null: false
     t.text "body"
     t.integer "parent_id"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["commentable_type", "commentable_id"], name: "index_comments_on_commentable"
+    t.index ["user_id"], name: "index_comments_on_user_id"
   end
 
   create_table "connected_accounts", force: :cascade do |t|
@@ -86,8 +92,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
     t.bigint "user_id", null: false
     t.boolean "listed_on_page"
     t.boolean "event_manager"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_event_hosts_on_event_id"
+    t.index ["user_id"], name: "index_event_hosts_on_user_id"
   end
 
   create_table "event_recordings", force: :cascade do |t|
@@ -98,19 +106,21 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
     t.jsonb "properties"
     t.integer "position"
     t.bigint "event_id", null: false
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_event_recordings_on_event_id"
   end
 
   create_table "event_schedules", force: :cascade do |t|
     t.bigint "event_id", null: false
-    t.datetime "start_date", precision: nil
-    t.datetime "end_date", precision: nil
+    t.datetime "start_date"
+    t.datetime "end_date"
     t.string "schedule_type"
     t.string "name"
     t.string "description"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_event_schedules_on_event_id"
   end
 
   create_table "event_tickets", force: :cascade do |t|
@@ -119,13 +129,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
     t.decimal "early_bird_price"
     t.decimal "standard_price"
     t.integer "qty"
-    t.datetime "selling_start", precision: nil
-    t.datetime "selling_end", precision: nil
+    t.datetime "selling_start"
+    t.datetime "selling_end"
     t.string "short_description"
     t.jsonb "settings"
     t.bigint "event_id", null: false
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_event_tickets_on_event_id"
   end
 
   create_table "events", force: :cascade do |t|
@@ -134,8 +145,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
     t.string "slug"
     t.string "state"
     t.string "timezone"
-    t.datetime "event_start", precision: nil
-    t.datetime "event_ends", precision: nil
+    t.datetime "event_start"
+    t.datetime "event_ends"
     t.boolean "private"
     t.boolean "online"
     t.string "location"
@@ -162,9 +173,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
     t.jsonb "event_settings"
     t.jsonb "tickets"
     t.bigint "user_id", null: false
-    t.jsonb "streaming_service"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.jsonb "streaming_service", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_events_on_user_id"
   end
 
   create_table "follows", force: :cascade do |t|
@@ -172,7 +184,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
     t.integer "follower_id"
     t.string "followable_type"
     t.integer "followable_id"
-    t.datetime "created_at", precision: nil
+    t.datetime "created_at"
+    t.index ["followable_id", "followable_type"], name: "fk_followables"
+    t.index ["follower_id", "follower_type"], name: "fk_follows"
   end
 
   create_table "friendly_id_slugs", force: :cascade do |t|
@@ -180,7 +194,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
     t.integer "sluggable_id", null: false
     t.string "sluggable_type", limit: 50
     t.string "scope"
-    t.datetime "created_at", precision: nil
+    t.datetime "created_at"
+    t.index ["slug", "sluggable_type", "scope"], name: "index_friendly_id_slugs_on_slug_and_sluggable_type_and_scope", unique: true
+    t.index ["slug", "sluggable_type"], name: "index_friendly_id_slugs_on_slug_and_sluggable_type"
+    t.index ["sluggable_type", "sluggable_id"], name: "index_friendly_id_slugs_on_sluggable_type_and_sluggable_id"
   end
 
   create_table "likes", force: :cascade do |t|
@@ -188,7 +205,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
     t.integer "liker_id"
     t.string "likeable_type"
     t.integer "likeable_id"
-    t.datetime "created_at", precision: nil
+    t.datetime "created_at"
+    t.index ["likeable_id", "likeable_type"], name: "fk_likeables"
+    t.index ["liker_id", "liker_type"], name: "fk_likes"
   end
 
   create_table "link_services", force: :cascade do |t|
@@ -226,8 +245,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
     t.integer "user_id"
     t.integer "track_id"
     t.integer "playlist_id"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "mentions", force: :cascade do |t|
@@ -235,7 +254,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
     t.integer "mentioner_id"
     t.string "mentionable_type"
     t.integer "mentionable_id"
-    t.datetime "created_at", precision: nil
+    t.datetime "created_at"
+    t.index ["mentionable_id", "mentionable_type"], name: "fk_mentionables"
+    t.index ["mentioner_id", "mentioner_type"], name: "fk_mentions"
   end
 
   create_table "nondisposable_disposable_domains", force: :cascade do |t|
@@ -251,8 +272,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
     t.jsonb "data"
     t.string "provider"
     t.bigint "user_id", null: false
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_oauth_credentials_on_user_id"
   end
 
   create_table "photos", force: :cascade do |t|
@@ -289,16 +311,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
     t.jsonb "metadata"
     t.boolean "private"
     t.string "playlist_type"
-    t.datetime "release_date", precision: nil
+    t.datetime "release_date"
     t.string "genre"
     t.string "custom_genre"
     t.integer "likes_count"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "tags", default: [], array: true
     t.integer "label_id"
     t.integer "editor_choice_position"
     t.index ["label_id"], name: "index_playlists_on_label_id"
+    t.index ["slug"], name: "index_playlists_on_slug"
+    t.index ["tags"], name: "index_playlists_on_tags", using: :gin
+    t.index ["user_id"], name: "index_playlists_on_user_id"
   end
 
   create_table "podcaster_hosts", force: :cascade do |t|
@@ -335,10 +360,13 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
     t.string "title"
     t.string "slug"
     t.string "state"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.bigint "category_id"
     t.string "tags", default: [], array: true
+    t.index ["category_id"], name: "index_posts_on_category_id"
+    t.index ["slug"], name: "index_posts_on_slug"
+    t.index ["user_id"], name: "index_posts_on_user_id"
   end
 
   create_table "preview_cards", force: :cascade do |t|
@@ -350,8 +378,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
     t.string "author_url"
     t.text "html"
     t.string "image"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "product_cart_items", force: :cascade do |t|
@@ -473,6 +501,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
     t.integer "year"
     t.boolean "accept_barter", default: false
     t.text "barter_description"
+    t.jsonb "data"
+    t.string "type"
     t.index ["accept_barter"], name: "index_products_on_accept_barter"
     t.index ["brand"], name: "index_products_on_brand"
     t.index ["condition"], name: "index_products_on_condition"
@@ -485,27 +515,44 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
     t.index ["year"], name: "index_products_on_year"
   end
 
+  create_table "products_images", force: :cascade do |t|
+    t.bigint "product_id", null: false
+    t.string "title"
+    t.string "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["product_id"], name: "index_products_images_on_product_id"
+  end
+
   create_table "purchased_items", force: :cascade do |t|
     t.bigint "purchase_id", null: false
     t.string "purchased_item_type", null: false
     t.bigint "purchased_item_id", null: false
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "state"
     t.boolean "checked_in"
-    t.datetime "checked_in_at", precision: nil
+    t.datetime "checked_in_at"
+    t.index ["checked_in"], name: "index_purchased_items_on_checked_in"
+    t.index ["purchase_id"], name: "index_purchased_items_on_purchase_id"
+    t.index ["purchased_item_type", "purchased_item_id"], name: "index_purchased_items_on_purchased_item"
+    t.index ["state"], name: "index_purchased_items_on_state"
   end
 
   create_table "purchases", force: :cascade do |t|
     t.bigint "user_id", null: false
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "state"
     t.string "checkout_type"
     t.string "checkout_id"
     t.string "purchasable_type"
     t.bigint "purchasable_id"
     t.decimal "price"
+    t.index ["checkout_type"], name: "index_purchases_on_checkout_type"
+    t.index ["purchasable_type", "purchasable_id"], name: "index_purchases_on_purchasable_type_and_purchasable_id"
+    t.index ["state"], name: "index_purchases_on_state"
+    t.index ["user_id"], name: "index_purchases_on_user_id"
   end
 
   create_table "release_playlists", force: :cascade do |t|
@@ -532,11 +579,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
   create_table "release_sections", force: :cascade do |t|
     t.string "title"
     t.text "body"
-    t.integer "position"
     t.jsonb "data"
     t.bigint "release_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "position"
     t.index ["release_id"], name: "index_release_sections_on_release_id"
   end
 
@@ -559,18 +606,37 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
   create_table "reposts", force: :cascade do |t|
     t.bigint "user_id", null: false
     t.bigint "track_id", null: false
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["track_id"], name: "index_reposts_on_track_id"
+    t.index ["user_id"], name: "index_reposts_on_user_id"
   end
 
   create_table "schedule_schedulings", force: :cascade do |t|
     t.bigint "event_schedule_id", null: false
-    t.datetime "start_date", precision: nil
-    t.datetime "end_date", precision: nil
+    t.datetime "start_date"
+    t.datetime "end_date"
     t.string "name"
     t.string "short_description"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_schedule_id"], name: "index_schedule_schedulings_on_event_schedule_id"
+  end
+
+  create_table "service_bookings", force: :cascade do |t|
+    t.bigint "service_product_id", null: false
+    t.bigint "customer_id", null: false
+    t.bigint "provider_id", null: false
+    t.string "status", null: false
+    t.jsonb "metadata", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "rating"
+    t.text "feedback"
+    t.index ["customer_id"], name: "index_service_bookings_on_customer_id"
+    t.index ["provider_id"], name: "index_service_bookings_on_provider_id"
+    t.index ["service_product_id"], name: "index_service_bookings_on_service_product_id"
+    t.index ["status"], name: "index_service_bookings_on_status"
   end
 
   create_table "spotlights", force: :cascade do |t|
@@ -598,13 +664,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
     t.decimal "early_bird_price"
     t.decimal "standard_price"
     t.integer "qty"
-    t.datetime "selling_start", precision: nil
-    t.datetime "selling_end", precision: nil
+    t.datetime "selling_start"
+    t.datetime "selling_end"
     t.string "short_description"
     t.jsonb "settings"
     t.bigint "event_id", null: false
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_tickets_on_event_id"
   end
 
   create_table "track_comments", force: :cascade do |t|
@@ -612,8 +679,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
     t.string "body"
     t.integer "track_minute"
     t.bigint "user_id", null: false
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["track_id"], name: "index_track_comments_on_track_id"
+    t.index ["user_id"], name: "index_track_comments_on_user_id"
   end
 
   create_table "track_peaks", force: :cascade do |t|
@@ -626,10 +695,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
 
   create_table "track_playlists", force: :cascade do |t|
     t.bigint "track_id", null: false
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.bigint "playlist_id", null: false
     t.integer "position"
+    t.index ["playlist_id"], name: "index_track_playlists_on_playlist_id"
+    t.index ["track_id"], name: "index_track_playlists_on_track_id"
   end
 
   create_table "tracks", force: :cascade do |t|
@@ -643,14 +714,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
     t.integer "likes_count"
     t.integer "reposts_count"
     t.string "state"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.text "description"
     t.string "genre"
     t.string "tags", default: [], array: true
     t.integer "label_id"
     t.boolean "podcast"
     t.index ["label_id"], name: "index_tracks_on_label_id"
+    t.index ["slug"], name: "index_tracks_on_slug"
+    t.index ["tags"], name: "index_tracks_on_tags", using: :gin
+    t.index ["user_id"], name: "index_tracks_on_user_id"
   end
 
   create_table "user_links", force: :cascade do |t|
@@ -679,30 +753,30 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
     t.text "bio"
     t.jsonb "settings"
     t.string "role"
-    t.datetime "created_at", precision: nil, null: false
-    t.datetime "updated_at", precision: nil, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
     t.string "reset_password_token"
-    t.datetime "reset_password_sent_at", precision: nil
-    t.datetime "remember_created_at", precision: nil
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
     t.integer "sign_in_count", default: 0, null: false
-    t.datetime "current_sign_in_at", precision: nil
-    t.datetime "last_sign_in_at", precision: nil
+    t.datetime "current_sign_in_at"
+    t.datetime "last_sign_in_at"
     t.string "current_sign_in_ip"
     t.string "last_sign_in_ip"
     t.string "confirmation_token"
-    t.datetime "confirmed_at", precision: nil
-    t.datetime "confirmation_sent_at", precision: nil
+    t.datetime "confirmed_at"
+    t.datetime "confirmation_sent_at"
     t.string "unconfirmed_email"
     t.integer "failed_attempts", default: 0, null: false
     t.string "unlock_token"
-    t.datetime "locked_at", precision: nil
+    t.datetime "locked_at"
     t.jsonb "notification_settings"
     t.string "invitation_token"
-    t.datetime "invitation_created_at", precision: nil
-    t.datetime "invitation_sent_at", precision: nil
-    t.datetime "invitation_accepted_at", precision: nil
+    t.datetime "invitation_created_at"
+    t.datetime "invitation_sent_at"
+    t.datetime "invitation_accepted_at"
     t.integer "invitation_limit"
     t.string "invited_by_type"
     t.bigint "invited_by_id"
@@ -711,32 +785,39 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
     t.boolean "seller"
     t.jsonb "social_links_settings", default: {}, null: false
     t.boolean "featured", default: false
+    t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
+    t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["featured"], name: "index_users_on_featured"
+    t.index ["invitation_token"], name: "index_users_on_invitation_token", unique: true
+    t.index ["invited_by_id"], name: "index_users_on_invited_by_id"
+    t.index ["invited_by_type", "invited_by_id"], name: "index_users_on_invited_by"
+    t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["seller"], name: "index_users_on_seller"
     t.index ["social_links_settings"], name: "index_users_on_social_links_settings", using: :gin
+    t.index ["unlock_token"], name: "index_users_on_unlock_token", unique: true
   end
 
-  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id", name: "active_storage_attachments_blob_id_fkey"
-  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id", name: "active_storage_variant_records_blob_id_fkey"
-  add_foreign_key "comments", "users", name: "comments_user_id_fkey"
+  add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
+  add_foreign_key "comments", "users"
   add_foreign_key "connected_accounts", "users"
   add_foreign_key "connected_accounts", "users", column: "parent_id"
   add_foreign_key "coupons", "users"
-  add_foreign_key "event_hosts", "events", name: "event_hosts_event_id_fkey"
-  add_foreign_key "event_hosts", "users", name: "event_hosts_user_id_fkey"
-  add_foreign_key "event_recordings", "events", name: "event_recordings_event_id_fkey"
-  add_foreign_key "event_schedules", "events", name: "event_schedules_event_id_fkey"
-  add_foreign_key "event_tickets", "events", name: "event_tickets_event_id_fkey"
-  add_foreign_key "events", "users", name: "events_user_id_fkey"
-  add_foreign_key "oauth_credentials", "users", name: "oauth_credentials_user_id_fkey"
+  add_foreign_key "event_hosts", "events"
+  add_foreign_key "event_hosts", "users"
+  add_foreign_key "event_recordings", "events"
+  add_foreign_key "event_schedules", "events"
+  add_foreign_key "event_tickets", "events"
+  add_foreign_key "events", "users"
+  add_foreign_key "oauth_credentials", "users"
   add_foreign_key "photos", "users"
   add_foreign_key "plain_messages", "plain_conversations"
-  add_foreign_key "playlists", "users", name: "playlists_user_id_fkey"
+  add_foreign_key "playlists", "users"
   add_foreign_key "podcaster_hosts", "podcaster_infos"
   add_foreign_key "podcaster_hosts", "users"
   add_foreign_key "podcaster_infos", "users"
-  add_foreign_key "posts", "categories", name: "posts_category_id_fkey"
-  add_foreign_key "posts", "users", name: "posts_user_id_fkey"
+  add_foreign_key "posts", "categories"
+  add_foreign_key "posts", "users"
   add_foreign_key "product_cart_items", "product_carts"
   add_foreign_key "product_cart_items", "products"
   add_foreign_key "product_carts", "users"
@@ -750,8 +831,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
   add_foreign_key "products", "coupons"
   add_foreign_key "products", "playlists"
   add_foreign_key "products", "users"
-  add_foreign_key "purchased_items", "purchases", name: "purchased_items_purchase_id_fkey"
-  add_foreign_key "purchases", "users", name: "purchases_user_id_fkey"
+  add_foreign_key "products_images", "products"
+  add_foreign_key "purchased_items", "purchases"
+  add_foreign_key "purchases", "users"
   add_foreign_key "release_playlists", "playlists"
   add_foreign_key "release_playlists", "releases"
   add_foreign_key "release_section_images", "release_sections"
@@ -759,16 +841,19 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
   add_foreign_key "releases", "playlists"
   add_foreign_key "releases", "products"
   add_foreign_key "releases", "users"
-  add_foreign_key "reposts", "tracks", name: "reposts_track_id_fkey"
-  add_foreign_key "reposts", "users", name: "reposts_user_id_fkey"
-  add_foreign_key "schedule_schedulings", "event_schedules", name: "schedule_schedulings_event_schedule_id_fkey"
+  add_foreign_key "reposts", "tracks"
+  add_foreign_key "reposts", "users"
+  add_foreign_key "schedule_schedulings", "event_schedules"
+  add_foreign_key "service_bookings", "products", column: "service_product_id"
+  add_foreign_key "service_bookings", "users", column: "customer_id"
+  add_foreign_key "service_bookings", "users", column: "provider_id"
   add_foreign_key "spotlights", "users"
-  add_foreign_key "tickets", "events", name: "tickets_event_id_fkey"
-  add_foreign_key "track_comments", "tracks", name: "track_comments_track_id_fkey"
-  add_foreign_key "track_comments", "users", name: "track_comments_user_id_fkey"
+  add_foreign_key "tickets", "events"
+  add_foreign_key "track_comments", "tracks"
+  add_foreign_key "track_comments", "users"
   add_foreign_key "track_peaks", "tracks"
-  add_foreign_key "track_playlists", "playlists", name: "track_playlists_playlist_id_fkey"
-  add_foreign_key "track_playlists", "tracks", name: "track_playlists_track_id_fkey"
-  add_foreign_key "tracks", "users", name: "tracks_user_id_fkey"
+  add_foreign_key "track_playlists", "playlists"
+  add_foreign_key "track_playlists", "tracks"
+  add_foreign_key "tracks", "users"
   add_foreign_key "user_links", "users"
 end

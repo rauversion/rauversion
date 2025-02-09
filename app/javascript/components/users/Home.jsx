@@ -68,16 +68,18 @@ export default function UserHome() {
       )}
 
 
-      {tracks.map((track, index) => (
-        <TrackItem
-          key={track.id}
-          track={track}
-          currentTrackId={currentTrackId}
-          isPlaying={isPlaying}
-          onPlay={handlePlay}
-          elementRef={tracks.length === index + 1 ? lastElementRef : null}
-        />
-      ))}
+      <div className="flex flex-col space-y-3">
+        {tracks.map((track, index) => (
+          <TrackItem
+            key={track.id}
+            track={track}
+            currentTrackId={currentTrackId}
+            isPlaying={isPlaying}
+            onPlay={handlePlay}
+            elementRef={tracks.length === index + 1 ? lastElementRef : null}
+          />
+        ))}
+      </div>
 
       {loadingTracks && (
         <div className="flex justify-center p-4">

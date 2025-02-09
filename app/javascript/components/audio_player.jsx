@@ -89,7 +89,7 @@ const TrackInfo = ({ playerData }) => (
       <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl" />
     </motion.div>
     
-    <div className="flex flex-col">
+    <div className="flex flex-col md:w-auto w-[100px]">
       <motion.div
         initial={{ y: 10, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}

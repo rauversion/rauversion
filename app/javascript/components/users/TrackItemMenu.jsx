@@ -115,7 +115,7 @@ export default function TrackItemMenu({ track }) {
 
   return (
     <>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center sm:gap-3 gap-1">
         <button 
           onClick={handleLike}
           className={`p-2 hover:text-white flex items-center gap-1 ${

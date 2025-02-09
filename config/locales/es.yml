@@ -38,6 +38,8 @@ es:
     acting_on_behalf: Actuando en nombre de
     back_to_label: "volver a: sello %{username}"
     language: Idioma
+    dark_mode: Modo oscuro
+    light_mode: Modo claro
   notifications:
     title: Notificaciones
     mark_all_as_read: Marcar todas como leídas

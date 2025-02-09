@@ -97,7 +97,7 @@ export default function UserShow() {
               )}
 
               <div className="mt-4 flex items-center space-x-6">
-                <div className="flex space-x-4 text-sm">
+                <div className="flex sm:flex-row flex-col sm:space-x-4 text-sm">
                   <div>
                     <span className="font-medium">{user.stats.tracks_count}</span>
                     <span className="text-gray-400 ml-1">{I18n.t('profile.tracks').toLowerCase()}</span>

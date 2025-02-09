@@ -18,10 +18,10 @@ export default function TrackItem({
   return (
     <div
       ref={elementRef}
-      className="bg-muted rounded-lg p-4 space-y-4"
+      className="bg-muted rounded-lg p-4 space-y-4 w-full"
     >
       <div className="flex items-center gap-4">
-        <div className="relative w-20 h-20 flex-shrink-0">
+        <div className="hidden sm:block relative w-20 h-20 flex-shrink-0">
           <img
             src={track.cover_url.medium}
             alt={track.title}
@@ -42,12 +42,26 @@ export default function TrackItem({
         <div className="flex-grow min-w-0">
           <div className="flex items-start justify-between">
             <div>
-              <Link
-                to={`/tracks/${track.slug}`}
-                className="text-lg max-w-[150px] md:max-w-none font-semibold text-default hover:text-brand-500 truncate block"
-              >
-                {track.title}
-              </Link>
+              <div className="flex items-center">
+
+                <button
+                  onClick={() => onPlay(track.id)}
+                  className="flex sm:hidden mr-2 p-3 items-center justify-center bg-black bg-opacity-40 transition-opacity hover:bg-opacity-50"
+                >
+                  {isCurrentlyPlaying ? (
+                    <Pause className="w-4 h-4 text-default" />
+                  ) : (
+                    <Play className="w-4 h-4 text-default" />
+                  )}
+                </button>
+
+                <Link
+                  to={`/tracks/${track.slug}`}
+                  className="text-lg max-w-[130px] md:max-w-none font-semibold text-default hover:text-brand-500 truncate block"
+                >
+                  {track.title}
+                </Link>
+              </div>
               <Link
                 to={`/${track.user.username}`}
                 className="text-sm text-gray-400 hover:text-default"
@@ -59,7 +73,7 @@ export default function TrackItem({
             <TrackItemMenu track={track} />
           </div>
 
-          <div className="mt-4">
+          <div className="mt-4 hidden">
             <TrackPlayer
               url={track.audio_url}
               peaks={track.peaks}

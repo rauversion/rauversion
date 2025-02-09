@@ -34,7 +34,7 @@ export default function Header({ posts }) {
       >
         <motion.div
           style={{
-            backgroundImage: `url(${post.cover_url.large})`,
+            backgroundImage: `url("${post.cover_url.large}")`,
             backgroundPosition: 'center',
             backgroundSize: 'cover',
             height: '100%',

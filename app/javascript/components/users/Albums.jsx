@@ -70,7 +70,7 @@ export default function UserAlbums() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-md font-medium text-gray-500">Albums</h2>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           {CATEGORIES.map((category) => (
             <Button
               key={category}
