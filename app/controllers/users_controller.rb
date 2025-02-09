@@ -35,10 +35,12 @@ class UsersController < ApplicationController
 
   def tracks
     @title = "Tracks"
-    @tracks = @user.tracks
+    @q = @user.tracks.ransack(params[:q])
+    @q.sorts = 'created_at desc' if @q.sorts.empty?
+
+    @tracks = @q.result
       .with_attached_cover
       .includes(user: { avatar_attachment: :blob })
-      .order(created_at: :desc)
       .page(params[:page])
       .per(12)
 
@@ -49,6 +51,18 @@ class UsersController < ApplicationController
         @section = "tracks/track_item"
         paginated_render
       end
+      format.json
+    end
+  end
+
+  def search_tracks
+    @q = @user.tracks.ransack(title_cont: params[:q])
+    @tracks = @q.result
+      .with_attached_cover
+      .includes(user: { avatar_attachment: :blob })
+      .limit(10)
+
+    respond_to do |format|
       format.json
     end
   end

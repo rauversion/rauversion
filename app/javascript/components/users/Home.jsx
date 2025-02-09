@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react'
-import { useParams, useOutletContext, Link } from 'react-router-dom'
+import { useParams, useOutletContext, Link, useSearchParams } from 'react-router-dom'
 import { get } from '@rails/request.js'
 import ArticleSide from './ArticleSide'
-import TrackPlayer from '../tracks/TrackPlayer'
-import { Play, Pause, Share2, Heart, MoreHorizontal } from 'lucide-react'
-import PlaylistListItem from './PlaylistItem'
 import Albums from './Albums'
 import TrackItem from './TrackItem'
+import SpotlightEditor from './SpotlightEditor'
 import { useInfiniteScroll } from '../../hooks/useInfiniteScroll'
 
 export default function UserHome() {
@@ -52,8 +50,15 @@ export default function UserHome() {
 
   return (
     <div className="space-y-12 px-4">
-      {/* Recent Tracks Section */}
-      <Albums/>
+    
+      <Albums />
+
+      <SpotlightEditor 
+        isPlaying={isPlaying} 
+        handlePlay={handlePlay} 
+        currentTrackId={currentTrackId}
+      />
+         
       {/* Articles Section */}
       {articles.length > 0 && (
         <div>

@@ -1,7 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
-
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -15,7 +14,7 @@ import {
   DropdownMenuSubTrigger,
 } from "../ui/dropdown-menu"
 import { CartIndicator } from '@/components/cart/CartIndicator'
-import I18n from '@/stores/locales'
+import I18n, {useLocaleStore} from '@/stores/locales'
 
 import { Button } from "../ui/button"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
@@ -23,13 +22,15 @@ import { useThemeStore } from "../../stores/theme"
 import useAuthStore from "../../stores/authStore"
 import { 
   User, Settings, Music, ShoppingCart, Package, FileText, 
-  Calendar, LogOut, Sun, Moon, Bell, Store, CreditCard 
+  Calendar, LogOut, Sun, Moon, Bell, Store, CreditCard,
+  Languages
 } from 'lucide-react'
 
 export default function UserMenu() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const { isDarkMode, toggleDarkMode } = useThemeStore()
   const { currentUser, labelUser, cartItemCount, signOut } = useAuthStore()
+  const { setLocale, t, currentLocale } = useLocaleStore()
   const navigate = useNavigate()
 
   const handleSignOut = async () => {
@@ -173,6 +174,23 @@ export default function UserMenu() {
                           </Link>
                         </DropdownMenuItem>
                       </DropdownMenuGroup>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuSub>
+                        <DropdownMenuSubTrigger>
+                          <Languages className="mr-2 h-4 w-4" />
+                          <span>{I18n.t('menu.language')}</span>
+                        </DropdownMenuSubTrigger>
+                        <DropdownMenuSubContent>
+                          <DropdownMenuItem onClick={() => setLocale('en')}>
+                            <span className="mr-2">🇺🇸</span> English
+                            {currentLocale === 'en' && <span className="ml-2">✓</span>}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setLocale('es')}>
+                            <span className="mr-2">🇪🇸</span> Español
+                            {currentLocale === 'es' && <span className="ml-2">✓</span>}
+                          </DropdownMenuItem>
+                        </DropdownMenuSubContent>
+                      </DropdownMenuSub>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
                         <LogOut className="mr-2 h-4 w-4" />

@@ -61,6 +61,7 @@ export default function UserAlbums() {
               <div className="flex-shrink-0 pr-2">
                 <button
                   type="button"
+                  onClick={() => console.log('Play album:', album.title)}
                   className="inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent text-gray-400 hover:text-white hover:bg-brand-700"
                 >
                   <span className="sr-only">Play album</span>

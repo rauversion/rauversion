@@ -44,7 +44,7 @@ export default function TrackItem({
             <div>
               <Link
                 to={`/tracks/${track.slug}`}
-                className="text-lg font-semibold text-default hover:text-brand-500 truncate block"
+                className="text-lg max-w-[150px] md:max-w-none font-semibold text-default hover:text-brand-500 truncate block"
               >
                 {track.title}
               </Link>

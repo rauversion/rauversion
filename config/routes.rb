@@ -289,6 +289,7 @@ Rails.application.routes.draw do
       get "followers", to: "user_follows#followers"
       get "followees", to: "user_follows#followees"
       get "/tracks", to: "users#tracks"
+      get "/tracks/search", to: "users#search_tracks"
       get "/playlists", to: "users#playlists"
       get "/playlists_filter", to: "users#playlists_filter"
       get "/reposts", to: "users#reposts"
