@@ -26,7 +26,8 @@ json.collection @collection do |playlist|
     end
   end
 
-  json.tracks playlist.tracks do |track|
+  json.tracks playlist.track_playlists.by_position do |track_playlist|
+    track = track_playlist.track
     json.extract! track, :id, :title, :description, :duration, :slug
     json.cover_url do
       json.medium track.cover_url(:medium)

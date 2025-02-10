@@ -169,8 +169,17 @@ export default function PlaylistShow() {
       </div>
 
 
+      {/* Description Section */}
+      {playlist.description && (
+        <div className="max-w-7xl mx-auto px-8 pb-4">
+          <div className="text-gray-400 text-lg whitespace-pre-wrap">
+            {playlist.description}
+          </div>
+        </div>
+      )}
+
       {/* Tracks Section */}
-      <div className="max-w-7xl mx-auto p-8">
+      <div className="max-w-7xl mx-auto p-8 pt-4">
         <div className="mb-6 flex justify-between items-center">
           <h2 className="text-xl font-bold mb-4">Tracks</h2>
           <MusicPurchase resource={playlist} type="Playlist" variant="mini" />

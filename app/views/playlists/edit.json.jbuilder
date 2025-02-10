@@ -36,7 +36,7 @@ json.playlist do
     end
   end
 
-  json.track_playlists @playlist.track_playlists do |track_playlist|
+  json.track_playlists @playlist.track_playlists.order("position asc") do |track_playlist|
     track = track_playlist.track
 
     json.id track.id

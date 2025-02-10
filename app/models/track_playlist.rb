@@ -4,4 +4,6 @@ class TrackPlaylist < ApplicationRecord
 
   acts_as_list scope: [:playlist_id]
 
+  scope :by_position, -> { order("position asc") }
+
 end

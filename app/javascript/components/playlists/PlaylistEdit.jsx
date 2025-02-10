@@ -52,7 +52,7 @@ export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenCh
   const fetchPlaylist = async () => {
     setLoading(true)
     try {
-      const response = await fetch(`/playlists/${playlist.slug}.json`)
+      const response = await fetch(`/playlists/${playlist.slug}/edit.json`)
       const data = await response.json()
       setPlaylist(data.playlist)
       
