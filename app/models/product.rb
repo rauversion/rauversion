@@ -8,13 +8,11 @@ class Product < ApplicationRecord
 
   belongs_to :user
   belongs_to :album, class_name: 'Playlist', optional: true, foreign_key: :playlist_id
-
   belongs_to :coupon, optional: true
 
   has_many :product_variants, dependent: :destroy
   has_many :product_options, dependent: :destroy
   has_many :product_images
-
   has_many :purchased_items, as: :purchased_item
   has_many :product_shippings, dependent: :destroy
   has_many :product_purchase_items
@@ -22,42 +20,18 @@ class Product < ApplicationRecord
 
   validates :title, presence: true
   validates :description, presence: true
-  validates :price, presence: true, numericality: { greater_than_or_equal_to: 0 }
-  validates :stock_quantity, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
-  validates :sku, presence: true, uniqueness: true
+  # validates :price, presence: true, numericality: { greater_than_or_equal_to: 0 }
+  # validates :stock_quantity, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
+  # validates :sku, presence: true, uniqueness: true
   validates :category, presence: true
   validates :status, presence: true
-  validates :album, presence: true, if: -> { ['vinyl', 'cassette'].include?(category) }
-  validates :condition, presence: true, if: :used_gear?
-  validates :brand, presence: true, if: :used_gear?
-  validates :model, presence: true, if: :used_gear?
-  validates :barter_description, presence: true, if: :accept_barter?
 
-  attribute :limited_edition, :boolean
-  attribute :limited_edition_count, :integer
-  attribute :include_digital_album, :boolean
   attribute :visibility, :string
   attribute :name_your_price, :boolean
-  attribute :shipping_days, :integer
-  attribute :shipping_begins_on, :date
-  attribute :shipping_within_country_price, :decimal
-  attribute :shipping_worldwide_price, :decimal
   attribute :quantity, :integer
-  attribute :accept_barter, :boolean, default: false
 
   enum :status, { active: 'active', inactive: 'inactive', sold_out: 'sold_out' }
-  enum :category, { 
-    merch: 'merch', 
-    vinyl: 'vinyl', 
-    cassette: 'cassette', 
-    cd: 'cd', 
-    other: 'other',
-    instrument: 'instrument',
-    audio_gear: 'audio_gear',
-    dj_gear: 'dj_gear',
-    accessories: 'accessories'
-  }
-  
+
   enum :condition, {
     new: 'new',
     like_new: 'like_new',
@@ -70,15 +44,49 @@ class Product < ApplicationRecord
 
   scope :active, -> { where(status: 'active') }
   scope :by_category, ->(category) { where(category: category) }
-  scope :used_gear, -> { where(category: ['instrument', 'audio_gear', 'dj_gear', 'accessories']) }
-  scope :accept_barter, -> { where(accept_barter: true) }
 
   accepts_nested_attributes_for :product_variants
   accepts_nested_attributes_for :product_options
   accepts_nested_attributes_for :product_images
   accepts_nested_attributes_for :product_shippings, allow_destroy: true, reject_if: :all_blank
 
-  after_create :create_default_shippings
+  def edit_path(user)
+    case type
+    when "Products::MusicProduct"
+      Rails.application.routes.url_helpers.edit_user_products_music_path(user.username, self)
+    when "Products::GearProduct"
+      Rails.application.routes.url_helpers.edit_user_products_gear_path(user.username, self)
+    when "Products::MerchProduct"
+      Rails.application.routes.url_helpers.edit_user_products_merch_path(user.username, self)
+    when "Products::AccessoryProduct"
+      Rails.application.routes.url_helpers.edit_user_products_accessory_path(user.username, self)
+    when "Products::ServiceProduct"
+      Rails.application.routes.url_helpers.edit_user_products_service_path(user.username, self)
+    else
+      Rails.application.routes.url_helpers.edit_user_product_path(user.username, self)
+    end
+  end
+
+  def show_path(user = nil)
+    case type
+    when "Products::MusicProduct"
+      Rails.application.routes.url_helpers.user_products_music_path(self.user.username, self)
+    when "Products::GearProduct"
+      Rails.application.routes.url_helpers.user_products_gear_path(self.user.username, self)
+    when "Products::MerchProduct"
+      Rails.application.routes.url_helpers.user_products_merch_path(self.user.username, self)
+    when "Products::AccessoryProduct"
+      Rails.application.routes.url_helpers.user_products_accessory_path(self.user.username, self)
+    when "Products::ServiceProduct"
+      Rails.application.routes.url_helpers.user_products_service_path(self.user.username, self)
+    else
+      Rails.application.routes.url_helpers.user_product_path(self.user.username, self)
+    end
+  end
+
+  def self.ransackable_associations(auth_object = nil)
+    ["album", "coupon", "product_images", "product_options", "product_purchase_items", "product_purchases", "product_shippings", "product_variants", "purchased_items", "user"]
+  end
 
   def self.ransackable_attributes(auth_object = nil)
     ["category", "created_at", "description", "id", "id_value", "include_digital_album", 
@@ -89,30 +97,25 @@ class Product < ApplicationRecord
      "condition", "brand", "model", "year", "accept_barter"]
   end
 
-  def create_default_shippings
-    product_shippings.create(country: 'Chile', is_default: true)
-    product_shippings.create(country: 'Rest of World', is_default: true)
-  end
-
   def main_image
     product_images.first
   end
 
   def available?
-    active? && stock_quantity > 0
-  end
-
-  def update_stock(quantity)
-    new_stock = stock_quantity - quantity
-    update(stock_quantity: new_stock, status: 'sold_out') if new_stock <= 0
+    active? && stock_quantity.to_i > 0
   end
 
   def decrease_quantity(amount)
-    update(stock_quantity: [stock_quantity - amount, 0].max)
+    return unless amount.positive?
+    
+    with_lock do
+      new_quantity = stock_quantity - amount
+      if new_quantity >= 0
+        update!(stock_quantity: new_quantity)
+        update!(status: :sold_out) if new_quantity == 0
+      else
+        raise ActiveRecord::RecordInvalid.new(self)
+      end
+    end
   end
-
-  def used_gear?
-    ['instrument', 'audio_gear', 'dj_gear', 'accessories'].include?(category)
-  end
-
 end

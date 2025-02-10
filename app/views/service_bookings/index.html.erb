@@ -1,0 +1,218 @@
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+  <div class="text-center mb-12">
+    <h1 class="text-4xl font-bold text-gray-900 dark:text-white"><%= t('.title') %></h1>
+    <p class="mt-4 text-xl text-gray-600 dark:text-gray-300"><%= t('.subtitle') %></p>
+  </div>
+
+  <div class="mb-8">
+    <div class="flex justify-between items-center">
+      <div class="flex space-x-4">
+        <%= link_to t('.all'), service_bookings_path, class: "px-4 py-2 rounded-md #{params[:filter].blank? ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'}" %>
+        <%= link_to t('.as_customer'), service_bookings_path(filter: 'customer'), class: "px-4 py-2 rounded-md #{params[:filter] == 'customer' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'}" %>
+        <%= link_to t('.as_provider'), service_bookings_path(filter: 'provider'), class: "px-4 py-2 rounded-md #{params[:filter] == 'provider' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300'}" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="bg-white dark:bg-gray-800 shadow overflow-hidden sm:rounded-md">
+    <ul role="list" class="divide-y divide-gray-200 dark:divide-gray-700">
+      <% @service_bookings.each do |booking| %>
+        <li>
+          <div class="px-4 py-4 sm:px-6">
+            <div class="flex items-center justify-between">
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center">
+                  <div class="flex-shrink-0">
+                    <% if booking.service_product.product_images.any? %>
+                      <%= image_tag booking.service_product.product_images.first.image_url(:thumb), class: "h-12 w-12 rounded-lg object-cover" %>
+                    <% else %>
+                      <div class="h-12 w-12 rounded-lg bg-gray-200 dark:bg-gray-700"></div>
+                    <% end %>
+                  </div>
+                  <div class="ml-4">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white truncate">
+                      <%= booking.service_product.title %>
+                    </h3>
+                    <div class="mt-1 flex items-center">
+                      <span class="text-sm text-gray-500 dark:text-gray-400">
+                        <%= t('.with_provider', provider: booking.provider.username) if booking.customer == current_user %>
+                        <%= t('.for_customer', customer: booking.customer.username) if booking.provider == current_user %>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="ml-4 flex-shrink-0 flex items-center space-x-4">
+                <span class="px-2 py-1 text-sm rounded-full <%= booking_status_class(booking.status) %>">
+                  <%= t("service_bookings.status.#{booking.status}") %>
+                </span>
+
+                <% if booking.provider == current_user %>
+                  <% case booking.status %>
+                  <% when 'pending_confirmation' %>
+                    <%= button_to confirm_service_booking_path(booking),
+                        method: :patch,
+                        class: "inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" do %>
+                      <svg class="h-4 w-4 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <%= t('.confirm') %>
+                    <% end %>
+
+                  <% when 'confirmed' %>
+                    <div class="space-y-2">
+                      <div class="text-sm text-gray-700 dark:text-gray-300 font-medium">
+                        <%= t('.waiting_schedule') %>
+                      </div>
+
+                      <%= link_to schedule_form_service_booking_path(booking),
+                              data: { turbo_frame: "modal" },
+                              class: "inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-purple-600 hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500" do %>
+                        <svg class="h-4 w-4 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <%= t('.schedule') %>
+                      <% end %>
+                    </div>
+                  <% when 'scheduled' %>
+                    <div class="space-y-2">
+                      <div class="flex items-center text-sm text-gray-700 dark:text-gray-300">
+                        <svg class="h-4 w-4 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <%= booking.scheduled_date %> at <%= booking.scheduled_time %>
+                        (<%= booking.timezone %>)
+                      </div>
+
+                      <% if booking.meeting_link.present? %>
+                        <div class="flex items-center text-sm text-gray-700 dark:text-gray-300">
+                          <svg class="h-4 w-4 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                          <%= link_to t('.online_meeting'), booking.meeting_link, 
+                              target: "_blank",
+                              class: "text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300" %>
+                        </div>
+                      <% end %>
+
+                      <% if booking.meeting_location.present? %>
+                        <div class="flex items-center text-sm text-gray-700 dark:text-gray-300">
+                          <svg class="h-4 w-4 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                          <%= booking.meeting_location %>
+                        </div>
+                      <% end %>
+
+                      <% if booking.provider_notes.present? %>
+                        <div class="flex items-start text-sm text-gray-700 dark:text-gray-300">
+                          <svg class="h-4 w-4 mr-1.5 mt-0.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                          <div class="flex-1">
+                            <div class="font-medium"><%= t('.provider_notes') %>:</div>
+                            <%= booking.provider_notes %>
+                          </div>
+                        </div>
+                      <% end %>
+
+                      <%= button_to complete_service_booking_path(booking),
+                          method: :patch,
+                          class: "mt-3 inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500" do %>
+                        <svg class="h-4 w-4 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                        <%= t('.mark_complete') %>
+                      <% end %>
+                    </div>
+
+                  <% when 'completed' %>
+                    <% if booking.rating.nil? %>
+                      <%= link_to feedback_form_service_booking_path(booking),
+                          data: { turbo_frame: "modal" },
+                          class: "inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-yellow-600 hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500" do %>
+                        <svg class="h-4 w-4 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                        </svg>
+                        <%= t('.add_feedback') %>
+                      <% end %>
+                    <% else %>
+                      <div class="flex items-center text-yellow-500">
+                        <% booking.rating.times do %>
+                          <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z"/>
+                          </svg>
+                        <% end %>
+                      </div>
+                    <% end %>
+                  <% end %>
+
+                  <% if booking.may_cancel? %>
+                    <%= button_to cancel_service_booking_path(booking), 
+                        method: :patch,
+                        data: { confirm: t('.cancel_confirm') },
+                        class: "inline-flex items-center px-3 py-1.5 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500" do %>
+                      <svg class="h-4 w-4 mr-1.5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                      <%= t('.cancel') %>
+                    <% end %>
+                  <% end %>
+                <% end %>
+
+                <%= link_to t('.view_details'), service_booking_path(booking), 
+                    class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" %>
+              </div>
+            </div>
+
+            <div class="mt-4 sm:flex sm:justify-between">
+              <div class="sm:flex">
+                <div class="mr-6 flex items-center text-sm text-gray-500 dark:text-gray-400">
+                  <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd" />
+                  </svg>
+                  <% if booking.scheduled? %>
+                    <%= l(booking.scheduled_date.to_date, format: :long) %>
+                  <% else %>
+                    <%= t('.not_scheduled') %>
+                  <% end %>
+                </div>
+                <div class="mt-2 flex items-center text-sm text-gray-500 dark:text-gray-400 sm:mt-0">
+                  <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd" />
+                  </svg>
+                  <%= booking.service_product.duration_minutes %> <%= t('.minutes') %>
+                </div>
+              </div>
+              <div class="mt-2 flex items-center text-sm text-gray-500 dark:text-gray-400 sm:mt-0">
+                <% if booking.online_meeting_required? %>
+                  <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M2 6a2 2 0 012-2h6a2 2 0 012 2v8a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
+                  </svg>
+                  <%= t('.online_meeting') %>
+                <% end %>
+                <% if booking.in_person_meeting_required? %>
+                  <svg class="flex-shrink-0 mr-1.5 h-5 w-5 text-gray-400 dark:text-gray-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                  </svg>
+                  <%= t('.in_person') %>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+
+  <% if @service_bookings.empty? %>
+    <div class="text-center py-12">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900 dark:text-white"><%= t('.no_bookings') %></h3>
+      <p class="mt-1 text-sm text-gray-500 dark:text-gray-400"><%= t('.no_bookings_description') %></p>
+    </div>
+  <% end %>
+</div>

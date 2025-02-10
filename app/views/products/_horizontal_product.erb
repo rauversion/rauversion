@@ -32,7 +32,7 @@
             <% end %>
           </span>
           <% if product.stock_quantity.to_i > 0 %>
-            <%= button_to "Add to Cart", product_cart_add_path(product_id: product.id), method: :post, 
+            <%= button_to t("add_to_cart"), product_cart_add_path(product_id: product.id), method: :post, 
               class: "button-large-outline" 
             %>
           <% else %>

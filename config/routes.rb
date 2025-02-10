@@ -45,6 +45,16 @@ Rails.application.routes.draw do
 
   resources :product_purchases, only: [:index, :show]
 
+
+
+  namespace :products do
+   
+    get 'services', to: 'services#index'
+    get 'music', to: 'music#index'
+    get 'accessories', to: 'accessories#index'
+    get 'gear', to: 'gear#index'
+  end
+
   resources :products do
     member do
       post 'add_to_cart'
@@ -73,6 +83,17 @@ Rails.application.routes.draw do
   get "/become/:id", to: "application#become"
   get "/artists", to: "users#index"
   get "/store", to: "store#index"
+  
+  resources :store do
+    collection do
+      get :services
+      get :music
+      get :classes
+      get :feedback
+      get :accessories
+      get :gear
+    end
+  end
   
   get "/oembed/:track_id", to: "embeds#oembed_show", as: :oembed_show
   get "/oembed/:track_id/private", to: "embeds#oembed_private_show", as: :private_oembed_track
@@ -251,6 +272,17 @@ Rails.application.routes.draw do
   resources :labels
   resources :albums
 
+  resources :service_bookings do
+    member do
+      patch :confirm
+      get :schedule_form
+      patch :schedule
+      patch :complete
+      patch :cancel
+      get :feedback_form
+    end
+  end
+
   constraints(Constraints::UsernameRouteConstrainer.new) do
     # get ':username/about', to: 'users#about', as: :user_about
     # get ':username/stats', to: 'users#stats', as: :user_stats
@@ -273,8 +305,46 @@ Rails.application.routes.draw do
         :index, :create, :destroy
       ]
 
+
+
+      namespace :products, path: :products do
+
+        resources :music do
+          collection do
+            get :search
+          end
+        end
+    
+        resources :gear do
+          collection do
+            get :search
+            get :brands
+          end
+        end
+    
+        resources :merch do
+          collection do
+            get :search
+          end
+        end
+    
+        resources :accessory do
+          collection do
+            get :search
+          end
+        end
+
+        resources :service do
+          collection do
+            get :search
+          end
+        end
+      end
+
       resources :products do
-        get :used_gear, on: :collection
+        collection do
+          get :used_gear
+        end
       end
       resources :coupons
 
@@ -303,6 +373,8 @@ Rails.application.routes.draw do
       end
     end
   end
+
+  post 'ai_enhancements/enhance', to: 'ai_enhancements#enhance'
 
   # mount Plain::Engine => "/plain"
 end

@@ -1,0 +1,24 @@
+<div data-accordeon data-controller="accordeon" class="w-full rounded-lg mb-2.5 bg-subtle dark:bg-black">
+  <%= render "products/shared/section_header", title: "Photos" %>
+  <div class="p-5 block pt-0" data-accordeon-target="panel">
+    <div data-controller="nested-form" class="py-6 sm:col-span-6">
+      <template data-nested-form-target="template">
+        <%= form.fields_for :product_images, ProductImage.new, child_index: 'NEW_RECORD' do |ff| %>
+          <%= render 'products/shared/product_images', form: ff %>
+        <% end %>
+      </template>
+
+      <div class="space-y-3" data-nested-form-target="wrap">
+        <%= form.fields_for :product_images do |ff| %>
+          <%= render 'products/shared/product_images', form: ff %>
+        <% end %>
+      </div>
+
+      <div class="my-3" data-nested-form-target="links">
+        <%= link_to "Add new photo", "#", 
+        class: "inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500", 
+        data: { action: "click->nested-form#add_association" } %>
+      </div>
+    </div>
+  </div>
+</div>

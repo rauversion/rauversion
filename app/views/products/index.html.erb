@@ -1,52 +1,176 @@
 <!-- app/views/products/index.html.erb -->
 
+<div class="container mx-auto px-4 py-8">
+  <div class="max-w-6xl mx-auto">
 
 
-<div class="bg-default">
-  <div class="mx-auto max-w-2xl px-4 py-16 sm:px-6 sm:py-24 lg:max-w-7xl lg:px-8">
-    
+   <!-- Header with Navigation -->
+    <div class="flex items-center justify-between mb-8">
+      <div class="flex items-center gap-8">
+        <% if @profile %>
+          <div class="flex items-center gap-2">
+            <%= link_to user_path(@profile.username), class: "text-primary hover:text-primary-dark flex items-center gap-2" do %>
+              <%= heroicon "chevron-left", options: { class: "w-5 h-5" } %>
+              <span class="font-medium"><%= @profile.username %></span>
+            <% end %>
+          </div>
+        <% end %>
 
-    <% if @profile %>
-      <div class="mt-4 flex items-center justify-between">
-        <h2 class="text-xl font-bold text-default">
-          <%= link_to user_path(@profile.username), class: "text-brand-600 flex items-center space-x-2" do %>
-            <%= heroicon("chevron-left") %>
-            <span><%= @profile.username %></span>
+        <% if current_user && current_user == @profile %>
+          <nav class="flex gap-6" aria-label="Tabs">
+            <%= link_to t(".products"), user_products_path(current_user.username), 
+                class: "text-lg font-medium hover:text-primary transition-colors border-b-2 border-primary" %>
+            <%= link_to t(".coupons"), user_coupons_path(current_user.username), 
+                class: "text-lg font-medium hover:text-primary transition-colors" %>
+          </nav>
+        <% end %>
+      </div>
+
+      <% if current_user == @profile %>
+        <div class="flex items-center gap-4">
+          <% new_product_path = case params[:product_type]
+             when 'music' then new_user_products_music_path(current_user.username)
+             when 'gear' then new_user_products_gear_path(current_user.username)
+             when 'services' then new_user_products_service_path(current_user.username)
+             else new_user_product_path(current_user.username)
+             end %>
+          
+          <%= link_to new_user_product_path(@profile.username),
+              class: "inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary text-white hover:bg-primary-dark transition-colors" do %>
+            <%= heroicon "plus", options: { class: "w-5 h-5" } %>
+            <span><%= t(".add_new_product") %></span>
           <% end %>
-          Products & Merch
-        </h2>
+        </div>
+      <% end %>
+    </div>
+
+
+    <!-- Product Type Selector -->
+    <div class="mb-8">
+      <div class="flex flex-wrap gap-3">
+        <% product_types = [
+          ['music', Products::MusicProduct],
+          ['gear', Products::GearProduct],
+          ['services', Products::ServiceProduct]
+        ] %>
+        
+        <% product_types.each do |type, klass| %>
+          <%= link_to t(".#{type}"), 
+              user_products_path(@profile.username, product_type: type), 
+              class: "px-4 py-2 rounded-full text-sm font-medium transition-colors #{params[:product_type] == type ? 'bg-primary text-white' : 'bg-neutral-900 hover:bg-neutral-800'}" %>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Dynamic Search Form -->
+    <div class="bg-emphasis rounded-xl p-6 mb-8">
+      <%= search_form_for @q, url: user_products_path(@profile.username), class: 'space-y-6' do |f| %>
+        <%= hidden_field_tag :product_type, params[:product_type] %>
+        
+        <!-- Common Search Fields -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div>
+            <label class="block text-sm font-medium mb-2"><%= t(".search_title") %></label>
+            <%= f.search_field :title_cont, 
+                placeholder: t(".search_placeholder"), 
+                class: "w-full px-4 py-2 bg-neutral-900 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary" %>
+          </div>
+
+          <!-- Music-specific Fields -->
+          <% if params[:product_type] == 'music' %>
+            <div>
+              <label class="block text-sm font-medium mb-2"><%= t(".format") %></label>
+              <%= f.select :category_eq, 
+                  options_for_select(
+                    Products::MusicProduct.categories.keys.map { |c| [t("products.music.format.#{c}"), c] },
+                    @q.category_eq
+                  ),
+                  { include_blank: t(".all_formats") },
+                  class: "w-full px-4 py-2 bg-neutral-900 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary" %>
+            </div>
+
+          <!-- Gear-specific Fields -->
+          <% elsif params[:product_type] == 'gear' %>
+            <div>
+              <label class="block text-sm font-medium mb-2"><%= t(".gear_category") %></label>
+              <%= f.select :category_eq, 
+                  options_for_select(
+                    Products::GearProduct.categories.keys.map { |c| [t("products.gear.category.#{c}"), c] },
+                    @q.category_eq
+                  ),
+                  { include_blank: t(".all_categories") },
+                  class: "w-full px-4 py-2 bg-neutral-900 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary" %>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-2"><%= t(".condition") %></label>
+              <%= f.select :condition_eq, 
+                  options_for_select(
+                    Product.conditions.keys.map { |c| [t("products.gear.condition.#{c}"), c] },
+                    @q.condition_eq
+                  ),
+                  { include_blank: t(".all_conditions") },
+                  class: "w-full px-4 py-2 bg-neutral-900 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary" %>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium mb-2"><%= t(".brand") %></label>
+              <%= f.select :brand_eq, 
+                  options_for_select(
+                    @available_brands.map { |b| [b, b] },
+                    @q.brand_eq
+                  ),
+                  { include_blank: t(".all_brands") },
+                  class: "w-full px-4 py-2 bg-neutral-900 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary" %>
+            </div>
+
+            <div class="flex items-center">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <%= f.check_box :accept_barter_true, 
+                    class: "form-checkbox text-primary rounded focus:ring-primary" %>
+                <span class="text-sm"><%= t(".show_barter_only") %></span>
+              </label>
+            </div>
+
+          <!-- Service-specific Fields -->
+          <% elsif params[:product_type] == 'services' %>
+            <div>
+              <label class="block text-sm font-medium mb-2"><%= t(".service_type") %></label>
+              <%= f.select :category_eq, 
+                  options_for_select(
+                    Products::ServiceProduct.categories.keys.map { |c| [t("products.service.category.#{c}"), c] },
+                    @q.category_eq
+                  ),
+                  { include_blank: t(".all_service_types") },
+                  class: "w-full px-4 py-2 bg-neutral-900 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary" %>
+            </div>
+          <% end %>
+        </div>
+
+        <div class="flex justify-end">
+          <%= f.submit t(".search"), 
+              class: "px-6 py-2 bg-primary text-white rounded-lg text-sm font-medium hover:bg-primary-dark transition-colors" %>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <%= render partial: "products/shared/product_card", collection: @products, as: :product %>
+    </div>
+
+    <!-- Pagination -->
+    <% if @products.total_pages > 1 %>
+      <div class="mt-8 flex justify-center">
+        <%= paginate @products, theme: 'tailwind' %>
       </div>
     <% end %>
 
-
-    <% if current_user && current_user == @profile %>
-      <nav class="-mb-px flex space-x-8 text-2xl items-center" aria-label="Tabs">
-        <%= link_to "Products", user_products_path(current_user.username), class: "tab-active" %>
-        <%= link_to "Coupons", user_coupons_path(current_user.username), class: "tab-products" %>
-      </nav>
-    <% end %>
-
-    <!-- Search form -->
-    <div class="mt-6 mb-8">
-      <%= search_form_for @q, url: user_products_path(@profile.username), class: "flex items-center space-x-4" do |f| %>
-        <div class="flex-grow">
-          <%= f.search_field :title_cont, placeholder: "Search products...", class: "w-full px-4 py-2 rounded-md border-muted shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 bg-emphasis" %>
-        </div>
-        <div>
-          <%= f.select :category_eq, options_for_select(Product.categories.keys.map { |c| [c.titleize, c] }, @q.category_eq), { include_blank: "All Categories" }, class: "block w-full pl-3 pr-10 py-2 text-base border-muted focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" %>
-        </div>
-        <%= f.submit "Search", class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" %>
-      <% end %>
-    </div>
-
-    <div class="mt-8 grid grid-cols-1 gap-y-12 sm:grid-cols-2 sm:gap-x-6 lg:grid-cols-4 xl:gap-x-8">
-      <% @products.each do |product| %>
-        <%= render "product", product: product %>
-      <% end %>
-    </div>
-
-    <% if @products.blank? %>
-      <p class="p-4 text-muted">No Products found</p>
+    <% if @products.empty? %>
+      <div class="text-center py-12">
+        <h3 class="text-xl font-semibold mb-2"><%= t(".no_products_found") %></h3>
+        <p class="text-gray-500"><%= t(".try_different_filters") %></p>
+      </div>
     <% end %>
   </div>
 </div>
