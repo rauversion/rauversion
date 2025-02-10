@@ -1,4 +1,4 @@
-json.playlists @playlists do |playlist|
+json.collection @playlists do |playlist|
   json.id playlist.id
   json.title playlist.title
   json.description playlist.description
@@ -42,9 +42,12 @@ json.playlists @playlists do |playlist|
   end
 end
 
-json.meta do
+json.metadata do
   json.current_page @playlists.current_page
   json.total_pages @playlists.total_pages
+  json.next_page @playlists.next_page
+  json.prev_page @playlists.prev_page
+  json.is_first_page @playlists.first_page?
+  json.is_last_page @playlists.last_page?
   json.total_count @playlists.total_count
-  json.per_page @playlists.limit_value
 end

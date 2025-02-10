@@ -775,7 +775,20 @@ en:
     go_to: Go to profile
     follow: Follow
     following: Following
+
+  artists:
+    title: Artists
+    description: Artists and creators
+    no_albums: No albums found
+
+  albums:
+    title: Albums
+    description: Albums and compilations
+    no_albums: No albums found
+
   playlists:
+    title: Playlists
+    description: Playlists and collections
     add_to_playlists: Add to list
     create: Create a list
     remove_from_playlist: Remove from the list

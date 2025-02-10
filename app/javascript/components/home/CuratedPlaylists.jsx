@@ -109,7 +109,7 @@ const CarouselButton = ({ direction, onClick, disabled }) => (
   </Button>
 )
 
-export default function CuratedPlaylists({ playlists }) {
+export default function CuratedPlaylists({ playlists, title, subtitle }) {
   const scrollContainerRef = useRef(null)
   
   const scroll = (direction) => {
@@ -132,10 +132,10 @@ export default function CuratedPlaylists({ playlists }) {
             className="space-y-2"
           >
             <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white">
-              {I18n.t('home.curated_playlists.title')}
+              {title || I18n.t('home.curated_playlists.title')}
             </h2>
             <p className="text-lg text-gray-400">
-              {I18n.t('home.curated_playlists.subtitle')}
+              {subtitle || I18n.t('home.curated_playlists.subtitle')}
             </p>
           </motion.div>
           

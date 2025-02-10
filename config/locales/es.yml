@@ -815,7 +815,21 @@ es:
     follow: Seguir
     following: Siguendo
 
+
+  artists:
+    title: Artistas
+    description: Explora los artistas más recientes de la comunidad
+    no_albums:  No se encontraron artistas
+
+  albums:
+    title: Álbumes
+    description: Explora los últimos lanzamientos de la comunidad
+    no_albums: No se encontraron álbumes
+
   playlists:
+    title: Playlists
+    description: Escucha las listas de reproducción más populares
+    no_playlists: No se encontraron listas de reproducción
     add_to_playlists: Añadir a lista
     create: Crear una lista
     remove_from_playlist: Quitar de la lista

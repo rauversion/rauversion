@@ -73,7 +73,7 @@ export default function TrackItem({
             <TrackItemMenu track={track} />
           </div>
 
-          <div className="mt-4 hidden">
+          <div className="mt-4 hidden- sm:block">
             <TrackPlayer
               url={track.audio_url}
               peaks={track.peaks}

@@ -22,6 +22,7 @@ import UserPlaylists from './users/Playlists'
 import UserArticles from './users/Articles'
 import UserReposts from './users/Reposts'
 import UserArtists from './users/Artists'
+import ArtistsIndex from './artists/Index'
 import UserAlbums from './users/Albums'
 import UserInsights from './users/Insights'
 import UserAbout from './users/About'
@@ -66,7 +67,7 @@ import ReleaseForm from "./releases/ReleaseForm"
 import ReleaseEditor from "./releases/ReleaseEditor"
 import ReleasePreview from "./releases/ReleasePreview"
 
-import AlbumsList from "./albums/AlbumsList"
+import AlbumsIndex from "./albums/Index"
 import AlbumShow from "./albums/AlbumShow"
 import NewTrack from "./tracks/NewTrack"
 
@@ -183,7 +184,8 @@ function AppContent() {
           <Route path="/releases/:id/editor" element={<ReleaseEditor />} />
           <Route path="/releases/:id/preview" element={<ReleasePreview />} />
           <Route path="/releases/:id" element={<ReleasePreview />} />
-          <Route path="/albums" element={<AlbumsList />} />
+          <Route path="/albums" element={<AlbumsIndex />} />
+          <Route path="/artists" element={<ArtistsIndex />} />
           <Route path="/:username/podcasts" element={<PodcastLayout />}>
             <Route index element={<PodcastsIndex />} />
             <Route path=":id" element={<PodcastShow />} />

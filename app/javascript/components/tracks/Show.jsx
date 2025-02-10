@@ -107,7 +107,6 @@ export default function TrackShow() {
                 </div>
               )}
             </div>
-
             <div className="w-1/3">
               <div className="relative group">
                 <img

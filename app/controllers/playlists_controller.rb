@@ -2,7 +2,9 @@ class PlaylistsController < ApplicationController
   before_action :authenticate_user!, except: [:index, :show, :albums]
 
   def index
-    @playlists = Playlist.published.page(params[:page]).per(24)
+    @playlists = Playlist.published
+    @playlists = @playlists.where(playlist_type: params[:type]) if params[:type].present? && params[:type] != "all"
+    @playlists = @playlists.page(params[:page]).per(24)
     @playlists_by_type = @playlists.group_by(&:playlist_type)
 
     respond_to do |format|
