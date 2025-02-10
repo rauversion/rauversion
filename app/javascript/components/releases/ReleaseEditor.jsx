@@ -67,8 +67,8 @@ function Editor({releaseId}) {
         render: Flex,
       },
       Playlist: {
-        fields: Playlist.fields,
-        defaultProps: Playlist.defaultProps,
+        fields: PlaylistConfig.fields,
+        defaultProps: PlaylistConfig.defaultProps,
         render: ({ playlistId, theme }) => {
           return <Playlist playlistId={playlistId} theme={theme} />;
         },

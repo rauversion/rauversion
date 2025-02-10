@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Play, Pause, MoreHorizontal } from 'lucide-react';
 import useAudioStore from '../../stores/audioStore';
+import ColorPicker from './ColorPicker';
 
 interface Track {
   id: number;
@@ -249,9 +250,9 @@ export const config = {
       label: "Playlist ID"
     },
     accentColor: {
-      type: "color",
+      type: "custom",
       label: "Accent Color",
-      defaultValue: "#1DB954"
+      render: ColorPicker,
     }
   },
   defaultProps: {
