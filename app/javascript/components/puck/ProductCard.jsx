@@ -3,6 +3,7 @@ import { get, post } from '@rails/request.js';
 import ColorPicker from './ColorPicker';
 import CheckboxField from './CheckboxField';
 import Select from 'react-select';
+import useCartStore from '@/stores/cartStore'
 
 const ProductSelector = ({ value, onChange }) => {
   const [products, setProducts] = useState([]);
@@ -16,7 +17,7 @@ const ProductSelector = ({ value, onChange }) => {
         const response = await get(`/${userId}/products.json`);
         if (response.ok) {
           const data = await response.json;
-          setProducts(data.map(product => ({
+          setProducts(data.collection.map(product => ({
             value: product.id,
             label: product.title,
             ...product
@@ -68,6 +69,7 @@ const ProductCard = ({
   const [selectedImage, setSelectedImage] = useState(null);
   const [userId, setUserId] = useState(null);
   const [product, setProduct] = useState(null);
+  const { addToCart } = useCartStore()
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -102,13 +104,7 @@ const ProductCard = ({
     
     setAdding(true);
     try {
-      const response = await post(`/${userId}/product_cart/add/${product.id}`, {
-        responseKind: 'json',
-      });
-      
-      if (response.ok) {
-        console.log('Product added to cart');
-      }
+      addToCart(product.id)
     } catch (error) {
       console.error('Error adding to cart:', error);
     } finally {
