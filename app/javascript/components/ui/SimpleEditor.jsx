@@ -12,6 +12,7 @@ import OrderedList from '@tiptap/extension-ordered-list'
 import BulletList from "@tiptap/extension-bullet-list"
 import History from '@tiptap/extension-history'
 import { Button } from "@/components/ui/button"
+import { Wand2 } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -231,7 +232,7 @@ export default function SimpleEditor({
             setAiDialogOpen(true)}
           }
         >
-          Enhance with AI
+          <Wand2 className="h-4 w-4" />
         </Button>
       </div>
 
