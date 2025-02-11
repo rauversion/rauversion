@@ -1,10 +1,18 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useNavigate } from 'react-router-dom'
 import { ChevronLeft } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import { Form } from "@/components/ui/form"
 import Select from "react-select"
 import { useThemeStore } from '@/stores/theme'
 import selectTheme from "@/components/ui/selectTheme"
@@ -23,6 +31,12 @@ const GEAR_CATEGORIES = [
   { value: 'dj_gear', label: 'DJ Gear' }
 ]
 
+const STATUSES = [
+  { value: 'active', label: 'Active' },
+  { value: 'inactive', label: 'Inactive' },
+  { value: 'sold_out', label: 'Sold out' }
+]
+
 const CONDITIONS = [
   { value: 'new', label: 'New' },
   { value: 'like_new', label: 'Like New' },
@@ -37,13 +51,7 @@ export default function GearForm() {
   const { currentUser } = useAuthStore()
   const navigate = useNavigate()
   const { isDarkMode } = useThemeStore()
-  const {
-    register,
-    handleSubmit,
-    watch,
-    setValue,
-    formState: { errors, isSubmitting }
-  } = useForm({
+  const form = useForm({
     defaultValues: {
       category: '',
       brand: '',
@@ -54,24 +62,66 @@ export default function GearForm() {
       description: '',
       accept_barter: false,
       barter_description: '',
-      photos: []
+      product_images_attributes: [],
+      status: 'draft'
     }
   })
 
+  const [backendErrors, setBackendErrors] = useState(null)
+
   const onSubmit = async (data) => {
     try {
+      // Clear any existing errors before submitting
+      form.clearErrors()
+
+      // Prepare the data
+      const formData = {
+        ...data,
+        product_images_attributes: data.product_images_attributes.map(img => ({
+          id: img.id,
+          title: img.title,
+          description: img.description,
+          image: img.image,
+          _destroy: img._destroy
+        })).filter(img => img.image || img._destroy) // Only send images that have content or are marked for deletion
+      }
+
       const response = await post(`/${currentUser.username}/products/gear`, {
-        body: { product: data }
+        responseKind: 'json',
+        body: { product: formData }
       })
       
+      const result = await response.json
+      
       if (response.ok) {
-        const result = await response.json
         navigate(`/${currentUser.username}/products/${result.product.slug}`)
+      } else {
+        // Set field errors from backend
+        Object.keys(result.errors).forEach(key => {
+          form.setError(key, {
+            type: 'backend',
+            message: result.errors[key].join(', ')
+          })
+        })
       }
     } catch (error) {
       console.error('Failed to create product:', error)
+      form.setError('root', {
+        type: 'backend',
+        message: 'An unexpected error occurred'
+      })
     }
   }
+
+  // Reset form errors when any field changes
+  React.useEffect(() => {
+    const subscription = form.watch(() => {
+      if (Object.keys(form.formState.errors).length > 0) {
+        form.clearErrors()
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [form])
 
   return (
     <div className="m-4 rounded-lg border border-default bg-card text-card-foreground shadow-sm">
@@ -87,119 +137,196 @@ export default function GearForm() {
           {I18n.t('products.gear.new.title')}
         </h2>
 
-        <FormErrors errors={errors} />
+        <FormErrors errors={backendErrors} />
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        
+
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid md:grid-cols-5 gap-4 grid-cols-1">
             <div className="block pt-0 space-y-3 md:col-span-2">
-              <div>
-                <Label htmlFor="category">
-                  {I18n.t('products.gear.form.category')}
-                </Label>
-                <Select
-                  id="category"
-                  placeholder={I18n.t('products.gear.form.select_category')}
-                  options={GEAR_CATEGORIES}
-                  value={GEAR_CATEGORIES.find(c => c.value === watch('category'))}
-                  onChange={(option) => setValue('category', option?.value)}
-                  theme={(theme) => selectTheme(theme, isDarkMode)}
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{I18n.t('products.gear.form.category')}</FormLabel>
+                    <FormControl>
+                      <Select
+                        id="category"
+                        placeholder={I18n.t('products.gear.form.select_category')}
+                        options={GEAR_CATEGORIES}
+                        value={GEAR_CATEGORIES.find(c => c.value === field.value)}
+                        onChange={(option) => field.onChange(option?.value)}
+                        theme={(theme) => selectTheme(theme, isDarkMode)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <FormField
+                  control={form.control}
+                  name="brand"
+                  rules={{ required: "Brand is required" }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{I18n.t('products.gear.form.brand')}</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="model"
+                  rules={{ required: "Model is required" }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{I18n.t('products.gear.form.model')}</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </div>
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
-                  <Label htmlFor="brand">
-                    {I18n.t('products.gear.form.brand')}
-                  </Label>
-                  <Input
-                    id="brand"
-                    {...register('brand', { required: true })}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="model">
-                    {I18n.t('products.gear.form.model')}
-                  </Label>
-                  <Input
-                    id="model"
-                    {...register('model', { required: true })}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
-                  <Label htmlFor="year">
-                    {I18n.t('products.gear.form.year')}
-                  </Label>
-                  <Input
-                    type="number"
-                    id="year"
-                    min="1900"
-                    max={new Date().getFullYear()}
-                    {...register('year', {
-                      required: true,
-                      min: 1900,
-                      max: new Date().getFullYear()
-                    })}
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="condition">
-                    {I18n.t('products.gear.form.condition')}
-                  </Label>
-                <Select
-                  id="condition"
-                  placeholder={I18n.t('products.gear.form.select_condition')}
-                  options={CONDITIONS}
-                  value={CONDITIONS.find(c => c.value === watch('condition'))}
-                  onChange={(option) => setValue('condition', option?.value)}
-                  theme={(theme) => selectTheme(theme, isDarkMode)}
+                <FormField
+                  control={form.control}
+                  name="year"
+                  rules={{
+                    required: "Year is required",
+                    min: {
+                      value: 1900,
+                      message: "Year must be 1900 or later"
+                    },
+                    max: {
+                      value: new Date().getFullYear(),
+                      message: "Year cannot be in the future"
+                    }
+                  }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{I18n.t('products.gear.form.year')}</FormLabel>
+                      <FormControl>
+                        <Input 
+                          type="number"
+                          min="1900"
+                          max={new Date().getFullYear()}
+                          {...field}
+                          onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-                </div>
-              </div>
 
-              <div>
-                <Label htmlFor="title">
-                  {I18n.t('products.gear.form.title')}
-                </Label>
-                <Input
-                  id="title"
-                  {...register('title', { required: true })}
+                <FormField
+                  control={form.control}
+                  name="condition"
+                  rules={{ required: "Condition is required" }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{I18n.t('products.gear.form.condition')}</FormLabel>
+                      <FormControl>
+                        <Select
+                          id="condition"
+                          placeholder={I18n.t('products.gear.form.select_condition')}
+                          options={CONDITIONS}
+                          value={CONDITIONS.find(c => c.value === field.value)}
+                          onChange={(option) => field.onChange(option?.value)}
+                          theme={(theme) => selectTheme(theme, isDarkMode)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
               </div>
 
-              <div>
-                <Label htmlFor="description">
-                  {I18n.t('products.gear.form.description')}
-                </Label>
-                <SimpleEditor
-                  value={watch('description')}
-                  onChange={(value) => setValue('description', value)}
-                  scope="product"
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="title"
+                rules={{ required: "Title is required" }}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{I18n.t('products.gear.form.title')}</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="status"
+                rules={{ required: "Status is required" }}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{I18n.t('products.gear.form.status')}</FormLabel>
+                    <FormControl>
+                      <Select
+                        id="status"
+                        placeholder={I18n.t('products.gear.form.select_status')}
+                        options={STATUSES}
+                        value={STATUSES.find(s => s.value === field.value)}
+                        onChange={(option) => field.onChange(option?.value)}
+                        theme={(theme) => selectTheme(theme, isDarkMode)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{I18n.t('products.gear.form.description')}</FormLabel>
+                    <FormControl>
+                      <SimpleEditor
+                        value={field.value}
+                        onChange={field.onChange}
+                        scope="product"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
             <div className="flex flex-col flex-grow md:col-span-3 col-span-1 space-y-6">
-              <PricingSection register={register} watch={watch} />
-              <PhotosSection register={register} setValue={setValue} watch={watch} />
-              <ShippingSection register={register} watch={watch} />
+              <PricingSection control={form.control} />
+              <PhotosSection control={form.control} setValue={form.setValue} watch={form.watch} />
+              <ShippingSection control={form.control} />
 
               <Button
                 type="submit"
                 className="w-full"
-                disabled={isSubmitting}
+                disabled={form.formState.isSubmitting}
               >
-                {isSubmitting
+                {form.formState.isSubmitting
                   ? I18n.t('products.gear.form.submitting')
                   : I18n.t('products.gear.form.submit')}
               </Button>
             </div>
           </div>
-        </form>
+          </form>
+        </Form>
       </div>
     </div>
   )
