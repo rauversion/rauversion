@@ -1,51 +1,57 @@
 class StoreController < ApplicationController
   def index
-    @products = Product.all
+    @products = Product.all.page(params[:page]).per(12)
+    respond_to do |format|
+      format.html
+      format.json
+    end
   end
 
   def services
-    @products = Product.where(type: 'Products::ServiceProduct')
-    @q = @products.active.includes(:user, :album)
-    .where.not(category: Products::ServiceProduct.categories.keys)
-    .ransack(params[:q])
-    
-    render "products/service/index"
+    @products = Product.where(category: 'service').page(params[:page]).per(12)
+    respond_to do |format|
+      format.html
+      format.json { render :index }
+    end
   end
 
   def music
-    @products = Product.where(type: 'Products::MusicProduct')
+    @products = Product.where(category: 'music').page(params[:page]).per(12)
+    respond_to do |format|
+      format.html
+      format.json { render :index }
+    end
+  end
 
-    @q = @products.active.includes(:user, :album)
-    .where.not(category: Products::MusicProduct.categories.keys)
-    .ransack(params[:q])
-    @products = @q.result.page(params[:page]).per(20)
+  def classes
+    @products = Product.where(category: 'class').page(params[:page]).per(12)
+    respond_to do |format|
+      format.html
+      format.json { render :index }
+    end
+  end
 
-    render "products/music/index"
+  def feedback
+    @products = Product.where(category: 'feedback').page(params[:page]).per(12)
+    respond_to do |format|
+      format.html
+      format.json { render :index }
+    end
   end
 
   def accessories
-    @products = Product.where(type: 'Products::AccessoryProduct')
-    render :index
+    @products = Product.where(category: 'accessory').page(params[:page]).per(12)
+    respond_to do |format|
+      format.html
+      format.json { render :index }
+    end
   end
 
   def gear
-    @products = Product.where(type: 'Products::GearProduct')
-    
-    # @profile = User.find_by(username: params[:user_id])
-    @q = @products
-                 .includes(:user).ransack(params[:q])
-    @products = @q.result(distinct: true).order(created_at: :desc)
-    
-    @products = @products.by_category(params[:gear_category]) if params[:gear_category].present?
-    @products = @products.where(condition: params[:condition]) if params[:condition].present?
-    @products = @products.where(brand: params[:brand]) if params[:brand].present?
-    @products = @products.where(accept_barter: true) if params[:barter_only].present?
-    
-    @products = @products.page(params[:page]).per(20)
-    @available_brands = Products::GearProduct.distinct.pluck(:brand).compact
-
-
-    render "products/gear/index"
-
+    @products = Product.where(category: 'gear')
+    respond_to do |format|
+      format.html
+      format.json { render :index }
+    end
   end
 end

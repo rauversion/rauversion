@@ -3,6 +3,7 @@
 // import './stores/audioStore'
 // import "./controllers"
 import { initReactApp } from "./react_app"
+import "./styles/react-select.css"
 
 window.dispatchMapsEvent = function (...args) {
   const event = document.createEvent("Events")

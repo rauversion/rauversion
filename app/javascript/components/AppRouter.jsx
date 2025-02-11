@@ -62,12 +62,20 @@ import TransbankSettings from "./users/settings/TransbankSettings"
 import InvitationsSettings from "./users/settings/InvitationsSettings"
 import SecuritySettings from "./users/settings/SecuritySettings"
 
+
 import ReleasesList from "./releases/ReleasesList"
 import ReleaseForm from "./releases/ReleaseForm"
 import ReleaseEditor from "./releases/ReleaseEditor"
 import ReleasePreview from "./releases/ReleasePreview"
 
 import AlbumsIndex from "./albums/Index"
+import StoreIndex from "./store/Index"
+import ProductNew from "./products/New"
+import GearForm from "./products/gear/Form"
+import MusicForm from "./products/music/Form"
+import MerchForm from "./products/merch/Form"
+import AccessoryForm from "./products/accessory/Form"
+import ServiceForm from "./products/service/Form"
 import AlbumShow from "./albums/AlbumShow"
 import NewTrack from "./tracks/NewTrack"
 
@@ -114,6 +122,7 @@ function AppContent() {
           ...rest
         })
         break
+        
       default:
         console.log('Unhandled notification:', data)
     }
@@ -186,6 +195,19 @@ function AppContent() {
           <Route path="/releases/:id" element={<ReleasePreview />} />
           <Route path="/albums" element={<AlbumsIndex />} />
           <Route path="/artists" element={<ArtistsIndex />} />
+          <Route path="/store" element={<StoreIndex />} />
+          <Route path="/store/services" element={<StoreIndex />} />
+          <Route path="/store/music" element={<StoreIndex />} />
+          <Route path="/store/classes" element={<StoreIndex />} />
+          <Route path="/store/feedback" element={<StoreIndex />} />
+          <Route path="/store/accessories" element={<StoreIndex />} />
+          <Route path="/store/gear" element={<StoreIndex />} />
+          <Route path="/:username/products/new" element={<RequireAuth><ProductNew /></RequireAuth>} />
+          <Route path="/:username/products/gear/new" element={<RequireAuth><GearForm /></RequireAuth>} />
+          <Route path="/:username/products/music/new" element={<RequireAuth><MusicForm /></RequireAuth>} />
+          <Route path="/:username/products/merch/new" element={<RequireAuth><MerchForm /></RequireAuth>} />
+          <Route path="/:username/products/accessory/new" element={<RequireAuth><AccessoryForm /></RequireAuth>} />
+          <Route path="/:username/products/service/new" element={<RequireAuth><ServiceForm /></RequireAuth>} />
           <Route path="/:username/podcasts" element={<PodcastLayout />}>
             <Route index element={<PodcastsIndex />} />
             <Route path=":id" element={<PodcastShow />} />
