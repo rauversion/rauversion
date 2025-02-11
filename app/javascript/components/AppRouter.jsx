@@ -82,17 +82,20 @@ import NewTrack from "./tracks/NewTrack"
 import CheckoutSuccess from "./checkout/CheckoutSuccess"
 import CheckoutFailure from "./checkout/CheckoutFailure"
 
-import { Footer, ScrollRestoration } from '@/components/shared'
+import { Footer, ScrollRestoration, LoadingSpinner } from '@/components/shared'
 
 import { useLocaleStore } from "@/stores/locales"
 
 function RequireAuth({ children }) {
-  const { currentUser } = useAuthStore()
+  const { currentUser, loading: currentUserLoading } = useAuthStore()
   const location = useLocation()
 
-  const { currentLocale } = useLocaleStore()
+  
+  if(currentUserLoading) {
+    return <LoadingSpinner />
+  }
 
-  if (!currentUser) {
+  if (!currentUser && !currentUserLoading) {
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 
