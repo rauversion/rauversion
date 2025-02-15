@@ -1323,6 +1323,7 @@ en:
       short: "%b %d"
       long: "%B %d, %Y"
   products:
+    add_to_cart: Add to cart
     added_to_cart: Added to cart
     added_to_cart_message: "%{title} ha sido añadido a tu carrito"
     add_to_cart_error: It could not be added to the cart. Please try again

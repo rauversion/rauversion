@@ -267,7 +267,6 @@ es:
         add_item: Agregar Elemento al Horario
         name: Nombre
         date_time_range: Rango de Fecha y Hora
-        add_item: Add Item
         name: Name
 
         schedulings:
@@ -1387,6 +1386,7 @@ es:
       long: "%B %d, %Y"
 
   products:
+    add_to_cart: "Agregar al carrito"
     added_to_cart: "Añadido al carrito"
     added_to_cart_message: "%{title} ha sido añadido a tu carrito"
     add_to_cart_error: "No se pudo añadir al carrito. Por favor, inténtalo de nuevo"

@@ -4,6 +4,7 @@ import ColorPicker from './ColorPicker';
 import CheckboxField from './CheckboxField';
 import Select from 'react-select';
 import useCartStore from '@/stores/cartStore'
+import I18n from '@/stores/locales'
 
 const ProductSelector = ({ value, onChange }) => {
   const [products, setProducts] = useState([]);
@@ -113,11 +114,11 @@ const ProductCard = ({
   };
 
   if (loading) {
-    return <div className="animate-pulse bg-gray-200 rounded-lg h-96"></div>;
+    return <div className="animate-pulse bg-muted rounded-lg h-96"></div>;
   }
 
   if (!product) {
-    return <div className="text-center text-gray-500">Please select a product</div>;
+    return <div className="text-center text-muted">Please select a product</div>;
   }
 
   const buttonClasses = buttonStyle === 'outline' 
@@ -287,7 +288,7 @@ const ProductCard = ({
               onClick={handleAddToCart}
               disabled={adding}
             >
-              {adding ? 'Adding...' : buttonText || 'Add to Cart'}
+              {adding ? 'Adding...' : buttonText || I18n.t("products.add_to_cart")}
             </button>
           </div>
         </div>
