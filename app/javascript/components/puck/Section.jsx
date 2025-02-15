@@ -25,9 +25,11 @@ const Section = ({
         {image && (
           <img src={image} alt="" className="rounded-lg w-full object-cover" />
         )}
-        <div className={`${textSize} text-subtle`} style={{ color: textColor }}>
-          {description}
-        </div>
+        <div 
+          className={`${textSize} text-subtle`} 
+          style={{ color: textColor }}
+          dangerouslySetInnerHTML={{ __html: description }}
+        />
       </div>
       <div className="flex flex-col justify-between">
         <div className="flex justify-end">
@@ -48,9 +50,10 @@ const Section = ({
         <h2 className={`${titleSize} font-bold uppercase`} style={{ color: titleColor }}>
           {title}
         </h2>
-        <div className={`${textSize} text-subtle`} style={{ color: textColor }}>
-          {description}
-        </div>
+        <div className={`${textSize} text-subtle`} 
+          style={{ color: textColor }}
+          dangerouslySetInnerHTML={{ __html: description }}
+        />
       </div>
       <div className="flex justify-end flex-col">
         {image && (
@@ -70,9 +73,10 @@ const Section = ({
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2">
-          <div className={`${textSize} text-subtle`} style={{ color: textColor }}>
-            {description}
-          </div>
+          <div 
+            className={`${textSize} text-subtle`} 
+            style={{ color: textColor }}
+            dangerouslySetInnerHTML={{ __html: description }}/>
         </div>
         <div className="flex flex-col">
           {image && (
