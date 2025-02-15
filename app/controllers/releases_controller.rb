@@ -26,6 +26,7 @@ class ReleasesController < ApplicationController
 
   def create
     @release = current_user.releases.new
+    @release.template = "puck"
     permitted_params = release_params
     
     respond_to do |format|
@@ -133,6 +134,7 @@ class ReleasesController < ApplicationController
       :price, :currency, :minimum_price, :show_credits,
       :show_more_button, :credits, :about, :purchase_message,
       :purchase_description, :upsell_enabled, :upsell_message,
+      :playlist_id,
       playlist_ids: [],
       release_playlists_attributes: [],
       release_sections_attributes: [],

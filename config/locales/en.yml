@@ -1209,6 +1209,11 @@ en:
       action: Return to the beginning
       cta: Contact support
   shared:
+    forms:
+      release:
+        playlists:
+          label: Playlists
+          placeholder: Select playlists to include
     music_purchase_form:
       title: Comprar %{type} Digital
       price:

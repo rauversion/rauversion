@@ -1276,6 +1276,11 @@ es:
       cta: Contactar soporte
 
   shared:
+    forms:
+      release:
+        playlists:
+          label: Listas de reproducción
+          placeholder: Seleccionar listas de reproducción
     music_purchase_form:
       title: Comprar %{type} Digital
       price:

@@ -1,11 +1,14 @@
 import React from "react"
 import { useParams, useNavigate } from "react-router-dom"
-import { useForm } from "react-hook-form"
+import { useForm, Controller } from "react-hook-form"
 import { get, post, put } from "@rails/request.js"
 import { useToast } from "@/hooks/use-toast"
+import { useThemeStore } from '@/stores/theme'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import Select from "react-select"
+import selectTheme from "@/components/ui/selectTheme"
 import {
   Card,
   CardContent,
@@ -14,15 +17,20 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Loader2 } from "lucide-react"
+import useAuthStore from "@/stores/authStore"
+import { set } from "date-fns/set"
 
 export default function ReleaseForm() {
   const { id } = useParams()
   const navigate = useNavigate()
   const { toast } = useToast()
   const [loading, setLoading] = React.useState(false)
+  const [playlists, setPlaylists] = React.useState([])
+  const {currentUser} = useAuthStore()
+  const { isDarkMode } = useThemeStore()
   const isEditing = Boolean(id)
 
-  const { register, handleSubmit, reset } = useForm({
+  const { register, handleSubmit, reset, control, getValues, setValue } = useForm({
     defaultValues: {
       title: "",
       subtitle: "",
@@ -32,8 +40,30 @@ export default function ReleaseForm() {
       cover_color: "#000000",
       record_color: "#000000",
       sleeve_color: "#000000",
+      playlist_id: null,
     },
   })
+
+  React.useEffect(() => {
+    const fetchPlaylists = async () => {
+      if(!currentUser) return
+      try {
+        const response = await get(`/${currentUser.username}/playlists.json`)
+        if (response.ok) {
+          const data = await response.json
+          setPlaylists(data.collection || [])
+        }
+      } catch (error) {
+        console.error("Error fetching playlists:", error)
+        toast({
+          title: "Error",
+          description: "Could not load playlists",
+          variant: "destructive",
+        })
+      }
+    }
+    fetchPlaylists()
+  }, [currentUser])
 
   React.useEffect(() => {
     if (isEditing) {
@@ -51,6 +81,7 @@ export default function ReleaseForm() {
               cover_color: data.colors.cover,
               record_color: data.colors.record,
               sleeve_color: data.colors.sleeve,
+              playlist_id: data.playlist_id,
             })
           }
         } catch (error) {
@@ -69,13 +100,18 @@ export default function ReleaseForm() {
   const onSubmit = async (data) => {
     setLoading(true)
     try {
+      const formData = {
+        ...data,
+        playlist_id: data.playlist_id || null
+      }
+
       const response = isEditing
         ? await put(`/releases/${id}`, {
-            body: JSON.stringify({ release: data }),
+            body: JSON.stringify({ release: formData }),
             responseKind: "json",
           })
         : await post("/releases", {
-            body: JSON.stringify({ release: data }),
+            body: JSON.stringify({ release: formData }),
             responseKind: "json",
           })
 
@@ -177,6 +213,35 @@ export default function ReleaseForm() {
               </div>
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="playlist_id">Playlists</Label>
+              <Controller
+                name="playlist_id"
+                control={control}
+                render={({ field }) => {
+                  console.log("field", field.value)
+                  return <Select
+                    {...field}
+                    options={
+                      playlists.map((playlist) => ({
+                        value: playlist.id,
+                        label: playlist.title
+                      }))
+                    }
+                    onChange={(selectedOption) => {
+                      field.onChange(selectedOption?.value || null);
+                    }}
+                    value={field.value ? {
+                      value: field.value,
+                      label: playlists.find(p => p.id === field.value)?.title
+                    } : null}
+                    theme={(theme) => selectTheme(theme, isDarkMode)}
+                    placeholder="Select playlists"
+                  />
+                }}
+              />
+            </div>
+
             <div className="flex justify-end space-x-2">
               <Button
                 type="button"
@@ -202,4 +267,3 @@ export default function ReleaseForm() {
     </div>
   )
 }
-  
