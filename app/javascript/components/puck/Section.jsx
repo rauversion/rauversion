@@ -1,6 +1,7 @@
 import React from 'react';
 import ColorPicker from './ColorPicker';
 import ImageUploadField from './ImageUploadField';
+import SimpleEditor from '@/components/ui/SimpleEditor';
 
 const Section = ({ 
   variant,
@@ -202,8 +203,9 @@ export const config = {
       render: ColorPicker,
     },
     description: {
-      type: "textarea",
+      type: "custom",
       label: "Description",
+      render: SimpleEditor,
     },
     textSize: {
       type: "select",

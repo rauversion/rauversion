@@ -69,9 +69,10 @@ function Editor({releaseId}) {
       Playlist: {
         fields: PlaylistConfig.fields,
         defaultProps: PlaylistConfig.defaultProps,
-        render: ({ playlistId, theme }) => {
+        /*render: ({ playlistId, theme }) => {
           return <Playlist playlistId={playlistId} theme={theme} />;
-        },
+        },*/
+        render: Playlist
       },
       HeroSection: {
         fields: HeroSectionConfig.fields,

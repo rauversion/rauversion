@@ -138,8 +138,8 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
           )}
           
           <div className="flex-1">
-            <h2 className="text-white font-bold text-3xl mb-2">{playlist.title}</h2>
-            <p className="text-zinc-400 mb-4">{playlist.user.full_name}</p>
+            <h2 className="text-default font-bold text-3xl mb-2">{playlist.title}</h2>
+            <p className="text-muted mb-4">{playlist.user.full_name}</p>
             <div className="flex items-center gap-4">
               <a 
                 // href={playlist.tracks[0] ? `/player?id=${playlist.tracks[0].slug}&t=true` : ''}
@@ -154,20 +154,20 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
                     useAudioStore.setState({ currentTrackId: playlist.tracks[0].id + "", isPlaying: true });
                   }
                 }}
-                style={{ backgroundColor: accentColor }}
-                className={`bg-default text-black font-semibold rounded-full p-3 hover:scale-105 transition`}
+                //style={{ backgroundColor: accentColor }}
+                className={`bg-black/20 cursor-pointer text-black font-semibold rounded-full p-3 hover:scale-105 transition`}
               >
                 {isPlaying ? <Pause size={24} /> : <Play size={24} />}
               </a>
-              <a href={playlist.url} target="_blank" className="text-xs font-semibold px-4 py-1.5 rounded-full bg-transparent border border-white text-white hover:scale-105 transition">
+              {/*<a href={playlist.url} target="_blank" className="text-xs font-semibold px-4 py-1.5 rounded-full bg-transparent border border-white text-white hover:scale-105 transition">
                 Listen on Rauversion
-              </a>
+              </a>*/}
             </div>
           </div>
         </div>
   
         <div className="mt-8">
-          <div className="space-y-1 bg-black/5 p-4 rounded-lg">
+          <div className="space-y-1 bg-black/50 p-4 rounded-lg">
             {playlist.tracks && playlist.tracks.map((track, index) => (
               <div 
                 key={track.id}

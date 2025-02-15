@@ -1,5 +1,6 @@
 import React from 'react';
 import ColorPicker from './ColorPicker';
+import SimpleEditor from '@/components/ui/SimpleEditor';
 
 const Text = ({ content, size, weight, letterSpacing, alignment, color, variant, backgroundColor, padding }) => {
   const baseClasses = `${size} ${weight} ${letterSpacing} ${alignment} ${padding}`;
@@ -16,19 +17,19 @@ const Text = ({ content, size, weight, letterSpacing, alignment, color, variant,
   }
 
   return (
-    <p 
+    <div 
       className={baseClasses}
       style={{ color, backgroundColor }}
-    >
-      {content}
-    </p>
+      dangerouslySetInnerHTML={{ __html: content }}
+    />
   );
 };
 
 export const config = {
   fields: {
     content: {
-      type: "textarea",
+      type: "custom",
+      render: SimpleEditor,
       label: "Content",
       defaultValue: "Enter your text here",
     },

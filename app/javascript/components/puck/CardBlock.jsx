@@ -1,6 +1,7 @@
 import React from 'react';
 import ColorPicker from './ColorPicker';
 import ImageUploadField from './ImageUploadField';
+import SimpleEditor from '@/components/ui/SimpleEditor';
 
 const CardBlock = ({ 
   image, 
@@ -48,9 +49,7 @@ const CardBlock = ({
         )}
         
         {text && (
-          <p className={textSize} style={{ color: textColor }}>
-            {text}
-          </p>
+          <div dangerouslySetInnerHTML={{__html: text }} className={textSize} style={{ color: textColor }}/>
         )}
       </div>
     </div>
@@ -115,8 +114,9 @@ export const config = {
       render: ColorPicker,
     },
     text: {
-      type: "textarea",
+      type: "custom",
       label: "Text Content",
+      render: SimpleEditor
     },
     textSize: {
       type: "select",

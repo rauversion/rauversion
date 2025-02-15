@@ -91,11 +91,13 @@ function RequireAuth({ children }) {
   return children
 }
 
+
 function AppContent() {
   const { currentUser } = useAuthStore()
   const { subscribe, unsubscribe, subscription } = useActionCable()
   const { toast } = useToast()
   const { currentLocale } = useLocaleStore()
+  const location = useLocation()
 
 
   const handleNotification = (data) => {
@@ -141,6 +143,7 @@ function AppContent() {
     }
   }, [currentUser, subscription])
 
+  console.log("loaction", location)
   return (
     <>
       <UserMenu />
@@ -181,7 +184,7 @@ function AppContent() {
           <Route path="/releases" element={<ReleasesList />} />
           <Route path="/releases/new" element={<ReleaseForm />} />
           <Route path="/releases/:id/edit" element={<ReleaseForm />} />
-          <Route path="/releases/:id/editor" element={<ReleaseEditor />} />
+          <Route path="/releases/:id/editor" key="release-editor" element={<ReleaseEditor key={"release-editor"} />} />
           <Route path="/releases/:id/preview" element={<ReleasePreview />} />
           <Route path="/releases/:id" element={<ReleasePreview />} />
           <Route path="/albums" element={<AlbumsIndex />} />
@@ -226,7 +229,11 @@ function AppContent() {
         <Toaster />
         <AudioPlayer />
 
-        <Footer/>
+        {
+          !location.pathname.includes('edit') && !location.pathname.includes('new') && !location.pathname.includes('editor') && !location.pathname.includes('preview') && (
+            <Footer/>
+          )
+        }
     </>
   )
 }
