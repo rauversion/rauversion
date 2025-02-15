@@ -230,7 +230,12 @@ function AppContent() {
         <AudioPlayer />
 
         {
-          !location.pathname.includes('edit') && !location.pathname.includes('new') && !location.pathname.includes('editor') && !location.pathname.includes('preview') && (
+          !location.pathname.includes('edit') && 
+          !location.pathname.includes('new') && 
+          !location.pathname.includes('editor') && 
+          !location.pathname.includes('preview') &&
+          !location.pathname.includes('albums') &&
+           (
             <Footer/>
           )
         }
