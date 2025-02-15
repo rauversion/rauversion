@@ -139,7 +139,7 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
           
           <div className="flex-1">
             <h2 className="text-default font-bold text-3xl mb-2">{playlist.title}</h2>
-            <p className="text-muted mb-4">{playlist.user.full_name}</p>
+            <p className="text-default/10 mb-4">{playlist.user.full_name}</p>
             <div className="flex items-center gap-4">
               <a 
                 // href={playlist.tracks[0] ? `/player?id=${playlist.tracks[0].slug}&t=true` : ''}
@@ -167,7 +167,7 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
         </div>
   
         <div className="mt-8">
-          <div className="space-y-1 bg-black/50 p-4 rounded-lg">
+          <div className="space-y-1 bg-black/30 p-4 rounded-lg">
             {playlist.tracks && playlist.tracks.map((track, index) => (
               <div 
                 key={track.id}
@@ -207,13 +207,13 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
                     }`}>
                       {track.title}
                     </p>
-                    <p className="text-zinc-400 text-sm">{track.user.full_name}</p>
+                    <p className="text-default text-sm">{track.user.full_name}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
                   {
                     track.duration !== "xx;xx" && (
-                      <span className="text-zinc-400">
+                      <span className="text-default text-sm">
                         {track.duration}
                       </span>
                     )

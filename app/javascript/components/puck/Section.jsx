@@ -137,7 +137,7 @@ const Section = ({
 
   return (
     <section 
-      className={`${variant === 'overlay' ? '' : 'container mx-auto'} ${padding} border-t-4`}
+      className={`${variant === 'overlay' ? '' : 'container--- mx-auto---'} ${padding} border-t-4`}
       style={{ 
         backgroundColor: variant === 'overlay' ? 'transparent' : backgroundColor,
         borderColor: borderColor
