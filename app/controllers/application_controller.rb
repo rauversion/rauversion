@@ -35,7 +35,7 @@ class ApplicationController < ActionController::Base
     elsif cookies[:locale].present?
       I18n.locale = cookies[:locale]
     else
-      I18n.locale = I18n.default_locale
+      I18n.locale = ENV["DEFAULT_LOCALE"] || I18n.default_locale
     end
   end
 
