@@ -76,6 +76,9 @@ export default function UserMenu() {
                 <Link to="/articles" className="rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted">
                   {I18n.t('menu.magazine')}
                 </Link>
+                <Link to="/store" className="rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted">
+                  {I18n.t('menu.store')}
+                </Link>
               </div>
             </div>
 

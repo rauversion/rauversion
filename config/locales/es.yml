@@ -17,6 +17,7 @@ es:
   add_to_cart: "Agregar al carrito"
 
   menu:
+    store: Tienda
     profile: Profile
     my_label: Mi sello
     home: Inicio
@@ -42,6 +43,27 @@ es:
     language: Idioma
     dark_mode: Modo oscuro
     light_mode: Modo claro
+
+
+    my_label: Mi sello
+    home: Inicio
+    music: Música
+    events: Eventos
+    magazine: Revista
+    upload: "Subir"
+    my_products_merch: Mi tienda
+    register: "Registrar"
+    log_in: "Iniciar sesión"
+    notifications: "Notificaciones"
+    my_music: Mi música
+    my_articles: Mis artículos
+    my_events: Mis eventos
+    my_sales: Mis ventas
+    my_purchases: Mis compras
+    my_products: Mis productos
+    settings: Configuraciones
+    language: idioma
+    log_out: Cerrar sesión
   notifications:
     title: Notificaciones
     mark_all_as_read: Marcar todas como leídas
@@ -1557,27 +1579,6 @@ es:
       greeting: "¡Hola!"
       reminder_message: "Este es un recordatorio amistoso sobre tu próximo servicio."
       view_details_button: "Ver Detalles"
-
-  menu:
-    my_label: Mi sello
-    home: Inicio
-    music: Música
-    events: Eventos
-    magazine: Revista
-    upload: "Subir"
-    my_products_merch: Mi tienda
-    register: "Registrar"
-    log_in: "Iniciar sesión"
-    notifications: "Notificaciones"
-    my_music: Mi música
-    my_articles: Mis artículos
-    my_events: Mis eventos
-    my_sales: Mis ventas
-    my_purchases: Mis compras
-    my_products: Mis productos
-    settings: Configuraciones
-    language: idioma
-    log_out: Cerrar sesión
 
   store:
     index:

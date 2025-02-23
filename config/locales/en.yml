@@ -16,7 +16,8 @@ en:
   view_all: See all
   view: See
   menu:
-    my_label: My stamp
+    store: Store
+    my_label: My Label
     home: Home
     music: Music
     events: Events

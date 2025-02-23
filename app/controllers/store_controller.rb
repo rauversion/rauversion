@@ -8,7 +8,7 @@ class StoreController < ApplicationController
   end
 
   def services
-    @products = Product.where(category: 'service').page(params[:page]).per(12)
+    @products = Product.where(type: 'Products::ServiceProduct').page(params[:page]).per(12)
     respond_to do |format|
       format.html
       format.json { render :index }
@@ -16,7 +16,7 @@ class StoreController < ApplicationController
   end
 
   def music
-    @products = Product.where(category: 'music').page(params[:page]).per(12)
+    @products = Product.where(type: 'Products::MusicProduct').page(params[:page]).per(12)
     respond_to do |format|
       format.html
       format.json { render :index }
@@ -24,7 +24,7 @@ class StoreController < ApplicationController
   end
 
   def classes
-    @products = Product.where(category: 'class').page(params[:page]).per(12)
+    @products = Product.where(type: 'Products::ServiceProduct').page(params[:page]).per(12)
     respond_to do |format|
       format.html
       format.json { render :index }
@@ -32,7 +32,7 @@ class StoreController < ApplicationController
   end
 
   def feedback
-    @products = Product.where(category: 'feedback').page(params[:page]).per(12)
+    @products = Product.where(type: 'Products::ServiceProduct').page(params[:page]).per(12)
     respond_to do |format|
       format.html
       format.json { render :index }
@@ -40,7 +40,7 @@ class StoreController < ApplicationController
   end
 
   def accessories
-    @products = Product.where(category: 'accessory').page(params[:page]).per(12)
+    @products = Product.where(type: 'Products::AccessoryProduct').page(params[:page]).per(12)
     respond_to do |format|
       format.html
       format.json { render :index }
@@ -48,7 +48,7 @@ class StoreController < ApplicationController
   end
 
   def gear
-    @products = Product.where(category: 'gear')
+    @products = Product.where(type: 'Products::GearProduct').page(params[:page]).per(12)
     respond_to do |format|
       format.html
       format.json { render :index }
