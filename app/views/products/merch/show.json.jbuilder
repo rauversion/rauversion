@@ -1,6 +1,7 @@
 json.product do
   json.id @product.id
   json.title @product.title
+  json.type @product.type
   json.slug @product.slug
   json.description @product.description
   json.category @product.category
@@ -15,7 +16,7 @@ json.product do
   json.photos @product.product_images do |photo|
     json.id photo.id
     json.url url_for(photo.image)
-    json.filename photo.image.filename
+    json.name photo.title
   end
 
   # Shipping options
@@ -30,7 +31,7 @@ json.product do
   json.user do
     json.id @product.user.id
     json.username @product.user.username
-    json.name @product.user.name
+    json.name @product.user.full_name
     json.avatar_url url_for(@product.user.avatar) if @product.user.avatar.attached?
   end
 end

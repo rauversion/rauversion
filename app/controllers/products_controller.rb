@@ -48,6 +48,23 @@ class ProductsController < ApplicationController
     @profile = User.find_by(username: params[:user_id])
     @product = @profile.products.friendly.find(params[:id])
     @product_variants = @product.product_variants
+
+
+
+    view_path = case @product.type
+    when "Products::GearProduct" then "products/gear/show"
+    when "Products::MusicProduct" then "products/music/show"
+    when "Products::MerchProduct" then "products/merch/show"
+    when "Products::AccessoryProduct" then "products/accessory/show"
+    when "Products::ServiceProduct" then "products/service/show"
+    else
+      "products/show"
+    end
+
+    respond_to do |format|  
+      format.html { }
+      format.json { render view_path and return } 
+    end
     
     if request.headers["Turbo-Frame"] == "gallery-photo"
       product_image = @product.product_images.find(params[:image])

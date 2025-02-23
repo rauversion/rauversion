@@ -270,6 +270,8 @@ Rails.application.routes.draw do
 
   resources :labels
   resources :albums
+  resource :spotlight
+
 
   resources :service_bookings do
     member do

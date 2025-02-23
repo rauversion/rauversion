@@ -2,6 +2,7 @@ json.product do
   json.id @product.id
   json.title @product.title
   json.slug @product.slug
+  json.type @product.type
   json.description @product.description
   json.category @product.category
   json.price @product.price
@@ -30,7 +31,7 @@ json.product do
   json.user do
     json.id @product.user.id
     json.username @product.user.username
-    json.name @product.user.name
+    json.name @product.user.full_name
     json.avatar_url url_for(@product.user.avatar) if @product.user.avatar.attached?
   end
 end

@@ -5,6 +5,7 @@ json.product do
   json.description @product.description
   json.category @product.category
   json.price @product.price
+  json.type @product.type
   json.stock_quantity @product.stock_quantity
   json.status @product.status
   json.condition @product.condition
@@ -22,11 +23,12 @@ json.product do
       json.title @product.album.title
       json.description @product.album.description
       json.cover_url url_for(@product.album.cover) if @product.album.cover.attached?
-      json.tracks @product.album.tracks do |track|
+      json.tracks @product.album.track_playlists do |track_playlist|
+        track = track_playlist.track
         json.id track.id
         json.title track.title
         json.duration track.duration
-        json.position track.position
+        # json.position track.position
       end
     end
   end
@@ -35,7 +37,7 @@ json.product do
   json.photos @product.product_images do |photo|
     json.id photo.id
     json.url url_for(photo.image)
-    json.filename photo.image.filename
+    json.name photo.title
   end
 
   # Shipping options
@@ -50,7 +52,7 @@ json.product do
   json.user do
     json.id @product.user.id
     json.username @product.user.username
-    json.name @product.user.name
+    json.name @product.user.full_name
     json.avatar_url url_for(@product.user.avatar) if @product.user.avatar.attached?
   end
 end

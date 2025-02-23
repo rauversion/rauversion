@@ -4,7 +4,7 @@ class Product < ApplicationRecord
   friendly_id :title, use: :slugged
   acts_as_paranoid
 
-  self.inheritance_column = 'product_type'
+  self.inheritance_column = 'type'
 
   belongs_to :user
   belongs_to :album, class_name: 'Playlist', optional: true, foreign_key: :playlist_id
