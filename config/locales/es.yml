@@ -17,6 +17,7 @@ es:
   add_to_cart: "Agregar al carrito"
 
   menu:
+    profile: Profile
     my_label: Mi sello
     home: Inicio
     music: Música
@@ -1278,6 +1279,18 @@ es:
       cta: Contactar soporte
 
   shared:
+    modal:
+      meeting_link: "Enlace de Reunión"
+      meeting_location: "Ubicación de la Reunión"
+      provider_notes: "Notas del Proveedor"
+      close: "Cerrar"
+      meeting_link_placeholder: "ej., https://zoom.us/j/123456789"
+      meeting_location_placeholder: "ej., Calle Principal 123, Oficina 100"
+      provider_notes_placeholder: "Agrega instrucciones especiales o notas para el cliente"
+      meeting_link_help: "Agrega un enlace de videoconferencia (Zoom, Google Meet, etc.) si es una reunión virtual"
+      meeting_location_help: "Agrega la ubicación física si es una reunión presencial"
+      provider_notes_help: "Estas notas serán visibles para el cliente"
+
     music_purchase_form:
       title: Comprar %{type} Digital
       price:
@@ -1561,21 +1574,10 @@ es:
     my_events: Mis eventos
     my_sales: Mis ventas
     my_purchases: Mis compras
+    my_products: Mis productos
     settings: Configuraciones
+    language: idioma
     log_out: Cerrar sesión
-
-  shared:
-    modal:
-      meeting_link: "Enlace de Reunión"
-      meeting_location: "Ubicación de la Reunión"
-      provider_notes: "Notas del Proveedor"
-      close: "Cerrar"
-      meeting_link_placeholder: "ej., https://zoom.us/j/123456789"
-      meeting_location_placeholder: "ej., Calle Principal 123, Oficina 100"
-      provider_notes_placeholder: "Agrega instrucciones especiales o notas para el cliente"
-      meeting_link_help: "Agrega un enlace de videoconferencia (Zoom, Google Meet, etc.) si es una reunión virtual"
-      meeting_location_help: "Agrega la ubicación física si es una reunión presencial"
-      provider_notes_help: "Estas notas serán visibles para el cliente"
 
   store:
     index:

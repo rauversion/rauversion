@@ -36,7 +36,7 @@ export default function PhotosSection({ control }) {
             const handleUploadComplete = (signedId) => {
               const newImage = {
                 image: signedId,
-                name: '',
+                title: '',
                 description: ''
               }
               field.onChange([...images, newImage])
@@ -70,7 +70,7 @@ export default function PhotosSection({ control }) {
                               `/rails/active_storage/blobs/redirect/${image.image}/photo.jpg` :
                               `/rails/active_storage/blobs/redirect/${image.image}/photo.jpg`
                             }
-                            alt={image.name || `Photo ${index + 1}`}
+                            alt={image.title || `Photo ${index + 1}`}
                             className="w-full h-32 object-cover rounded-lg"
                           />
                           <Button
@@ -84,8 +84,8 @@ export default function PhotosSection({ control }) {
                         </div>
                         <Input
                           placeholder="Image name"
-                          value={image.name || ''}
-                          onChange={(e) => updateImageField(index, 'name', e.target.value)}
+                          value={image.title || ''}
+                          onChange={(e) => updateImageField(index, 'title', e.target.value)}
                           className="text-sm"
                         />
                         <Input

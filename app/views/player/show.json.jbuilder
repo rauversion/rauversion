@@ -6,7 +6,7 @@ json.track do
   json.artwork_url @track.cover_url(:small)
   
   json.user_username @track.user.username
-  json.user_url user_path(@track.user)
+  json.user_url user_path(@track.user.username)
 end
 
 # Get the playlist from the store if available

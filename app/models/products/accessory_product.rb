@@ -9,7 +9,10 @@ module Products
     enum :category, { 
       merch: 'merch', 
       other: 'other',
-      accessories: 'accessories'
+      accessories: 'accessories',
+      cables: "cables",
+      cases: "cases",
+      stands: "stands"
     }
 
     private

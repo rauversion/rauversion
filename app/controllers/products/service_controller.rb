@@ -13,18 +13,30 @@ module Products
     def create
       @product = product_class.new(product_params)
       @product.user = current_user
-      @product.category = 'service'
+      # @product.category = 'service'
 
       if params[:changed_form]
         render "create", status: :unprocessable_entity and return
       end
 
-      if @product.save
-        redirect_to user_products_service_path(current_user.username, @product),
-                    notice: 'Service was successfully created.'
-      else
-        render "create", status: :unprocessable_entity
+      respond_to do |format|
+        format.html { 
+          if @product.save
+            redirect_to user_product_path(current_user.username, @product), 
+            notice: 'Service was successfully created.'
+          else
+            render "create", status: :unprocessable_entity and return
+          end
+         }
+        format.json { 
+          if @product.save
+            render "create", status: :created
+          else
+            render "create", status: :unprocessable_entity and return
+          end
+         }
       end
+      
     end
 
     def edit

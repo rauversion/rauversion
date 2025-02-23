@@ -1,7 +1,8 @@
 class SpotlightsController < ApplicationController
   before_action :set_spotlight, only: [:destroy]
   def index
-    @spotlights = current_user.spotlights.order('position')
+    user = User.find_by(username: params[:username])
+    @spotlights = user.spotlights.order('position')
     @form = FormModels::SpotlightForm.new
     @form.items = @spotlights
     respond_to do |format|
@@ -10,7 +11,8 @@ class SpotlightsController < ApplicationController
   end
 
   def show
-    @spotlights = current_user.spotlights.order('position')
+    user = User.find_by(username: params[:username])
+    @spotlights = user.spotlights.order('position')
     @form = FormModels::SpotlightForm.new
     @form.items = @spotlights
     respond_to do |format|

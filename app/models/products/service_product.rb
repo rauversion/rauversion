@@ -4,7 +4,14 @@ module Products
       coaching: 'coaching',
       feedback: 'feedback',
       classes: 'classes',
-      other: 'other'
+      other: 'other',
+      mastering: 'mastering',
+      mixing: 'mixing',
+      production: 'production',
+      recording: 'recording',
+      songwriting: 'songwriting',
+      sound_design: 'sound_design',
+      voice_over: 'voice_over'
     }
 
     store_accessor :data, 

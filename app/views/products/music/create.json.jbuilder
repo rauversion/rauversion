@@ -3,9 +3,11 @@ if @product.errors.any?
 else
   json.product do
     json.extract! @product, :id, :title, :description, :slug, :artist, :genre, :release_date
-    json.photos @product.photos do |photo|
+    json.photos @product.product_images do |photo|
       json.id photo.id
-      json.url url_for(photo)
+      json.title photo.title
+      json.description photo.description
+      json.url photo.image_url(:large)
     end
     json.user do
       json.extract! @product.user, :id, :username, :name

@@ -5,6 +5,14 @@ import { ChevronLeft } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import { Form } from "@/components/ui/form"
 import Select from "react-select"
 import { useThemeStore } from '@/stores/theme'
 import selectTheme from "@/components/ui/selectTheme"
@@ -29,13 +37,7 @@ export default function AccessoryForm() {
   const navigate = useNavigate()
   const { isDarkMode } = useThemeStore()
   
-  const {
-    register,
-    handleSubmit,
-    watch,
-    setValue,
-    formState: { errors, isSubmitting }
-  } = useForm({
+  const form = useForm({
     defaultValues: {
       category: '',
       title: '',
@@ -46,22 +48,47 @@ export default function AccessoryForm() {
     }
   })
 
+  // Reset form errors when any field changes
+  React.useEffect(() => {
+    const subscription = form.watch(() => {
+      if (Object.keys(form.formState.errors).length > 0) {
+        form.clearErrors()
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [form])
+
   const onSubmit = async (data) => {
     try {
+      // Clear any existing errors before submitting
+      form.clearErrors()
+
       const response = await post(`/${currentUser.username}/products/accessory`, {
+        responseKind: 'json',
         body: { product: data }
       })
       
+      const result = await response.json
+      
       if (response.ok) {
-        const result = await response.json
         navigate(`/${currentUser.username}/products/${result.product.slug}`)
+      } else {
+        // Set field errors from backend
+        Object.keys(result.errors).forEach(key => {
+          form.setError(key, {
+            type: 'backend',
+            message: result.errors[key].join(', ')
+          })
+        })
       }
     } catch (error) {
       console.error('Failed to create product:', error)
+      form.setError('root', {
+        type: 'backend',
+        message: 'An unexpected error occurred'
+      })
     }
   }
-
-  console.log("errors: ", errors)
 
   return (
     <div className="m-4 rounded-lg border border-default bg-card text-card-foreground shadow-sm">
@@ -77,90 +104,115 @@ export default function AccessoryForm() {
           {I18n.t('products.accessory.new.title')}
         </h2>
 
-        {/*<FormErrors errors={errors} />*/}
+        <FormErrors errors={form.formState.errors} />
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="grid md:grid-cols-5 gap-4 grid-cols-1">
-            <div className="block pt-0 space-y-3 md:col-span-2">
-              <div>
-                <Label htmlFor="category">
-                  {I18n.t('products.accessory.form.category')}
-                </Label>
-                <Select
-                  id="category"
-                  placeholder={I18n.t('products.accessory.form.select_category')}
-                  options={ACCESSORY_CATEGORIES}
-                  value={ACCESSORY_CATEGORIES.find(c => c.value === watch('category'))}
-                  onChange={(option) => setValue('category', option?.value)}
-                  theme={(theme) => selectTheme(theme, isDarkMode)}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <div className="grid md:grid-cols-5 gap-4 grid-cols-1">
+              <div className="block pt-0 space-y-3 md:col-span-2">
+                <FormField
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{I18n.t('products.accessory.form.category')}</FormLabel>
+                      <FormControl>
+                        <Select
+                          id="category"
+                          placeholder={I18n.t('products.accessory.form.select_category')}
+                          options={ACCESSORY_CATEGORIES}
+                          value={ACCESSORY_CATEGORIES.find(c => c.value === field.value)}
+                          onChange={(option) => field.onChange(option?.value)}
+                          theme={(theme) => selectTheme(theme, isDarkMode)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              <div>
-                <Label htmlFor="title">
-                  {I18n.t('products.accessory.form.title')}
-                </Label>
-                <Input
-                  id="title"
-                  {...register('title', { required: true })}
+                <FormField
+                  control={form.control}
+                  name="title"
+                  rules={{ required: "Title is required" }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{I18n.t('products.accessory.form.title')}</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              <div>
-                <Label htmlFor="description">
-                  {I18n.t('products.accessory.form.description')}
-                </Label>
-
-                <SimpleEditor
-                  // value={watch('description')}
-                  onChange={(value) => { 
-                    // debugger
-                    // setValue('description', value)
-                  }}
-                  scope="product"
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{I18n.t('products.accessory.form.description')}</FormLabel>
+                      <FormControl>
+                        <SimpleEditor
+                          value={field.value}
+                          onChange={field.onChange}
+                          scope="product"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
-                  <Label htmlFor="brand">
-                    {I18n.t('products.accessory.form.brand')}
-                  </Label>
-                  <Input
-                    id="brand"
-                    {...register('brand')}
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="brand"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{I18n.t('products.accessory.form.brand')}</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="model"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{I18n.t('products.accessory.form.model')}</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
                 </div>
+              </div>
 
-                <div>
-                  <Label htmlFor="model">
-                    {I18n.t('products.accessory.form.model')}
-                  </Label>
-                  <Input
-                    id="model"
-                    {...register('model')}
-                  />
-                </div>
+              <div className="flex flex-col flex-grow md:col-span-3 col-span-1 space-y-6">
+                <PricingSection control={form.control} />
+                <PhotosSection control={form.control} setValue={form.setValue} watch={form.watch} />
+                <ShippingSection control={form.control} />
+
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={form.formState.isSubmitting}
+                >
+                  {form.formState.isSubmitting
+                    ? I18n.t('products.accessory.form.submitting')
+                    : I18n.t('products.accessory.form.submit')}
+                </Button>
               </div>
             </div>
-
-            <div className="flex flex-col flex-grow md:col-span-3 col-span-1 space-y-6">
-              <PricingSection register={register} watch={watch} showLimitedEdition />
-              <PhotosSection register={register} setValue={setValue} watch={watch} />
-              <ShippingSection register={register} watch={watch} />
-
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={isSubmitting}
-              >
-                {isSubmitting
-                  ? I18n.t('products.accessory.form.submitting')
-                  : I18n.t('products.accessory.form.submit')}
-              </Button>
-            </div>
-          </div>
-        </form>
+          </form>
+        </Form>
       </div>
     </div>
   )

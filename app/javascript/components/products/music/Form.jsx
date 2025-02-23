@@ -5,6 +5,14 @@ import { ChevronLeft } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import { Form } from "@/components/ui/form"
 import Select from "react-select"
 import { useThemeStore } from '@/stores/theme'
 import selectTheme from "@/components/ui/selectTheme"
@@ -30,13 +38,7 @@ export default function MusicForm() {
   const { isDarkMode } = useThemeStore()
   const [albums, setAlbums] = React.useState([])
   
-  const {
-    register,
-    handleSubmit,
-    watch,
-    setValue,
-    formState: { errors, isSubmitting }
-  } = useForm({
+  const form = useForm({
     defaultValues: {
       category: '',
       playlist_id: '',
@@ -63,18 +65,45 @@ export default function MusicForm() {
     fetchAlbums()
   }, [currentUser.username])
 
+  // Reset form errors when any field changes
+  React.useEffect(() => {
+    const subscription = form.watch(() => {
+      if (Object.keys(form.formState.errors).length > 0) {
+        form.clearErrors()
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [form])
+
   const onSubmit = async (data) => {
     try {
+      // Clear any existing errors before submitting
+      form.clearErrors()
+
       const response = await post(`/${currentUser.username}/products/music`, {
+        responseKind: 'json',
         body: { product: data }
       })
       
+      const result = await response.json
+      
       if (response.ok) {
-        const result = await response.json
         navigate(`/${currentUser.username}/products/${result.product.slug}`)
+      } else {
+        // Set field errors from backend
+        Object.keys(result.errors).forEach(key => {
+          form.setError(key, {
+            type: 'backend',
+            message: result.errors[key].join(', ')
+          })
+        })
       }
     } catch (error) {
       console.error('Failed to create product:', error)
+      form.setError('root', {
+        type: 'backend',
+        message: 'An unexpected error occurred'
+      })
     }
   }
 
@@ -92,98 +121,137 @@ export default function MusicForm() {
           {I18n.t('products.music.new.title')}
         </h2>
 
-        <FormErrors errors={errors} />
+        <FormErrors errors={form.formState.errors} />
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid md:grid-cols-5 gap-4 grid-cols-1">
             <div className="block pt-0 space-y-3 md:col-span-2">
               <div className="flex space-x-2">
                 <div className="flex-1">
-                  <Label htmlFor="category">
-                    {I18n.t('products.music.form.format')}
-                  </Label>
-                  <Select
-                    id="category"
-                    placeholder={I18n.t('products.music.form.select_format')}
-                    options={MUSIC_FORMATS}
-                    value={MUSIC_FORMATS.find(f => f.value === watch('category'))}
-                    onChange={(option) => setValue('category', option?.value)}
-                  theme={(theme) => selectTheme(theme, isDarkMode)}
+                  <FormField
+                    control={form.control}
+                    name="category"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{I18n.t('products.music.form.format')}</FormLabel>
+                        <FormControl>
+                          <Select
+                            id="category"
+                            placeholder={I18n.t('products.music.form.select_format')}
+                            options={MUSIC_FORMATS}
+                            value={MUSIC_FORMATS.find(f => f.value === field.value)}
+                            onChange={(option) => field.onChange(option?.value)}
+                            theme={(theme) => selectTheme(theme, isDarkMode)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
                 </div>
 
                 <div className="flex-1">
-                  <Label htmlFor="playlist_id">
-                    {I18n.t('products.music.form.album')}
-                  </Label>
-                  <Select
-                    id="playlist_id"
-                    placeholder={I18n.t('products.music.form.select_album')}
-                    options={albums.map(album => ({
-                      value: album.id,
-                      label: album.title
-                    }))}
-                    value={albums
-                      .map(album => ({
-                        value: album.id,
-                        label: album.title
-                      }))
-                      .find(a => a.value === watch('playlist_id'))}
-                    onChange={(option) => setValue('playlist_id', option?.value)}
-                  theme={(theme) => selectTheme(theme, isDarkMode)}
+                  <FormField
+                    control={form.control}
+                    name="playlist_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{I18n.t('products.music.form.album')}</FormLabel>
+                        <FormControl>
+                          <Select
+                            id="playlist_id"
+                            placeholder={I18n.t('products.music.form.select_album')}
+                            options={albums.map(album => ({
+                              value: album.id,
+                              label: album.title
+                            }))}
+                            value={albums
+                              .map(album => ({
+                                value: album.id,
+                                label: album.title
+                              }))
+                              .find(a => a.value === field.value)}
+                            onChange={(option) => field.onChange(option?.value)}
+                            theme={(theme) => selectTheme(theme, isDarkMode)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
                 </div>
               </div>
 
-              <div>
-                <Label htmlFor="title">
-                  {I18n.t('products.music.form.title')}
-                </Label>
-                <Input
-                  id="title"
-                  {...register('title', { required: true })}
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="title"
+                rules={{ required: "Title is required" }}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{I18n.t('products.music.form.title')}</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-              <div>
-                <Label htmlFor="description">
-                  {I18n.t('products.music.form.description')}
-                </Label>
-                <SimpleEditor
-                  value={watch('description')}
-                  onChange={(value) => setValue('description', value)}
-                  scope="product"
-                />
-              </div>
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{I18n.t('products.music.form.description')}</FormLabel>
+                    <FormControl>
+                      <SimpleEditor
+                        value={field.value}
+                        onChange={field.onChange}
+                        scope="product"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="include_digital_album"
-                  {...register('include_digital_album')}
-                />
-                <Label htmlFor="include_digital_album">
-                  {I18n.t('products.music.form.include_digital')}
-                </Label>
-              </div>
+              <FormField
+                control={form.control}
+                name="include_digital_album"
+                render={({ field }) => (
+                  <FormItem className="flex items-center space-x-2">
+                    <FormControl>
+                      <Checkbox
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </FormControl>
+                    <FormLabel>{I18n.t('products.music.form.include_digital')}</FormLabel>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
 
             <div className="flex flex-col flex-grow md:col-span-3 col-span-1 space-y-6">
-              <PricingSection register={register} watch={watch} showLimitedEdition />
-              <PhotosSection register={register} setValue={setValue} watch={watch} />
-              <ShippingSection register={register} watch={watch} />
+              <PricingSection control={form.control} showLimitedEdition />
+              <PhotosSection control={form.control} setValue={form.setValue} watch={form.watch} />
+              <ShippingSection control={form.control} />
 
               <Button
                 type="submit"
                 className="w-full"
-                disabled={isSubmitting}
+                disabled={form.formState.isSubmitting}
               >
-                {isSubmitting
+                {form.formState.isSubmitting
                   ? I18n.t('products.music.form.submitting')
                   : I18n.t('products.music.form.submit')}
               </Button>
             </div>
           </div>
-        </form>
+          </form>
+        </Form>
       </div>
     </div>
   )

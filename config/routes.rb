@@ -207,7 +207,6 @@ Rails.application.routes.draw do
   end
 
   resources :photos
-  resource :spotlight
 
   resources :releases do
     member do
@@ -290,6 +289,7 @@ Rails.application.routes.draw do
     resources :users, path: "" do
       resource :insights
       resources :artists, controller: "label_artists"
+      resource :spotlight
       resources :user_links, path: 'links' do
         collection do
           get 'wizard/new', to: 'user_links/wizard#new', as: :wizard_new

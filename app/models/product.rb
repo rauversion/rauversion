@@ -30,7 +30,11 @@ class Product < ApplicationRecord
   attribute :name_your_price, :boolean
   attribute :quantity, :integer
 
-  enum :status, { active: 'active', inactive: 'inactive', sold_out: 'sold_out' }
+  enum :status, { 
+    active: 'active', 
+    inactive: 'inactive', 
+    sold_out: 'sold_out' 
+  }, default: :inactive
 
   enum :condition, {
     new: 'new',

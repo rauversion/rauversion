@@ -4,6 +4,7 @@ import AppRouter from './components/AppRouter'
 import { ThemeProvider } from './components/providers/ThemeProvider'
 import { useThemeStore } from './stores/theme'
 import useAuthStore from './stores/authStore'
+import ErrorBoundary from './components/ErrorBoundary'
 
 function App() {
   const { isDarkMode } = useThemeStore()
@@ -18,9 +19,11 @@ function App() {
   }, [])
 
   return (
-    <ThemeProvider>
-      <AppRouter />
-    </ThemeProvider>
+    <ErrorBoundary>
+      <ThemeProvider>
+        <AppRouter />
+      </ThemeProvider>
+    </ErrorBoundary>
   )
 }
 

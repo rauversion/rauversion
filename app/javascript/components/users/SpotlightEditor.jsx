@@ -111,7 +111,7 @@ export default function SpotlightEditor({ isPlaying, handlePlay, currentTrackId 
 
   const fetchSpotlights = async () => {
     try {
-      const response = await get(`/spotlight.json`)
+      const response = await get(`${username}/spotlight.json`)
       if (response.ok) {
         const data = await response.json
         setSpotlights(data.collection || [])
@@ -282,9 +282,13 @@ export default function SpotlightEditor({ isPlaying, handlePlay, currentTrackId 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-2xl font-bold">
-          {I18n.t('tracks.spotlights', { msg: `${spotlights.length}/12` })}
-        </h2>
+        {
+          spotlights.length > 0 && (
+            <h2 className="text-2xl font-bold">
+              {I18n.t('tracks.spotlights', { msg: `${spotlights.length}/12` })}
+            </h2>
+        )}
+
         {
           currentUser && currentUser.username === username && (
           <Button

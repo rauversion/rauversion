@@ -7,6 +7,14 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Textarea } from "@/components/ui/textarea"
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form"
+import { Form } from "@/components/ui/form"
 import FormErrors from '../shared/FormErrors'
 import PricingSection from '../shared/PricingSection'
 import ShippingSection from '../shared/ShippingSection'
@@ -19,13 +27,7 @@ export default function MerchForm() {
   const { currentUser } = useAuthStore()
   const navigate = useNavigate()
   
-  const {
-    register,
-    handleSubmit,
-    watch,
-    setValue,
-    formState: { errors, isSubmitting }
-  } = useForm({
+  const form = useForm({
     defaultValues: {
       category: 'merch',
       title: '',
@@ -38,20 +40,47 @@ export default function MerchForm() {
     }
   })
 
-  const limitedEdition = watch('limited_edition')
+  const limitedEdition = form.watch('limited_edition')
+
+  // Reset form errors when any field changes
+  React.useEffect(() => {
+    const subscription = form.watch(() => {
+      if (Object.keys(form.formState.errors).length > 0) {
+        form.clearErrors()
+      }
+    })
+    return () => subscription.unsubscribe()
+  }, [form])
 
   const onSubmit = async (data) => {
     try {
+      // Clear any existing errors before submitting
+      form.clearErrors()
+
       const response = await post(`/${currentUser.username}/products/merch`, {
+        responseKind: 'json',
         body: { product: data }
       })
       
+      const result = await response.json
+      
       if (response.ok) {
-        const result = await response.json
         navigate(`/${currentUser.username}/products/${result.product.slug}`)
+      } else {
+        // Set field errors from backend
+        Object.keys(result.errors).forEach(key => {
+          form.setError(key, {
+            type: 'backend',
+            message: result.errors[key].join(', ')
+          })
+        })
       }
     } catch (error) {
       console.error('Failed to create product:', error)
+      form.setError('root', {
+        type: 'backend',
+        message: 'An unexpected error occurred'
+      })
     }
   }
 
@@ -69,101 +98,144 @@ export default function MerchForm() {
           {I18n.t('products.merch.new.title')}
         </h2>
 
-        <FormErrors errors={errors} />
+        <FormErrors errors={form.formState.errors} />
 
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="grid md:grid-cols-5 gap-4 grid-cols-1">
-            <div className="block pt-0 space-y-3 md:col-span-2">
-              <input type="hidden" {...register('category')} />
-
-              <div>
-                <Label htmlFor="title">
-                  {I18n.t('products.merch.form.title')}
-                </Label>
-                <Input
-                  id="title"
-                  {...register('title', { required: true })}
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <div className="grid md:grid-cols-5 gap-4 grid-cols-1">
+              <div className="block pt-0 space-y-3 md:col-span-2">
+                <FormField
+                  control={form.control}
+                  name="category"
+                  render={({ field }) => (
+                    <input type="hidden" {...field} />
+                  )}
                 />
-              </div>
 
-              <div>
-                <Label htmlFor="description">
-                  {I18n.t('products.merch.form.description')}
-                </Label>
-                <Textarea
-                  id="description"
-                  {...register('description', { required: true })}
-                  rows={4}
+                <FormField
+                  control={form.control}
+                  name="title"
+                  rules={{ required: "Title is required" }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{I18n.t('products.merch.form.title')}</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-              </div>
 
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <div>
-                  <Label htmlFor="brand">
-                    {I18n.t('products.merch.form.brand')}
-                  </Label>
-                  <Input
-                    id="brand"
-                    {...register('brand')}
+                <FormField
+                  control={form.control}
+                  name="description"
+                  rules={{ required: "Description is required" }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{I18n.t('products.merch.form.description')}</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} rows={4} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  <FormField
+                    control={form.control}
+                    name="brand"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{I18n.t('products.merch.form.brand')}</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="model"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{I18n.t('products.merch.form.model')}</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="model">
-                    {I18n.t('products.merch.form.model')}
-                  </Label>
-                  <Input
-                    id="model"
-                    {...register('model')}
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="limited_edition"
-                  {...register('limited_edition')}
+                <FormField
+                  control={form.control}
+                  name="limited_edition"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center space-x-2">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel>{I18n.t('products.merch.form.limited_edition')}</FormLabel>
+                      <FormMessage />
+                    </FormItem>
+                  )}
                 />
-                <Label htmlFor="limited_edition">
-                  {I18n.t('products.merch.form.limited_edition')}
-                </Label>
+
+                {limitedEdition && (
+                  <FormField
+                    control={form.control}
+                    name="limited_edition_count"
+                    rules={{
+                      required: "Limited edition count is required",
+                      min: {
+                        value: 1,
+                        message: "Count must be at least 1"
+                      }
+                    }}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{I18n.t('products.merch.form.limited_edition_count')}</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            min="1"
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                )}
               </div>
 
-              {limitedEdition && (
-                <div>
-                  <Label htmlFor="limited_edition_count">
-                    {I18n.t('products.merch.form.limited_edition_count')}
-                  </Label>
-                  <Input
-                    type="number"
-                    id="limited_edition_count"
-                    min="1"
-                    {...register('limited_edition_count', {
-                      required: limitedEdition,
-                      min: 1
-                    })}
-                  />
-                </div>
-              )}
+              <div className="flex flex-col flex-grow md:col-span-3 col-span-1 space-y-6">
+                <PricingSection control={form.control} showLimitedEdition />
+                <PhotosSection control={form.control} setValue={form.setValue} watch={form.watch} />
+                <ShippingSection control={form.control} />
+
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={form.formState.isSubmitting}
+                >
+                  {form.formState.isSubmitting
+                    ? I18n.t('products.merch.form.submitting')
+                    : I18n.t('products.merch.form.submit')}
+                </Button>
+              </div>
             </div>
-
-            <div className="flex flex-col flex-grow md:col-span-3 col-span-1 space-y-6">
-              <PricingSection register={register} watch={watch} showLimitedEdition />
-              <PhotosSection register={register} setValue={setValue} watch={watch} />
-              <ShippingSection register={register} watch={watch} />
-
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={isSubmitting}
-              >
-                {isSubmitting
-                  ? I18n.t('products.merch.form.submitting')
-                  : I18n.t('products.merch.form.submit')}
-              </Button>
-            </div>
-          </div>
-        </form>
+          </form>
+        </Form>
       </div>
     </div>
   )

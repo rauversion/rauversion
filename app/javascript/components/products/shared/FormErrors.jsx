@@ -3,6 +3,23 @@ import React from 'react'
 export default function FormErrors({ errors }) {
   if (!errors || Object.keys(errors).length === 0) return null
 
+  // Convert React Hook Form errors to a simpler format
+  const formattedErrors = Object.entries(errors).reduce((acc, [field, error]) => {
+    // Handle React Hook Form error object
+    if (error && typeof error === 'object' && 'message' in error) {
+      acc[field] = error.message;
+    } 
+    // Handle backend error arrays
+    else if (Array.isArray(error)) {
+      acc[field] = error.join(', ');
+    }
+    // Handle string errors
+    else if (typeof error === 'string') {
+      acc[field] = error;
+    }
+    return acc;
+  }, {});
+
   return (
     <div className="rounded-md bg-red-50 p-4 mb-6">
       <div className="flex">
@@ -17,9 +34,9 @@ export default function FormErrors({ errors }) {
           </h3>
           <div className="mt-2 text-sm text-red-700">
             <ul className="list-disc pl-5 space-y-1">
-              {Object.entries(errors).map(([field, messages]) => (
+              {Object.entries(formattedErrors).map(([field, message]) => (
                 <li key={field}>
-                  {field} {Array.isArray(messages) ? messages.join(', ') : messages}
+                  {field} {message}
                 </li>
               ))}
             </ul>
