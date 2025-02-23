@@ -2,7 +2,7 @@ import React from "react"
 import { motion } from "framer-motion"
 import { Card } from "../ui/card"
 import { useNavigate } from "react-router-dom"
-import { Music, Headphones, Wrench, Package } from "lucide-react"
+import { Music, Headphones, Wrench, Piano, Package, Sticker, HandHeart } from "lucide-react"
 
 const container = {
   hidden: { opacity: 0 },
@@ -30,14 +30,14 @@ const CATEGORY_ICONS = [
   {
     id: 'gear',
     name: 'Gear',
-    icon: Headphones,
+    icon: Piano,
     path: '/store/gear',
     color: 'bg-purple-500'
   },
   {
     id: 'service',
     name: 'Services',
-    icon: Wrench,
+    icon: HandHeart,
     path: '/store/services',
     color: 'bg-green-500'
   },
@@ -47,7 +47,15 @@ const CATEGORY_ICONS = [
     icon: Package,
     path: '/store/accessories',
     color: 'bg-orange-500'
-  }
+  },
+  {
+    id: 'merch',
+    name: 'Merch',
+    icon: Sticker,
+    path: '/store/merch',
+    color: 'bg-purple-500'
+  },
+
 ]
 
 const CategoryGrid = () => {
@@ -64,7 +72,7 @@ const CategoryGrid = () => {
         variants={container}
         initial="hidden"
         animate="show"
-        className="grid grid-cols-2 md:grid-cols-4 gap-6"
+        className="grid grid-cols-2 md:grid-cols-5 gap-6"
       >
         {CATEGORY_ICONS.map((category) => {
           const Icon = category.icon

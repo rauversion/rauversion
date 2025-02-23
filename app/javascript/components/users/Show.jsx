@@ -4,7 +4,8 @@ import { get, post } from '@rails/request.js'
 import { format } from 'date-fns'
 import { Play, Pause, Share2, ThumbsUp, Menu } from 'lucide-react'
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
-import {Button } from "@/components/ui/button"
+import { Button } from "@/components/ui/button"
+import ProfileSkeleton from "./ProfileSkeleton"
 
 import useAudioStore from '../../stores/audioStore'
 import useAuthStore from '../../stores/authStore'
@@ -50,7 +51,7 @@ export default function UserShow() {
   }
 
   if (loading) {
-    return <div>{I18n.t('loading')}</div>
+    return <ProfileSkeleton />
   }
 
   if (!user) {

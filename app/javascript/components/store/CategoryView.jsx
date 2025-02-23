@@ -47,6 +47,17 @@ const CATEGORY_CONFIG = {
       { id: "stands", name: "Stands" },
       { id: "other", name: "Other" }
     ]
+  },
+  merch: {
+    title: "Merch",
+    subcategories: [
+      { id: "all", name: "All Merch" },
+      { id: "t-shirts", name: "T-Shirts" },
+      { id: "hoodies", name: "Hoodies" },
+      { id: "mugs", name: "Mugs" },
+      { id: "stickers", name: "Stickers" },
+      { id: "other", name: "Other" }
+    ]
   }
 }
 
