@@ -16,7 +16,9 @@ class StoreController < ApplicationController
   end
 
   def music
-    @products = Product.where(type: 'Products::MusicProduct').page(params[:page]).per(12)
+    @products = Product.where(type: 'Products::MusicProduct')
+    @products = @products.where(category: params[:subcategory]) if params[:subcategory].present?
+    @products = @products.page(params[:page]).per(12)
     respond_to do |format|
       format.html
       format.json { render :index }

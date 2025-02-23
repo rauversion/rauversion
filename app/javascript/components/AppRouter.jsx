@@ -79,6 +79,7 @@ import AccessoryForm from "./products/accessory/Form"
 import ServiceForm from "./products/service/Form"
 import AlbumShow from "./albums/AlbumShow"
 import NewTrack from "./tracks/NewTrack"
+import CategoryView from "./store/CategoryView"
 
 import CheckoutSuccess from "./checkout/CheckoutSuccess"
 import CheckoutFailure from "./checkout/CheckoutFailure"
@@ -200,12 +201,7 @@ function AppContent() {
           <Route path="/albums" element={<AlbumsIndex />} />
           <Route path="/artists" element={<ArtistsIndex />} />
           <Route path="/store" element={<StoreIndex />} />
-          <Route path="/store/services" element={<StoreIndex />} />
-          <Route path="/store/music" element={<StoreIndex />} />
-          <Route path="/store/classes" element={<StoreIndex />} />
-          <Route path="/store/feedback" element={<StoreIndex />} />
-          <Route path="/store/accessories" element={<StoreIndex />} />
-          <Route path="/store/gear" element={<StoreIndex />} />
+          <Route path="/store/:type" element={<CategoryView />} />
           <Route path="/:username/products/new" element={<RequireAuth><ProductNew /></RequireAuth>} />
           <Route path="/:username/products/gear/new" element={<RequireAuth><GearForm /></RequireAuth>} />
           <Route path="/:username/products/music/new" element={<RequireAuth><MusicForm /></RequireAuth>} />

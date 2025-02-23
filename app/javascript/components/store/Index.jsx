@@ -1,12 +1,14 @@
-import React from "react"
+import React, { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { useInfiniteScroll } from "../../hooks/useInfiniteScroll"
+import { get } from "@rails/request.js"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card"
 import { Button } from "../ui/button"
 import { Skeleton } from "../ui/skeleton"
 import { useNavigate, useLocation } from "react-router-dom"
-
+import CategoryCarousel from "./CategoryCarousel"
+import CategoryGrid from "./CategoryGrid"
 
 const container = {
   hidden: { opacity: 0 },
@@ -90,11 +92,44 @@ const StoreIndex = () => {
   const location = useLocation()
   const currentCategory = CATEGORIES.find(cat => cat.path === location.pathname) || CATEGORIES[0]
   
+  const [categoryProducts, setCategoryProducts] = useState({})
+  const [loadingCategories, setLoadingCategories] = useState(true)
+
   const { 
     items: products, 
     loading, 
     lastElementRef 
   } = useInfiniteScroll(currentCategory.path + ".json")
+
+  useEffect(() => {
+    const fetchCategoryProducts = async () => {
+      setLoadingCategories(true)
+      try {
+        const responses = await Promise.all(
+          CATEGORIES.slice(1).map(category => 
+            get(category.path + ".json", { query: { per_page: 10 } })
+          )
+        )
+        
+        const results = await Promise.all(
+          responses.map(response => response.json)
+        )
+        
+        const categoryData = CATEGORIES.slice(1).reduce((acc, category, index) => ({
+          ...acc,
+          [category.id]: results[index].collection
+        }), {})
+        
+        setCategoryProducts(categoryData)
+      } catch (error) {
+        console.error("Error fetching category products:", error)
+      } finally {
+        setLoadingCategories(false)
+      }
+    }
+
+    fetchCategoryProducts()
+  }, [])
 
   const handleTabChange = (value) => {
     const category = CATEGORIES.find(cat => cat.id === value)
@@ -103,13 +138,18 @@ const StoreIndex = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <motion.h1 
-        className="text-4xl font-bold mb-8 text-center"
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-      >
-        Store
-      </motion.h1>
+      <CategoryGrid />
+
+      <div className="mb-16 mt-20">
+        {CATEGORIES.slice(1).map(category => (
+          <CategoryCarousel
+            key={category.id}
+            title={category.name}
+            products={categoryProducts[category.id]}
+            loading={loadingCategories}
+          />
+        ))}
+      </div>
 
       <Tabs 
         value={currentCategory.id} 
