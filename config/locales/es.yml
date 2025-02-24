@@ -1641,3 +1641,44 @@ es:
         return_to_cart: "Volver al Carrito"
         continue_shopping: "Continuar Comprando"
         support_message: "Si continúas experimentando problemas, por favor contacta a nuestro equipo de soporte."
+    accessory:
+      show:
+        about: "Acerca de"
+        description: "Descripción"
+        details: "Detalles"
+        shipping: "Envío"
+        add_to_cart: "Añadir al Carrito"
+    music:
+      show:
+        about: "Acerca de"
+        description: "Descripción"
+        tracks: "Pistas"
+        condition: "Condición"
+        limited_edition: "Edición Limitada"
+        shipping: "Envío"
+        add_to_cart: "Añadir al Carrito"
+        details: "Detalles"
+    gear:
+      show:
+        about: "Acerca de"
+        description: "Descripción"
+        details: "Detalles"
+        brand: "Marca"
+        condition: "Condición"
+        model: "Modelo"
+        shipping: "Envío"
+        add_to_cart: "Añadir al Carrito"
+        year: "Año"
+    service:
+      delivery_methods:
+        online: "Reunión Virtual"
+        in_person: "Presencial"
+      show:
+        about: "Acerca de"
+        what_you_get: "Lo que Recibes"
+        what_to_expect: "Qué Esperar"
+        description: "Descripción"
+        cancellation_policy: "Política de Cancelación"
+        duration: "Duración"
+        book_now: "Reservar Ahora"
+        details: "Detalles"

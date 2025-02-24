@@ -115,12 +115,15 @@ es:
       pricing:
         title: "Precios"
         price: "Precio"
+        sku: SKU
+        stock_quantity: "Cantidad en Stock"
         compare_at_price: "Precio de comparación"
         accept_barter: "Aceptar trueques"
         barter_description: "Descripción del trueque"
         barter_description_placeholder: "Describe qué tipo de equipos aceptarías como trueque..."
       shipping:
         title: "Envíos"
+        shipping_days: "Días de Envío"
         shipping_cost: "Costo de envío"
         ships_internationally: "Envíos internacionales"
         international_shipping_cost: "Costo de envío internacional"
@@ -142,6 +145,9 @@ es:
         brand: "Marca"
         model: "Modelo"
         year: "Año"
+        status: "Estado"
+        submit: "Guardar"
+        select_status: "Seleccionar estado"
         condition: "Condición"
         select_condition: "Seleccionar condición"
         title: "Título"

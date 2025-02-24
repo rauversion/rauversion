@@ -90,7 +90,7 @@ export default function GearShow({ product }) {
           className="mb-4"
         >
           <ChevronLeft className="h-4 w-4 mr-2" />
-          {I18n.t('common.back')}
+          {I18n.t('back')}
         </Button>
 
         <div className="flex items-center justify-between">
