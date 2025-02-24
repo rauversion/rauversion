@@ -46,6 +46,30 @@ es:
         provider_notes: "Notas del Proveedor"
         search_placeholder: "Buscar en la tienda..."
 
+      new:
+        title: "Nuevo Servicio"
+      form:
+        category: "Tipo de servicio"
+        select_category: "Seleccionar tipo de servicio"
+        delivery_method: "Método de entrega"
+        select_delivery_method: "Seleccionar método de entrega"
+        title: "Título"
+        prerequisities: "Requisitos previos"
+        description: "Descripción"
+        duration: "Duración (minutos)"
+        max_participants: "Máximo de participantes"
+        details: "Detalles del servicio"
+        prerequisites: "Requisitos previos"
+        prerequisites_placeholder: "Lista los requisitos o conocimientos necesarios..."
+        what_to_expect: "Qué esperar"
+        what_to_expect_placeholder: "Describe lo que los participantes pueden esperar..."
+        cancellation_policy: "Política de cancelación"
+        cancellation_policy_placeholder: "Describe tu política de cancelación y reembolsos..."
+
+      show:
+        prerequisites: "Requisitos previos"
+        what_to_expect: "Qué esperar"
+
     gear:
       index:
         gear: "Equipamiento"
@@ -84,6 +108,25 @@ es:
           good: "Bueno"
           fair: "Regular"
           poor: "Malo"
+
+      show:
+        business_days: "Días hábiles"
+        shipping_cost: "Costo de envío"
+      new:
+        title: "Nuevo Equipamiento Musical"
+      form:
+        category: "Categoría"
+        select_category: "Seleccionar categoría"
+        brand: "Marca"
+        model: "Modelo"
+        year: "Año"
+        status: "Estado"
+        submit: "Guardar"
+        select_status: "Seleccionar estado"
+        condition: "Condición"
+        select_condition: "Seleccionar condición"
+        title: "Título"
+        description: "Descripción"
 
     index:
       products: "Productos"
@@ -136,23 +179,6 @@ es:
         drag_or_click: "Arrastra fotos o haz clic para subirlas"
         uploading: "Subiendo fotos..."
 
-    gear:
-      new:
-        title: "Nuevo Equipamiento Musical"
-      form:
-        category: "Categoría"
-        select_category: "Seleccionar categoría"
-        brand: "Marca"
-        model: "Modelo"
-        year: "Año"
-        status: "Estado"
-        submit: "Guardar"
-        select_status: "Seleccionar estado"
-        condition: "Condición"
-        select_condition: "Seleccionar condición"
-        title: "Título"
-        description: "Descripción"
-
     music:
       new:
         title: "Nuevo Producto Musical"
@@ -164,10 +190,21 @@ es:
         title: "Título"
         description: "Descripción"
         include_digital: "Incluir álbum digital"
-
+      formats:
+        vinyl: "Vinilo"
+        cassette: "Casette"
+        cd: "CD"
+        blue_ray: "Blue Ray"
+        digital: "Digital"
+        other: "Otro"
     merch:
       new:
         title: "Nueva Mercancía"
+      show:
+        about: "Acerca de"
+        details: "Detalles"
+        shipping: "Envíos"
+        add_to_cart: "Agregar al Carrito"
       form:
         title: "Título"
         description: "Descripción"
@@ -186,24 +223,3 @@ es:
         description: "Descripción"
         brand: "Marca"
         model: "Modelo"
-
-    service:
-      new:
-        title: "Nuevo Servicio"
-      form:
-        category: "Tipo de servicio"
-        select_category: "Seleccionar tipo de servicio"
-        delivery_method: "Método de entrega"
-        select_delivery_method: "Seleccionar método de entrega"
-        title: "Título"
-        prerequisities: "Requisitos previos"
-        description: "Descripción"
-        duration: "Duración (minutos)"
-        max_participants: "Máximo de participantes"
-        details: "Detalles del servicio"
-        prerequisites: "Requisitos previos"
-        prerequisites_placeholder: "Lista los requisitos o conocimientos necesarios..."
-        what_to_expect: "Qué esperar"
-        what_to_expect_placeholder: "Describe lo que los participantes pueden esperar..."
-        cancellation_policy: "Política de cancelación"
-        cancellation_policy_placeholder: "Describe tu política de cancelación y reembolsos..."

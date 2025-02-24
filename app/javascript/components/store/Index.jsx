@@ -39,32 +39,56 @@ const ProductCard = ({ product }) => {
   return (
     <motion.div variants={item}>
       <Card className="overflow-hidden">
-        {product.cover_url?.medium && (
-          <div className="aspect-square overflow-hidden">
+        <div className="relative h-[300px] overflow-hidden">
+          {product.cover_url?.medium && (
             <img 
               src={product.cover_url.medium} 
               alt={product.title}
-              className="w-full h-full object-cover transition-transform hover:scale-105"
+              className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
             />
-          </div>
-        )}
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        </div>
+        
         <CardHeader>
-          <CardTitle className="line-clamp-1">{product.title}</CardTitle>
+          <div className="flex items-center justify-between mb-2">
+            <CardTitle className="line-clamp-1 flex-1">{product.title}</CardTitle>
+            <p className="text-2xl font-bold ml-3 whitespace-nowrap">${product.price}</p>
+          </div>
           <CardDescription className="line-clamp-2">{product.description}</CardDescription>
         </CardHeader>
+
         <CardContent>
           <div className="flex items-center justify-between">
-            <p className="text-2xl font-bold">${product.price}</p>
-            <div className="flex items-center space-x-2">
-              <img 
-                src={product.user.avatar_url.small} 
-                alt={product.user.username}
-                className="w-8 h-8 rounded-full"
-              />
-              <span className="text-sm text-gray-500">{product.user.username}</span>
-            </div>
+            <button 
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/${product.user.username}`);
+              }}
+              className="flex items-center space-x-2 hover:opacity-80 transition-opacity group/user"
+            >
+              <div className="relative">
+                <img 
+                  src={product.user.avatar_url.small} 
+                  alt={product.user.username}
+                  className="w-10 h-10 rounded-full border-2 border-gray-200"
+                />
+                <div className="absolute -bottom-1 -right-1 w-5 h-5 bg-primary rounded-full flex items-center justify-center">
+                  <span className="text-[10px] text-white font-medium">P</span>
+                </div>
+              </div>
+              <div className="flex flex-col">
+                <span className="text-sm font-medium group-hover/user:text-primary transition-colors">
+                  {product.user.username}
+                </span>
+                <span className="text-xs text-muted-foreground">
+                  Product Creator
+                </span>
+              </div>
+            </button>
           </div>
         </CardContent>
+
         <CardFooter>
           <Button 
             className="w-full"

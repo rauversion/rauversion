@@ -51,64 +51,88 @@ function LoadingSkeleton() {
 
 function ArticleCard({ article, featured = false }) {
   return (
-    <Link to={`/articles/${article.slug}`}>
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        whileHover={{ scale: 1.02 }}
-        className={`group relative bg-default border border-default/10 rounded-xl overflow-hidden hover:border-default/30 transition-all duration-300 ${
-          featured ? 'col-span-2 row-span-2' : ''
-        }`}
-      >
-        <div className={`relative ${featured ? 'aspect-[16/9]' : 'aspect-[4/3]'}`}>
-          {/* Background Image with Gradient */}
+    <motion.div 
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      whileHover={{ scale: 1.02 }}
+      className={`group bg-default border border-default/10 rounded-xl overflow-hidden hover:border-default/30 transition-all duration-300 ${
+        featured ? 'col-span-2 row-span-2' : ''
+      }`}
+    >
+      {/* Image Container */}
+      <Link to={`/articles/${article.slug}`}>
+        <div className={`${featured ? 'aspect-[16/9]' : 'aspect-[4/3]'} relative`}>
           <img 
             src={article.cover_url?.horizontal || article.cover_url} 
             alt={article.title}
-            className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-300" 
+            className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-all duration-300" 
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-60 group-hover:opacity-80 transition-all duration-300" />
-          
-          {/* Content */}
-          <div className="absolute inset-x-0 bottom-0 p-6">
-            <div className="space-y-4">
-              {/* Category Badge */}
-              {article.category && (
-                <Badge 
-                  variant="outline" 
-                  className="bg-default text-default border-default text-xs font-mono uppercase tracking-wider"
-                >
-                  {article.category.name}
-                </Badge>
-              )}
-
-              {/* Title */}
-              <h3 className={`font-white tracking-tight text-white line-clamp-2 mix-blend-difference ${
-                featured ? 'text-4xl md:text-5xl' : 'text-xl'
-              }`}>
-                {article.title}
-              </h3>
-
-              {/* Excerpt */}
-              <p className="text-gray-300 line-clamp-2 font-mono">
-                {article.excerpt}
-              </p>
-
-              {/* Metadata */}
-              <div className="flex items-center gap-3 text-sm text-gray-400 font-mono">
-                <span>{new Date(article.created_at).toLocaleDateString()}</span>
-                {article.reading_time && (
-                  <>
-                    <span className="w-1 h-1 rounded-full bg-gray-500" />
-                    <span>{article.reading_time} min read</span>
-                  </>
-                )}
-              </div>
+          {/* Category Badge - Positioned on image */}
+          {article.category && (
+            <div className="absolute top-4 left-4">
+              <Badge 
+                variant="outline" 
+                className="bg-white/90 text-black border-white/20 text-xs font-mono uppercase tracking-wider backdrop-blur-sm"
+              >
+                {article.category.name}
+              </Badge>
             </div>
-          </div>
+          )}
         </div>
-      </motion.div>
-    </Link>
+      </Link>
+      
+      {/* Content */}
+      <div className="p-6 space-y-5">
+        <Link to={`/articles/${article.slug}`}>
+          {/* Title */}
+          <h3 className={`tracking-tight text-default font-semibold line-clamp-2 ${
+            featured ? 'text-3xl md:text-4xl' : 'text-xl'
+          }`}>
+            {article.title}
+          </h3>
+
+          {/* Excerpt */}
+          <p className="text-default/70 line-clamp-2 font-mono mt-2">
+            {article.excerpt}
+          </p>
+        </Link>
+
+        <div className="flex items-center justify-between pt-4 border-t border-default/10">
+          {/* Author Info */}
+          <Link 
+            to={`/${article.author?.username}`}
+            className="flex items-center gap-3 group/author"
+          >
+            <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-default/10 group-hover/author:border-default/30 transition-colors">
+              <img 
+                src={article.author?.avatar_url.medium || '/default-avatar.png'} 
+                alt={article.author?.name || 'Author'} 
+                className="w-full h-full object-cover"
+              />
+            </div>
+            <div>
+              <p className="font-medium text-default group-hover/author:text-primary transition-colors">
+                {article.author?.name || 'Anonymous'}
+              </p>
+              <p className="text-xs text-default/60 font-mono">
+                {new Date(article.created_at).toLocaleDateString('en-US', { 
+                  month: 'long',
+                  day: 'numeric',
+                  year: 'numeric'
+                })}
+              </p>
+            </div>
+          </Link>
+
+          {/* Reading Time */}
+          {article.reading_time && (
+            <div className="text-xs text-default/60 font-mono px-3 py-1 rounded-full border border-default/10">
+              {article.reading_time} min read
+            </div>
+          )}
+        </div>
+      </div>
+    </motion.div>
   )
 }
 

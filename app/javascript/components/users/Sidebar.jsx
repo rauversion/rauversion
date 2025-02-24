@@ -3,9 +3,9 @@ import { Link } from 'react-router-dom'
 
 export default function Sidebar({ user }) {
   return (
-    <div className="hidden w-2/5 xl:block xl:col-span-4 bg-gray-50 dark:bg-black">
+    <div className="hidden w-2/5 xl:block xl:col-span-4 bg-default rounded-md">
       <div className="sticky top-4 space-y-4 p-4">
-        <div className="p-4 border-l-1 border-l-gray-50 dark:border-l-gray-800">
+        {/*<div className="p-4 border-l-1 border-l-gray-50 dark:border-l-gray-800">
           <div className="grid grid-cols-3 divide-x dark:divide-gray-700">
             <div className="p-4">
               <p className="text-base font-medium text-gray-900 dark:text-gray-100">
@@ -36,9 +36,9 @@ export default function Sidebar({ user }) {
               </span>
             </div>
           </div>
-        </div>
+        </div>*/}
 
-        <p className="font-normal text-sm text-subtle mb-2 text-ellipsis overflow-hidden h-56">
+        <p className="font-normal text-xl text-subtle mb-2 text-ellipsis overflow-hidden h-56">
           {user?.bio}
         </p>
 
