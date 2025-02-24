@@ -23,6 +23,8 @@ module Products
 
     private
 
+    
+
     def set_music_defaults
       self.include_digital_album = true if include_digital_album.nil?
     end

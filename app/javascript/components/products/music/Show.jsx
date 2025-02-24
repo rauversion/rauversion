@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/table"
 import useAuthStore from '@/stores/authStore'
 import I18n from '@/stores/locales'
+import useCartStore from '@/stores/cartStore'
 
 const FORMAT_ICONS = {
   vinyl: <Disc className="h-4 w-4" />,
@@ -55,6 +56,7 @@ const CONDITION_LABELS = {
 export default function MusicShow({ product }) {
   const navigate = useNavigate()
   const { currentUser } = useAuthStore()
+  const { addToCart } = useCartStore()
 
   const formatDuration = (seconds) => {
     const minutes = Math.floor(seconds / 60)
@@ -222,7 +224,7 @@ export default function MusicShow({ product }) {
               </div>
 
               {product.stock_quantity > 0 && (
-                <Button className="w-full" size="lg">
+                <Button onClick={()=> addToCart(product.id)} className="w-full" size="lg">
                   {I18n.t('products.music.show.add_to_cart')}
                 </Button>
               )}

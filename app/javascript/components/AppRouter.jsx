@@ -78,6 +78,8 @@ import MerchForm from "./products/merch/Form"
 import AccessoryForm from "./products/accessory/Form"
 import ServiceForm from "./products/service/Form"
 import AlbumShow from "./albums/AlbumShow"
+import { ServiceBookings } from "./ServiceBookings"
+import { ServiceBookingDetail } from "./ServiceBookings/ServiceBookingDetail"
 import NewTrack from "./tracks/NewTrack"
 import CategoryView from "./store/CategoryView"
 
@@ -229,6 +231,9 @@ function AppContent() {
 
           <Route path="/checkout/success" element={<CheckoutSuccess />} />
           <Route path="/checkout/failure" element={<CheckoutFailure />} />
+
+          <Route path="/service_bookings" element={<RequireAuth><ServiceBookings /></RequireAuth>} />
+          <Route path="/service_bookings/:id" element={<RequireAuth><ServiceBookingDetail /></RequireAuth>} />
 
           <Route path="/:username/*" element={<UserShow />}>
             <Route index element={<UserHome />} />

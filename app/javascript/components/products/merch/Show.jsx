@@ -29,6 +29,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import useAuthStore from '@/stores/authStore'
 import I18n from '@/stores/locales'
+import useCartStore from '@/stores/cartStore'
 
 const CATEGORY_ICONS = {
   't-shirts': <Shirt className="h-4 w-4" />,
@@ -49,6 +50,7 @@ const CATEGORY_LABELS = {
 export default function MerchShow({ product }) {
   const navigate = useNavigate()
   const { currentUser } = useAuthStore()
+  const { addToCart } = useCartStore()
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -156,7 +158,7 @@ export default function MerchShow({ product }) {
               <Separator />
 
               {product.stock_quantity > 0 && (
-                <Button className="w-full" size="lg">
+                <Button onClick={()=> addToCart(product.id)} className="w-full" size="lg">
                   {I18n.t('products.merch.show.add_to_cart')}
                 </Button>
               )}

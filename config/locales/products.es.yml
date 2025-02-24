@@ -196,6 +196,7 @@ es:
         delivery_method: "Método de entrega"
         select_delivery_method: "Seleccionar método de entrega"
         title: "Título"
+        prerequisities: "Requisitos previos"
         description: "Descripción"
         duration: "Duración (minutos)"
         max_participants: "Máximo de participantes"

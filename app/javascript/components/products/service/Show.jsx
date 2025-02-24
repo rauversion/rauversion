@@ -21,6 +21,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import useAuthStore from '@/stores/authStore'
 import I18n from '@/stores/locales'
+import useCartStore from '@/stores/cartStore'
 
 const DELIVERY_METHOD_ICONS = {
   online: <Globe className="h-4 w-4" />,
@@ -37,6 +38,7 @@ const DELIVERY_METHOD_LABELS = {
 export default function ServiceShow({ product }) {
   const navigate = useNavigate()
   const { currentUser } = useAuthStore()
+  const { addToCart } = useCartStore()
 
   const formatDuration = (minutes) => {
     const hours = Math.floor(minutes / 60)
@@ -187,7 +189,7 @@ export default function ServiceShow({ product }) {
               <Separator />
 
               {product.stock_quantity > 0 && (
-                <Button className="w-full" size="lg">
+                <Button onClick={()=> addToCart(product.id)} className="w-full" size="lg">
                   {I18n.t('products.service.show.book_now')}
                 </Button>
               )}

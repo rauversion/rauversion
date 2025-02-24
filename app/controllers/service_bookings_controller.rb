@@ -16,19 +16,48 @@ class ServiceBookingsController < ApplicationController
 
     @service_bookings = @service_bookings.includes(:service_product, :customer, :provider)
                                        .order(created_at: :desc)
+
+    respond_to do |format|
+      format.html
+      format.json
+    end
   end
 
   def show
+    respond_to do |format|
+      format.html
+      format.json
+    end
   end
 
   def confirm
     if @service_booking.pending_confirmation?
-      @service_booking.update!(status: :confirmed)
-      flash[:notice] = t('.success')
+      if @service_booking.update(status: :confirmed)
+        respond_to do |format|
+          format.html do
+            flash[:notice] = t('.success')
+            redirect_to service_bookings_path
+          end
+          format.json { render json: { success: true, message: t('.success') } }
+        end
+      else
+        respond_to do |format|
+          format.html do
+            flash[:alert] = @service_booking.errors.full_messages.to_sentence
+            redirect_to service_bookings_path
+          end
+          format.json { render json: { success: false, errors: @service_booking.errors.full_messages }, status: :unprocessable_entity }
+        end
+      end
     else
-      flash[:alert] = t('.invalid_status')
+      respond_to do |format|
+        format.html do
+          flash[:alert] = t('.invalid_status')
+          redirect_to service_bookings_path
+        end
+        format.json { render json: { success: false, error: t('.invalid_status') }, status: :unprocessable_entity }
+      end
     end
-    redirect_to service_bookings_path
   end
 
   def schedule_form
@@ -41,48 +70,112 @@ class ServiceBookingsController < ApplicationController
 
   def schedule
     if @service_booking.confirmed?
-      if @service_booking.update(schedule_params)
-        @service_booking.update!(status: :scheduled)
-        flash[:notice] = t('.success')
+      if @service_booking.update(schedule_params.merge(status: :scheduled))
+        respond_to do |format|
+          format.html do
+            flash[:notice] = t('.success')
+            redirect_to service_bookings_path
+          end
+          format.json { render json: { success: true, message: t('.success') } }
+        end
       else
-        flash[:alert] = @service_booking.errors.full_messages.to_sentence
+        respond_to do |format|
+          format.html do
+            flash[:alert] = @service_booking.errors.full_messages.to_sentence
+            redirect_to service_bookings_path
+          end
+          format.json { render json: { success: false, errors: @service_booking.errors.full_messages }, status: :unprocessable_entity }
+        end
       end
     else
-      flash[:alert] = t('.invalid_status')
+      respond_to do |format|
+        format.html do
+          flash[:alert] = t('.invalid_status')
+          redirect_to service_bookings_path
+        end
+        format.json { render json: { success: false, error: t('.invalid_status') }, status: :unprocessable_entity }
+      end
     end
-    redirect_to service_bookings_path
   end
 
   def complete
     if @service_booking.scheduled?
-      @service_booking.update!(status: :completed)
-      flash[:notice] = t('.success')
+      if @service_booking.update(status: :completed)
+        respond_to do |format|
+          format.html do
+            flash[:notice] = t('.success')
+            redirect_to service_bookings_path
+          end
+          format.json { render json: { success: true, message: t('.success') } }
+        end
+      else
+        respond_to do |format|
+          format.html do
+            flash[:alert] = @service_booking.errors.full_messages.to_sentence
+            redirect_to service_bookings_path
+          end
+          format.json { render json: { success: false, errors: @service_booking.errors.full_messages }, status: :unprocessable_entity }
+        end
+      end
     else
-      flash[:alert] = t('.invalid_status')
+      respond_to do |format|
+        format.html do
+          flash[:alert] = t('.invalid_status')
+          redirect_to service_bookings_path
+        end
+        format.json { render json: { success: false, error: t('.invalid_status') }, status: :unprocessable_entity }
+      end
     end
-    redirect_to service_bookings_path
   end
 
   def cancel
     if @service_booking.may_cancel?
-      @service_booking.update!(
+      if @service_booking.update(
         status: :cancelled,
         cancelled_by: current_user,
         cancellation_reason: params[:cancellation_reason]
       )
-      flash[:notice] = t('.success')
+        respond_to do |format|
+          format.html do
+            flash[:notice] = t('.success')
+            redirect_to service_bookings_path
+          end
+          format.json { render json: { success: true, message: t('.success') } }
+        end
+      else
+        respond_to do |format|
+          format.html do
+            flash[:alert] = @service_booking.errors.full_messages.to_sentence
+            redirect_to service_bookings_path
+          end
+          format.json { render json: { success: false, errors: @service_booking.errors.full_messages }, status: :unprocessable_entity }
+        end
+      end
     else
-      flash[:alert] = t('.invalid_status')
+      respond_to do |format|
+        format.html do
+          flash[:alert] = t('.invalid_status')
+          redirect_to service_bookings_path
+        end
+        format.json { render json: { success: false, error: t('.invalid_status') }, status: :unprocessable_entity }
+      end
     end
-    redirect_to service_bookings_path
   end
 
   def update
     @service_booking = ServiceBooking.find(params[:id])
     if @service_booking.update(schedule_params)
-      redirect_to service_bookings_path, notice: t('.feedback_submitted')
+      respond_to do |format|
+        format.html do
+          redirect_to service_bookings_path, notice: t('.feedback_submitted')
+        end
+        format.json { render json: { success: true, message: t('.feedback_submitted') } }
+      end
     else
-      render :show, status: :unprocessable_entity
+      respond_to do |format|
+        format.html { render :show, status: :unprocessable_entity }
+        format.json { render json: { success: false, errors: @service_booking.errors.full_messages }, status: :unprocessable_entity }
+      end
     end
   end
 
