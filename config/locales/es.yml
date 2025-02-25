@@ -914,6 +914,7 @@ es:
       username: "@%{username}"
       tracks_count: "%{count} pistas"
       albums_count: "%{count} álbumes"
+      impersonate: Impersonar
       label:
         back_to_label: Volver al sello
         name: "%{name}"

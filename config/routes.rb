@@ -148,10 +148,13 @@ Rails.application.routes.draw do
     end
   end
 
-  devise_for :users, controllers: {
+  devise_for :users, 
+  defaults: { format: :json },
+  controllers: {
     omniauth_callbacks: "users/omniauth_callbacks",
     registrations: "users/registrations",
-    sessions: "users/sessions"
+    sessions: "users/sessions",
+    passwords: "users/passwords"
     # :invitations => 'users/invitations'
   }
 

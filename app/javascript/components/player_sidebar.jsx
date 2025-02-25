@@ -108,7 +108,7 @@ const PlayerSidebar = () => {
                   }`}>
                     {track.title}
                   </span>
-                  <span className="text-xs text-muted-foreground truncate">
+                  <span className="text-xs text-left text-muted-foreground truncate">
                     {track.user.username}
                   </span>
                 </div>

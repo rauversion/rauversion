@@ -39,31 +39,18 @@ export default function ProductItem({ product, elementRef }) {
       transition={{ duration: 0.3 }}
       className="group relative bg-card rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 flex flex-col"
     >
-      <div className="relative h-[300px] w-full overflow-hidden">
-        <motion.div
-          className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 flex items-center justify-center gap-3"
-        >
-          <Button
-            variant="secondary"
-            size="icon"
-            className="rounded-full bg-white/90 hover:bg-white shadow-md"
-            onClick={handleAddToCart}
-          >
-            <ShoppingCart className="h-4 w-4" />
-          </Button>
-          <Link
-            to={`/${product.user.username}/products/${product.slug}`}
-            className="inline-flex items-center justify-center rounded-full w-10 h-10 bg-white/90 text-gray-900 hover:bg-white shadow-md transition-all"
-          >
-            <Eye className="h-4 w-4" aria-label={I18n.t('products.quick_view')} />
-          </Link>
-        </motion.div>
-        <img
-          src={coverImage}
-          alt={product.title}
-          className="h-full w-full object-cover object-center transform group-hover:scale-110 transition-transform duration-500"
-        />
-      </div>
+      <Link 
+        to={`/${product.user.username}/products/${product.slug}`}
+        className="block flex-1"
+      >
+        <div className="relative h-[300px] w-full overflow-hidden">
+          <img
+            src={coverImage}
+            alt={product.title}
+            className="h-full w-full object-cover object-center transform group-hover:scale-110 transition-transform duration-500"
+          />
+        </div>
+      </Link>
       <div className="p-5 flex-1 flex flex-col">
         <div className="flex-1">
           <div className="flex items-start justify-between mb-3">
