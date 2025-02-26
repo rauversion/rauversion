@@ -2,7 +2,7 @@ import React from "react"
 import { motion } from "framer-motion"
 import { Card } from "../ui/card"
 import { useNavigate } from "react-router-dom"
-import { Music, Headphones, Wrench, Piano, Package, Sticker, HandHeart } from "lucide-react"
+import { Music, Piano, Package, Sticker, HandHeart } from "lucide-react"
 
 const container = {
   hidden: { opacity: 0 },
@@ -64,8 +64,10 @@ const CategoryGrid = () => {
   return (
     <div className="mb-16">
       <div className="flex flex-col items-center mb-12">
-        <h1 className="text-5xl font-bold mb-4">Store.</h1>
-        <p className="text-2xl text-gray-600">The best way to buy the products you love.</p>
+        <h1 className="text-5xl font-bold mb-4">Rau Store.</h1>
+        <p className="text-2xl text-gray-600">
+          The best way to buy the products you love.
+        </p>
       </div>
 
       <motion.div 
@@ -83,9 +85,9 @@ const CategoryGrid = () => {
               onClick={() => navigate(category.path)}
               className="cursor-pointer"
             >
-              <Card className="p-6 h-full hover:bg-gray-50 transition-colors">
+              <Card className="p-6 h-full hover:bg-muted transition-colors">
                 <div className={`w-16 h-16 rounded-full ${category.color} flex items-center justify-center mb-4`}>
-                  <Icon className="w-8 h-8 text-white" />
+                  <Icon className="w-8 h-8 text-default" />
                 </div>
                 <h3 className="text-xl font-semibold">{category.name}</h3>
               </Card>
@@ -96,7 +98,7 @@ const CategoryGrid = () => {
 
       <div className="flex justify-between items-center mt-8 px-4">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
             <span className="text-sm">?</span>
           </div>
           <div>
@@ -106,7 +108,7 @@ const CategoryGrid = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
+          <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
             <span className="text-sm">📍</span>
           </div>
           <div>
