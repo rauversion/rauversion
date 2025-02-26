@@ -1,0 +1,210 @@
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="max-w-3xl mx-auto">
+    <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
+      <div class="p-6">
+        <div class="flex justify-between items-start mb-6">
+          <h1 class="text-2xl font-bold"><%= t('.title') %></h1>
+          <span class="px-3 py-1 rounded-full text-sm font-semibold
+            <%= case @service_booking.status
+                when 'pending_confirmation' then 'bg-yellow-100 text-yellow-800'
+                when 'confirmed' then 'bg-blue-100 text-blue-800'
+                when 'scheduled' then 'bg-purple-100 text-purple-800'
+                when 'in_progress' then 'bg-indigo-100 text-indigo-800'
+                when 'completed' then 'bg-green-100 text-green-800'
+                when 'cancelled' then 'bg-red-100 text-red-800'
+                when 'refunded' then 'bg-gray-100 text-gray-800'
+                end %>">
+            <%= t("service_bookings.statuses.#{@service_booking.status}") %>
+          </span>
+        </div>
+
+        <%# Service Details %>
+        <div class="mb-8">
+          <h2 class="text-lg font-semibold mb-4"><%= @service_booking.service_product.title %></h2>
+          <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <span class="text-gray-500"><%= t('activerecord.attributes.products/service_product.category') %>:</span>
+              <span class="ml-2"><%= @service_booking.service_product.category.titleize %></span>
+            </div>
+            <div>
+              <span class="text-gray-500"><%= t('activerecord.attributes.products/service_product.delivery_method') %>:</span>
+              <span class="ml-2"><%= @service_booking.service_product.delivery_method.titleize %></span>
+            </div>
+            <div>
+              <span class="text-gray-500"><%= t('activerecord.attributes.products/service_product.duration_minutes') %>:</span>
+              <span class="ml-2"><%= @service_booking.service_product.duration_minutes %> minutes</span>
+            </div>
+            <% if @service_booking.service_product.classes? %>
+              <div>
+                <span class="text-gray-500"><%= t('activerecord.attributes.products/service_product.max_participants') %>:</span>
+                <span class="ml-2"><%= @service_booking.service_product.max_participants %></span>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <%# Scheduling Information - Only show if scheduled %>
+        <% if @service_booking.scheduled? %>
+          <div class="mb-8 p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+            <h3 class="font-semibold mb-4"><%= t('.scheduling.title') %></h3>
+            <div class="grid grid-cols-2 gap-4 text-sm">
+              <div>
+                <span class="text-gray-500"><%= t('.scheduling.date_label') %>:</span>
+                <span class="ml-2"><%= l(@service_booking.scheduled_date.to_date, format: :long) %></span>
+              </div>
+              <div>
+                <span class="text-gray-500"><%= t('.scheduling.time_label') %>:</span>
+                <span class="ml-2"><%= @service_booking.scheduled_time %></span>
+              </div>
+              <div>
+                <span class="text-gray-500"><%= t('.scheduling.timezone_label') %>:</span>
+                <span class="ml-2"><%= @service_booking.timezone %></span>
+              </div>
+              <% if @service_booking.meeting_link.present? %>
+                <div class="col-span-2">
+                  <span class="text-gray-500"><%= t('.scheduling.meeting_link_label') %>:</span>
+                  <a href="<%= @service_booking.meeting_link %>" target="_blank" class="ml-2 text-blue-600 hover:text-blue-800">
+                    <%= @service_booking.meeting_link %>
+                  </a>
+                </div>
+              <% end %>
+              <% if @service_booking.meeting_location.present? %>
+                <div class="col-span-2">
+                  <span class="text-gray-500"><%= t('.scheduling.meeting_location_label') %>:</span>
+                  <span class="ml-2"><%= @service_booking.meeting_location %></span>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <%# Customer Information %>
+        <div class="mb-8">
+          <h3 class="font-semibold mb-4"><%= t('.customer_info.title') %></h3>
+          <div class="grid grid-cols-1 gap-4 text-sm">
+            <div>
+              <span class="text-gray-500">Email:</span>
+              <span class="ml-2"><%= @service_booking.customer.email %></span>
+            </div>
+            <% if @service_booking.special_requirements.present? %>
+              <div>
+                <span class="text-gray-500"><%= t('.customer_info.special_requirements') %>:</span>
+                <p class="mt-1 text-gray-700 dark:text-gray-300">
+                  <%= @service_booking.special_requirements %>
+                </p>
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <%# Provider Actions - Only show to provider %>
+        <% if current_user == @service_booking.provider %>
+          <div class="border-t dark:border-gray-700 pt-6">
+            <h3 class="font-semibold mb-4"><%= t('.provider_section') %></h3>
+            
+            <div class="space-x-4">
+              <% if @service_booking.pending_confirmation? %>
+                <%= button_to t('.confirm_button'), 
+                    confirm_service_booking_path(@service_booking),
+                    method: :patch,
+                    class: "btn btn-primary" %>
+              <% end %>
+
+              <% if @service_booking.confirmed? %>
+                <%= button_to t('.schedule_button'),
+                    schedule_service_booking_path(@service_booking),
+                    method: :patch,
+                    class: "btn btn-primary",
+                    data: { 
+                      toggle: "modal",
+                      target: "#scheduleModal"
+                    } %>
+              <% end %>
+
+              <% if @service_booking.in_progress? %>
+                <%= button_to t('.complete_button'),
+                    complete_service_booking_path(@service_booking),
+                    method: :patch,
+                    class: "btn btn-success",
+                    data: { confirm: t('.complete_confirmation') } %>
+              <% end %>
+
+              <% unless @service_booking.completed? || @service_booking.cancelled? %>
+                <%= button_to t('.cancel_button'),
+                    cancel_service_booking_path(@service_booking),
+                    method: :patch,
+                    class: "btn btn-danger",
+                    data: { confirm: t('.cancel_confirmation') } %>
+              <% end %>
+            </div>
+
+            <%# Provider Notes - Only visible to provider %>
+            <% if @service_booking.provider_notes.present? %>
+              <div class="mt-6 p-4 bg-yellow-50 dark:bg-yellow-900 rounded-lg">
+                <h4 class="font-semibold mb-2"><%= t('.scheduling.notes_label') %></h4>
+                <p class="text-sm"><%= @service_booking.provider_notes %></p>
+              </div>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%# Schedule Modal - Only show to provider %>
+<% if current_user == @service_booking.provider && @service_booking.confirmed? %>
+  <div id="scheduleModal" class="modal fade" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><%= t('.scheduling.title') %></h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        
+        <%= form_with(model: @service_booking, 
+                      url: schedule_service_booking_path(@service_booking),
+                      method: :patch,
+                      local: true) do |f| %>
+          <div class="modal-body">
+            <div class="form-group">
+              <%= f.label :scheduled_date, t('.scheduling.date_label') %>
+              <%= f.date_field :scheduled_date, class: "form-control" %>
+            </div>
+
+            <div class="form-group">
+              <%= f.label :scheduled_time, t('.scheduling.time_label') %>
+              <%= f.time_field :scheduled_time, class: "form-control" %>
+            </div>
+
+            <% if ['online', 'both'].include?(@service_booking.service_product.delivery_method) %>
+              <div class="form-group">
+                <%= f.label :meeting_link, t('.scheduling.meeting_link_label') %>
+                <%= f.text_field :meeting_link, class: "form-control" %>
+              </div>
+            <% end %>
+
+            <% if ['in_person', 'both'].include?(@service_booking.service_product.delivery_method) %>
+              <div class="form-group">
+                <%= f.label :meeting_location, t('.scheduling.meeting_location_label') %>
+                <%= f.text_field :meeting_location, class: "form-control" %>
+              </div>
+            <% end %>
+
+            <div class="form-group">
+              <%= f.label :provider_notes, t('.scheduling.notes_label') %>
+              <%= f.text_area :provider_notes, class: "form-control" %>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <%= f.submit t('.schedule_button'), class: "btn btn-primary" %>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>

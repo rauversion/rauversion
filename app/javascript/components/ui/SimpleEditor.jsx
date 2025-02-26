@@ -54,8 +54,7 @@ export default function SimpleEditor({
   value, 
   onChange, 
   plain = false,
-  scope = 'default',
-  popup_menu = false
+  scope = 'default'
 }) {
   const [linkDialogOpen, setLinkDialogOpen] = useState(false)
   const [linkUrl, setLinkUrl] = useState('')
@@ -137,17 +136,19 @@ export default function SimpleEditor({
 
   if (!editor) return null
 
+
   return (
     <div className="border rounded-lg p-4">
-      {/* buttons */}
-      <div className="flex items-center gap-2 mb-4 border-b pb-4 overflow-auto">
+    
+      <div className="flex items-center gap-2 mb-4 border-b pb-4">
         <Button
           size="sm"
           variant={editor.isActive('bold') ? 'default' : 'outline'}
           onClick={(e) => {
             e.preventDefault()
-            editor.chain().focus().toggleBold().run()
-          }}
+
+            editor.chain().focus().toggleBold().run()}
+          }
         >
           Bold
         </Button>
@@ -156,8 +157,8 @@ export default function SimpleEditor({
           variant={editor.isActive('italic') ? 'default' : 'outline'}
           onClick={(e) => {
             e.preventDefault()  
-            editor.chain().focus().toggleItalic().run()
-          }}
+            editor.chain().focus().toggleItalic().run()}
+          }
         >
           Italic
         </Button>
@@ -165,9 +166,10 @@ export default function SimpleEditor({
           size="sm"
           variant={editor.isActive('heading', { level: 1 }) ? 'default' : 'outline'}
           onClick={(e) => {
-            e.preventDefault()
-            editor.chain().focus().toggleHeading({ level: 1 }).run()
-          }}
+              e.preventDefault()
+              editor.chain().focus().toggleHeading({ level: 1 }).run()
+            }
+          }
         >
           H1
         </Button>
@@ -175,9 +177,10 @@ export default function SimpleEditor({
           size="sm"
           variant={editor.isActive('heading', { level: 2 }) ? 'default' : 'outline'}
           onClick={(e) => {
-            e.preventDefault()
-            editor.chain().focus().toggleHeading({ level: 2 }).run()
-          }}
+              e.preventDefault()
+              editor.chain().focus().toggleHeading({ level: 2 }).run()
+            }
+          }
         >
           H2
         </Button>
@@ -186,8 +189,8 @@ export default function SimpleEditor({
           variant={editor.isActive('heading', { level: 3 }) ? 'default' : 'outline'}
           onClick={(e) => {
             e.preventDefault()
-            editor.chain().focus().toggleHeading({ level: 3 }).run()
-          }}
+            editor.chain().focus().toggleHeading({ level: 3 }).run()}
+          }
         >
           H3
         </Button>
@@ -196,8 +199,8 @@ export default function SimpleEditor({
           variant={editor.isActive('bulletList') ? 'default' : 'outline'}
           onClick={(e) => { 
             e.preventDefault()
-            editor.chain().focus().toggleBulletList().run()
-          }}
+            editor.chain().focus().toggleBulletList().run()}
+          }
         >
           Bullet List
         </Button>
@@ -206,8 +209,8 @@ export default function SimpleEditor({
           variant={editor.isActive('orderedList') ? 'default' : 'outline'}
           onClick={(e) => {
             e.preventDefault()
-            editor.chain().focus().toggleOrderedList().run()
-          }}
+            editor.chain().focus().toggleOrderedList().run()}
+          }
         >
           Ordered List
         </Button>
@@ -216,8 +219,8 @@ export default function SimpleEditor({
           variant={editor.isActive('link') ? 'default' : 'outline'}
           onClick={(e) => {
             e.preventDefault()
-            setLinkDialogOpen(true)
-          }}
+            setLinkDialogOpen(true)}
+          }
         >
           Link
         </Button>
@@ -226,21 +229,17 @@ export default function SimpleEditor({
           variant="outline"
           onClick={(e) => {
             e.preventDefault()
-            setAiDialogOpen(true)
-          }}
+            setAiDialogOpen(true)}
+          }
         >
           <Wand2 className="h-4 w-4" />
         </Button>
       </div>
-      {popup_menu && (
-        <div className="popup-menu">
-          <Button size="sm" onClick={() => {/* Handle custom action */}}>Custom Action</Button>
-          {/* Add more buttons as needed */}
-        </div>
-      )}
+
       <div className="min-h-[100px] border rounded-md">
         <EditorContent editor={editor} className="prose dark:prose-invert max-w-none p-3" />
       </div>
+
       <Dialog open={linkDialogOpen} onOpenChange={setLinkDialogOpen}>
         <DialogContent>
           <DialogHeader>

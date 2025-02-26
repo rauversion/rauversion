@@ -1,7 +1,7 @@
 en:
   hello: Hello world
   by: Por %{name}
-  see_everything: See all
+  see_everything: See All
   edit: Edit
   delete:
     confirm: Are you sure you want to delete this?
@@ -15,49 +15,55 @@ en:
   back: Return
   view_all: See all
   view: See
+  add_to_cart: Add to cart
   menu:
+    store: Store
+    profile: Profile
     my_label: My stamp
-    home: Home
+    home: Start/Beginning
     music: Music
     events: Events
     magazine: Magazine
     upload: Upload
     my_products_merch: My store
     register: Register
-    log_in: Log in
+    log_in: Sign in
     notifications: Notifications
     my_music: My music
     my_articles: My articles
     my_events: My events
     my_purchases: My purchases
     my_sales: My sales
-    my_products: My Products
+    my_products: My products
     settings: Settings
     log_out: Sign out
-    profile: Profile
     acting_on_behalf: Acting on behalf of
     back_to_label: "volver a: sello %{username}"
     language: Language
+    dark_mode: Dark mode
+    light_mode: Light mode
   notifications:
     title: Notifications
     mark_all_as_read: Mark all as read
   artists:
-    featured: Featured Artists
+    title: Artistas
+    description: Explore the most recent artists in the community
+    no_albums: No artists were found
   podcasters:
-    all: All hosts
+    all: All the hosts
     new_host: New host
     visit_site: Visit site
-    active_hint: Activating this option will make the podcast site available
+    active_hint: Activating this option will make the podcaster site available.
   articles:
     explore: Explore
     recent_publications: Recent publications
     selected_articles:
       Articles and selected reviews from the Rauversion community
-      and editorial team
+      and editorial
     the_latest: The last
     by: By
     read_now: Read Now
-    article_settings: Article settings
+    article_settings: Item setup
     my_articles: My articles
     drafts: Drafts
     published: Published
@@ -65,7 +71,7 @@ en:
     view: View Article
     blog_title: Blog de %{name}
     back_to_music: volver a la música de %{username}
-    no_articles: No items were found
+    no_articles: No articles were found
     loading: Loading...
     edit: Edit Article
     create: Create Article
@@ -90,7 +96,7 @@ en:
         draft: Draft
         published: Published
       empty:
-        title: There are no articles
+        title: There are no articles.
         description: Start writing your first article
       new_article: Write New Article
       edit_article: Edit Article
@@ -116,7 +122,7 @@ en:
         validation:
           title_min: The title must have at least 2 characters
       messages:
-        delete_confirm: Are you sure you want to delete this item?
+        delete_confirm: Are you sure you want to delete this article?
         delete_success: Article successfully deleted
         delete_error: The article could not be deleted
         save_success: Article saved successfully
@@ -140,14 +146,14 @@ en:
     some: Some rights reserved
     all: All rights reserved
   tickets:
-    checked_in: Tickets logged
-    all: All your tickets
+    checked_in: Entries recorded
+    all: All your entries
     title: Tickets
-    my: My Tickets
+    my: My Entries
   events:
     past: Past events
-    upcoming: Next events
-    upcoming_sub: Next events of the Rauversion community
+    upcoming: Upcoming events
+    upcoming_sub: Upcoming events of the Rauversion community
     speakers: Speakers
     people_attending: Attendees
     venue: enclosure
@@ -169,7 +175,7 @@ en:
         start_time:
           label: Start Time
         end_date:
-          label: End Date
+          label: Date of Completion
         end_time:
           label: End Time
         location:
@@ -180,19 +186,19 @@ en:
         events: Events
       settings:
         general:
-          title: General Settings
-          description: Configure basic event settings
+          title: General Configuration
+          description: Set up basic event settings
           url:
             label: URL of the Event
             description: The unique URL for your event
           remaining_tickets:
             label: Show Remaining Entries
-            description: Display the number of remaining entries for each type
+            description: Show the number of remaining entries for each type
           attendee_list:
-            label: Show List of Attendees
+            label: Display Attendee List
             description: Show the list of attendees on the event page
           comments:
-            label: Allow comments
+            label: Allow Comments
             description: Allow attendees to leave comments
           social_sharing:
             label: Share on Social Media
@@ -206,13 +212,13 @@ en:
           status: State
           purchase_date: Date of Purchase
           actions: Actions
-        title: Attendees at the Event
+        title: Attendees to the Event
         description: View and manage event attendees
         export: Export Attendee List
         search:
           placeholder: Search by name or email
           filter: Filter by state
-          all: All the States
+          all: All States
           button: Search
         status:
           attending: Attending
@@ -221,40 +227,44 @@ en:
           checked_in: Registrado a las %{time}
         messages:
           update_success: State of the assistant successfully updated
-          update_error: The assistant's status could not be updated
+          update_error: The assistant's status could not be updated.
           remove_confirm: Are you sure you want to delete this assistant?
           remove_success: Assistant successfully deleted
           remove_error: The assistant could not be deleted
       streaming:
         title: Live Broadcast
-        description: Set up live streaming settings
+        description: Configure live streaming settings
         platform:
           label: Transmission Platform
           description: Select your streaming platform
           options:
             twitch: Twitch
             youtube: YouTube
-            custom: Custom RTMP
+            custom: |-
+              RTMP Personalizado
+              Customized RTMP
         stream_key:
           label: Transmission Key
           description: Your unique transmission key
         embed_code:
           label: Insertion Code
-          description: Code to insert your transmission
+          description: Code to insert your broadcast
         status:
-          live: Live
-          offline: Offline
+          live: In Live
+          offline: Out of Line
         messages:
-          update_success: Transmission settings successfully updated
+          update_success: Transmission settings updated successfully
           update_error: The transmission settings could not be updated
       schedule:
         title: Schedule of the Event
-        description: Manage schedule and sessions of the event
+        description: Manage schedule and event sessions
         add_item: Add Item
         name: Name
-        date_time_range: Range of Date and Time
+        date_time_range: Date and Time Range
         schedulings:
-          title: Schedules
+          title: |-
+            Programaciones
+            Programming
           add: Add Programming
           name: Name
           short_description: Short Description
@@ -273,19 +283,19 @@ en:
         messages:
           add_success: Element successfully added
           add_error: It was not possible to add the item
-          update_success: Schedule successfully updated
+          update_success: Schedule updated successfully
           update_error: The schedule could not be updated
           remove_confirm: Are you sure you want to delete this item?
-          remove_success: Element successfully deleted
-          remove_error: The element could not be deleted
+          remove_success: Element removed successfully
+          remove_error: It was not possible to delete the element
       recordings:
         title: Recordings of the Event
-        description: Add recordings from Twitch, YouTube, or other platforms
+        description: Add recordings from Twitch, YouTube or other platforms
         add_recording: Add Recording
         edit_recording: Edit Recording
         dialog:
           add_description: Add a recording to highlight it on the event page
-          edit_description: Update the recording details
+          edit_description: Update the details of the recording
         form:
           title:
             label: Title
@@ -307,20 +317,20 @@ en:
             placeholder: Paste the embed code or URL here
             description:
               For YouTube/Twitch paste the embed code. For other platforms,
-              use the full HTML iframe code.
+              use the complete HTML iframe code.
             required: The iframe code is required
         buttons:
           add: Add Recording
           update: Update Recording
           edit: Edit
-          delete: Delete
+          delete: Eliminate
         messages:
           create_success: Recording created successfully
           update_success: Recording successfully updated
           delete_success: Recording successfully deleted
-          create_error: The recording could not be created
-          update_error: The recording could not be updated
-          delete_error: The recording could not be deleted
+          create_error: It was not possible to create the recording
+          update_error: Could not update the recording
+          delete_error: It was not possible to delete the recording
           delete_confirm: Are you sure you want to delete this recording?
           general_error: Something went wrong
       teams:
@@ -345,12 +355,12 @@ en:
           manager: Event Manager
         messages:
           invites_success: Invitations sent successfully
-          invites_error: The invitations could not be sent.
+          invites_error: The invitations could not be sent
           update_success: Team member successfully updated
           update_error: The team member could not be updated
           remove_success: Team member successfully eliminated
           remove_error: The team member could not be deleted
-          load_error: The team's data could not be loaded
+          load_error: The data of the team could not be loaded
         pending:
           title: Pending Invitations
           description: Invitations that have been sent but have not yet been accepted
@@ -362,7 +372,7 @@ en:
           title: Add Members to the Team
           description: Invite new people to help manage your event
           add_person: Add Person
-          email_placeholder: email@example.com
+          email_placeholder: email@ejemplo.com
           role_placeholder: Select role
           send_invitations: Send Invitations
         edit_member:
@@ -407,7 +417,7 @@ en:
           edit: Edit
           view: See
       location:
-        online: Event online
+        online: Online Event
         tbd: Location to be determined
       date:
         tbd: Date to be determined
@@ -421,7 +431,7 @@ en:
           privacy: Privacy and Access
           danger: Danger Zone
         general:
-          title: General Settings
+          title: General Configuration
           description: Configure the basic settings and preferences of the event
           url:
             label: URL of the Event
@@ -430,8 +440,8 @@ en:
             label: Show Remaining Entries
             description: Show the number of remaining tickets for each type of ticket
           attendee_list:
-            label: Display Attendee List
-            description: Show the list of attendees on the event page
+            label: Show Attendee List
+            description: Display the list of attendees on the event page
           comments:
             label: Allow Comments
             description: Allow attendees to leave comments on the event page
@@ -456,7 +466,7 @@ en:
                 label: Open Registration
                 description: Anyone can register
               invite:
-                label: Only by invitation
+                label: Only by Invitation
                 description: Only invited users can register
               approval:
                 label: Requires Approval
@@ -493,11 +503,11 @@ en:
         add_item: Add Element
         name: Name
         description: Description
-        date_time_range: Range of Date and Time
+        date_time_range: Date and Time Range
         schedulings:
           title: |-
             Programaciones
-            Schedules
+            Programming
           add: Add Programming
           name: Name
           short_description: Short Description
@@ -510,12 +520,12 @@ en:
           validation:
             name_min: The name must have at least 2 characters.
             start_date_required: The start date is required
-            end_date_required: The end date is required.
+            end_date_required: The end date is required
       attendees:
         title:
           label: Title
-          placeholder: Event Title
-        subtitle: Manage the event attendees and their status
+          placeholder: Title of the event
+        subtitle: Manage the attendees of the event and their status
         export_csv: Export CSV
         search:
           placeholder: Search by name or email
@@ -526,15 +536,15 @@ en:
           attendee: Assistant
           ticket: Entry
           status: State
-          purchase_date: Purchase Date
+          purchase_date: Date of Purchase
         status:
           attending: Attending
-          cancelled: Canceled
+          cancelled: Cancelled
           pending: Pending
           checked_in: Registrado a las %{time}
         messages:
           update_success: State of the assistant successfully updated
-          update_error: The assistant's status could not be updated.
+          update_error: The assistant's status could not be updated
           remove_confirm: Are you sure you want to delete this assistant?
           remove_success: Assistant successfully deleted
           remove_error: The assistant could not be deleted
@@ -547,7 +557,7 @@ en:
         start_time:
           label: Start time
         end_date:
-          label: End date
+          label: Date of completion
           placeholder: Select date
         end_time:
           label: End time
@@ -602,27 +612,27 @@ en:
     find_your_next_event: Find your next session
     discover_upcoming_events: Discover events and experiences in electronic music
     upcoming_events: Upcoming events
-    past_events: Past Events
+    past_events: Past events
     view_more: See more
     your_events: Your events
     drafts: Drafts
     published: Your event has been published
-    manager: Events I manage
+    manager: Events that I manage
     new_event: New Event
     create: Create Event
     unpublished: Your event has not been published
     unpublish: Unpublish Event
     publish: Publish Event
   event_hosts:
-    listed: Listing on page
+    listed: Listed on page
     manager: Event manager
     email_hint:
       Add a host to highlight it on the event page or to get help with event
       management.
   tracks:
-    spotlight: Featured
+    spotlight: Highlighted
     spotlights: Destacados %{msg}
-    recent: Recent clues
+    recent: Recent tracks
     new_track: New track
     private: Private
     go_to: Go to your track
@@ -662,7 +672,7 @@ en:
         update_success: Track successfully updated
         update_error: Error updating the track
         delete_success: Track successfully deleted
-        delete_error: Error when deleting the track
+        delete_error: Error deleting track
     count: "%{count} Pistas"
     private_label: Private
     private_hint: Private access. Hidden from the world.
@@ -671,28 +681,30 @@ en:
     pending_state_message: Espera, esta pista está en estado %{state}
     index:
       new_release: New Release
-      view_album: View Album
+      view_album: See Album
       discover: Discover Music
       all: All
       featured_albums:
-        title: Highlighted Albums
-        subtitle: Latest releases from our artists
+        title: Albums
+        subtitle: Latest releases
       curated_playlists:
         title: Curated Playlists
-        subtitle: Collections selected for each mood
-      featured_labels: Outstanding Stamps
+        subtitle: Selected collections for every mood
+      featured_labels: Stamps
       view_all: See All
     new:
       upload:
         title: Drag and drop your tracks here
-        subtitle: Provides FLAC, WAV, ALAC or AIFF for the best audio quality
+        subtitle: It provides FLAC, WAV, ALAC, or AIFF for the best audio quality
         button: Upload audio files
-        or_drop: o arrastra y suelta
+        or_drop: |-
+          o arrastra y suelta
+          English: or drag and drop
         size_limit: Audio files up to 200MB
       form:
         title: Title
         tags: Labels
-        tags_placeholder: Select tags
+        tags_placeholder: Select labels
         description: Description
         private_track: Private Track
         save: Save All Tracks
@@ -708,9 +720,9 @@ en:
         no_files: There are no files selected
         select_files: Please select at least one audio file
         upload_success: Se ha%{plural} subido %{count} pista%{plural} exitosamente
-        upload_error: Error uploading the tracks
+        upload_error: Error uploading tracks
         cover_error: Error uploading the cover image
-        save_error: Error saving the track information
+        save_error: Error saving track information
         link_copied: Link copied to clipboard
       controls:
         create_playlist: Create a playlist with these tracks
@@ -719,7 +731,7 @@ en:
         private: Private
         clear_all: Clean Everything
         start_upload: Start Upload
-        uploading: Going up...
+        uploading: Uploading...
         waiting: Waiting...
         complete: Completed
   home:
@@ -731,20 +743,20 @@ en:
     header:
       explore: EXPLORE
     main_articles:
-      latest_publications: Last Publications
-      view_all: See All
+      latest_publications: Latest Publications
+      view_all: See all
     album_releases:
       new_release: New Release
-      tracks_count: Clues
+      tracks_count: Tracks
       default_genre: Music
       title: Last Releases
-      subtitle: Latest releases from our artists
-      browse_all: See all
+      subtitle: Latest releases
+      browse_all: See All
     featured_artists:
       tracks: Tracks
       followers: Followers
       view_profile: View Profile
-      title: Prominent Artists
+      title: Featured Artists
       subtitle: Discover new artists and music
       view_all: See All
     curated_playlists:
@@ -754,11 +766,11 @@ en:
       subtitle: Selected collections for each mood
       view_all: See All
     latest_tracks:
-      title: Lastest Music
-      subtitle: Listen to the most recent music from our community
+      title: Last Tracks
+      subtitle: Listen to the latest music from our community
       browse_all: See All
   profile:
-    all: All
+    all: Everything
     albums: Albums
     tracks: Tracks
     artists: Artists
@@ -775,20 +787,14 @@ en:
     go_to: Go to profile
     follow: Follow
     following: Following
-
-  artists:
-    title: Artists
-    description: Artists and creators
-    no_albums: No albums found
-
   albums:
     title: Albums
-    description: Albums and compilations
-    no_albums: No albums found
-
+    description: Explore the latest releases from the community
+    no_albums: No albums were found
   playlists:
     title: Playlists
-    description: Playlists and collections
+    description: Listen to the most popular playlists
+    no_playlists: No playlists were found
     add_to_playlists: Add to list
     create: Create a list
     remove_from_playlist: Remove from the list
@@ -797,7 +803,7 @@ en:
       dialog:
         loading: Loading...
         title: Edit Playlist
-        description: Make changes to your playlist here. Click save when you are done.
+        description: Make changes to your playlist here. Click save when you're done.
         save: Save Changes
       tabs:
         basic_info: Basic Information
@@ -827,20 +833,21 @@ en:
           your playlist and all associated data from our servers.
         cancel: Cancel
       messages:
-        cover_success: Cover image uploaded successfully
-        update_success: Playlist successfully updated
+        cover_success: Cover image successfully uploaded
+        update_success: Playlist updated successfully
         update_error: Error updating the playlist
         delete_success: Playlist successfully deleted
-        delete_error: Error deleting the playlist
+        delete_error: Error when deleting the playlist
   users:
     sign_in: Sign in to your account
     register: Register new account
     or: Or continue with
     follow: Follow
-    unfollow: Unfollow
+    unfollow: Stop following
     following: Following
     artists: Artists
     artist_page:
+      impersonate: Impersonar
       loading: Loading...
       tracks: tracks
       albums: albums
@@ -858,12 +865,12 @@ en:
       not_found: User not found
       error_fetching: Error loading the user
       location:
-        separator: There is no text provided in Spanish to translate into English.
+        separator: There is no text provided to translate.
   user_settings:
     title_account: Account
     sub_account: Basic account information.
     title_email: Change Email
-    sub_email: Change email information.
+    sub_email: Change Email information.
     podcaster_info: Podcaster Information
     sub_podcasts: Manage your podcaster information.
     title_social_links: Social Networks
@@ -875,13 +882,16 @@ en:
     title_integrations: Integrations
     sub_integrations: Manage your external integrations.
     title_transbank: Settings Transbank
-    sub_transbank: Manage your transbank store (only Chile).
+    sub_transbank: Manage your Transbank commerce (Chile only).
     title_invitations: Invitations
     sub_invitations: Invite other artists to your account.
     podcast_info: Podcast Info
     profile:
       title: Profile Information
       subtitle: Update your personal information and profile details
+      messages:
+        success: Profile successfully updated
+        error: The profile could not be updated
       form:
         username:
           label: Username
@@ -897,10 +907,10 @@ en:
           country: Country
           city: City
         images:
-          title: Profile Images
+          title: Profile Pictures
           subtitle:
             Your avatar and header image will be displayed on your profile
-            page.
+            page
           avatar:
             label: Avatar
             help: "Recommended: Square image, minimum 400x400px"
@@ -908,13 +918,16 @@ en:
             label: Header of the Profile
             help: "Recommended: 1500x500px"
     email:
-      title: Email settings
+      title: Email Configuration
       subtitle: Update your email address. You will need to verify any new email address.
       form:
         email:
           label: Email Address
       buttons:
         update: Update Email
+      messages:
+        success: Email updated successfully
+        error: The email could not be updated
     security:
       title: Security Configuration
       subtitle: Update your password to keep your account secure.
@@ -925,9 +938,15 @@ en:
           label: Current Password
         confirm_password:
           label: Confirm Password
+      messages:
+        success: Password updated successfully
+        error: The password could not be updated
     notifications:
-      title: Notification Settings for Email and App
+      title: Configuration of Email and App Notifications
       subtitle: Manage your email and in-app notification preferences
+      messages:
+        success: Notification preferences successfully updated.
+        error: The notification preferences could not be updated
       form:
         labels:
           email: Email Notifications
@@ -941,7 +960,7 @@ en:
             description: When someone reposts your content
           new_posts:
             title: New Publications
-            description: When someone you follow publishes new content
+            description: When someone you follow posts new content
           likes_plays:
             title: I like and Reproductions
             description: When someone likes or plays your content
@@ -949,18 +968,18 @@ en:
             title: Comments
             description: When someone comments on your content
           suggested:
-            title: Suggested Content
+            title: Recommended Content
             description: Recommendations based on your interests
           messages:
             title: Messages
             description: When you receive new messages
     integrations:
       title: Integrations
-      subtitle: Connect your account with other services to unlock additional features.
+      subtitle: Connect your account with other services to unlock additional features
       providers:
         google:
           name: Google OAuth2
-          description: Connect with Google for authentication and additional features
+          description: Connect with Google for authentication and additional functions
         zoom:
           name: Zoom
           description: Integrate with Zoom for live broadcasts and webinars
@@ -977,9 +996,15 @@ en:
       buttons:
         connect: Connect
         disconnect: Disconnect
+      messages:
+        success: Successful connection
+        error: Could not connect
     invitations:
       title: Send Invitations
       subtitle: Invite other users to join the platform
+      messages:
+        success: Invitations sent successfully
+        error: The invitations could not be sent
       form:
         email:
           label: Email
@@ -997,18 +1022,24 @@ en:
           accepted: Aceptada el %{date}
           not_sent: Not sent yet
     social_links:
+      messages:
+        success: Social links successfully updated
+        error: The social links could not be updated
       seo:
-        title: SEO Configuration
-        subtitle: Customize how your profile appears on search engines.
+        title: SEO settings
+        subtitle: Customize how your profile appears in search engines.
+        messages:
+          success: SEO configuration successfully updated
+          error: The SEO configuration could not be updated
         form:
           social_title:
             label: Title for Social Networks
             placeholder: Your social title
           social_description:
-            label: Description for Social Networks
+            label: Description for Social Media
             placeholder: A brief description of your page
       analytics:
-        title: Analytics Integration
+        title: Integration of Analytics
         subtitle:
           Connect your analytics accounts to track the performance of your
           profile
@@ -1018,17 +1049,19 @@ en:
             placeholder: UA-XXXXXXXXX-X or G-XXXXXXXXXX
           facebook:
             label: Facebook Pixel ID
-            placeholder: XXXXXXXXXXXXXXXXXX
+            placeholder:
+              I'm sorry, but the provided text is not in Spanish. Can you
+              please provide the text you would like me to translate into English?
       mailing:
         title: Mailing List
-        subtitle: Set up your email list preferences
+        subtitle: Configure your email list preferences
         form:
           email_signup:
             label: Subscription by Email
             description: Allows fans to subscribe to receive updates on new content
       content:
         title: Content Settings
-        subtitle: Manage your content viewing preferences
+        subtitle: Manage your content display preferences
         form:
           sensitive:
             label: Show Sensitive Content
@@ -1045,8 +1078,11 @@ en:
       buttons:
         update: Update Settings
     transbank:
-      title: Transbank Integration
-      subtitle: Set up your Transbank payment settings.
+      title: Integration Transbank
+      subtitle: Set up your payment settings for Transbank.
+      messages:
+        success: Configuration of Transbank updated successfully
+        error: The configuration of Transbank could not be updated
       status:
         title: State of Integration
         verified: Verified
@@ -1056,10 +1092,10 @@ en:
         commerce_code:
           label: Code of Commerce
         api_key:
-          label: API Key
+          label: API key
         test_mode:
           label: Test Mode
-          description: Use Transbank's test environment
+          description: Use Transbank's testing environment
         automatic_transfer:
           label: Automatic Transfer
           description: Transfer funds automatically to your bank account
@@ -1067,14 +1103,19 @@ en:
         verify: Verify Credentials
         save: Save Settings
     podcast:
-      title: Podcast Settings
+      title: Podcast Configuration
       subtitle: Configure your podcast profile and settings.
+      messages:
+        success: Podcast settings successfully updated
+        error: The podcast configuration could not be updated
+        load_error: The podcast settings could not be loaded.
+        general_error: An error occurred while updating podcast settings
       form:
         avatar:
           label: Podcast Avatar
           help: "Recommended: Square image, minimum 400x400px"
         active:
-          label: Active Podcaster Profile
+          label: Profile of Active Podcaster
         title:
           label: Title
         about:
@@ -1084,13 +1125,15 @@ en:
         distribution:
           title: Distribution Links
           spotify:
-            label: Spotify URL
-          apple:
-            label: URL of Apple Podcasts
-          google:
             label: |-
-              URL de Google Podcasts
-              Google Podcasts URL
+              URL de Spotify
+              URL of Spotify
+          apple:
+            label: |-
+              URL de Apple Podcasts
+              URL of Apple Podcasts
+          google:
+            label: URL of Google Podcasts
           stitcher:
             label: URL de Stitcher
           overcast:
@@ -1099,11 +1142,6 @@ en:
             label: URL of Pocket Casts
       buttons:
         save: Save changes
-      messages:
-        success: Podcast configuration successfully updated
-        error: The podcast configuration could not be updated
-        load_error: The podcast settings could not be loaded.
-        general_error: An error occurred while updating the podcast settings
   purchases:
     title: Shopping
     my_music: My music
@@ -1127,7 +1165,7 @@ en:
     buy_digital_track: Buy digital track
   sessions:
     forgot_pass: Did you forget your password?
-    sign_in: Sign in
+    sign_in: Log in
     title: Welcome back!
     subtitle: Log in to your account
     register:
@@ -1143,7 +1181,7 @@ en:
           required: The username is required
           pattern:
             The username can only contain letters, numbers, underscores, and
-            dashes
+            hyphens
           min_length: The username must have at least 3 characters
         password:
           label: Create a password
@@ -1167,7 +1205,7 @@ en:
       toast:
         success:
           title: "Welcome aboard! \U0001F389"
-          message: Your account has been successfully created.
+          message: Your account has been successfully created
         error:
           title: Error
           generic: Something went wrong
@@ -1180,7 +1218,7 @@ en:
       required: The password is required
     or_continue_with: Or continue with
     google: Sign in with Google
-    discord: Sign in with Discord
+    discord: Log in with Discord
     signing_in: Logging in...
     no_account: Don't you have an account?
     register_link: Register
@@ -1195,13 +1233,13 @@ en:
   errors:
     404:
       title: Page not found
-      desc: Please, review the URL and try again
+      desc: Please, check the URL and try again
       action: Return to the beginning
       cta: Contact support
     500:
       title: Something went wrong
-      desc: Please, review the URL and try again
-      action: Return to start
+      desc: Please review the URL and try again
+      action: Back to the beginning
       cta: Contact support
     422:
       title: Access denied
@@ -1209,11 +1247,19 @@ en:
       action: Return to the beginning
       cta: Contact support
   shared:
-    forms:
-      release:
-        playlists:
-          label: Playlists
-          placeholder: Select playlists to include
+    modal:
+      meeting_link: Meeting Link
+      meeting_location: Meeting Location
+      provider_notes: Supplier Notes
+      close: Close
+      meeting_link_placeholder: e.g., https://zoom.us/j/123456789
+      meeting_location_placeholder: e.g., Main Street 123, Office 100
+      provider_notes_placeholder: Add special instructions or notes for the customer
+      meeting_link_help:
+        Add a video conference link (Zoom, Google Meet, etc.) if
+        it is a virtual meeting
+      meeting_location_help: Add the physical location if it is an in-person meeting
+      provider_notes_help: These notes will be visible to the client
     music_purchase_form:
       title: Comprar %{type} Digital
       price:
@@ -1227,7 +1273,7 @@ en:
         placeholder: Add a message for the artist...
       purchase_includes:
         Your purchase includes unlimited streaming through the Rauversion
-        app, plus high quality download in MP3, FLAC, and more.
+        app, plus high-quality downloads in MP3, FLAC, and more.
       buttons:
         processing: Processing...
         complete: Complete Purchase
@@ -1288,27 +1334,27 @@ en:
             label: Share alike
             description:
               Allows others to distribute derivative works only under a
-              license identical to the license that governs your work.
+              license identical to the license governing your work.
       metadata:
         buy_link: Purchase Link
-        buy_link_title: Title of Purchase Link
-        record_label: Record label
+        buy_link_title: Title of the Purchase Link
+        record_label: Record Label
         isrc: ISRC
         composer: Composer
         release_title: Title of the Release
         album_title: Album Title
         publisher: Editorial
         artist: Artist
-        genre: Gender
+        genre: Genre
   sharer:
     share: Share
     embed: Insert
     message: Message
     private_share: Private sharing
-    private_share_instructions: Instructions for sharing privately.
-    reset_link_warning: Warning of link reset.
-    link_reset_error: Error when restarting the link.
-    reset_secret_link: Reset secret link
+    private_share_instructions: Instructions for private sharing.
+    reset_link_warning: "Warning: Link restart."
+    link_reset_error: Error restarting the link.
+    reset_secret_link: Restart secret link
     reset: Restart
     cancel: Cancel
     secret_link_reset_success: Secret link successfully reset.
@@ -1320,6 +1366,100 @@ en:
     or_drag_and_drop: Drag and drop
   invitations:
     left: Te quedan %{count} invitaciones
+  service_bookings:
+    index:
+      title: Service Reservations
+      subtitle: Manage your reservations and service appointments
+      all: All the Reservations
+      as_customer: My Reservations
+      as_provider: Provider View
+      with_provider: con %{provider}
+      for_customer: para %{customer}
+      view_details: View Details
+      not_scheduled: Still not scheduled
+      waiting_schedule: Reservation confirmed. Waiting for scheduling.
+      minutes: minutes
+      online_meeting: Join the Virtual Meeting
+      in_person: In-person
+      no_bookings: No reservations found
+      no_bookings_description: You do not have any service reservations yet.
+      confirm: Confirm Reservation
+      schedule: Schedule Service
+      mark_complete: Mark as Completed
+      cancel: Cancel Reservation
+      cancel_confirm:
+        Are you sure you want to cancel this reservation? This action
+        cannot be undone.
+      provider_notes: Provider Notes
+    schedule_modal:
+      schedule_service: Schedule Service
+      schedule_description:
+        Establish the date and time for this service. Make sure
+        to coordinate with the client beforehand.
+      date: Date
+      time: Time
+      timezone: Time Zone
+      meeting_link: Meeting Link
+      meeting_link_placeholder: e.g., https://zoom.us/j/123456789
+      meeting_link_help:
+        Add a video conference link (Zoom, Google Meet, etc.) if
+        it is a virtual meeting.
+      meeting_location: Meeting Location
+      meeting_location_placeholder: e.g., Main Street 123, Office 100
+      meeting_location_help: Add the physical location if it is an in-person meeting
+      provider_notes: Supplier Notes
+      provider_notes_placeholder: Add special instructions or notes for the customer
+      provider_notes_help: These notes will be visible to the client
+      schedule_button: Schedule Service
+      cancel_button: Cancel
+    feedback_form:
+      add_feedback: Add your Opinion
+      rating: Rate your experience
+      feedback: Your opinion
+      feedback_placeholder: Tell us about your experience...
+      submit: Send Opinion
+    update:
+      feedback_submitted: Thank you for your opinion!
+    confirm:
+      success: The reservation has been successfully confirmed
+      invalid_status: This reservation cannot be confirmed
+    schedule:
+      success: The service has been successfully scheduled
+      invalid_status: This reservation cannot be scheduled
+    complete:
+      success: The service has been marked as completed
+      invalid_status: This service cannot be marked as completed yet
+    cancel:
+      success: The reservation has been canceled
+      invalid_status: This reservation cannot be canceled
+    status:
+      pending_confirmation: Pending Confirmation
+      confirmed: Confirmed
+      scheduled: Programmed
+      in_progress: In Progress
+      completed: Completed
+      cancelled: Cancelled
+      refunded: Refunded
+    create:
+      success: Service reservation successfully created
+    show:
+      title: Details of the Reservation
+      provider_section: Actions of the Provider
+      confirm_button: Confirm Reservation
+      schedule_button: Schedule Service
+      complete_button: Mark as Completed
+      cancel_button: Cancel Reservation
+      scheduling:
+        title: Schedule Service
+        date_label: Date
+        time_label: Time
+        timezone_label: Time Zone
+        meeting_link_label: Meeting Link
+        meeting_location_label: Meeting Location
+        notes_label: Supplier Notes
+      customer_info:
+        title: Customer Information
+        special_requirements: Special Requirements
   time:
     formats:
       day: "%b %d"
@@ -1327,11 +1467,104 @@ en:
       default: "%Y-%m-%d"
       short: "%b %d"
       long: "%B %d, %Y"
+  service_booking_mailer:
+    new_booking_notification:
+      subject: Nueva solicitud de reserva para %{service} de %{customer}
+      greeting: "¡Hola %{provider}!"
+      intro: "%{customer} ha solicitado reservar tu servicio: %{service}"
+      booking_details: Details of the Reservation
+      service: Service
+      category: Category
+      duration: Duration
+      minutes: minutes
+      special_requirements: Special Requirements
+      view_booking_button: View Reservation Details
+      action_required:
+        Please review and confirm this reservation request as soon
+        as possible.
+    booking_confirmed_notification:
+      subject: Tu reserva para %{service} ha sido confirmada por %{provider}
+      greeting: "¡Hola %{customer}!"
+      confirmation_message:
+        "¡Buenas noticias! %{provider} ha confirmado tu reserva
+        para %{service}."
+      booking_details: Details of the Reservation
+      service: Service
+      provider: Supplier
+      category: Category
+      duration: Duration
+      minutes: minutes
+      view_booking_button: See Reservation Details
+      delivery_method: Delivery Method
+      next_steps: The provider will contact you soon to schedule the service.
+      support_message:
+        Si tienes alguna pregunta, contacta a nuestro equipo de soporte
+        en %{email}
+    booking_scheduled_notification:
+      subject: "%{service} con %{provider} ha sido programado"
+      greeting: "¡Hola %{customer}!"
+      scheduled_message: Your session has been scheduled!
+      timezone: Time Zone
+      date_time: Date and Time
+      meeting_details: Details of the Meeting
+      location: Location
+      online_meeting: Meeting Online Link
+      view_booking_button: View Reservation Details
+      calendar_button: Add to Calendar
+    service_completed_notification:
+      subject: Tu sesión de %{service} ha sido completada
+      greeting: "¡Hola %{customer}!"
+      completion_message: Your service has been marked as completed.
+      feedback_request: We would love to hear about your experience!
+      rate_button: Rate this Service
+    booking_cancelled_notification:
+      subject: Reserva de %{service} cancelada por %{cancelled_by}
+      greeting: Hello!
+      cancellation_message: The reservation has been canceled.
+      refund_info:
+        If you have made any payment, it will be refunded within 5-7 business
+        days.
+    reminder_notification:
+      subject: "Recordatorio: %{service} programado para %{time}"
+      greeting: Hello!
+      reminder_message: This is a friendly reminder about your upcoming service.
+      view_details_button: See Details
+  store:
+    index:
+      store_title: Music Store
+      store_subtitle:
+        Discover music, equipment, and professional services from our
+        community.
+      search_placeholder: Search in the store...
+      all: All Products
+      music: Music
+      music_description: Digital and physical albums of independent artists
+      gear: Equipment
+      gear_description: Musical equipment and accessories of quality
+      services_description: Professional services and musical education
+      accessories: Accessories
+      services: Services
+  music:
+    index:
+      music: Music
+      music_title: Music Store
+      music_subtitle: Discover and collect music from independent artists
+      search_placeholder: Search by title or description...
+      all_formats: All Formats
+      featured_albums: Highlighted Albums
+      all_albums: All the Albums
+      try_different_filters: Try different filters or remove some to find more albums
+      no_albums_found: No albums were found
+      format:
+        vinyl: Vinyl
+        cassette: Cassette
+        cd: CD
+        digital: Digital
   products:
     add_to_cart: Add to cart
     added_to_cart: Added to cart
     added_to_cart_message: "%{title} ha sido añadido a tu carrito"
-    add_to_cart_error: It could not be added to the cart. Please try again
+    add_to_cart_error: It was not possible to add to the cart. Please try again
     quick_view: Quick view
     stock:
       low_stock: Solo quedan %{count} en stock
@@ -1357,10 +1590,51 @@ en:
       failure:
         title: Payment Failed
         message:
-          We were unable to process your payment. Don't worry, the items in
+          We were unable to process your payment. Do not worry, the items in
           your cart are still saved.
         return_to_cart: Return to Cart
         continue_shopping: Continue Shopping
         support_message:
-          If you continue to experience issues, please contact our
+          If you continue to experience problems, please contact our
           support team.
+    accessory:
+      show:
+        about: About
+        description: Description
+        details: Details
+        shipping: Shipping
+        add_to_cart: Add to Cart
+    music:
+      show:
+        about: About
+        description: Description
+        tracks: Tracks
+        condition: Condition
+        limited_edition: Limited Edition
+        shipping: Shipping
+        add_to_cart: Add to Cart
+        details: Details
+    gear:
+      show:
+        about: About
+        description: Description
+        details: Details
+        brand: Brand
+        condition: Condition
+        model: Model
+        shipping: Shipping
+        add_to_cart: Add to Cart
+        year: Year
+    service:
+      delivery_methods:
+        online: Virtual Meeting
+        in_person: Presencial
+      show:
+        about: About
+        what_you_get: What You Receive
+        what_to_expect: What to Expect
+        description: Description
+        cancellation_policy: Cancellation Policy
+        duration: Duration
+        book_now: Book Now
+        details: Details

@@ -1,94 +1,79 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { format } from 'date-fns'
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"
+import { Card, CardContent } from "@/components/ui/card"
 
 export default function ArticleSide({ articles }) {
   if (!articles || articles.length === 0) return null
 
-  const [first, ...rest] = articles
-
   return (
-    <div className="bg-default py-24 sm:py-32">
-      <div className="mx-auto grid max-w-7xl grid-cols-1 gap-x-8 gap-y-12 px-6 sm:gap-y-16 lg:grid-cols-2 lg:px-8">
-        <article className="mx-auto w-full max-w-2xl lg:mx-0 lg:max-w-lg">
-          <Link to={`/articles/${first.slug}`}>
-            <time 
-              dateTime={format(new Date(first.created_at), 'yyyy-MM-dd')} 
-              className="block text-sm leading-6 text-muted"
-            >
-              {format(new Date(first.created_at), 'MMM dd, yyyy')}
-            </time>
-            <h2 id="featured-post" className="mt-4 text-3xl font-bold tracking-tight text-default sm:text-4xl">
-              {first.title}
-            </h2>
-            <p className="mt-4 text-lg leading-8 text-emphasis">
-              {first.excerpt}
-            </p>
-            
-            <div className="mt-4 flex flex-col justify-between gap-6 sm:mt-8 sm:flex-row-reverse sm:gap-8 lg:mt-4 lg:flex-col">
-              <div className="flex">
-                <Link 
-                  to={`/${first.user.username}/articles`}
-                  className="text-sm font-semibold leading-6 text-brand-600"
-                  aria-describedby="featured-post"
-                >
-                  Continue reading <span aria-hidden="true">→</span>
-                </Link>
-              </div>
-              <div className="flex lg:border-t lg:border-default/10 lg:pt-8">
-                <Link 
-                  to={`/${first.user.username}`}
-                  className="flex gap-x-2.5 text-sm font-semibold leading-6 text-default"
-                >
-                  <img 
-                    src={first.user.avatar_url.small} 
-                    className="h-6 w-6 flex-none rounded-full bg-gray-50" 
-                    alt={`${first.user.first_name} ${first.user.last_name}`}
-                  />
-                  {first.user.first_name} {first.user.last_name}
-                </Link>
-              </div>
-            </div>
-          </Link>
-        </article>
-
-        <div className="mx-auto w-full max-w-2xl border-t border-default/10 pt-12 sm:pt-16 lg:mx-0 lg:max-w-none lg:border-t-0 lg:pt-0">
-          <div className="-my-12 divide-y divide-default/10">
-            {rest.map((article) => (
-              <article key={article.id} className="py-12">
-                <div className="group relative max-w-xl">
-                  <time 
-                    dateTime={format(new Date(article.created_at), 'yyyy-MM-dd')}
-                    className="block text-sm leading-6 text-muted"
-                  >
-                    {format(new Date(article.created_at), 'EEEE, MMMM dd, yyyy')}
-                  </time>
-                  <h2 className="mt-2 text-lg font-semibold text-default group-hover:text-muted">
-                    <Link to={`/articles/${article.slug}`}>
-                      <span className="absolute inset-0"></span>
-                      {article.title}
-                    </Link>
-                  </h2>
-                  <p className="mt-4 text-sm leading-6 text-muted">
-                    {article.excerpt}
-                  </p>
+    <div className="bg-default">
+      <div className="mx-auto- max-w-[33rem] lg:max-w-[58rem]  px-4- sm:px-6. lg:px-8-">
+        <div className="relative">
+          <Carousel className="w-full">
+            <CarouselContent className="-ml-2 sm:-ml-4">
+              {articles.map((article) => (
+                <CarouselItem key={article.id} className="pl-2 sm:pl-4 basis-full md:basis-1/2">
+                  <div className="h-full">
+                    <Card className="h-[400px] md:h-[500px]">
+                    <CardContent className="flex flex-col p-0 h-full">
+                      <div className="relative aspect-[16/9] overflow-hidden rounded-t-lg">
+                        <img
+                          src={article.cover_url?.large}
+                          alt={article.title}
+                          className="object-cover w-full h-full"
+                        />
+                      </div>
+                      <div className="p-6 flex flex-col flex-grow">
+                        <time 
+                          dateTime={format(new Date(article.created_at), 'yyyy-MM-dd')}
+                          className="block text-sm leading-6 text-muted"
+                        >
+                          {format(new Date(article.created_at), 'EEEE, MMMM dd, yyyy')}
+                        </time>
+                        <h2 className="mt-2 text-lg font-semibold text-default group-hover:text-muted line-clamp-2">
+                          <Link to={`/articles/${article.slug}`} className="hover:text-muted transition-colors">
+                            {article.title}
+                          </Link>
+                        </h2>
+                        <div className="relative mt-4 flex-grow">
+                          <p className="text-sm leading-6 text-muted h-[72px] overflow-hidden">
+                            {article.excerpt}
+                          </p>
+                          <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-card to-transparent" />
+                        </div>
+                        <div className="mt-4 pt-4 border-t border-default/10">
+                          <Link 
+                            to={`/${article.user.username}`}
+                            className="flex items-center gap-x-2.5 text-sm font-semibold text-default"
+                          >
+                            <img 
+                              src={article.user.avatar_url.small} 
+                              alt={`${article.user.first_name} ${article.user.last_name}`}
+                              className="h-6 w-6 flex-none rounded-full bg-gray-50" 
+                            />
+                            {article.user.first_name} {article.user.last_name}
+                          </Link>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
-                <div className="mt-4 flex">
-                  <Link 
-                    to={`/${article.user.username}`}
-                    className="relative z-10 flex items-center gap-x-2.5 text-sm font-semibold text-default"
-                  >
-                    <img 
-                      src={article.user.avatar_url.small} 
-                      alt={`${article.user.first_name} ${article.user.last_name}`}
-                      className="h-6 w-6 flex-none rounded-full bg-gray-50" 
-                    />
-                    {article.user.first_name} {article.user.last_name}
-                  </Link>
-                </div>
-              </article>
+              </CarouselItem>
             ))}
-          </div>
+            </CarouselContent>
+            <div className="hidden md:block">
+              <CarouselPrevious className="absolute -left-4 lg:-left-12 top-1/2 -translate-y-1/2" />
+              <CarouselNext className="absolute -right-4 lg:-right-12 top-1/2 -translate-y-1/2" />
+            </div>
+          </Carousel>
         </div>
       </div>
     </div>

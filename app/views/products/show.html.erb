@@ -1,0 +1,372 @@
+
+  <main class="pt-10 sm:pt-16">
+    <nav aria-label="Breadcrumb">
+      <ol role="list" class="mx-auto flex max-w-2xl items-center space-x-2 px-4 sm:px-6 lg:max-w-7xl lg:px-8">
+        <li>
+          <div class="flex items-center">
+            <%= link_to @product.user.username, user_path(@product.user.username), class: "mr-2 text-sm font-medium text-default" %>
+           
+            <svg width="16" height="20" viewBox="0 0 16 20" fill="currentColor" aria-hidden="true" class="h-5 w-4 text-gray-300">
+              <path d="M5.697 4.34L8.98 16.532h1.327L7.025 4.341H5.697z" />
+            </svg>
+          </div>
+        </li>
+        <li>
+          <div class="flex items-center">
+            <a href="#" class="mr-2 text-sm font-medium text-default">
+              <%= @product.category %>
+            </a>
+            <svg width="16" height="20" viewBox="0 0 16 20" fill="currentColor" aria-hidden="true" class="h-5 w-4 text-gray-300">
+              <path d="M5.697 4.34L8.98 16.532h1.327L7.025 4.341H5.697z" />
+            </svg>
+          </div>
+        </li>
+
+        <li class="text-sm">
+          <%= link_to @product.title, user_product_path(@product.user.username, @product), 
+            class: "font-medium text-gray-500 hover:text-muted" 
+          %>
+        </li>
+      </ol>
+    </nav>
+
+    <!-- Product info -->
+    <div class="mx-auto max-w-2xl px-4 pt-10 sm:px-6 lg:grid lg:max-w-7xl lg:grid-cols-3 lg:grid-rows-[auto,auto,1fr] lg:gap-x-8 lg:px-8 lg:pt-16">
+      <div class="lg:col-span-2 lg:border-r lg:border-muted lg:pr-8">
+        <h1 class="text-2xl font-bold tracking-tight text-default sm:text-3xl">
+          <%= @product.title %>
+        </h1>
+      </div>
+
+      <!-- Options -->
+      <div class="mt-4 lg:row-span-3 lg:mt-0">
+        <h2 class="sr-only">Product information</h2>
+        <p class="text-3xl tracking-tight text-default">
+          <%= number_to_currency(@product.price) %>
+        </p>
+
+        <!-- Reviews -->
+        <div class="mt-6">
+          <!--
+          <h3 class="sr-only">Reviews</h3>
+          <div class="flex items-center">
+            <div class="flex items-center">
+              <svg class="h-5 w-5 flex-shrink-0 text-default" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd" />
+              </svg>
+              <svg class="h-5 w-5 flex-shrink-0 text-default" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd" />
+              </svg>
+              <svg class="h-5 w-5 flex-shrink-0 text-default" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd" />
+              </svg>
+              <svg class="h-5 w-5 flex-shrink-0 text-default" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd" />
+              </svg>
+              <svg class="h-5 w-5 flex-shrink-0 text-muted" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd" />
+              </svg>
+            </div>
+            <p class="sr-only">4 out of 5 stars</p>
+            <a href="#" class="ml-3 text-sm font-medium text-brand-600 hover:text-brand-500">
+              117 reviews
+            </a>
+          </div>
+          -->
+
+
+          <div class="border-t border-muted mt-5">
+            <dl>
+              <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-muted">SKU</dt>
+                <dd class="mt-1 text-sm text-muted sm:mt-0 sm:col-span-2"><%= @product.sku %></dd>
+              </div>
+              <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-muted">Category</dt>
+                <dd class="mt-1 text-sm text-muted sm:mt-0 sm:col-span-2"><%= @product.category.to_s.titleize %></dd>
+              </div>
+              <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-muted">Status</dt>
+                <dd class="mt-1 text-sm text-muted sm:mt-0 sm:col-span-2"><%= @product.status.titleize %></dd>
+              </div>
+              <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-muted">Stock Quantity</dt>
+                <dd class="mt-1 text-sm text-muted sm:mt-0 sm:col-span-2"><%= @product.stock_quantity %></dd>
+              </div>
+              <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-muted">Seller</dt>
+                <dd class="mt-1 text-sm text-muted sm:mt-0 sm:col-span-2">
+                  <%= link_to @product.user.username, user_path(@product.user.username), class: "text-brand-600 hover:text-brand-900" %>
+                </dd>
+              </div>
+              <% if @product.album.present? %>
+                <div class="bg-default px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                  <dt class="text-sm font-medium text-muted">Associated Album</dt>
+                  <dd class="mt-1 text-sm text-muted sm:mt-0 sm:col-span-2">
+                    <%= link_to @product.album.title, playlist_path(@product.album), class: "text-brand-600 hover:text-brand-900" %>
+                  </dd>
+                </div>
+              <% end %>
+            </dl>
+          </div>
+
+        </div>
+
+         
+         <% render "variants_info" %>
+
+          <div class="flex flex-col space-x-4 mb-8">
+            <% if @product.available? %>             
+              <%= button_to t("add_to_cart"), product_cart_add_path(product_id: @product.id), method: :post, class: "button-sm-outline w-full text-center justify-center" %>
+            <% else %>
+              <p class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100">Sold Out</p>
+            <% end %>
+
+            <div class="flex space-x-4 items-center justify-between mt-5">
+              <% if current_user == @product.user || current_user&.is_admin? %>
+                <%= link_to "Edit Product", @product.edit_path(current_user), class: "btn-outlined" %>
+                <%= button_to "Delete Product", product_path(@product), method: :delete, data: { confirm: "Are you sure you want to delete this product?" }, class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-default bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500" %>
+              <% end %>
+            </div>
+          </div>
+
+          <!--<div>
+            <%= link_to "Back to Products", user_products_path(@product.user.username), class: "text-brand-600 hover:text-brand-900" %>
+          </div>-->
+
+    
+      </div>
+
+      <div class="py-10 lg:col-span-2 lg:col-start-1 lg:border-r lg:border-muted lg:pb-16 lg:pr-8 lg:pt-6">
+        <!-- Description and details -->
+        <div>
+
+
+
+          <div class="flex flex-col-reverse">
+            <!-- Image selector -->
+
+            <div class="mx-auto mt-6 hidden w-full max-w-2xl sm:block lg:max-w-none">
+              <div class="grid grid-cols-4 gap-6" aria-orientation="horizontal" role="tablist">
+                <% @product.product_images.each do |product_image| %>
+                  <%= link_to user_product_path(@product.user.username, @product, image: product_image.id), 
+                    data: {turbo_frame: "gallery-photo" }, 
+                    class: "relative flex h-24 cursor-pointer items-center justify-center rounded-md bg-white text-sm font-medium uppercase text-gray-900 hover:bg-gray-50 focus:outline-none focus:ring focus:ring-opacity-50 focus:ring-offset-4" do %>
+                    <%= image_tag product_image.image, class: "h-full w-full object-cover object-center sm:rounded-lg" %>
+                  <% end %>
+                <% end %>
+              </div>
+            </div>
+
+            <% if @product.product_images.any? %>
+              <%= render "gallery_photo", image: @product.product_images.first.image %>
+            <% end %>
+          </div>
+
+          <h3 class="sr-only">Description</h3>
+
+          <div class="space-y-6">
+            <p class="text-base text-default">
+              <%= raw sanitize(@product.description) %>
+            </p>
+          </div>
+        </div>
+
+        <!--
+        <div class="mt-10">
+          <h3 class="text-sm font-medium text-default">Highlights</h3>
+
+          <div class="mt-4">
+            <ul role="list" class="list-disc space-y-2 pl-4 text-sm">
+              <li class="text-gray-400"><span class="text-muted">Hand cut and sewn locally</span></li>
+              <li class="text-gray-400"><span class="text-muted">Dyed with our proprietary colors</span></li>
+              <li class="text-gray-400"><span class="text-muted">Pre-washed &amp; pre-shrunk</span></li>
+              <li class="text-gray-400"><span class="text-muted">Ultra-soft 100% cotton</span></li>
+            </ul>
+          </div>
+        </div>
+
+        <section aria-labelledby="shipping-heading" class="mt-10">
+          <h2 id="shipping-heading" class="text-sm font-medium text-default">Details</h2>
+
+          <div class="mt-4 space-y-6">
+            <p class="text-sm text-muted">The 6-Pack includes two black, two default, and two heather gray Basic Tees. Sign up for our subscription service and be the first to get new, exciting colors, like our upcoming &quot;Charcoal Gray&quot; limited release.</p>
+          </div>
+        </section>
+        -->
+      </div>
+
+<%
+=begin %>
+      <div class="lg:col-span-2 lg:border-r lg:border-muted lg:pr-8">
+        <!-- Reviews -->
+        <section aria-labelledby="reviews-heading" class="border-t border-muted pt-10 lg:pt-16">
+          <h2 id="reviews-heading" class="sr-only">Reviews</h2>
+
+          <div class="space-y-10">
+            <div class="flex flex-col sm:flex-row">
+              <div class="order-2 mt-6 sm:ml-16 sm:mt-0">
+                <h3 class="text-sm font-medium text-default">Adds the perfect variety to my wardrobe</h3>
+                <p class="sr-only">4 out of 5 stars</p>
+
+                <div class="mt-3 space-y-6 text-sm text-muted">
+                  <p>I used to be one of those unbearable minimalists who only wore the same black v-necks every day. Now, I have expanded my wardrobe with three new crewneck options! Leaving off one star only because I wish the heather gray was more gray.</p>
+                </div>
+              </div>
+
+              <div class="order-1 flex items-center sm:flex-col sm:items-start">
+                <img src="https://images.unsplash.com/photo-1520785643438-5bf77931f493?ixlib=rb-=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2.5&w=256&h=256&q=80" alt="Blake Reid." class="h-12 w-12 rounded-full">
+
+                <div class="ml-4 sm:ml-0 sm:mt-4">
+                  <p class="text-sm font-medium text-default">Blake Reid</p>
+                  <div class="mt-2 flex items-center">
+                    <!-- Active: "text-default", Default: "text-muted" -->
+                    <svg class="h-5 w-5 flex-shrink-0 text-default" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd" />
+                    </svg>
+                    <svg class="h-5 w-5 flex-shrink-0 text-default" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd" />
+                    </svg>
+                    <svg class="h-5 w-5 flex-shrink-0 text-default" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd" />
+                    </svg>
+                    <svg class="h-5 w-5 flex-shrink-0 text-default" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd" />
+                    </svg>
+                    <svg class="h-5 w-5 flex-shrink-0 text-muted" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                      <path fill-rule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401z" clip-rule="evenodd" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+
+
+    </div>
+
+    <section aria-labelledby="related-products-heading" class="bg-default">
+      <div class="mx-auto max-w-2xl px-4 py-24 sm:px-6 lg:max-w-7xl lg:px-8">
+        <h2 id="related-products-heading" class="text-xl font-bold tracking-tight text-default">Customers also purchased</h2>
+
+        <div class="mt-6 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4 xl:gap-x-8">
+          <div class="group relative">
+            <div class="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-md bg-muted lg:aspect-none group-hover:opacity-75 lg:h-80">
+              <img src="https://tailwindui.com/img/ecommerce-images/product-page-01-related-product-01.jpg" alt="Front of men&#039;s Basic Tee in black." class="h-full w-full object-cover object-center lg:h-full lg:w-full">
+            </div>
+            <div class="mt-4 flex justify-between">
+              <div>
+                <h3 class="text-sm font-medium text-gray-700">
+                  <a href="#">
+                    <span aria-hidden="true" class="absolute inset-0"></span>
+                    Basic Tee
+                  </a>
+                </h3>
+                <p class="mt-1 text-sm text-gray-500">Black</p>
+              </div>
+              <p class="text-sm font-medium text-default">$35</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+<%
+=end
+%>
+
+<!--
+  <footer aria-labelledby="footer-heading" class="border-t border-muted bg-default">
+    <h2 id="footer-heading" class="sr-only">Footer</h2>
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-2 gap-8 py-20 sm:grid-cols-2 sm:gap-y-0 lg:grid-cols-4">
+        <div class="grid grid-cols-1 gap-y-10 lg:col-span-2 lg:grid-cols-2 lg:gap-x-8 lg:gap-y-0">
+          <div>
+            <h3 class="text-sm font-medium text-default">Account</h3>
+            <ul role="list" class="mt-6 space-y-6">
+              <li class="text-sm">
+                <a href="#" class="text-gray-500 hover:text-muted">Manage Account</a>
+              </li>
+              <li class="text-sm">
+                <a href="#" class="text-gray-500 hover:text-muted">Saved Items</a>
+              </li>
+              <li class="text-sm">
+                <a href="#" class="text-gray-500 hover:text-muted">Orders</a>
+              </li>
+              <li class="text-sm">
+                <a href="#" class="text-gray-500 hover:text-muted">Redeem Gift card</a>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-sm font-medium text-default">Service</h3>
+            <ul role="list" class="mt-6 space-y-6">
+              <li class="text-sm">
+                <a href="#" class="text-gray-500 hover:text-muted">Shipping &amp; Returns</a>
+              </li>
+              <li class="text-sm">
+                <a href="#" class="text-gray-500 hover:text-muted">Warranty</a>
+              </li>
+              <li class="text-sm">
+                <a href="#" class="text-gray-500 hover:text-muted">FAQ</a>
+              </li>
+              <li class="text-sm">
+                <a href="#" class="text-gray-500 hover:text-muted">Find a store</a>
+              </li>
+              <li class="text-sm">
+                <a href="#" class="text-gray-500 hover:text-muted">Get in touch</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="grid grid-cols-1 gap-y-10 lg:col-span-2 lg:grid-cols-2 lg:gap-x-8 lg:gap-y-0">
+          <div>
+            <h3 class="text-sm font-medium text-default">Company</h3>
+            <ul role="list" class="mt-6 space-y-6">
+              <li class="text-sm">
+                <a href="#" class="text-gray-500 hover:text-muted">Who we are</a>
+              </li>
+              <li class="text-sm">
+                <a href="#" class="text-gray-500 hover:text-muted">Press</a>
+              </li>
+              <li class="text-sm">
+                <a href="#" class="text-gray-500 hover:text-muted">Careers</a>
+              </li>
+              <li class="text-sm">
+                <a href="#" class="text-gray-500 hover:text-muted">Terms &amp; Conditions</a>
+              </li>
+              <li class="text-sm">
+                <a href="#" class="text-gray-500 hover:text-muted">Privacy</a>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-sm font-medium text-default">Connect</h3>
+            <ul role="list" class="mt-6 space-y-6">
+              <li class="text-sm">
+                <a href="#" class="text-gray-500 hover:text-muted">Facebook</a>
+              </li>
+              <li class="text-sm">
+                <a href="#" class="text-gray-500 hover:text-muted">Instagram</a>
+              </li>
+              <li class="text-sm">
+                <a href="#" class="text-gray-500 hover:text-muted">Pinterest</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <div class="border-t border-gray-100 py-10 sm:flex sm:items-center sm:justify-between">
+        <div class="flex items-center justify-center text-sm text-gray-500">
+          <p>Shipping to Canada ($CAD)</p>
+          <p class="ml-3 border-l border-muted pl-3">English</p>
+        </div>
+        <p class="mt-6 text-center text-sm text-gray-500 sm:mt-0">&copy; 2021 Your Company, Inc.</p>
+      </div>
+    </div>
+  </footer>
+-->
+</div>

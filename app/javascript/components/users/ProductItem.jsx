@@ -37,62 +37,51 @@ export default function ProductItem({ product, elementRef }) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
-      className="group relative bg-card rounded-lg overflow-hidden shadow-sm hover:shadow-lg transition-all duration-300"
+      className="group relative bg-card rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 flex flex-col"
     >
-      <div className="aspect-h-1 aspect-w-1 w-full relative">
-        <motion.div
-          className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10 flex items-center justify-center gap-2"
-        >
-          <Button
-            variant="secondary"
-            size="icon"
-            className="rounded-full"
-            onClick={handleAddToCart}
-          >
-            <ShoppingCart className="h-4 w-4" />
-          </Button>
-          <Link
-            to={`/${product.user.username}/products/${product.slug}`}
-            className="inline-flex items-center justify-center rounded-full w-9 h-9 bg-white text-gray-900 hover:bg-gray-100"
-          >
-            <Eye className="h-4 w-4" aria-label={I18n.t('products.quick_view')} />
-          </Link>
-        </motion.div>
-        <img
-          src={coverImage}
-          alt={product.title}
-          className="h-full w-full object-cover object-center transform group-hover:scale-105 transition-transform duration-300"
-        />
-      </div>
-      <div className="p-4">
-        <div className="flex items-start justify-between mb-2">
-          <div className="flex-1">
+      <Link 
+        to={`/${product.user.username}/products/${product.slug}`}
+        className="block flex-1"
+      >
+        <div className="relative h-[300px] w-full overflow-hidden">
+          <img
+            src={coverImage}
+            alt={product.title}
+            className="h-full w-full object-cover object-center transform group-hover:scale-110 transition-transform duration-500"
+          />
+        </div>
+      </Link>
+      <div className="p-5 flex-1 flex flex-col">
+        <div className="flex-1">
+          <div className="flex items-start justify-between mb-3">
             <Link 
               to={`/${product.user.username}/products/${product.slug}`}
-              className="block"
+              className="block flex-1"
             >
-              <h3 className="font-semibold text-base line-clamp-1 hover:text-primary transition-colors">
+              <h3 className="font-semibold text-lg line-clamp-1 group-hover:text-primary transition-colors">
                 {product.title}
               </h3>
             </Link>
-            <Badge variant="secondary" className="mt-1">
-              {product.category}
-            </Badge>
+            <p className="text-xl font-bold text-primary ml-3 whitespace-nowrap">
+              ${product.price}
+            </p>
           </div>
-          <p className="text-lg font-bold text-primary ml-2">
-            ${product.price}
-          </p>
+
+          <Badge variant="secondary" className="mb-3">
+            {product.category}
+          </Badge>
+
+          {product.stock_quantity <= 5 && product.stock_quantity > 0 && (
+            <p className="text-sm text-orange-500 font-medium">
+              {I18n.t('products.stock.low_stock', { count: product.stock_quantity })}
+            </p>
+          )}
+          {product.stock_quantity === 0 && (
+            <p className="text-sm text-destructive font-medium">
+              {I18n.t('products.stock.out_of_stock')}
+            </p>
+          )}
         </div>
-        {product.stock_quantity <= 5 && product.stock_quantity > 0 && (
-          <p className="text-xs text-orange-500 mt-1">
-            {I18n.t('products.stock.low_stock', { count: product.stock_quantity })}
-          </p>
-        )}
-        {product.stock_quantity === 0 && (
-          <p className="text-xs text-destructive mt-1">
-            {I18n.t('products.stock.out_of_stock')}
-          </p>
-        )}
       </div>
     </motion.div>
   )

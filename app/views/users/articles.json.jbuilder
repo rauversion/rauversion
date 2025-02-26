@@ -1,5 +1,10 @@
 json.collection @articles do |article|
   json.extract! article, :id, :title, :excerpt, :slug, :created_at
+  json.cover_url do
+    json.small article.cover_url(:small)
+    json.medium article.cover_url(:medium)
+    json.large article.cover_url(:large)
+  end
   json.user do
     json.extract! article.user, :id, :username, :first_name, :last_name
     json.full_name "#{article.user.first_name} #{article.user.last_name}"

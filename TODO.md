@@ -4,6 +4,15 @@ TODO:
     + merch crud
     + blank render for all pages
     + tickets obtain
+    + label user site
+    + redactor user site
+    + artist user site
+
+  + Marketplace: 
+    + translations
+    + indexes right categories filters
+    + improve users produtcs show
+    + view cart details
 
   + Current.label_user not set on impersonate new track
   

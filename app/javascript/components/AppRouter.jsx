@@ -31,7 +31,8 @@ import PodcastsIndex from './podcasts/Index'
 import PodcastShow from './podcasts/Show'
 import UserHome from './users/Home'
 import UserProducts from './users/Products'
-import ProductShow from './users/ProductShow'
+// import ProductShow from './users/ProductShow'
+import ProductShow from "./products/ProductShow"
 import UserLinks from './users/Links'
 import MyArticles from './articles/MyArticles'
 import MyEvents from './events/MyEvents'
@@ -62,29 +63,43 @@ import TransbankSettings from "./users/settings/TransbankSettings"
 import InvitationsSettings from "./users/settings/InvitationsSettings"
 import SecuritySettings from "./users/settings/SecuritySettings"
 
+
 import ReleasesList from "./releases/ReleasesList"
 import ReleaseForm from "./releases/ReleaseForm"
 import ReleaseEditor from "./releases/ReleaseEditor"
 import ReleasePreview from "./releases/ReleasePreview"
 
 import AlbumsIndex from "./albums/Index"
+import StoreIndex from "./store/Index"
+import ProductNew from "./products/New"
+import GearForm from "./products/gear/Form"
+import MusicForm from "./products/music/Form"
+import MerchForm from "./products/merch/Form"
+import AccessoryForm from "./products/accessory/Form"
+import ServiceForm from "./products/service/Form"
 import AlbumShow from "./albums/AlbumShow"
+import { ServiceBookings } from "./ServiceBookings"
+import { ServiceBookingDetail } from "./ServiceBookings/ServiceBookingDetail"
 import NewTrack from "./tracks/NewTrack"
+import CategoryView from "./store/CategoryView"
 
 import CheckoutSuccess from "./checkout/CheckoutSuccess"
 import CheckoutFailure from "./checkout/CheckoutFailure"
 
-import { Footer, ScrollRestoration } from '@/components/shared'
+import { Footer, ScrollRestoration, LoadingSpinner } from '@/components/shared'
 
 import { useLocaleStore } from "@/stores/locales"
 
 function RequireAuth({ children }) {
-  const { currentUser } = useAuthStore()
+  const { currentUser, loading: currentUserLoading } = useAuthStore()
   const location = useLocation()
 
-  const { currentLocale } = useLocaleStore()
+  
+  if(currentUserLoading) {
+    return <LoadingSpinner />
+  }
 
-  if (!currentUser) {
+  if (!currentUser && !currentUserLoading) {
     return <Navigate to="/login" state={{ from: location }} replace />
   }
 
@@ -116,6 +131,7 @@ function AppContent() {
           ...rest
         })
         break
+        
       default:
         console.log('Unhandled notification:', data)
     }
@@ -189,6 +205,14 @@ function AppContent() {
           <Route path="/releases/:id" element={<ReleasePreview />} />
           <Route path="/albums" element={<AlbumsIndex />} />
           <Route path="/artists" element={<ArtistsIndex />} />
+          <Route path="/store" element={<StoreIndex />} />
+          <Route path="/store/:type" element={<CategoryView />} />
+          <Route path="/:username/products/new" element={<RequireAuth><ProductNew /></RequireAuth>} />
+          <Route path="/:username/products/gear/new" element={<RequireAuth><GearForm /></RequireAuth>} />
+          <Route path="/:username/products/music/new" element={<RequireAuth><MusicForm /></RequireAuth>} />
+          <Route path="/:username/products/merch/new" element={<RequireAuth><MerchForm /></RequireAuth>} />
+          <Route path="/:username/products/accessory/new" element={<RequireAuth><AccessoryForm /></RequireAuth>} />
+          <Route path="/:username/products/service/new" element={<RequireAuth><ServiceForm /></RequireAuth>} />
           <Route path="/:username/podcasts" element={<PodcastLayout />}>
             <Route index element={<PodcastsIndex />} />
             <Route path=":id" element={<PodcastShow />} />
@@ -210,6 +234,9 @@ function AppContent() {
 
           <Route path="/checkout/success" element={<CheckoutSuccess />} />
           <Route path="/checkout/failure" element={<CheckoutFailure />} />
+
+          <Route path="/service_bookings" element={<RequireAuth><ServiceBookings /></RequireAuth>} />
+          <Route path="/service_bookings/:id" element={<RequireAuth><ServiceBookingDetail /></RequireAuth>} />
 
           <Route path="/:username/*" element={<UserShow />}>
             <Route index element={<UserHome />} />

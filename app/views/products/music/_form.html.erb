@@ -1,0 +1,62 @@
+
+<div class="m-4 rounded-lg border border-default bg-card text-card-foreground shadow-sm">
+  
+  <div class="p-6 pt-0 space-y-6">
+
+    <h2 class="text-2xl py-4 font-bold">
+      <%= link_to user_products_path(current_user.username), class: 'btn btn-xs' do %>
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-left"><path d="m15 18-6-6 6-6"/></svg>
+      <% end %>
+      <%= product.new_record? ? "New Music Product" : "Edit Music Product" %>
+    </h2>
+
+    <%= form_with(model: product, 
+        url: product.new_record? ? 
+            user_products_music_index_path(current_user.username) : 
+            user_products_music_path(current_user.username, product),
+        local: true,
+        scope: :product,
+        data: { controller: "submit-on-change" }) do |form| %>
+
+      <%= render 'products/shared/form_errors', form: form %>
+
+      <div class="grid md:grid-cols-5 gap-4 grid-cols-1">
+        
+        <div class="block pt-0 space-y-3 md:col-span-2">
+          <div class="flex space-x-2">
+            <%= form.select :category, 
+                Products::MusicProduct.categories.keys
+                                  .select { |k| ['vinyl', 'cassette', 'cd'].include?(k) }
+                                  .map { |c| [c.titleize, c] },
+                { prompt: "Select format" },
+                { data: { action: "change->submit-on-change#submitForm" } } %>
+
+            <%= form.select :playlist_id, 
+                current_user.playlists.where(playlist_type: ["album", "ep"])
+                          .map { |o| [o.title, o.id] },
+                { prompt: "Select album" },
+                { required: true } %>
+          </div>
+
+          <%= form.text_field :title %>
+          <%= render "shared/simple_editor", form: form, field: :description %>
+
+  
+          <%= form.check_box :include_digital_album, class: "rounded border-gray-300 text-indigo-600 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" %>
+          <span class="ml-2">Include digital album with purchase</span>
+    
+        </div>
+
+        <div class="flex flex-col flex-grow md:col-span-3 col-span-1">
+          <%= render "products/shared/pricing_section", form: form, show_limited_edition: true %>
+
+          <%= render "products/shared/photos_section", form: form %>
+          <%= render "products/shared/shipping_section", form: form %>
+
+          <%= render "products/shared/submit_button", form: form %>
+        </div>
+      </div>
+    <% end %>
+
+  </div>
+</div>

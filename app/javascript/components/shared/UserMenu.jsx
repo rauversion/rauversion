@@ -23,7 +23,7 @@ import useAuthStore from "../../stores/authStore"
 import { 
   User, Settings, Music, ShoppingCart, Package, FileText, 
   Calendar, LogOut, Sun, Moon, Bell, Store, CreditCard,
-  Languages
+  Languages, CalendarClock
 } from 'lucide-react'
 
 export default function UserMenu() {
@@ -76,6 +76,13 @@ export default function UserMenu() {
                 <Link to="/articles" className="rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted">
                   {I18n.t('menu.magazine')}
                 </Link>
+                {
+                  currentUser && currentUser.can_sell_products && (
+                    <Link to="/store" className="rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted">
+                      {I18n.t('menu.store')}
+                    </Link>
+                  )
+                }
               </div>
             </div>
 
@@ -176,12 +183,27 @@ export default function UserMenu() {
                             <span>{I18n.t('menu.my_sales')}</span>
                           </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link to={`/${currentUser.username}/products`}>
-                            <Package className="mr-2 h-4 w-4" />
-                            <span>{I18n.t('menu.my_products')}</span>
-                          </Link>
-                        </DropdownMenuItem>
+                        {
+                          currentUser && currentUser.can_sell_products && (
+                          <DropdownMenuItem asChild>
+                            <Link to={`/${currentUser.username}/products`}>
+                              <Package className="mr-2 h-4 w-4" />
+                              <span>{I18n.t('menu.my_products')}</span>
+                            </Link>
+                          </DropdownMenuItem>
+                          )
+                        }
+                        {
+                          currentUser && currentUser.can_sell_products && (
+                            <DropdownMenuItem asChild>
+                              <Link to="/service_bookings">
+                                <CalendarClock className="mr-2 h-4 w-4" />
+                                <span>Service Bookings</span>
+                              </Link>
+                            </DropdownMenuItem>
+                          )
+                        }
+                        
                       </DropdownMenuGroup>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
@@ -316,6 +338,12 @@ export default function UserMenu() {
                           <Link to={`/${currentUser.username}/products`}>
                             <Package className="mr-2 h-4 w-4" />
                             <span>{I18n.t('menu.my_products')}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link to="/service_bookings">
+                            <CalendarClock className="mr-2 h-4 w-4" />
+                            <span>Service Bookings</span>
                           </Link>
                         </DropdownMenuItem>
                       </DropdownMenuGroup>

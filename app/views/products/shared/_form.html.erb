@@ -1,0 +1,72 @@
+<%= form_with(model: product, 
+    url: url,
+    local: true, 
+    data: { controller: "submit-on-change" }) do |form| %>
+
+  <% if product.errors.any? %>
+    <div class="error-messages">
+      <h2><%= pluralize(product.errors.count, "error") %> prohibited this product from being saved:</h2>
+      <ul>
+        <% product.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="form-group">
+    <%= form.label :title %>
+    <%= form.text_field :title, class: "form-control" %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :description %>
+    <%= form.text_area :description, class: "form-control" %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :price %>
+    <%= form.number_field :price, step: :any, class: "form-control" %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :stock_quantity %>
+    <%= form.number_field :stock_quantity, class: "form-control" %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :sku %>
+    <%= form.text_field :sku, class: "form-control" %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :status %>
+    <%= form.select :status, Product.statuses.keys.map { |s| [s.titleize, s] }, {}, class: "form-control" %>
+  </div>
+
+  <%= yield form %>
+
+  <div class="form-group">
+    <%= form.label :shipping_days %>
+    <%= form.number_field :shipping_days, class: "form-control" %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :shipping_within_country_price %>
+    <%= form.number_field :shipping_within_country_price, step: :any, class: "form-control" %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :shipping_worldwide_price %>
+    <%= form.number_field :shipping_worldwide_price, step: :any, class: "form-control" %>
+  </div>
+
+  <div class="form-group">
+    <%= form.label :images %>
+    <%= form.file_field :images, multiple: true, class: "form-control" %>
+  </div>
+
+  <div class="form-group">
+    <%= form.submit class: "btn btn-primary" %>
+  </div>
+<% end %>

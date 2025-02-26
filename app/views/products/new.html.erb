@@ -1,3 +1,52 @@
-<div id="product-form">
-  <%= render "form", product: @product %>
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
+
+  <div class="text-center mb-12">
+    <h1 class="text-4xl font-bold text-gray-900 dark:text-white"><%= t('products.new.title') %></h1>
+    <p class="mt-4 text-xl text-gray-600 dark:text-gray-300"><%= t('products.new.subtitle') %></p>
+  </div>
+
+  <!-- 
+    bg-purple-100 dark:bg-purple-900 
+    bg-pink-100 dark:bg-pink-900 
+    bg-blue-100 dark:bg-blue-900 
+    bg-amber-100 dark:bg-amber-900 
+    bg-emerald-100 dark:bg-emerald-900 
+  -->
+
+  <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-2">
+    <%= render "products/type_card", 
+        title: t('products.new.types.music.title'),
+        description: t('products.new.types.music.description'),
+        icon_class: "music",
+        color: "purple",
+        path: new_user_products_music_path(current_user.username) %>
+
+    <%= render "products/type_card", 
+        title: t('products.new.types.gear.title'),
+        description: t('products.new.types.gear.description'),
+        icon_class: "gear",
+        color: "blue",
+        path: new_user_products_gear_path(current_user.username) %>
+
+    <%= render "products/type_card", 
+        title: t('products.new.types.merch.title'),
+        description: t('products.new.types.merch.description'),
+        icon_class: "merch",
+        color: "pink",
+        path: new_user_products_merch_path(current_user.username) %>
+
+    <%= render "products/type_card", 
+        title: t('products.new.types.accessory.title'),
+        description: t('products.new.types.accessory.description'),
+        icon_class: "accessory",
+        color: "amber",
+        path: new_user_products_accessory_path(current_user.username) %>
+
+    <%= render "products/type_card", 
+        title: t('products.new.types.service.title'),
+        description: t('products.new.types.service.description'),
+        icon_class: "service",
+        color: "emerald",
+        path: new_user_products_service_path(current_user.username) %>
+  </div>
 </div>

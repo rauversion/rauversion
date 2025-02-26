@@ -7,7 +7,7 @@ const useAuthStore = create((set, get) => ({
   cartItemCount: 0,
   i18n: { locale: 'en' },
   env: {},
-  loading: false,
+  loading: true,
   error: null,
 
   // Initialize auth state

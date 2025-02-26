@@ -1,0 +1,37 @@
+<div class="container">
+  <div class="row mb-4">
+    <div class="col">
+      <h1>Merchandise</h1>
+      <%= link_to 'Add New Merch', new_user_products_merch_path(current_user.username), class: 'btn btn-primary' if current_user == @profile %>
+    </div>
+  </div>
+
+  <div class="row mb-4">
+    <div class="col">
+      <%= search_form_for @q, url: user_products_merch_index_path(@profile.username), class: 'form-inline' do |f| %>
+        <div class="form-group mr-2">
+          <%= f.search_field :title_cont, placeholder: 'Search by title', class: 'form-control' %>
+        </div>
+        <div class="form-check mr-2">
+          <%= f.check_box :limited_edition_true, class: 'form-check-input' %>
+          <%= f.label :limited_edition_true, 'Limited Edition Only', class: 'form-check-label' %>
+        </div>
+        <%= f.submit 'Search', class: 'btn btn-secondary' %>
+      <% end %>
+    </div>
+  </div>
+
+  <div class="row">
+    <% @products.each do |product| %>
+      <div class="col-md-4 mb-4">
+        <%= render 'products/shared/product_card', product: product %>
+      </div>
+    <% end %>
+  </div>
+
+  <div class="row">
+    <div class="col">
+      <%= paginate @products %>
+    </div>
+  </div>
+</div>

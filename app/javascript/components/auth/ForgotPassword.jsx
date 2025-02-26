@@ -19,7 +19,7 @@ export default function ForgotPassword() {
   const onSubmit = async (data) => {
     setIsSubmitting(true)
     try {
-      const response = await post('/users/password', {
+      const response = await post('/users/password.json', {
         responseKind: 'json',
         body: JSON.stringify({
           user: {

@@ -13,16 +13,11 @@
     <% end %>
   </h2>
 
-  <%= form_with(model: product, local: true, data: {
+  <%= form_with(model: product, url: product.new_record? ? user_products_path(current_user.username) : user_product_path(current_user.username, product), local: true, data: {
       controller: "submit-on-change"
     }) do |form| %>
 
-    <% if form.object.errors.any? %>
-      <div class="py-3">
-        <p class="text-danger text-red-500 text-2xl">Errors Found</p>
-        <%= form.object.errors.full_messages.join(" ") %>
-      </div>
-    <% end %>
+    <%= render 'products/shared/form_errors', form: form %>
   
     <div class="space-y-3">
       <div class="block pt-0 space-y-3">
@@ -175,21 +170,8 @@
         </div>
       </div>
 
-      <div class="py-2 fixed bottom-[65px] w-full bg-emphasis left-0 border-t border-muted">
-       
-        <div class="flex space-x-2 items-center p-6">
-          
-          <%= form.submit %>
+      <%= render "shared/submit_button", form: form %>
 
-          <% if form.object.errors.any? %>
-            <div class="py-3">
-              <p class="text-danger text-red-500 text-2xl">Errors Found</p>
-              <%= form.object.errors.full_messages.join(" ") %>
-            </div>
-          <% end %>
-
-        </div>
-      </div>
     </div>
   <% end %>
 </div>

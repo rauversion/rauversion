@@ -171,7 +171,7 @@ export function ImageUploader({
           }}
         />
         <div 
-          className="aspect-[16/9] bg-zinc-800 rounded-lg flex items-center justify-center cursor-pointer"
+          className="aspect-[16/9]- py-4 bg-subtle rounded-lg flex items-center justify-center cursor-pointer"
           onClick={onButtonClick}
         >
           {preview && imageUrl ? (
