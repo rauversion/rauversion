@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Textarea } from "@/components/ui/textarea"
+import SimpleEditor from "@/components/ui/SimpleEditor"
+
 import {
   FormControl,
   FormField,
@@ -30,7 +32,7 @@ export default function MerchForm({ product, isEditing = false }) {
   
   const form = useForm({
     defaultValues: {
-      category: 'merch',
+      // category: 'merch',
       title: product?.title || '',
       description: product?.description || '',
       brand: product?.brand || '',
@@ -43,12 +45,16 @@ export default function MerchForm({ product, isEditing = false }) {
       status: product?.status || 'active',
       shipping_days: product?.shipping_days || '',
       shipping_begins_on: product?.shipping_begins_on || '',
-      shipping_within_country_price: product?.shipping_within_country_price || '',
-      shipping_worldwide_price: product?.shipping_worldwide_price || '',
       visibility: product?.visibility || 'public',
       name_your_price: product?.name_your_price || false,
       quantity: product?.quantity || 1,
-      product_images_attributes: product?.photos || []
+      product_images_attributes: product?.photos || [],
+      product_shippings_attributes: product?.shipping_options?.map(option => ({
+        id: option.id,
+        country: option.country,
+        base_cost: option.base_cost,
+        additional_cost: option.additional_cost
+      })) || []
     }
   })
 
@@ -154,12 +160,15 @@ export default function MerchForm({ product, isEditing = false }) {
                 <FormField
                   control={form.control}
                   name="description"
-                  rules={{ required: "Description is required" }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>{I18n.t('products.merch.form.description')}</FormLabel>
                       <FormControl>
-                        <Textarea {...field} rows={4} />
+                        <SimpleEditor
+                          value={field.value}
+                          onChange={field.onChange}
+                          scope="product"
+                        />
                       </FormControl>
                       <FormMessage />
                     </FormItem>

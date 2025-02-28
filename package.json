@@ -75,6 +75,7 @@
     "react-router": "^7.1.4",
     "react-router-dom": "^7.1.4",
     "react-select": "^5.7.0",
+    "react-select-country-list": "^2.2.3",
     "recharts": "^2.15.1",
     "sonner": "^1.7.3",
     "sortablejs": "^1.7.0",

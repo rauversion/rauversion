@@ -70,12 +70,16 @@ export default function GearForm({ product, isEditing = false }) {
       status: product?.status || 'active',
       shipping_days: product?.shipping_days || '',
       shipping_begins_on: product?.shipping_begins_on || '',
-      shipping_within_country_price: product?.shipping_within_country_price || '',
-      shipping_worldwide_price: product?.shipping_worldwide_price || '',
       visibility: product?.visibility || 'public',
       name_your_price: product?.name_your_price || false,
       quantity: product?.quantity || 1,
-      product_images_attributes: product?.product_images || []
+      product_images_attributes: product?.product_images || [],
+      product_shippings_attributes: product?.shipping_options?.map(option => ({
+        id: option.id,
+        country: option.country,
+        base_cost: option.base_cost,
+        additional_cost: option.additional_cost
+      })) || []
     }
   })
 

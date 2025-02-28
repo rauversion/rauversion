@@ -11,7 +11,8 @@ module Products
       hoodies: 'hoodies',
       mugs: 'mugs',
       stickers: 'stickers',
-      other: 'other'
+      other: 'other',
+      merch: 'merch'
     }
     private
 

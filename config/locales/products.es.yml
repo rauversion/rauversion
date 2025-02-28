@@ -167,6 +167,14 @@ es:
       shipping:
         title: "Envíos"
         shipping_days: "Días de Envío"
+        shipping_begins_on: "Comienza a enviar el"
+        shipping_options: "Opciones de Envío"
+        add_shipping_option: "Agregar Opción de Envío"
+        option: "Opción"
+        country: "País"
+        select_country: "Seleccionar país"
+        base_cost: "Costo base para primer artículo"
+        additional_cost: "Costo por artículo adicional"
         shipping_cost: "Costo de envío"
         ships_internationally: "Envíos internacionales"
         international_shipping_cost: "Costo de envío internacional"
@@ -200,6 +208,8 @@ es:
     merch:
       new:
         title: "Nueva Mercancía"
+      edit:
+        title: "Editar Mercancía"
       show:
         about: "Acerca de"
         details: "Detalles"
@@ -212,7 +222,7 @@ es:
         model: "Modelo"
         limited_edition: "Edición limitada"
         limited_edition_count: "Cantidad de edición limitada"
-
+        update: Update
     accessory:
       new:
         title: "Nuevo Accesorio"

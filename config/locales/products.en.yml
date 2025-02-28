@@ -41,7 +41,8 @@ en:
         schedule: Schedule Service
         mark_complete: Mark as Completed
         cancel: Cancel Service
-        cancel_confirm: Are you sure you want to cancel this service? This action
+        cancel_confirm:
+          Are you sure you want to cancel this service? This action
           cannot be undone.
         provider_notes: Notes from the Supplier
         search_placeholder: Search in the store...
@@ -179,11 +180,20 @@ en:
         compare_at_price: Price comparison
         accept_barter: Accept barter
         barter_description: Description of barter
-        barter_description_placeholder: Describe what type of equipment you would
+        barter_description_placeholder:
+          Describe what type of equipment you would
           accept in exchange...
       shipping:
         title: Shipments
         shipping_days: Shipping Days
+        shipping_begins_on: Begins shipping on
+        shipping_options: Shipping Options
+        add_shipping_option: Add Shipping Option
+        option: Option
+        country: Country
+        select_country: Select country
+        base_cost: Base cost for first item
+        additional_cost: Cost per additional item
         shipping_cost: Shipping cost
         ships_internationally: |-
           ES: Envíos internacionales
@@ -226,22 +236,19 @@ en:
     merch:
       new:
         title: New Merchandise
+      edit:
+        title: Edit Merchandise
       show:
         about: About
         details: Details
         shipping: Shipments
         add_to_cart: Add to Cart
       form:
-        title: |-
-          ES: Título
-          EN: Title
-        description: |-
-          ES: Descripción
-          EN: Description
+        title: Título
+        description: Descripción
         brand: Brand
-        model: |-
-          ES: Modelo
-          EN: Model
+        model: Modelo
+        update: "Update"
         limited_edition: Limited edition
         limited_edition_count: Quantity of limited edition
     accessory:

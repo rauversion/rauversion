@@ -35,7 +35,7 @@ module Products
         images: [], 
         product_variants_attributes: [:id, :name, :price, :stock_quantity, :_destroy],
         product_options_attributes: [:id, :name, :quantity, :sku, :_destroy],
-        product_images_attributes: [:id, :name, :description, :image, :_destroy],
+        product_images_attributes: [:id, :title, :description, :image, :_destroy],
         product_shippings_attributes: [:id, :country, :base_cost, :additional_cost, :_destroy]
       )
     end

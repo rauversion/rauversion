@@ -39,7 +39,7 @@ json.product do
   json.photos @product.product_images do |photo|
     json.id photo.id
     json.url url_for(photo.image)
-    json.name photo.title
+    json.title photo.title
   end
 
   # Shipping options
