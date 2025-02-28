@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { Badge } from '../ui/badge'
 import { Button } from '../ui/button'
 import { Skeleton } from '../ui/skeleton'
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll"
 
 function LoadingSkeleton() {
   return (
@@ -138,27 +139,15 @@ function ArticleCard({ article, featured = false }) {
 
 export default function ArticlesIndex() {
   const [searchParams] = useSearchParams()
-  const [articles, setArticles] = useState([])
-  const [loading, setLoading] = useState(true)
   
   const currentCategory = searchParams.get('category')
   const currentTag = searchParams.get('tag')
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const articlesResponse = await fetch(`/articles.json${window.location.search}`)
-        const articlesData = await articlesResponse.json()
-        setArticles(articlesData)
-      } catch (error) {
-        console.error('Error fetching data:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchData()
-  }, [searchParams])
+    const {
+      items: articles,
+      loading,
+      lastElementRef,
+    } = useInfiniteScroll(`/articles.json${window.location.search}`)
 
   if (loading) return <LoadingSkeleton />
 
@@ -235,12 +224,17 @@ export default function ArticlesIndex() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 auto-rows-max gap-6">
-              {articles.items?.map((article, index) => (
-                <ArticleCard 
-                  key={article.id} 
-                  article={article}
-                  featured={index === 0}
-                />
+              {articles?.map((article, index) => (
+                <div                   
+                  ref={index === articles.length - 1 ? lastElementRef : null}
+                  key={article.id}
+                >
+                  <ArticleCard 
+                    key={article.id} 
+                    article={article}
+                    featured={index === 0}
+                  />
+                </div>
               ))}
             </div>
           </div>

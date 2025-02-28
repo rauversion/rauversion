@@ -17,7 +17,7 @@ class ArticlesController < ApplicationController
       @articles = @articles.where("tags @> ARRAY[?]::varchar[]", [params[:tag]])
     end
 
-    @articles = @articles.page(params[:page]).per(6)
+    @articles = @articles.page(params[:page]).per(1)
 
     if request.headers["Turbo-Frame"]&.include?("articles_list")
       respond_to do |format|

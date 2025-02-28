@@ -1,4 +1,4 @@
-json.items @articles do |article|
+json.collection @articles do |article|
   json.id article.id
   json.slug article.slug
   json.title article.title
@@ -34,9 +34,14 @@ json.items @articles do |article|
   json.tags article.tags
 end
 
-json.total_count @articles.total_count
-json.current_page @articles.current_page
-json.total_pages @articles.total_pages
+
+json.metadata do
+  json.total_count @articles.total_count
+  json.current_page @articles.current_page
+  json.total_pages @articles.total_pages
+  json.next_page @articles.next_page
+  json.prev_page @articles.prev_page
+end
 
 json.categories @categories do |category|
   json.id category.id
