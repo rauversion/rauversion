@@ -865,7 +865,7 @@ en:
       not_found: User not found
       error_fetching: Error loading the user
       location:
-        separator: There is no text provided to translate.
+        separator: "·"
   user_settings:
     title_account: Account
     sub_account: Basic account information.

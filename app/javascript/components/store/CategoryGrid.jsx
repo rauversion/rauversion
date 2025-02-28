@@ -96,27 +96,6 @@ const CategoryGrid = () => {
         })}
       </motion.div>
 
-      <div className="flex justify-between items-center mt-8 px-4">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-            <span className="text-sm">?</span>
-          </div>
-          <div>
-            <p className="font-medium">Need shopping help?</p>
-            <button className="text-blue-500 hover:underline text-sm">Ask a Specialist</button>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
-            <span className="text-sm">📍</span>
-          </div>
-          <div>
-            <p className="font-medium">Visit Store</p>
-            <button className="text-blue-500 hover:underline text-sm">Find one near you</button>
-          </div>
-        </div>
-      </div>
     </div>
   )
 }
