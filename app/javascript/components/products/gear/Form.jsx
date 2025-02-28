@@ -66,6 +66,7 @@ export default function GearForm({ product, isEditing = false }) {
       barter_description: product?.barter_description || '',
       price: product?.price || '',
       stock_quantity: product?.stock_quantity || '',
+      sku: product?.sku || '',
       status: product?.status || 'active',
       shipping_days: product?.shipping_days || '',
       shipping_begins_on: product?.shipping_begins_on || '',

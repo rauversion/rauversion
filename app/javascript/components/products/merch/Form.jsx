@@ -39,6 +39,7 @@ export default function MerchForm({ product, isEditing = false }) {
       limited_edition_count: product?.limited_edition_count || '',
       price: product?.price || '',
       stock_quantity: product?.stock_quantity || '',
+      sku: product?.sku || '',
       status: product?.status || 'active',
       shipping_days: product?.shipping_days || '',
       shipping_begins_on: product?.shipping_begins_on || '',
@@ -47,7 +48,7 @@ export default function MerchForm({ product, isEditing = false }) {
       visibility: product?.visibility || 'public',
       name_your_price: product?.name_your_price || false,
       quantity: product?.quantity || 1,
-      photos: product?.product_images || []
+      product_images_attributes: product?.photos || []
     }
   })
 

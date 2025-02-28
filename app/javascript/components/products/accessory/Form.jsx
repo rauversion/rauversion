@@ -46,6 +46,7 @@ export default function AccessoryForm({ product, isEditing = false }) {
       brand: product?.brand || '',
       model: product?.model || '',
       price: product?.price || '',
+      sku: product?.sku || '',
       stock_quantity: product?.stock_quantity || '',
       status: product?.status || 'active',
       shipping_days: product?.shipping_days || '',
@@ -55,7 +56,7 @@ export default function AccessoryForm({ product, isEditing = false }) {
       visibility: product?.visibility || 'public',
       name_your_price: product?.name_your_price || false,
       quantity: product?.quantity || 1,
-      photos: product?.product_images || []
+      product_images_attributes: product?.photos || []
     }
   })
 

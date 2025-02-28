@@ -62,7 +62,7 @@ export default function MusicForm({ product, isEditing = false }) {
       visibility: product?.visibility || 'public',
       name_your_price: product?.name_your_price || false,
       quantity: product?.quantity || 1,
-      photos: []
+      product_images_attributes: product?.photos || []
     }
   })
 

@@ -3,6 +3,7 @@ json.product do
   json.title @product.title
   json.type @product.type
   json.slug @product.slug
+  json.sku @product.sku
   json.description @product.description
   json.category @product.category
   json.price @product.price
