@@ -190,6 +190,9 @@ es:
     music:
       new:
         title: "Nuevo Producto Musical"
+      show:
+        business_days: "Días hábiles"
+        shipping_cost: "Costo de envío"
       form:
         format: "Formato"
         select_format: "Seleccionar formato"

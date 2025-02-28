@@ -212,19 +212,16 @@ en:
     music:
       new:
         title: New Musical Product
+      show:
+        business_days: Business days
+        shipping_cost: Shipping cost
       form:
-        format: |-
-          ES: Formato
-          EN: Format
+        format: Format
         select_format: Select format
         album: Album
         select_album: Select album
-        title: |-
-          ES: Título
-          EN: Title
-        description: |-
-          ES: Descripción
-          EN: Description
+        title: Title
+        description: Description
         include_digital: Include digital album
       formats:
         vinyl: Vinyl
