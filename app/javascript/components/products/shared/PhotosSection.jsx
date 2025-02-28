@@ -67,7 +67,7 @@ export default function PhotosSection({ control }) {
                         <div className="relative">
                           <img
                             src={image.id ? 
-                              `/rails/active_storage/blobs/redirect/${image.image}/photo.jpg` :
+                              image.url :
                               `/rails/active_storage/blobs/redirect/${image.image}/photo.jpg`
                             }
                             alt={image.title || `Photo ${index + 1}`}

@@ -7,6 +7,7 @@ json.product do
   json.price @product.price
   json.type @product.type
   json.stock_quantity @product.stock_quantity
+  json.sku @product.sku
   json.status @product.status
   json.condition @product.condition
   json.include_digital_album @product.include_digital_album
@@ -15,6 +16,7 @@ json.product do
   json.shipping_days @product.shipping_days
   json.created_at @product.created_at
   json.updated_at @product.updated_at
+  json.playlist_id @product.playlist_id
 
   # Associated album details
   if @product.album.present?
@@ -43,9 +45,10 @@ json.product do
   # Shipping options
   json.shipping_options @product.product_shippings do |shipping|
     json.id shipping.id
-    json.region shipping.region
-    json.price shipping.price
-    json.estimated_days shipping.estimated_days
+    json.country shipping.country
+    json.base_cost shipping.base_cost
+    json.additional_cost shipping.additional_cost
+    # json.estimated_days shipping.estimated_days
   end
 
   # Seller information

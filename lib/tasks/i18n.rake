@@ -2,30 +2,38 @@ require 'yaml'
 require 'ruby/openai'
 require 'active_support/core_ext/hash/deep_merge'
 
+# rails i18n:translate"[products.es.yml,en]"
 namespace :i18n do
-  desc "Translate es.yml to en.yml using OpenAI"
-  task :translate_to_english => :environment do
+  desc "Translate YAML files using OpenAI. Usage: rake i18n:translate[source_file,target_lang]"
+  task :translate, [:source_file, :target_lang] => :environment do |t, args|
+    # Set defaults if arguments are not provided
+    source_file = args[:source_file] || 'es.yml'
+    target_lang = args[:target_lang] || 'en'
+    
+    # Extract source language from filename (assuming format like 'products.es.yml')
+    source_lang = source_file.match(/\.([a-z]{2})\.yml$/)&.[](1) || 'es'
+    
     # Initialize OpenAI client
     client = OpenAI::Client.new(
       access_token: ENV['OPENAI_API_KEY'],
       request_timeout: 240
     )
 
-    # Load Spanish YAML
-    spanish_file = Rails.root.join('config', 'locales', 'es.yml')
-    spanish_yaml = YAML.load_file(spanish_file)
-    spanish_translations = spanish_yaml['es']
+    # Load source YAML
+    source_path = Rails.root.join('config', 'locales', source_file)
+    source_yaml = YAML.load_file(source_path)
+    source_translations = source_yaml[source_lang]
 
     # Initialize result hash
-    english_translations = { 'en' => {} }
+    target_translations = { target_lang => {} }
 
-    def translate_hash(client, hash, path = [], result = {})
+    def translate_hash(client, hash, source_lang, target_lang, path = [], result = {})
       hash.each do |key, value|
         current_path = path + [key]
         
         if value.is_a?(Hash)
           result[key] = {}
-          translate_hash(client, value, current_path, result[key])
+          translate_hash(client, value, source_lang, target_lang, current_path, result[key])
         else
           # Skip translation for interpolation variables and special formats
           if value.is_a?(String) && 
@@ -35,9 +43,9 @@ namespace :i18n do
              !value.match?(/^[0-9\s]*$/) # Skip numeric strings
             
             prompt = <<~PROMPT
-              Translate this Spanish text to English, maintaining any special characters or formatting:
-              Spanish: #{value}
-              English:
+              Translate this #{source_lang.upcase} text to #{target_lang.upcase}, maintaining any special characters or formatting:
+              #{source_lang.upcase}: #{value}
+              #{target_lang.upcase}:
             PROMPT
 
             response = client.chat(
@@ -67,15 +75,22 @@ namespace :i18n do
     end
 
     begin
-      puts "Starting translation..."
-      english_translations['en'] = translate_hash(client, spanish_translations)
+      puts "Starting translation from #{source_lang} to #{target_lang}..."
+      target_translations[target_lang] = translate_hash(client, source_translations, source_lang, target_lang)
 
-      # Save to en.yml
-      english_file = Rails.root.join('config', 'locales', 'en.yml')
-      File.write(english_file, english_translations.to_yaml)
+      # Generate target filename (preserve prefix if exists)
+      if source_file.include?('.')
+        prefix = source_file.split('.')[0..-3].join('.')
+        target_file = prefix.empty? ? "#{target_lang}.yml" : "#{prefix}.#{target_lang}.yml"
+      else
+        target_file = "#{target_lang}.yml"
+      end
+      
+      target_path = Rails.root.join('config', 'locales', target_file)
+      File.write(target_path, target_translations.to_yaml)
       
       puts "Translation completed successfully!"
-      puts "Output saved to: #{english_file}"
+      puts "Output saved to: #{target_path}"
     rescue => e
       puts "Error during translation: #{e.message}"
       puts e.backtrace

@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { ChevronLeft } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -23,7 +23,7 @@ import ShippingSection from '../shared/ShippingSection'
 import PhotosSection from '../shared/PhotosSection'
 import useAuthStore from '@/stores/authStore'
 import I18n from '@/stores/locales'
-import { post } from '@rails/request.js'
+import { post, patch } from '@rails/request.js'
 
 const GEAR_CATEGORIES = [
   { value: 'instrument', label: 'Instrument' },
@@ -47,23 +47,34 @@ const CONDITIONS = [
   { value: 'poor', label: 'Poor' }
 ]
 
-export default function GearForm() {
+export default function GearForm({ product, isEditing = false }) {
   const { currentUser } = useAuthStore()
   const navigate = useNavigate()
   const { isDarkMode } = useThemeStore()
+  const { username, slug } = useParams()
+  
   const form = useForm({
     defaultValues: {
-      category: '',
-      brand: '',
-      model: '',
-      year: new Date().getFullYear(),
-      condition: '',
-      title: '',
-      description: '',
-      accept_barter: false,
-      barter_description: '',
-      product_images_attributes: [],
-      status: 'draft'
+      category: product?.category || '',
+      brand: product?.brand || '',
+      model: product?.model || '',
+      year: product?.year || new Date().getFullYear(),
+      condition: product?.condition || '',
+      title: product?.title || '',
+      description: product?.description || '',
+      accept_barter: product?.accept_barter || false,
+      barter_description: product?.barter_description || '',
+      price: product?.price || '',
+      stock_quantity: product?.stock_quantity || '',
+      status: product?.status || 'active',
+      shipping_days: product?.shipping_days || '',
+      shipping_begins_on: product?.shipping_begins_on || '',
+      shipping_within_country_price: product?.shipping_within_country_price || '',
+      shipping_worldwide_price: product?.shipping_worldwide_price || '',
+      visibility: product?.visibility || 'public',
+      name_your_price: product?.name_your_price || false,
+      quantity: product?.quantity || 1,
+      product_images_attributes: product?.product_images || []
     }
   })
 
@@ -86,15 +97,25 @@ export default function GearForm() {
         })).filter(img => img.image || img._destroy) // Only send images that have content or are marked for deletion
       }
 
-      const response = await post(`/${currentUser.username}/products/gear`, {
-        responseKind: 'json',
-        body: { product: formData }
-      })
+      let response;
+      let targetUsername = isEditing ? username : currentUser.username;
+      
+      if (isEditing) {
+        response = await patch(`/${targetUsername}/products/gear/${slug}`, {
+          responseKind: 'json',
+          body: { product: formData }
+        });
+      } else {
+        response = await post(`/${targetUsername}/products/gear`, {
+          responseKind: 'json',
+          body: { product: formData }
+        });
+      }
       
       const result = await response.json
       
       if (response.ok) {
-        navigate(`/${currentUser.username}/products/${result.product.slug}`)
+        navigate(`/${targetUsername}/products/${result.product.slug}`)
       } else {
         // Set field errors from backend
         Object.keys(result.errors).forEach(key => {
@@ -105,7 +126,7 @@ export default function GearForm() {
         })
       }
     } catch (error) {
-      console.error('Failed to create product:', error)
+      console.error(`Failed to ${isEditing ? 'update' : 'create'} product:`, error)
       form.setError('root', {
         type: 'backend',
         message: 'An unexpected error occurred'
@@ -130,11 +151,13 @@ export default function GearForm() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate(`/${currentUser.username}/products`)}
+            onClick={() => navigate(`/${isEditing ? username : currentUser.username}/products`)}
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
-          {I18n.t('products.gear.new.title')}
+          {isEditing 
+            ? I18n.t('products.gear.edit.title') 
+            : I18n.t('products.gear.new.title')}
         </h2>
 
         <FormErrors errors={backendErrors} />
@@ -321,7 +344,9 @@ export default function GearForm() {
               >
                 {form.formState.isSubmitting
                   ? I18n.t('products.gear.form.submitting')
-                  : I18n.t('products.gear.form.submit')}
+                  : isEditing 
+                    ? I18n.t('products.gear.form.update')
+                    : I18n.t('products.gear.form.submit')}
               </Button>
             </div>
           </div>

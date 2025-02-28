@@ -1,6 +1,6 @@
 import React from 'react'
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { ChevronLeft } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -23,7 +23,7 @@ import ShippingSection from '../shared/ShippingSection'
 import PhotosSection from '../shared/PhotosSection'
 import useAuthStore from '@/stores/authStore'
 import I18n from '@/stores/locales'
-import { post } from '@rails/request.js'
+import { post, patch } from '@rails/request.js'
 
 const ACCESSORY_CATEGORIES = [
   { value: 'cables', label: 'Cables' },
@@ -32,19 +32,30 @@ const ACCESSORY_CATEGORIES = [
   { value: 'other', label: 'Other' }
 ]
 
-export default function AccessoryForm() {
+export default function AccessoryForm({ product, isEditing = false }) {
   const { currentUser } = useAuthStore()
   const navigate = useNavigate()
   const { isDarkMode } = useThemeStore()
+  const { username, slug } = useParams()
   
   const form = useForm({
     defaultValues: {
-      category: '',
-      title: '',
-      description: '',
-      brand: '',
-      model: '',
-      photos: []
+      category: product?.category || '',
+      title: product?.title || '',
+      description: product?.description || '',
+      brand: product?.brand || '',
+      model: product?.model || '',
+      price: product?.price || '',
+      stock_quantity: product?.stock_quantity || '',
+      status: product?.status || 'active',
+      shipping_days: product?.shipping_days || '',
+      shipping_begins_on: product?.shipping_begins_on || '',
+      shipping_within_country_price: product?.shipping_within_country_price || '',
+      shipping_worldwide_price: product?.shipping_worldwide_price || '',
+      visibility: product?.visibility || 'public',
+      name_your_price: product?.name_your_price || false,
+      quantity: product?.quantity || 1,
+      photos: product?.product_images || []
     }
   })
 
@@ -63,15 +74,25 @@ export default function AccessoryForm() {
       // Clear any existing errors before submitting
       form.clearErrors()
 
-      const response = await post(`/${currentUser.username}/products/accessory`, {
-        responseKind: 'json',
-        body: { product: data }
-      })
+      let response;
+      let targetUsername = isEditing ? username : currentUser.username;
+      
+      if (isEditing) {
+        response = await patch(`/${targetUsername}/products/accessory/${slug}`, {
+          responseKind: 'json',
+          body: { product: data }
+        });
+      } else {
+        response = await post(`/${targetUsername}/products/accessory`, {
+          responseKind: 'json',
+          body: { product: data }
+        });
+      }
       
       const result = await response.json
       
       if (response.ok) {
-        navigate(`/${currentUser.username}/products/${result.product.slug}`)
+        navigate(`/${targetUsername}/products/${result.product.slug}`)
       } else {
         // Set field errors from backend
         Object.keys(result.errors).forEach(key => {
@@ -82,7 +103,7 @@ export default function AccessoryForm() {
         })
       }
     } catch (error) {
-      console.error('Failed to create product:', error)
+      console.error(`Failed to ${isEditing ? 'update' : 'create'} product:`, error)
       form.setError('root', {
         type: 'backend',
         message: 'An unexpected error occurred'
@@ -97,11 +118,13 @@ export default function AccessoryForm() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate(`/${currentUser.username}/products`)}
+            onClick={() => navigate(`/${isEditing ? username : currentUser.username}/products`)}
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
-          {I18n.t('products.accessory.new.title')}
+          {isEditing 
+            ? I18n.t('products.accessory.edit.title') 
+            : I18n.t('products.accessory.new.title')}
         </h2>
 
         <FormErrors errors={form.formState.errors} />
@@ -207,7 +230,9 @@ export default function AccessoryForm() {
                 >
                   {form.formState.isSubmitting
                     ? I18n.t('products.accessory.form.submitting')
-                    : I18n.t('products.accessory.form.submit')}
+                    : isEditing 
+                      ? I18n.t('products.accessory.form.update')
+                      : I18n.t('products.accessory.form.submit')}
                 </Button>
               </div>
             </div>

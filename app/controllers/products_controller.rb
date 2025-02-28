@@ -118,6 +118,9 @@ class ProductsController < ApplicationController
   end
 
   def edit
+    respond_to do |format|
+      format.html { render html: "", layout: "react" }
+    end
   end
 
   def update

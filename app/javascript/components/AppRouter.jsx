@@ -72,6 +72,7 @@ import ReleasePreview from "./releases/ReleasePreview"
 import AlbumsIndex from "./albums/Index"
 import StoreIndex from "./store/Index"
 import ProductNew from "./products/New"
+import ProductEdit from "./products/Edit"
 import GearForm from "./products/gear/Form"
 import MusicForm from "./products/music/Form"
 import MerchForm from "./products/merch/Form"
@@ -213,6 +214,7 @@ function AppContent() {
           <Route path="/:username/products/merch/new" element={<RequireAuth><MerchForm /></RequireAuth>} />
           <Route path="/:username/products/accessory/new" element={<RequireAuth><AccessoryForm /></RequireAuth>} />
           <Route path="/:username/products/service/new" element={<RequireAuth><ServiceForm /></RequireAuth>} />
+          <Route path="/:username/products/:slug/edit" element={<RequireAuth><ProductEdit /></RequireAuth>} />
           <Route path="/:username/podcasts" element={<PodcastLayout />}>
             <Route index element={<PodcastsIndex />} />
             <Route path=":id" element={<PodcastShow />} />

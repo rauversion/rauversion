@@ -47,10 +47,18 @@ module Products
       @product = find_product
 
       if @product.update(product_params)
-        redirect_to user_products_service_path(current_user.username, @product),
+
+        respond_to do |format|
+          format.html {
+            redirect_to user_products_service_path(current_user.username, @product),
                     notice: 'Service was successfully updated.'
+          }
+          format.json {
+            render "create"
+          }
+        end
       else
-        render :edit, status: :unprocessable_entity
+        render :create, status: :unprocessable_entity
       end
     end
 

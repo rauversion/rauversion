@@ -5,16 +5,22 @@ import GearShow from './gear/Show'
 import MerchShow from './merch/Show'
 import AccessoryShow from './accessory/Show'
 import useCartStore from '@/stores/cartStore'
-import { useParams, Link } from 'react-router-dom'
+import useAuthStore from '@/stores/authStore'
+import { useParams, Link, useNavigate } from 'react-router-dom'
 import { get } from '@rails/request.js'
+import { Button } from '@/components/ui/button'
+import { Pencil } from 'lucide-react'
+import I18n from '@/stores/locales'
 
 export default function ProductShow() {
-
+  const { currentUser } = useAuthStore()
+  const navigate = useNavigate()
   const { username, slug } = useParams()
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
   const [selectedImage, setSelectedImage] = useState(null)
   const { addToCart } = useCartStore()
+  const [isOwner, setIsOwner] = useState(false)
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -23,8 +29,13 @@ export default function ProductShow() {
         if (response.ok) {
           const data = await response.json
           setProduct(data.product)
-          if (data.photos.length > 0) {
+          if (data.photos?.length > 0) {
             setSelectedImage(data.photos[0])
+          }
+          
+          // Check if current user is the owner of the product
+          if (currentUser && data.product.user && data.product.user.id === currentUser.id) {
+            setIsOwner(true)
           }
         }
       } catch (error) {
@@ -71,5 +82,26 @@ export default function ProductShow() {
     )
   }
 
-  return <ProductComponent product={product} />
+  const handleEdit = () => {
+    navigate(`/${username}/products/${slug}/edit`)
+  }
+
+  return (
+    <div>
+      {isOwner && (
+        <div className="flex justify-end mb-4 px-4">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleEdit}
+            className="flex items-center gap-2"
+          >
+            <Pencil className="h-4 w-4" />
+            {I18n.t('products.show.edit_product')}
+          </Button>
+        </div>
+      )}
+      <ProductComponent product={product} />
+    </div>
+  )
 }

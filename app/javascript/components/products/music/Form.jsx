@@ -1,6 +1,6 @@
 import React from 'react'
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { ChevronLeft } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -24,27 +24,44 @@ import ShippingSection from '../shared/ShippingSection'
 import PhotosSection from '../shared/PhotosSection'
 import useAuthStore from '@/stores/authStore'
 import I18n from '@/stores/locales'
-import { get, post } from '@rails/request.js'
+import { get, post, patch } from '@rails/request.js'
 
 const MUSIC_FORMATS = [
   { value: 'vinyl', label: I18n.t('music.index.format.vinyl') },
   { value: 'cassette', label: I18n.t('music.index.format.cassette') },
-  { value: 'cd', label: I18n.t('music.index.format.cd') }
+  { value: 'cd', label: I18n.t('music.index.format.cd') },
+  { value: 'blue_ray', label: I18n.t('music.index.format.blue_ray') },
+  { value: 'digital', label: I18n.t('music.index.format.digital') },
+  { value: 'other', label: I18n.t('music.index.format.other') }
 ]
 
-export default function MusicForm() {
+export default function MusicForm({ product, isEditing = false }) {
   const { currentUser } = useAuthStore()
   const navigate = useNavigate()
   const { isDarkMode } = useThemeStore()
   const [albums, setAlbums] = React.useState([])
+  const { username, slug } = useParams()
   
   const form = useForm({
     defaultValues: {
-      category: '',
-      playlist_id: '',
-      title: '',
-      description: '',
-      include_digital_album: false,
+      category: product?.category || '',
+      playlist_id: product?.playlist_id || '',
+      title: product?.title || '',
+      description: product?.description || '',
+      include_digital_album: product?.include_digital_album || false,
+      price: product?.price || '',
+      stock_quantity: product?.stock_quantity || '',
+      sku: product?.sku || '',
+      status: product?.status || 'active',
+      limited_edition: product?.limited_edition || false,
+      limited_edition_count: product?.limited_edition_count || '',
+      shipping_days: product?.shipping_days || '',
+      shipping_begins_on: product?.shipping_begins_on || '',
+      shipping_within_country_price: product?.shipping_within_country_price || '',
+      shipping_worldwide_price: product?.shipping_worldwide_price || '',
+      visibility: product?.visibility || 'public',
+      name_your_price: product?.name_your_price || false,
+      quantity: product?.quantity || 1,
       photos: []
     }
   })
@@ -80,15 +97,25 @@ export default function MusicForm() {
       // Clear any existing errors before submitting
       form.clearErrors()
 
-      const response = await post(`/${currentUser.username}/products/music`, {
-        responseKind: 'json',
-        body: { product: data }
-      })
+      let response;
+      let targetUsername = isEditing ? username : currentUser.username;
+      
+      if (isEditing) {
+        response = await patch(`/${targetUsername}/products/music/${slug}`, {
+          responseKind: 'json',
+          body: { product: data }
+        });
+      } else {
+        response = await post(`/${targetUsername}/products/music`, {
+          responseKind: 'json',
+          body: { product: data }
+        });
+      }
       
       const result = await response.json
       
       if (response.ok) {
-        navigate(`/${currentUser.username}/products/${result.product.slug}`)
+        navigate(`/${targetUsername}/products/${result.product.slug}`)
       } else {
         // Set field errors from backend
         Object.keys(result.errors).forEach(key => {
@@ -99,7 +126,7 @@ export default function MusicForm() {
         })
       }
     } catch (error) {
-      console.error('Failed to create product:', error)
+      console.error(`Failed to ${isEditing ? 'update' : 'create'} product:`, error)
       form.setError('root', {
         type: 'backend',
         message: 'An unexpected error occurred'
@@ -114,11 +141,13 @@ export default function MusicForm() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate(`/${currentUser.username}/products`)}
+            onClick={() => navigate(`/${isEditing ? username : currentUser.username}/products`)}
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
-          {I18n.t('products.music.new.title')}
+          {isEditing 
+            ? I18n.t('products.music.edit.title') 
+            : I18n.t('products.music.new.title')}
         </h2>
 
         <FormErrors errors={form.formState.errors} />
@@ -246,7 +275,9 @@ export default function MusicForm() {
               >
                 {form.formState.isSubmitting
                   ? I18n.t('products.music.form.submitting')
-                  : I18n.t('products.music.form.submit')}
+                  : isEditing 
+                    ? I18n.t('products.music.form.update')
+                    : I18n.t('products.music.form.submit')}
               </Button>
             </div>
           </div>

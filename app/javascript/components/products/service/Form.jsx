@@ -1,6 +1,6 @@
 import React from 'react'
 import { useForm } from 'react-hook-form'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { ChevronLeft } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -28,42 +28,63 @@ import PricingSection from '../shared/PricingSection'
 import PhotosSection from '../shared/PhotosSection'
 import useAuthStore from '@/stores/authStore'
 import I18n from '@/stores/locales'
-import { post } from '@rails/request.js'
+import { post, patch } from '@rails/request.js'
 
 const SERVICE_TYPES = [
-  { value: 'lessons', label: 'Lessons' },
+  /*{ value: 'lessons', label: 'Lessons' },
   { value: 'classes', label: 'Classes' },
   { value: 'consultation', label: 'Consultation' },
   { value: 'production', label: 'Production' },
   { value: 'mixing', label: 'Mixing' },
-  { value: 'mastering', label: 'Mastering' }
+  { value: 'mastering', label: 'Mastering' }*/
+
+  { value: 'coaching', label: 'coaching'} ,
+  { value: 'feedback', label: 'feedback'} ,
+  { value: 'classes', label: 'classes'} ,
+  { value: 'other', label: 'other'} ,
+  { value: 'mastering', label: 'mastering'} ,
+  { value: 'mixing', label: 'mixing'} ,
+  { value: 'production', label: 'production'} ,
+  { value: 'recording', label: 'recording'} ,
+  { value: 'songwriting', label: 'songwriting'} ,
+  { value: 'sound_design', label: 'sound_design'} ,
+  { value: 'voice_over', label: 'voice_over'} 
 ]
 
 const DELIVERY_METHODS = [
   { value: 'in_person', label: 'In Person' },
-  { value: 'remote', label: 'Remote' },
-  { value: 'hybrid', label: 'Hybrid' }
+  { value: 'online', label: 'Online' },
+  { value: 'both', label: 'Hybrid' }
 ]
 
-export default function ServiceForm() {
+export default function ServiceForm({ product, isEditing = false }) {
   const { currentUser } = useAuthStore()
   const navigate = useNavigate()
   const { isDarkMode } = useThemeStore()
+  const { username, slug } = useParams()
   
   const form = useForm({
     defaultValues: {
-      category: '',
-      delivery_method: '',
-      title: '',
-      description: '',
-      duration_minutes: 60,
-      max_participants: 1,
-      prerequisites: '',
-      what_to_expect: '',
-      cancellation_policy: '',
-      photos: []
+      category: product?.category || '',
+      delivery_method: product?.delivery_method || '',
+      title: product?.title || '',
+      description: product?.description || '',
+      duration_minutes: product?.duration_minutes || 60,
+      max_participants: product?.max_participants || 1,
+      prerequisites: product?.prerequisites || '',
+      what_to_expect: product?.what_to_expect || '',
+      cancellation_policy: product?.cancellation_policy || '',
+      price: product?.price || '',
+      stock_quantity: product?.stock_quantity || '',
+      status: product?.status || 'active',
+      visibility: product?.visibility || 'public',
+      name_your_price: product?.name_your_price || false,
+      quantity: product?.quantity || 1,
+      product_images_attributes: product?.photos || []
     }
   })
+
+  console.log(form)
 
   const category = form.watch('category')
 
@@ -82,15 +103,25 @@ export default function ServiceForm() {
       // Clear any existing errors before submitting
       form.clearErrors()
 
-      const response = await post(`/${currentUser.username}/products/service`, {
-        responseKind: 'json',
-        body: { product: data }
-      })
+      let response;
+      let targetUsername = isEditing ? username : currentUser.username;
+      
+      if (isEditing) {
+        response = await patch(`/${targetUsername}/products/service/${slug}`, {
+          responseKind: 'json',
+          body: { product: data }
+        });
+      } else {
+        response = await post(`/${targetUsername}/products/service`, {
+          responseKind: 'json',
+          body: { product: data }
+        });
+      }
       
       const result = await response.json
       
       if (response.ok) {
-        navigate(`/${currentUser.username}/products/${result.product.slug}`)
+        navigate(`/${targetUsername}/products/${result.product.slug}`)
       } else {
         // Set field errors from backend
         Object.keys(result.errors).forEach(key => {
@@ -101,7 +132,7 @@ export default function ServiceForm() {
         })
       }
     } catch (error) {
-      console.error('Failed to create product:', error)
+      console.error(`Failed to ${isEditing ? 'update' : 'create'} product:`, error)
       form.setError('root', {
         type: 'backend',
         message: 'An unexpected error occurred'
@@ -116,11 +147,13 @@ export default function ServiceForm() {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate(`/${currentUser.username}/products`)}
+            onClick={() => navigate(`/${isEditing ? username : currentUser.username}/products`)}
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
-          {I18n.t('products.service.new.title')}
+          {isEditing 
+            ? I18n.t('products.service.edit.title') 
+            : I18n.t('products.service.new.title')}
         </h2>
 
         <FormErrors errors={form.formState.errors} />
@@ -139,6 +172,7 @@ export default function ServiceForm() {
                         <FormItem>
                           <FormLabel>{I18n.t('products.service.form.category')}</FormLabel>
                           <FormControl>
+                          
                             <Select
                               id="category"
                               placeholder={I18n.t('products.service.form.select_category')}
@@ -345,7 +379,9 @@ export default function ServiceForm() {
                 >
                   {form.formState.isSubmitting
                     ? I18n.t('products.service.form.submitting')
-                    : I18n.t('products.service.form.submit')}
+                    : isEditing 
+                      ? I18n.t('products.service.form.update')
+                      : I18n.t('products.service.form.submit')}
                 </Button>
               </div>
             </div>

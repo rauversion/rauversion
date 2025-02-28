@@ -22,9 +22,10 @@ json.product do
   # Shipping options
   json.shipping_options @product.product_shippings do |shipping|
     json.id shipping.id
-    json.region shipping.region
-    json.price shipping.price
-    json.estimated_days shipping.estimated_days
+    json.country shipping.country
+    json.base_cost shipping.base_cost
+    json.additional_cost shipping.additional_cost
+    # json.estimated_days shipping.estimated_days
   end
 
   # Seller information
