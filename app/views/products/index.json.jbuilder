@@ -1,5 +1,5 @@
 json.collection @products do |product|
-  json.extract! product, :id, :title, :description, :price, :category, :slug
+  json.extract! product, :id, :slug, :title, :description, :price, :category, :slug
     
   json.user do
     json.extract! product.user, :id, :username

@@ -19,7 +19,7 @@ const ProductSelector = ({ value, onChange }) => {
         if (response.ok) {
           const data = await response.json;
           setProducts(data.collection.map(product => ({
-            value: product.id,
+            value: product.slug,
             label: product.title,
             ...product
           })));
@@ -82,12 +82,12 @@ const ProductCard = ({
           return;
         }
 
-        const response = await get(`/${u}/products/${productId}.json`);
+        const response = await get(`/products/${productId}.json`);
         if (response.ok) {
           const data = await response.json;
-          setProduct(data);
-          if (data.product_images?.length > 0) {
-            setSelectedImage(data.product_images[0]);
+          setProduct(data.product);
+          if (data.photos?.length > 0) {
+            setSelectedImage(data.photos[0]);
           }
         }
       } catch (error) {
@@ -223,12 +223,12 @@ const ProductCard = ({
         <div className={`${selectedVariant.imageWrapper} ${getAspectRatioClass()}`}>
           <img 
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
-            src={selectedImage?.image_url || product.cover_url}
+            src={selectedImage?.url || product.photos[0]?.url}
             alt={product.title}
           />
-          {showGallery && product.product_images?.length > 0 && (
+          {showGallery && product.photos?.length > 0 && (
             <div className="absolute bottom-0 left-0 right-0 p-2 bg-black bg-opacity-50 flex gap-2 overflow-x-auto">
-              {product.product_images.map((image) => (
+              {product.photos.map((image) => (
                 <button
                   key={image.id}
                   onClick={() => setSelectedImage(image)}
@@ -237,7 +237,7 @@ const ProductCard = ({
                   }`}
                 >
                   <img 
-                    src={image.image_url} 
+                    src={image.url} 
                     alt={`${product.title} - Image ${image.id}`}
                     className="w-full h-full object-cover"
                   />

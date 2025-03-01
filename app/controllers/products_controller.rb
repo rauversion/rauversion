@@ -45,8 +45,9 @@ class ProductsController < ApplicationController
   end
 
   def show
-    @profile = User.find_by(username: params[:user_id])
-    @product = @profile.products.friendly.find(params[:id])
+    #@profile = User.find_by(username: params[:user_id])
+    #@product = @profile.products.friendly.find(params[:id])
+    @product = Product.friendly.find(params[:id])
     @product_variants = @product.product_variants
 
 
