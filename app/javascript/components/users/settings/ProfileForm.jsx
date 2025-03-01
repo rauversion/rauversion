@@ -87,7 +87,7 @@ export default function ProfileForm() {
   const handleAvatarUpload = async (signedBlobId) => {
     setAvatarBlobId(signedBlobId)
     await onSubmit({
-      avatar_blob_id: signedBlobId
+      avatar: signedBlobId
     })
   }
 
@@ -96,7 +96,7 @@ export default function ProfileForm() {
     const currentValues = getValues()
     await onSubmit({
       ...currentValues,
-      profile_header_blob_id: signedBlobId,
+      profile_header: signedBlobId,
       crop_data: cropData ? JSON.stringify(cropData) : null
     })
   }
@@ -232,7 +232,7 @@ export default function ProfileForm() {
           </div>
 
           <div className="flex justify-end">
-            <Button type="submit">{I18n.t('user_settings.profile.buttons.save')}</Button>
+            <Button type="submit">{I18n.t('save')}</Button>
           </div>
         </CardContent>
       </Card>

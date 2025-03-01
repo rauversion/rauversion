@@ -24,20 +24,20 @@ class UserSettingsController < ApplicationController
 
     respond_to do |format|
       if update_user
-        # Attach avatar if blob_id is present
-        if params.dig(:user, :avatar_blob_id).present?
-          @user.avatar.attach(params[:user][:avatar_blob_id])
-        end
+       # # Attach avatar if blob_id is present
+       # if params.dig(:user, :avatar_blob_id).present?
+       #   @user.avatar.attach(params[:user][:avatar_blob_id])
+       # end
 
-        # Attach header if blob_id is present
-        if params.dig(:user, :profile_header_blob_id).present?
-          @user.profile_header.attach(params[:user][:profile_header_blob_id])
-        end
+       # # Attach header if blob_id is present
+       # if params.dig(:user, :profile_header_blob_id).present?
+       #   @user.profile_header.attach(params[:user][:profile_header_blob_id])
+       # end
 
-        # Handle podcaster avatar separately
-        if params.dig(:user, :podcaster_info_attributes, :avatar_blob_id).present?
-          @user.podcaster_info.avatar.attach(params[:user][:podcaster_info_attributes][:avatar_blob_id])
-        end
+       # # Handle podcaster avatar separately
+       # if params.dig(:user, :podcaster_info_attributes, :avatar_blob_id).present?
+       #   @user.podcaster_info.avatar.attach(params[:user][:podcaster_info_attributes][:avatar_blob_id])
+       # end
 
         format.json { render :update }
       else
