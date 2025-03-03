@@ -66,9 +66,7 @@ export default function PlaylistsIndex() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: index * 0.1 }}
           >
-            <Link to={`/playlists/${playlist.slug}`} className="block">
-              <PlaylistCard playlist={playlist} />
-            </Link>
+            <PlaylistCard playlist={playlist} />
           </motion.div>
         ))}
       </div>
