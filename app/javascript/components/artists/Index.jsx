@@ -30,7 +30,7 @@ export default function ArtistsIndex() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-2 gap-6 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
         {artists.map((artist, index) => (
           <motion.div
             key={artist.id}
@@ -39,7 +39,7 @@ export default function ArtistsIndex() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: index * 0.1 }}
           >
-            <UserCard artist={artist} />
+            <UserCard artist={artist} variant="rounded" />
           </motion.div>
         ))}
       </div>

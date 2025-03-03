@@ -5,7 +5,37 @@ import { Card } from "@/components/ui/card"
 import { Link } from 'react-router-dom'
 
 
-export default function UserCard({artist, username}) {
+export default function UserCard({artist, username, variant = 'default'}) {
+  if (variant === 'rounded') {
+    return (
+      <Link to={`/${artist.username}`}>
+        <Card className="group relative overflow-hidden border-0 bg-transparent hover:bg-black/5 transition-colors p-4">
+          <div className="flex flex-col items-center space-y-4">
+            <div className="relative w-40 h-40 rounded-full overflow-hidden">
+              {artist.avatar_url ? (
+                <img
+                  src={artist.avatar_url.medium}
+                  alt=""
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <div className="h-full w-full bg-gradient-to-br from-gray-800 to-gray-900" />
+              )}
+            </div>
+            
+            <div className="text-center">
+              <h3 className="font-bold text-base text-foreground">
+                {artist.full_name}
+              </h3>
+              {/*<p className="text-sm text-muted-foreground">
+                {I18n.t('users.artist_page.artist')}
+              </p>*/}
+            </div>
+          </div>
+        </Card>
+      </Link>
+    );
+  }
 
   return (
     <Card className="group relative h-[400px] overflow-hidden border-0 bg-black">
