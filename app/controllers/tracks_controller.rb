@@ -12,7 +12,7 @@ class TracksController < ApplicationController
     # Filter by tag if present
     @tracks = @tracks.where('? = ANY(tags)', params[:tag]) if params[:tag].present?
     
-    @tracks = @tracks.page(params[:page]).per(12)
+    @tracks = @tracks.page(params[:page]).per(15)
     @tracks = @tracks.order("RANDOM()") unless params[:tag].present?
     
     @popular_tags = Track.published
