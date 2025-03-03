@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 
 export default function Sidebar({ user }) {
   return (
-    <div className="hidden w-2/5 xl:block xl:col-span-4 bg-default rounded-md">
+    <div className="hidden w-1/3 xl:block xl:col-span-4 bg-default rounded-md">
       <div className="sticky top-4 space-y-4 p-4">
         {/*<div className="p-4 border-l-1 border-l-gray-50 dark:border-l-gray-800">
           <div className="grid grid-cols-3 divide-x dark:divide-gray-700">

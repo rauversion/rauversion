@@ -147,9 +147,10 @@ export default function ArticlesIndex() {
       items: articles,
       loading,
       lastElementRef,
+      page
     } = useInfiniteScroll(`/articles.json${window.location.search}`)
 
-  if (loading) return <LoadingSkeleton />
+  if (loading && page == 1) return <LoadingSkeleton />
 
   return (
     <div className="min-h-screen bg-default text-default px-4 sm:px-8 py-12">

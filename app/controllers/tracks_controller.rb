@@ -5,7 +5,7 @@ class TracksController < ApplicationController
   layout :layout_by_resource
 
   def index
-    @tracks = Track.published.order("id desc")
+    @tracks = Track.published
       .with_attached_cover
       .includes(user: {avatar_attachment: :blob})
 
@@ -13,6 +13,7 @@ class TracksController < ApplicationController
     @tracks = @tracks.where('? = ANY(tags)', params[:tag]) if params[:tag].present?
     
     @tracks = @tracks.page(params[:page]).per(12)
+    @tracks = @tracks.order("RANDOM()") unless params[:tag].present?
     
     @popular_tags = Track.published
       .where.not(tags: [])

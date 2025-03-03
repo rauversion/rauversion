@@ -215,7 +215,7 @@ export default function UserShow() {
       {/* Content */}
       <div className="max-w-7xl- mx-auto- px-4- sm:px-6- lg:px-8- py-8- min-h-[400px]">
         <div className="flex">
-          <div className="flex-grow bg-default text-default">
+          <div className="lg:w-2/3 bg-default text-default">
             <Outlet context={{ user, handlePlay, currentTrackId, isPlaying }} />
           </div>
 

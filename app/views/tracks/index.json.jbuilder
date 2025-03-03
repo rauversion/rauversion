@@ -7,8 +7,13 @@ json.tracks @tracks do |track|
   json.price number_to_currency(track.price) unless track.price.nil?
 
   json.cover_url do
-    json.medium track.cover_url(:medium)
-    json.small track.cover_url(:small)
+    if track.cover.attached?
+      json.medium track.cover_url(:medium)
+      json.small track.cover_url(:small)
+    else
+      json.medium track.user.avatar_url(:medium)
+      json.small track.user.avatar_url(:small)
+    end
   end
   json.user do
     json.id track.user.id
