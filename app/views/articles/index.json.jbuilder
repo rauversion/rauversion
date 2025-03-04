@@ -6,7 +6,7 @@ json.collection @articles do |article|
   json.created_at article.created_at
   json.updated_at article.updated_at
   json.state article.state
-  json.reading_time article.settings["reading_time"]
+  json.reading_time article.reading_time
   json.cover_url do
     json.medium article.cover_url(:medium)
     json.small article.cover_url(:small)
