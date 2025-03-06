@@ -1,29 +1,30 @@
-import React, { useState } from 'react'
+import React, { useEffect, useRef, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { useInfiniteScroll } from '@/hooks/useInfiniteScroll'
 import { motion } from 'framer-motion'
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { Card } from "@/components/ui/card"
 import I18n from '@/stores/locales'
 import useAuthStore from '@/stores/authStore'
+import useArtistStore from '@/stores/artistStore'
 import UserCard from '@/components/shared/userCard'
+import { PlusIcon } from 'lucide-react'
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll"
 
 export default function UserArtists() {
   const { username } = useParams()
-  const [label, setLabel] = useState(null)
+  const { currentUser } = useAuthStore()
+  const {
+    artist,
+  } = useArtistStore()
 
   const {
-    items: artists,
+    items: childArtists,
     loading,
-    lastElementRef
-  } = useInfiniteScroll(`/${username}/artists.json`, (data) => {
-    if (!label && data.label) {
-      setLabel(data.label)
-    }
-  })
+    lastElementRef,
+  } = useInfiniteScroll(`/${username}/artists.json`)
 
-  if (loading && artists.length === 0) {
+  const isAdmin = currentUser?.id === artist?.id
+
+  if (loading && childArtists.length === 0) {
     return (
       <div className="flex justify-center py-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500" aria-label={I18n.t('loading')}></div>
@@ -33,52 +34,61 @@ export default function UserArtists() {
 
   return (
     <div className="space-y-8">
-      {label && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="relative"
-        >
-          <Card className="relative h-[200px] overflow-hidden border-0 bg-black">
-            <div className="absolute inset-0 opacity-30">
-              <img
-                src={label.avatar_url.medium}
-                alt=""
-                className="h-full w-full object-cover filter blur-sm scale-110"
-              />
-            </div>
-            
-            <div className="relative h-full flex items-center p-8">
-              <div className="space-y-2">
-                <h2 className="text-5xl font-black tracking-tight text-white uppercase" title={I18n.t('users.artist_page.label.name', { name: label.full_name })}>
-                  {label.full_name}
-                </h2>
-                <p className="text-2xl font-mono text-gray-400" title={I18n.t('users.artist_page.label.username', { username: label.username })}>
-                  @{label.username}
-                </p>
-              </div>
-            </div>
-          </Card>
 
-        </motion.div>
+
+      {isAdmin && (
+        <div className="flex justify-end">
+          <Link
+            to="/account_connections/new"
+            className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500"
+          >
+            <PlusIcon className="-ml-1 mr-2 h-5 w-5" aria-hidden="true" />
+            {I18n.t('artists.new_connection')}
+          </Link>
+        </div>
       )}
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-        {artists.map((artist, index) => (
+        {childArtists.map((artist, index) => (
           <motion.div
             key={artist.id}
-            ref={index === artists.length - 1 ? lastElementRef : null}
+            ref={index === childArtists.length - 1 ? lastElementRef : null}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: index * 0.1 }}
           >
-            <UserCard artist={artist} username={username} />
-           
+            <UserCard 
+              artist={artist} 
+              username={username}
+              variant={"rounded"}
+              actions={isAdmin ? [
+                {
+                  label: I18n.t('artists.impersonate'),
+                  href: `/account_connections/impersonate?username=${artist.username}`
+                },
+                {
+                  label: I18n.t('artists.disconnect'),
+                  onClick: () => {
+                    if(window.confirm(I18n.t('artists.disconnect_confirm'))) {
+                      fetch(`/account_connections/${artist.id}`, {
+                        method: 'DELETE',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
+                        }
+                      }).then(() => {
+                        window.location.reload()
+                      })
+                    }
+                  }
+                }
+              ] : []}
+            />
           </motion.div>
         ))}
       </div>
 
-      {loading && artists.length > 0 && (
+      {loading && childArtists.length > 0 && (
         <div className="flex justify-center py-4">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500" aria-label={I18n.t('loading')}></div>
         </div>

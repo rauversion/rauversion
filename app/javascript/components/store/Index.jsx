@@ -175,6 +175,9 @@ const StoreIndex = () => {
         ))}
       </div>
 
+      {
+      /*
+      
       <Tabs 
         value={currentCategory.id} 
         onValueChange={handleTabChange}
@@ -218,7 +221,11 @@ const StoreIndex = () => {
             </p>
           )}
         </div>
-      </Tabs>
+      </Tabs>      
+      */
+      
+      }
+
     </div>
   )
 }

@@ -17,7 +17,11 @@ class ProductCartController < ApplicationController
 
   def show
     render json: {} and return if @cart.blank?
-    @cart_items = @cart.product_cart_items.includes(:product)
+    @cart_items = @cart.product_cart_items.includes(
+      product: {
+        product_images: {image_attachment: :blob}
+      }
+    )
     respond_to do |format|
       format.html
       format.json 
