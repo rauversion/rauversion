@@ -30,6 +30,18 @@ export default function UserCard({artist, username, variant = 'default'}) {
               {/*<p className="text-sm text-muted-foreground">
                 {I18n.t('users.artist_page.artist')}
               </p>*/}
+
+
+              { username && useAuthStore.getState().currentUser?.username === username && (
+                <a
+                  href={`/account_connections/impersonate?username=${artist.username}`}
+                  className="text-link"
+                >
+                  {I18n.t('users.artist_page.impersonate')}
+                </a>
+              )}
+
+
             </div>
           </div>
         </Card>

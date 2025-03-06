@@ -24,48 +24,94 @@ class AccountConnectionsController < ApplicationController
   end
 
   def create
-    if params[:form_models_artist_form]
-      resource_params = params.require(:form_models_artist_form).permit(
-        :password, :username, :hide, :request_access, :email, :search, :first_name, :last_name, :logo
-      )
-      @user = FormModels::ArtistForm.new(resource_params)
-      @user.is_new = params[:kind] == "new"
-      @user.inviter = current_user
+    respond_to do |format|
+      format.json do
+        if params[:form_models_artist_form]
+          resource_params = params.require(:form_models_artist_form).permit(
+            :password, :username, :hide, :request_access, :email, :search, :first_name, :last_name, :logo
+          )
+          @user = FormModels::ArtistForm.new(resource_params)
+          @user.is_new = params[:kind] == "new"
+          @user.inviter = current_user
 
-      unless @user.username.present?
-        @user.username = User.find_by(id: @user.search)&.username if @user.search.present?
-        @user.inviter = current_user
+          unless @user.username.present?
+            @user.username = User.find_by(id: @user.search)&.username if @user.search.present?
+            @user.inviter = current_user
+          end
+          
+          if @user.valid?
+            created_user = @user.process_user_interaction
+            if !created_user
+              render json: { error: "Failed to create user" }, status: :unprocessable_entity
+            else
+              render json: { created: true }
+            end
+          else
+            render json: { error: @user.errors.full_messages.join(", ") }, status: :unprocessable_entity
+          end
+          return
+        end
+
+        if params[:commit] == "Send connect request"
+          user = User.find(params[:user][:id])
+          connected_account = ConnectedAccount.attach_account(inviter: current_user, invited_user: user) if user
+          
+          if connected_account
+            ConnectedAccountMailer.invitation_email(connected_account).deliver_now
+            render json: { created: true }
+          else
+            render json: { error: "Failed to create connection" }, status: :unprocessable_entity
+          end
+          return
+        end
+
+        render json: { error: "Invalid request" }, status: :unprocessable_entity
       end
-      if @user.valid?
-        created_user = @user.process_user_interaction
-        if !created_user
-          flash.now[:error] = "not invited user"
-        else
-          @created = true
+
+      format.html do
+        if params[:form_models_artist_form]
+          resource_params = params.require(:form_models_artist_form).permit(
+            :password, :username, :hide, :request_access, :email, :search, :first_name, :last_name, :logo
+          )
+          @user = FormModels::ArtistForm.new(resource_params)
+          @user.is_new = params[:kind] == "new"
+          @user.inviter = current_user
+
+          unless @user.username.present?
+            @user.username = User.find_by(id: @user.search)&.username if @user.search.present?
+            @user.inviter = current_user
+          end
+          if @user.valid?
+            created_user = @user.process_user_interaction
+            if !created_user
+              flash.now[:error] = "not invited user"
+            else
+              @created = true
+            end
+          end
+          return
+        end
+
+        if params[:commit] == "Select user"
+          a = User.find(params[:search])
+          @selected_artist = FormModels::ArtistForm.new(username: a.username)
+          if @selected_artist.valid?
+            @selected_artist
+          end
+          return 
+        end
+
+        if params[:commit] == "Send connect request"
+          user = User.find(params[:user][:id])
+          connected_account = ConnectedAccount.attach_account(inviter: current_user , invited_user: user) if user
+          
+          if connected_account
+            ConnectedAccountMailer.invitation_email(connected_account).deliver_now
+            @created = true
+          end
+          return
         end
       end
-      return
-    end
-
-    if params[:commit] == "Select user"
-      a = User.find(params[:search])
-      @selected_artist = FormModels::ArtistForm.new(username: a.username)
-      if @selected_artist.valid?
-        @selected_artist
-      end
-      return 
-    end
-
-    if params[:commit] == "Send connect request"
-      user = User.find(params[:user][:id])
-      connected_account = ConnectedAccount.attach_account(inviter: current_user , invited_user: user) if user
-      
-      if connected_account
-        ConnectedAccountMailer.invitation_email(connected_account).deliver_now
-
-        @created = true
-      end
-      return
     end
   end
 

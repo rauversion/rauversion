@@ -23,6 +23,7 @@ import UserArticles from './users/Articles'
 import UserReposts from './users/Reposts'
 import UserArtists from './users/Artists'
 import ArtistsIndex from './artists/Index'
+import AccountConnectionForm from './artists/AccountConnectionForm'
 import UserAlbums from './users/Albums'
 import UserInsights from './users/Insights'
 import UserAbout from './users/About'
@@ -239,6 +240,7 @@ function AppContent() {
 
           <Route path="/service_bookings" element={<RequireAuth><ServiceBookings /></RequireAuth>} />
           <Route path="/service_bookings/:id" element={<RequireAuth><ServiceBookingDetail /></RequireAuth>} />
+          <Route path="/account_connections/new" element={<RequireAuth><AccountConnectionForm /></RequireAuth>} />
 
           <Route path="/:username/*" element={<UserShow />}>
             <Route index element={<UserHome />} />

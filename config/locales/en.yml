@@ -1638,3 +1638,22 @@ en:
         duration: Duration
         book_now: Book Now
         details: Details
+
+
+  artists:
+    new_connection: New Connection
+    new_artist: New Artist
+    existing_artist: Existing Artist
+    username: Username
+    email: Email
+    first_name: First Name
+    last_name: Last Name
+    create_connection: Create Connection
+    search: Search
+    search_placeholder: Search
+    send_connection_request: Send Connection Request
+    no_results: No results found
+    connection_error: Error sending connection request
+    connection_error_desc: Error sending connection request
+    connection_success: Connection request sent successfully
+    connection_success_desc: Connection request sent successfully

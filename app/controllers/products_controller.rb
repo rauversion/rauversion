@@ -6,7 +6,8 @@ class ProductsController < ApplicationController
   def index
     @profile = User.find_by(username: params[:id] || params[:user_id])
 
-    @q = @profile.products.active.includes(:user, :album)
+    @q = @profile.products
+    .active.includes(:user, :album, product_images: {image_attachment: :blob}) 
                  .where.not(category: ['instrument', 'audio_gear', 'dj_gear', 'accessories'])
                  .ransack(params[:q])
     @products = @q.result(distinct: true).order(created_at: :desc)

@@ -1683,3 +1683,21 @@ es:
         duration: "Duración"
         book_now: "Reservar Ahora"
         details: "Detalles"
+
+  artists:
+    new_connection: "Nueva Conexión"
+    new_artist: "Nuevo Artista"
+    existing_artist:  "Artista Existente"
+    username: "Nombre de Usuario"
+    email:  "Correo Electrónico"
+    first_name: "Nombre"
+    last_name:  "Apellido"
+    create_connection:  "Crear Conexión"
+    search: "Buscar"
+    search_placeholder: "Buscar por nombre de usuario o correo electrónico" 
+    send_connection_request:  "Enviar Solicitud de Conexión"
+    no_results: "No se encontraron resultados"
+    connection_error: Error con la conexión
+    connection_error_desc: Hubo un error al enviar la solicitud de conexión. Por favor, inténtalo de nuevo.
+    connection_success: Conexión Exitosa
+    connection_success_desc:  Tu solicitud de conexión ha sido enviada exitosamente.

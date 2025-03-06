@@ -1,6 +1,10 @@
 ---
 en:
   products:
+    show:
+      edit_product: Edit Product
+      delete_product: Delete Product
+      add_to_cart: Add to Cart
     new:
       title: What would you like to sell?
       subtitle: Choose the type of product you want to create

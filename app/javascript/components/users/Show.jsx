@@ -9,6 +9,7 @@ import ProfileSkeleton from "./ProfileSkeleton"
 
 import useAudioStore from '../../stores/audioStore'
 import useAuthStore from '../../stores/authStore'
+import useArtistStore from '../../stores/artistStore'
 import { ModernTrackCell } from '../tracks/TrackCell'
 import clsx from 'clsx'
 import Sidebar from './Sidebar'
@@ -17,12 +18,14 @@ import I18n from '@/stores/locales'
 export default function UserShow() {
   const { username } = useParams()
   const location = useLocation()
-  const [user, setUser] = useState(null)
+  // const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [menuItems, setMenuItems] = useState([])
   const { currentTrackId, isPlaying, play, pause } = useAudioStore()
   const { currentUser } = useAuthStore()
+  const { reset: resetArtists, setArtist: setUser, artist: user } = useArtistStore()
 
+  
   useEffect(() => {
     const fetchUser = async () => {
       try {
@@ -40,7 +43,10 @@ export default function UserShow() {
     }
 
     fetchUser()
-  }, [username])
+    return () => {
+      resetArtists()
+    }
+  }, [username, resetArtists])
 
   const handlePlay = (trackId) => {
     if (currentTrackId === trackId && isPlaying) {
