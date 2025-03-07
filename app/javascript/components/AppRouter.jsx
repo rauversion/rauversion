@@ -87,6 +87,8 @@ import CategoryView from "./store/CategoryView"
 
 import CheckoutSuccess from "./checkout/CheckoutSuccess"
 import CheckoutFailure from "./checkout/CheckoutFailure"
+import ConversationsIndex from "./messaging/ConversationsIndex"
+import NewConversation from "./messaging/NewConversation"
 
 import { Footer, ScrollRestoration, LoadingSpinner } from '@/components/shared'
 
@@ -237,6 +239,10 @@ function AppContent() {
 
           <Route path="/checkout/success" element={<CheckoutSuccess />} />
           <Route path="/checkout/failure" element={<CheckoutFailure />} />
+
+          <Route path="/conversations" element={<RequireAuth><ConversationsIndex /></RequireAuth>} />
+          <Route path="/conversations/new" element={<RequireAuth><NewConversation /></RequireAuth>} />
+          <Route path="/conversations/:conversationId" element={<RequireAuth><ConversationsIndex /></RequireAuth>} />
 
           <Route path="/service_bookings" element={<RequireAuth><ServiceBookings /></RequireAuth>} />
           <Route path="/service_bookings/:id" element={<RequireAuth><ServiceBookingDetail /></RequireAuth>} />

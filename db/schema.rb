@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_06_204435) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -70,6 +70,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
     t.string "password"
     t.index ["parent_id"], name: "index_connected_accounts_on_parent_id"
     t.index ["user_id"], name: "index_connected_accounts_on_user_id"
+  end
+
+  create_table "conversations", force: :cascade do |t|
+    t.string "subject"
+    t.string "messageable_type", null: false
+    t.bigint "messageable_id", null: false
+    t.string "status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["messageable_type", "messageable_id"], name: "index_conversations_on_messageable"
   end
 
   create_table "coupons", force: :cascade do |t|
@@ -259,6 +269,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
     t.index ["mentioner_id", "mentioner_type"], name: "fk_mentions"
   end
 
+  create_table "messages", force: :cascade do |t|
+    t.text "body"
+    t.bigint "conversation_id", null: false
+    t.bigint "user_id", null: false
+    t.string "message_type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["conversation_id"], name: "index_messages_on_conversation_id"
+    t.index ["user_id"], name: "index_messages_on_user_id"
+  end
+
   create_table "nondisposable_disposable_domains", force: :cascade do |t|
     t.string "name", null: false
     t.datetime "created_at", null: false
@@ -275,6 +296,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_oauth_credentials_on_user_id"
+  end
+
+  create_table "participants", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "conversation_id", null: false
+    t.string "role"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["conversation_id"], name: "index_participants_on_conversation_id"
+    t.index ["user_id"], name: "index_participants_on_user_id"
   end
 
   create_table "photos", force: :cascade do |t|
@@ -809,7 +840,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_02_09_172718) do
   add_foreign_key "event_schedules", "events"
   add_foreign_key "event_tickets", "events"
   add_foreign_key "events", "users"
+  add_foreign_key "messages", "conversations"
+  add_foreign_key "messages", "users"
   add_foreign_key "oauth_credentials", "users"
+  add_foreign_key "participants", "conversations"
+  add_foreign_key "participants", "users"
   add_foreign_key "photos", "users"
   add_foreign_key "plain_messages", "plain_conversations"
   add_foreign_key "playlists", "users"

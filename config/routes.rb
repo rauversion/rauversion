@@ -1,6 +1,13 @@
 require_relative "../lib/constraints/username_route_contrainer"
 
 Rails.application.routes.draw do
+  resources :conversations do
+    member do
+      post :archive
+      post :close
+    end
+    resources :messages, only: [:create, :index]
+  end
   # API routes
   namespace :api do
     namespace :v1 do
