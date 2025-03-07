@@ -9,15 +9,17 @@ class MessagesController < ApplicationController
     @message.message_type = 'text'
 
     if @message.save
-      render json: @message, status: :created
+      render 'create' # json: @message, status: :created
     else
       render json: { errors: @message.errors }, status: :unprocessable_entity
     end
   end
 
   def index
-    @messages = @conversation.messages.includes(:user).ordered
-    render json: @messages, include: [:user]
+    @messages = @conversation.messages
+    .includes(:user).ordered
+    .page(params[:page]).per(20)
+    render 'index' #json: @messages, include: [:user]
   end
 
   private

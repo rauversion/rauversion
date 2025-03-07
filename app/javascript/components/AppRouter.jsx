@@ -272,6 +272,7 @@ function AppContent() {
           !location.pathname.includes('editor') && 
           !location.pathname.includes('preview') &&
           !location.pathname.includes('albums') &&
+          !location.pathname.includes('conversations') &&
            (
             <Footer/>
           )

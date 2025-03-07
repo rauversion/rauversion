@@ -24,11 +24,14 @@ const useConversationStore = create((set, get) => ({
     try {
       const response = await getReq(`/conversations/${id}.json`)
       const data = await response.json
-      debugger
       set({ currentConversation: data.conversation, messages: data.conversation.messages, loading: false })
     } catch (error) {
       set({ error: error.message, loading: false })
     }
+  },
+
+  appendMessages: async (messages) =>{
+    set({ messages: messages, loading: false })
   },
 
   createConversation: async (data) => {
@@ -58,6 +61,7 @@ const useConversationStore = create((set, get) => ({
         body: JSON.stringify({ message: { body: message } })
       })
       const data = await response.json
+
       set(state => ({
         messages: [...state.messages, data.message]
       }))

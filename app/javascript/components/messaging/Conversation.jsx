@@ -4,10 +4,14 @@ import { useToast } from '@/hooks/use-toast'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
-import { Card } from '@/components/ui/card'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
 import { motion, AnimatePresence } from 'framer-motion'
-import useConversationStore from '../../stores/conversationStore'
+import { Reply, MoreHorizontal, Archive, Trash2 } from 'lucide-react'
+import useConversationStore from '@/stores/conversationStore'
+import cn from "classnames"
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll"
 
 const Message = ({ message, currentUserId }) => {
   const isOwn = message.user.id === currentUserId
@@ -16,25 +20,33 @@ const Message = ({ message, currentUserId }) => {
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`flex ${isOwn ? 'justify-end' : 'justify-start'} mb-4`}
+      className="mb-6"
     >
-      <div className={`flex ${isOwn ? 'flex-row-reverse' : 'flex-row'} items-start gap-2 max-w-[80%]`}>
-        <Avatar className="w-8 h-8">
+      <div className="flex items-start gap-3">
+        <Avatar className="h-8 w-8">
           <AvatarImage src={message.user.avatar_url} />
           <AvatarFallback>{message.user.username[0].toUpperCase()}</AvatarFallback>
         </Avatar>
         
-        <div className={`flex flex-col ${isOwn ? 'items-end' : 'items-start'}`}>
-          <div className={`
-            px-4 py-2 rounded-lg
-            ${isOwn ? 'bg-primary text-primary-foreground' : 'bg-muted'}
-            ${message.message_type === 'system' ? 'bg-secondary text-secondary-foreground italic' : ''}
-          `}>
+        <div className="flex-1">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="font-medium">{message.user.username}</span>
+              {message.message_type === 'system' && (
+                <Badge variant="secondary" className="text-xs">System</Badge>
+              )}
+            </div>
+            <span className="text-xs text-muted-foreground">
+              {new Date(message.created_at).toLocaleString()}
+            </span>
+          </div>
+
+          <div className={cn(
+            "mt-1 text-sm",
+            message.message_type === 'system' && "italic text-muted-foreground"
+          )}>
             {message.body}
           </div>
-          <span className="text-xs text-muted-foreground mt-1">
-            {new Date(message.created_at).toLocaleTimeString()}
-          </span>
         </div>
       </div>
     </motion.div>
@@ -47,13 +59,21 @@ const Conversation = ({ conversationId, currentUserId }) => {
   const { register, handleSubmit, reset } = useForm()
   
   const {
+    items: messagesPaginated,
+    loading,
+    lastElementRef,
+    resetList
+  } = useInfiniteScroll(`/conversations/${conversationId}/messages.json`)
+
+  const {
     currentConversation,
     messages,
-    loading,
+    // loading,
     error,
     fetchConversation,
     sendMessage,
-    updateConversationStatus
+    updateConversationStatus,
+    appendMessages
   } = useConversationStore()
 
   useEffect(() => {
@@ -75,6 +95,10 @@ const Conversation = ({ conversationId, currentUserId }) => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
+
+  useEffect(()=> {
+    appendMessages(messagesPaginated)
+  }, [messagesPaginated])
 
   const onSubmit = async (data) => {
     try {
@@ -106,47 +130,89 @@ const Conversation = ({ conversationId, currentUserId }) => {
   }
 
   if (loading && !currentConversation) {
-    return <div className="flex items-center justify-center h-full">Loading...</div>
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+          <p className="mt-2 text-sm text-muted-foreground">Loading conversation...</p>
+        </div>
+      </div>
+    )
   }
 
   if (!currentConversation) {
-    return <div className="flex items-center justify-center h-full">No conversation selected</div>
-  }
-
-  const canManage = currentConversation.participants.some(
-    p => p.user.id === currentUserId && ['owner', 'admin'].includes(p.role)
-  )
-
-  return (
-    <Card className="flex flex-col h-full">
-      <div className="p-4 border-b flex justify-between items-center">
-        <div>
-          <h2 className="text-xl font-semibold">{currentConversation.subject}</h2>
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center">
+          <h3 className="text-lg font-medium">No conversation selected</h3>
           <p className="text-sm text-muted-foreground">
-            {currentConversation.participants.length} participants • 
-            Status: {currentConversation.status}
+            Choose a conversation from the sidebar or start a new one
           </p>
         </div>
-        
-        {canManage && currentConversation.status === 'active' && (
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
+      </div>
+    )
+  }
+
+  const participant = currentConversation.participants[0]
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Header */}
+      <div className="border-b p-4">
+        <div className="flex items-start justify-between">
+          <div className="flex items-start gap-3">
+            <Avatar className="h-10 w-10">
+              <AvatarImage src={participant.user.avatar_url} />
+              <AvatarFallback>{participant.user.username[0].toUpperCase()}</AvatarFallback>
+            </Avatar>
+
+            <div>
+              <h2 className="text-lg font-semibold">{currentConversation.subject}</h2>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-sm text-muted-foreground">
+                  with {participant.user.username}
+                </span>
+                <Badge variant="outline" className="text-xs">
+                  {currentConversation.messageable_type}
+                </Badge>
+                <Badge 
+                  variant={
+                    currentConversation.status === 'active' ? 'default' :
+                    currentConversation.status === 'archived' ? 'secondary' :
+                    'outline'
+                  }
+                  className="text-xs"
+                >
+                  {currentConversation.status}
+                </Badge>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button 
+              variant="ghost" 
+              size="icon"
               onClick={() => handleStatusUpdate('archived')}
             >
-              Archive
+              <Archive className="h-4 w-4" />
             </Button>
-            <Button
-              variant="outline"
+            <Button 
+              variant="ghost" 
+              size="icon"
               onClick={() => handleStatusUpdate('closed')}
             >
-              Close
+              <Trash2 className="h-4 w-4" />
+            </Button>
+            <Button variant="ghost" size="icon">
+              <MoreHorizontal className="h-4 w-4" />
             </Button>
           </div>
-        )}
+        </div>
       </div>
 
-      <ScrollArea className="flex-1 p-4">
+      {/* Messages */}
+      <ScrollArea className="flex-1 p-6">
         <AnimatePresence>
           {messages.map((message) => (
             <Message
@@ -159,19 +225,23 @@ const Conversation = ({ conversationId, currentUserId }) => {
         <div ref={messagesEndRef} />
       </ScrollArea>
 
+      {/* Reply Box */}
       {currentConversation.status === 'active' && (
-        <form onSubmit={handleSubmit(onSubmit)} className="p-4 border-t">
-          <div className="flex gap-2">
-            <Input
-              {...register('message', { required: true })}
-              placeholder="Type your message..."
-              className="flex-1"
-            />
+        <div className="border-t p-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="flex items-center gap-4">
+            <div className="relative flex-1">
+              <Reply className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
+              <Input
+                {...register('message', { required: true })}
+                placeholder="Type your reply..."
+                className="pl-10"
+              />
+            </div>
             <Button type="submit">Send</Button>
-          </div>
-        </form>
+          </form>
+        </div>
       )}
-    </Card>
+    </div>
   )
 }
 
