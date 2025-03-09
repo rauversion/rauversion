@@ -35,7 +35,8 @@ const Conversation = ({ conversationId, currentUserId }) => {
     updateConversationStatus,
     appendMessage,
     messages,
-    setMessages
+    setMessages,
+    markAsRead
   } = useConversationStore()
 
   window.messages = messages
@@ -73,6 +74,7 @@ const Conversation = ({ conversationId, currentUserId }) => {
             debugger
             if (data.type === 'new_message') {
               appendMessage(data.message)
+              markAsRead(data.message)
             }
           }
         }

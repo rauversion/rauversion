@@ -59,6 +59,7 @@ class UsersController < ApplicationController
     @q = @user.tracks.ransack(title_cont: params[:q])
     @tracks = @q.result
       .with_attached_cover
+      .includes(cover_attachment: :blob)
       .includes(user: { avatar_attachment: :blob })
       .limit(10)
 

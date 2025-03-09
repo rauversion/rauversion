@@ -15,20 +15,20 @@ const PRODUCT_TYPES = [
     iconClass: 'gear'
   },
   {
+    type: 'service',
+    color: 'emerald',
+    iconClass: 'service'
+  },
+  {
     type: 'merch',
     color: 'pink',
     iconClass: 'merch'
   },
-  {
+  /*{
     type: 'accessory',
     color: 'amber',
     iconClass: 'accessory'
-  },
-  {
-    type: 'service',
-    color: 'emerald',
-    iconClass: 'service'
-  }
+  },*/
 ]
 
 export default function ProductNew() {

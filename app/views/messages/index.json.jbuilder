@@ -3,7 +3,7 @@ json.collection @messages do |message|
   json.body message.body
   json.message_type message.message_type
   json.created_at message.created_at
-  json.read message.read
+  json.read message.read_by?(@conversation.participants.find_by(user: current_user))
   json.user do
     json.id message.user.id
     json.username message.user.username

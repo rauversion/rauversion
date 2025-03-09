@@ -35,6 +35,25 @@ const useConversationStore = create(zukeeper((set, get) => ({
     }
   },
 
+  markAsRead: async (id) => {
+    try {
+      const response = await post(`/conversations/${id}/mark_as_read.json`)
+      const data = await response.json
+      set(state => ({
+        conversations: state.conversations.map(conv =>
+          conv.id === id ? { ...conv, unread_messages_count: 0 } : conv
+        ),
+        currentConversation: state.currentConversation?.id === id 
+          ? { ...state.currentConversation, unread_messages_count: 0 }
+          : state.currentConversation
+      }))
+      return data
+    } catch (error) {
+      set({ error: error.message })
+      throw error
+    }
+  }
+
   setMessages: async (messages)=>{
     set(state => {
       return {...state, messages: messages}

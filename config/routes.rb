@@ -6,7 +6,11 @@ Rails.application.routes.draw do
       post :archived
       post :close
     end
-    resources :messages, only: [:create, :index]
+    resources :messages, only: [:create, :index] do
+      member do
+        post :mark_as_read
+      end
+    end
   end
   # API routes
   namespace :api do

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_06_204435) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_09_055209) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -267,6 +267,17 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_06_204435) do
     t.datetime "created_at"
     t.index ["mentionable_id", "mentionable_type"], name: "fk_mentionables"
     t.index ["mentioner_id", "mentioner_type"], name: "fk_mentions"
+  end
+
+  create_table "message_reads", force: :cascade do |t|
+    t.bigint "message_id", null: false
+    t.bigint "participant_id", null: false
+    t.datetime "read_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["message_id", "participant_id"], name: "index_message_reads_on_message_id_and_participant_id", unique: true
+    t.index ["message_id"], name: "index_message_reads_on_message_id"
+    t.index ["participant_id"], name: "index_message_reads_on_participant_id"
   end
 
   create_table "messages", force: :cascade do |t|
@@ -840,6 +851,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_06_204435) do
   add_foreign_key "event_schedules", "events"
   add_foreign_key "event_tickets", "events"
   add_foreign_key "events", "users"
+  add_foreign_key "message_reads", "messages"
+  add_foreign_key "message_reads", "participants"
   add_foreign_key "messages", "conversations"
   add_foreign_key "messages", "users"
   add_foreign_key "oauth_credentials", "users"

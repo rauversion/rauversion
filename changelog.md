@@ -12,3 +12,8 @@ dic 2024
 + marketplace
 + user links
 + podcasts
+
+JAN / FEB 2025
+  + services
+  + react rewrite
+  + messenger

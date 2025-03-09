@@ -3,7 +3,7 @@ json.message do
   json.body @message.body
   json.message_type @message.message_type
   json.created_at @message.created_at
-  json.read @message.read
+  json.read false # New messages are always unread for recipients
   json.user do
     json.id @message.user.id
     json.username @message.user.username

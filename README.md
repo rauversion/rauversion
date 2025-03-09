@@ -46,6 +46,14 @@ Rauversion is built on Ruby on Rails.
   + Cover image.
   + Article Categories.
   
+### Marketplace:
+  + Sell Music: Physical formats, CD, Vinyls, Casettes.
+  + Sell Gear: Used gear for trade or Barter.
+  + Offer services: Different services for professionals.
+  + Merch: General merch offerings.
+  
+### LinkTree like Supported
+  + add multiple links from different sources.
 
 
 ## setup
