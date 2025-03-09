@@ -1,4 +1,12 @@
 es:
+  mailers:
+    message:
+      new_message:
+        subject: "Nuevo mensaje de %{sender}"
+        greeting: "¡Hola %{recipient}!"
+        body: "%{sender} te ha enviado un nuevo mensaje en tu conversación"
+        view_conversation: "Ver Conversación"
+        footer: "Haz clic en el enlace de arriba para ver y responder al mensaje"
   hello: "Hola mundo"
   by: "Por %{name}"
   see_everything: Ver Todo

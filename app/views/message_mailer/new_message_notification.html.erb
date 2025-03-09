@@ -1,0 +1,11 @@
+<h1><%= t('mailers.message.new_message.greeting', recipient: @recipient.username) %></h1>
+
+<p><%= t('mailers.message.new_message.body', sender: @sender.username) %></p>
+
+<p>
+  <%= link_to t('mailers.message.new_message.view_conversation'), 
+      conversation_url(@conversation), 
+      class: 'button' %>
+</p>
+
+<p><%= t('mailers.message.new_message.footer') %></p>

@@ -18,6 +18,7 @@ class Message < ApplicationRecord
   }
 
   after_create_commit :broadcast_to_conversation
+  after_create_commit :schedule_notification_job
 
   def mark_as_read_by(participant)
     message_reads.create_or_find_by(participant: participant) do |mr|
@@ -30,6 +31,10 @@ class Message < ApplicationRecord
   end
 
   private
+
+  def schedule_notification_job
+    UnreadMessageNotificationJob.set(wait: 2.minutes).perform_later(id)
+  end
 
   def broadcast_to_conversation
     ConversationChannel.broadcast_to(
