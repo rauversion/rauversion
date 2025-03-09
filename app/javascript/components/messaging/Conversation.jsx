@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useCallback } from 'react'
+import React, { useEffect, useRef, useCallback, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { useToast } from '@/hooks/use-toast'
 import { useActionCable } from '@/hooks/useActionCable'
@@ -10,13 +10,16 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Reply, MoreHorizontal, Archive, Trash2 } from 'lucide-react'
+import { Reply, MoreHorizontal, Archive, Trash2, Users, Settings, Image, PanelRightClose, PanelRightOpen } from 'lucide-react'
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import useConversationStore from '../../stores/conversationStore'
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll'
 import Message from './Message'
 import I18n from '@/stores/locales'
 
 const Conversation = ({ conversationId, currentUserId }) => {
+  const [sidebarOpen, setSidebarOpen] = useState(false)
   const { toast } = useToast()
   const messagesEndRef = useRef(null)
   const scrollAreaRef = useRef(null)
@@ -53,7 +56,6 @@ const Conversation = ({ conversationId, currentUserId }) => {
     if(!paginatedMessages.length > 0) return
     if(messagesLoading) return
     //if(conversationLoading) return
-    debugger
     setMessages(paginatedMessages)
   }, [paginatedMessages, conversationId])
 
@@ -228,9 +230,102 @@ const Conversation = ({ conversationId, currentUserId }) => {
             >
               <Trash2 className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon">
-              <MoreHorizontal className="h-4 w-4" />
-            </Button>
+            <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon">
+                  {sidebarOpen ? <PanelRightClose className="h-4 w-4" /> : <PanelRightOpen className="h-4 w-4" />}
+                </Button>
+              </SheetTrigger>
+              <SheetContent className="w-[400px] p-0">
+                <Tabs defaultValue="participants" className="h-full flex flex-col">
+                  <TabsList className="grid w-full grid-cols-3">
+                    <TabsTrigger value="participants">
+                      <Users className="h-4 w-4 mr-2" />
+                      Participants
+                    </TabsTrigger>
+                    <TabsTrigger value="settings">
+                      <Settings className="h-4 w-4 mr-2" />
+                      Settings
+                    </TabsTrigger>
+                    <TabsTrigger value="media">
+                      <Image className="h-4 w-4 mr-2" />
+                      Media
+                    </TabsTrigger>
+                  </TabsList>
+                  
+                  <TabsContent value="participants" className="flex-1">
+                    <ScrollArea className="h-[calc(100vh-8rem)] p-4">
+                      <div className="space-y-4">
+                        {currentConversation.participants.map((participant) => (
+                          <div key={participant.id} className="flex items-center gap-3">
+                            <Avatar>
+                              <AvatarImage src={participant.user.avatar_url} />
+                              <AvatarFallback>{participant.user.username[0].toUpperCase()}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p className="font-medium">{participant.user.username}</p>
+                              <p className="text-sm text-muted-foreground">{participant.role}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </TabsContent>
+
+                  <TabsContent value="settings" className="flex-1">
+                    <ScrollArea className="h-[calc(100vh-8rem)] p-4">
+                      <div className="space-y-4">
+                        <div>
+                          <h3 className="font-medium mb-2">Conversation Status</h3>
+                          <div className="flex gap-2">
+                            <Button 
+                              variant={currentConversation.status === 'active' ? 'default' : 'outline'}
+                              size="sm"
+                              onClick={() => handleStatusUpdate('active')}
+                              disabled={currentConversation.status === 'active'}
+                            >
+                              Active
+                            </Button>
+                            <Button 
+                              variant={currentConversation.status === 'archived' ? 'default' : 'outline'}
+                              size="sm"
+                              onClick={() => handleStatusUpdate('archived')}
+                              disabled={currentConversation.status === 'archived'}
+                            >
+                              Archive
+                            </Button>
+                            <Button 
+                              variant={currentConversation.status === 'closed' ? 'default' : 'outline'}
+                              size="sm"
+                              onClick={() => handleStatusUpdate('closed')}
+                              disabled={currentConversation.status === 'closed'}
+                            >
+                              Close
+                            </Button>
+                          </div>
+                        </div>
+                        
+                        <div>
+                          <h3 className="font-medium mb-2">Conversation Type</h3>
+                          <Badge variant="outline">
+                            {currentConversation.messageable_type}
+                          </Badge>
+                        </div>
+                      </div>
+                    </ScrollArea>
+                  </TabsContent>
+
+                  <TabsContent value="media" className="flex-1">
+                    <ScrollArea className="h-[calc(100vh-8rem)] p-4">
+                      <div className="text-center text-muted-foreground">
+                        <Image className="h-8 w-8 mx-auto mb-2" />
+                        <p>No media files in this conversation yet</p>
+                      </div>
+                    </ScrollArea>
+                  </TabsContent>
+                </Tabs>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
       </div>

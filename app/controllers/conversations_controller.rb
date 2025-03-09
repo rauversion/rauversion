@@ -23,6 +23,8 @@ class ConversationsController < ApplicationController
   def create
     @conversation = Conversation.new(conversation_params)
     @conversation.status = 'active'
+    @conversation.messageable_type = 'User'
+    @conversation.messageable_id = current_user.id unless params[:messageable_id].present?
 
     if @conversation.save
       # Add the creator as owner

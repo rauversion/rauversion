@@ -1657,3 +1657,29 @@ en:
     connection_error_desc: Error sending connection request
     connection_success: Connection request sent successfully
     connection_success_desc: Connection request sent successfully
+
+
+  messages:
+    title: Messages 
+    status:
+      archived: Archived
+      active: Active
+    search: Search
+    new_message: New Message
+    no_messages:  No messages found
+    no_conversations: No conversations found
+    no_conversations_desc:  Start a new conversation with someone
+    no_messages_desc: Start a new conversation with someone
+    new_conversation: New Conversation
+    new_message:  New Message
+    start_conversation: Start a conversation
+    create_conversation: Create Conversation
+    no_participants_found: No participants found
+    reply: Reply
+    send: Send
+    cancel: Cancel
+    placeholders:
+      search: Search
+      subject: Subject
+      participants: Participants
+      message: Message
