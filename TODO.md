@@ -1,5 +1,9 @@
 TODO:
 
+  + mercado pago
+  + locale set backend
+  + registration
+  
   + React app
     + merch crud
     + blank render for all pages

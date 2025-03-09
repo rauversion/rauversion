@@ -16,6 +16,7 @@ Rauversion is built on Ruby on Rails.
 ## Features:
  + Account system with different providers, Twitter, Discord, Twitch.
  + Roles to open or closed communities.
+  
 ### Music publishing:
   + Audio processing to format mp3 and audio analysis to draw audio peaks.
   + Audio player, embeddable, with chunk range loading processing to save bandwidth.
@@ -55,12 +56,15 @@ Rauversion is built on Ruby on Rails.
 ### LinkTree like Supported
   + add multiple links from different sources.
 
+### Service Bookings:
+  + Book the services with clients
+  + Use Messaging board to coordinate stuff
 
 ## setup
 
 Rauversion is written in Ruby on top of the Rails Framework:
 
-> Ruby 3.2
+> Ruby 3.3.5
 
 You can develop directly in a container with [vscode devcontainer](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) or [neovim devcontainer](https://github.com/jamestthompson3/nvim-remote-containers)
 

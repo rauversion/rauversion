@@ -39,7 +39,7 @@ json.conversation do
       json.body last_message.body
       json.message_type last_message.message_type
       json.created_at last_message.created_at
-      json.read last_message.read
+      json.read last_message.read_by?(@conversation.participants.find_by(user: current_user))
       json.user do
         json.id last_message.user.id
         json.username last_message.user.username
