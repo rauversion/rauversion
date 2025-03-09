@@ -1,103 +1,97 @@
 import React from 'react'
-import { useNavigate } from 'react-router-dom'
 import { useForm } from 'react-hook-form'
 import { useToast } from '@/hooks/use-toast'
-import { Card } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { Button } from '@/components/ui/button'
-import { Label } from '@/components/ui/label'
+import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
+import { Plus } from 'lucide-react'
 import useConversationStore from '../../stores/conversationStore'
+import I18n from '@/stores/locales'
 
-const NewConversation = ({ currentUserId }) => {
-  const navigate = useNavigate()
+const NewConversation = () => {
   const { toast } = useToast()
-  const { register, handleSubmit, formState: { errors } } = useForm()
+  const { register, handleSubmit, reset } = useForm()
   const { createConversation } = useConversationStore()
+  const [open, setOpen] = React.useState(false)
 
   const onSubmit = async (data) => {
     try {
-      const conversation = await createConversation({
+      await createConversation({
         subject: data.subject,
-        participant_ids: data.participant_ids.split(',').map(id => parseInt(id.trim())).filter(Boolean),
-        messageable_type: 'User',
-        messageable_id: currentUserId,
-        initial_message: data.message
+        initial_message: data.message,
+        participant_ids: data.participants?.split(',').map(id => id.trim()) || []
       })
 
       toast({
-        title: "Success",
-        description: "Conversation created successfully"
+        title: I18n.t('messages.notifications.created')
       })
 
-      navigate(`/conversations/${conversation.id}`)
+      reset()
+      setOpen(false)
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: error.message
+        title: I18n.t('messages.error'),
+        description: I18n.t('messages.notifications.error.create')
       })
     }
   }
 
   return (
-    <div className="container max-w-2xl py-8">
-      <Card className="p-6">
-        <h1 className="text-2xl font-bold mb-6">New Conversation</h1>
-        
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button>
+          <Plus className="mr-2 h-4 w-4" />
+          {I18n.t('messages.new_message')}
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[425px]">
+        <DialogHeader>
+          <DialogTitle>{I18n.t('messages.new_message')}</DialogTitle>
+          <DialogDescription>
+            {I18n.t('messages.start_conversation')}
+          </DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="subject">Subject</Label>
             <Input
-              id="subject"
-              {...register('subject', { required: "Subject is required" })}
-              placeholder="Enter conversation subject"
+              {...register('subject', { required: true })}
+              placeholder={I18n.t('messages.placeholders.subject')}
             />
-            {errors.subject && (
-              <p className="text-sm text-destructive">{errors.subject.message}</p>
-            )}
           </div>
-
           <div className="space-y-2">
-            <Label htmlFor="participant_ids">
-              Participants (User IDs, comma separated)
-            </Label>
             <Input
-              id="participant_ids"
-              {...register('participant_ids', { required: "At least one participant is required" })}
-              placeholder="e.g., 1, 2, 3"
+              {...register('participants')}
+              placeholder={I18n.t('messages.placeholders.participants')}
             />
-            {errors.participant_ids && (
-              <p className="text-sm text-destructive">{errors.participant_ids.message}</p>
-            )}
           </div>
-
           <div className="space-y-2">
-            <Label htmlFor="message">Initial Message</Label>
             <Textarea
-              id="message"
-              {...register('message', { required: "Initial message is required" })}
-              placeholder="Type your first message..."
+              {...register('message', { required: true })}
+              placeholder={I18n.t('messages.placeholders.message')}
               rows={4}
             />
-            {errors.message && (
-              <p className="text-sm text-destructive">{errors.message.message}</p>
-            )}
           </div>
-
-          <div className="flex gap-4">
-            <Button type="submit">Create Conversation</Button>
-            <Button 
-              type="button" 
-              variant="outline"
-              onClick={() => navigate('/conversations')}
-            >
-              Cancel
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setOpen(false)}>
+              {I18n.t('messages.cancel')}
             </Button>
-          </div>
+            <Button type="submit">
+              {I18n.t('messages.create_conversation')}
+            </Button>
+          </DialogFooter>
         </form>
-      </Card>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
 }
 

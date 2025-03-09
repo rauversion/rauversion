@@ -163,7 +163,8 @@ function AppContent() {
     }
   }, [currentUser, subscription])
 
-  console.log("loaction", location)
+  console.info("LOCATION: ", location)
+
   return (
     <>
       <UserMenu />

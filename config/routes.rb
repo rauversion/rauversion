@@ -3,7 +3,7 @@ require_relative "../lib/constraints/username_route_contrainer"
 Rails.application.routes.draw do
   resources :conversations do
     member do
-      post :archive
+      post :archived
       post :close
     end
     resources :messages, only: [:create, :index]

@@ -9,17 +9,41 @@ class MessagesController < ApplicationController
     @message.message_type = 'text'
 
     if @message.save
-      render 'create' # json: @message, status: :created
+      # Broadcast the new message to all participants
+      ConversationChannel.broadcast_to(
+        @conversation,
+        {
+          type: 'new_message',
+          message: {
+            id: @message.id,
+            body: @message.body,
+            message_type: @message.message_type,
+            created_at: @message.created_at,
+            user: {
+              id: @message.user.id,
+              username: @message.user.username,
+              full_name: [@message.user.first_name, @message.user.last_name].compact.join(' '),
+              avatar_url: @message.user.avatar.attached? ? url_for(@message.user.avatar) : nil
+            }
+          }
+        }
+      )
+
+      render :create, status: :created
     else
       render json: { errors: @message.errors }, status: :unprocessable_entity
     end
   end
 
   def index
+    page = (params[:page] || 1).to_i
+    per_page = (params[:per_page] || 20).to_i
+
     @messages = @conversation.messages
-    .includes(:user).ordered
-    .page(params[:page]).per(20)
-    render 'index' #json: @messages, include: [:user]
+                           .includes(:user)
+                           .order(id: :asc)
+                           .page(page)
+                           .per(per_page)
   end
 
   private

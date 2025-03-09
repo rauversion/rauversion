@@ -8,7 +8,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   DropdownMenuGroup,
-  DropdownMenuShortcut,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
@@ -17,7 +16,7 @@ import { CartIndicator } from '@/components/cart/CartIndicator'
 import I18n, {useLocaleStore} from '@/stores/locales'
 
 import { Button } from "../ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useThemeStore } from "../../stores/theme"
 import useAuthStore from "../../stores/authStore"
 import { 
@@ -97,7 +96,6 @@ export default function UserMenu() {
 
             {/* Mobile Menu Button */}
             <div className="lg:hidden mt-3 flex items-center space-x-2">
-
               <div className="flex items-center gap-2">
                 <CartIndicator />
               </div>

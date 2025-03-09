@@ -1,114 +1,135 @@
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useRef, useCallback } from 'react'
 import { useForm } from 'react-hook-form'
 import { useToast } from '@/hooks/use-toast'
+import { useActionCable } from '@/hooks/useActionCable'
+import { cn } from "@/lib/utils"
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Reply, MoreHorizontal, Archive, Trash2 } from 'lucide-react'
-import useConversationStore from '@/stores/conversationStore'
-import cn from "classnames"
-import { useInfiniteScroll } from "@/hooks/useInfiniteScroll"
-
-const Message = ({ message, currentUserId }) => {
-  const isOwn = message.user.id === currentUserId
-  
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="mb-6"
-    >
-      <div className="flex items-start gap-3">
-        <Avatar className="h-8 w-8">
-          <AvatarImage src={message.user.avatar_url} />
-          <AvatarFallback>{message.user.username[0].toUpperCase()}</AvatarFallback>
-        </Avatar>
-        
-        <div className="flex-1">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <span className="font-medium">{message.user.username}</span>
-              {message.message_type === 'system' && (
-                <Badge variant="secondary" className="text-xs">System</Badge>
-              )}
-            </div>
-            <span className="text-xs text-muted-foreground">
-              {new Date(message.created_at).toLocaleString()}
-            </span>
-          </div>
-
-          <div className={cn(
-            "mt-1 text-sm",
-            message.message_type === 'system' && "italic text-muted-foreground"
-          )}>
-            {message.body}
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  )
-}
+import useConversationStore from '../../stores/conversationStore'
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll'
+import Message from './Message'
+import I18n from '@/stores/locales'
 
 const Conversation = ({ conversationId, currentUserId }) => {
   const { toast } = useToast()
   const messagesEndRef = useRef(null)
+  const scrollAreaRef = useRef(null)
   const { register, handleSubmit, reset } = useForm()
+  const { subscribe, unsubscribe } = useActionCable()
   
   const {
-    items: messagesPaginated,
-    loading,
-    lastElementRef,
-    resetList
-  } = useInfiniteScroll(`/conversations/${conversationId}/messages.json`)
-
-  const {
     currentConversation,
-    messages,
-    // loading,
-    error,
+    loading: conversationLoading,
+    error: conversationError,
     fetchConversation,
     sendMessage,
     updateConversationStatus,
-    appendMessages
+    appendMessage,
+    messages,
+    setMessages
   } = useConversationStore()
+
+  window.messages = messages
+
+  const {
+    items: paginatedMessages,
+    loading: messagesLoading,
+    error: messagesError,
+    hasMore,
+    loadMore,
+    resetList: resetMessages
+  } = useInfiniteScroll(`/conversations/${conversationId}/messages.json`, {
+    reverse: true,
+    perPage: 20
+  })
+
+  useEffect(()=>{
+    if(!paginatedMessages.length > 0) return
+    if(messagesLoading) return
+    //if(conversationLoading) return
+    debugger
+    setMessages(paginatedMessages)
+  }, [paginatedMessages, conversationId])
 
   useEffect(() => {
     if (conversationId) {
       fetchConversation(conversationId)
+      resetMessages()
+
+      // Subscribe to conversation channel
+      const channel = subscribe(
+        'ConversationChannel',
+        { conversation_id: conversationId },
+        {
+          received: (data) => {
+            debugger
+            if (data.type === 'new_message') {
+              appendMessage(data.message)
+            }
+          }
+        }
+      )
+
+      return () => {
+        unsubscribe('ConversationChannel')
+      }
     }
   }, [conversationId])
 
   useEffect(() => {
-    if (error) {
+    if (conversationError) {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: error
+        title: I18n.t('messages.error'),
+        description: conversationError
       })
     }
-  }, [error])
+  }, [conversationError])
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+    if (messagesError) {
+      toast({
+        variant: "destructive",
+        title: I18n.t('messages.error'),
+        description: messagesError
+      })
+    }
+  }, [messagesError])
 
-  useEffect(()=> {
-    appendMessages(messagesPaginated)
-  }, [messagesPaginated])
+  useEffect(() => {
+    // Only scroll to bottom on new messages
+    if (messages.length > 0 && !messagesLoading) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+    }
+  }, [messages.length, messagesLoading])
+
+  const handleScroll = useCallback((event) => {
+    const { scrollTop } = event.target
+    
+    // Load more when scrolled near the top
+    if (scrollTop < 100 && hasMore && !messagesLoading) {
+      loadMore()
+    }
+  }, [hasMore, messagesLoading, loadMore])
 
   const onSubmit = async (data) => {
     try {
       await sendMessage(conversationId, data.message)
       reset()
+      toast({
+        title: I18n.t('messages.notifications.message_sent')
+      })
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Error sending message",
-        description: error.message
+        title: I18n.t('messages.error'),
+        description: I18n.t('messages.notifications.error.send')
       })
     }
   }
@@ -117,24 +138,23 @@ const Conversation = ({ conversationId, currentUserId }) => {
     try {
       await updateConversationStatus(conversationId, status)
       toast({
-        title: "Status Updated",
-        description: `Conversation ${status} successfully`
+        title: I18n.t('messages.notifications.status_updated', { status: I18n.t(`messages.status.${status}`) })
       })
     } catch (error) {
       toast({
         variant: "destructive",
-        title: "Error updating status",
-        description: error.message
+        title: I18n.t('messages.error'),
+        description: I18n.t('messages.notifications.error.status')
       })
     }
   }
 
-  if (loading && !currentConversation) {
+  if (conversationLoading && !currentConversation) {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-          <p className="mt-2 text-sm text-muted-foreground">Loading conversation...</p>
+          <p className="mt-2 text-sm text-muted-foreground">{I18n.t('messages.loading')}</p>
         </div>
       </div>
     )
@@ -144,9 +164,9 @@ const Conversation = ({ conversationId, currentUserId }) => {
     return (
       <div className="flex items-center justify-center h-full">
         <div className="text-center">
-          <h3 className="text-lg font-medium">No conversation selected</h3>
+          <h3 className="text-lg font-medium">{I18n.t('messages.no_messages')}</h3>
           <p className="text-sm text-muted-foreground">
-            Choose a conversation from the sidebar or start a new one
+            {I18n.t('messages.start_conversation')}
           </p>
         </div>
       </div>
@@ -183,7 +203,7 @@ const Conversation = ({ conversationId, currentUserId }) => {
                   }
                   className="text-xs"
                 >
-                  {currentConversation.status}
+                  {I18n.t(`messages.status.${currentConversation.status}`)}
                 </Badge>
               </div>
             </div>
@@ -194,6 +214,8 @@ const Conversation = ({ conversationId, currentUserId }) => {
               variant="ghost" 
               size="icon"
               onClick={() => handleStatusUpdate('archived')}
+              disabled={currentConversation.status !== 'active'}
+              title={I18n.t('messages.actions.archive')}
             >
               <Archive className="h-4 w-4" />
             </Button>
@@ -201,6 +223,8 @@ const Conversation = ({ conversationId, currentUserId }) => {
               variant="ghost" 
               size="icon"
               onClick={() => handleStatusUpdate('closed')}
+              disabled={currentConversation.status === 'closed'}
+              title={I18n.t('messages.actions.close')}
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -212,7 +236,18 @@ const Conversation = ({ conversationId, currentUserId }) => {
       </div>
 
       {/* Messages */}
-      <ScrollArea className="flex-1 p-6">
+      <ScrollArea 
+        ref={scrollAreaRef}
+        className="flex-1-- px-6 pt-6 h-[calc(100vh-27rem)]"
+        onScroll={handleScroll}
+      >
+        {messagesLoading && hasMore && (
+          <div className="text-center py-4">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary mx-auto"></div>
+            <p className="text-sm text-muted-foreground mt-2">{I18n.t('messages.loading')}</p>
+          </div>
+        )}
+        
         <AnimatePresence>
           {messages.map((message) => (
             <Message
@@ -233,14 +268,25 @@ const Conversation = ({ conversationId, currentUserId }) => {
               <Reply className="absolute left-3 top-2.5 h-5 w-5 text-muted-foreground" />
               <Input
                 {...register('message', { required: true })}
-                placeholder="Type your reply..."
+                placeholder={I18n.t('messages.reply')}
                 className="pl-10"
               />
             </div>
-            <Button type="submit">Send</Button>
+            <Button type="submit">{I18n.t('messages.send')}</Button>
           </form>
         </div>
       )}
+
+      {
+        currentConversation.status === 'archived' && (
+          <Alert variant={"info"} className="bg-muted">
+            <AlertTitle>Conversation Archived</AlertTitle>
+            <AlertDescription>
+              This conversation 
+            </AlertDescription>
+          </Alert>
+        )
+      }
     </div>
   )
 }
