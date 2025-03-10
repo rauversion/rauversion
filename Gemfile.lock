@@ -297,6 +297,7 @@ GEM
       http-cookie (~> 1.0)
       http-form_data (~> 2.2)
       llhttp-ffi (~> 0.5.0)
+    http-accept (1.7.0)
     http-cookie (1.0.7)
       domain_name (~> 0.5)
     http-form_data (2.3.0)
@@ -367,7 +368,14 @@ GEM
     mercadopago (2.3.0)
       faraday (>= 0.9.0)
       json (>= 1.4.6)
+    mercadopago-sdk (2.3.0)
+      json (~> 2.5)
+      rest-client (~> 2.1)
     method_source (1.1.0)
+    mime-types (3.6.0)
+      logger
+      mime-types-data (~> 3.2015)
+    mime-types-data (3.2025.0304)
     mini_magick (4.13.2)
     mini_mime (1.1.5)
     mini_portile2 (2.8.8)
@@ -411,6 +419,7 @@ GEM
     net-smtp (0.5.0)
       net-protocol
     net-ssh (7.3.0)
+    netrc (0.11.0)
     nio4r (2.7.4)
     nokogiri (1.18.2)
       mini_portile2 (~> 2.8.2)
@@ -556,6 +565,11 @@ GEM
     responders (3.1.1)
       actionpack (>= 5.2)
       railties (>= 5.2)
+    rest-client (2.1.0)
+      http-accept (>= 1.7.0, < 2.0)
+      http-cookie (>= 1.0.2, < 2.0)
+      mime-types (>= 1.16, < 4.0)
+      netrc (~> 0.8)
     rexml (3.3.9)
     rqrcode (2.2.0)
       chunky_png (~> 1.0)
@@ -724,6 +738,7 @@ DEPENDENCIES
   langchain (~> 0.1.0)
   listen
   mercadopago (~> 2.3)
+  mercadopago-sdk (~> 2.3)
   meta-tags!
   mission_control-jobs
   mrsk (~> 0.15.1)

@@ -188,3 +188,5 @@ gem 'backstage', path: 'backstage'
 gem "langchain", "~> 0.1.0"
 
 gem "i18n-js", "~> 4.2"
+
+gem "mercadopago-sdk", "~> 2.3"
