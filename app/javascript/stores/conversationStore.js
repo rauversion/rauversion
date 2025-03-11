@@ -52,7 +52,7 @@ const useConversationStore = create(zukeeper((set, get) => ({
       set({ error: error.message })
       throw error
     }
-  }
+  },
 
   setMessages: async (messages)=>{
     set(state => {

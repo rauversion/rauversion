@@ -389,10 +389,10 @@ export default function ServiceForm({ product, isEditing = false }) {
                   disabled={form.formState.isSubmitting}
                 >
                   {form.formState.isSubmitting
-                    ? I18n.t('products.service.form.submitting')
+                    ? I18n.t('products.form.submitting')
                     : isEditing 
-                      ? I18n.t('products.service.form.update')
-                      : I18n.t('products.service.form.submit')}
+                      ? I18n.t('products.form.update')
+                      : I18n.t('products.form.submit')}
                 </Button>
               </div>
             </div>

@@ -50,11 +50,17 @@ module Products
     end
 
     def update
+
       if @product.update(product_params)
-        redirect_to user_product_path(current_user.username, @product), 
-                    notice: 'Music product was successfully updated.'
+        respond_to do |format|
+          format.html {
+          redirect_to user_product_path(current_user.username, @product), 
+                      notice: 'Music product was successfully updated.'
+          }
+          format.json { render :create }
+        end
       else
-        render :edit
+        render :create
       end
     end
 

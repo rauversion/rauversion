@@ -234,10 +234,10 @@ export default function AccessoryForm({ product, isEditing = false }) {
                   disabled={form.formState.isSubmitting}
                 >
                   {form.formState.isSubmitting
-                    ? I18n.t('products.accessory.form.submitting')
+                    ? I18n.t('products.form.submitting')
                     : isEditing 
-                      ? I18n.t('products.accessory.form.update')
-                      : I18n.t('products.accessory.form.submit')}
+                      ? I18n.t('products.form.update')
+                      : I18n.t('products.form.submit')}
                 </Button>
               </div>
             </div>

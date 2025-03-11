@@ -159,7 +159,7 @@ export default function MerchShow({ product }) {
 
               {product.stock_quantity > 0 && (
                 <Button onClick={()=> addToCart(product.id)} className="w-full" size="lg">
-                  {I18n.t('products.merch.show.add_to_cart')}
+                ${product.price} {I18n.t('products.merch.show.add_to_cart')}
                 </Button>
               )}
             </CardContent>

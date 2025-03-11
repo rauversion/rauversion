@@ -262,10 +262,10 @@ export default function MerchForm({ product, isEditing = false }) {
                   disabled={form.formState.isSubmitting}
                 >
                   {form.formState.isSubmitting
-                    ? I18n.t('products.merch.form.submitting')
+                    ? I18n.t('products.form.submitting')
                     : isEditing 
-                      ? I18n.t('products.merch.form.update')
-                      : I18n.t('products.merch.form.submit')}
+                      ? I18n.t('products.form.update')
+                      : I18n.t('products.form.submit')}
                 </Button>
               </div>
             </div>

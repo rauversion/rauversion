@@ -24,28 +24,10 @@ import PhotosSection from '../shared/PhotosSection'
 import useAuthStore from '@/stores/authStore'
 import I18n from '@/stores/locales'
 import { post, patch } from '@rails/request.js'
+import {
+  GEAR_CATEGORIES, STATUSES, CONDITIONS
+} from '../shared/constants'
 
-const GEAR_CATEGORIES = [
-  { value: 'instrument', label: 'Instrument' },
-  { value: 'audio_gear', label: 'Audio Gear' },
-  { value: 'dj_gear', label: 'DJ Gear' }
-]
-
-const STATUSES = [
-  { value: 'active', label: 'Active' },
-  { value: 'inactive', label: 'Inactive' },
-  { value: 'sold_out', label: 'Sold out' }
-]
-
-const CONDITIONS = [
-  { value: 'new', label: 'New' },
-  { value: 'like_new', label: 'Like New' },
-  { value: 'excellent', label: 'Excellent' },
-  { value: 'very_good', label: 'Very Good' },
-  { value: 'good', label: 'Good' },
-  { value: 'fair', label: 'Fair' },
-  { value: 'poor', label: 'Poor' }
-]
 
 export default function GearForm({ product, isEditing = false }) {
   const { currentUser } = useAuthStore()
@@ -348,10 +330,10 @@ export default function GearForm({ product, isEditing = false }) {
                 disabled={form.formState.isSubmitting}
               >
                 {form.formState.isSubmitting
-                  ? I18n.t('products.gear.form.submitting')
+                  ? I18n.t('products.form.submitting')
                   : isEditing 
-                    ? I18n.t('products.gear.form.update')
-                    : I18n.t('products.gear.form.submit')}
+                    ? I18n.t('products.form.update')
+                    : I18n.t('products.form.submit')}
               </Button>
             </div>
           </div>
