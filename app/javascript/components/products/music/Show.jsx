@@ -31,27 +31,8 @@ import useAuthStore from '@/stores/authStore'
 import I18n from '@/stores/locales'
 import useCartStore from '@/stores/cartStore'
 
-const FORMAT_ICONS = {
-  vinyl: <Disc className="h-4 w-4" />,
-  cassette: <Music className="h-4 w-4" />,
-  cd: <Disc className="h-4 w-4" />
-}
+import {FORMAT_ICONS, FORMAT_LABELS, CONDITIONS} from '../shared/constants'
 
-const FORMAT_LABELS = {
-  vinyl: I18n.t('products.music.formats.vinyl'),
-  cassette: I18n.t('products.music.formats.cassette'),
-  cd: I18n.t('products.music.formats.cd')
-}
-
-const CONDITION_LABELS = {
-  new: I18n.t('products.conditions.new'),
-  like_new: I18n.t('products.conditions.like_new'),
-  excellent: I18n.t('products.conditions.excellent'),
-  very_good: I18n.t('products.conditions.very_good'),
-  good: I18n.t('products.conditions.good'),
-  fair: I18n.t('products.conditions.fair'),
-  poor: I18n.t('products.conditions.poor')
-}
 
 export default function MusicShow({ product }) {
   const navigate = useNavigate()
@@ -190,7 +171,7 @@ export default function MusicShow({ product }) {
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">{I18n.t('products.music.show.condition')}</span>
-                <span>{CONDITION_LABELS[product.condition]}</span>
+                <span>{CONDITIONS[product.condition]}</span>
               </div>
 
               {product.limited_edition && (

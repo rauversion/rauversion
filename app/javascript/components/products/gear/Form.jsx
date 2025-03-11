@@ -89,12 +89,12 @@ export default function GearForm({ product, isEditing = false }) {
       let targetUsername = isEditing ? username : currentUser.username;
       
       if (isEditing) {
-        response = await patch(`/${targetUsername}/products/gear/${slug}`, {
+        response = await patch(`/${targetUsername}/products/gear/${slug}.json`, {
           responseKind: 'json',
           body: { product: formData }
         });
       } else {
-        response = await post(`/${targetUsername}/products/gear`, {
+        response = await post(`/${targetUsername}/products/gear.json`, {
           responseKind: 'json',
           body: { product: formData }
         });

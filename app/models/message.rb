@@ -46,6 +46,7 @@ class Message < ApplicationRecord
           body: body,
           message_type: message_type,
           created_at: created_at,
+          conversation_id: conversation_id,
           read: false, # New messages are always unread for recipients
           user: {
             id: user.id,
@@ -65,12 +66,12 @@ class Message < ApplicationRecord
         participant.user,
         {
           type: 'new_message',
-          conversation_id: conversation_id,
           message: {
             id: id,
             body: body,
             message_type: message_type,
             created_at: created_at,
+            conversation_id: conversation_id,
             read: false, # New messages are always unread for recipients
             user: {
               id: user.id,

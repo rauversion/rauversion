@@ -71,7 +71,6 @@ const Conversation = ({ conversationId, currentUserId }) => {
         { conversation_id: conversationId },
         {
           received: (data) => {
-            debugger
             if (data.type === 'new_message') {
               appendMessage(data.message)
               markAsRead(data.message)

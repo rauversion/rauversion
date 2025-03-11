@@ -79,12 +79,12 @@ export default function AccessoryForm({ product, isEditing = false }) {
       let targetUsername = isEditing ? username : currentUser.username;
       
       if (isEditing) {
-        response = await patch(`/${targetUsername}/products/accessory/${slug}`, {
+        response = await patch(`/${targetUsername}/products/accessory/${slug}.json`, {
           responseKind: 'json',
           body: { product: data }
         });
       } else {
-        response = await post(`/${targetUsername}/products/accessory`, {
+        response = await post(`/${targetUsername}/products/accessory.json`, {
           responseKind: 'json',
           body: { product: data }
         });

@@ -8,7 +8,7 @@ Rails.application.routes.draw do
     end
     resources :messages, only: [:create, :index] do
       member do
-        post :mark_as_read
+        put :mark_as_read
       end
     end
   end

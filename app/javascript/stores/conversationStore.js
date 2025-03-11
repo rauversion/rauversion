@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { get as getReq, post } from '@rails/request.js'
+import { get as getReq, put, post } from '@rails/request.js'
 import zukeeper from 'zukeeper'
 
 const useConversationStore = create(zukeeper((set, get) => ({
@@ -35,15 +35,15 @@ const useConversationStore = create(zukeeper((set, get) => ({
     }
   },
 
-  markAsRead: async (id) => {
+  markAsRead: async ({id, conversation_id}) => {
     try {
-      const response = await post(`/conversations/${id}/mark_as_read.json`)
+      const response = await put(`/conversations/${conversation_id}/messages/${id}/mark_as_read.json`)
       const data = await response.json
       set(state => ({
         conversations: state.conversations.map(conv =>
-          conv.id === id ? { ...conv, unread_messages_count: 0 } : conv
+          conv.id === conversation_id ? { ...conv, unread_messages_count: 0 } : conv
         ),
-        currentConversation: state.currentConversation?.id === id 
+        currentConversation: state.currentConversation?.id === conversation_id 
           ? { ...state.currentConversation, unread_messages_count: 0 }
           : state.currentConversation
       }))

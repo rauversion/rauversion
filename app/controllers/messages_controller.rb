@@ -9,26 +9,6 @@ class MessagesController < ApplicationController
     @message.message_type = 'text'
 
     if @message.save
-      # Broadcast the new message to all participants
-      ConversationChannel.broadcast_to(
-        @conversation,
-        {
-          type: 'new_message',
-          message: {
-            id: @message.id,
-            body: @message.body,
-            message_type: @message.message_type,
-            created_at: @message.created_at,
-            user: {
-              id: @message.user.id,
-              username: @message.user.username,
-              full_name: [@message.user.first_name, @message.user.last_name].compact.join(' '),
-              avatar_url: @message.user.avatar.attached? ? url_for(@message.user.avatar) : nil
-            }
-          }
-        }
-      )
-
       render :create, status: :created
     else
       render json: { errors: @message.errors }, status: :unprocessable_entity

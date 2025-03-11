@@ -31,21 +31,7 @@ import useAuthStore from '@/stores/authStore'
 import I18n from '@/stores/locales'
 import useCartStore from '@/stores/cartStore'
 
-const CATEGORY_ICONS = {
-  'accessories': <Wrench className="h-4 w-4" />,
-  'cables': <Cable className="h-4 w-4" />,
-  'cases': <Box className="h-4 w-4" />,
-  'stands': <Layers className="h-4 w-4" />,
-  'other': <Package className="h-4 w-4" />
-}
-
-const CATEGORY_LABELS = {
-  'accessories': I18n.t('products.accessory.categories.accessories'),
-  'cables': I18n.t('products.accessory.categories.cables'),
-  'cases': I18n.t('products.accessory.categories.cases'),
-  'stands': I18n.t('products.accessory.categories.stands'),
-  'other': I18n.t('products.accessory.categories.other')
-}
+import { ACCESORY_ICONS, ACCESSORY_LABELS } from '../shared/constants'
 
 export default function AccessoryShow({ product }) {
   const navigate = useNavigate()
@@ -77,8 +63,8 @@ export default function AccessoryShow({ product }) {
                 <span className="text-sm text-muted-foreground">{product.user.name}</span>
               </div>
               <Badge variant="outline" className="flex items-center space-x-1">
-                {CATEGORY_ICONS[product.category]}
-                <span>{CATEGORY_LABELS[product.category]}</span>
+                {ACCESORY_ICONS[product.category]}
+                <span>{ACCESSORY_LABELS[product.category]}</span>
               </Badge>
             </div>
           </div>

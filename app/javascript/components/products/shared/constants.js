@@ -1,3 +1,36 @@
+
+import React from 'react'
+import { Disc, Music, Coffee, Sticker, 
+  Package, Cable, Box, Layers, Wrench, Shirt } from 'lucide-react'
+
+export const PRODUCT_TYPES = [
+  {
+    type: 'music',
+    color: 'purple',
+    iconClass: 'music'
+  },
+  {
+    type: 'gear',
+    color: 'blue',
+    iconClass: 'gear'
+  },
+  {
+    type: 'service',
+    color: 'emerald',
+    iconClass: 'service'
+  },
+  {
+    type: 'merch',
+    color: 'pink',
+    iconClass: 'merch'
+  },
+  /*{
+    type: 'accessory',
+    color: 'amber',
+    iconClass: 'accessory'
+  },*/
+]
+
 export const GEAR_CATEGORIES = [
   { value: 'instrument', label: 'Instrument' },
   { value: 'audio_gear', label: 'Audio Gear' },
@@ -10,16 +43,6 @@ export const STATUSES = [
   { value: 'sold_out', label: 'Sold out' }
 ]
 
-export const CONDITIONS = [
-  { value: 'new', label: 'New' },
-  { value: 'like_new', label: 'Like New' },
-  { value: 'excellent', label: 'Excellent' },
-  { value: 'very_good', label: 'Very Good' },
-  { value: 'good', label: 'Good' },
-  { value: 'fair', label: 'Fair' },
-  { value: 'poor', label: 'Poor' }
-]
-
 export const MUSIC_FORMATS = [
   { value: 'vinyl', label: I18n.t('music.index.format.vinyl') },
   { value: 'cassette', label: I18n.t('music.index.format.cassette') },
@@ -28,6 +51,28 @@ export const MUSIC_FORMATS = [
   { value: 'digital', label: I18n.t('music.index.format.digital') },
   { value: 'other', label: I18n.t('music.index.format.other') }
 ]
+
+export const FORMAT_ICONS = {
+  vinyl: <Disc className="h-4 w-4" />,
+  cassette: <Music className="h-4 w-4" />,
+  cd: <Disc className="h-4 w-4" />
+}
+
+export const FORMAT_LABELS = {
+  vinyl: I18n.t('products.music.formats.vinyl'),
+  cassette: I18n.t('products.music.formats.cassette'),
+  cd: I18n.t('products.music.formats.cd')
+}
+
+export const CONDITIONS = {
+  new: I18n.t('products.conditions.new'),
+  like_new: I18n.t('products.conditions.like_new'),
+  excellent: I18n.t('products.conditions.excellent'),
+  very_good: I18n.t('products.conditions.very_good'),
+  good: I18n.t('products.conditions.good'),
+  fair: I18n.t('products.conditions.fair'),
+  poor: I18n.t('products.conditions.poor')
+}
 
 
 export const SERVICE_TYPES = [
@@ -57,6 +102,22 @@ export const DELIVERY_METHODS = [
   { value: 'both', label: 'Hybrid' }
 ]
 
+export const CATEGORY_ICONS = {
+  't-shirts': <Shirt className="h-4 w-4" />,
+  'hoodies': <Shirt className="h-4 w-4" />,
+  'mugs': <Coffee className="h-4 w-4" />,
+  'stickers': <Sticker className="h-4 w-4" />,
+  'other': <Package className="h-4 w-4" />
+}
+
+export const CATEGORY_LABELS = {
+  't-shirts': I18n.t('products.merch.categories.t_shirts'),
+  'hoodies': I18n.t('products.merch.categories.hoodies'),
+  'mugs': I18n.t('products.merch.categories.mugs'),
+  'stickers': I18n.t('products.merch.categories.stickers'),
+  'other': I18n.t('products.merch.categories.other')
+}
+
 
 export const ACCESSORY_CATEGORIES = [
   { value: 'cables', label: 'Cables' },
@@ -64,3 +125,19 @@ export const ACCESSORY_CATEGORIES = [
   { value: 'stands', label: 'Stands' },
   { value: 'other', label: 'Other' }
 ]
+
+export const ACCESORY_ICONS = {
+  'accessories': <Wrench className="h-4 w-4" />,
+  'cables': <Cable className="h-4 w-4" />,
+  'cases': <Box className="h-4 w-4" />,
+  'stands': <Layers className="h-4 w-4" />,
+  'other': <Package className="h-4 w-4" />
+}
+
+export const ACCESSORY_LABELS = {
+  'accessories': I18n.t('products.accessory.categories.accessories'),
+  'cables': I18n.t('products.accessory.categories.cables'),
+  'cases': I18n.t('products.accessory.categories.cases'),
+  'stands': I18n.t('products.accessory.categories.stands'),
+  'other': I18n.t('products.accessory.categories.other')
+}

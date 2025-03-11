@@ -151,7 +151,6 @@ export default function AddToPlaylist({ track, open, onOpenChange }) {
         })
       }
     } catch (error) {
-      debugger
       toast({
         title: "Error",
         description: "Failed to create playlist",
