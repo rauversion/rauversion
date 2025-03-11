@@ -22,6 +22,7 @@ import FormErrors from '../shared/FormErrors'
 import PricingSection from '../shared/PricingSection'
 import ShippingSection from '../shared/ShippingSection'
 import PhotosSection from '../shared/PhotosSection'
+import DeleteButton from '../shared/DeleteButton'
 import useAuthStore from '@/stores/authStore'
 import I18n from '@/stores/locales'
 import { get, post, patch } from '@rails/request.js'
@@ -339,17 +340,22 @@ export default function MusicForm({ product, isEditing = false }) {
               <PhotosSection control={form.control} setValue={form.setValue} watch={form.watch} />
               <ShippingSection control={form.control} />
 
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={form.formState.isSubmitting}
-              >
-                {form.formState.isSubmitting
-                  ? I18n.t('products.form.submitting')
-                  : isEditing 
-                    ? I18n.t('products.form.update')
-                    : I18n.t('products.form.submit')}
-              </Button>
+              <div className="flex flex-col md:flex-row gap-4">
+                <Button
+                  type="submit"
+                  className="flex-1"
+                  disabled={form.formState.isSubmitting}
+                >
+                  {form.formState.isSubmitting
+                    ? I18n.t('products.form.submitting')
+                    : isEditing 
+                      ? I18n.t('products.form.update')
+                      : I18n.t('products.form.submit')}
+                </Button>
+                {isEditing && (
+                  <DeleteButton product={product} />
+                )}
+              </div>
             </div>
           </div>
           </form>

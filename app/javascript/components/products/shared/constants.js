@@ -28,3 +28,39 @@ export const MUSIC_FORMATS = [
   { value: 'digital', label: I18n.t('music.index.format.digital') },
   { value: 'other', label: I18n.t('music.index.format.other') }
 ]
+
+
+export const SERVICE_TYPES = [
+  /*{ value: 'lessons', label: 'Lessons' },
+  { value: 'classes', label: 'Classes' },
+  { value: 'consultation', label: 'Consultation' },
+  { value: 'production', label: 'Production' },
+  { value: 'mixing', label: 'Mixing' },
+  { value: 'mastering', label: 'Mastering' }*/
+
+  { value: 'coaching', label: 'coaching'} ,
+  { value: 'feedback', label: 'feedback'} ,
+  { value: 'classes', label: 'classes'} ,
+  { value: 'other', label: 'other'} ,
+  { value: 'mastering', label: 'mastering'} ,
+  { value: 'mixing', label: 'mixing'} ,
+  { value: 'production', label: 'production'} ,
+  { value: 'recording', label: 'recording'} ,
+  { value: 'songwriting', label: 'songwriting'} ,
+  { value: 'sound_design', label: 'sound_design'} ,
+  { value: 'voice_over', label: 'voice_over'} 
+]
+
+export const DELIVERY_METHODS = [
+  { value: 'in_person', label: 'In Person' },
+  { value: 'online', label: 'Online' },
+  { value: 'both', label: 'Hybrid' }
+]
+
+
+export const ACCESSORY_CATEGORIES = [
+  { value: 'cables', label: 'Cables' },
+  { value: 'cases', label: 'Cases' },
+  { value: 'stands', label: 'Stands' },
+  { value: 'other', label: 'Other' }
+]

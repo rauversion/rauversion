@@ -141,7 +141,10 @@ class ProductsController < ApplicationController
 
   def destroy
     @product.destroy
-    redirect_to products_url, notice: 'Product was successfully deleted.'
+    respond_to do |format|
+      format.html { redirect_to products_url, notice: 'Product was successfully deleted.' }
+      format.json { render json: { success: true } }
+    end
   end
 
   private
