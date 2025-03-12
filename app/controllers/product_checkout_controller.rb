@@ -65,8 +65,7 @@ class ProductCheckoutController < ApplicationController
   end
 
   def payment_provider
-    # TODO: use defaults from ENV
-    provider = params[:provider] || 'mercado_pago'
+    provider = params[:provider] || ENV['DEFAULT_PAYMENT_GATEWAY'] || 'stripe'
     case provider
     when 'mercado_pago'
       PaymentProviders::MercadoPagoProvider

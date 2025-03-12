@@ -92,8 +92,18 @@ export default function IntegrationsSettings() {
       connectUrl: "/users/auth/stripe_connect",
       disconnectUrl: "/users/auth/stripe_connect/disconnect",
     },
+    {
+      name: I18n.t('user_settings.integrations.providers.mercado_pago.name'),
+      description: I18n.t('user_settings.integrations.providers.mercado_pago.description'),
+      icon: Icons.stripe,
+      provider: "mercado_pago",
+      connected: findCredential("mercado_pago"),
+      connectUrl: "/users/auth/mercado_pago",
+      disconnectUrl: "/users/auth/mercado_pago/disconnect",
+    },
   ]
 
+  
   return (
     <div className="space-y-8">
       {/* Hidden form for POST requests */}

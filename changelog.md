@@ -14,6 +14,9 @@ dic 2024
 + podcasts
 
 JAN / FEB 2025
-  + services
+  + services product
   + react rewrite
+  
+MAR 2025
   + messenger
+  + mercado pago

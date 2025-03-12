@@ -2,6 +2,7 @@
 
 require_relative "../../lib/omniauth/strategies/stripe"
 require_relative "../../lib/omniauth/strategies/zoom"
+require_relative "../../lib/omniauth/strategies/mercado_pago"
 
 # Assuming you have not yet modified this file, each configuration option below
 # is set to its default value. Note that some are commented out while others
@@ -342,6 +343,7 @@ Devise.setup do |config|
   config.omniauth :discord, ENV["DISCORD_CLIENT_ID"], ENV["DISCORD_CLIENT_SECRET"], scope: "email identify"
   config.omniauth :twitch, ENV["TWITCH_CLIENT_ID"], ENV["TWITCH_CLIENT_SECRET"], scope: "channel:manage:broadcast channel:manage:videos user:read:email channel:read:stream_key"
   config.omniauth :stripe_connect, ENV["STRIPE_CLIENT_ID"], ENV["STRIPE_CLIENT_SECRET"], scope: "read_write"
+  config.omniauth :mercado_pago, ENV["MERCADO_PAGO_APP_ID"], ENV["MERCADO_PAGO_CLIENT_SECRET"], scope: "read write offline_access"
 
   # ==> Warden configuration
   # If you want to use other strategies, that are not supported by Devise, or

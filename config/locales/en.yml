@@ -1000,6 +1000,9 @@ en:
         stripe:
           name: Stripe Connect
           description: Accept payments and manage your earnings
+        mercado_pago:
+          name: Mercado Pago
+          description: Accept payments in Latin America
       connected_with: Connected with ID
       buttons:
         connect: Connect
