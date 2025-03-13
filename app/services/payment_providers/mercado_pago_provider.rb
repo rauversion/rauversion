@@ -140,6 +140,9 @@ module PaymentProviders
         # application_fee: (purchasable.price * 0.05).round(2) # Comisión del marketplace (5% ejemplo)
       }) if account.present?
 
+
+      Rails.logger.info(payload)
+
       payload
     end
 

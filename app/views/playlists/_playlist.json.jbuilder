@@ -1,40 +1,12 @@
-json.extract! playlist,
-  :id,
-  :title,
-  :description,
-  :private,
-  :genre,
-  :playlist_type,
-  :release_date,
-  :custom_genre,
-  :likes_count,
-  :tags,
-  :label_id,
-  :editor_choice_position,
-  :slug,
-  :created_at,
-  :updated_at
-
-json.metadata do
-  json.buy_link playlist.buy_link
-  json.buy_link_title playlist.buy_link_title
-  json.buy playlist.buy
-  json.record_label playlist.record_label
+json.id playlist.id
+json.title playlist.title
+json.slug playlist.slug
+json.description playlist.description if defined?(show_description) && show_description
+json.cover_url do
+  json.medium playlist.cover_url(:medium)
+  json.small playlist.cover_url(:small)
 end
-
-json.cover playlist.cover.url if playlist.cover.present?
-
+json.tracks_count playlist.tracks.size if defined?(show_tracks_count) && show_tracks_count
 json.user do
-  json.extract! playlist.user, :id, :username, :email
-end
-
-json.tracks playlist.tracks do |track|
-  json.extract! track, 
-    :id, 
-    :title, 
-    :description,
-    :private,
-    :position
-  json.cover track.cover.url if track.cover.present?
-  json.audio track.audio.url if track.audio.present?
+  json.partial! 'users/user', user: playlist.user
 end
