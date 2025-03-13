@@ -22,6 +22,7 @@ class User < ApplicationRecord
   has_many :listening_events
   has_many :invitations, class_name: to_s, as: :invited_by
   has_many :oauth_credentials
+  has_one :mercado_pago_credentials, -> { where(provider: "mercado_pago") }, class_name: "OauthCredential"
   has_many :events
   has_many :event_hosts
   has_many :hosted_events, through: :event_hosts

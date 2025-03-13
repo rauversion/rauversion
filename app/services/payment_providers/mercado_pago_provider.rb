@@ -43,17 +43,26 @@ module PaymentProviders
       purchase = create_purchase(final_price)
       
       begin
-        preference_data = build_digital_preference_data(purchase, source_type)
+        account = purchasable.user.oauth_credentials.find_by(provider: "mercado_pago")
+
+        preference_data = build_digital_preference_data(purchase, source_type, account)
+        sdk = account ? 
+          Mercadopago::SDK.new(account.token) : 
+          Mercadopago::SDK.new(ENV["MERCADO_PAGO_ACCESS_TOKEN"])
+
         sdk = Mercadopago::SDK.new(ENV["MERCADO_PAGO_ACCESS_TOKEN"])
+
         preference_response = sdk.preference.create(preference_data)
-        
+        Rails.logger.info(preference_response)
         if preference_response[:status] == 201
           purchase.update(
             checkout_type: "mercado_pago",
-            # stripe_session_id: preference_response[:response]["id"]
+            #stripe_session_id: preference_response[:response]["id"]
             checkout_id: preference_response[:response]["id"]
           )
-          { checkout_url: preference_response[:response]["init_point"] }
+          { checkout_url: preference_response[:response]["init_point"] 
+           # or use preference_response[:response]["sandbox_init_point"]
+          }
         else
           { error: "Failed to create MercadoPago preference" }
         end
@@ -82,19 +91,25 @@ module PaymentProviders
       purchase
     end
 
-    def build_digital_preference_data(purchase, source_type)
-      {
-        items: [{
-          category_id: "physical_goods",
-          title: purchasable.title,
-          quantity: 1,
-          currency_id: "USD",
-          unit_price: purchase.price.to_f,
-          description: "#{purchasable.title} from #{purchasable.user.username}",
-          #category_id: "digital_goods"
-        }],
+    def build_digital_preference_data(purchase, source_type, account)
+
+      options = {
+        id: purchasable.id,
+        category_id: "physical_goods",
+        title: purchasable.title,
+        quantity: 1,
+        currency_id: "USD",
+        unit_price: purchase.price.to_f,
+        description: "#{purchasable.title} from #{purchasable.user.username}",
+        #category_id: "digital_goods"
+      }
+
+      payload = {
+        items: [options],
         payer: {
           email: Rails.env.development? ? "aaa-#{user.email}" : user.email,
+          first_name: user.first_name || user.full_name,
+          last_name: user.last_name || user.full_name,
           phone: {
             area_code: "",
             number: ""
@@ -110,6 +125,7 @@ module PaymentProviders
           failure: cancel_url,
           pending: cancel_url
         },
+        notification_url: "#{Rails.env.development? ? 'https://chaskiq.sa.ngrok.io' : ENV['HOST']}/webhooks/mercadopago",
         auto_return: "approved",
         external_reference: purchase.id.to_s,
         metadata: { 
@@ -117,6 +133,14 @@ module PaymentProviders
           source_type: source_type
         }
       }
+
+      payload.merge!({
+        # collector_id: 2326465448,
+        # collector_id: account.token, # ID del vendedor en MercadoPago
+        # application_fee: (purchasable.price * 0.05).round(2) # Comisión del marketplace (5% ejemplo)
+      }) if account.present?
+
+      payload
     end
 
     def build_preference_data(promo_code)
