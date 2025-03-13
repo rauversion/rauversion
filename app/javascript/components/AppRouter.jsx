@@ -104,7 +104,7 @@ function RequireAuth({ children }) {
   }
 
   if (!currentUser && !currentUserLoading) {
-    return <Navigate to="/login" state={{ from: location }} replace />
+    return <Navigate to="/users/sign_in" state={{ from: location }} replace />
   }
 
   return children
@@ -170,8 +170,8 @@ function AppContent() {
       <UserMenu />
       <div className="pb-24">
         <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/users/sign_in" element={<Login />} />
+          <Route path="/users/sign_up" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
 
           <Route path="/" element={<Home />} />

@@ -67,7 +67,7 @@ export default function ConfirmationMessage({ email }) {
 
             <p className="text-sm text-muted-foreground">
               Return to{' '}
-              <Link to="/login" className="text-primary hover:underline">
+              <Link to="/users/sign_in" className="text-primary hover:underline">
                 Login
               </Link>
             </p>

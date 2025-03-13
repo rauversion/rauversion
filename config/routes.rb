@@ -47,7 +47,6 @@ Rails.application.routes.draw do
   #  # Add more admin resources as needed
   #end
 
-
   post 'product_cart/add/:product_id', to: 'product_cart#add', as: 'product_cart_add'
   get 'product_cart', to: 'product_cart#show', as: 'product_cart'
   delete 'product_cart/remove/:product_id', to: 'product_cart#remove', as: 'product_cart_remove'
@@ -160,7 +159,7 @@ Rails.application.routes.draw do
   end
 
   devise_for :users, 
-  defaults: { format: :json },
+  # defaults: { format: [:html, :json] },
   controllers: {
     omniauth_callbacks: "users/omniauth_callbacks",
     registrations: "users/registrations",

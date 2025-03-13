@@ -114,7 +114,7 @@ export default function ForgotPassword() {
 
               <p className="text-sm text-muted-foreground">
                 Return to{' '}
-                <Link to="/login" className="text-primary hover:underline">
+                <Link to="/users/sign_in" className="text-primary hover:underline">
                   Login
                 </Link>
               </p>
@@ -201,7 +201,7 @@ export default function ForgotPassword() {
             className="text-center text-sm mt-6"
           >
             Remember your password?{' '}
-            <Link to="/login" className="text-primary hover:underline">
+            <Link to="/users/sign_in" className="text-primary hover:underline">
               Login
             </Link>
           </motion.p>

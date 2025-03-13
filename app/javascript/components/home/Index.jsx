@@ -141,7 +141,7 @@ export default function Home() {
                     className="mt-8"
                   >
                     <motion.a 
-                      href="/users/register"
+                      href="/users/sign_up"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       className="inline-block bg-brand-600 border border-transparent py-4 px-8 rounded-md text-lg font-medium text-white hover:bg-brand-700 transition-colors"
