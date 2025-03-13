@@ -51,6 +51,7 @@ Rails.application.routes.draw do
   get 'product_cart', to: 'product_cart#show', as: 'product_cart'
   delete 'product_cart/remove/:product_id', to: 'product_cart#remove', as: 'product_cart_remove'
 
+  get 'change_locale', to: 'application#change_locale'
   get 'puck', to: 'releases#puck'
 
   resources :product_purchases, only: [:index, :show]
