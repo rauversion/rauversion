@@ -55,7 +55,7 @@ json.past_events @past_events do |event|
   end
   
   json.author do
-    json.partial! 'users/user', user: user, show_full_name: true
+    json.partial! 'users/user', user: event.user, show_full_name: true
   end
 end
 
