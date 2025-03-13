@@ -1,12 +1,6 @@
 unless params[:ids].present?
   json.metadata do
-    json.current_page @playlists.current_page
-    json.total_pages @playlists.total_pages
-    json.total_count @playlists.total_count
-    json.next_page @playlists.next_page
-    json.prev_page @playlists.prev_page
-    json.is_first_page @playlists.first_page?
-    json.is_last_page @playlists.last_page?
+    json.partial! 'shared/pagination_metadata', collection: @playlists
   end
 end
 

@@ -11,10 +11,7 @@ json.conversation do
     json.id participant.id
     json.role participant.role
     json.user do
-      json.id participant.user.id
-      json.username participant.user.username
-      json.full_name [participant.user.first_name, participant.user.last_name].compact.join(' ')
-      json.avatar_url participant.user.avatar.attached? ? url_for(participant.user.avatar) : nil
+      json.partial! 'users/user', user: participant.user, show_full_name: true
     end
   end
 
@@ -41,9 +38,7 @@ json.conversation do
       json.created_at last_message.created_at
       json.read last_message.read_by?(@conversation.participants.find_by(user: current_user))
       json.user do
-        json.id last_message.user.id
-        json.username last_message.user.username
-        json.avatar_url last_message.user.avatar.attached? ? url_for(last_message.user.avatar) : nil
+        json.partial! 'users/user', user: last_message.user, show_full_name: true
       end
     end
   end

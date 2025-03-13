@@ -1,12 +1,5 @@
 json.user do
-  json.extract! @user, :id, :username
-  json.social_title @user.social_title
-  json.social_description @user.social_description
-  json.avatar_url do
-    json.small @user.avatar_url(:small)
-    json.medium @user.avatar_url(:medium)
-    json.large @user.avatar_url(:large)
-  end
+  json.partial! 'users/user', user: @user.user, show_full_name: true
 end
 
 json.links @user_links do |link|

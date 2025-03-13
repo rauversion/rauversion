@@ -6,9 +6,7 @@ json.collection @collection do |track|
   json.created_at track.created_at
   json.updated_at track.updated_at
   json.user do
-    json.id track.user.id
-    json.username track.user.username
-    json.avatar_url track.user.avatar_url(:small)
+    json.partial! 'users/user', user: track.user, show_full_name: true
   end
   json.cover_url track.cropped_image
 
@@ -24,11 +22,5 @@ json.collection @collection do |track|
 end
 
 json.metadata do
-  json.current_page @collection.current_page
-  json.total_pages @collection.total_pages
-  json.total_count @collection.total_count
-  json.next_page @collection.next_page
-  json.prev_page @collection.prev_page
-  json.is_first_page @collection.first_page?
-  json.is_last_page @collection.last_page?
+  json.partial! 'shared/pagination_metadata', collection: @collection
 end

@@ -17,9 +17,7 @@ json.state @track.state
 json.tags @track.tags
 
 json.user do
-  json.id @track.user.id
-  json.username @track.user.username
-  json.avatar_url @track.user.avatar_url(:small)
+  json.partial! 'users/user', user: @track.user, show_full_name: true
   
   if @track.user.podcaster_info.present?
     json.podcaster_info do
@@ -46,9 +44,7 @@ json.comments @track.comments.includes(:user).order(created_at: :desc) do |comme
   json.body comment.body
   json.created_at comment.created_at
   json.user do
-    json.id comment.user.id
-    json.username comment.user.username
-    json.avatar_url comment.user.avatar_url(:small)
+    json.partial! 'users/user', user: comment.user, show_full_name: true
   end
 end
 
@@ -56,8 +52,6 @@ json.likes @track.likes.includes(:liker).order(created_at: :desc) do |like|
   json.id like.id
   json.created_at like.created_at
   json.user do
-    json.id like.liker.id
-    json.username like.liker.username
-    json.avatar_url like.liker.avatar_url(:small)
+    json.partial! 'users/user', user: like.liker, show_full_name: true
   end
 end

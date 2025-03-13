@@ -7,8 +7,7 @@ json.collection @playlists do |playlist|
   end
   json.tracks_count playlist.tracks.count
   json.user do
-    json.extract! playlist.user, :id, :username, :first_name, :last_name
-    json.full_name "#{playlist.user.first_name} #{playlist.user.last_name}"
+    json.partial! 'users/user', user: playlist.user, show_full_name: true
   end
 end
 
@@ -17,11 +16,5 @@ json.filter do
 end
 
 json.metadata do
-  json.current_page @playlists.current_page
-  json.total_pages @playlists.total_pages
-  json.total_count @playlists.total_count
-  json.next_page @playlists.next_page
-  json.prev_page @playlists.prev_page
-  json.is_first_page @playlists.first_page?
-  json.is_last_page @playlists.last_page?
+  json.partial! 'shared/pagination_metadata', collection: @playlists
 end

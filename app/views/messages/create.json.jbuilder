@@ -5,10 +5,7 @@ json.message do
   json.created_at @message.created_at
   json.read false # New messages are always unread for recipients
   json.user do
-    json.id @message.user.id
-    json.username @message.user.username
-    json.full_name [@message.user.first_name, @message.user.last_name].compact.join(' ')
-    json.avatar_url @message.user.avatar.attached? ? url_for(@message.user.avatar) : nil
+    json.partial! 'users/user', user: @messager.user, show_full_name: true
   end
 end
 

@@ -22,25 +22,12 @@ json.track do
   json.name_your_price @track.name_your_price
 
   json.user do
-    json.id @track.user.id
-    json.username @track.user.username
-    json.avatar_url do
-      json.small @track.user.avatar_url(:small)
-      json.medium @track.user.avatar_url(:medium)
-      json.large @track.user.avatar_url(:large)
-    end if @track.user
-    json.bio @track.user.bio
+    json.partial! 'users/user', user: @track.user, show_full_name: true, show_bio: true
   end
 
   if @track.label
     json.label do
-      json.id @track.label.id
-      json.username @track.label.username
-      json.avatar_url do
-        json.small @track.label.avatar_url(:small)
-        json.medium @track.label.avatar_url(:medium)
-        json.large @track.label.avatar_url(:large)
-      end if @track.label.avatar.attached?
+      json.partial! 'users/user', user: @track.user, show_full_name: true
     end
   end
 
@@ -73,13 +60,7 @@ json.track do
     # json.track_minute comment.track_minute
     json.created_at comment.created_at
     json.user do
-      json.id comment.user.id
-      json.username comment.user.username
-      json.avatar_url do
-        json.small comment.user.avatar_url(:small)
-        json.medium comment.user.avatar_url(:medium)
-        json.large comment.user.avatar_url(:large)
-      end if comment.user
+      json.partial! 'users/user', user: comment.user, show_full_name: true
     end
   end
 
@@ -89,13 +70,7 @@ json.track do
     json.description playlist.description
     json.private playlist.private
     json.user do
-      json.id playlist.user.id
-      json.username playlist.user.username
-      json.avatar_url do
-        json.small playlist.user.avatar_url(:small)
-        json.medium playlist.user.avatar_url(:medium)
-        json.large playlist.user.avatar_url(:large)
-      end if playlist.user
+      json.partial! 'users/user', user: playlist.user, show_full_name: true
     end
   end
 end

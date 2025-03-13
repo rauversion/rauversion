@@ -1,7 +1,12 @@
 json.id user.id
 json.username user.username
+json.name user.full_name
 json.full_name user.full_name if defined?(show_full_name) && show_full_name
+json.bio user.bio if defined?(show_bio) && show_bio
+json.initials user.username.split(' ').map(&:first).join('')
+
 json.avatar_url do
-  json.medium user.avatar_url(:medium)
   json.small user.avatar_url(:small)
+  json.medium user.avatar_url(:medium)
+  json.large user.avatar_url(:large)
 end

@@ -10,12 +10,6 @@ end
 
 if @artists.respond_to?(:current_page)
   json.metadata do
-    json.current_page @artists.current_page
-    json.total_pages @artists.total_pages
-    json.total_count @artists.total_count
-    json.next_page @artists.next_page
-    json.prev_page @artists.prev_page
-    json.is_first_page @artists.first_page?
-    json.is_last_page @artists.last_page?
+    json.partial! 'shared/pagination_metadata', collection: @artists
   end
 end

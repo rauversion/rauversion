@@ -103,7 +103,7 @@ export function Comments({ resourceType, resourceId }) {
         {comments.map((comment) => (
           <div key={comment.id} className="flex gap-4">
             <Avatar className="h-10 w-10">
-              <AvatarImage src={comment.user.avatar_url} alt={comment.user.username} />
+              <AvatarImage src={comment.user.avatar_url.small} alt={comment.user.username} />
               <AvatarFallback>{comment.user.username[0].toUpperCase()}</AvatarFallback>
             </Avatar>
             <div className="flex-1 space-y-1">

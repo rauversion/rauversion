@@ -27,11 +27,5 @@ json.collection @releases do |release|
 end
 
 json.metadata do
-  json.current_page @releases.current_page
-  json.total_pages @releases.total_pages
-  json.total_count @releases.total_count
-  json.next_page @releases.next_page
-  json.prev_page @releases.prev_page
-  json.is_first_page @releases.first_page?
-  json.is_last_page @releases.last_page?
+  json.partial! 'shared/pagination_metadata', collection: @releases
 end

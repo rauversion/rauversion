@@ -13,14 +13,7 @@ json.event do
     json.created_at host.created_at
     
     json.user do
-      json.id host.user.id
-      json.email host.user.email
-      json.full_name host.user.full_name
-      json.username host.user.username
-      json.avatar_url do
-        json.medium host.user.avatar_url(:medium)
-        json.small host.user.avatar_url(:small)
-      end
+      json.partial! 'users/user', user: host.user, show_full_name: true
     end
   end
 end

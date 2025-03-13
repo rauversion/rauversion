@@ -13,15 +13,7 @@ json.playlist do
   json.price @playlist.price
   json.name_your_price @playlist.name_your_price
   json.user do
-    json.id @playlist.user.id
-    json.username @playlist.user.username
-    json.full_name @playlist.user.full_name
-    json.avatar_url do
-      json.small @playlist.user.avatar_url(:small)
-      json.medium @playlist.user.avatar_url(:medium)
-      json.large @playlist.user.avatar_url(:large)
-    end if @playlist.user
-    json.bio @playlist.user.bio
+    json.partial! 'users/user', user: @playlist.user, show_full_name: true
   end
 
   json.cover_url do
@@ -50,14 +42,7 @@ json.playlist do
     json.updated_at track.updated_at
 
     json.user do
-      json.id track.user.id
-      json.username track.user.username
-      json.avatar_url do
-        json.small track.user.avatar_url(:small)
-        json.medium track.user.avatar_url(:medium)
-        json.large track.user.avatar_url(:large)
-      end if track.user
-      json.bio track.user.bio
+      json.partial! 'users/user', user: track.user, show_full_name: true
     end
 
     json.cover_url do

@@ -27,10 +27,7 @@ json.product do
       json.cover_url url_for(@product.album.cover) if @product.album.cover.attached?
       json.tracks @product.album.track_playlists do |track_playlist|
         track = track_playlist.track
-        json.id track.id
-        json.title track.title
-        json.duration track.duration
-        # json.position track.position
+        json.partial! 'tracks/track', track: track
       end
     end
   end
@@ -53,9 +50,6 @@ json.product do
 
   # Seller information
   json.user do
-    json.id @product.user.id
-    json.username @product.user.username
-    json.name @product.user.full_name
-    json.avatar_url url_for(@product.user.avatar) if @product.user.avatar.attached?
+    json.partial! 'users/user', user: @product.user, show_full_name: true
   end
 end

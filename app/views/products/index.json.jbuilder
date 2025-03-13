@@ -2,7 +2,7 @@ json.collection @products do |product|
   json.extract! product, :id, :slug, :title, :description, :price, :category, :slug
     
   json.user do
-    json.extract! product.user, :id, :username
+    json.partial! 'users/user', user: product.user, show_full_name: true
   end if product.user.present?
   
   json.album do
@@ -18,11 +18,5 @@ end
 
 
 json.metadata do
-  json.current_page @products.current_page
-  json.total_pages @products.total_pages
-  json.total_count @products.total_count
-  json.next_page @products.next_page
-  json.prev_page @products.prev_page
-  json.is_first_page @products.first_page?
-  json.is_last_page @products.last_page?
+  json.partial! 'shared/pagination_metadata', collection: @products
 end

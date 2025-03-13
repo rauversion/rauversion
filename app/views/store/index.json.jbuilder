@@ -15,11 +15,7 @@ json.collection @products do |product|
     end
   end
   json.user do
-    json.id product.user.id
-    json.username product.user.username
-    json.avatar_url do
-      json.small product.user.avatar_url(:small)
-    end
+    json.partial! 'users/user', user: product.user, show_full_name: true
   end
   json.created_at product.created_at
   json.updated_at product.updated_at
@@ -34,11 +30,5 @@ json.collection @products do |product|
 end
 
 json.metadata do
-  json.current_page @products.current_page
-  json.total_pages @products.total_pages
-  json.total_count @products.total_count
-  json.next_page @products.next_page
-  json.prev_page @products.prev_page
-  json.is_first_page @products.first_page?
-  json.is_last_page @products.last_page?
+  json.partial! 'shared/pagination_metadata', collection: @products
 end

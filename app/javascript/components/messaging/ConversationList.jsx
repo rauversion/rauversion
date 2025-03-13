@@ -23,7 +23,7 @@ const ConversationItem = ({ conversation, isSelected, onClick }) => {
     >
       <div className="flex items-start gap-3">
         <Avatar className="h-9 w-9 shrink-0">
-          <AvatarImage src={participant.user.avatar_url} />
+          <AvatarImage src={participant.user.avatar_url.small} />
           <AvatarFallback>{participant.user.username[0].toUpperCase()}</AvatarFallback>
         </Avatar>
 

@@ -16,7 +16,7 @@ const Message = ({ message, currentUserId }) => {
     >
       <div className="flex items-start gap-3">
         <Avatar className="h-8 w-8">
-          <AvatarImage src={message.user.avatar_url} />
+          <AvatarImage src={message.user.avatar_url.small} />
           <AvatarFallback>{message.user.username[0].toUpperCase()}</AvatarFallback>
         </Avatar>
         

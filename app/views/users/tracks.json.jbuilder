@@ -17,17 +17,10 @@ json.collection @tracks do |track|
   end
 
   json.user do
-    json.extract! track.user, :id, :username, :first_name, :last_name
-    json.full_name "#{track.user.first_name} #{track.user.last_name}"
+    json.partial! 'users/user', user: track.user, show_full_name: true
   end
 end
 
 json.metadata do
-  json.current_page @collection.current_page
-  json.total_pages @collection.total_pages
-  json.total_count @collection.total_count
-  json.next_page @collection.next_page
-  json.prev_page @collection.prev_page
-  json.is_first_page @collection.first_page?
-  json.is_last_page @collection.last_page?
+  json.partial! 'shared/pagination_metadata', collection: @collection
 end

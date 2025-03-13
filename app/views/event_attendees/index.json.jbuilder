@@ -14,20 +14,10 @@ json.collection @purchased_items do |item|
   end
 
   json.user do
-    json.id purchase.user.id
-    json.email purchase.user.email
-    json.name purchase.user.username
-    json.initials purchase.user.username.split(' ').map(&:first).join('')
-    json.avatar_url purchase.user.avatar_url
+    json.partial! 'users/user', user: purchase.user, show_full_name: true
   end
 end
 
 json.metadata do
-  json.current_page @purchased_items.current_page
-  json.total_pages @purchased_items.total_pages
-  json.next_page @purchased_items.next_page
-  json.prev_page @purchased_items.prev_page
-  json.is_first_page @purchased_items.first_page?
-  json.is_last_page @purchased_items.last_page?
-  json.total_count @purchased_items.total_count
+  json.partial! 'shared/pagination_metadata', collection: @purchased_items
 end

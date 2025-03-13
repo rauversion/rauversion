@@ -23,12 +23,7 @@ json.collection @articles do |article|
   end
   
   json.author do
-    json.username article.user.username
-    json.name article.user.full_name
-    json.avatar_url do
-      json.medium article.user.avatar_url(:medium)
-      json.small article.user.avatar_url(:small)
-    end
+    json.partial! 'users/user', user: article.user, show_full_name: true
   end
   
   json.tags article.tags
@@ -36,11 +31,7 @@ end
 
 
 json.metadata do
-  json.total_count @articles.total_count
-  json.current_page @articles.current_page
-  json.total_pages @articles.total_pages
-  json.next_page @articles.next_page
-  json.prev_page @articles.prev_page
+  json.partial! 'shared/pagination_metadata', collection: @articles
 end
 
 json.categories @categories do |category|

@@ -1,7 +1,7 @@
 json.extract! @product, :type, :id, :title, :description, :price, :category, :slug
 
 json.user do
-  json.extract! @product.user, :id, :username
+  json.partial! 'users/user', user: @product.user, show_full_name: true
 end if @product.user.present?
 
 json.album do
