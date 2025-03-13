@@ -32,9 +32,9 @@ export default function PodcastHeader({ data, currentUser }) {
 
         <a className="relative mx-auto block w-48 overflow-hidden rounded-lg bg-muted shadow-xl shadow-muted sm:w-64 sm:rounded-xl lg:w-auto lg:rounded-2xl" aria-label="Homepage">
           {data?.podcaster_info?.avatar_url ? (
-            <img src={data.podcaster_info.avatar_url.large} alt="" className="w-full" style={{ color: 'transparent' }} />
+            <img src={data.podcaster_info.avatar_url} alt="" className="w-full" style={{ color: 'transparent' }} />
           ) : data?.user?.avatar_url ? (
-            <img src={data.user.avatar_url.large} alt="" className="w-full" style={{ color: 'transparent' }} />
+            <img src={data.user.avatar_url} alt="" className="w-full" style={{ color: 'transparent' }} />
           ) : null}
           <div className="absolute inset-0 rounded-lg ring-1 ring-inset ring-black/10 sm:rounded-xl lg:rounded-2xl"></div>
         </a>

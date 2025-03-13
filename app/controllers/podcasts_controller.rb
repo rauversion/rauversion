@@ -28,9 +28,7 @@ class PodcastsController < ApplicationController
 
   def podcaster_info
     @podcaster_info = @user.podcaster_info
-    respond_to do |format|
-      format.json
-    end
+    render 'podcasts/podcaster_info'
   end
 
   private
