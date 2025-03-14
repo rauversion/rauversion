@@ -97,7 +97,7 @@ export default function Home() {
         const jsonData = await response.json
         setData(prev => ({
           ...prev,
-          currentUser: jsonData.currentUser,
+          // currentUser: jsonData.currentUser,
           appName: jsonData.appName,
           displayHero: jsonData.displayHero
         }))
@@ -106,7 +106,7 @@ export default function Home() {
       }
     }
 
-    fetchInitialData()
+    // fetchInitialData()
 
     // Fetch section data
     fetchSectionData('artists')

@@ -36,7 +36,10 @@ class HomeController < ApplicationController
     if section
       respond_with(@data)
     else
-      render "shared/blank"
+      respond_to do |format|
+        format.html { render "shared/blank" }
+        format.json
+      end
       # respond_with(@artists, @posts, @albums, @playlists, @latest_releases)
     end
   end

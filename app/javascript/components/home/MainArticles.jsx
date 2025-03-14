@@ -60,7 +60,7 @@ export default function MainArticles({ posts }) {
                       <h2 className="text-2xl md:text-4xl font-bold leading-tight mb-2 text-foreground">
                         {mainPost.title}
                       </h2>
-                      <p className="hidden sm:block text-muted-foreground mb-4">
+                      <p className="hidden sm:block text-default mb-4">
                         {mainPost.excerpt}
                       </p>
                       <div className="flex items-center gap-3">
