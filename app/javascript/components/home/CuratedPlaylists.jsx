@@ -11,10 +11,10 @@ const PlaylistCard = ({ playlist }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ scale: 1.02 }}
-      className="group relative flex-shrink-0 w-[300px] md:w-[400px]"
+      className="dark group relative flex-shrink-0 w-[300px] md:w-[400px]"
     >
       <Link to={`/playlists/${playlist.slug}`}>
-        <div className="relative overflow-hidden rounded-2xl bg-black aspect-[4/3]">
+        <div className="relative overflow-hidden rounded-2xl bg-background aspect-[4/3]">
           {/* Playlist Cover */}
           <motion.div 
             className="absolute inset-0 bg-cover bg-center"
@@ -24,7 +24,7 @@ const PlaylistCard = ({ playlist }) => {
           />
 
           {/* Overlay Gradient */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-500" />
 
           {/* Content */}
           <div className="absolute inset-0 p-6 flex flex-col justify-between">
@@ -36,7 +36,7 @@ const PlaylistCard = ({ playlist }) => {
             >
               <Badge 
                 variant="outline" 
-                className="bg-black/50 text-white border-white/20"
+                className="bg-background/50 text-foreground border-border"
               >
                 {playlist.tracks_count} {I18n.t('home.curated_playlists.tracks')}
               </Badge>
@@ -49,27 +49,30 @@ const PlaylistCard = ({ playlist }) => {
               className="space-y-4"
             >
               <div className="flex items-center gap-4">
+              {/*
                 <motion.button 
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  className="bg-white rounded-full p-3 shadow-lg group"
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.9 }}
+                className="hidden bg-background rounded-full p-3 shadow-lg group"
+              >
+                <svg 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  width="24" 
+                  height="24" 
+                  viewBox="0 0 24 24" 
+                  fill="black"
+                  className="w-5 h-5 group-hover:fill-primary transition-colors"
                 >
-                  <svg 
-                    xmlns="http://www.w3.org/2000/svg" 
-                    width="24" 
-                    height="24" 
-                    viewBox="0 0 24 24" 
-                    fill="black"
-                    className="w-5 h-5 group-hover:fill-primary transition-colors"
-                  >
-                    <polygon points="6 3 20 12 6 21 6 3"></polygon>
-                  </svg>
-                </motion.button>
+                  <polygon points="6 3 20 12 6 21 6 3"></polygon>
+                </svg>
+              </motion.button>
+              */}
+
                 <div>
-                  <h3 className="text-2xl font-black tracking-tight text-white">
+                  <h3 className="text-2xl font-black tracking-tight text-foreground">
                     {playlist.title}
                   </h3>
-                  <p className="text-gray-300 font-medium">
+                  <p className="text-default font-medium">
                     {I18n.t('home.curated_playlists.by')} {playlist.user.username}
                   </p>
                 </div>
@@ -86,7 +89,7 @@ const CarouselButton = ({ direction, onClick, disabled }) => (
   <Button
     variant="outline"
     size="icon"
-    className="absolute top-1/2 -translate-y-1/2 z-10 bg-black/80 border-white/20 text-white hover:bg-white hover:text-black transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+    className="absolute top-1/2 -translate-y-1/2 z-10 bg-background/80 border-border text-foreground hover:bg-foreground hover:text-background transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
     style={{ [direction === 'left' ? 'left' : 'right']: '1rem' }}
     onClick={onClick}
     disabled={disabled}
@@ -123,7 +126,7 @@ export default function CuratedPlaylists({ playlists, title, subtitle }) {
   if (!playlists || playlists.length === 0) return null
 
   return (
-    <section className="py-16 md:py-24 bg-black">
+    <section className="py-16 md:py-24 bg-background">
       <div className="max-w-7xl mx-auto">
         <div className="px-4 sm:px-8 flex justify-between items-center mb-12">
           <motion.div
@@ -131,10 +134,10 @@ export default function CuratedPlaylists({ playlists, title, subtitle }) {
             whileInView={{ opacity: 1, x: 0 }}
             className="space-y-2"
           >
-            <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white">
+            <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-foreground">
               {title || I18n.t('home.curated_playlists.title')}
             </h2>
-            <p className="text-lg text-gray-400">
+            <p className="text-lg text-muted-foreground">
               {subtitle || I18n.t('home.curated_playlists.subtitle')}
             </p>
           </motion.div>
@@ -144,7 +147,7 @@ export default function CuratedPlaylists({ playlists, title, subtitle }) {
               variant="outline" 
               size="lg"
             >
-              <span class="text-default">
+              <span className="text-foreground">
                 {I18n.t('home.curated_playlists.view_all')}
               </span>
               

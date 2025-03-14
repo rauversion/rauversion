@@ -43,25 +43,25 @@ export default function LatestReleases() {
 
   if (loading) {
     return (
-      <section className="px-4 sm:px-8 py-12 bg-black">
+      <section className="px-4 sm:px-8 py-12 bg-background">
         <div className="max-w-7xl mx-auto">
           <div className="flex justify-between items-center mb-8">
             <div className="space-y-2">
-              <div className="h-12 w-64 bg-white/5 rounded-lg animate-pulse" />
-              <div className="h-6 w-48 bg-white/5 rounded-lg animate-pulse" />
+              <div className="h-12 w-64 bg-muted/50 rounded-lg animate-pulse" />
+              <div className="h-6 w-48 bg-muted/50 rounded-lg animate-pulse" />
             </div>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="bg-white/5 rounded-2xl p-4 animate-pulse">
+              <div key={i} className="bg-muted/50 rounded-2xl p-4 animate-pulse">
                 <div className="flex items-start gap-4">
-                  <div className="w-16 h-16 bg-white/10 rounded-lg" />
+                  <div className="w-16 h-16 bg-muted rounded-lg" />
                   <div className="flex-1 space-y-3">
-                    <div className="h-6 w-3/4 bg-white/10 rounded-lg" />
-                    <div className="h-4 w-1/2 bg-white/10 rounded-lg" />
+                    <div className="h-6 w-3/4 bg-muted rounded-lg" />
+                    <div className="h-4 w-1/2 bg-muted rounded-lg" />
                   </div>
                 </div>
-                <div className="mt-4 h-16 bg-white/10 rounded-lg" />
+                <div className="mt-4 h-16 bg-muted rounded-lg" />
               </div>
             ))}
           </div>
@@ -73,7 +73,7 @@ export default function LatestReleases() {
   if (!tracks || tracks.length === 0) return null
 
   return (
-    <section className="px-4 sm:px-8 py-12 bg-black">
+    <section className="px-4 sm:px-8 py-12 bg-background">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <motion.div
@@ -81,10 +81,10 @@ export default function LatestReleases() {
             whileInView={{ opacity: 1, x: 0 }}
             className="space-y-2"
           >
-            <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-white">
+            <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-foreground">
               {I18n.t('home.latest_tracks.title')}
             </h2>
-            <p className="text-lg text-gray-400">
+            <p className="text-lg text-muted-foreground">
               {I18n.t('home.latest_tracks.subtitle')}
             </p>
           </motion.div>
@@ -93,7 +93,7 @@ export default function LatestReleases() {
             <Button 
               variant="outline" 
               size="lg"
-              className="group border-white/20 text-white hover:bg-white hover:text-black transition-all duration-300"
+              className="group border-border text-foreground hover:bg-foreground hover:text-background transition-all duration-300"
             >
               {I18n.t('home.latest_tracks.browse_all')}
               <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
@@ -115,10 +115,10 @@ export default function LatestReleases() {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-black/80 border-white/20 text-white hover:bg-white hover:text-black transition-all duration-300">
+          <CarouselPrevious className="absolute left-2 top-1/2 -translate-y-1/2 z-10 bg-background/80 border-border text-foreground hover:bg-foreground hover:text-background transition-all duration-300">
             <ChevronLeft className="h-4 w-4" />
           </CarouselPrevious>
-          <CarouselNext className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-black/80 border-white/20 text-white hover:bg-white hover:text-black transition-all duration-300">
+          <CarouselNext className="absolute right-2 top-1/2 -translate-y-1/2 z-10 bg-background/80 border-border text-foreground hover:bg-foreground hover:text-background transition-all duration-300">
             <ChevronRight className="h-4 w-4" />
           </CarouselNext>
         </Carousel>

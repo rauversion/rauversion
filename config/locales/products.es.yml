@@ -1,13 +1,13 @@
 es:
   products:
     conditions:
-      new: New
-      like_new: As new
-      excellent: Excellent
-      very_good: Very good
-      good: Good
+      new: Nuevo
+      like_new: Como nuevo
+      excellent: Excelente
+      very_good: Muy bueno
+      good: Bueno
       fair: Regular
-      poor: Bad
+      poor: Malo
     new:
       title: "¿Qué te gustaría vender?"
       subtitle: "Elige el tipo de producto que deseas crear"
@@ -94,9 +94,9 @@ es:
         uploading: "Subiendo fotos..."
 
     show:
-      edit_product: Edit Product
-      delete_product: Delete Product
-      add_to_cart: Add to Cart
+      edit_product: "Editar Producto"
+      delete_product: "Eliminar Producto"
+      add_to_cart: "Agregar al Carrito"
 
     service:
       index:
