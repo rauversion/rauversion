@@ -809,6 +809,10 @@ es:
       title: Últimos Lanzamientos
       subtitle: Últimos lanzamientos
       browse_all: Ver Todo
+      join_title: Únete a la comunidad
+      join_description: Descubre y comparte música con la comunidad
+      join_button: Únete
+      new_release: Nuevo Lanzamiento
     featured_artists:
       tracks: Pistas
       followers: Seguidores

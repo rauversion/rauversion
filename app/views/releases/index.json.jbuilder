@@ -5,6 +5,9 @@ json.collection @releases do |release|
   json.subtitle release.subtitle
   json.created_at release.created_at
   json.updated_at release.updated_at
+  json.user do 
+    json.partial! 'users/user', user: release.user
+  end
   
   if release.cover.attached?
     json.cover_url do 

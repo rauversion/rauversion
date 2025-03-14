@@ -224,7 +224,36 @@ export default function Home() {
 
 
             <motion.div variants={fadeInUp}>
-              <AlbumReleases albums={data.releases} />
+              <AlbumReleases 
+                albums={[
+                  /*{
+                    type: 'cta',
+                    title: I18n.t('home.album_releases.join_title'),
+                    description: I18n.t('home.album_releases.join_description'),
+                    buttonText: I18n.t('home.album_releases.join_button'),
+                  },*/
+                  ...data.releases.map((release, index) => ({
+                    type: 'album',
+                    ...release,
+                    variant: index == 0 ? 'tall' : //index === 0 ? 'featured' : 
+                            index === 3 ? 'wide' :
+                            index === 4 ? 'tall' :
+                            index === data.releases.length - 1 ? 'large' : 'default'
+                  }))
+                  /*{
+                    type: 'image',
+                    image: '/images/architecture.jpg',
+                    title: 'Architecture',
+                    variant: 'wide'
+                  },
+                  {
+                    type: 'image',
+                    image: '/images/art.jpg',
+                    title: 'Art Installation',
+                    variant: 'tall'
+                  }*/
+                ]} 
+              />
             </motion.div>
 
 

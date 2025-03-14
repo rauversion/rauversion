@@ -767,6 +767,10 @@ en:
       title: Featured Artists
       subtitle: Discover new artists and music
       view_all: See All
+      join_title: Join the event
+      join_description: Join the event and enjoy the music
+      join_button: Join
+      new_release: New Release
     curated_playlists:
       tracks: Tracks
       by: By
@@ -777,6 +781,7 @@ en:
       title: Last Tracks
       subtitle: Listen to the latest music from our community
       browse_all: See All
+
   profile:
     all: Everything
     albums: Albums
