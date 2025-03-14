@@ -5,6 +5,7 @@ import { get } from '@rails/request.js'
 import { Comments } from "@/components/comments/Comments"
 import { ShareDialog } from "@/components/ui/share-dialog"
 import TrackEdit from './TrackEdit'
+import TrackSkeleton from './TrackSkeleton'
 import { Settings, Share2, Heart, Repeat, Play, Pause, ShoppingCart } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import useAuthStore from '@/stores/authStore'
@@ -54,7 +55,7 @@ export default function TrackShow() {
   }
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>
+    return <TrackSkeleton />
   }
 
   if (!track) {

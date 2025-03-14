@@ -6,6 +6,7 @@ import useAuthStore from '../../stores/authStore'
 import { format } from 'date-fns'
 import { Play, Pause, Settings, ShoppingCart } from 'lucide-react'
 import PlaylistEdit from './PlaylistEdit'
+import PlaylistSkeleton from './PlaylistSkeleton'
 import { Button } from "@/components/ui/button"
 import { ShareDialog } from "@/components/ui/share-dialog"
 import { Comments } from "@/components/comments/Comments"
@@ -70,7 +71,7 @@ export default function PlaylistShow() {
   }
 
   if (loading || !playlist) {
-    return <div className="text-muted-foreground">Loading...</div>
+    return <PlaylistSkeleton />
   }
 
   return (
