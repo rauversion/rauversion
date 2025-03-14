@@ -70,7 +70,7 @@ export default function MainArticles({ posts }) {
                           className="w-10 h-10 rounded-full object-cover" 
                         />
                         <div>
-                          <span className="block font-medium text-white">
+                          <span className="block font-medium text-default">
                             {mainPost.user.username}
                           </span>
                           <span className="text-sm text-gray-400">

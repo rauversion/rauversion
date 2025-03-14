@@ -247,13 +247,15 @@ export default function GearForm({ product, isEditing = false }) {
                   rules={{ required: "Condition is required" }}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{I18n.t('products.gear.form.condition')}</FormLabel>
+                      <FormLabel>
+                      {I18n.t('products.gear.form.condition')}
+                      </FormLabel>
                       <FormControl>
                         <Select
                           id="condition"
                           placeholder={I18n.t('products.gear.form.select_condition')}
-                          options={CONDITIONS}
-                          value={CONDITIONS.find(c => c.value === field.value)}
+                          options={Object.keys(CONDITIONS).map(key => ({ value: key, label: CONDITIONS[key] }))}
+                          value={field.value ? { value: field.value, label: CONDITIONS[field.value] } : null}
                           onChange={(option) => field.onChange(option?.value)}
                           theme={(theme) => selectTheme(theme, isDarkMode)}
                         />

@@ -6,7 +6,7 @@ json.collection @articles do |article|
     json.large article.cover_url(:large)
   end
   json.user do
-    json.partial! 'users/user', user: @article.user, show_full_name: true
+    json.partial! 'users/user', user: article.user, show_full_name: true
   end
 end
 

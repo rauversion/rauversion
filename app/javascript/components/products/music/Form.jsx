@@ -194,8 +194,8 @@ export default function MusicForm({ product, isEditing = false }) {
                           <Select
                             id="condition"
                             placeholder={I18n.t('products.gear.form.select_condition')}
-                            options={CONDITIONS}
-                            value={CONDITIONS.find(c => c.value === field.value)}
+                            options={Object.keys(CONDITIONS).map(key => ({ value: key, label: CONDITIONS[key] }))}
+                            value={field.value ? { value: field.value, label: CONDITIONS[field.value] } : null}
                             onChange={(option) => field.onChange(option?.value)}
                             theme={(theme) => selectTheme(theme, isDarkMode)}
                           />

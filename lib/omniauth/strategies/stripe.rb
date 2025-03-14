@@ -9,7 +9,7 @@ module OmniAuth
       option :name, :stripe_connect
 
       option :client_options, {
-        site: "https://connect.stripe.com"
+        site: "https://connect.stripe.com/express"
       }
 
       option :authorize_options, [:scope, :stripe_landing, :always_prompt]

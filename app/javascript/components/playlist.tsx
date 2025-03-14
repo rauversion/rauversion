@@ -9,6 +9,7 @@ interface Track {
   audio_url: string;
   cover_url: string;
   position: number;
+  author: User;
 }
 
 interface User {
@@ -120,12 +121,12 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
-  if (!playlist) return <div>No playlist found</div>;
+  if (loading) return <div className="text-muted-foreground">Loading...</div>;
+  if (error) return <div className="text-destructive">Error: {error}</div>;
+  if (!playlist) return <div className="text-muted-foreground">No playlist found</div>;
 
   return (
-    <div className="h-screen rounded-lg p-4">
+    <div className="h-screen rounded-lg p-4 bg-muted/50">
       <audio ref={audioRef} />
       <div className="flex items-start gap-6">
         {playlist.cover_url && (
@@ -137,8 +138,8 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
         )}
         
         <div className="flex-1">
-          <h2 className="text-white font-bold text-3xl mb-2">{playlist.title}</h2>
-          <p className="text-zinc-400 mb-4">{playlist.user.full_name}</p>
+          <h2 className="text-foreground font-bold text-3xl mb-2">{playlist.title}</h2>
+          <p className="text-muted-foreground mb-4">{playlist.user.full_name}</p>
           <div className="flex items-center gap-4">
             <button 
               onClick={togglePlayPause}
@@ -146,7 +147,7 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
             >
               {isPlaying ? <Pause size={24} /> : <Play size={24} />}
             </button>
-            <a href={playlist.url} target="_blank" className="text-xs font-semibold px-4 py-1.5 rounded-full bg-transparent border border-white text-white hover:scale-105 transition">
+            <a href={playlist.url} target="_blank" className="text-xs font-semibold px-4 py-1.5 rounded-full bg-transparent border border-border text-foreground hover:scale-105 transition">
               Listen on Rauversion
             </a>
           </div>
@@ -158,13 +159,13 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
           {playlist.tracks.map((track, index) => (
             <div 
               key={track.id}
-              className="flex items-center justify-between p-2 rounded hover:bg-white hover:bg-opacity-10 group"
+              className="flex items-center justify-between p-2 rounded hover:bg-muted group"
             >
               <div className="flex items-center gap-4">
-                <span className="text-zinc-400 w-6">{index + 1}</span>
+                <span className="text-muted-foreground w-6">{index + 1}</span>
                 
                 <button 
-                  className="text-zinc-400 opacity-0 group-hover:opacity-100 hover:text-white transition"
+                  className="text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-foreground transition"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleTrackPlay(index);
@@ -177,12 +178,12 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
                 </button>
 
                 <div>
-                  <p className="text-white font-medium">{track.title}</p>
-                  <p className="text-zinc-400 text-sm">{track.author.full_name}</p>
+                  <p className="text-foreground font-medium">{track.title}</p>
+                  <p className="text-muted-foreground text-sm">{track.author.full_name}</p>
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                <span className="text-zinc-400">{track.duration}</span>
+                <span className="text-muted-foreground">{track.duration}</span>
 
               </div>
             </div>
@@ -196,7 +197,7 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
             href={playlist.buy_link}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs font-semibold px-4 py-1.5 rounded-full bg-transparent border border-white text-white hover:scale-105 transition"
+            className="text-xs font-semibold px-4 py-1.5 rounded-full bg-transparent border border-border text-foreground hover:scale-105 transition"
           >
             {playlist.buy_link_title || 'Buy Now'}
           </a>
