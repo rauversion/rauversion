@@ -54,7 +54,7 @@ export default function MainArticles({ posts }) {
                     <div className="absolute bottom-0 left-0 p-6">
                       {mainPost.category && (
                         <span className="inline-block px-3 py-1 bg-primary text-sm font-medium mb-4">
-                          {mainPost.category}
+                          {mainPost.category.name}
                         </span>
                       )}
                       <h2 className="text-2xl md:text-4xl font-bold leading-tight mb-2 text-foreground">
@@ -65,13 +65,13 @@ export default function MainArticles({ posts }) {
                       </p>
                       <div className="flex items-center gap-3">
                         <img 
-                          src={mainPost.user.avatar_url.medium} 
-                          alt={mainPost.user.username}
+                          src={mainPost.author.avatar_url.medium} 
+                          alt={mainPost.author.username}
                           className="w-10 h-10 rounded-full object-cover" 
                         />
                         <div>
                           <span className="block font-medium text-foreground">
-                            {mainPost.user.username}
+                            {mainPost.author.username}
                           </span>
                           <span className="text-sm text-muted-foreground">
                             {format(new Date(mainPost.created_at), 'MMMM d, yyyy')}
@@ -99,7 +99,7 @@ export default function MainArticles({ posts }) {
                   <div>
                     {post.category && (
                       <span className="text-primary text-sm font-medium">
-                        {post.category}
+                        {post.category.name}
                       </span>
                     )}
                     <h3 className="text-lg font-bold mt-1 group-hover:text-primary transition-colors line-clamp-2">

@@ -8,39 +8,101 @@ class HomeController < ApplicationController
       image: helpers.image_url("gritt-zheng-uCUkq5H0_Y0-unsplash.jpg")
     )
 
-    @artists = User.artists
-      .with_attached_avatar
-      .order("id desc").limit(12)
+    section = params[:section]
 
-    @posts = Post.published
+    case section
+    when 'artists'
+      @artists = fetch_artists
+      render "users/index" and return
+    when 'posts'
+      @articles = fetch_posts
+      render "articles/index" and return
+    when 'releases'
+      @releases = fetch_releases
+      render "releases/index" and return
+    when 'albums'
+      @playlists = fetch_albums
+      render "playlists/index" and return
+    when 'playlists'
+      @playlists = fetch_playlists
+      render "playlists/index" and return
+    when 'latest_releases'
+      @tracks = fetch_latest_releases
+      render "tracks/index" and return
+    else
+      fetch_all
+    end
+
+    if section
+      respond_with(@data)
+    else
+      respond_with(@artists, @posts, @albums, @playlists, @latest_releases)
+    end
+  end
+
+  private
+
+  def fetch_all
+    @artists = fetch_artists
+    @posts = fetch_posts
+    @releases = fetch_releases
+    @albums = fetch_albums
+    @playlists = fetch_playlists
+    @latest_releases = fetch_latest_releases
+  end
+
+  def fetch_artists
+    User.artists
+      .with_attached_avatar
+      .order("id desc")
+      .page(params[:page])
+      .per(12)
+  end
+
+  def fetch_posts
+    Post.published
       .with_attached_cover
       .includes(user: { avatar_attachment: :blob })
-      .order("id desc").limit(4)
+      .order("id desc")
+      .page(params[:page])
+      .per(4)
+  end
 
-    @releases = Release
-    .where(published: true)
-    .limit(10)
-    .order("id desc")
+  def fetch_releases
+    Release
+      .where(published: true)
+      .order("id desc")
+      .page(params[:page])
+      .per(10)
+  end
 
-    @albums = Playlist.published
-    .latests
-    .includes(:releases)
-    .where(playlist_type: ["ep", "album"])
-    .where("editor_choice_position is not null")
-    .order("editor_choice_position asc, release_date desc, id desc")
+  def fetch_albums
+    Playlist.published
+      .latests
+      .includes(:releases)
+      .where(playlist_type: ["ep", "album"])
+      .where("editor_choice_position is not null")
+      .order("editor_choice_position asc, release_date desc, id desc")
+      .page(params[:page])
+      .per(10)
+  end
 
-    @playlists = Playlist.published
-    .latests
-    .includes(:releases)
-    .where.not(playlist_type: ["ep", "album"])
-    .order("editor_choice_position asc, release_date desc, id desc")
+  def fetch_playlists
+    Playlist.published
+      .latests
+      .includes(:releases)
+      .where.not(playlist_type: ["ep", "album"])
+      .order("editor_choice_position asc, release_date desc, id desc")
+      .page(params[:page])
+      .per(10)
+  end
 
-
-    @latest_releases = Track.published.latests
-    .with_attached_cover
-    .includes(user: { avatar_attachment: :blob })
-    .limit(12)
-
-    respond_with(@artists, @posts, @albums, @playlists, @latest_releases)
+  def fetch_latest_releases
+    Track.published
+      .latests
+      .with_attached_cover
+      .includes(user: { avatar_attachment: :blob })
+      .page(params[:page])
+      .per(10)
   end
 end

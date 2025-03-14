@@ -5,11 +5,11 @@ end
 json.popular_tags @popular_tags do |tag|
   json.tag tag.tag
   json.count tag.count
-end
+end unless @popular_tags.nil?
 
 json.artists @artists do |user|
   json.partial! 'users/user', user: user, show_full_name: true
-end
+end unless @artists.nil?
 
 json.featured_albums Playlist.published.latests
   .includes(:releases, :user)
@@ -29,13 +29,13 @@ end
 
 json.labels @labels do |label|
   json.partial! 'labels/label', label: label
-end
+end unless @labels.nil?
 
 if @highlighted_playlist
   json.highlighted_playlist do
     json.partial! 'playlists/playlist', playlist: @highlighted_playlist, show_description: true
   end
-end
+end unless @highlighted_playlist.nil?
 
 json.meta do
   json.total_pages @tracks.total_pages
