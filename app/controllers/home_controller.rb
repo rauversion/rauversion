@@ -65,7 +65,7 @@ class HomeController < ApplicationController
       .includes(user: { avatar_attachment: :blob })
       .order("id desc")
       .page(params[:page])
-      .per(4)
+      .per(5)
   end
 
   def fetch_releases

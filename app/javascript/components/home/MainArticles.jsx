@@ -6,8 +6,8 @@ import I18n from 'stores/locales'
 export default function MainArticles({ posts }) {
   if (!posts || posts.length === 0) return null
 
-  const mainPost = posts[0]
-  const sidePosts = posts.slice(1)
+  const mainPost = posts[1]
+  const sidePosts = posts.slice(2, 5)
 
   return (
     <section className="px-4 sm:px-8 py-12 md:py-24">
@@ -60,7 +60,7 @@ export default function MainArticles({ posts }) {
                       <h2 className="text-2xl md:text-4xl font-bold leading-tight mb-2 text-foreground">
                         {mainPost.title}
                       </h2>
-                      <p className="text-muted-foreground mb-4">
+                      <p className="hidden sm:block text-muted-foreground mb-4">
                         {mainPost.excerpt}
                       </p>
                       <div className="flex items-center gap-3">
