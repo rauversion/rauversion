@@ -1,4 +1,12 @@
 es:
+  mailers:
+    message:
+      new_message:
+        subject: "Nuevo mensaje de %{sender}"
+        greeting: "¡Hola %{recipient}!"
+        body: "%{sender} te ha enviado un nuevo mensaje en tu conversación"
+        view_conversation: "Ver Conversación"
+        footer: "Haz clic en el enlace de arriba para ver y responder al mensaje"
   hello: "Hola mundo"
   by: "Por %{name}"
   see_everything: Ver Todo
@@ -1701,3 +1709,33 @@ es:
     connection_error_desc: Hubo un error al enviar la solicitud de conexión. Por favor, inténtalo de nuevo.
     connection_success: Conexión Exitosa
     connection_success_desc:  Tu solicitud de conexión ha sido enviada exitosamente.
+
+  messages:
+    title: Mensajes
+    status:
+      archived: Archivado
+      active: Activo
+    search: Buscar Mensajes
+    new_message: Nuevo Mensaje
+    no_messages: No hay mensajes
+    no_conversations: No hay conversaciones
+    no_conversations_desc: Empieza una conversación con otros
+    no_messages_desc: Envía un mensaje a otros usuarios
+    new_conversation: Nueva Conversación
+
+    new_message: Nuevo Mensaje
+    start_conversation: Nuevo Mensaje
+    placeholders: Nuevo Mensaje
+    placeholders: Nuevo Mensaje
+    placeholders: Nuevo Mensaje
+    cancel: Nuevo Mensaje
+    create_conversation: Nuevo Mensaje
+    no_participants_found: No hay participantes
+    reply: Nuevo Mensaje
+    send: Enviar
+    cancel: Cancelar
+    placeholders:
+      search: Buscar
+      subject: Asunto
+      participants: Participantes
+      message: Mensajes

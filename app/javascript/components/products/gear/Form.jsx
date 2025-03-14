@@ -21,31 +21,14 @@ import FormErrors from '../shared/FormErrors'
 import PricingSection from '../shared/PricingSection'
 import ShippingSection from '../shared/ShippingSection'
 import PhotosSection from '../shared/PhotosSection'
+import DeleteButton from '../shared/DeleteButton'
 import useAuthStore from '@/stores/authStore'
 import I18n from '@/stores/locales'
 import { post, patch } from '@rails/request.js'
+import {
+  GEAR_CATEGORIES, STATUSES, CONDITIONS
+} from '../shared/constants'
 
-const GEAR_CATEGORIES = [
-  { value: 'instrument', label: 'Instrument' },
-  { value: 'audio_gear', label: 'Audio Gear' },
-  { value: 'dj_gear', label: 'DJ Gear' }
-]
-
-const STATUSES = [
-  { value: 'active', label: 'Active' },
-  { value: 'inactive', label: 'Inactive' },
-  { value: 'sold_out', label: 'Sold out' }
-]
-
-const CONDITIONS = [
-  { value: 'new', label: 'New' },
-  { value: 'like_new', label: 'Like New' },
-  { value: 'excellent', label: 'Excellent' },
-  { value: 'very_good', label: 'Very Good' },
-  { value: 'good', label: 'Good' },
-  { value: 'fair', label: 'Fair' },
-  { value: 'poor', label: 'Poor' }
-]
 
 export default function GearForm({ product, isEditing = false }) {
   const { currentUser } = useAuthStore()
@@ -106,12 +89,12 @@ export default function GearForm({ product, isEditing = false }) {
       let targetUsername = isEditing ? username : currentUser.username;
       
       if (isEditing) {
-        response = await patch(`/${targetUsername}/products/gear/${slug}`, {
+        response = await patch(`/${targetUsername}/products/gear/${slug}.json`, {
           responseKind: 'json',
           body: { product: formData }
         });
       } else {
-        response = await post(`/${targetUsername}/products/gear`, {
+        response = await post(`/${targetUsername}/products/gear.json`, {
           responseKind: 'json',
           body: { product: formData }
         });
@@ -264,13 +247,15 @@ export default function GearForm({ product, isEditing = false }) {
                   rules={{ required: "Condition is required" }}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{I18n.t('products.gear.form.condition')}</FormLabel>
+                      <FormLabel>
+                      {I18n.t('products.gear.form.condition')}
+                      </FormLabel>
                       <FormControl>
                         <Select
                           id="condition"
                           placeholder={I18n.t('products.gear.form.select_condition')}
-                          options={CONDITIONS}
-                          value={CONDITIONS.find(c => c.value === field.value)}
+                          options={Object.keys(CONDITIONS).map(key => ({ value: key, label: CONDITIONS[key] }))}
+                          value={field.value ? { value: field.value, label: CONDITIONS[field.value] } : null}
                           onChange={(option) => field.onChange(option?.value)}
                           theme={(theme) => selectTheme(theme, isDarkMode)}
                         />
@@ -342,17 +327,22 @@ export default function GearForm({ product, isEditing = false }) {
               <PhotosSection control={form.control} setValue={form.setValue} watch={form.watch} />
               <ShippingSection control={form.control} />
 
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={form.formState.isSubmitting}
-              >
-                {form.formState.isSubmitting
-                  ? I18n.t('products.gear.form.submitting')
-                  : isEditing 
-                    ? I18n.t('products.gear.form.update')
-                    : I18n.t('products.gear.form.submit')}
-              </Button>
+              <div className="flex flex-col md:flex-row gap-4">
+                <Button
+                  type="submit"
+                  className="flex-1"
+                  disabled={form.formState.isSubmitting}
+                >
+                  {form.formState.isSubmitting
+                    ? I18n.t('products.form.submitting')
+                    : isEditing 
+                      ? I18n.t('products.form.update')
+                      : I18n.t('products.form.submit')}
+                </Button>
+                {isEditing && (
+                  <DeleteButton product={product} />
+                )}
+              </div>
             </div>
           </div>
           </form>

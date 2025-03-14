@@ -19,11 +19,7 @@ json.cart do
         json.slug product.slug
         
         json.user do
-          json.username product.user.username
-          json.avatar_url do
-            json.small product.user.avatar_url(:small) if product.user.avatar_url(:small)
-            json.medium product.user.avatar_url(:medium) if product.user.avatar_url(:medium)
-          end
+          json.partial! 'users/user', user: product.user, show_full_name: true
         end
         
         json.images product.product_images do |image|

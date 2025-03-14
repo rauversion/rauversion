@@ -21,12 +21,7 @@ json.links do
 end
 
 json.user do
-  json.id @release.user.id
-  json.username @release.user.username
-  json.name @release.user.name
-  if @release.user.avatar.attached?
-    json.avatar_url rails_blob_url(@release.user.avatar.variant(resize_to_fill: [100, 100]))
-  end
+  json.partial! 'users/user', user: @release.user, show_full_name: true
 end
 
 json.playlists @release.release_playlists.order(:position) do |release_playlist|
@@ -54,12 +49,7 @@ json.playlists @release.release_playlists.order(:position) do |release_playlist|
     end
     
     json.artist do
-      json.id track.user.id
-      json.username track.user.username
-      json.name track.user.name
-      if track.user.avatar.attached?
-        json.avatar_url rails_blob_url(track.user.avatar.variant(resize_to_fill: [100, 100]))
-      end
+      json.partial! 'users/user', user: track.user.user, show_full_name: true
     end
   end
 end

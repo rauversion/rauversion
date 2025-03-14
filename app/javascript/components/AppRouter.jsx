@@ -87,6 +87,8 @@ import CategoryView from "./store/CategoryView"
 
 import CheckoutSuccess from "./checkout/CheckoutSuccess"
 import CheckoutFailure from "./checkout/CheckoutFailure"
+import ConversationsIndex from "./messaging/ConversationsIndex"
+import NewConversation from "./messaging/NewConversation"
 
 import { Footer, ScrollRestoration, LoadingSpinner } from '@/components/shared'
 
@@ -102,7 +104,7 @@ function RequireAuth({ children }) {
   }
 
   if (!currentUser && !currentUserLoading) {
-    return <Navigate to="/login" state={{ from: location }} replace />
+    return <Navigate to="/users/sign_in" state={{ from: location }} replace />
   }
 
   return children
@@ -161,14 +163,15 @@ function AppContent() {
     }
   }, [currentUser, subscription])
 
-  console.log("loaction", location)
+  console.info("LOCATION: ", location)
+
   return (
     <>
       <UserMenu />
       <div className="pb-24">
         <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
+          <Route path="/users/sign_in" element={<Login />} />
+          <Route path="/users/sign_up" element={<Register />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
 
           <Route path="/" element={<Home />} />
@@ -238,6 +241,10 @@ function AppContent() {
           <Route path="/checkout/success" element={<CheckoutSuccess />} />
           <Route path="/checkout/failure" element={<CheckoutFailure />} />
 
+          <Route path="/conversations" element={<RequireAuth><ConversationsIndex /></RequireAuth>} />
+          <Route path="/conversations/new" element={<RequireAuth><NewConversation /></RequireAuth>} />
+          <Route path="/conversations/:conversationId" element={<RequireAuth><ConversationsIndex /></RequireAuth>} />
+
           <Route path="/service_bookings" element={<RequireAuth><ServiceBookings /></RequireAuth>} />
           <Route path="/service_bookings/:id" element={<RequireAuth><ServiceBookingDetail /></RequireAuth>} />
           <Route path="/account_connections/new" element={<RequireAuth><AccountConnectionForm /></RequireAuth>} />
@@ -266,6 +273,7 @@ function AppContent() {
           !location.pathname.includes('editor') && 
           !location.pathname.includes('preview') &&
           !location.pathname.includes('albums') &&
+          !location.pathname.includes('conversations') &&
            (
             <Footer/>
           )

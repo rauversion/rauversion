@@ -6,12 +6,7 @@ json.collection @articles do |article|
     json.large article.cover_url(:large)
   end
   json.user do
-    json.extract! article.user, :id, :username, :first_name, :last_name
-    json.full_name "#{article.user.first_name} #{article.user.last_name}"
-    json.avatar_url do
-      json.small article.user.avatar_url(:small)
-      json.medium article.user.avatar_url(:medium)
-    end
+    json.partial! 'users/user', user: article.user, show_full_name: true
   end
 end
 

@@ -8,7 +8,7 @@ else
       json.image_url rails_blob_url(photo.image)
     end
     json.user do
-      json.extract! @product.user, :id, :username, :full_name
+      json.partial! 'users/user', user: @product.user, show_full_name: true
     end
   end
 end

@@ -45,11 +45,7 @@ json.purchase do
       end
 
       json.user do
-        json.username item.product.user.username
-        json.avatar_url do
-          json.small item.product.user.avatar_url(:small) if item.product.user.avatar_url(:small)
-          json.medium item.product.user.avatar_url(:medium) if item.product.user.avatar_url(:medium)
-        end
+        json.partial! 'users/user', user: item.product.user, show_full_name: true
       end
     end
   end

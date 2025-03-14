@@ -18,7 +18,5 @@ json.label do
 end
 
 json.metadata do
-  json.current_page @artists.current_page
-  json.total_pages @artists.total_pages
-  json.total_count @artists.total_count
+  json.partial! 'shared/pagination_metadata', collection: @artists
 end

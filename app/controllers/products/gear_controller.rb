@@ -61,11 +61,23 @@ module Products
     end
 
     def update
-      if @product.update(product_params)
-        redirect_to user_product_path(current_user.username, @product), 
-                    notice: 'Gear product was successfully updated.'
-      else
-        render :edit
+      @product.update(product_params)
+      respond_to do |format|
+        format.html { 
+          if @product.save
+            redirect_to user_product_path(current_user.username, @product),
+                      notice: 'Gear product was successfully updated.' 
+          else
+            render :edit
+          end
+          }
+        format.json { 
+          if @product.save
+            render "create", status: :created
+          else
+            render "create", status: :unprocessable_entity and return
+          end
+        }
       end
     end
 

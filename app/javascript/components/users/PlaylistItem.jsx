@@ -32,7 +32,7 @@ export default function PlaylistListItem({ track, index, currentTrackId, isPlayi
 
         <div>
           <p className={`font-medium ${
-            currentTrackId === track.id ? 'text-brand-500' : 'text-white'
+            currentTrackId === track.id ? 'text-brand-500' : 'text-default'
           }`}>
             {track.title}
           </p>

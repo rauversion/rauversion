@@ -1,5 +1,9 @@
 TODO:
 
+  + mercado pago
+  + OK locale set backend
+  + OK registration
+  
   + React app
     + merch crud
     + blank render for all pages
@@ -24,11 +28,9 @@ TODO:
 
   + tracks: 
     show:
-    + track purchase
     + purchase downloads
 
   + playlists:
-    + album purchase
     + purchase downloads
 
   + events

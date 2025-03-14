@@ -51,46 +51,89 @@ export default function Home() {
     albums: [],
     playlists: [],
     latestReleases: [],
+    releases: [],
     appName: window.ENV.APP_NAME,
     displayHero: window.ENV.DISPLAY_HERO
   })
 
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState({
+    artists: true,
+    posts: true,
+    albums: true,
+    playlists: true,
+    latestReleases: true,
+    releases: true
+  })
+
   const { ref, inView } = useInView({
     triggerOnce: true,
     threshold: 0,
     initialInView: true
   })
 
+  const fetchSectionData = async (section) => {
+    try {
+      const response = await get(`/home/${section}.json`)
+      const jsonData = await response.json
+      setData(prev => ({
+        ...prev,
+        [section]: jsonData.collection || []
+      }))
+    } catch (error) {
+      console.error(`Error fetching ${section} data:`, error)
+    } finally {
+      setLoading(prev => ({
+        ...prev,
+        [section]: false
+      }))
+    }
+  }
+
   useEffect(() => {
-    const fetchData = async () => {
+    // Fetch initial app data
+    const fetchInitialData = async () => {
       try {
         const response = await get('/home.json')
         const jsonData = await response.json
-        setData(jsonData)
+        setData(prev => ({
+          ...prev,
+          currentUser: jsonData.currentUser,
+          appName: jsonData.appName,
+          displayHero: jsonData.displayHero
+        }))
       } catch (error) {
-        console.error('Error fetching home data:', error)
-      } finally {
-        setLoading(false)
+        console.error('Error fetching initial data:', error)
       }
     }
 
-    fetchData()
+    fetchInitialData()
+
+    // Fetch section data
+    fetchSectionData('artists')
+    fetchSectionData('posts')
+    fetchSectionData('releases')
+    fetchSectionData('albums')
+    fetchSectionData('playlists')
+    fetchSectionData('latest_releases')
   }, [])
 
-  if (loading) return <LoadingSkeleton />
+  const isFullyLoaded = !Object.values(loading).some(Boolean)
+  if (loading.posts) return <LoadingSkeleton />
 
   const { 
     currentUser, 
-    artists, 
-    posts, 
-    albums, 
-    releases,
-    playlists, 
-    latestReleases, 
+    //artists, 
+    //posts, 
+    //albums, 
+    //releases,
+    //playlists, 
+    //latestReleases: latest_releases, 
     appName, 
     displayHero 
   } = data
+
+  // Map snake_case to camelCase for component props
+  //const latestReleases = latest_releases
 
   return (
     <motion.main
@@ -141,7 +184,7 @@ export default function Home() {
                     className="mt-8"
                   >
                     <motion.a 
-                      href="/users/register"
+                      href="/users/sign_up"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       className="inline-block bg-brand-600 border border-transparent py-4 px-8 rounded-md text-lg font-medium text-white hover:bg-brand-700 transition-colors"
@@ -156,11 +199,12 @@ export default function Home() {
         </motion.div>
       )}
 
+      
       <>
         <motion.div variants={fadeInUp}>
-          <Header posts={posts} />
+          <Header posts={data.posts} />
         </motion.div>
-
+     
         <div ref={ref}>
           <motion.div
             initial="hidden"
@@ -175,18 +219,18 @@ export default function Home() {
             }}
           >
             <motion.div variants={fadeInUp}>
-              <MainArticles posts={posts} />
+              <MainArticles posts={data.posts} />
             </motion.div>
 
 
             <motion.div variants={fadeInUp}>
-              <AlbumReleases albums={releases} />
+              <AlbumReleases albums={data.releases} />
             </motion.div>
 
 
             <motion.div variants={fadeInUp}>
               <CuratedPlaylists 
-                playlists={albums} 
+                playlists={data.albums} 
                 title={"Lanzamientos recientes"}
                 subtitle={"Escucha los últimos lanzamientos en Rauversion"}
               />
@@ -197,20 +241,22 @@ export default function Home() {
             </motion.div>
 
             <motion.div variants={fadeInUp}>
-              <FeaturedArtists artists={artists} />
+              <FeaturedArtists artists={data.artists} />
             </motion.div>
 
             <motion.div variants={fadeInUp}>
               <CuratedPlaylists 
                 title={I18n.t('home.curated_playlists.title')}
                 subtitle={I18n.t('home.curated_playlists.subtitle')}
-                playlists={playlists} 
+                playlists={data.playlists} 
               />
             </motion.div>
 
           </motion.div>
         </div>
+     
       </>
+ 
     </motion.main>
   )
 }

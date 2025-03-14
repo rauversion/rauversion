@@ -31,12 +31,7 @@ json.events @events do |event|
   end
   
   json.author event.user do
-    json.username event.user.username
-    json.name event.user.full_name
-    json.avatar_url do
-      json.medium event.user.avatar_url(:medium)
-      json.small event.user.avatar_url(:small)
-    end
+    json.partial! 'users/user', user: event.user, show_full_name: true
   end
 end
 
@@ -60,12 +55,7 @@ json.past_events @past_events do |event|
   end
   
   json.author do
-    json.username event.user.username
-    json.name event.user.full_name
-    json.avatar_url do
-      json.medium event.user.avatar_url(:medium)
-      json.small event.user.avatar_url(:small)
-    end
+    json.partial! 'users/user', user: event.user, show_full_name: true
   end
 end
 

@@ -12,7 +12,17 @@ import OrderedList from '@tiptap/extension-ordered-list'
 import BulletList from "@tiptap/extension-bullet-list"
 import History from '@tiptap/extension-history'
 import { Button } from "@/components/ui/button"
-import { Wand2 } from "lucide-react"
+import { 
+  Wand2, 
+  Bold as BoldIcon,
+  Italic as ItalicIcon,
+  Link as LinkIcon,
+  List as BulletListIcon,
+  ListOrdered,
+  Heading1,
+  Heading2,
+  Heading3
+} from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -150,7 +160,7 @@ export default function SimpleEditor({
             editor.chain().focus().toggleBold().run()}
           }
         >
-          Bold
+          <BoldIcon className="h-4 w-4" />
         </Button>
         <Button
           size="sm"
@@ -160,7 +170,7 @@ export default function SimpleEditor({
             editor.chain().focus().toggleItalic().run()}
           }
         >
-          Italic
+          <ItalicIcon className="h-4 w-4" />
         </Button>
         <Button
           size="sm"
@@ -171,7 +181,7 @@ export default function SimpleEditor({
             }
           }
         >
-          H1
+          <Heading1 className="h-4 w-4" />
         </Button>
         <Button
           size="sm"
@@ -182,7 +192,7 @@ export default function SimpleEditor({
             }
           }
         >
-          H2
+          <Heading2 className="h-4 w-4" />
         </Button>
         <Button
           size="sm"
@@ -192,7 +202,7 @@ export default function SimpleEditor({
             editor.chain().focus().toggleHeading({ level: 3 }).run()}
           }
         >
-          H3
+          <Heading3 className="h-4 w-4" />
         </Button>
         <Button
           size="sm"
@@ -202,7 +212,7 @@ export default function SimpleEditor({
             editor.chain().focus().toggleBulletList().run()}
           }
         >
-          Bullet List
+          <BulletListIcon className="h-4 w-4" />
         </Button>
         <Button
           size="sm"
@@ -212,7 +222,7 @@ export default function SimpleEditor({
             editor.chain().focus().toggleOrderedList().run()}
           }
         >
-          Ordered List
+          <ListOrdered className="h-4 w-4" />
         </Button>
         <Button
           size="sm"
@@ -222,7 +232,7 @@ export default function SimpleEditor({
             setLinkDialogOpen(true)}
           }
         >
-          Link
+          <LinkIcon className="h-4 w-4" />
         </Button>
         <Button
           size="sm"

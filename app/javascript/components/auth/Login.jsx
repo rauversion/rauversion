@@ -16,7 +16,7 @@ export default function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const navigate = useNavigate()
   const { toast } = useToast()
-  const { setCurrentUser } = useAuthStore()
+  const { setCurrentUser, updateCsrfToken } = useAuthStore()
   const { register, handleSubmit, formState: { errors } } = useForm()
 
   const onSubmit = async (data) => {
@@ -41,6 +41,12 @@ export default function Login() {
           description: I18n.t('sessions.toast.success.message')
         })
         navigate('/')
+
+        const newCsrfToken = response.headers.get("X-CSRF-Token");
+        if (newCsrfToken) {
+          updateCsrfToken(newCsrfToken);
+        }
+
       } else {
         toast({
           title: I18n.t('sessions.toast.error.title'),
@@ -54,6 +60,11 @@ export default function Login() {
         description: I18n.t('sessions.toast.error.generic'),
         variant: 'destructive'
       })
+
+      const newCsrfToken = response.headers.get("X-CSRF-Token");
+      if (newCsrfToken) {
+        updateCsrfToken(newCsrfToken);
+      }
     } finally {
       setIsSubmitting(false)
     }
@@ -232,7 +243,7 @@ export default function Login() {
             className="text-center text-sm mt-6"
           >
             {I18n.t('sessions.no_account')}{' '}
-            <Link to="/register" className="text-primary hover:underline">
+            <Link to="/users/sign_up" className="text-primary hover:underline">
               {I18n.t('sessions.register_link')}
             </Link>
           </motion.p>

@@ -64,7 +64,12 @@ const useAuthStore = create((set, get) => ({
           loading: false,
           error: null
         })
-        window.location.href = '/'
+
+        const newCsrfToken = response.headers.get("X-CSRF-Token");
+        if (newCsrfToken) {
+          updateCsrfToken(newCsrfToken);
+          window.location.reload();
+        }
       }
     } catch (error) {
       set({ error: error.message })
@@ -108,7 +113,12 @@ const useAuthStore = create((set, get) => ({
 
   isEditor: () => {
     return get().currentUser?.editor || false
+  },
+  updateCsrfToken: (token) => {
+    document.querySelector('meta[name="csrf-token"]').setAttribute("content", token);
+    localStorage.setItem("csrfToken", token);
   }
+  
 }))
 
 export default useAuthStore

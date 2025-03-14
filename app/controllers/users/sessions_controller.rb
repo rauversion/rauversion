@@ -2,7 +2,9 @@
 
 class Users::SessionsController < Devise::SessionsController
   respond_to :html, :json
-  
+
+  after_action :set_csrf_headers, only: [:create, :destroy]
+
   def create
     self.resource = warden.authenticate!(auth_options)
     sign_in(resource_name, resource)
@@ -27,5 +29,11 @@ class Users::SessionsController < Devise::SessionsController
         render json: { success: true }
       }
     end
+  end
+
+  private
+  def set_csrf_headers
+    response.headers['X-CSRF-Param'] = request_forgery_protection_token.to_s
+    response.headers['X-CSRF-Token'] = form_authenticity_token
   end
 end

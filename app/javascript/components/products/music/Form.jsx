@@ -22,18 +22,15 @@ import FormErrors from '../shared/FormErrors'
 import PricingSection from '../shared/PricingSection'
 import ShippingSection from '../shared/ShippingSection'
 import PhotosSection from '../shared/PhotosSection'
+import DeleteButton from '../shared/DeleteButton'
 import useAuthStore from '@/stores/authStore'
 import I18n from '@/stores/locales'
 import { get, post, patch } from '@rails/request.js'
 
-const MUSIC_FORMATS = [
-  { value: 'vinyl', label: I18n.t('music.index.format.vinyl') },
-  { value: 'cassette', label: I18n.t('music.index.format.cassette') },
-  { value: 'cd', label: I18n.t('music.index.format.cd') },
-  { value: 'blue_ray', label: I18n.t('music.index.format.blue_ray') },
-  { value: 'digital', label: I18n.t('music.index.format.digital') },
-  { value: 'other', label: I18n.t('music.index.format.other') }
-]
+import {
+  MUSIC_FORMATS, CONDITIONS
+} from '../shared/constants'
+
 
 export default function MusicForm({ product, isEditing = false }) {
   const { currentUser } = useAuthStore()
@@ -48,6 +45,7 @@ export default function MusicForm({ product, isEditing = false }) {
       playlist_id: product?.playlist_id || '',
       title: product?.title || '',
       description: product?.description || '',
+      condition: product?.condition || '',
       include_digital_album: product?.include_digital_album || false,
       price: product?.price || '',
       stock_quantity: product?.stock_quantity || '',
@@ -138,6 +136,8 @@ export default function MusicForm({ product, isEditing = false }) {
     }
   }
 
+  const limitedEdition = form.watch('limited_edition')
+
   return (
     <div className="m-4 rounded-lg border border-default bg-card text-card-foreground shadow-sm">
       <div className="p-6 pt-0 space-y-6">
@@ -182,6 +182,74 @@ export default function MusicForm({ product, isEditing = false }) {
                       </FormItem>
                     )}
                   />
+
+                  <FormField
+                    control={form.control}
+                    name="condition"
+                    rules={{ required: "Condition is required" }}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{I18n.t('products.gear.form.condition')}</FormLabel>
+                        <FormControl>
+                          <Select
+                            id="condition"
+                            placeholder={I18n.t('products.gear.form.select_condition')}
+                            options={Object.keys(CONDITIONS).map(key => ({ value: key, label: CONDITIONS[key] }))}
+                            value={field.value ? { value: field.value, label: CONDITIONS[field.value] } : null}
+                            onChange={(option) => field.onChange(option?.value)}
+                            theme={(theme) => selectTheme(theme, isDarkMode)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+
+                  <FormField
+                    control={form.control}
+                    name="limited_edition"
+                    render={({ field }) => (
+                      <FormItem className="flex items-center space-x-2">
+                        <FormControl>
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormLabel>{I18n.t('products.merch.form.limited_edition')}</FormLabel>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+  
+                  {limitedEdition && (
+                    <FormField
+                      control={form.control}
+                      name="limited_edition_count"
+                      rules={{
+                        required: "Limited edition count is required",
+                        min: {
+                          value: 1,
+                          message: "Count must be at least 1"
+                        }
+                      }}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{I18n.t('products.merch.form.limited_edition_count')}</FormLabel>
+                          <FormControl>
+                            <Input
+                              type="number"
+                              min="1"
+                              {...field}
+                              onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
                 </div>
 
                 <div className="flex-1">
@@ -272,17 +340,22 @@ export default function MusicForm({ product, isEditing = false }) {
               <PhotosSection control={form.control} setValue={form.setValue} watch={form.watch} />
               <ShippingSection control={form.control} />
 
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={form.formState.isSubmitting}
-              >
-                {form.formState.isSubmitting
-                  ? I18n.t('products.music.form.submitting')
-                  : isEditing 
-                    ? I18n.t('products.music.form.update')
-                    : I18n.t('products.music.form.submit')}
-              </Button>
+              <div className="flex flex-col md:flex-row gap-4">
+                <Button
+                  type="submit"
+                  className="flex-1"
+                  disabled={form.formState.isSubmitting}
+                >
+                  {form.formState.isSubmitting
+                    ? I18n.t('products.form.submitting')
+                    : isEditing 
+                      ? I18n.t('products.form.update')
+                      : I18n.t('products.form.submit')}
+                </Button>
+                {isEditing && (
+                  <DeleteButton product={product} />
+                )}
+              </div>
             </div>
           </div>
           </form>

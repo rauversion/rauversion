@@ -86,6 +86,12 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
     callback_handler
   end
 
+  def mercado_pago
+    logger.info("Callback Mercado Pago")
+    # logger.info(session.to_json)
+    callback_handler
+  end
+
   private
 
   def callback_handler

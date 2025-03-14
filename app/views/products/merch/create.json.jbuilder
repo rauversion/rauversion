@@ -10,7 +10,7 @@ else
       json.url photo.image_url(:large)
     end
     json.user do
-      json.extract! @product.user, :id, :username, :full_name
+      json.partial! 'users/user', user: @product.user, show_full_name: true
     end
   end
 end

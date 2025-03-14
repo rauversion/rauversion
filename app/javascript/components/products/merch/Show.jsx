@@ -30,22 +30,7 @@ import { Separator } from "@/components/ui/separator"
 import useAuthStore from '@/stores/authStore'
 import I18n from '@/stores/locales'
 import useCartStore from '@/stores/cartStore'
-
-const CATEGORY_ICONS = {
-  't-shirts': <Shirt className="h-4 w-4" />,
-  'hoodies': <Shirt className="h-4 w-4" />,
-  'mugs': <Coffee className="h-4 w-4" />,
-  'stickers': <Sticker className="h-4 w-4" />,
-  'other': <Package className="h-4 w-4" />
-}
-
-const CATEGORY_LABELS = {
-  't-shirts': I18n.t('products.merch.categories.t_shirts'),
-  'hoodies': I18n.t('products.merch.categories.hoodies'),
-  'mugs': I18n.t('products.merch.categories.mugs'),
-  'stickers': I18n.t('products.merch.categories.stickers'),
-  'other': I18n.t('products.merch.categories.other')
-}
+import { CATEGORY_ICONS, CATEGORY_LABELS } from '../shared/constants'
 
 export default function MerchShow({ product }) {
   const navigate = useNavigate()
@@ -159,7 +144,7 @@ export default function MerchShow({ product }) {
 
               {product.stock_quantity > 0 && (
                 <Button onClick={()=> addToCart(product.id)} className="w-full" size="lg">
-                  {I18n.t('products.merch.show.add_to_cart')}
+                ${product.price} {I18n.t('products.merch.show.add_to_cart')}
                 </Button>
               )}
             </CardContent>

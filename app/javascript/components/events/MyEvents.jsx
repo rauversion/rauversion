@@ -50,7 +50,7 @@ export default function MyEvents() {
     lastElementRef
   } = useInfiniteScroll(`/events/mine.json?tab=${tab}`)
 
-  if (loading && !posts.length) return <div>{I18n.t('events.my_events.loading.initial')}</div>
+  // if (loading && !posts.length) return <div>{I18n.t('events.my_events.loading.initial')}</div>
   if (!posts) return null
 
   return (

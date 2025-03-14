@@ -1,103 +1,53 @@
-# app/controllers/product_checkout_controller.rb
+# frozen_string_literal: true
+
 class ProductCheckoutController < ApplicationController
   before_action :set_cart
 
   def create
-    cart_items = @cart.product_cart_items.includes(:product).map do |item|
-      {
-        price_data: {
-          currency: 'usd',
-          product_data: {
-            name: item.product.title,
-          },
-          unit_amount: (item.product.price * 100).to_i,
-        },
-        quantity: item.quantity,
-      }
-    end
 
-    if cart_items.empty?
-      respond_to do |format|
-        format.html { redirect_to "/product_cart", notice: "Cart is empty" }
-        format.json { render json: { error: "Cart is empty" }, status: :unprocessable_entity }
-      end
-      return
-    end
+    ActiveRecord::Base.transaction do
+      @purchase = current_user.product_purchases.create(
+        total_amount: @cart.total_price,
+        status: :pending
+      )
 
-    @purchase = current_user.product_purchases.create(
-      total_amount: @cart.total_price,
-      status: :pending
-    )
+      provider = payment_provider.new(
+        cart: @cart,
+        user: current_user,
+        purchase: @purchase
+      )
 
-    shipping_countries = @cart.product_cart_items.map(&:product).flat_map do |product|
-      product.product_shippings.pluck(:country)
-    end.uniq
+      result = provider.create_checkout_session(promo_code: params[:promo_code])
 
-    checkout_params = {
-      payment_method_types: ['card'],
-      line_items: cart_items,
-      mode: 'payment',
-      success_url: success_url(purchase_id: @purchase.id),
-      cancel_url: cancel_url,
-      client_reference_id: @cart.id.to_s,
-      customer_email: current_user.email,
-      tax_id_collection: {enabled: true},
-      metadata: { 
-        purchase_id: @purchase.id,
-        cart_id: @cart.id,
-        source_type: "product"
-      },
-      shipping_address_collection: {
-        allowed_countries: shipping_countries
-      },
-      phone_number_collection: {
-        enabled: true
-      },
-      shipping_options: generate_shipping_options,
-    }
-
-    if params[:promo_code].present?
-      checkout_params.merge!({discounts: [{ coupon: params[:promo_code] }]}) 
-
-      @cart.product_cart_items.map(&:product).each do |product|
-        if product.coupon&.code != params[:promo_code]
-          respond_to do |format|
-            format.html { redirect_to "/product_cart", notice: "Invalid promo code" }
-            format.json { render json: { error: "Invalid promo code" }, status: :unprocessable_entity }
-          end
-          return
+      raise ActiveRecord::Rollback if result[:error].present?
+      
+      if result[:error].present?
+        respond_to do |format|
+          format.html { redirect_to "/product_cart", notice: result[:error] }
+          format.json { render json: { error: result[:error] }, status: :unprocessable_entity }
         end
+        return
       end
-    end
-
-    # allow_promotion_codes: @product&.coupon.exists?,  
-
-    begin
-    session = Stripe::Checkout::Session.create(checkout_params)
-    rescue Stripe::InvalidRequestError => e
+      
       respond_to do |format|
-        format.html { redirect_to "/product_cart", notice: e }
-        format.json { render json: { error: e.message }, status: :unprocessable_entity }
+        format.html { redirect_to result[:checkout_url], allow_other_host: true }
+        format.json { render json: { checkout_url: result[:checkout_url] } }
       end
-      return
-    end
 
-    @purchase.update(stripe_session_id: session.id)
-    
-    respond_to do |format|
-      format.html { redirect_to session.url, allow_other_host: true }
-      format.json { render json: { checkout_url: session.url } }
+    rescue => e
+      respond_to do |format|
+        format.html { redirect_to "/product_cart", notice: result[:error] }
+        format.json { render json: { error: result[:error] }, status: :unprocessable_entity }
+      end
     end
   end
 
   def success
     render "shared/blank"
-    #redirect_to root_path, notice: 'Payment successful! Thank you for your purchase.'
   end
 
   def cancel
     render "shared/blank"
-    #redirect_to product_cart_path, alert: 'Payment cancelled.'
   end
 
   private
@@ -114,43 +64,13 @@ class ProductCheckoutController < ApplicationController
     cart
   end
 
-  def success_url(options)
-    checkout_success_url(options)
-  end
-
-  def cancel_url
-    checkout_failure_url
-  end
-
-  def generate_shipping_options
-    shipping_options = []
-    
-    @cart.product_cart_items.map(&:product).each do |product|
-      product.product_shippings.each do |shipping|
-        option = {
-          shipping_rate_data: {
-            type: 'fixed_amount',
-            fixed_amount: {
-              amount: (shipping.base_cost * 100).to_i,
-              currency: 'usd',
-            },
-            display_name: "Shipping to #{shipping.country}",
-            delivery_estimate: {
-              minimum: {
-                unit: 'business_day',
-                value: 5,
-              },
-              maximum: {
-                unit: 'business_day',
-                value: 10,
-              },
-            },
-          },
-        }
-        shipping_options << option unless shipping_options.any? { |o| o[:shipping_rate_data][:display_name] == option[:shipping_rate_data][:display_name] }
-      end
+  def payment_provider
+    provider = params[:provider] || ENV['DEFAULT_PAYMENT_GATEWAY'] || 'stripe'
+    case provider
+    when 'mercado_pago'
+      PaymentProviders::MercadoPagoProvider
+    else
+      PaymentProviders::StripeProvider
     end
-
-    shipping_options
   end
 end

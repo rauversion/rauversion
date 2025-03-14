@@ -7,7 +7,10 @@ json.collection @releases do |release|
   json.updated_at release.updated_at
   
   if release.cover.attached?
-    json.cover_url rails_blob_url(release.cover.variant(resize_to_fill: [1200, 1200]))
+    json.cover_url do 
+      json.medium rails_blob_url(release.cover.variant(resize_to_fill: [1200, 1200]))
+      json.large rails_blob_url(release.cover.variant(resize_to_fill: [1200, 1200]))
+    end
   end
 
   # json.playlists_count release.release_playlists.count
@@ -27,11 +30,5 @@ json.collection @releases do |release|
 end
 
 json.metadata do
-  json.current_page @releases.current_page
-  json.total_pages @releases.total_pages
-  json.total_count @releases.total_count
-  json.next_page @releases.next_page
-  json.prev_page @releases.prev_page
-  json.is_first_page @releases.first_page?
-  json.is_last_page @releases.last_page?
+  json.partial! 'shared/pagination_metadata', collection: @releases
 end

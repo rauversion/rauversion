@@ -40,4 +40,19 @@ class ProductPurchase < ApplicationRecord
     product_purchase_items.sum(&:quantity)
   end
 
+  def payment_provider
+    if stripe_session_id.present?
+      'stripe'
+    else
+      'mercado_pago'
+    end
+  end
+
+  def payment_session_id
+    stripe_session_id # This will store both Stripe session IDs and MercadoPago preference IDs
+  end
+
+  def payment_session_id=(value)
+    self.stripe_session_id = value
+  end
 end

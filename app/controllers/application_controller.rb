@@ -60,6 +60,10 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def change_locale
+    render status: :ok, json: { locale: params[:locale] }
+  end
+
   def disable_footer
     @disable_footer = true
   end

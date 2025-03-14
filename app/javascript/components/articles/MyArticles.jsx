@@ -162,7 +162,7 @@ export default function MyArticles() {
     }
   }
 
-  if (loading && !posts.length) return <div>{I18n.t('articles.mine.loading.initial')}</div>
+  // if (loading && !posts.length) return <div>{I18n.t('articles.mine.loading.initial')}</div>
   if (!posts) return null
 
   return (

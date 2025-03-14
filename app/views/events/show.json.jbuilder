@@ -46,10 +46,7 @@ json.event_hosts @event.event_hosts do |host|
   json.listed_on_page host.listed_on_page
   json.event_manager host.event_manager
   json.user do
-    json.avatar_url do
-      json.medium host.user.avatar_url(:medium)
-      json.small host.user.avatar_url(:small)
-    end
+    json.partial! 'users/user', user: host.user, show_full_name: true
   end
 end
 
@@ -96,9 +93,6 @@ json.scheduling_settings @event.scheduling_settings if @event.scheduling_setting
 json.event_settings @event.event_settings if @event.event_settings.present?
 json.tickets @event.event_tickets if @event.event_tickets.present?
 
-json.author do 
-  json.id @event.user.id
-  json.username @event.user.username
-  json.full_name @event.user.full_name
-  json.avatar @event.user.avatar_url(:small)
+json.author do
+  json.partial! 'users/user', user: @event.user, show_full_name: true
 end

@@ -1,5 +1,13 @@
 es:
   products:
+    conditions:
+      new: Nuevo
+      like_new: Como nuevo
+      excellent: Excelente
+      very_good: Muy bueno
+      good: Bueno
+      fair: Regular
+      poor: Malo
     new:
       title: "¿Qué te gustaría vender?"
       subtitle: "Elige el tipo de producto que deseas crear"
@@ -25,6 +33,70 @@ es:
         includes_digital: "Incluye Digital"
         accepts_barter: "Acepta Trueque"
         limited_edition: "Edición Limitada (%{count} disponibles)"
+
+    index:
+      products: "Productos"
+      coupons: "Cupones"
+      add_new_product: "Agregar Nuevo Producto"
+      music: "Música"
+      gear: "Equipamiento"
+      services: "Servicios"
+      search_title: "Buscar"
+      search_placeholder: "Buscar por título o descripción..."
+      format: "Formato"
+      gear_category: "Categoría"
+      service_type: "Tipo de Servicio"
+      condition: "Condición"
+      brand: "Marca"
+      all_formats: "Todos los Formatos"
+      all_categories: "Todas las Categorías"
+      all_conditions: "Todas las Condiciones"
+      all_brands: "Todas las Marcas"
+      all_service_types: "Todos los Tipos de Servicio"
+      show_barter_only: "Mostrar Solo Disponibles para Trueque"
+      search: "Buscar"
+      no_products_found: "No se encontraron productos"
+      try_different_filters: "Prueba diferentes filtros o elimina algunos para encontrar más productos"
+
+    form:
+      submitting: "Guardando..."
+      submit: "Guardar"
+      pricing:
+        title: "Precios"
+        price: "Precio"
+        sku: SKU
+        stock_quantity: "Cantidad en Stock"
+        compare_at_price: "Precio de comparación"
+        accept_barter: "Aceptar trueques"
+        barter_description: "Descripción del trueque"
+        barter_description_placeholder: "Describe qué tipo de equipos aceptarías como trueque..."
+      shipping:
+        title: "Envíos"
+        shipping_days: "Días de Envío"
+        shipping_begins_on: "Comienza a enviar el"
+        shipping_options: "Opciones de Envío"
+        add_shipping_option: "Agregar Opción de Envío"
+        option: "Opción"
+        country: "País"
+        select_country: "Seleccionar país"
+        base_cost: "Costo base para primer artículo"
+        additional_cost: "Costo por artículo adicional"
+        shipping_cost: "Costo de envío"
+        ships_internationally: "Envíos internacionales"
+        international_shipping_cost: "Costo de envío internacional"
+        shipping_notes: "Notas de envío"
+        shipping_notes_placeholder: "Agrega información adicional sobre envíos..."
+        local_pickup: "Permitir retiro en persona"
+      photos:
+        title: "Fotos"
+        drop_here: "Suelta las fotos aquí"
+        drag_or_click: "Arrastra fotos o haz clic para subirlas"
+        uploading: "Subiendo fotos..."
+
+    show:
+      edit_product: "Editar Producto"
+      delete_product: "Eliminar Producto"
+      add_to_cart: "Agregar al Carrito"
 
     service:
       index:
@@ -127,65 +199,6 @@ es:
         select_condition: "Seleccionar condición"
         title: "Título"
         description: "Descripción"
-
-    index:
-      products: "Productos"
-      coupons: "Cupones"
-      add_new_product: "Agregar Nuevo Producto"
-      music: "Música"
-      gear: "Equipamiento"
-      services: "Servicios"
-      search_title: "Buscar"
-      search_placeholder: "Buscar por título o descripción..."
-      format: "Formato"
-      gear_category: "Categoría"
-      service_type: "Tipo de Servicio"
-      condition: "Condición"
-      brand: "Marca"
-      all_formats: "Todos los Formatos"
-      all_categories: "Todas las Categorías"
-      all_conditions: "Todas las Condiciones"
-      all_brands: "Todas las Marcas"
-      all_service_types: "Todos los Tipos de Servicio"
-      show_barter_only: "Mostrar Solo Disponibles para Trueque"
-      search: "Buscar"
-      no_products_found: "No se encontraron productos"
-      try_different_filters: "Prueba diferentes filtros o elimina algunos para encontrar más productos"
-
-    form:
-      submitting: "Guardando..."
-      submit: "Guardar"
-      pricing:
-        title: "Precios"
-        price: "Precio"
-        sku: SKU
-        stock_quantity: "Cantidad en Stock"
-        compare_at_price: "Precio de comparación"
-        accept_barter: "Aceptar trueques"
-        barter_description: "Descripción del trueque"
-        barter_description_placeholder: "Describe qué tipo de equipos aceptarías como trueque..."
-      shipping:
-        title: "Envíos"
-        shipping_days: "Días de Envío"
-        shipping_begins_on: "Comienza a enviar el"
-        shipping_options: "Opciones de Envío"
-        add_shipping_option: "Agregar Opción de Envío"
-        option: "Opción"
-        country: "País"
-        select_country: "Seleccionar país"
-        base_cost: "Costo base para primer artículo"
-        additional_cost: "Costo por artículo adicional"
-        shipping_cost: "Costo de envío"
-        ships_internationally: "Envíos internacionales"
-        international_shipping_cost: "Costo de envío internacional"
-        shipping_notes: "Notas de envío"
-        shipping_notes_placeholder: "Agrega información adicional sobre envíos..."
-        local_pickup: "Permitir retiro en persona"
-      photos:
-        title: "Fotos"
-        drop_here: "Suelta las fotos aquí"
-        drag_or_click: "Arrastra fotos o haz clic para subirlas"
-        uploading: "Subiendo fotos..."
 
     music:
       new:

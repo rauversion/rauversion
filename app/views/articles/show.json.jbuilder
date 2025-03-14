@@ -25,10 +25,5 @@ end
 json.tags @post.tags
 
 json.author do
-  json.username @post.user.username
-  json.name @post.user.full_name
-  json.avatar_url do
-    json.medium @post.user.avatar_url(:medium)
-    json.small @post.user.avatar_url(:small)
-  end
+  json.partial! 'users/user', user: @post.user, show_full_name: true
 end

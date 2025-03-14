@@ -24,9 +24,6 @@ json.product do
   end
 
   json.user do
-    json.id @product.user.id
-    json.username @product.user.username
-    json.name @product.user.full_name
-    json.avatar_url url_for(@product.user.avatar) if @product.user.avatar.attached?
+    json.partial! 'users/user', user: @product.user, show_full_name: true
   end
 end

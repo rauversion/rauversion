@@ -1,4 +1,12 @@
 en:
+  mailers:
+    message:
+      new_message:
+        subject: "New message from %{sender}"
+        greeting: "Hello %{recipient}!"
+        body: "%{sender} has sent you a new message in your conversation"
+        view_conversation: "View Conversation"
+        footer: "Click the link above to view and respond to the message"
   hello: Hello world
   by: Por %{name}
   see_everything: See All
@@ -992,6 +1000,9 @@ en:
         stripe:
           name: Stripe Connect
           description: Accept payments and manage your earnings
+        mercado_pago:
+          name: Mercado Pago
+          description: Accept payments in Latin America
       connected_with: Connected with ID
       buttons:
         connect: Connect
@@ -1657,3 +1668,29 @@ en:
     connection_error_desc: Error sending connection request
     connection_success: Connection request sent successfully
     connection_success_desc: Connection request sent successfully
+
+
+  messages:
+    title: Messages 
+    status:
+      archived: Archived
+      active: Active
+    search: Search
+    new_message: New Message
+    no_messages:  No messages found
+    no_conversations: No conversations found
+    no_conversations_desc:  Start a new conversation with someone
+    no_messages_desc: Start a new conversation with someone
+    new_conversation: New Conversation
+    new_message:  New Message
+    start_conversation: Start a conversation
+    create_conversation: Create Conversation
+    no_participants_found: No participants found
+    reply: Reply
+    send: Send
+    cancel: Cancel
+    placeholders:
+      search: Search
+      subject: Subject
+      participants: Participants
+      message: Message

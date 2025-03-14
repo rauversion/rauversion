@@ -45,27 +45,6 @@ export default function MySettings() {
     fetchSettings()
   }, [username])
 
-  const handleSubmit = async (data) => {
-    try {
-      const response = await patch(`/${username}/settings/${currentSection}`, {
-        body: JSON.stringify({ user: data }),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-      // toast({
-      //   title: "Success",
-      //   description: "Your settings have been updated.",
-      // })
-    } catch (error) {
-      // toast({
-      //   title: "Error",
-      //   description: "There was a problem updating your settings.",
-      //   variant: "destructive",
-      // })
-    }
-  }
-
   if (!user) return null
 
   return (

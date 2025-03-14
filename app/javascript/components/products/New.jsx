@@ -2,34 +2,8 @@ import React from 'react'
 import TypeCard from './TypeCard'
 import useAuthStore from '@/stores/authStore'
 import I18n from '@/stores/locales'
+import { PRODUCT_TYPES } from './shared/constants'
 
-const PRODUCT_TYPES = [
-  {
-    type: 'music',
-    color: 'purple',
-    iconClass: 'music'
-  },
-  {
-    type: 'gear',
-    color: 'blue',
-    iconClass: 'gear'
-  },
-  {
-    type: 'merch',
-    color: 'pink',
-    iconClass: 'merch'
-  },
-  {
-    type: 'accessory',
-    color: 'amber',
-    iconClass: 'accessory'
-  },
-  {
-    type: 'service',
-    color: 'emerald',
-    iconClass: 'service'
-  }
-]
 
 export default function ProductNew() {
   const { currentUser } = useAuthStore()

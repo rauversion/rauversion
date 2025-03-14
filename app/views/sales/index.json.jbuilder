@@ -48,10 +48,6 @@ json.collection @collection do |sale|
 end
 
 json.metadata do
-  json.total_count @collection.total_count
-  json.current_page @collection.current_page
-  json.total_pages @collection.total_pages
-  json.next_page @collection.next_page
-  json.prev_page @collection.prev_page
+  json.partial! 'shared/pagination_metadata', collection: @collection
   json.tab @tab
 end

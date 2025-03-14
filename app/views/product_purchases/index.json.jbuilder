@@ -50,22 +50,12 @@ json.collection @collection do |purchase|
       end
 
       json.user do
-        json.username item.product.user.username
-        json.avatar_url do
-          json.small item.product.user.avatar_url(:small) if item.product.user.avatar_url(:small)
-          json.medium item.product.user.avatar_url(:medium) if item.product.user.avatar_url(:medium)
-        end
+        json.partial! 'users/user', user: item.product.user, show_full_name: true
       end
     end
   end
 end
 
 json.metadata do
-  json.current_page @collection.current_page
-  json.total_pages @collection.total_pages
-  json.total_count @collection.total_count
-  json.next_page @collection.next_page
-  json.prev_page @collection.prev_page
-  json.is_first_page @collection.first_page?
-  json.is_last_page @collection.last_page?
+  json.partial! 'shared/pagination_metadata', collection: @collection
 end

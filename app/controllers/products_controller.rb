@@ -8,7 +8,7 @@ class ProductsController < ApplicationController
 
     @q = @profile.products
     .active.includes(:user, :album, product_images: {image_attachment: :blob}) 
-                 .where.not(category: ['instrument', 'audio_gear', 'dj_gear', 'accessories'])
+                 # .where.not(category: ['instrument', 'audio_gear', 'dj_gear', 'accessories'])
                  .ransack(params[:q])
     @products = @q.result(distinct: true).order(created_at: :desc)
 
@@ -141,7 +141,10 @@ class ProductsController < ApplicationController
 
   def destroy
     @product.destroy
-    redirect_to products_url, notice: 'Product was successfully deleted.'
+    respond_to do |format|
+      format.html { redirect_to products_url, notice: 'Product was successfully deleted.' }
+      format.json { render json: { success: true } }
+    end
   end
 
   private

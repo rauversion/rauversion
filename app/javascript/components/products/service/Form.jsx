@@ -27,36 +27,12 @@ import FormErrors from '../shared/FormErrors'
 import PricingSection from '../shared/PricingSection'
 import PhotosSection from '../shared/PhotosSection'
 import ShippingSection from '../shared/ShippingSection'
+import DeleteButton from '../shared/DeleteButton'
 import useAuthStore from '@/stores/authStore'
 import I18n from '@/stores/locales'
 import { post, patch } from '@rails/request.js'
 
-const SERVICE_TYPES = [
-  /*{ value: 'lessons', label: 'Lessons' },
-  { value: 'classes', label: 'Classes' },
-  { value: 'consultation', label: 'Consultation' },
-  { value: 'production', label: 'Production' },
-  { value: 'mixing', label: 'Mixing' },
-  { value: 'mastering', label: 'Mastering' }*/
-
-  { value: 'coaching', label: 'coaching'} ,
-  { value: 'feedback', label: 'feedback'} ,
-  { value: 'classes', label: 'classes'} ,
-  { value: 'other', label: 'other'} ,
-  { value: 'mastering', label: 'mastering'} ,
-  { value: 'mixing', label: 'mixing'} ,
-  { value: 'production', label: 'production'} ,
-  { value: 'recording', label: 'recording'} ,
-  { value: 'songwriting', label: 'songwriting'} ,
-  { value: 'sound_design', label: 'sound_design'} ,
-  { value: 'voice_over', label: 'voice_over'} 
-]
-
-const DELIVERY_METHODS = [
-  { value: 'in_person', label: 'In Person' },
-  { value: 'online', label: 'Online' },
-  { value: 'both', label: 'Hybrid' }
-]
+import { SERVICE_TYPES, DELIVERY_METHODS } from '../shared/constants'
 
 export default function ServiceForm({ product, isEditing = false }) {
   const { currentUser } = useAuthStore()
@@ -383,17 +359,24 @@ export default function ServiceForm({ product, isEditing = false }) {
                 <PhotosSection control={form.control} setValue={form.setValue} watch={form.watch} />
                 <ShippingSection control={form.control} />
 
+                <div className="flex flex-col md:flex-row gap-4">
+
                 <Button
                   type="submit"
                   className="w-full"
                   disabled={form.formState.isSubmitting}
                 >
                   {form.formState.isSubmitting
-                    ? I18n.t('products.service.form.submitting')
+                    ? I18n.t('products.form.submitting')
                     : isEditing 
-                      ? I18n.t('products.service.form.update')
-                      : I18n.t('products.service.form.submit')}
+                      ? I18n.t('products.form.update')
+                      : I18n.t('products.form.submit')}
                 </Button>
+
+                {isEditing && (
+                  <DeleteButton product={product} />
+                )}
+                </div>
               </div>
             </div>
           </form>

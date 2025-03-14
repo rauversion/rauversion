@@ -42,7 +42,7 @@ export default function MainArticles({ posts }) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           <div className="lg:col-span-8">
             {mainPost && (
-              <article className="group cursor-pointer">
+              <article className="group cursor-pointer dark">
                 <Link to={`/articles/${mainPost.slug}`}>
                   <div className="relative aspect-[16/9] overflow-hidden rounded-lg mb-6">
                     <img 
@@ -50,30 +50,30 @@ export default function MainArticles({ posts }) {
                       alt={mainPost.title}
                       className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent"></div>
                     <div className="absolute bottom-0 left-0 p-6">
                       {mainPost.category && (
                         <span className="inline-block px-3 py-1 bg-primary text-sm font-medium mb-4">
-                          {mainPost.category}
+                          {mainPost.category.name}
                         </span>
                       )}
-                      <h2 className="text-2xl md:text-4xl font-bold leading-tight mb-2 text-white">
+                      <h2 className="text-2xl md:text-4xl font-bold leading-tight mb-2 text-foreground">
                         {mainPost.title}
                       </h2>
-                      <p className="text-gray-300 mb-4">
+                      <p className="text-muted-foreground mb-4">
                         {mainPost.excerpt}
                       </p>
                       <div className="flex items-center gap-3">
                         <img 
-                          src={mainPost.user.avatar_url.medium} 
-                          alt={mainPost.user.username}
+                          src={mainPost.author.avatar_url.medium} 
+                          alt={mainPost.author.username}
                           className="w-10 h-10 rounded-full object-cover" 
                         />
                         <div>
-                          <span className="block font-medium text-white">
-                            {mainPost.user.username}
+                          <span className="block font-medium text-foreground">
+                            {mainPost.author.username}
                           </span>
-                          <span className="text-sm text-gray-400">
+                          <span className="text-sm text-muted-foreground">
                             {format(new Date(mainPost.created_at), 'MMMM d, yyyy')}
                           </span>
                         </div>
@@ -99,13 +99,13 @@ export default function MainArticles({ posts }) {
                   <div>
                     {post.category && (
                       <span className="text-primary text-sm font-medium">
-                        {post.category}
+                        {post.category.name}
                       </span>
                     )}
                     <h3 className="text-lg font-bold mt-1 group-hover:text-primary transition-colors line-clamp-2">
                       {post.title}
                     </h3>
-                    <span className="text-sm text-gray-400">
+                    <span className="text-sm text-muted-foreground">
                       {format(new Date(post.created_at), 'MMMM d, yyyy')}
                     </span>
                   </div>

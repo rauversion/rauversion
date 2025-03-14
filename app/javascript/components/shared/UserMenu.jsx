@@ -8,7 +8,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
   DropdownMenuGroup,
-  DropdownMenuShortcut,
   DropdownMenuSub,
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
@@ -17,13 +16,13 @@ import { CartIndicator } from '@/components/cart/CartIndicator'
 import I18n, {useLocaleStore} from '@/stores/locales'
 
 import { Button } from "../ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { useThemeStore } from "../../stores/theme"
 import useAuthStore from "../../stores/authStore"
 import { 
   User, Settings, Music, ShoppingCart, Package, FileText, 
   Calendar, LogOut, Sun, Moon, Bell, Store, CreditCard,
-  Languages, CalendarClock
+  Languages, CalendarClock, MessageSquare
 } from 'lucide-react'
 
 export default function UserMenu() {
@@ -35,8 +34,17 @@ export default function UserMenu() {
 
   const handleSignOut = async () => {
     await signOut()
-    navigate('/login')
+    // navigate('/')
   }
+
+  const renderMessagesMenuItem = () => (
+    <DropdownMenuItem asChild>
+      <Link to="/conversations">
+        <MessageSquare className="mr-2 h-4 w-4" />
+        <span>Messages</span>
+      </Link>
+    </DropdownMenuItem>
+  )
 
   return (
     <>
@@ -88,7 +96,6 @@ export default function UserMenu() {
 
             {/* Mobile Menu Button */}
             <div className="lg:hidden mt-3 flex items-center space-x-2">
-
               <div className="flex items-center gap-2">
                 <CartIndicator />
               </div>
@@ -147,6 +154,7 @@ export default function UserMenu() {
                             <span>{I18n.t('menu.settings')}</span>
                           </Link>
                         </DropdownMenuItem>
+                        {renderMessagesMenuItem()}
                       </DropdownMenuGroup>
                       <DropdownMenuSeparator />
                       <DropdownMenuGroup>
@@ -183,27 +191,22 @@ export default function UserMenu() {
                             <span>{I18n.t('menu.my_sales')}</span>
                           </Link>
                         </DropdownMenuItem>
-                        {
-                          currentUser && currentUser.can_sell_products && (
+                        {currentUser && currentUser.can_sell_products && (
                           <DropdownMenuItem asChild>
                             <Link to={`/${currentUser.username}/products`}>
                               <Package className="mr-2 h-4 w-4" />
                               <span>{I18n.t('menu.my_products')}</span>
                             </Link>
                           </DropdownMenuItem>
-                          )
-                        }
-                        {
-                          currentUser && currentUser.can_sell_products && (
-                            <DropdownMenuItem asChild>
-                              <Link to="/service_bookings">
-                                <CalendarClock className="mr-2 h-4 w-4" />
-                                <span>Service Bookings</span>
-                              </Link>
-                            </DropdownMenuItem>
-                          )
-                        }
-                        
+                        )}
+                        {currentUser && currentUser.can_sell_products && (
+                          <DropdownMenuItem asChild>
+                            <Link to="/service_bookings">
+                              <CalendarClock className="mr-2 h-4 w-4" />
+                              <span>Service Bookings</span>
+                            </Link>
+                          </DropdownMenuItem>
+                        )}
                       </DropdownMenuGroup>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
@@ -214,13 +217,13 @@ export default function UserMenu() {
                   ) : (
                     <DropdownMenuGroup>
                       <DropdownMenuItem asChild>
-                        <Link to="/login">
+                        <Link to="/users/sign_in">
                           <User className="mr-2 h-4 w-4" />
                           <span>{I18n.t('menu.log_in')}</span>
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link to="/register" className="text-primary">
+                        <Link to="/users/sign_up" className="text-primary">
                           <User className="mr-2 h-4 w-4" />
                           <span>{I18n.t('menu.register')}</span>
                         </Link>
@@ -298,6 +301,7 @@ export default function UserMenu() {
                             <span>{I18n.t('menu.settings')}</span>
                           </Link>
                         </DropdownMenuItem>
+                        {renderMessagesMenuItem()}
                       </DropdownMenuGroup>
                       <DropdownMenuSeparator />
                       <DropdownMenuGroup>
@@ -375,13 +379,13 @@ export default function UserMenu() {
               ) : (
                 <div className="flex items-center">
                   <Link
-                    to="/login"
+                    to="/users/sign_in"
                     className="rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted"
                   >
                     {I18n.t('menu.log_in')}
                   </Link>
                   <Link
-                    to="/register"
+                    to="/users/sign_up"
                     className="ml-4 inline-flex items-center justify-center rounded-md border border-transparent bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-brand-700"
                   >
                     {I18n.t('menu.register')}

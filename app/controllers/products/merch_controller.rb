@@ -45,23 +45,22 @@ module Products
 
     def update
       @product.update(product_params)
-
       respond_to do |format|
         format.html { 
-          if @product.errors.empty?
-            redirect_to user_product_path(current_user.username, @product), 
-              notice: 'Merch product was successfully updated.'
+          if @product.save
+            redirect_to user_product_path(current_user.username, @product),
+                      notice: 'Merch product was successfully updated.' 
           else
             render :edit
           end
-         }
+          }
         format.json { 
-          if @product.errors.empty?
+          if @product.save
             render "create", status: :created
           else
             render "create", status: :unprocessable_entity and return
           end
-         }
+        }
       end
     end
 

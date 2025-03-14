@@ -433,7 +433,7 @@ export default function Register() {
             className="text-center text-sm mt-6"
           >
             {I18n.t('sessions.register.have_account')}{' '}
-            <Link to="/login" className="text-primary hover:underline">
+            <Link to="/users/sign_in" className="text-primary hover:underline">
               {I18n.t('sessions.register.login_link')}
             </Link>
           </motion.p>

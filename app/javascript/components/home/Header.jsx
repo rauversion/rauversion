@@ -23,7 +23,7 @@ export default function Header({ posts }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6 }}
-      className="relative h-[90vh] md:h-screen overflow-hidden"
+      className="relative h-[90vh] md:h-screen overflow-hidden dark"
     >
       <motion.div 
         style={{ y }}
@@ -41,7 +41,7 @@ export default function Header({ posts }) {
             width: '100%'
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/50 to-black/80"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/50 to-background/80"></div>
       </motion.div>
 
       <motion.div 
@@ -56,7 +56,7 @@ export default function Header({ posts }) {
               transition={{ delay: 0.2 }}
             >
               <motion.h1 
-                className="text-[10vw] md:text-[6vw] font-bold leading-none tracking-tighter mb-6 text-white"
+                className="text-[10vw] md:text-[6vw] font-bold leading-none tracking-tighter mb-6 text-foreground"
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.2 }}
               >
@@ -69,7 +69,7 @@ export default function Header({ posts }) {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
-                className="max-w-md text-base md:text-lg text-gray-300"
+                className="max-w-md text-base md:text-lg text-muted-foreground"
               >
                 {truncate(post.excerpt, 220)}
               </motion.p>
@@ -80,7 +80,7 @@ export default function Header({ posts }) {
                 transition={{ delay: 0.4 }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="group flex items-center gap-2 text-sm font-medium text-white hover:text-primary transition-colors"
+                className="group flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
               >
                 {I18n.t('home.header.explore')}
                 <motion.svg 
@@ -115,7 +115,7 @@ export default function Header({ posts }) {
         initial={{ opacity: 0, y: 50 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5 }}
-        className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black to-transparent z-20"
+        className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent z-20"
       />
     </motion.header>
   )

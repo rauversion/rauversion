@@ -6,11 +6,11 @@ import useAuthStore from '../../stores/authStore'
 import { format } from 'date-fns'
 import { Play, Pause, Settings, ShoppingCart } from 'lucide-react'
 import PlaylistEdit from './PlaylistEdit'
+import PlaylistSkeleton from './PlaylistSkeleton'
 import { Button } from "@/components/ui/button"
 import { ShareDialog } from "@/components/ui/share-dialog"
 import { Comments } from "@/components/comments/Comments"
 import MusicPurchase from '@/components/shared/MusicPurchase'
-
 
 export default function PlaylistShow() {
   const { slug } = useParams()
@@ -71,13 +71,13 @@ export default function PlaylistShow() {
   }
 
   if (loading || !playlist) {
-    return <div>Loading...</div>
+    return <PlaylistSkeleton />
   }
 
   return (
-    <div className="bg-black text-white min-h-screen">
+    <div className="bg-background text-foreground min-h-screen">
       {/* Header Section */}
-      <div className="relative bg-gradient-to-b from-neutral-800 to-black p-8">
+      <div className="relative bg-gradient-to-b from-muted to-background p-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row gap-8">
             {/* Cover Art */}
@@ -92,14 +92,14 @@ export default function PlaylistShow() {
             {/* Playlist Info */}
             <div className="flex-grow">
               <div className="mb-6">
-                <h2 className="text-sm uppercase text-neutral-400 mb-2">
+                <h2 className="text-sm uppercase text-muted-foreground mb-2">
                   {playlist.playlist_type}
                 </h2>
                 <h1 className="text-4xl font-bold mb-2">{playlist.title}</h1>
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-neutral-400">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-muted-foreground">
                   <Link 
                     to={`/${playlist.user.username}`}
-                    className="hover:text-white transition-colors flex items-center gap-2"
+                    className="hover:text-foreground transition-colors flex items-center gap-2"
                   >
                     <img 
                       src={playlist.user.avatar_url?.small} 
@@ -118,7 +118,7 @@ export default function PlaylistShow() {
               <div className="flex flex-wrap gap-4">
                 <button
                   onClick={() => isPlaying && currentTrackId === playlist.tracks[0]?.id ? pause() : handlePlay()}
-                  className="bg-brand-500 hover:bg-brand-600 text-white p-4 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
+                  className="bg-brand-500 hover:bg-brand-600 text-foreground p-4 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
                   style={{ backgroundColor: accentColor }}
                 >
                   {isPlaying && playlist.tracks?.find((o)=> o.id === currentTrackId) ? (
@@ -145,7 +145,7 @@ export default function PlaylistShow() {
                     title={playlist.title}
                     description={`Listen to ${playlist.title} by ${playlist.user.username} on Rauversion`}
                   >
-                    <button className="hover:bg-white/10 border border-white/20 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+                    <button className="hover:bg-muted border border-border text-foreground px-4 py-2 rounded-lg flex items-center gap-2">
                       <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
                         <polyline points="16 6 12 2 8 6"></polyline>
@@ -155,7 +155,7 @@ export default function PlaylistShow() {
                     </button>
                   </ShareDialog>
 
-                  <button className="hover:bg-white/10 border border-white/20 text-white px-4 py-2 rounded-lg flex items-center gap-2">
+                  <button className="hover:bg-muted border border-border text-foreground px-4 py-2 rounded-lg flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
                       <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
                     </svg>
@@ -172,7 +172,7 @@ export default function PlaylistShow() {
       {/* Description Section */}
       {playlist.description && (
         <div className="max-w-7xl mx-auto px-8 pb-4">
-          <div className="text-gray-400 text-lg whitespace-pre-wrap">
+          <div className="text-muted-foreground text-lg whitespace-pre-wrap">
             {playlist.description}
           </div>
         </div>
@@ -189,12 +189,12 @@ export default function PlaylistShow() {
           {playlist.tracks.map((track, index) => (
             <div 
               key={track.id}
-              className={`flex flex-col sm:flex-row sm:items-center sm:justify-between p-2 rounded hover:bg-white hover:bg-opacity-10 group ${
-                currentTrackId === track.id ? 'bg-white bg-opacity-20' : ''
+              className={`flex flex-col sm:flex-row sm:items-center sm:justify-between p-2 rounded hover:bg-muted group ${
+                currentTrackId === track.id ? 'bg-muted/50' : ''
               }`}
             >
               <div className="flex items-center gap-4 mb-2 sm:mb-0">
-                <span className={`hidden sm:block w-6 ${currentTrackId === track.id ? `text-[${accentColor}]` : 'text-zinc-400'}`}>
+                <span className={`hidden sm:block w-6 ${currentTrackId === track.id ? `text-[${accentColor}]` : 'text-muted-foreground'}`}>
                   {index + 1}
                 </span>
                 
@@ -210,16 +210,16 @@ export default function PlaylistShow() {
 
                 <div className="min-w-0 flex-1">
                   <p className={`font-medium truncate ${
-                    currentTrackId === track.id ? `text-[${accentColor}]` : 'text-white'
+                    currentTrackId === track.id ? `text-[${accentColor}]` : 'text-foreground'
                   }`}>
                     {track.title}
                   </p>
-                  <p className="text-zinc-400 text-sm truncate">{track.author?.full_name}</p>
+                  <p className="text-muted-foreground text-sm truncate">{track.author?.full_name}</p>
                 </div>
               </div>
               <div className="flex items-center gap-4 ml-10 sm:ml-0">
                 {track.duration && track.duration !== "xx:xx" && (
-                  <span className="text-zinc-400 text-sm">
+                  <span className="text-muted-foreground text-sm">
                     {formatTime(track.duration)}
                   </span>
                 )}
@@ -230,7 +230,7 @@ export default function PlaylistShow() {
       </div>
 
       {/* Comments Section */}
-      <div className="max-w-7xl mx-auto p-8 border-t border-white/10">
+      <div className="max-w-7xl mx-auto p-8 border-t border-border">
         <div className="mb-6">
           <h2 className="text-xl font-bold mb-4">Comments</h2>
         </div>

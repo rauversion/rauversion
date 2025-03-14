@@ -21,11 +21,5 @@ json.collection @invitations do |invitation|
 end
 
 json.metadata do
-  json.current_page @invitations.current_page
-  json.total_pages @invitations.total_pages
-  json.total_count @invitations.total_count
-  json.next_page @invitations.next_page
-  json.prev_page @invitations.prev_page
-  json.is_first_page @invitations.first_page?
-  json.is_last_page @invitations.last_page?
+  json.partial! 'shared/pagination_metadata', collection: @invitations
 end

@@ -13,7 +13,9 @@ module.exports = {
     './app/assets/stylesheets/**/*.css',
     './app/javascript/**/*.js',
     './app/javascript/**/*.tsx',
-    './app/javascript/**/*.jsx'
+    './app/javascript/**/*.jsx',
+    "./config/locales/*.yml",
+
   ],
   theme: {
     fontFamily: {

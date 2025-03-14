@@ -19,11 +19,7 @@ json.posts @posts do |post|
     json.medium post.cover_url(:medium)
   end
   json.user do
-    json.extract! post.user, :id, :username
-    json.avatar_url do
-      json.medium post.user.avatar_url(:medium)
-      json.small post.user.avatar_url(:small)
-    end
+    json.partial! 'users/user', user: post.user, show_full_name: true
   end
 end
 
@@ -36,11 +32,7 @@ json.releases @releases do |release|
   end
   json.user do
     unless release.user.nil?
-      json.extract! release.user, :id, :username 
-      json.avatar_url do
-        json.medium release.user.avatar_url(:medium)
-        json.small release.user.avatar_url(:small)
-      end
+      json.partial! 'users/user', user: release.user, show_full_name: true
     end
   end
 end
@@ -58,11 +50,7 @@ json.albums @albums do |album|
     end
   end
   json.user do
-    json.extract! album.user, :id, :username
-    json.avatar_url do
-      json.medium album.user.avatar_url(:medium)
-      json.small album.user.avatar_url(:small)
-    end
+    json.partial! 'users/user', user: album.user, show_full_name: true
   end
 end
 
@@ -73,11 +61,7 @@ json.playlists @playlists do |playlist|
     json.small playlist.cover_url(:small)
   end
   json.user do
-    json.extract! playlist.user, :id, :username
-    json.avatar_url do
-      json.medium playlist.user.avatar_url(:medium)
-      json.small playlist.user.avatar_url(:small)
-    end
+    json.partial! 'users/user', user: playlist.user, show_full_name: true
   end
 end
 
@@ -88,10 +72,6 @@ json.latestReleases @latest_releases do |release|
     json.small release.cover_url(:small)
   end
   json.user do
-    json.extract! release.user, :id, :username
-    json.avatar_url do
-      json.medium release.user.avatar_url(:medium)
-      json.small release.user.avatar_url(:small)
-    end
+    json.partial! 'users/user', user: release.user, show_full_name: true
   end
 end

@@ -17,7 +17,7 @@ const ArtistCard = ({ artist }) => {
       className="relative aspect-[4/5] group"
     >
       <Link to={`/${artist.username}`}>
-        <div className="absolute inset-0 overflow-hidden rounded-2xl">
+        <div className="dark absolute inset-0 overflow-hidden rounded-2xl">
           {/* Background Image with Glitch Effect */}
           <motion.div 
             className="absolute inset-0 bg-cover bg-center scale-110"
@@ -30,7 +30,7 @@ const ArtistCard = ({ artist }) => {
           />
 
           {/* Gradient Overlays */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/50 to-transparent" />
           <motion.div 
             className="absolute inset-0 bg-gradient-to-br from-primary/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"
             animate={isHovered ? {
@@ -47,9 +47,9 @@ const ArtistCard = ({ artist }) => {
               transition={{ duration: 0.3 }}
               className="space-y-4"
             >
-              {/* Artist Name with Glitch Effect */}
+              {/* Artist Name with Glitch Effect  */}
               <motion.h3 
-                className="text-3xl md:text-4xl font-black tracking-tight text-white mix-blend-difference"
+                className="text-3xl md:text-4xl font-default tracking-tight text-foreground mix-blend-difference"
                 animate={isHovered ? {
                   textShadow: [
                     "2px 2px 0px rgba(255,0,0,0.5), -2px -2px 0px rgba(0,255,255,0.5)",
@@ -65,7 +65,7 @@ const ArtistCard = ({ artist }) => {
               {/* Artist Full Name */}
               {artist.full_name && (
                 <motion.p 
-                  className="text-lg text-gray-300 font-medium"
+                  className="text-lg text-default font-medium"
                   animate={isHovered ? { x: [-1, 1, -1] } : {}}
                   transition={{ duration: 0.1, repeat: isHovered ? Infinity : 0 }}
                 >
@@ -74,9 +74,9 @@ const ArtistCard = ({ artist }) => {
               )}
 
               {/* Stats */}
-              <div className="flex items-center gap-4 text-sm text-gray-400">
+              <div className="flex items-center gap-4 text-sm text-default">
                 <span>{artist.tracks_count || 0} {I18n.t('home.featured_artists.tracks')}</span>
-                <span className="w-1 h-1 rounded-full bg-gray-500" />
+                <span className="w-1 h-1 rounded-full bg-border" />
                 <span>{artist.followers_count || 0} {I18n.t('home.featured_artists.followers')}</span>
               </div>
 
@@ -89,7 +89,7 @@ const ArtistCard = ({ artist }) => {
                 <Button 
                   variant="outline" 
                   size="lg"
-                  className="w-full bg-black/50 border-white/20 text-white hover:bg-white hover:text-black transition-all duration-300"
+                  className="w-full bg-background/50 border-border text-foreground hover:bg-foreground hover:text-background transition-all duration-300"
                 >
                   {I18n.t('home.featured_artists.view_profile')}
                 </Button>
@@ -120,7 +120,7 @@ export default function FeaturedArtists({ artists }) {
   if (!artists || artists.length === 0) return null
 
   return (
-    <section className="px-4 sm:px-8 py-16 md:py-24 bg-black">
+    <section className="px-4 sm:px-8 py-16 md:py-24 bg-background">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-12">
           <motion.div
@@ -128,10 +128,10 @@ export default function FeaturedArtists({ artists }) {
             whileInView={{ opacity: 1, x: 0 }}
             className="space-y-2"
           >
-            <h2 className="text-4xl md:text-5xl font-black tracking-tight text-white">
+            <h2 className="text-4xl md:text-5xl font-black tracking-tight text-foreground">
               {I18n.t('home.featured_artists.title')}
             </h2>
-            <p className="text-lg text-gray-400">
+            <p className="text-lg text-muted-foreground">
               {I18n.t('home.featured_artists.subtitle')}
             </p>
           </motion.div>
@@ -140,7 +140,7 @@ export default function FeaturedArtists({ artists }) {
             <Button 
               variant="outline" 
               size="lg"
-              className="group border-white/20 text-white hover:bg-white hover:text-black transition-all duration-300"
+              className="group border-border text-foreground hover:bg-foreground hover:text-background transition-all duration-300"
             >
               {I18n.t('home.featured_artists.view_all')}
               <motion.svg 

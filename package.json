@@ -88,6 +88,7 @@
     "vaul": "^1.1.2",
     "wavesurfer.js": "7.0.3",
     "zod": "^3.24.1",
+    "zukeeper": "^1.0.2",
     "zustand": "^4.0.0-rc.1"
   },
   "scripts": {

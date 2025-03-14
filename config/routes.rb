@@ -1,6 +1,17 @@
 require_relative "../lib/constraints/username_route_contrainer"
 
 Rails.application.routes.draw do
+  resources :conversations do
+    member do
+      post :archived
+      post :close
+    end
+    resources :messages, only: [:create, :index] do
+      member do
+        put :mark_as_read
+      end
+    end
+  end
   # API routes
   namespace :api do
     namespace :v1 do
@@ -36,11 +47,11 @@ Rails.application.routes.draw do
   #  # Add more admin resources as needed
   #end
 
-
   post 'product_cart/add/:product_id', to: 'product_cart#add', as: 'product_cart_add'
   get 'product_cart', to: 'product_cart#show', as: 'product_cart'
   delete 'product_cart/remove/:product_id', to: 'product_cart#remove', as: 'product_cart_remove'
 
+  get 'change_locale', to: 'application#change_locale'
   get 'puck', to: 'releases#puck'
 
   resources :product_purchases, only: [:index, :show]
@@ -76,6 +87,7 @@ Rails.application.routes.draw do
 
   root to: "home#index"
   get "/home", to: "home#index"
+  get "/home/:section", to: "home#index"
 
   get "/searchables", to: "users#index", as: :searchable_users
   # resource :oembed, controller: 'oembed', only: :show
@@ -149,7 +161,7 @@ Rails.application.routes.draw do
   end
 
   devise_for :users, 
-  defaults: { format: :json },
+  # defaults: { format: [:html, :json] },
   controllers: {
     omniauth_callbacks: "users/omniauth_callbacks",
     registrations: "users/registrations",
