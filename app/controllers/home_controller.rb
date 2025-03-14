@@ -30,13 +30,14 @@ class HomeController < ApplicationController
       @tracks = fetch_latest_releases
       render "tracks/index" and return
     else
-      fetch_all
+      # fetch_all
     end
 
     if section
       respond_with(@data)
     else
-      respond_with(@artists, @posts, @albums, @playlists, @latest_releases)
+      render "shared/blank"
+      # respond_with(@artists, @posts, @albums, @playlists, @latest_releases)
     end
   end
 
