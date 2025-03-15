@@ -120,11 +120,10 @@ export default function Teams() {
       const data = await response.json
       setEvent(data.event)
       setCurrentTeam(data.event_hosts || [])
+      setPendingInvites(data.pending_invites || [])
       
       form.reset({
-        team_members: data.event_hosts?.map(member => ({
-          role: member.role
-        })) || []
+        team_members: []
       })
     } catch (error) {
       console.error('Error fetching team data:', error)
@@ -187,12 +186,7 @@ export default function Teams() {
     if (!hostToDelete) return
 
     try {
-      const response = await destroy(`/events/${slug}/event_hosts/${hostToDelete.id}.json`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      })
+      const response = await destroy(`/events/${slug}/event_hosts/${hostToDelete.id}.json`)
 
       if (response.ok) {
         setCurrentTeam(team => team.filter(member => member.id !== hostToDelete.id))
