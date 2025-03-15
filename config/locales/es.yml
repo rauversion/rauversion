@@ -226,6 +226,9 @@ es:
         location:
           label: Ubicación
         save: Guardar Cambios
+        state:
+          label: Event State
+          description: Toggle between draft and published state
       tickets:
         title: Entradas
       breadcrumb:

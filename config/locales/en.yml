@@ -190,6 +190,9 @@ en:
           label: End Time
         location:
           label: Location
+        state:
+          label: Event State
+          description: Toggle between draft and published state
         save: Save changes
       tickets:
         title: Tickets

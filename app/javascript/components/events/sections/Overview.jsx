@@ -21,6 +21,7 @@ import { CalendarIcon, Clock, MapPin } from "lucide-react"
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -35,6 +36,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { Switch } from "@/components/ui/switch"
 import { ImageUploader } from "@/components/ui/image-uploader"
 
 const formSchema = z.object({
@@ -53,6 +55,7 @@ const formSchema = z.object({
   lng: z.string().optional(),
   address: z.string().optional(),
   cover: z.any().optional(),
+  state: z.enum(["published", "draft"]).default("draft"),
 })
 
 export default function Overview() {
@@ -65,18 +68,19 @@ export default function Overview() {
   const form = useForm({
     mode: "onChange",
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      title: '',
-      timezone: '',
-      description: '',
-      location: '',
-      venue: '',
-      event_start_date: '',
-      event_start_time: '',
-      event_end_date: '',
-      event_end_time: '',
-      lat: '',
-      lng: '',
+      defaultValues: {
+        title: '',
+        timezone: '',
+        description: '',
+        location: '',
+        venue: '',
+        event_start_date: '',
+        event_start_time: '',
+        event_end_date: '',
+        event_end_time: '',
+        lat: '',
+        lng: '',
+        state: 'draft',
     }
   })
 
@@ -103,6 +107,7 @@ export default function Overview() {
           venue: data.venue,
           lat: data.lat,
           lng: data.lng,
+          state: data.state || 'draft',
         })
       } catch (error) {
         console.error('Error loading event:', error)
@@ -423,6 +428,29 @@ export default function Overview() {
                 <Input placeholder={I18n.t('events.edit.form.venue.placeholder')} {...field} />
               </FormControl>
               <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="state"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+              <div className="space-y-0.5">
+                <FormLabel>{I18n.t('events.edit.form.state.label')}</FormLabel>
+                <FormDescription>
+                  {I18n.t('events.edit.form.state.description')}
+                </FormDescription>
+              </div>
+              <FormControl>
+                <Switch
+                  checked={field.value === 'published'}
+                  onCheckedChange={(checked) => {
+                    field.onChange(checked ? 'published' : 'draft')
+                  }}
+                />
+              </FormControl>
             </FormItem>
           )}
         />
