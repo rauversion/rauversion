@@ -309,6 +309,22 @@ es:
               public: Público
               private: Privado
               unlisted: No listado
+          registration:
+            label: Tipo de Registro
+            placeholder: Seleccionar tipo de registro
+            options:
+              open:
+                label: Registro Abierto
+                description: Cualquiera puede registrarse
+              invite:
+                label: Solo por Invitación
+                description: Solo usuarios invitados pueden registrarse
+              approval:
+                label: Requiere Aprobación
+                description: El registro requiere aprobación
+          require_login:
+            label: Requerir Inicio de Sesión
+            description: Los usuarios deben iniciar sesión para ver los detalles del evento
 
 
         general:

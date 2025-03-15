@@ -194,6 +194,8 @@ en:
       breadcrumb:
         events: Events
       settings:
+        title: Configuration
+        save: Save Changes
         general:
           title: General Configuration
           description: Set up basic event settings
@@ -212,9 +214,49 @@ en:
           social_sharing:
             label: Share on Social Media
             description: Enable buttons to share on social networks
+        tabs:
+          general: General
+          privacy: Privacy and Access
+          danger: Danger Zone
+        danger:
+          title: Danger Zone
+          description: The actions here cannot be undone
+          warning:
+            title: Warning
+            description: Deleting your event will permanently delete all associated data
+          delete:
+            button: Delete Event
+        privacy:
+          title: Privacy and Access
+          description: Control who can see and register for your event
+          visibility:
+            label: Visibility of the Event
+            placeholder: Select visibility
+            options:
+              public: Public
+              private: Private
+              unlisted: Not listed
+          registration:
+            label: Type of Record
+            placeholder: Select type of record
+            options:
+              open:
+                label: Open Registration
+                description: Anyone can register
+              invite:
+                label: Only by Invitation
+                description: Only invited users can register
+              approval:
+                label: Requires Approval
+                description: The registration requires approval
+          require_login:
+            label: Require Login
+            description: Users must log in to see the event details
       attendees:
         export_csv: Export CSV
+        subtitle: Manage attendees and their status
         table:
+          attendee: Assistant
           name: Name
           email: Email
           ticket: Entry
@@ -225,6 +267,7 @@ en:
         description: View and manage event attendees
         export: Export Attendee List
         search:
+          all_statuses: All States
           placeholder: Search by name or email
           filter: Filter by state
           all: All States
