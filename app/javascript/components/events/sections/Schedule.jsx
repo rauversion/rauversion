@@ -485,7 +485,7 @@ export default function Schedule() {
                           />
 
                           <div className="space-y-2">
-                            <FormLabel>{I18n.t('events.schedule.schedulings.date_time_range')}</FormLabel>
+                            <FormLabel>{I18n.t('events.edit.schedule.schedulings.date_time_range')}</FormLabel>
                             <DateTimeRangePicker
                               startDate={form.watch(`event_schedules_attributes.${index}.schedule_schedulings_attributes.${schedulingIndex}.start_date`)}
                               endDate={form.watch(`event_schedules_attributes.${index}.schedule_schedulings_attributes.${schedulingIndex}.end_date`)}

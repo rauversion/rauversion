@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { formatDateRange } from '../utils/dateHelpers'
 import I18n from 'stores/locales'
+import PurchaseDialog from './PurchaseDialog'
+import { Button } from "@/components/ui/button"
 
 export default function EventShow() {
   const { slug } = useParams()
   const [event, setEvent] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [dialogOpen, setDialogOpen] = useState(false)
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -52,19 +55,24 @@ export default function EventShow() {
           </div>
 
           <div className="hidden sm:mt-10 sm:flex lg:mt-0 lg:grow lg:basis-0 lg:justify-end">
-            <Link
-              to={`/events/${event.slug}/purchases/new`}
+            <Button
+              onClick={() => setDialogOpen(true)}
               className="inline-flex justify-center rounded-2xl bg-brand-600 p-4 text-base font-semibold text-white hover:bg-brand-500 focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 active:text-white/70"
             >
               {I18n.t('events.show.get_tickets')}
-            </Link>
+            </Button>
+            <PurchaseDialog 
+              open={dialogOpen} 
+              onOpenChange={setDialogOpen} 
+              eventId={event.slug} 
+            />
           </div>
         </div>
       </header>
 
       <main>
         <div className="relative pt-10 pb-20 sm:py-24">
-          <div className="absolute inset-x-0 -top-40 -bottom-14 overflow-hidden bg-black">
+          <div className="absolute inset-x-0 -top-32 -bottom-14 overflow-hidden bg-black">
             {event.cover_url && (
               <img
                 src={event.cover_url.large}

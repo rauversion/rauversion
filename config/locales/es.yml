@@ -194,11 +194,21 @@ es:
     no_image: Sin imagen
     online: En línea
     edit:
+      messages:
+        success: Evento actualizado exitosamente
+        error: No se pudo actualizar el evento
       overview: Resumen del Evento
       form:
+        success: Evento actualizado exitosamente
         title:
           label: Título
           placeholder: Título del evento
+        description:
+          label: Descripción
+          placeholder: Descripción del evento
+        venue:
+          label: Lugar
+          placeholder: Lugar del evento
         timezone:
           label: Zona Horaria
           placeholder: Seleccionar zona horaria
@@ -212,24 +222,42 @@ es:
           label: Hora de Finalización
         location:
           label: Ubicación
+        save: Guardar Cambios
       tickets:
         title: Entradas
       breadcrumb:
         events: Eventos
 
-      settings:
-        tabs:
-          general: General
-          privacy: Privacidad
-          danger: Zona de Peligro
+      title: "Eventos"
+      description: Explora eventos y experiencias en música electrónica
+      visibility:
+        label: Visibilidad
+        options:
+          public: Público
+      registration:
+        label:
+          options: 
+            open: 
+              label: Registro Abierto
+              description: Cualquiera puede registrarse
+            invite:
+              label: Solo por Invitación
+              description: Solo usuarios invitados pueden registrarse
+            approval:
+              label: Requiere Aprobación
+              description: El registro requiere aprobación
+      require_login:
+        label: Requerir Inicio de Sesión
+        description: Los usuarios deben iniciar sesión para ver los detalles del evento
+
       attendees:
-        export_csv: Exportar CSV
-        table:
-          attendee: Asistente
+        export_csv: Exportar CSV      
         title: Asistentes al Evento
+        subtitle: Gestionar asistentes al evento y su estado
         description: Ver y gestionar asistentes al evento
         export: Exportar Lista de Asistentes
         search:
+          all_statuses: Todos los Estados
           placeholder: Buscar por nombre o email
           filter: Filtrar por estado
           all: Todos los Estados
@@ -239,6 +267,7 @@ es:
           email: Email
           ticket: Entrada
           status: Estado
+          attendee: Asistente
           purchase_date: Fecha de Compra
           actions: Acciones
         status:
@@ -252,7 +281,36 @@ es:
           remove_confirm: ¿Estás seguro de que deseas eliminar este asistente?
           remove_success: Asistente eliminado exitosamente
           remove_error: No se pudo eliminar el asistente
+
       settings:
+        title: "Configuracion"
+        save: Guardar
+        tabs:
+          general: General
+          privacy: Privacidad
+          danger: Zona de Peligro
+
+        danger:
+          title: Zona de Peligro
+          description: Las acciones aquí no se pueden deshacer
+          warning:
+            title: Advertencia
+            description: Eliminar tu evento eliminará permanentemente todos los datos asociados, incluyendo entradas, asistentes
+          delete:
+            button: Eliminar Evento
+
+        privacy:
+          title: Privacidad y Acceso
+          description: Controla quién puede ver y registrarse en tu evento
+          visibility:
+            label: Visibilidad del Evento
+            placeholder: Seleccionar visibilidad
+            options:
+              public: Público
+              private: Privado
+              unlisted: No listado
+
+
         general:
           title: Configuración General
           description: Configurar ajustes básicos del evento
@@ -294,6 +352,9 @@ es:
           update_success: Configuración de transmisión actualizada exitosamente
           update_error: No se pudo actualizar la configuración de transmisión
       schedule:
+        messages:
+          form_success: Horario actualizado exitosamente
+          form_error: No se pudo actualizar el horario
         title: Horario del Evento
         description: Gestionar horario y sesiones del evento
         add_item: Agregar Elemento al Horario

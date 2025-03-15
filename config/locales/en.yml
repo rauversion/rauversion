@@ -188,6 +188,7 @@ en:
           label: End Time
         location:
           label: Location
+        save: Save changes
       tickets:
         title: Tickets
       breadcrumb:
@@ -631,6 +632,12 @@ en:
     unpublished: Your event has not been published
     unpublish: Unpublish Event
     publish: Publish Event
+    settings:
+      title: "Settings"
+      tabs:
+        general: General
+        privacy: Privacy
+        danger: Danger Zone
   event_hosts:
     listed: Listed on page
     manager: Event manager
@@ -698,7 +705,7 @@ en:
       curated_playlists:
         title: Curated Playlists
         subtitle: Selected collections for every mood
-      featured_labels: Stamps
+      featured_labels: Labels
       view_all: See All
     new:
       upload:
