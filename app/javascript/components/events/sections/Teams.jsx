@@ -116,7 +116,7 @@ export default function Teams() {
 
   const fetchTeamData = async () => {
     try {
-      const response = await get(`/events/${slug}.json`)
+      const response = await get(`/events/${slug}/edit.json`)
       const data = await response.json
       setEvent(data.event)
       setCurrentTeam(data.event_hosts || [])

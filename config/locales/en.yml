@@ -610,6 +610,7 @@ en:
           placeholder: Select date
         start_time:
           label: Start time
+          placeholder: Select time
         end_date:
           label: Date of completion
           placeholder: Select date

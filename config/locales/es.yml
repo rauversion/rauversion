@@ -214,10 +214,13 @@ es:
           placeholder: Seleccionar zona horaria
         start_date:
           label: Fecha de Inicio
+          placeholder: Seleccionar fecha
         start_time:
           label: Hora de Inicio
+          placeholder: Seleccionar hora
         end_date:
           label: Fecha de Finalización
+          placeholder: Seleccionar fecha
         end_time:
           label: Hora de Finalización
         location:

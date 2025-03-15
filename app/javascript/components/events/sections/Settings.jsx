@@ -110,7 +110,7 @@ export default function Settings() {
   const form = useForm({
     resolver: zodResolver(settingsSchema),
     defaultValues: async () => {
-      const response = await fetch(`/events/${slug}.json`)
+      const response = await fetch(`/events/${slug}/edit.json`)
       const data = await response.json()
       setEvent(data)
       setLoading(false)

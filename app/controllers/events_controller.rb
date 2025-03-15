@@ -42,6 +42,10 @@ class EventsController < ApplicationController
   def edit
     @section = params[:section]
     @event = current_user.events.friendly.find(params[:id])
+    respond_to do |format|
+      format.html
+      format.json{render "show"}
+    end
   end
 
   def create

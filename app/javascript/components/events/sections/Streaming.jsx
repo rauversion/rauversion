@@ -270,7 +270,7 @@ export default function Streaming() {
   const [dialogOpen, setDialogOpen] = React.useState(false)
 
   const fetchEvent = async () => {
-    const response = await fetch(`/events/${slug}.json`)
+    const response = await fetch(`/events/${slug}/edit.json`)
     const data = await response.json()
     setEvent(data)
   }

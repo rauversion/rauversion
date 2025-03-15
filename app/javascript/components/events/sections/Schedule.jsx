@@ -59,7 +59,7 @@ export default function Schedule() {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: async () => {
-      const response = await get(`/events/${slug}.json`)
+      const response = await get(`/events/${slug}/edit.json`)
       const data = await response.json
       
       setEvent(data)
