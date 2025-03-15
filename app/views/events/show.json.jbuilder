@@ -46,7 +46,7 @@ json.event_hosts @event.event_hosts do |host|
   json.listed_on_page host.listed_on_page
   json.event_manager host.event_manager
   json.user do
-    json.partial! 'users/user', user: host.user, show_full_name: true
+    json.partial! 'users/user', user: host.user, show_full_name: true if host.user.present?
   end
 end
 
