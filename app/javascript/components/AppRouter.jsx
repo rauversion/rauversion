@@ -182,7 +182,9 @@ function AppContent() {
           <Route path="/articles" element={<ArticlesIndex />} />
           <Route path="/articles/mine" element={<RequireAuth><MyArticles /></RequireAuth>} />
           <Route path="/articles/:id/edit" element={<RequireAuth><EditArticle /></RequireAuth>} />
+          <Route path="/articles/:slug/preview" element={<ArticleShow preview={true} />} />
           <Route path="/articles/:slug" element={<ArticleShow />} />
+
           <Route path="/events" element={<EventsIndex />} />
           <Route path="/events/mine" element={<RequireAuth><MyEvents /></RequireAuth>} />
           <Route path="/events/:slug" element={<EventShow />} />

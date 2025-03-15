@@ -279,7 +279,7 @@ export default function MyArticles() {
                           </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                          <Link to={`/articles/preview/${post.signed_id}`}>
+                          <Link to={`/articles/${post.signed_id}/preview`}>
                             {I18n.t('articles.mine.buttons.preview')}
                           </Link>
                         </DropdownMenuItem>

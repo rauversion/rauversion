@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react'
 import { useParams, Link, Outlet, useLocation } from 'react-router-dom'
 import { get, post } from '@rails/request.js'
 import { format } from 'date-fns'
-import { Play, Pause, Share2, ThumbsUp, Menu } from 'lucide-react'
+import { Play, Pause, Share2, ThumbsUp, Menu, UserX2 } from 'lucide-react'
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
 import ProfileSkeleton from "./ProfileSkeleton"
+import { motion } from "framer-motion"
 
 import useAudioStore from '../../stores/audioStore'
 import useAuthStore from '../../stores/authStore'
@@ -61,7 +63,38 @@ export default function UserShow() {
   }
 
   if (!user) {
-    return <div>{I18n.t('users.show.not_found')}</div>
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-default">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+        >
+          <Card className="w-[350px] text-center">
+            <CardContent className="pt-6">
+              <motion.div
+                animate={{ 
+                  rotate: [0, 10, -10, 10, 0],
+                  scale: [1, 1.1, 1]
+                }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="flex justify-center mb-4"
+              >
+                <UserX2 className="h-16 w-16 text-primary" />
+              </motion.div>
+              <h2 className="text-2xl font-bold mb-2">404</h2>
+              <p className="text-muted-foreground mb-4">{I18n.t('users.show.not_found')}</p>
+              <Button 
+                variant="default" 
+                onClick={() => window.history.back()}
+              >
+                {I18n.t('common.go_back')}
+              </Button>
+            </CardContent>
+          </Card>
+        </motion.div>
+      </div>
+    )
   }
 
   return (

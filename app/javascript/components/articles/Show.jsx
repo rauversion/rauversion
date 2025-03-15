@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 
-export default function ArticleShow() {
+export default function ArticleShow({preview}) {
   const { slug } = useParams()
   const [article, setArticle] = useState(null)
   const [loading, setLoading] = useState(true)
 
+  const url = preview ? `/articles/${slug}/preview.json` : `/articles/${slug}.json`
+
   useEffect(() => {
     const fetchArticle = async () => {
       try {
-        const response = await fetch(`/articles/${slug}.json`)
+        const response = await fetch(url)
         const data = await response.json()
         setArticle(data)
       } catch (error) {

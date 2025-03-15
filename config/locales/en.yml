@@ -9,6 +9,8 @@ en:
         footer: "Click the link above to view and respond to the message"
   hello: Hello world
   by: Por %{name}
+  common:
+    go_back: Go back
   see_everything: See All
   edit: Edit
   delete:
