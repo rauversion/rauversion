@@ -1,7 +1,8 @@
-import React from "react"
+import React, { useContext } from "react"
 import { useParams } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import I18n from 'stores/locales'
+import { EventEditContext } from "../EventEdit"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { format, parse } from "date-fns"
@@ -40,14 +41,14 @@ const formSchema = z.object({
   title: z.string().min(2, {
     message: "Title must be at least 2 characters.",
   }),
-  timezone: z.string(),
-  event_start_date: z.date(),
-  event_start_time: z.string(),
-  event_end_date: z.date(),
-  event_end_time: z.string(),
-  description: z.string(),
-  location: z.string(),
-  venue: z.string(),
+  timezone: z.string().optional(),
+  event_start_date: z.date().optional(),
+  event_start_time: z.string().optional(),
+  event_end_date: z.date().optional(),
+  event_end_time: z.string().optional(),
+  description: z.string().optional(),
+  location: z.string().optional(),
+  venue: z.string().optional(),
   lat: z.string().optional(),
   lng: z.string().optional(),
   address: z.string().optional(),
@@ -58,38 +59,66 @@ export default function Overview() {
   const { slug } = useParams()
   const { toast } = useToast()
   const [event, setEvent] = React.useState(null)
+  const { setErrors } = useContext(EventEditContext)
+  const [isSubmitting, setIsSubmitting] = React.useState(false)
 
   const form = useForm({
+    mode: "onChange",
     resolver: zodResolver(formSchema),
-    defaultValues: async () => {
-      const response = await fetch(`/events/${slug}/edit.json`)
-      const data = await response.json()
-      
-      setEvent(data)
-      
-      const startDate = new Date(data.event_start)
-      const endDate = new Date(data.event_ends)
-      
-      return {
-        title: data.title,
-        timezone: data.timezone,
-        event_start_date: startDate,
-        event_start_time: format(startDate, "HH:mm"),
-        event_end_date: endDate,
-        event_end_time: format(endDate, "HH:mm"),
-        description: data.description,
-        location: data.location,
-        venue: data.venue,
-        lat: data.lat,
-        lng: data.lng,
-      }
+    defaultValues: {
+      title: '',
+      timezone: '',
+      description: '',
+      location: '',
+      venue: '',
+      event_start_date: '',
+      event_start_time: '',
+      event_end_date: '',
+      event_end_time: '',
+      lat: '',
+      lng: '',
     }
   })
 
+  React.useEffect(() => {
+    const loadEventData = async () => {
+      try {
+        const response = await fetch(`/events/${slug}/edit.json`)
+        const data = await response.json()
+        
+        setEvent(data)
+        
+        const startDate = new Date(data.event_start)
+        const endDate = new Date(data.event_ends)
+        
+        form.reset({
+          title: data.title,
+          timezone: data.timezone,
+          event_start_date: startDate,
+          event_start_time: format(startDate, "HH:mm"),
+          event_end_date: endDate,
+          event_end_time: format(endDate, "HH:mm"),
+          description: data.description,
+          location: data.location,
+          venue: data.venue,
+          lat: data.lat,
+          lng: data.lng,
+        })
+      } catch (error) {
+        console.error('Error loading event:', error)
+        setErrors('Failed to load event data')
+      }
+    }
+
+    loadEventData()
+  }, [slug])
+
   const onSubmit = async (values) => {
+    console.log("onSubmit called with values:", values)
+    
     try {
+      console.log("Starting form submission process")
       const formData = new FormData()
-      
       // Combine date and time for start and end
       const startDateTime = new Date(values.event_start_date)
       const [startHours, startMinutes] = values.event_start_time.split(':')
@@ -99,64 +128,60 @@ export default function Overview() {
       const [endHours, endMinutes] = values.event_end_time.split(':')
       endDateTime.setHours(parseInt(endHours), parseInt(endMinutes))
       
-      const data = {
+      const formattedData = {
         ...values,
         event_start: startDateTime.toISOString(),
         event_ends: endDateTime.toISOString(),
       }
       
       // Clean up form fields that shouldn't be sent to API
-      delete data.event_start_date
-      delete data.event_start_time
-      delete data.event_end_date
-      delete data.event_end_time
+      delete formattedData.event_start_date
+      delete formattedData.event_start_time
+      delete formattedData.event_end_date
+      delete formattedData.event_end_time
       
-      // Format location data
-      if (data.lat && data.lng) {
-        data.location_attributes = {
-          address: data.address || data.location,
-          lat: data.lat,
-          lng: data.lng
-        }
-        delete data.lat
-        delete data.lng
-        delete data.address
-      }
-      
-      Object.keys(data).forEach(key => {
-        if (data[key] !== undefined && data[key] !== null) {
-          if (typeof data[key] === 'object') {
-            Object.keys(data[key]).forEach(subKey => {
-              formData.append(`event[${key}][${subKey}]`, data[key][subKey])
+      Object.keys(formattedData).forEach(key => {
+        if (formattedData[key] !== undefined && formattedData[key] !== null) {
+          if (typeof formattedData[key] === 'object') {
+            Object.keys(formattedData[key]).forEach(subKey => {
+              formData.append(`event[${key}][${subKey}]`, formattedData[key][subKey])
             })
           } else {
-            formData.append(`event[${key}]`, data[key])
+            formData.append(`event[${key}]`, formattedData[key])
           }
         }
       })
 
+      console.log("Sending form data:", formData)
       const response = await put(`/events/${slug}.json`, {
         body: formData,
+        contentType: false,
+        processData: false,
       })
+      
+      console.log("Response received:", response)
+      const responseData = await response.json
+      console.log("Response data:", responseData)
 
       if (response.ok) {
-        const { event } = await response.json
-        setEvent(event)
+        setEvent(responseData.event)
+        setErrors(null)
         toast({
           title: "Success",
           description: I18n.t('events.edit.form.success'),
         })
       } else {
-        const { errors } = await response.json
-        Object.keys(errors).forEach((key) => {
+        setErrors(responseData.errors)
+        Object.keys(responseData.errors).forEach((key) => {
           form.setError(key, {
             type: 'manual',
-            message: errors[key][0]
+            message: responseData.errors[key][0]
           })
         })
       }
     } catch (error) {
       console.error('Error updating event:', error)
+      setErrors("An unexpected error occurred while saving the event")
       toast({
         title: "Error",
         description: I18n.t('events.edit.form.error'),
@@ -167,7 +192,7 @@ export default function Overview() {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+      <div className="space-y-8">
         <FormField
           control={form.control}
           name="title"
@@ -347,6 +372,8 @@ export default function Overview() {
                 <FormLabel>{I18n.t('events.edit.form.location.label')}</FormLabel>
                 <FormControl>
                   <div className="space-y-4">
+                    {field.value}
+                    {field.lat} {field.lng}
                     <MapPicker
                       value={{
                         lat: form.watch('lat'),
@@ -354,6 +381,7 @@ export default function Overview() {
                         address: field.value
                       }}
                       onChange={(location) => {
+                        console.log("ON CHANGED LOCATION", location)
                         field.onChange(location.address)
                         form.setValue('lat', location.lat.toString())
                         form.setValue('lng', location.lng.toString())
@@ -399,8 +427,29 @@ export default function Overview() {
           )}
         />
 
-        <Button type="submit">{I18n.t('events.edit.form.save')}</Button>
-      </form>
+        <div>
+          <Button 
+            type="button"
+            onClick={form.handleSubmit(async (values) => {
+              if (isSubmitting) return
+              
+              try {
+                setIsSubmitting(true)
+                console.log("Submit button clicked with values:", values)
+                await onSubmit(values)
+              } catch (error) {
+                console.error("Error during submission:", error)
+                setErrors("An unexpected error occurred")
+              } finally {
+                setIsSubmitting(false)
+              }
+            })}
+            disabled={isSubmitting}
+          >
+            {isSubmitting ? 'Saving...' : I18n.t('events.edit.form.save')}
+          </Button>
+        </div>
+      </div>
     </Form>
   )
 }

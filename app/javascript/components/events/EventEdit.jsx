@@ -3,6 +3,12 @@ import { Link, Outlet, useParams } from "react-router-dom"
 import { cn } from "@/lib/utils"
 import I18n from 'stores/locales'
 
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import { AlertCircle } from "lucide-react"
+
+// Create context for errors
+export const EventEditContext = React.createContext(null)
+
 import {
   Settings,
   Calendar,
@@ -76,6 +82,7 @@ const menuItems = [
 export default function EventEdit() {
   const { slug } = useParams()
   const [event, setEvent] = React.useState(null)
+  const [errors, setErrors] = React.useState(null)
 
   React.useEffect(() => {
     // TODO: Fetch event data
@@ -83,6 +90,17 @@ export default function EventEdit() {
 
   return (
     <div className="container mx-auto py-6">
+      {errors && (
+        <Alert variant="destructive" className="mb-6">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>
+            {typeof errors === 'string' ? errors : Object.entries(errors).map(([key, value]) => (
+              <div key={key}>{`${key}: ${value}`}</div>
+            ))}
+          </AlertDescription>
+        </Alert>
+      )}
+
       <Breadcrumb className="mb-6 flex items-center">
         <BreadcrumbItem>
           <BreadcrumbLink to="/events">{I18n.t('events.edit.breadcrumb.events')}</BreadcrumbLink>
@@ -121,7 +139,9 @@ export default function EventEdit() {
 
         {/* Main Content */}
         <div className="flex-1 rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
-          <Outlet />
+          <EventEditContext.Provider value={{ errors, setErrors }}>
+            <Outlet />
+          </EventEditContext.Provider>
         </div>
       </div>
     </div>
