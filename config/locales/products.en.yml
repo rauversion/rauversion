@@ -192,6 +192,8 @@ en:
       show:
         business_days: Business days
         shipping_cost: Shipping cost
+        accept_barter: Accept barter
+        barter: "Trueque"
       new:
         title: New Musical Equipment
       form:

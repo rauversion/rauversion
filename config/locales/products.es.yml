@@ -184,6 +184,8 @@ es:
       show:
         business_days: "Días hábiles"
         shipping_cost: "Costo de envío"
+        accepts_barter: "Acepta Trueque"
+        barter: "Trueque"
       new:
         title: "Nuevo Equipamiento Musical"
       form:
