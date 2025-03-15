@@ -77,6 +77,20 @@ function EditorComponent({ value, onChange, onUpload }) {
     onChange?.(debouncedValue)
   }, [debouncedValue])
 
+  const uploadFile = (file, cb) => {
+    if(!file) return
+    const url = '/api/v1/direct_uploads'
+    const upload = new DirectUpload(file, url)
+  
+    upload.create((error, blob) => {
+      if (error) {
+        // Handle the error
+      } else {
+        cb(blob)
+      }
+    })
+  }
+
   return (
     <Dante 
       theme={darkTheme}
@@ -85,7 +99,7 @@ function EditorComponent({ value, onChange, onUpload }) {
         ImageBlockConfig({
           options: {
             upload_handler: (file, ctx) => {
-              onUpload(file, (blob) => {
+              uploadFile(file, (blob)=>{
                 ctx.updateAttributes({
                   url: blob.service_url
                 })
@@ -113,7 +127,7 @@ function EditorComponent({ value, onChange, onUpload }) {
         VideoRecorderBlockConfig({
           options: {
             upload_handler: (file, ctx) => {
-              onUpload(file, (blob) => {
+              uploadFile(file, (blob) => {
                 ctx.updateAttributes({
                   url: blob.service_url
                 })
