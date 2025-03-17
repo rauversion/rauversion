@@ -263,6 +263,7 @@ export default function EditArticle() {
       tags: "",
       visibility: "public"
     },
+    mode: "onChange"
   })
 
   const handleSaveContent = React.useCallback(async (content) => {
@@ -342,11 +343,13 @@ export default function EditArticle() {
 
       if (response.ok) {
         const { article } = await response.json
+        setArticle(article)
+        form.reset(data)
         toast({
           title: "Éxito",
           description: "Artículo actualizado correctamente",
         })
-        // setIsDrawerOpen(false)
+        setIsDrawerOpen(false)
       } else {
         const { errors } = await response.json
         Object.keys(errors).forEach((key) => {
@@ -630,8 +633,9 @@ export default function EditArticle() {
                   type="submit" 
                   className="bg-pink-600 hover:bg-pink-500"
                   onClick={form.handleSubmit(onSubmit)}
+                  disabled={!form.formState.isDirty || form.formState.isSubmitting}
                 >
-                  Guardar
+                  {form.formState.isSubmitting ? "Guardando..." : "Guardar"}
                 </Button>
               </div>
             </div>
@@ -656,4 +660,3 @@ export default function EditArticle() {
       </div>
     </div>
   )
-}
