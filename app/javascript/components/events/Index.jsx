@@ -23,7 +23,9 @@ export default function EventsIndex() {
   }, [])
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">{I18n.t('events.loading')}</div>
+    return <div className="min-h-screen flex items-center justify-center">
+    {I18n.t('events.loading')}
+    </div>
   }
 
   return (

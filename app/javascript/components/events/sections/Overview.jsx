@@ -65,6 +65,36 @@ export default function Overview() {
   const { setErrors } = useContext(EventEditContext)
   const [isSubmitting, setIsSubmitting] = React.useState(false)
 
+  const handleImageUpload = async (blobId, cropData) => {
+    try {
+      const response = await put(`/events/${slug}`, {
+        body: JSON.stringify({
+          event: {
+            cover: blobId,
+            crop_data: cropData ? JSON.stringify(cropData) : null
+          }
+        }),
+        responseKind: 'json'
+      })
+
+      if (response.ok) {
+        const data = await response.json
+        setEvent(data.event)
+        toast({
+          title: "Success",
+          description: I18n.t('events.edit.form.cover_success'),
+        })
+      }
+    } catch (error) {
+      console.error('Error updating event cover:', error)
+      toast({
+        title: "Error",
+        description: I18n.t('events.edit.form.cover_error'),
+        variant: "destructive",
+      })
+    }
+  }
+
   const form = useForm({
     mode: "onChange",
     resolver: zodResolver(formSchema),
@@ -108,6 +138,7 @@ export default function Overview() {
           lat: data.lat,
           lng: data.lng,
           state: data.state || 'draft',
+          cover: data.cover_blob_id
         })
       } catch (error) {
         console.error('Error loading event:', error)
@@ -426,6 +457,30 @@ export default function Overview() {
               <FormLabel>{I18n.t('events.edit.form.venue.label')}</FormLabel>
               <FormControl>
                 <Input placeholder={I18n.t('events.edit.form.venue.placeholder')} {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="cover"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>{I18n.t('events.edit.form.cover.label')}</FormLabel>
+              <FormControl>
+                <ImageUploader
+                  value={field.value}
+                  onUploadComplete={(blob, cropData) => {
+                    field.onChange(blob)
+                    handleImageUpload(blob, cropData)
+                  }}
+                  aspectRatio={16/9}
+                  preview={true}
+                  enableCropper={true}
+                  imageUrl={event?.cover_url?.large}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

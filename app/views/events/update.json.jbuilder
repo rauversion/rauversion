@@ -59,7 +59,7 @@ json.event do
     json.medium @event.cover_url(:medium)
     json.small @event.cover_url(:small)
     json.large @event.cover_url(:large)
-  end if @event.cover.attached?
+  end
   
   # Event specific labels and settings
   json.participant_label @event.participant_label

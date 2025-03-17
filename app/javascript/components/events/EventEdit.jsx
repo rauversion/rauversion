@@ -107,7 +107,7 @@ export default function EventEdit() {
         </BreadcrumbItem>
         <BreadcrumbSeparator className="flex items-center" />
         <BreadcrumbItem>
-          <BreadcrumbPage>{event?.title || I18n.t('events.loading')}</BreadcrumbPage>
+          <BreadcrumbPage>{event?.title}</BreadcrumbPage>
         </BreadcrumbItem>
       </Breadcrumb>
 

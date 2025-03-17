@@ -194,6 +194,9 @@ en:
           label: Event State
           description: Toggle between draft and published state
         save: Save changes
+        cover:
+          label: Cover Image
+          help: "Recommended: 1200x630px for social media"
       tickets:
         title: Tickets
       breadcrumb:

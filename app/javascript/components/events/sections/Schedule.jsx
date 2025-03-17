@@ -387,9 +387,11 @@ export default function Schedule() {
                     </div>
                   </div>
 
-                  <div className="space-y-4 mt-4 pl-4 border-l">
+                  <div className="space-y-4 mt-4 pl-4">
                     <div className="flex justify-between items-center">
-                      <h3 className="text-sm font-medium">{I18n.t('events.edit.schedule.schedulings.title')}</h3>
+                      <h3 className="text-sm font-medium">
+                        {I18n.t('events.edit.schedule.schedulings.title')}
+                      </h3>
                       <Button
                         type="button"
                         variant="outline"

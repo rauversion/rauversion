@@ -227,8 +227,11 @@ es:
           label: Ubicación
         save: Guardar Cambios
         state:
-          label: Event State
-          description: Toggle between draft and published state
+          label: Estado
+          description: Alternar entre estado de borrador y publicado
+        cover:
+          label: Imagen de Portada
+          description: La imagen de portada del evento
       tickets:
         title: Entradas
       breadcrumb:
