@@ -1,6 +1,12 @@
 require_relative "../lib/constraints/username_route_contrainer"
 
 Rails.application.routes.draw do
+  # Stripe Connect routes
+  resource :stripe_connect, only: [:create], controller: :stripe_connect do
+    get :reauth
+    get :return
+  end
+
   resources :conversations do
     member do
       post :archived
@@ -166,8 +172,8 @@ Rails.application.routes.draw do
     omniauth_callbacks: "users/omniauth_callbacks",
     registrations: "users/registrations",
     sessions: "users/sessions",
-    passwords: "users/passwords"
-    # :invitations => 'users/invitations'
+    passwords: "users/passwords",
+    invitations: 'users/invitations'
   }
 
   resources :event_webhooks

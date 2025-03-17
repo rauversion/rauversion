@@ -41,7 +41,7 @@ class EventPurchasesController < ApplicationController
     end
 
     case @event.payment_gateway 
-    when "stripe" then handle_stripe_session
+    when "stripe", "none" then handle_stripe_session
     when "transbank" then handle_tbk_session
     else
       raise "No payment gateway available for this event"

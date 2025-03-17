@@ -3,7 +3,7 @@ json.tickets @tickets do |ticket|
   json.title ticket.title
   json.price ticket.price
   json.short_description ticket.short_description
-  json.quantity ticket.quantity
+  json.quantity ticket.qty.to_i
 end
 
 json.event do

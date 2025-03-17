@@ -116,6 +116,23 @@ function AppContent() {
   const { currentLocale } = useLocaleStore()
   const location = useLocation()
 
+  useEffect(() => {
+    const flashElement = document.getElementById('flash-messages')
+    if (flashElement) {
+      try {
+        const flashMessages = JSON.parse(flashElement.textContent || '{}')
+        Object.entries(flashMessages).forEach(([type, message]) => {
+          toast({
+            description: message,
+            variant: type === 'error' ? 'destructive' : undefined
+          })
+        })
+      } catch (e) {
+        console.error('Error parsing flash messages:', e)
+      }
+    }
+  }, [toast])
+
   const handleNotification = (data) => {
     const { type, message, title, ...rest } = data
 

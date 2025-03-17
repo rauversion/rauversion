@@ -53,7 +53,7 @@ export default function PurchaseForm({ eventId }: PurchaseFormProps) {
   const onSubmit = async (data: any) => {
     setLoading(true)
     try {
-      const response = await post(`/events/${eventId}/event_purchases`, {
+      const response = await post(`/events/${eventId}/event_purchases.json`, {
         body: JSON.stringify({
           tickets: Object.entries(data).map(([id, quantity]) => ({
             id,
@@ -94,7 +94,9 @@ export default function PurchaseForm({ eventId }: PurchaseFormProps) {
               <div className="flex justify-between items-start">
                 <div>
                   <Label htmlFor={ticket.id}>{ticket.title}</Label>
-                  <p className="text-sm text-gray-500">{ticket.short_description}</p>
+                  <p className="text-sm text-gray-500">
+                    {ticket.short_description}
+                  </p>
                 </div>
                 <div className="text-right">
                   <div className="font-semibold">${ticket.price}</div>
@@ -106,8 +108,8 @@ export default function PurchaseForm({ eventId }: PurchaseFormProps) {
               <Input
                 type="number"
                 id={ticket.id}
-                {...register(ticket.id, {
-                  min: { value: 0, message: "Quantity cannot be negative" },
+                {...register(ticket.id.toString(), {
+                  min: { value: 1, message: "Quantity cannot be negative" },
                   max: {
                     value: ticket.quantity,
                     message: `Maximum ${ticket.quantity} tickets available`,
@@ -117,9 +119,9 @@ export default function PurchaseForm({ eventId }: PurchaseFormProps) {
                 min={0}
                 max={ticket.quantity}
               />
-              {errors[ticket.id] && (
+              {errors[ticket.id.toString()] && (
                 <p className="text-sm text-red-500">
-                  {errors[ticket.id]?.message as string}
+                  {errors[ticket.id.toString()]?.message as string}
                 </p>
               )}
             </div>

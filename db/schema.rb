@@ -827,6 +827,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_09_055209) do
     t.boolean "seller"
     t.jsonb "social_links_settings", default: {}, null: false
     t.boolean "featured", default: false
+    t.string "stripe_account_id"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["featured"], name: "index_users_on_featured"
@@ -836,6 +837,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_09_055209) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["seller"], name: "index_users_on_seller"
     t.index ["social_links_settings"], name: "index_users_on_social_links_settings", using: :gin
+    t.index ["stripe_account_id"], name: "index_users_on_stripe_account_id"
     t.index ["unlock_token"], name: "index_users_on_unlock_token", unique: true
   end
 
