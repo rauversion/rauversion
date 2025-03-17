@@ -303,28 +303,44 @@ export default function UserMenu() {
                         </DropdownMenuItem>
                         {renderMessagesMenuItem()}
                       </DropdownMenuGroup>
+                      
                       <DropdownMenuSeparator />
+                      
                       <DropdownMenuGroup>
-                        <DropdownMenuItem asChild>
-                          <Link to={`/${currentUser.username}`}>
-                            <Music className="mr-2 h-4 w-4" />
-                            <span>{I18n.t('menu.my_music')}</span>
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link to="/articles/mine">
-                            <FileText className="mr-2 h-4 w-4" />
-                            <span>{I18n.t('menu.my_articles')}</span>
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link to="/events/mine">
-                            <Calendar className="mr-2 h-4 w-4" />
-                            <span>{I18n.t('menu.my_events')}</span>
-                          </Link>
-                        </DropdownMenuItem>
+                       {
+                         currentUser.is_creator && 
+                            <DropdownMenuItem asChild>
+                              <Link to={`/${currentUser.username}`}>
+                                <Music className="mr-2 h-4 w-4" />
+                                <span>{I18n.t('menu.my_music')}</span>
+                              </Link>
+                            </DropdownMenuItem>
+                        }
+
+
+                        {
+                          currentUser.is_creator && 
+                          <DropdownMenuItem asChild>
+                            <Link to="/articles/mine">
+                              <FileText className="mr-2 h-4 w-4" />
+                              <span>{I18n.t('menu.my_articles')}</span>
+                            </Link>
+                          </DropdownMenuItem>
+                        }
+
+                        {
+                          currentUser.is_creator && 
+                          <DropdownMenuItem asChild>
+                            <Link to="/events/mine">
+                              <Calendar className="mr-2 h-4 w-4" />
+                              <span>{I18n.t('menu.my_events')}</span>
+                            </Link>
+                          </DropdownMenuItem>
+                        }
                       </DropdownMenuGroup>
+                      
                       <DropdownMenuSeparator />
+                      
                       <DropdownMenuGroup>
                         <DropdownMenuItem asChild>
                           <Link to="/purchases">
@@ -332,26 +348,37 @@ export default function UserMenu() {
                             <span>{I18n.t('menu.my_purchases')}</span>
                           </Link>
                         </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link to="/sales">
-                            <Store className="mr-2 h-4 w-4" />
-                            <span>{I18n.t('menu.my_sales')}</span>
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link to={`/${currentUser.username}/products`}>
-                            <Package className="mr-2 h-4 w-4" />
-                            <span>{I18n.t('menu.my_products')}</span>
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link to="/service_bookings">
-                            <CalendarClock className="mr-2 h-4 w-4" />
-                            <span>Service Bookings</span>
-                          </Link>
-                        </DropdownMenuItem>
+
+                        {
+                          currentUser.can_sell_products && (
+                            <>
+                              <DropdownMenuItem asChild>
+                                <Link to="/sales">
+                                  <Store className="mr-2 h-4 w-4" />
+                                  <span>{I18n.t('menu.my_sales')}</span>
+                                </Link>
+                              </DropdownMenuItem>
+                          
+                              <DropdownMenuItem asChild>
+                                <Link to={`/${currentUser.username}/products`}>
+                                  <Package className="mr-2 h-4 w-4" />
+                                  <span>{I18n.t('menu.my_products')}</span>
+                                </Link>
+                              </DropdownMenuItem>
+                              <DropdownMenuItem asChild>
+                                <Link to="/service_bookings">
+                                  <CalendarClock className="mr-2 h-4 w-4" />
+                                  <span>Service Bookings</span>
+                                </Link>
+                              </DropdownMenuItem>
+                            
+                            </>
+                          )
+                        }
                       </DropdownMenuGroup>
+                      
                       <DropdownMenuSeparator />
+
                       <DropdownMenuSub>
                         <DropdownMenuSubTrigger>
                           <Languages className="mr-2 h-4 w-4" />

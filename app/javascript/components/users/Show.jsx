@@ -117,7 +117,7 @@ export default function UserShow() {
             />
             
             <div>
-              <h1 className="text-4xl font-bold text-white">
+              <h1 className="sm:text-4xl text-2xl font-bold text-white">
                 {user.hide_username_from_profile 
                   ? `${user.first_name} ${user.last_name}`
                   : user.username
