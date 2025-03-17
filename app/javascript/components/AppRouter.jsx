@@ -9,6 +9,7 @@ import AudioPlayer from './audio_player'
 import Login from './auth/Login'
 import Register from './auth/Register'
 import ForgotPassword from './auth/ForgotPassword'
+import AcceptInvitation from './users/AcceptInvitation'
 import TrackShow from './tracks/Show'
 import TracksIndex from './tracks/Index'
 import Home from './home/Index'
@@ -64,7 +65,6 @@ import TransbankSettings from "./users/settings/TransbankSettings"
 import InvitationsSettings from "./users/settings/InvitationsSettings"
 import SecuritySettings from "./users/settings/SecuritySettings"
 
-
 import ReleasesList from "./releases/ReleasesList"
 import ReleaseForm from "./releases/ReleaseForm"
 import ReleaseEditor from "./releases/ReleaseEditor"
@@ -98,7 +98,6 @@ function RequireAuth({ children }) {
   const { currentUser, loading: currentUserLoading } = useAuthStore()
   const location = useLocation()
 
-  
   if(currentUserLoading) {
     return <LoadingSpinner />
   }
@@ -110,14 +109,12 @@ function RequireAuth({ children }) {
   return children
 }
 
-
 function AppContent() {
   const { currentUser } = useAuthStore()
   const { subscribe, unsubscribe, subscription } = useActionCable()
   const { toast } = useToast()
   const { currentLocale } = useLocaleStore()
   const location = useLocation()
-
 
   const handleNotification = (data) => {
     const { type, message, title, ...rest } = data
@@ -172,6 +169,7 @@ function AppContent() {
         <Routes>
           <Route path="/users/sign_in" element={<Login />} />
           <Route path="/users/sign_up" element={<Register />} />
+          <Route path="/users/invitation/accept" element={<AcceptInvitation />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
 
           <Route path="/" element={<Home />} />
@@ -266,20 +264,20 @@ function AppContent() {
         </Routes>
       </div>
 
-        <Toaster />
-        <AudioPlayer />
+      <Toaster />
+      <AudioPlayer />
 
-        {
-          !location.pathname.includes('edit') && 
-          !location.pathname.includes('new') && 
-          !location.pathname.includes('editor') && 
-          !location.pathname.includes('preview') &&
-          !location.pathname.includes('albums') &&
-          !location.pathname.includes('conversations') &&
-           (
-            <Footer/>
-          )
-        }
+      {
+        !location.pathname.includes('edit') && 
+        !location.pathname.includes('new') && 
+        !location.pathname.includes('editor') && 
+        !location.pathname.includes('preview') &&
+        !location.pathname.includes('albums') &&
+        !location.pathname.includes('conversations') &&
+         (
+          <Footer/>
+        )
+      }
     </>
   )
 }
