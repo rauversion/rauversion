@@ -201,7 +201,20 @@ es:
         select_condition: "Seleccionar condición"
         title: "Título"
         description: "Descripción"
-
+      categories:
+        instrument: "Instrumentos"
+        audio_gear: "Equipo de Audio"
+        dj_gear: "Equipo de DJ"
+        synth: "Sintetizadores"
+        drum_kit: "Baterías"
+        keyboard: "Teclados"
+        percussion: "Percusión"
+        bass: "Bajos"
+        guitar: "Guitarras"
+        effect: "Efectos"
+        amp: "Amplificadores"
+        console: "Consolas"
+        controller: "Controladores"
     music:
       new:
         title: "Nuevo Producto Musical"

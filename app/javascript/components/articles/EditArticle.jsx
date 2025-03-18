@@ -660,3 +660,4 @@ export default function EditArticle() {
       </div>
     </div>
   )
+}
