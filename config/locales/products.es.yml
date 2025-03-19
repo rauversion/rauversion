@@ -61,6 +61,9 @@ es:
     form:
       submitting: "Guardando..."
       submit: "Guardar"
+      update: "Actualizar"
+      delete: "Eliminar"
+      cancel: "Cancelar"
       pricing:
         title: "Precios"
         price: "Precio"
@@ -216,11 +219,14 @@ es:
         console: "Consolas"
         controller: "Controladores"
     music:
+      includes_digital: "Incluye Digital"
       new:
         title: "Nuevo Producto Musical"
       show:
         business_days: "Días hábiles"
         shipping_cost: "Costo de envío"
+      edit:
+        title: "Editar Producto Musical"
       form:
         format: "Formato"
         select_format: "Seleccionar formato"

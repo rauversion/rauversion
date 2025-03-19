@@ -1,0 +1,15 @@
+main rules:
+
+1. we use zustand for state management
+2. we use shadcn for component library
+3. we use tailwind for css
+4. we use framer motion for animation
+5. we use react hook form for form validation
+6. we use react toastify for toast, use-toast
+7. we use react router for routing
+8. for the api requests from react we use @rails/request.js
+9. rails request have a response.json to get the data, not response.json() as normal fetch
+10. we use react hooks for load and do the pagination
+11. we use rails backend for the api
+12. jbuilder
+13. when doing ruby work always check the schema and the model attributes to build

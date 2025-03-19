@@ -164,7 +164,7 @@ class UsersController < ApplicationController
       .order(created_at: :desc)
 
     if current_user.blank? || current_user != @user
-      @collection = @collection.where(private: false)
+      @collection = @collection.where(private: [false, nil])
     end
 
     @collection = @collection.ransack(title_cont: params[:q]).result if params[:q].present?
@@ -189,7 +189,7 @@ class UsersController < ApplicationController
   end
 
   def articles
-    @articles = @user.posts.order("id desc").page(params[:page]).per(params[:per] || 10)
+    @articles = @user.posts.published.order("id desc").page(params[:page]).per(params[:per] || 10)
 
     respond_to do |format|
       format.html { render "articles" }
