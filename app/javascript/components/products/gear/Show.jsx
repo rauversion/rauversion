@@ -21,19 +21,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel"
+
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
 import useAuthStore from '@/stores/authStore'
 import I18n from '@/stores/locales'
 import useCartStore from '@/stores/cartStore'
+import PublicPhotosSection from "../shared/public/PublicPhotosSection"
 
 const CATEGORY_ICONS = {
   instrument: <Guitar className="h-4 w-4" />,
@@ -129,23 +124,7 @@ export default function GearShow({ product }) {
         </div>
       </div>
 
-      {product.photos.length > 0 && (
-        <Carousel className="mb-8">
-          <CarouselContent>
-            {product.photos.map((photo) => (
-              <CarouselItem key={photo.id}>
-                <img
-                  src={photo.url}
-                  alt={product.title}
-                  className="w-full h-[400px] object-cover rounded-lg"
-                />
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselPrevious />
-          <CarouselNext />
-        </Carousel>
-      )}
+      <PublicPhotosSection product={product} />
 
       <div className="grid md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-6">

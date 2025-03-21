@@ -10,36 +10,36 @@ class StripeConnectController < ApplicationController
           # card_payments: { requested: true },
           transfers: { requested: true },
         },
-        business_type: 'individual',
-        business_profile: { url: 'https://rauversion.com' },
+        tos_acceptance: {service_agreement: 'recipient'},
+        #business_type: 'individual',
+        #business_profile: { url: 'https://rauversion.com' },
       })
 
+      #Stripe::Account.create({
+      #  country: 'CL',
+      #  type: 'custom',
+      #  capabilities: {transfers: {requested: true}},
+      #  tos_acceptance: {service_agreement: 'recipient'},
+      #}) 
+      
       # Stripe::Account.create({
       #   country: 'CL',
-      #   type: 'custom',
-      #   capabilities: {transfers: {requested: true}},
+      #   controller: {
+      #     stripe_dashboard: {type: 'none'},
+      #     fees: {payer: 'application'},
+      #     losses: {payments: 'application'},
+      #     requirement_collection: 'application',
+      #   },
+      #   capabilities: {
+      #     transfers: {requested: true}
+      #   },
       #   tos_acceptance: {service_agreement: 'recipient'},
       # })
-      # 
-      
-      Stripe::Account.create({
-        country: 'CL',
-        controller: {
-          stripe_dashboard: {type: 'none'},
-          fees: {payer: 'application'},
-          losses: {payments: 'application'},
-          requirement_collection: 'application',
-        },
-        capabilities: {
-          transfers: {requested: true}
-        },
-        tos_acceptance: {service_agreement: 'recipient'},
-      })
 
       account_link = Stripe::AccountLink.create({
         account: account.id,
-        refresh_url: stripe_connect_reauth_url,
-        return_url: stripe_connect_return_url,
+        refresh_url: reauth_stripe_connect_url,
+        return_url: return_stripe_connect_url,
         type: 'account_onboarding',
       })
 

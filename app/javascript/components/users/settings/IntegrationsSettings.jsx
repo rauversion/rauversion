@@ -89,7 +89,7 @@ export default function IntegrationsSettings() {
       icon: Icons.stripe,
       provider: "stripe_connect",
       connected: findCredential("stripe_connect"),
-      connectUrl: "/users/auth/stripe_connect",
+      connectUrl: "/stripe_connect",
       disconnectUrl: "/users/auth/stripe_connect/disconnect",
     },
     {

@@ -38,8 +38,8 @@ module PaymentProviders
       purchase = create_purchase(final_price)
       
       begin
-        account = purchasable.user.oauth_credentials.find_by(provider: "stripe_connect")
-        Stripe.stripe_account = account.uid if account.present?
+        account = purchasable.user.stripe_account_id # oauth_credentials.find_by(provider: "stripe_connect")
+        # Stripe.stripe_account = account if account.present?
 
         checkout_params = build_digital_checkout_params(purchase, source_type, account)
         session = Stripe::Checkout::Session.create(checkout_params)
@@ -76,6 +76,9 @@ module PaymentProviders
     end
 
     def build_digital_checkout_params(purchase, source_type, account)
+      purchasable = purchase.purchasable
+      user = purchase.user
+    
       params = {
         payment_method_types: ["card"],
         line_items: [{
@@ -94,23 +97,46 @@ module PaymentProviders
         cancel_url: cancel_url,
         client_reference_id: purchase.id.to_s,
         customer_email: user.email,
-        tax_id_collection: {enabled: true},
+        tax_id_collection: { enabled: true },
         metadata: { 
           purchase_id: purchase.id,
           source_type: source_type
         }
       }
-
+    
       if account
+        # Assuming ENV['PLATFORM_EVENTS_FEE'] is a percentage, e.g., 10 for 10%
+        fee_percentage = ENV.fetch('PLATFORM_EVENTS_FEE', 10).to_f / 100.0
+        fee_amount = (purchase.price * fee_percentage * 100).to_i # Convert to cents
+    
+        #params[:payment_intent_data] = {
+        #  application_fee_amount: fee_amount,
+          #transfer_data: {
+          #  destination: account # this is the connected account ID (acct_XXXX)
+          #}
+        #}
+
         params[:payment_intent_data] = {
-          application_fee_amount: ENV.fetch('PLATFORM_EVENTS_FEE', 3).to_i
+          application_fee_amount: fee_amount,
+          transfer_data: {
+            destination: account
+          }
         }
       end
-
+    
+      Rails.logger.info "Checkout params: #{params}"
       params
     end
-
+    
     def build_checkout_params(promo_code)
+      # TODO: handle multiple connected user products in cart
+      connected_accounts = cart.products.map{|o| o.user.stripe_account_id}
+      connected_account_id = connected_accounts.first
+
+      return render json: {
+        error: "Multiple connected accounts not supported"
+      }, status: 422 if connected_accounts.size > 1
+
       params = {
         payment_method_types: ['card'],
         line_items: build_line_items,
@@ -133,13 +159,26 @@ module PaymentProviders
         },
         shipping_options: generate_shipping_options
       }
-
+    
       if promo_code.present?
         params.merge!(discounts: [{ coupon: promo_code }])
       end
-
+    
+      if connected_account_id.present?
+        fee_percentage = ENV.fetch('PLATFORM_EVENTS_FEE', 10).to_f / 100.0
+        fee_amount = (cart.total_price * fee_percentage * 100).to_i # Convert to cents
+    
+        params[:payment_intent_data] = {
+          application_fee_amount: fee_amount,
+          transfer_data: {
+            destination: connected_account_id
+          }
+        }
+      end
+    
       params
     end
+    
 
     def build_line_items
       cart.product_cart_items.includes(:product).map do |item|

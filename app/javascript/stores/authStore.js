@@ -68,7 +68,6 @@ const useAuthStore = create((set, get) => ({
         const newCsrfToken = response.headers.get("X-CSRF-Token");
         if (newCsrfToken) {
           updateCsrfToken(newCsrfToken);
-          window.location.reload();
         }
       }
     } catch (error) {
