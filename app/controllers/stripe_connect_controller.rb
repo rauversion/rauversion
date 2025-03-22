@@ -1,22 +1,6 @@
 class StripeConnectController < ApplicationController
   before_action :authenticate_user!
 
-  def show
-    begin
-      if current_user.stripe_account_id.present?
-        login_link = Stripe::LoginLink.create({
-          account: current_user.stripe_account_id,
-          redirect_url: stripe_connect_return_url,
-        })
-        render json: { url: login_link.url }
-      else
-        render json: { error: "No Stripe account connected" }, status: :unprocessable_entity
-      end
-    rescue Stripe::StripeError => e
-      render json: { error: e.message }, status: :unprocessable_entity
-    end
-  end
-
   def new
     begin
       if current_user.stripe_account_id.present?
@@ -42,6 +26,8 @@ class StripeConnectController < ApplicationController
         render json: { error: "Country is required" }, status: :unprocessable_entity
         return
       end
+
+      return render json: {error: "already connected"}, status: 422 if current_user.stripe_account_id.present?
 
       account = Stripe::Account.create({
         country: country,

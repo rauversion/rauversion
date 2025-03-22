@@ -3,7 +3,6 @@ require_relative "../lib/constraints/username_route_contrainer"
 Rails.application.routes.draw do
   # Stripe Connect routes
   resource :stripe_connect, only: [:show, :create], controller: :stripe_connect do
-    get :new
     get :reauth
     get :return
     get :status
