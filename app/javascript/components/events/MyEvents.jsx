@@ -2,7 +2,12 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import {useInfiniteScroll} from '../../hooks/useInfiniteScroll'
 import { Button } from '../ui/button'
+import { Input } from '../ui/input'
+import { Label } from '../ui/label'
 import I18n from 'stores/locales'
+import { useForm } from 'react-hook-form'
+import { post } from '@rails/request.js'
+import { useToast } from '@/hooks/use-toast'
 
 import {
   Table,
@@ -20,8 +25,42 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "../ui/dropdown-menu"
-import { MoreHorizontal } from "lucide-react"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "../ui/dialog"
+import { MoreHorizontal, Plus, CheckCircle2, Clock } from "lucide-react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs"
+import { Badge } from "../ui/badge"
+
+const getStatusBadge = (status) => {
+  switch (status) {
+    case 'published':
+      return (
+        <Badge variant="success" className="gap-1">
+          <CheckCircle2 className="w-3 h-3" />
+          {I18n.t('events.my_events.status.published')}
+        </Badge>
+      )
+    case 'draft':
+      return (
+        <Badge variant="secondary" className="gap-1">
+          <Clock className="w-3 h-3" />
+          {I18n.t('events.my_events.status.draft')}
+        </Badge>
+      )
+    default:
+      return (
+        <Badge variant="outline">
+          {status}
+        </Badge>
+      )
+  }
+}
 
 function formatEventLocation(event) {
   if (event.online) return I18n.t('events.my_events.location.online')
@@ -44,6 +83,41 @@ function formatEventDate(date) {
 
 export default function MyEvents() {
   const [tab, setTab] = React.useState('all')
+  const [open, setOpen] = React.useState(false)
+  const { register, handleSubmit, formState: { errors } } = useForm()
+  const { toast } = useToast()
+
+  const onSubmit = async (data) => {
+    try {
+      const response = await post('/events.json', {
+        body: JSON.stringify({
+          event: {
+            title: data.title
+          }
+        })
+      })
+
+      const result = await response.json
+
+      if (response.ok) {
+        setOpen(false)
+        // Refresh the events list
+        window.location.reload()
+      } else {
+        toast({
+          variant: "destructive",
+          title: I18n.t("events.my_events.new_event_modal.toast.error.title"),
+          description: I18n.t("events.my_events.new_event_modal.toast.error.description")
+        })
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: I18n.t("events.my_events.new_event_modal.toast.error.title"),
+        description: I18n.t("events.my_events.new_event_modal.toast.error.description")
+      })
+    }
+  }
   const {
     items: posts,
     loading,
@@ -76,11 +150,53 @@ export default function MyEvents() {
           </p>
         </div>
         <div className="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
-          <Button asChild>
-            <Link to="/events/new">
-              {I18n.t('events.my_events.new_event')}
-            </Link>
-          </Button>
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="w-4 h-4 mr-2" />
+                {I18n.t('events.my_events.new_event')}
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[425px]">
+              <DialogHeader>
+                <DialogTitle>{I18n.t('events.my_events.new_event_modal.title')}</DialogTitle>
+                <DialogDescription>
+                  {I18n.t('events.my_events.new_event_modal.description')}
+                </DialogDescription>
+              </DialogHeader>
+              <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 mt-4">
+                <div className="space-y-2">
+                  <Label htmlFor="title">
+                    {I18n.t('events.my_events.new_event_modal.form.title.label')}
+                  </Label>
+                  <Input
+                    id="title"
+                    {...register('title', {
+                      required: I18n.t('events.my_events.new_event_modal.form.title.required')
+                    })}
+                    placeholder={I18n.t('events.my_events.new_event_modal.form.title.placeholder')}
+                  />
+                  {errors.title && (
+                    <p className="text-sm text-destructive">
+                      {errors.title.message}
+                    </p>
+                  )}
+                </div>
+                <div className="flex justify-end gap-3 mt-6">
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    onClick={() => setOpen(false)}
+                  >
+                    {I18n.t('events.my_events.new_event_modal.form.cancel')}
+                  </Button>
+                  <Button type="submit">
+                    {I18n.t('events.my_events.new_event_modal.form.create')}
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
@@ -109,7 +225,9 @@ export default function MyEvents() {
                   </TableCell>
                   <TableCell>{formatEventLocation(event)}</TableCell>
                   <TableCell>{formatEventDate(event.event_start)}</TableCell>
-                  <TableCell>{event.state}</TableCell>
+                  <TableCell>
+                    {getStatusBadge(event.state)}
+                  </TableCell>
                   <TableCell className="text-right">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>

@@ -4,6 +4,7 @@ import { formatDateRange } from '../utils/dateHelpers'
 import I18n from 'stores/locales'
 import PurchaseDialog from './PurchaseDialog'
 import { Button } from "@/components/ui/button"
+import { Link } from 'react-router-dom'
 
 export default function EventShow() {
   const { slug } = useParams()

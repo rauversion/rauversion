@@ -1,8 +1,12 @@
 TODO:
 
+  + digital checkout , set price, validation on price
+  + download link
+  + disable products when no stripe account setup
+  + seleccionar pais antes de configure stripe connect link
+  + correos de success pago a account holder y comprador
+
   + mercado pago
-  + OK locale set backend
-  + OK registration
   
   + React app
     + merch crud

@@ -1,5 +1,5 @@
 import React from "react"
-import { Link, Outlet, useParams } from "react-router-dom"
+import { Link, Outlet, useParams, useLocation } from "react-router-dom"
 import { cn } from "@/lib/utils"
 import I18n from 'stores/locales'
 
@@ -103,7 +103,7 @@ export default function EventEdit() {
 
       <Breadcrumb className="mb-6 flex items-center">
         <BreadcrumbItem>
-          <BreadcrumbLink to="/events">{I18n.t('events.edit.breadcrumb.events')}</BreadcrumbLink>
+          <BreadcrumbLink href="/events/mine">{I18n.t('events.edit.breadcrumb.events')}</BreadcrumbLink>
         </BreadcrumbItem>
         <BreadcrumbSeparator className="flex items-center" />
         <BreadcrumbItem>
@@ -117,19 +117,30 @@ export default function EventEdit() {
           <nav className="space-y-1">
             {menuItems.map((item) => {
               const Icon = item.icon
+              const location = useLocation()
+              const isSelected = item.path === "" 
+                ? location.pathname === `/events/${slug}` || location.pathname === `/events/${slug}/edit`
+                : location.pathname.endsWith(`/${item.path}`)
+              
               return (
                 <Button
                   key={item.path}
-                  variant="ghost"
+                  variant={isSelected ? "secondary" : "ghost"}
                   className={cn(
                     "w-full justify-start gap-2",
-                    "hover:bg-zinc-100 dark:hover:bg-zinc-800"
+                    "hover:bg-zinc-100 dark:hover:bg-zinc-800",
+                    isSelected && "bg-zinc-100 dark:bg-zinc-800"
                   )}
                   asChild
                 >
                   <Link to={item.path}>
-                    <Icon className="h-4 w-4" />
-                    <span>{item.title}</span>
+                    <Icon className={cn(
+                      "h-4 w-4",
+                      isSelected && "text-primary"
+                    )} />
+                    <span className={cn(
+                      isSelected && "font-medium"
+                    )}>{item.title}</span>
                   </Link>
                 </Button>
               )

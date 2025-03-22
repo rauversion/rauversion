@@ -43,8 +43,8 @@ class EventsController < ApplicationController
     @section = params[:section]
     @event = current_user.events.friendly.find(params[:id])
     respond_to do |format|
-      format.html
-      format.json{render "show"}
+      format.html { render_blank }
+      format.json{ render "show" }
     end
   end
 
@@ -52,7 +52,12 @@ class EventsController < ApplicationController
     @event = current_user.events.new(event_params)
     if @event.save
       flash.now[:notice] = "yes!"
-      redirect_to edit_event_path(@event)
+      respond_to do |format|
+        format.html { redirect_to edit_event_path(@event) }
+        format.json { render "show" }
+      end
+    else
+      render "show"
     end
   end
 

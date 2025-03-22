@@ -464,6 +464,24 @@ en:
         drafts: Drafts
         published: Published
         manager: Manager
+
+      new_event_modal:
+        title: "Create New Event"
+        description: "Fill in the information to create a new event."
+        form:
+          title:
+            label: "Event Title"
+            placeholder: "Enter the event title"
+          cancel: "Cancel"
+          create: "Create Event"
+
+        toast:
+          error:
+            title: "Error Creating Event"
+            description: "There was a problem creating your event. Please try again."
+
+
+
       title: Eventos %{tab}
       subtitle: Your events.
       new_event: New Event
@@ -680,6 +698,7 @@ en:
     published: Your event has been published
     manager: Events that I manage
     new_event: New Event
+
     create: Create Event
     unpublished: Your event has not been published
     unpublish: Unpublish Event
@@ -690,6 +709,24 @@ en:
         general: General
         privacy: Privacy
         danger: Danger Zone
+  
+    purchase_form:
+      title: "Purchase Tickets"
+      subtitle: "Select the number of tickets you want to purchase"
+      price: "$%{price}"
+      available_tickets: "%{count} available"
+      purchase_button: "Purchase Tickets"
+      processing: "Processing..."
+      validation:
+        quantity_negative: "Quantity cannot be negative"
+        max_tickets: "Maximum %{count} tickets available"
+      toast:
+        error:
+          title: "Error"
+          load_tickets: "Failed to load tickets. Please try again."
+          process_purchase: "Failed to process purchase. Please try again."
+
+
   event_hosts:
     listed: Listed on page
     manager: Event manager

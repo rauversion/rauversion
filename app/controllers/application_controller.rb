@@ -64,6 +64,10 @@ class ApplicationController < ActionController::Base
     render status: :ok, json: { locale: params[:locale] }
   end
 
+  def render_blank
+    render inline: "", layout: "react"
+  end
+
   def disable_footer
     @disable_footer = true
   end

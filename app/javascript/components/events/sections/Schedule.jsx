@@ -249,14 +249,14 @@ export default function Schedule() {
         setEvent(data.event)
         toast({
           title: "Success",
-          description: I18n.t('events.edit.schedule.messages.success'),
+          description: I18n.t('events.edit.schedule.messages.form_success'),
         })
       }
     } catch (error) {
       console.error('Error updating schedule:', error)
       toast({
         title: "Error",
-        description: I18n.t('events.edit.schedule.messages.error'),
+        description: I18n.t('events.edit.schedule.messages.form_error'),
         variant: "destructive",
       })
     }

@@ -23,7 +23,8 @@ es:
   view_all: "Ver todo"
   view: Ver
   add_to_cart: "Agregar al carrito"
-
+  common:
+    go_back: Go back
   menu:
     store: Tienda
     profile: Profile
@@ -334,8 +335,8 @@ es:
           require_login:
             label: Requerir Inicio de Sesión
             description: Los usuarios deben iniciar sesión para ver los detalles del evento
-
-
+        messages:
+          success: Configuración actualizada exitosamente
         general:
           title: Configuración General
           description: Configurar ajustes básicos del evento
@@ -377,9 +378,7 @@ es:
           update_success: Configuración de transmisión actualizada exitosamente
           update_error: No se pudo actualizar la configuración de transmisión
       schedule:
-        messages:
-          form_success: Horario actualizado exitosamente
-          form_error: No se pudo actualizar el horario
+
         title: Horario del Evento
         description: Gestionar horario y sesiones del evento
         add_item: Agregar Elemento al Horario
@@ -413,6 +412,8 @@ es:
           remove_confirm: ¿Estás seguro de que deseas eliminar este elemento?
           remove_success: Elemento eliminado exitosamente
           remove_error: No se pudo eliminar el elemento
+          form_success: Horario actualizado exitosamente
+          form_error: No se pudo actualizar el horario
       recordings:
         title: Grabaciones del Evento
         description: Agregar grabaciones de Twitch, YouTube u otras plataformas
@@ -542,6 +543,24 @@ es:
         drafts: Borradores
         published: Publicados
         manager: Gestor
+
+
+      new_event_modal:
+        title: "Crear Nuevo Evento"
+        description: "Completa la información para crear un nuevo evento."
+        form:
+          title:
+            label: "Título del Evento"
+            placeholder: "Ingresa el título del evento"
+          cancel: "Cancelar"
+          create: "Crear Evento"
+
+        toast:
+          error:
+            title: "Error Creating Event"
+            description: "There was a problem creating your event. Please try again."
+
+
       title: "Eventos %{tab}"
       subtitle: Tus eventos.
       new_event: Nuevo Evento
@@ -762,6 +781,23 @@ es:
     unpublished: Tu evento no ha sido publicado
     unpublish: Despublicar Evento
     publish: Publicar Evento
+
+
+    purchase_form:
+      title: "Comprar Entradas"
+      subtitle: "Selecciona la cantidad de entradas que deseas comprar"
+      price: "$%{price}"
+      available_tickets: "%{count} disponibles"
+      purchase_button: "Comprar Entradas"
+      processing: "Procesando..."
+      validation:
+        quantity_negative: "La cantidad no puede ser negativa"
+        max_tickets: "Máximo %{count} entradas disponibles"
+      toast:
+        error:
+          title: "Error"
+          load_tickets: "No se pudieron cargar las entradas. Por favor, inténtalo de nuevo."
+          process_purchase: "No se pudo procesar la compra. Por favor, inténtalo de nuevo."
 
   event_hosts:
     listed: Listado en página

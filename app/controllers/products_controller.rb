@@ -16,7 +16,7 @@ class ProductsController < ApplicationController
     @available_brands = Products::GearProduct.distinct.pluck(:brand).compact
     @products = @products.page(params[:page]).per(20) # Assuming you're using Kaminari for pagination
     respond_to do |format| 
-      format.html { render inline: "", layout: "react" }
+      format.html { render_blank }
       format.json { render 'index' }
     end
   end
