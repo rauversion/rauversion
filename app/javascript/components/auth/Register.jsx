@@ -44,23 +44,33 @@ export default function Register() {
   const navigate = useNavigate()
   const { toast } = useToast()
   const { setCurrentUser } = useAuthStore()
-  const { register, handleSubmit, watch, formState: { errors }, trigger } = useForm()
+  const { register, handleSubmit, watch, formState: { errors }, trigger, setValue } = useForm()
   const password = watch('password')
 
   useEffect(() => {
     const fetchCaptchaField = async () => {
       try {
+        const email = watch('email')
         const response = await get('/users/sign_up', {
-          responseKind: 'json'
+          responseKind: 'json',
+          query: email ? { email } : undefined
         })
         const data = await response.json
         setCaptchaField(data.invisible_captcha.field_name)
         setSpinner(data.invisible_captcha.spinner)
+        
+        // Pre-fill username if user exists
+        if (data.user?.username) {
+          setValue('email', data.user.email)
+          setValue('username', data.user.username)
+        }
       } catch (error) {
         console.error('Error fetching captcha field:', error)
       }
     }
-    fetchCaptchaField()
+
+    const timer = setTimeout(fetchCaptchaField, 500) // Debounce for 500ms
+    return () => clearTimeout(timer)
   }, [])
 
   const nextStep = async () => {

@@ -268,6 +268,14 @@ class UsersController < ApplicationController
   end
 
   def check_user_role
-    redirect_to root_url, notice: "The profile you are trying to access is not activated" and return unless @user.is_creator?
+    return if @user.is_creator?
+    respond_to do |format|
+      format.html { 
+        render inline: "", layout: "react", notice: I18n.t("users.not_found") 
+      }
+      format.json { 
+        render json: { error: I18n.t("users.not_found")}, status: :unprocessable_entity
+      }
+    end
   end
 end

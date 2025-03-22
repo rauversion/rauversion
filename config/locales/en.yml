@@ -952,6 +952,7 @@ en:
   users:
     sign_in: Sign in to your account
     register: Register new account
+    not_found: "The profile you are trying to access is not activated"
     or: Or continue with
     follow: Follow
     unfollow: Stop following

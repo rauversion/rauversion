@@ -1035,6 +1035,7 @@ es:
     register: Registrar nueva cuenta
     or: O continuar con
     follow: Seguir
+    not_found: "El perfil al que intentas acceder no está activado"
     unfollow: Dejar de seguir
     following: Siguiendo
     artists: Artistas

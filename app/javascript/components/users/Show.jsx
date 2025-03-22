@@ -23,6 +23,7 @@ export default function UserShow() {
   // const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [menuItems, setMenuItems] = useState([])
+  const [userErrorMessage, setUserErrorMessage] = useState(null)
   const { currentTrackId, isPlaying, play, pause } = useAudioStore()
   const { currentUser } = useAuthStore()
   const { reset: resetArtists, setArtist: setUser, artist: user } = useArtistStore()
@@ -36,6 +37,12 @@ export default function UserShow() {
           const data = await response.json
           setUser(data.user)
           setMenuItems(data.user.menu_items)
+        } else {
+          const data = await response.json
+          if (data.error) {
+            setUser(null)
+            setUserErrorMessage(data.error)
+          }
         }
       } catch (error) {
         console.error(I18n.t('users.show.error_fetching'), error)
@@ -83,7 +90,11 @@ export default function UserShow() {
                 <UserX2 className="h-16 w-16 text-primary" />
               </motion.div>
               <h2 className="text-2xl font-bold mb-2">404</h2>
-              <p className="text-muted-foreground mb-4">{I18n.t('users.show.not_found')}</p>
+              <p className="text-muted-foreground mb-4">
+                {I18n.t('users.show.not_found')}
+                <br/>
+                {userErrorMessage && <span>: {userErrorMessage}</span>}
+              </p>
               <Button 
                 variant="default" 
                 onClick={() => window.history.back()}
