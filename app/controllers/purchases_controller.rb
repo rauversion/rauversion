@@ -12,7 +12,9 @@ class PurchasesController < ApplicationController
       .where(purchasable_type: ["Track", "Album", "Playlist"])
       .order(created_at: :desc).page(params[:page]).per(20)
     when "tickets"
-      @collection = current_user.purchases.includes(:purchased_items).where(purchasable_type: "Event").order(created_at: :desc).page(params[:page]).per(20)
+      @collection = current_user.purchases.includes(:purchased_items)
+      .where(purchasable_type: "Event", state: "paid")
+      .order(created_at: :desc).page(params[:page]).per(20)
     when "products"
       @collection = current_user.product_purchases
       .where.not(status: :pending)
@@ -39,7 +41,7 @@ class PurchasesController < ApplicationController
   end
 
   def tickets
-    @collection = current_user.purchases.includes(:purchased_items).where(purchasable_type: "Event").order(created_at: :desc).page(params[:page]).per(20)
+    @collection = current_user.purchases.includes(:purchased_items).where(purchasable_type: "Event", state: "paid").order(created_at: :desc).page(params[:page]).per(20)
 
     respond_to do |format|
       format.html

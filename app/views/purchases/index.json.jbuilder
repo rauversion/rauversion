@@ -7,6 +7,7 @@ json.collection @collection do |purchase|
   
   json.purchased_items purchase.purchased_items do |item|
     json.id item.id
+    json.signed_id item.signed_id
     json.state item.state
     json.checked_in item.checked_in
     json.checked_in_at item.checked_in_at
@@ -19,6 +20,11 @@ json.collection @collection do |purchase|
       case item.purchased_item
       when EventTicket
         json.description item.purchased_item.short_description
+        json.event do
+          json.id item.purchased_item.event.id
+          json.slug item.purchased_item.event.slug
+          json.title item.purchased_item.event.title
+        end
       else
         json.description item.purchased_item.description if item.purchased_item.respond_to?(:description)
       end

@@ -16,5 +16,10 @@ class EventTicketsController < ApplicationController
     @event = @purchase.purchasable
     @is_manager = @event.user_id == current_user.id || @event.managers.includes?(current_user)
     @purchased_item.toggle_check_in!
+
+    respond_to do |format|
+      format.html { render "update" }
+      format.json { render "show" }
+    end
   end
 end

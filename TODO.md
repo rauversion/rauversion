@@ -1,5 +1,6 @@
 TODO:
 
+  + sign up page
   + digital checkout , set price, validation on price
   + download link
   + disable products when no stripe account setup
@@ -7,6 +8,7 @@ TODO:
   + correos de success pago a account holder y comprador
   + complete downloads
   + ticket event validator
+  + sales: tickets list
 
   + mercado pago
   

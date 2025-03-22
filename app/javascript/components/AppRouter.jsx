@@ -19,6 +19,7 @@ import UserShow from './users/Show'
 import UserTracks from './users/Tracks'
 import EventShow from './events/Show'
 import EventsIndex from './events/Index'
+import EventTicketShow from './event_tickets/EventTicketShow'
 import UserPlaylists from './users/Playlists'
 import UserArticles from './users/Articles'
 import UserReposts from './users/Reposts'
@@ -216,6 +217,7 @@ function AppContent() {
 
           <Route path="/events/:slug/event_purchases/:purchase_id/failure" element={<CheckoutFailure />} />
           <Route path="/events/:slug/event_purchases/:purchase_id/success" element={<CheckoutSuccess />} />
+          <Route path="/events/:slug/event_tickets/:id" element={<EventTicketShow />} />
 
           
           <Route path="/tracks" element={<TracksIndex />} />

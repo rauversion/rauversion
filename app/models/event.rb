@@ -146,6 +146,6 @@ class Event < ApplicationRecord
   end
 
   def has_stripe?
-    self.user.oauth_credentials.where(provider: "stripe_connect").present?
+    self.user.stripe_account_id # oauth_credentials.where(provider: "stripe_connect").present?
   end
 end
