@@ -44,12 +44,12 @@ export const STATUSES = [
 ]
 
 export const MUSIC_FORMATS = [
-  { value: 'vinyl', label: I18n.t('music.index.format.vinyl') },
-  { value: 'cassette', label: I18n.t('music.index.format.cassette') },
-  { value: 'cd', label: I18n.t('music.index.format.cd') },
-  { value: 'blue_ray', label: I18n.t('music.index.format.blue_ray') },
-  { value: 'digital', label: I18n.t('music.index.format.digital') },
-  { value: 'other', label: I18n.t('music.index.format.other') }
+  { value: 'vinyl', label: I18n.t('products.music.formats.vinyl') },
+  { value: 'cassette', label: I18n.t('products.music.formats.cassette') },
+  { value: 'cd', label: I18n.t('products.music.formats.cd') },
+  { value: 'blue_ray', label: I18n.t('products.music.formats.blue_ray') },
+  { value: 'digital', label: I18n.t('products.music.formats.digital') },
+  { value: 'other', label: I18n.t('products.music.formats.other') }
 ]
 
 export const FORMAT_ICONS = {

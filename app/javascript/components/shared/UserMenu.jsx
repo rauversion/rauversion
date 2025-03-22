@@ -405,18 +405,18 @@ export default function UserMenu() {
                 </>
               ) : (
                 <div className="flex items-center">
-                  <Link
-                    to="/users/sign_in"
+                  <a
+                    href="/users/sign_in"
                     className="rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted"
                   >
                     {I18n.t('menu.log_in')}
-                  </Link>
-                  <Link
-                    to="/users/sign_up"
+                  </a>
+                  <a
+                    href="/users/sign_up"
                     className="ml-4 inline-flex items-center justify-center rounded-md border border-transparent bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-brand-700"
                   >
                     {I18n.t('menu.register')}
-                  </Link>
+                  </a>
                 </div>
               )}
             </div>
