@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
-import { CheckCircle2, XCircle, AlertCircle } from "lucide-react"
+import { CheckCircle2, XCircle, AlertCircle, Loader2 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import Select from 'react-select'
 import { get, post } from '@rails/request.js'
@@ -20,6 +20,9 @@ export default function StripeSettings() {
   const [statusData, setStatusData] = useState(null)
   const [showStatus, setShowStatus] = useState(false)
   const [user, setUser] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
+  const [isStatusLoading, setIsStatusLoading] = useState(false)
+  const [isDashboardLoading, setIsDashboardLoading] = useState(false)
 
   React.useEffect(() => {
     const fetchUser = async () => {
@@ -46,6 +49,7 @@ export default function StripeSettings() {
   }
 
   const handleSubmit = async () => {
+    setIsLoading(true)
     if (!selectedCountry?.value) {
       toast({
         title: "Error",
@@ -70,10 +74,12 @@ export default function StripeSettings() {
         variant: "destructive"
       })
     }
+    setIsLoading(false)
     setIsOpen(false)
   }
 
   const openStripePanel = async () => {
+    setIsDashboardLoading(true)
     try {
       const response = await get('/stripe_connect.json')
       const data = await response.json
@@ -87,6 +93,7 @@ export default function StripeSettings() {
         variant: "destructive"
       })
     }
+    setIsDashboardLoading(false)
   }
 
   return (
@@ -101,7 +108,7 @@ export default function StripeSettings() {
         <CardContent className="space-y-4">
           {
             !user.stripe_account_id && (
-              <Button onClick={handleStripeConnect} className="w-full">
+              <Button onClick={handleStripeConnect} className="w-full" disabled={isLoading}>
                 Connect with Stripe
               </Button>
             )
@@ -110,11 +117,24 @@ export default function StripeSettings() {
           {
             user.stripe_account_id && (
             <>
-              <Button onClick={openStripePanel} variant="outline" className="w-full mb-2">
-                Open Stripe Dashboard
+              <Button 
+                onClick={openStripePanel} 
+                variant="outline" 
+                className="w-full mb-2"
+                disabled={isDashboardLoading}
+              >
+                {isDashboardLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Opening Dashboard...
+                  </>
+                ) : (
+                  'Open Stripe Dashboard'
+                )}
               </Button>
               <Button 
                 onClick={async () => {
+                  setIsStatusLoading(true)
                   try {
                     const response = await get('/stripe_connect/status')
                     const data = await response.json
@@ -124,11 +144,20 @@ export default function StripeSettings() {
                     setStatusData({ error: error.message || "Failed to fetch account status" })
                     setShowStatus(true)
                   }
+                  setIsStatusLoading(false)
                 }}
                 variant="outline" 
                 className="w-full"
+                disabled={isStatusLoading}
               >
-                Check Account Status
+                {isStatusLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Checking Status...
+                  </>
+                ) : (
+                  'Check Account Status'
+                )}
               </Button>
             </>
           )}
@@ -161,8 +190,15 @@ export default function StripeSettings() {
             <Button variant="outline" onClick={() => setIsOpen(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSubmit}>
-              Continue
+            <Button onClick={handleSubmit} disabled={isLoading}>
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Connecting...
+                </>
+              ) : (
+                'Continue'
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

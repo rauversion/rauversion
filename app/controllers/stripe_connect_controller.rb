@@ -1,7 +1,7 @@
 class StripeConnectController < ApplicationController
   before_action :authenticate_user!
 
-  def new
+  def show
     begin
       if current_user.stripe_account_id.present?
         account_link = Stripe::AccountLink.create({
