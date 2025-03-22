@@ -8,13 +8,13 @@ class UserSettingsController < ApplicationController
     if @user.podcaster_info.blank? && params[:section] == "podcast"
       @user.build_podcaster_info
     end
-    render "index"
+    render_blank
   end
 
   def index
     @section = params[:section] || "profile"
     respond_to do |format|
-      format.html
+      format.html { render_blank }
       format.json
     end
   end

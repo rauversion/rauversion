@@ -83,30 +83,32 @@ export default function IntegrationsSettings() {
       connectUrl: "/users/auth/twitch",
       disconnectUrl: "/users/auth/twitch/disconnect",
     },
-    {
-      name: I18n.t('user_settings.integrations.providers.stripe.name'),
-      description: I18n.t('user_settings.integrations.providers.stripe.description'),
-      icon: Icons.stripe,
-      provider: "stripe_connect",
-      connected: findCredential("stripe_connect"),
-      connectUrl: "/stripe_connect",
-      disconnectUrl: "/users/auth/stripe_connect/disconnect",
-    },
-    {
-      name: I18n.t('user_settings.integrations.providers.mercado_pago.name'),
-      description: I18n.t('user_settings.integrations.providers.mercado_pago.description'),
-      icon: Icons.stripe,
-      provider: "mercado_pago",
-      connected: findCredential("mercado_pago"),
-      connectUrl: "/users/auth/mercado_pago",
-      disconnectUrl: "/users/auth/mercado_pago/disconnect",
-    },
+    // {
+    //   name: I18n.t('user_settings.integrations.providers.stripe.name'),
+    //   description: I18n.t('user_settings.integrations.providers.stripe.description'),
+    //   icon: Icons.stripe,
+    //   provider: "stripe_connect",
+    //   connected: user.stripe_account_id,
+    //   connectUrl: "/stripe_connect",
+    //   disconnectUrl: "/users/auth/stripe_connect/disconnect",
+    // },
+    //{
+    //  name: I18n.t('user_settings.integrations.providers.mercado_pago.name'),
+    //  description: I18n.t('user_settings.integrations.providers.mercado_pago.description'),
+    //  icon: Icons.stripe,
+    //  provider: "mercado_pago",
+    //  connected: findCredential("mercado_pago"),
+    //  connectUrl: "/users/auth/mercado_pago",
+    //  disconnectUrl: "/users/auth/mercado_pago/disconnect",
+    //},
   ]
 
   
   return (
     <div className="space-y-8">
       {/* Hidden form for POST requests */}
+
+      {user.stripe_account_id}
       <form ref={formRef} method="post" className="hidden">
         <input
           type="hidden"

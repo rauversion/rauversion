@@ -1,18 +1,55 @@
 class StripeConnectController < ApplicationController
   before_action :authenticate_user!
 
+  def show
+    begin
+      if current_user.stripe_account_id.present?
+        login_link = Stripe::LoginLink.create({
+          account: current_user.stripe_account_id,
+          redirect_url: stripe_connect_return_url,
+        })
+        render json: { url: login_link.url }
+      else
+        render json: { error: "No Stripe account connected" }, status: :unprocessable_entity
+      end
+    rescue Stripe::StripeError => e
+      render json: { error: e.message }, status: :unprocessable_entity
+    end
+  end
+
+  def new
+    begin
+      if current_user.stripe_account_id.present?
+        account_link = Stripe::AccountLink.create({
+          account: current_user.stripe_account_id,
+          refresh_url: reauth_stripe_connect_url,
+          return_url: return_stripe_connect_url,
+          type: 'account_onboarding',
+        })
+        render json: { url: account_link.url }
+      else
+        render json: { url: stripe_connect_path }, status: :ok
+      end
+    rescue Stripe::StripeError => e
+      render json: { error: e.message }, status: :unprocessable_entity
+    end
+  end
+
   def create
     begin
+      country = params[:country]
+      unless country.present?
+        render json: { error: "Country is required" }, status: :unprocessable_entity
+        return
+      end
+
       account = Stripe::Account.create({
-        country: 'CL',
+        country: country,
         type: 'express',
         capabilities: {
-          # card_payments: { requested: true },
           transfers: { requested: true },
         },
         tos_acceptance: {service_agreement: 'recipient'},
-        #business_type: 'individual',
-        #business_profile: { url: 'https://rauversion.com' },
       })
 
       #Stripe::Account.create({
@@ -46,10 +83,9 @@ class StripeConnectController < ApplicationController
       # Store the account ID in the user's record for future reference
       current_user.update(stripe_account_id: account.id)
 
-      redirect_to account_link.url, allow_other_host: true
+      render json: { url: account_link.url }
     rescue Stripe::StripeError => e
-      flash[:error] = "An error occurred: #{e.message}"
-      redirect_to root_path
+      render json: { error: e.message }, status: :unprocessable_entity
     end
   end
 
@@ -78,5 +114,23 @@ class StripeConnectController < ApplicationController
     # Handle successful return from Stripe onboarding
     flash[:success] = "Your Stripe account has been connected successfully!"
     redirect_to root_path
+  end
+
+  def status
+    begin
+      if current_user.stripe_account_id.present?
+        account = Stripe::Account.retrieve(current_user.stripe_account_id)
+        render json: {
+          charges_enabled: account.charges_enabled,
+          payouts_enabled: account.payouts_enabled,
+          details_submitted: account.details_submitted,
+          requirements: account.requirements
+        }
+      else
+        render json: { error: "No Stripe account connected" }, status: :unprocessable_entity
+      end
+    rescue Stripe::StripeError => e
+      render json: { error: e.message }, status: :unprocessable_entity
+    end
   end
 end

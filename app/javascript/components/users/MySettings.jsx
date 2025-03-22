@@ -11,7 +11,8 @@ import { get, patch } from "@rails/request.js"
 import { useToast } from "@/hooks/use-toast"
 import { 
   User, Mail, Bell, Link as LinkIcon, Podcast, 
-  CreditCard, Users, Settings2, ChevronRight 
+  CreditCard, Users, Settings2, ChevronRight,
+  Wallet 
 } from 'lucide-react'
 import { cn } from "@/lib/utils"
 
@@ -21,6 +22,7 @@ const menuIcons = {
   notifications: Bell,
   social_links: LinkIcon,
   podcast: Podcast,
+  stripe: Wallet,
   transbank: CreditCard,
   invitations: Users,
   integrations: Settings2
@@ -55,6 +57,7 @@ export default function MySettings() {
             <CardContent className="p-4">
               <nav className="space-y-1">
                 {menuItems.map((item) => {
+                  if(item.hidden) return null
                   const Icon = menuIcons[item.namespace] || Settings2
                   const isActive = currentSection === item.namespace || 
                                  (currentSection === "settings" && item.namespace === "profile")

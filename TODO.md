@@ -7,8 +7,8 @@ TODO:
   + seleccionar pais antes de configure stripe connect link
   + correos de success pago a account holder y comprador
   + complete downloads
-  + ticket event validator
-  + sales: tickets list
+  + OK ticket event validator
+  + OK sales: tickets list
 
   + mercado pago
   

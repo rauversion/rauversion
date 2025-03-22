@@ -8,6 +8,7 @@ json.user do
   json.country @user.country
   json.city @user.city
   json.email @user.email
+  json.stripe_account_id @user.stripe_account_id
   json.avatar_url do
     json.small @user.avatar_url(:small)
     json.medium @user.avatar_url(:medium)
@@ -78,6 +79,8 @@ end
 
 json.section @section
 
+is_creator = current_user.is_creator?
+
 json.menu_items [
   {
     to: "/settings",
@@ -95,7 +98,8 @@ json.menu_items [
     to: "/settings/podcast",
     namespace: "podcast",
     title: I18n.t("user_settings.podcaster_info"),
-    sub: I18n.t("user_settings.sub_podcasts")
+    sub: I18n.t("user_settings.sub_podcasts"),
+    hidden: !is_creator
   },
   {
     to: "/settings/security",
@@ -107,30 +111,41 @@ json.menu_items [
     to: "/settings/notifications",
     namespace: "notifications",
     title: I18n.t("user_settings.title_notifications"),
-    sub: I18n.t("user_settings.sub_notifications")
+    sub: I18n.t("user_settings.sub_notifications"),
+    hidden: !is_creator
   },
   {
     to: "/settings/social_links",
     namespace: "social_links",
     title: I18n.t("user_settings.title_social_links"),
-    sub: I18n.t("user_settings.sub_social_links")
+    sub: I18n.t("user_settings.sub_social_links"),
+    hidden: !is_creator
   },
   {
     to: "/settings/integrations",
     namespace: "integrations",
     title: I18n.t("user_settings.title_integrations"),
-    sub: I18n.t("user_settings.sub_integrations")
+    sub: I18n.t("user_settings.sub_integrations"),
+    hidden: !is_creator
   },
   {
-    to: "/settings/transbank",
-    namespace: "transbank",
-    title: I18n.t("user_settings.title_transbank"),
-    sub: I18n.t("user_settings.sub_transbank")
+    to: "/settings/stripe",
+    namespace: "stripe",
+    title: "Stripe Settings",
+    sub: "Connect your Stripe account to receive payments",
+    hidden: !is_creator
   },
+  #{
+  #  to: "/settings/transbank",
+  #  namespace: "transbank",
+  #  title: I18n.t("user_settings.title_transbank"),
+  #  sub: I18n.t("user_settings.sub_transbank")
+  #},
   {
     to: "/settings/invitations",
     namespace: "invitations",
     title: I18n.t("user_settings.title_invitations"),
-    sub: I18n.t("user_settings.sub_invitations")
+    sub: I18n.t("user_settings.sub_invitations"),
+    hidden: !is_creator
   }
 ]

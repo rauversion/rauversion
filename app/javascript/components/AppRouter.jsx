@@ -62,6 +62,7 @@ import NotificationSettings from "./users/settings/NotificationSettings"
 import SocialLinksSettings from "./users/settings/SocialLinksSettings"
 import PodcastSettings from "./users/settings/PodcastSettings"
 import IntegrationsSettings from "./users/settings/IntegrationsSettings"
+import StripeSettings from "./users/settings/StripeSettings"
 import TransbankSettings from "./users/settings/TransbankSettings"
 import InvitationsSettings from "./users/settings/InvitationsSettings"
 import SecuritySettings from "./users/settings/SecuritySettings"
@@ -256,6 +257,7 @@ function AppContent() {
             <Route path="social_links" element={<SocialLinksSettings />} />
             <Route path="podcast" element={<PodcastSettings />} />
             <Route path="integrations" element={<IntegrationsSettings />} />
+            <Route path="stripe" element={<StripeSettings />} />
             <Route path="transbank" element={<TransbankSettings />} />
             <Route path="invitations" element={<InvitationsSettings />} />
             <Route path="security" element={<SecuritySettings />} />
