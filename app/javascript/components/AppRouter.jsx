@@ -213,6 +213,10 @@ function AppContent() {
             <Route path="recordings" element={<Recordings />} />
             <Route path="settings" element={<Settings />} />
           </Route>
+
+          <Route path="/events/:slug/event_purchases/:purchase_id/failure" element={<CheckoutFailure />} />
+          <Route path="/events/:slug/event_purchases/:purchase_id/success" element={<CheckoutSuccess />} />
+
           
           <Route path="/tracks" element={<TracksIndex />} />
           <Route path="/tracks/new" element={<NewTrack />} />

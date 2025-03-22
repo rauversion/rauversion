@@ -80,7 +80,8 @@ class Purchase < ApplicationRecord
   end
 
   def complete_purchase!
-    update(state: "paid")
+    self.state = "paid"
+    self.save
     purchased_items.update_all(state: "paid")
   end
 

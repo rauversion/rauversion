@@ -5,6 +5,8 @@ TODO:
   + disable products when no stripe account setup
   + seleccionar pais antes de configure stripe connect link
   + correos de success pago a account holder y comprador
+  + complete downloads
+  + ticket event validator
 
   + mercado pago
   

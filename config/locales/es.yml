@@ -790,6 +790,7 @@ es:
       available_tickets: "%{count} disponibles"
       purchase_button: "Comprar Entradas"
       processing: "Procesando..."
+      quantity_label: "Cantidad de entradas"
       validation:
         quantity_negative: "La cantidad no puede ser negativa"
         max_tickets: "Máximo %{count} entradas disponibles"

@@ -43,14 +43,16 @@ const getStatusBadge = (status) => {
       return (
         <Badge variant="success" className="gap-1">
           <CheckCircle2 className="w-3 h-3" />
-          {I18n.t('events.my_events.status.published')}
+          {status}
+          {/*I18n.t('events.my_events.status.published')*/}
         </Badge>
       )
     case 'draft':
       return (
         <Badge variant="secondary" className="gap-1">
           <Clock className="w-3 h-3" />
-          {I18n.t('events.my_events.status.draft')}
+          {status}
+          {/*I18n.t('events.my_events.status.draft')*/}
         </Badge>
       )
     default:

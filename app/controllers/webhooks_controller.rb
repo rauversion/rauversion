@@ -95,17 +95,21 @@ class WebhooksController < ApplicationController
   end
 
   def confirm_stripe_purchase(event_object)
+    
     if event_object&.metadata&.source_type == "product"
       handle_product_purchase(event_object&.metadata)
     elsif event_object&.metadata&.source_type == "track"
       handle_track_purchase(event_object&.metadata)
     elsif event_object&.metadata&.source_type == "playlist"
       handle_playlist_purchase(event_object&.metadata)
-    else
+    elsif event_object&.metadata&.source_type == "event"
       purchase = Purchase.find_by(checkout_type: "stripe", checkout_id: event_object.id)
       if purchase.present?
+        purchase.price = amount_total
         purchase.complete_purchase!
       end
+    else
+      raise "no type for #{event_object.id}"
     end
   end
 

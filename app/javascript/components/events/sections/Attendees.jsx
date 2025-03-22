@@ -37,10 +37,11 @@ import {Badge} from "@/components/ui/badge"
 
 const searchSchema = z.object({
   query: z.string(),
-  status: z.enum(["all", "attending", "cancelled", "pending"]).default("all"),
+  status: z.enum(["all", "attending", "cancelled", "pending", 'paid']).default("all"),
 })
 
 const attendeeStatuses = {
+  paid: { label: I18n.t('events.edit.attendees.status.attending'), color: "bg-green-500" },
   attending: { label: I18n.t('events.edit.attendees.status.attending'), color: "bg-green-500" },
   cancelled: { label: I18n.t('events.edit.attendees.status.cancelled'), color: "bg-red-500" },
   pending: { label: I18n.t('events.edit.attendees.status.pending'), color: "bg-yellow-500" },

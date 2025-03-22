@@ -1,11 +1,12 @@
 import React from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { Loader2 } from "lucide-react"
 import { formatDistance } from "date-fns"
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll"
-import { Loader2 } from "lucide-react"
+import TicketPurchases from "./TicketPurchases"
 
 function PurchaseItem({ purchase }) {
   return (
@@ -110,21 +111,11 @@ export default function MyPurchases() {
         </TabsContent>
 
         <TabsContent value="tickets">
-          <ScrollArea className="h-[600px] rounded-md border p-4">
-            <div className="space-y-4">
-              {purchases.map((purchase, idx) => (
-                <div key={purchase.id} ref={idx === purchases.length - 1 ? lastElementRef : null}>
-                  <PurchaseItem purchase={purchase} />
-                  {idx < purchases.length - 1 && <hr className="my-4 border-t" />}
-                </div>
-              ))}
-              {loading && (
-                <div className="flex justify-center p-4">
-                  <Loader2 className="h-6 w-6 animate-spin" />
-                </div>
-              )}
-            </div>
-          </ScrollArea>
+          <TicketPurchases 
+            purchases={purchases}
+            loading={loading}
+            lastElementRef={lastElementRef}
+          />
         </TabsContent>
 
         <TabsContent value="products">
