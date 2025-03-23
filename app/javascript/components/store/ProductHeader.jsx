@@ -51,8 +51,7 @@ const ProductHeader = () => {
 
             <div>
               <h1 className="text-5xl font-bold mb-2">
-                sonido redefinido, conecta
-                
+                Mercado Rauversion, conecta
                 {" "}
                 <span className="text-gray-400">
                 con nuestro marketplace musical

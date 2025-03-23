@@ -13,7 +13,7 @@ import ServiceCategories from "./ServiceCategories"
 import MarketplaceHeader from "./MarketplaceHeader"
 import ProductHeader from "./ProductHeader"
 import GearSection from "./GearSection"
-import EcoFriendlySection from "./EcoFriendlySection"
+import MusicSection from "./MusicSection"
 
 const container = {
   hidden: { opacity: 0 },
@@ -172,7 +172,7 @@ const StoreIndex = () => {
 
       <ServiceCategories />
 
-      <EcoFriendlySection />
+      <MusicSection />
       
       <GearSection />
       

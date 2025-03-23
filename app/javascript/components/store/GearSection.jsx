@@ -3,6 +3,15 @@ import { motion } from "framer-motion"
 import { Button } from "../ui/button"
 import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
 import { useInfiniteScroll } from "../../hooks/useInfiniteScroll"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "../ui/card"
+import { Badge } from "../ui/badge"
 
 
 const GearSection = () => {
@@ -36,63 +45,70 @@ const GearSection = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {products.map((product) => (
             <motion.div
               key={product.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-default aspect-square relative group cursor-pointer overflow-hidden"
+              className="group cursor-pointer"
             >
-              <div className="absolute inset-0 bg-default flex items-center justify-center">
-                <img
-                  src={product.cover_url?.large}
-                  alt={product.title}
-                  className="w-4/5- h-4/5- object-contain transition-transform duration-500 group-hover:scale-105"
-                />
-              </div>
-
-              {/* Content Overlay */}
-              <div className="absolute inset-0 p-6 flex flex-col">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h3 className="text-lg font-medium mb-0.5">{product.name}</h3>
-                    <p className="text-sm opacity-70 mb-1">{product.description}</p>
-                    <p className="text-base">{product.price}</p>
+              <Card className="overflow-hidden border-none shadow-lg hover:shadow-xl transition-shadow duration-300">
+                <div className="relative aspect-square">
+                  <div className="absolute inset-0 bg-default flex items-center justify-center overflow-hidden">
+                    <img
+                      src={product.cover_url?.large}
+                      alt={product.title}
+                      className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
+                    />
                   </div>
+                  
                   {product.variants && (
-                    <div className="bg-default/90 backdrop-blur-sm rounded-full px-2 py-0.5 text-sm">
-                      +{product.variants}
-                    </div>
+                    <Badge variant="secondary" className="absolute top-4 right-4 backdrop-blur-sm">
+                      +{product.variants} variantes
+                    </Badge>
                   )}
-                </div>
 
-                <div className="mt-auto flex justify-between items-center">
-                  <div className="text-sm font-light tracking-wider">
-                    {activeImage + 1}/{totalPages}
-                  </div>
-                  <div className="flex gap-0.5">
-                    <button 
+                  <div className="absolute bottom-4 right-4 flex gap-2">
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                       onClick={(e) => {
                         e.stopPropagation()
                         prevImage()
                       }}
-                      className="w-6 h-6 rounded-full bg-default/90 backdrop-blur-sm flex items-center justify-center hover:bg-default transition-colors"
                     >
-                      <ChevronLeft className="w-4 h-4" />
-                    </button>
-                    <button 
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="secondary"
+                      size="icon"
+                      className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                       onClick={(e) => {
                         e.stopPropagation()
                         nextImage()
                       }}
-                      className="w-6 h-6 rounded-full bg-default/90 backdrop-blur-sm flex items-center justify-center hover:bg-default transition-colors"
                     >
-                      <ChevronRight className="w-4 h-4" />
-                    </button>
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
-              </div>
+
+                <CardHeader className="space-y-1 p-4">
+                  <CardTitle className="text-xl">{product.name}</CardTitle>
+                  <CardDescription className="text-sm line-clamp-2">
+                    {product.description}
+                  </CardDescription>
+                </CardHeader>
+
+                <CardFooter className="p-4 pt-0 flex justify-between items-center">
+                  <span className="text-lg font-semibold">{product.price}</span>
+                  <span className="text-sm text-muted-foreground">
+                    {activeImage + 1}/{totalPages}
+                  </span>
+                </CardFooter>
+              </Card>
             </motion.div>
           ))}
         </div>
