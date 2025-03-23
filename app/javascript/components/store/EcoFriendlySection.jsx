@@ -11,7 +11,7 @@ const EcoFriendlySection = () => {
     items: products, 
     loading, 
     lastElementRef 
-  } = useInfiniteScroll("/store/services.json")
+  } = useInfiniteScroll("/store/music.json")
 
   return (
     <div className="bg-default py-24">
