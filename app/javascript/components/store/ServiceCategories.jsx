@@ -3,7 +3,7 @@ import { motion } from "framer-motion"
 import { Card } from "../ui/card"
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "../ui/button"
-
+import { Link } from 'react-router-dom'
 const container = {
   hidden: { opacity: 0 },
   show: {
@@ -87,6 +87,7 @@ const ServiceCategories = () => {
               style={{ scrollSnapAlign: 'start' }}
             >
 
+            <Link to={`/${service.user.username}/products/${service.id}`}>
               <Card className={`overflow-hidden h-full group cursor-pointer relative ${CARD_COLORS[service.category]}`}>
                 <div className="p-6">
                   <div className="flex items-center gap-2 mb-6">
@@ -106,10 +107,11 @@ const ServiceCategories = () => {
                     {/*service.description*/}
                   </p>
 
-                  <button className="bg-black/10 backdrop-blur-sm text-black px-4 py-2 rounded-full flex items-center gap-2 hover:bg-black/20 transition-colors">
+                  <Button 
+                    className="bg-black/10 backdrop-blur-sm text-black px-4 py-2 rounded-full flex items-center gap-2 hover:bg-black/20 transition-colors">
                     Read More
                     <ArrowRight size={16} />
-                  </button>
+                  </Button>
                 </div>
 
                 <div className="mt-4">
@@ -120,6 +122,7 @@ const ServiceCategories = () => {
                   />
                 </div>
               </Card>
+            </Link>
             </motion.div>
           ))}
         </div>
