@@ -19,48 +19,8 @@ import { Textarea } from '@/components/ui/textarea'
 import { Plus } from 'lucide-react'
 import useConversationStore from '../../stores/conversationStore'
 import I18n from '@/stores/locales'
+import { selectStyles } from "@/components/ui/selectTheme"
 
-const selectStyles = {
-  control: (base) => ({
-    ...base,
-    backgroundColor: 'hsl(var(--background))',
-    borderColor: 'hsl(var(--border))',
-    '&:hover': {
-      borderColor: 'hsl(var(--border))'
-    }
-  }),
-  menu: (base) => ({
-    ...base,
-    backgroundColor: 'hsl(var(--background))',
-    borderColor: 'hsl(var(--border))'
-  }),
-  option: (base, state) => ({
-    ...base,
-    backgroundColor: state.isFocused ? 'hsl(var(--accent))' : 'transparent',
-    color: state.isFocused ? 'hsl(var(--accent-foreground))' : 'inherit',
-    '&:hover': {
-      backgroundColor: 'hsl(var(--accent))',
-      color: 'hsl(var(--accent-foreground))'
-    }
-  }),
-  multiValue: (base) => ({
-    ...base,
-    backgroundColor: 'hsl(var(--accent))',
-    color: 'hsl(var(--accent-foreground))'
-  }),
-  multiValueLabel: (base) => ({
-    ...base,
-    color: 'hsl(var(--accent-foreground))'
-  }),
-  multiValueRemove: (base) => ({
-    ...base,
-    color: 'hsl(var(--accent-foreground))',
-    '&:hover': {
-      backgroundColor: 'hsl(var(--destructive))',
-      color: 'hsl(var(--destructive-foreground))'
-    }
-  })
-}
 
 const NewConversation = () => {
   const { toast } = useToast()

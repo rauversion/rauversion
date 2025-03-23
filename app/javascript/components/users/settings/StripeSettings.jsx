@@ -10,6 +10,7 @@ import { get, post } from '@rails/request.js'
 import { useParams } from 'react-router-dom'
 import { useToast } from "hooks/use-toast"
 import { STRIPE_CONNECT_COUNTRIES } from "@/components/products/shared/constants"
+import { selectStyles } from "@/components/ui/selectTheme"
 
 
 export default function StripeSettings() {
@@ -176,13 +177,16 @@ export default function StripeSettings() {
             <Select
               id="country"
               instanceId="country-select"
+              styles={selectStyles}
               placeholder="Select a country"
               options={STRIPE_CONNECT_COUNTRIES.map(country => ({
-                value: country.code,
+                value: country.iso,
                 label: country.name
               }))}
               value={selectedCountry}
               onChange={setSelectedCountry}
+              isMulti={false}
+              isClearable={true}
               className="mt-2"
             />
           </div>
