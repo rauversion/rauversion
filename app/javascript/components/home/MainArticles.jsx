@@ -9,6 +9,31 @@ export default function MainArticles({ posts }) {
   const mainPost = posts[1]
   const sidePosts = posts.slice(2, 5)
 
+  function truncateText(text, maxLength, addEllipsis = true, cutAtWord = true) {
+    // Return original text if it's already shorter than maxLength
+    if (!text || text.length <= maxLength) {
+      return text;
+    }
+    
+    let truncated = text.substring(0, maxLength);
+    
+    // If cutting at word boundaries is enabled
+    if (cutAtWord) {
+      // Find the last space within the truncated text
+      const lastSpaceIndex = truncated.lastIndexOf(' ');
+      if (lastSpaceIndex !== -1) {
+        truncated = truncated.substring(0, lastSpaceIndex);
+      }
+    }
+    
+    // Add ellipsis if enabled
+    if (addEllipsis) {
+      truncated += '...';
+    }
+    
+    return truncated;
+  }
+
   return (
     <section className="px-4 sm:px-8 py-12 md:py-24">
       <div className="max-w-6xl mx-auto">
@@ -61,7 +86,7 @@ export default function MainArticles({ posts }) {
                         {mainPost.title}
                       </h2>
                       <p className="hidden sm:block text-default mb-4">
-                        {mainPost.excerpt}
+                        {truncateText(mainPost.excerpt, 150)}
                       </p>
                       <div className="flex items-center gap-3">
                         <img 
