@@ -189,6 +189,7 @@ es:
         shipping_cost: "Costo de envío"
         accepts_barter: "Acepta Trueque"
         barter: "Trueque"
+        barter_available: "Trueque Disponible"
       new:
         title: "Nuevo Equipamiento Musical"
       form:

@@ -69,7 +69,7 @@ export default function UserShow() {
     return <ProfileSkeleton />
   }
 
-  if (!user) {
+  if (!user && !loading && userErrorMessage) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-default">
         <motion.div
@@ -106,6 +106,10 @@ export default function UserShow() {
         </motion.div>
       </div>
     )
+  }
+
+  if (!user) {
+    return null
   }
 
   return (

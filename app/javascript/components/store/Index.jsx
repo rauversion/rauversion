@@ -9,6 +9,11 @@ import { Skeleton } from "../ui/skeleton"
 import { useNavigate, useLocation } from "react-router-dom"
 import CategoryCarousel from "./CategoryCarousel"
 import CategoryGrid from "./CategoryGrid"
+import ServiceCategories from "./ServiceCategories"
+import MarketplaceHeader from "./MarketplaceHeader"
+import ProductHeader from "./ProductHeader"
+import GearSection from "./GearSection"
+import EcoFriendlySection from "./EcoFriendlySection"
 
 const container = {
   hidden: { opacity: 0 },
@@ -116,6 +121,8 @@ const StoreIndex = () => {
   const location = useLocation()
   const currentCategory = CATEGORIES.find(cat => cat.path === location.pathname) || CATEGORIES[0]
   
+
+  /*
   const [categoryProducts, setCategoryProducts] = useState({})
   const [loadingCategories, setLoadingCategories] = useState(true)
 
@@ -155,75 +162,41 @@ const StoreIndex = () => {
     fetchCategoryProducts()
   }, [])
 
-  const handleTabChange = (value) => {
-    const category = CATEGORIES.find(cat => cat.id === value)
-    navigate(category.path)
-  }
+  */
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <CategoryGrid />
+      {/*<MarketplaceHeader />*/}
+      
+      <ProductHeader />
 
-      <div className="mb-16 mt-20">
-        {CATEGORIES.slice(1).map(category => (
-          <CategoryCarousel
-            key={category.id}
-            title={category.name}
-            products={categoryProducts[category.id]}
-            loading={loadingCategories}
-          />
-        ))}
-      </div>
+      <ServiceCategories />
 
+      <EcoFriendlySection />
+      
+      <GearSection />
+      
       {
-      /*
+        /* 
+        <CategoryGrid />
+        */ 
+      }
       
-      <Tabs 
-        value={currentCategory.id} 
-        onValueChange={handleTabChange}
-        className="w-full"
-      >
-        <TabsList className="w-full justify-center mb-8">
-          {CATEGORIES.map(category => (
-            <TabsTrigger 
-              key={category.id} 
-              value={category.id}
-              className="text-lg px-6"
-            >
-              {category.name}
-            </TabsTrigger>
-          ))}
-        </TabsList>
-
-        <div className="h-[calc(100vh-300px)] overflow-y-auto p-4">
-          <motion.div 
-            variants={container}
-            initial="hidden"
-            animate="show"
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
-          >
-            {loading && products.length === 0 ? (
-              Array(8).fill().map((_, i) => (
-                <LoadingSkeleton key={i} />
-              ))
-            ) : (
-              products.map((product, index) => (
-                <div key={product.id} ref={index === products.length - 1 ? lastElementRef : null}>
-                  <ProductCard product={product} />
-                </div>
-              ))
-            )}
-          </motion.div>
-
-          {!loading && products.length === 0 && (
-            <p className="text-center text-gray-500 mt-8">
-              No products found in this category
-            </p>
-          )}
-        </div>
-      </Tabs>      
-      */
-      
+      {
+        /*
+        
+          <div className="mb-16 mt-20">
+            {CATEGORIES.slice(1).map(category => (
+              <CategoryCarousel
+                key={category.id}
+                title={category.name}
+                products={categoryProducts[category.id]}
+                loading={loadingCategories}
+              />
+            ))}
+          </div>
+            
+        */
       }
 
     </div>
