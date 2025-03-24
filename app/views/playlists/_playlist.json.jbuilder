@@ -9,6 +9,16 @@ json.editor_choice_position playlist.editor_choice_position if defined?(show_det
 json.created_at playlist.created_at if defined?(show_details) && show_details
 json.updated_at playlist.updated_at if defined?(show_details) && show_details
 
+unless playlist.price.nil?
+  json.formatted_price number_to_currency(playlist.price)
+  json.price playlist.price 
+end
+json.name_your_price playlist.name_your_price
+
+
+json.mp3_audio_url url_for(playlist.tracks.first.mp3_audio) if playlist.tracks.first&.mp3_audio&.attached?
+json.url playlist_path(playlist)
+
 json.cover_url do
   if playlist.cover.attached?
     json.small playlist.cover_url(:small)
@@ -24,8 +34,9 @@ end
 json.tracks_count playlist.tracks.size if defined?(show_tracks_count) && show_tracks_count
 
 if defined?(show_tracks) && show_tracks
-  json.tracks playlist.tracks do |track|
-    json.partial! 'tracks/minimal_track', track: track
+  json.tracks playlist.track_playlists.by_position do |track_playlist|
+    track = track_playlist.track
+    json.partial! 'tracks/track', track: track
   end
 end
 

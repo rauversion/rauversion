@@ -27,9 +27,9 @@ export default function MusicPurchase({ resource, type, variant = 'default' }) {
 
   const getPriceDisplay = () => {
     if (resource?.name_your_price) {
-      return resource.price ? `${resource.price} ${I18n.t('shared.music_purchase.price.or_more')}` : I18n.t('shared.music_purchase.price.name_your_price')
+      return resource.price ? `${resource.formatted_price} ${I18n.t('shared.music_purchase.price.or_more')}` : I18n.t('shared.music_purchase.price.name_your_price')
     }
-    return resource.price ? `${resource.price} ${I18n.t('shared.music_purchase.price.currency')}` : ''
+    return resource.price ? `${resource.formatted_price} ${I18n.t('shared.music_purchase.price.currency')}` : ''
   }
 
   const renderPurchaseButton = () => {

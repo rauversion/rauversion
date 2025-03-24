@@ -20,7 +20,7 @@ json.track do
   json.buy_link @track.buy_link
   json.price @track.price
   json.name_your_price @track.name_your_price
-  json.formated_price number_to_currency(@track.price)
+  json.formatted_price number_to_currency(@track.price)
 
   json.user do
     json.partial! 'users/user', user: @track.user, show_full_name: true, show_bio: true

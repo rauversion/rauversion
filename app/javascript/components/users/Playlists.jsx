@@ -72,7 +72,7 @@ export default function UserPlaylists({ namespace = 'playlists' }) {
                   <div className="flex flex-col">
                     <div className="space-y-2 flex flex-col">
                       <div className="flex justify-between">
-                        <h3 className="flex items-center space-x-2 mt-3- text-xl font-extrabold tracking-tight text-gray-200">
+                        <h3 className="flex items-center space-x-2 mt-3- text-xl font-extrabold tracking-tight text-default">
                           <Link to={`/playlists/${playlist.slug}`}>
                             {playlist.title}
                           </Link>
@@ -188,13 +188,13 @@ export default function UserPlaylists({ namespace = 'playlists' }) {
                   <div className="flex flex-col">
                     <div className="space-y-2 flex flex-col">
                       <div className="flex justify-between">
-                        <h3 className="flex items-center space-x-2 mt-3- text-xl font-extrabold tracking-tight text-gray-200">
+                        <h3 className="flex items-center space-x-2 mt-3- text-xl font-extrabold tracking-tight text-default">
                           <Link to={`/playlists/${playlist.slug}`}>
                             {playlist.title}
                           </Link>
 
                           {playlist.playlist_type === 'album' && playlist.release_date && (
-                            <span className="text-xs text-gray-400 font-thin">
+                            <span className="text-xs text-muted font-thin">
                               Album {new Date(playlist.release_date).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}
                             </span>
                           )}
