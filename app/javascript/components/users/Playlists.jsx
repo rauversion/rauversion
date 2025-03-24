@@ -1,11 +1,148 @@
-import React, { useEffect, useState, useRef, useCallback } from 'react'
+import React from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { get } from '@rails/request.js'
 import useAudioStore from '../../stores/audioStore'
-import { Play, Pause } from 'lucide-react'
+import { Play, Pause, Lock } from 'lucide-react'
 import MusicPurchase from '../shared/MusicPurchase'
 import { useInfiniteScroll } from '../../hooks/useInfiniteScroll'
 import PlaylistListItem from './PlaylistItem'
+import { motion } from 'framer-motion'
+import { cn } from "@/lib/utils"
+
+function PlaylistCard({ playlist, index, isLast, lastElementRef, currentTrackId, isPlaying, handlePlayTrack, handlePlayPlaylist }) {
+  const cardRef = isLast ? lastElementRef : null
+
+  return (
+    <motion.div 
+      ref={cardRef}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: index * 0.1 }}
+      className={cn(
+        "my-4 p-4 rounded-xl",
+        "bg-white/5 backdrop-blur-sm",
+        "shadow-lg shadow-black/5",
+        "transition-all duration-300",
+        "hover:bg-white/10 hover:shadow-xl hover:shadow-black/10",
+        "sm:mx-4 mx-2"
+      )}
+    >
+      <div className="flex flex-col sm:flex-row gap-4">
+        <motion.div 
+          className="sm:w-48 w-full aspect-square relative group rounded-lg overflow-hidden"
+          whileHover={{ scale: 1.02 }}
+          transition={{ duration: 0.2 }}
+        >
+          <img
+            src={playlist.cover_url.medium}
+            alt={playlist.title}
+            className="w-full h-full object-center object-cover transition-opacity duration-300 group-hover:opacity-75"
+          />
+          <motion.button
+            onClick={() => handlePlayPlaylist(playlist)}
+            className={cn(
+              "absolute inset-0 flex items-center justify-center",
+              "bg-black/50 transition-all duration-300",
+              "opacity-0 group-hover:opacity-100"
+            )}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            {isPlaying && playlist.tracks?.some(track => track.id === currentTrackId) ? (
+              <Pause className="w-16 h-16 text-white" />
+            ) : (
+              <Play className="w-16 h-16 text-white" />
+            )}
+          </motion.button>
+        </motion.div>
+
+        <div className="flex-grow min-w-0">
+          <div className="space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div className="space-y-1">
+                <h3 className="text-xl font-bold tracking-tight text-default line-clamp-1">
+                  <Link to={`/playlists/${playlist.slug}`} className="hover:text-brand-500 transition-colors">
+                    {playlist.title}
+                  </Link>
+                </h3>
+
+                {playlist.playlist_type === 'album' && playlist.release_date && (
+                  <span className="text-sm text-zinc-400 font-medium">
+                    Album • {new Date(playlist.release_date).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-center gap-2 flex-wrap">
+                <motion.button
+                  onClick={() => handlePlayPlaylist(playlist)}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className={cn(
+                    "inline-flex items-center px-4 py-2",
+                    "text-sm font-medium rounded-full",
+                    "bg-brand-500 text-white",
+                    "transition-all duration-300",
+                    "hover:bg-brand-400 hover:shadow-lg hover:shadow-brand-500/25",
+                    "focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 focus:ring-offset-background"
+                  )}
+                >
+                  {isPlaying && playlist.tracks?.some(track => track.id === currentTrackId) ? (
+                    <>
+                      <Pause className="w-4 h-4 mr-2" />
+                      Pause
+                    </>
+                  ) : (
+                    <>
+                      <Play className="w-4 h-4 mr-2" />
+                      Play
+                    </>
+                  )}
+                </motion.button>
+
+                {playlist.private && (
+                  <div className="bg-brand-500/10 text-brand-500 text-sm px-3 py-1 rounded-full inline-flex items-center gap-1">
+                    <Lock size={14} />
+                    <span>Private</span>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {playlist.description && (
+              <p className="text-zinc-400 text-sm line-clamp-2">
+                {playlist.description}
+              </p>
+            )}
+
+            <p className="text-zinc-400 text-sm font-medium">
+              {playlist.tracks_count} tracks
+            </p>
+
+            <div className="bg-black/20 rounded-xl p-4 space-y-1">
+              {playlist.tracks?.map((track, index) => (
+                <PlaylistListItem
+                  key={track.id}
+                  track={track}
+                  index={index}
+                  currentTrackId={currentTrackId}
+                  isPlaying={isPlaying}
+                  onPlay={() => handlePlayTrack(track, playlist)}
+                />
+              ))}
+              <div className="mt-4 flex justify-end">
+                <MusicPurchase 
+                  resource={playlist}
+                  type="Playlist"
+                  variant="mini"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </motion.div>
+  )
+}
 
 export default function UserPlaylists({ namespace = 'playlists' }) {
   const { username } = useParams()
@@ -44,253 +181,41 @@ export default function UserPlaylists({ namespace = 'playlists' }) {
   }
 
   return (
-    <div>
-      {playlists.map((playlist, index) => {
-        if (playlists.length === index + 1) {
-          return (
-            <div ref={lastElementRef} key={playlist.id} className="my-2 p-2 border-- rounded-md shadow-xs mx-3">
-              <div className="flex space-x-3">
-                <div className="w-48 relative group">
-                  <img
-                    src={playlist.cover_url.medium}
-                    alt={playlist.title}
-                    className="object-center object-cover group-hover:opacity-75"
-                  />
-                  <button
-                    onClick={() => handlePlayPlaylist(playlist)}
-                    className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black bg-opacity-50 transition-opacity"
-                  >
-                    {isPlaying && playlist.tracks?.some(track => track.id === currentTrackId) ? (
-                      <Pause className="w-12 h-12 text-white" />
-                    ) : (
-                      <Play className="w-12 h-12 text-white" />
-                    )}
-                  </button>
-                </div>
-
-                <div className="flex-grow">
-                  <div className="flex flex-col">
-                    <div className="space-y-2 flex flex-col">
-                      <div className="flex justify-between">
-                        <h3 className="flex items-center space-x-2 mt-3- text-xl font-extrabold tracking-tight text-default">
-                          <Link to={`/playlists/${playlist.slug}`}>
-                            {playlist.title}
-                          </Link>
-
-                          {playlist.playlist_type === 'album' && playlist.release_date && (
-                            <span className="text-xs text-gray-400 font-thin">
-                              Album {new Date(playlist.release_date).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}
-                            </span>
-                          )}
-                        </h3>
-
-                        <div className="flex items-center space-x-2">
-                          <button
-                            onClick={() => handlePlayPlaylist(playlist)}
-                            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500"
-                          >
-                            {isPlaying && playlist.tracks?.some(track => track.id === currentTrackId) ? (
-                              <>
-                                <Pause className="w-4 h-4 mr-1" />
-                                Pause
-                              </>
-                            ) : (
-                              <>
-                                <Play className="w-4 h-4 mr-1" />
-                                Play
-                              </>
-                            )}
-                          </button>
-
-                          {playlist.private && (
-                            <div className="mr-2">
-                              <div className="bg-brand-500 text-white text-xs p-1 rounded-md inline-flex space-x-1 items-center">
-                                <svg
-                                  viewBox="0 0 15 15"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="15"
-                                  height="15"
-                                >
-                                  <path
-                                    d="M5.5 7h4V6h-4v1zm4.5.5v3h1v-3h-1zM9.5 11h-4v1h4v-1zM5 10.5v-3H4v3h1zm.5.5a.5.5 0 01-.5-.5H4A1.5 1.5 0 005.5 12v-1zm4.5-.5a.5.5 0 01-.5.5v1a1.5 1.5 0 001.5-1.5h-1zM9.5 7a.5.5 0 01.5.5h1A1.5 1.5 0 009.5 6v1zm-4-1A1.5 1.5 0 004 7.5h1a.5.5 0 01.5-.5V6zm.5.5v-1H5v1h1zm3-1v1h1v-1H9zM7.5 4A1.5 1.5 0 019 5.5h1A2.5 2.5 0 007.5 3v1zM6 5.5A1.5 1.5 0 017.5 4V3A2.5 2.5 0 005 5.5h1z"
-                                    fill="currentColor"
-                                  />
-                                </svg>
-                                <span>Private</span>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {playlist.description && (
-                        <div className="text-gray-400 text-sm truncate max-w-2xl">
-                          {playlist.description}
-                        </div>
-                      )}
-
-                      <div className="text-gray-400 text-sm">
-                        {playlist.tracks_count} tracks
-                      </div>
-
-                      {/* Tracks List */}
-                      <div className="mt-8">
-                        <div className="space-y-1 bg-black/5 p-4 rounded-lg">
-                          {playlist.tracks?.map((track, index) => (
-                            <PlaylistListItem
-                              key={track.id}
-                              track={track}
-                              index={index}
-                              currentTrackId={currentTrackId}
-                              isPlaying={isPlaying}
-                              onPlay={() => handlePlayTrack(track, playlist)}
-                            />
-                          ))}
-                          <div className="mt-4 flex justify-end">
-                            <MusicPurchase 
-                              resource={playlist}
-                              type="Playlist"
-                              variant="mini"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )
-        } else {
-          return (
-            <div key={playlist.id} className="my-2 p-2 border-- rounded-md shadow-xs mx-3">
-              <div className="flex space-x-3">
-                <div className="w-48 relative group">
-                  <img
-                    src={playlist.cover_url.medium}
-                    alt={playlist.title}
-                    className="object-center object-cover group-hover:opacity-75"
-                  />
-                  <button
-                    onClick={() => handlePlayPlaylist(playlist)}
-                    className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 bg-black bg-opacity-50 transition-opacity"
-                  >
-                    {isPlaying && playlist.tracks?.some(track => track.id === currentTrackId) ? (
-                      <Pause className="w-12 h-12 text-white" />
-                    ) : (
-                      <Play className="w-12 h-12 text-white" />
-                    )}
-                  </button>
-                </div>
-
-                <div className="flex-grow">
-                  <div className="flex flex-col">
-                    <div className="space-y-2 flex flex-col">
-                      <div className="flex justify-between">
-                        <h3 className="flex items-center space-x-2 mt-3- text-xl font-extrabold tracking-tight text-default">
-                          <Link to={`/playlists/${playlist.slug}`}>
-                            {playlist.title}
-                          </Link>
-
-                          {playlist.playlist_type === 'album' && playlist.release_date && (
-                            <span className="text-xs text-muted font-thin">
-                              Album {new Date(playlist.release_date).toLocaleDateString(undefined, { month: 'short', year: 'numeric' })}
-                            </span>
-                          )}
-                        </h3>
-
-                        <div className="flex items-center space-x-2">
-                          <button
-                            onClick={() => handlePlayPlaylist(playlist)}
-                            className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500"
-                          >
-                            {isPlaying && playlist.tracks?.some(track => track.id === currentTrackId) ? (
-                              <>
-                                <Pause className="w-4 h-4 mr-1" />
-                                Pause
-                              </>
-                            ) : (
-                              <>
-                                <Play className="w-4 h-4 mr-1" />
-                                Play
-                              </>
-                            )}
-                          </button>
-
-                          {playlist.private && (
-                            <div className="mr-2">
-                              <div className="bg-brand-500 text-white text-xs p-1 rounded-md inline-flex space-x-1 items-center">
-                                <svg
-                                  viewBox="0 0 15 15"
-                                  fill="none"
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  width="15"
-                                  height="15"
-                                >
-                                  <path
-                                    d="M5.5 7h4V6h-4v1zm4.5.5v3h1v-3h-1zM9.5 11h-4v1h4v-1zM5 10.5v-3H4v3h1zm.5.5a.5.5 0 01-.5-.5H4A1.5 1.5 0 005.5 12v-1zm4.5-.5a.5.5 0 01-.5.5v1a1.5 1.5 0 001.5-1.5h-1zM9.5 7a.5.5 0 01.5.5h1A1.5 1.5 0 009.5 6v1zm-4-1A1.5 1.5 0 004 7.5h1a.5.5 0 01.5-.5V6zm.5.5v-1H5v1h1zm3-1v1h1v-1H9zM7.5 4A1.5 1.5 0 019 5.5h1A2.5 2.5 0 007.5 3v1zM6 5.5A1.5 1.5 0 017.5 4V3A2.5 2.5 0 005 5.5h1z"
-                                    fill="currentColor"
-                                  />
-                                </svg>
-                                <span>Private</span>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </div>
-
-                      {playlist.description && (
-                        <div className="text-gray-400 text-sm truncate max-w-2xl">
-                          {playlist.description}
-                        </div>
-                      )}
-
-                      <div className="text-gray-400 text-sm">
-                        {playlist.tracks_count} tracks
-                      </div>
-
-                      {/* Tracks List */}
-                      <div className="mt-8">
-                        <div className="space-y-1 bg-black/5 p-4 rounded-lg">
-                          {playlist.tracks?.map((track, index) => (
-                            <PlaylistListItem
-                              key={track.id}
-                              track={track}
-                              index={index}
-                              currentTrackId={currentTrackId}
-                              isPlaying={isPlaying}
-                              onPlay={() => handlePlayTrack(track, playlist)}
-                            />
-                          ))}
-                          <div className="mt-4 flex justify-end">
-                            <MusicPurchase 
-                              resource={playlist}
-                              type="Playlist"
-                              variant="mini"
-                            />
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )
-        }
-      })}
+    <div className="pb-8">
+      {playlists.map((playlist, index) => (
+        <PlaylistCard
+          key={playlist.id}
+          playlist={playlist}
+          index={index}
+          isLast={playlists.length === index + 1}
+          lastElementRef={lastElementRef}
+          currentTrackId={currentTrackId}
+          isPlaying={isPlaying}
+          handlePlayTrack={handlePlayTrack}
+          handlePlayPlaylist={handlePlayPlaylist}
+        />
+      ))}
 
       {loading && (
-        <div className="flex justify-center p-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500"></div>
-        </div>
+        <motion.div 
+          className="flex justify-center p-8"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <div className="animate-spin rounded-full h-10 w-10 border-2 border-brand-500 border-t-transparent"></div>
+        </motion.div>
       )}
 
       {playlists.length === 0 && !loading && (
-        <div className="text-center py-12">
-          <p className="text-gray-400">No {namespace} found</p>
-        </div>
+        <motion.div 
+          className="text-center py-16"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          <p className="text-zinc-400 text-lg">No {namespace} found</p>
+        </motion.div>
       )}
     </div>
   )

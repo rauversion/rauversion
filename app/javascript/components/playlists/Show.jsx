@@ -4,14 +4,17 @@ import { get } from '@rails/request.js'
 import useAudioStore from '../../stores/audioStore'
 import useAuthStore from '../../stores/authStore'
 import { format } from 'date-fns'
-import { Play, Pause, Settings, ShoppingCart } from 'lucide-react'
+import { Play, Pause, Settings, Lock, Heart } from 'lucide-react'
+import { motion } from 'framer-motion'
+import { cn } from "@/lib/utils"
+import PlaylistListItem from '../users/PlaylistItem'
 import PlaylistEdit from './PlaylistEdit'
 import PlaylistSkeleton from './PlaylistSkeleton'
 import { Button } from "@/components/ui/button"
 import { ShareDialog } from "@/components/ui/share-dialog"
 import { Comments } from "@/components/comments/Comments"
 import MusicPurchase from '@/components/shared/MusicPurchase'
-
+import {ShowMoreText} from '@/components/ui/show_more'
 export default function PlaylistShow() {
   const { slug } = useParams()
   const [playlist, setPlaylist] = useState(null)
@@ -28,7 +31,6 @@ export default function PlaylistShow() {
     addMultipleToPlaylist
   } = useAudioStore()
   const { currentUser } = useAuthStore()
-  const accentColor = '#1DB954' // Spotify-like accent color
   const fetchPlaylist = async () => {
     try {
       const response = await get(`/playlists/${slug}.json`)
@@ -44,6 +46,7 @@ export default function PlaylistShow() {
       setLoading(false)
     }
   }
+
 
   useEffect(() => {
     if(playlist && playlist.tracks) { 
@@ -77,169 +80,254 @@ export default function PlaylistShow() {
   return (
     <div className="bg-background text-foreground min-h-screen">
       {/* Header Section */}
-      <div className="relative bg-gradient-to-b from-muted to-background p-8">
+      <motion.div 
+        className="relative bg-gradient-to-b from-muted to-background p-8"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6 }}
+      >
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row gap-8">
             {/* Cover Art */}
-            <div className="w-full md:w-[340px] flex-shrink-0">
-              <img
-                src={playlist.cover_url.large}
-                alt={playlist.title}
-                className="w-full aspect-square object-cover shadow-lg"
-              />
-            </div>
+            <motion.div 
+              className="w-full md:w-[340px] flex-shrink-0 relative group"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+            >
+              <div className="relative aspect-square rounded-lg overflow-hidden shadow-xl">
+                <img
+                  src={playlist.cover_url.large}
+                  alt={playlist.title}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-black/20 transition-opacity duration-300 group-hover:opacity-100 opacity-0" />
+              </div>
+            </motion.div>
 
             {/* Playlist Info */}
             <div className="flex-grow">
-              <div className="mb-6">
-                <h2 className="text-sm uppercase text-muted-foreground mb-2">
-                  {playlist.playlist_type}
-                </h2>
-                <h1 className="text-4xl font-bold mb-2">{playlist.title}</h1>
+              <motion.div 
+                className="mb-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+              >
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h2 className="text-sm uppercase text-brand-500 font-medium mb-2">
+                      {playlist.playlist_type}
+                    </h2>
+                    <h1 className="text-4xl font-bold mb-3 tracking-tight">{playlist.title}</h1>
+                  </div>
+
+                  {currentUser?.id === playlist.user.id && (
+                    <motion.div 
+                      whileHover={{ scale: 1.05 }} 
+                      whileTap={{ scale: 0.95 }}
+                      className="ml-4"
+                    >
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setEditOpen(true)}
+                        className="text-muted-foreground hover:text-foreground hover:bg-white/10"
+                      >
+                        <Settings className="h-5 w-5" />
+                      </Button>
+                    </motion.div>
+                  )}
+                </div>
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-muted-foreground">
                   <Link 
                     to={`/${playlist.user.username}`}
-                    className="hover:text-foreground transition-colors flex items-center gap-2"
+                    className="hover:text-foreground transition-colors flex items-center gap-2 group"
                   >
-                    <img 
+                    <motion.img 
                       src={playlist.user.avatar_url?.small} 
                       alt={playlist.user.username}
-                      className="w-6 h-6 rounded-full"
+                      className="w-6 h-6 rounded-full ring-2 ring-transparent group-hover:ring-brand-500 transition-all"
+                      whileHover={{ scale: 1.1 }}
                     />
-                    <span>{playlist.user.username}</span>
+                    <span className="group-hover:text-brand-500 transition-colors">{playlist.user.username}</span>
                   </Link>
-                  <span className="hidden sm:block">•</span>
+                  <span className="hidden sm:block text-zinc-600">•</span>
                   <span>
-                    {format(new Date(playlist.release_date || new Date()), 'MMM dd')}
+                    {format(new Date(playlist.release_date || new Date()), 'MMMM d, yyyy')}
                   </span>
                 </div>
-              </div>
+              </motion.div>
 
-              <div className="flex flex-wrap gap-4">
-                <button
+              <motion.div 
+                className="flex flex-wrap gap-4"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              >
+                <motion.button
                   onClick={() => isPlaying && currentTrackId === playlist.tracks[0]?.id ? pause() : handlePlay()}
-                  className="bg-brand-500 hover:bg-brand-600 text-foreground p-4 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105"
-                  style={{ backgroundColor: accentColor }}
+                  className={cn(
+                    "relative flex items-center justify-center",
+                    "w-14 h-14 rounded-full",
+                    "bg-brand-500 text-white",
+                    "transition-all duration-300",
+                    "hover:bg-brand-400 hover:shadow-lg hover:shadow-brand-500/25",
+                    "focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 focus:ring-offset-background"
+                  )}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   {isPlaying && playlist.tracks?.find((o)=> o.id === currentTrackId) ? (
-                    <Pause className="w-8 h-8" />
+                    <motion.div
+                      initial={{ scale: 0 }}
+                      animate={{ scale: 1 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <Pause className="w-7 h-7" />
+                    </motion.div>
                   ) : (
-                    <Play className="w-8 h-8" />
+                    <motion.div
+                      initial={{ scale: 0, rotate: -45 }}
+                      animate={{ scale: 1, rotate: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <Play className="w-7 h-7 ml-1" />
+                    </motion.div>
                   )}
-                </button>
+                </motion.button>
 
                 <div className="flex flex-wrap gap-2">
-                  {currentUser?.id === playlist.user.id && (
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setEditOpen(true)}
-                      className="text-muted-foreground hover:text-foreground"
-                    >
-                      <Settings className="h-5 w-5" />
-                    </Button>
-                  )}
-
                   <ShareDialog 
                     url={`${window.location.origin}/${playlist.user.username}/playlists/${playlist.slug}`}
                     title={playlist.title}
                     description={`Listen to ${playlist.title} by ${playlist.user.username} on Rauversion`}
                   >
-                    <button className="hover:bg-muted border border-border text-foreground px-4 py-2 rounded-lg flex items-center gap-2">
+                    <motion.button 
+                      className={cn(
+                        "px-4 py-2 rounded-full",
+                        "border border-white/10",
+                        "text-foreground",
+                        "flex items-center gap-2",
+                        "transition-all duration-300",
+                        "hover:bg-white/10 hover:border-white/20"
+                      )}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
                       <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path>
                         <polyline points="16 6 12 2 8 6"></polyline>
                         <line x1="12" y1="2" x2="12" y2="15"></line>
                       </svg>
                       <span className="hidden sm:inline">Share</span>
-                    </button>
+                    </motion.button>
                   </ShareDialog>
 
-                  <button className="hover:bg-muted border border-border text-foreground px-4 py-2 rounded-lg flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M2 10.5a1.5 1.5 0 113 0v6a1.5 1.5 0 01-3 0v-6zM6 10.333v5.43a2 2 0 001.106 1.79l.05.025A4 4 0 008.943 18h5.416a2 2 0 001.962-1.608l1.2-6A2 2 0 0015.56 8H12V4a2 2 0 00-2-2 1 1 0 00-1 1v.667a4 4 0 01-.8 2.4L6.8 7.933a4 4 0 00-.8 2.4z" />
-                    </svg>
+                  <motion.button 
+                    className={cn(
+                      "px-4 py-2 rounded-full",
+                      "border border-white/10",
+                      "text-foreground",
+                      "flex items-center gap-2",
+                      "transition-all duration-300",
+                      "hover:bg-white/10 hover:border-white/20"
+                    )}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <Heart size={20} />
                     <span className="hidden sm:inline">3 Me gusta</span>
-                  </button>
+                  </motion.button>
                 </div>
-              </div>
+              </motion.div>
             </div>
           </div>
         </div>
-      </div>
+      </motion.div>
 
 
       {/* Description Section */}
       {playlist.description && (
-        <div className="max-w-7xl mx-auto px-8 pb-4">
-          <div className="text-muted-foreground text-lg whitespace-pre-wrap">
-            {playlist.description}
-          </div>
-        </div>
+        <motion.div 
+          className="max-w-7xl mx-auto px-8 pb-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.2 }}
+        >
+          <ShowMoreText text={playlist.description} maxHeight={100} />
+        </motion.div>
       )}
 
       {/* Tracks Section */}
-      <div className="max-w-7xl mx-auto p-8 pt-4">
-        <div className="mb-6 flex justify-between items-center">
-          <h2 className="text-xl font-bold mb-4">Tracks</h2>
+      <motion.div 
+        className="max-w-7xl mx-auto p-8 pt-4"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
+        <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="flex items-center gap-3">
+            <h2 className="text-xl font-bold">Tracks</h2>
+            {playlist.private && (
+              <div className="bg-brand-500/10 text-brand-500 text-sm px-3 py-1 rounded-full inline-flex items-center gap-1">
+                <Lock size={14} />
+                <span>Private</span>
+              </div>
+            )}
+          </div>
           <MusicPurchase resource={playlist} type="Playlist" variant="mini" />
         </div>
 
-        <div className="space-y-2">
+        <div className={cn(
+          "bg-white/5 backdrop-blur-sm",
+          "rounded-xl p-4 space-y-1",
+          "shadow-lg shadow-black/5",
+        )}>
           {playlist.tracks.map((track, index) => (
-            <div 
+            <PlaylistListItem
               key={track.id}
-              className={`flex flex-col sm:flex-row sm:items-center sm:justify-between p-2 rounded hover:bg-muted group ${
-                currentTrackId === track.id ? 'bg-muted/50' : ''
-              }`}
-            >
-              <div className="flex items-center gap-4 mb-2 sm:mb-0">
-                <span className={`hidden sm:block w-6 ${currentTrackId === track.id ? `text-[${accentColor}]` : 'text-muted-foreground'}`}>
-                  {index + 1}
-                </span>
-                
-                <button 
-                  onClick={() => handleTrackPlay(track.id)}
-                  className="cursor-pointer focus:outline-none"
-                >
-                  {currentTrackId === track.id && isPlaying ? 
-                    <Pause size={20} /> : 
-                    <Play size={20} />
-                  }
-                </button>
-
-                <div className="min-w-0 flex-1">
-                  <p className={`font-medium truncate ${
-                    currentTrackId === track.id ? `text-[${accentColor}]` : 'text-foreground'
-                  }`}>
-                    {track.title}
-                  </p>
-                  <p className="text-muted-foreground text-sm truncate">{track.author?.full_name}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-4 ml-10 sm:ml-0">
-                {track.duration && track.duration !== "xx:xx" && (
-                  <span className="text-muted-foreground text-sm">
-                    {formatTime(track.duration)}
-                  </span>
-                )}
-              </div>
-            </div>
+              track={track}
+              index={index}
+              currentTrackId={currentTrackId}
+              isPlaying={isPlaying}
+              onPlay={() => handleTrackPlay(track.id)}
+            />
           ))}
         </div>
-      </div>
+      </motion.div>
 
       {/* Comments Section */}
-      <div className="max-w-7xl mx-auto p-8 border-t border-border">
-        <div className="mb-6">
+      <motion.div 
+        className="max-w-7xl mx-auto p-8 border-t border-white/5"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.4, delay: 0.3 }}
+      >
+        <motion.div 
+          className="mb-6"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.4 }}
+        >
           <h2 className="text-xl font-bold mb-4">Comments</h2>
-        </div>
+        </motion.div>
         
-        <Comments 
-          resourceType="playlist" 
-          resourceId={playlist.slug} 
-        />
-      </div>
+        <motion.div
+          className={cn(
+            "bg-white/5 backdrop-blur-sm",
+            "rounded-xl p-6",
+            "shadow-lg shadow-black/5"
+          )}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.5 }}
+        >
+          <Comments 
+            resourceType="playlist" 
+            resourceId={playlist.slug} 
+          />
+        </motion.div>
+      </motion.div>
 
       {playlist && currentUser?.id === playlist.user.id && (
         <PlaylistEdit
@@ -249,6 +337,9 @@ export default function PlaylistShow() {
           onOk={fetchPlaylist}
         />
       )}
+
+      {/* Bottom Padding for Mobile */}
+      <div className="h-20 md:h-0" />
     </div>
   )
 }
