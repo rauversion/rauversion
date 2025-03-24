@@ -11,6 +11,7 @@ json.playlist do
   json.updated_at @playlist.updated_at
   json.price @playlist.price
   json.name_your_price @playlist.name_your_price
+  json.formatted_price number_to_currency(@playlist.price)
 
   json.user do
     json.partial! 'users/user', user: @playlist.user, show_full_name: true

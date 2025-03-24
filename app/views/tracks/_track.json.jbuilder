@@ -6,6 +6,24 @@ json.price track.price
 json.price number_to_currency(track.price) unless track.price.nil?
 json.mp3_audio_url url_for(track.mp3_audio) if track.mp3_audio.attached?
 
+json.metadata track.metadata
+json.likes_count track.likes_count
+json.reposts_count track.reposts_count
+json.state track.state
+json.genre track.genre
+json.tags track.tags
+json.podcast track.podcast
+json.created_at track.created_at
+json.updated_at track.updated_at
+json.processed  track.processed?
+
+json.buy_link track.buy_link
+json.price track.price
+json.formated_price number_to_currency(track.price)
+json.name_your_price track.name_your_price
+
+
+
 json.cover_url do
   if track.cover.attached?
     json.medium track.cover_url(:medium)

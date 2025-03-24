@@ -6,16 +6,18 @@ import { Switch } from "@/components/ui/switch"
 import I18n from 'stores/locales'
 
 export default function PricingForm({ control }) {
+  console.log('PricingForm', control)
   return (
     <div className="space-y-4">
       <div>
         <Label>{I18n.t('shared.forms.pricing.price.label')}</Label>
+       
         <Controller
           name="price"
           control={control}
           render={({ field }) => (
             <Input
-              type="number"
+              type="text"
               step="0.01"
               {...field}
             />

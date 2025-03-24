@@ -159,7 +159,7 @@ export default function UserMenu() {
                       <DropdownMenuSeparator />
                       <DropdownMenuGroup>
                         <DropdownMenuItem asChild>
-                          <Link to={`/${currentUser.username}`}>
+                          <Link to={`/${currentUser.username}/tracks`}>
                             <Music className="mr-2 h-4 w-4" />
                             <span>{I18n.t('menu.my_music')}</span>
                           </Link>
