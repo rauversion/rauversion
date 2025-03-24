@@ -23,6 +23,7 @@ class Post < ApplicationRecord
   }
 
   scope :draft, -> { where(state: "draft") }
+  scope :latests, -> { order("created_at desc") }
 
   def tags=(list)
     self[:tags] = list.map(&:downcase).reject { |item| item.empty? }

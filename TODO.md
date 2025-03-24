@@ -5,6 +5,7 @@ TODO:
   + disable products when no stripe account setup
   + correos de success pago a account holder y comprador
   + complete downloads
+  + USD display
 
   + mercado pago
   + user playlists list edit button / modal

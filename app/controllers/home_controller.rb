@@ -67,7 +67,7 @@ class HomeController < ApplicationController
     Post.published
       .with_attached_cover
       .includes(user: { avatar_attachment: :blob })
-      .order("id desc")
+      .latests
       .page(params[:page])
       .per(5)
   end

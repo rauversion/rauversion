@@ -165,7 +165,9 @@ class ArticlesController < ApplicationController
       current_user.posts
     end
 
-    @posts = @posts.page(params[:page]).per(10)
+    @posts = @posts
+    .latests
+    .page(params[:page]).per(10)
   end
 
   def categories
