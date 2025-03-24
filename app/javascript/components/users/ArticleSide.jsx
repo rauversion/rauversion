@@ -15,9 +15,16 @@ export default function ArticleSide({ articles }) {
 
   return (
     <div className="bg-default">
+      
       <div className="mx-auto- max-w-[33rem] lg:max-w-[58rem]  px-4- sm:px-6. lg:px-8-">
         <div className="relative">
           <Carousel className="w-full">
+
+          <div className="hidden md:block space-x-3">
+            <CarouselPrevious className="" />
+            <CarouselNext className="" />
+          </div>
+
             <CarouselContent className="-ml-2 sm:-ml-4">
               {articles.map((article) => (
                 <CarouselItem key={article.id} className="pl-2 sm:pl-4 basis-full md:basis-1/2">
@@ -69,10 +76,7 @@ export default function ArticleSide({ articles }) {
               </CarouselItem>
             ))}
             </CarouselContent>
-            <div className="hidden md:block">
-              <CarouselPrevious className="absolute -left-4 lg:-left-12 top-1/2 -translate-y-1/2" />
-              <CarouselNext className="absolute -right-4 lg:-right-12 top-1/2 -translate-y-1/2" />
-            </div>
+            
           </Carousel>
         </div>
       </div>

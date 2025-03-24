@@ -7,7 +7,8 @@ TODO:
   + complete downloads
 
   + mercado pago
-  
+  + user playlists list edit button / modal
+  + 
   + React app
     + merch crud
     + blank render for all pages

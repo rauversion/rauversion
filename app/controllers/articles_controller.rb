@@ -2,7 +2,7 @@ class ArticlesController < ApplicationController
   before_action :authenticate_user!, except: [:index, :show, :categories, :tags]
 
   def index
-    @articles = Post.published.order("id desc")
+    @articles = Post.published.order("created_at desc")
       .with_attached_cover
       .includes(user: {avatar_attachment: :blob})
 
