@@ -88,6 +88,13 @@ module.exports = {
         indigo: colors.indigo,
         red: colors.rose,
         green: colors.emerald,
+        purple: colors.violet,
+        blue: colors.blue,
+        pink: colors.pink,
+        amber: colors.amber,
+        orange: colors.orange,
+        teal: colors.teal,
+        cyan: colors.cyan,
         yellow: colors.amber,
         brand: {
           default: "var(--rau-brand)",
