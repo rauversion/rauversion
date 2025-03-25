@@ -79,6 +79,7 @@ es:
 
   artists:
     featured: Artistas Destacados
+    title: Artistas
 
   podcasters:
     all: Todos los anfitriones
