@@ -145,6 +145,9 @@ es:
         prerequisites: "Requisitos previos"
         what_to_expect: "Qué esperar"
 
+      edit:
+        title: "Editar Servicio"
+
     gear:
       index:
         gear: "Equipamiento"

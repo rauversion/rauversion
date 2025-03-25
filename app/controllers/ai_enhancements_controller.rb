@@ -15,9 +15,10 @@ class AiEnhancementsController < ApplicationController
     when "product_service"
       "You are helping to enhance the description of a service product. " \
       "Make the text more engaging and professional while maintaining its core message. " \
-      "Focus on highlighting value propositions and benefits."
+      "Focus on highlighting value propositions and benefits." \
+      "Always respect the original message language"
     else
-      "Enhance the text to be more engaging and professional while maintaining its core message."
+      "Enhance the text to be more engaging and professional while maintaining its core message and always respect the language."
     end
 
     # Build messages array with custom prompt if provided

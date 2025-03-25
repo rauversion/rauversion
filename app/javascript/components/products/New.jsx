@@ -19,7 +19,7 @@ export default function ProductNew() {
     })
   }
 
-  if (!currentUser?.seller) {
+  if (!currentUser?.can_sell_products) {
     return (
       <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <InterestAlert 

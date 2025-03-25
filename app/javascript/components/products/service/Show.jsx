@@ -86,10 +86,10 @@ export default function ServiceShow({ product }) {
               variant={product.stock_quantity > 0 ? "default" : "destructive"}
               className="mt-1"
             >
-              {product.stock_quantity > 0 ? 
+              {/*product.stock_quantity > 0 ? 
                 `${product.stock_quantity} slots available` : 
                 'Sold out'
-              }
+              */}
             </Badge>
           </div>
         </div>

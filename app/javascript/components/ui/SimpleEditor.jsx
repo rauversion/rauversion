@@ -64,7 +64,8 @@ export default function SimpleEditor({
   value, 
   onChange, 
   plain = false,
-  scope = 'default'
+  scope = 'default',
+  aiPromptContext = 'default'
 }) {
   const [linkDialogOpen, setLinkDialogOpen] = useState(false)
   const [linkUrl, setLinkUrl] = useState('')
@@ -90,6 +91,13 @@ export default function SimpleEditor({
     }
   }, [value, editor])
 
+  // trigger onChange when editor is not in enhancing mode
+  useEffect(() => {
+    if(isEnhancing) return
+    if(!editor) return
+    onChange(editor.getHTML())
+  }, [isEnhancing])
+
   const handleSetLink = (e) => {
     e.preventDefault()
     editor?.chain().focus().toggleLink({ href: linkUrl, target: '_blank' }).run()
@@ -110,6 +118,12 @@ export default function SimpleEditor({
           )
 
       const textToEnhance = selectedText || value
+
+      const promptWithContent = `
+        ${aiPromptContext ? 'Context: ' + aiPromptContext : ''}
+        ${aiPrompt}
+      
+      `
 
       const response = await fetch('/ai_enhancements/enhance', {
         method: 'POST',
@@ -277,7 +291,7 @@ export default function SimpleEditor({
           <DialogHeader>
             <DialogTitle>Enhance with AI</DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleEnhanceWithAI} className="space-y-4">
+          <div className="space-y-4">
             <div>
               <Label htmlFor="prompt">Prompt</Label>
               <Input
@@ -288,7 +302,7 @@ export default function SimpleEditor({
               />
             </div>
             <div className="flex justify-end">
-              <Button type="submit" disabled={isEnhancing}>
+              <Button onClick={handleEnhanceWithAI} disabled={isEnhancing}>
                 {isEnhancing ? (
                   <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -299,7 +313,7 @@ export default function SimpleEditor({
                 )}
               </Button>
             </div>
-          </form>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

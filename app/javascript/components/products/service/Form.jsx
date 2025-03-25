@@ -147,31 +147,51 @@ export default function ServiceForm({ product, isEditing = false }) {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid md:grid-cols-5 gap-4 grid-cols-1">
               <div className="block pt-0 space-y-3 md:col-span-2">
-                <div className="flex space-x-2">
-                  <div className="flex-1">
-                    <FormField
-                      control={form.control}
-                      name="category"
-                      rules={{ required: "Category is required" }}
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>{I18n.t('products.service.form.category')}</FormLabel>
-                          <FormControl>
-                          
-                            <Select
-                              id="category"
-                              placeholder={I18n.t('products.service.form.select_category')}
-                              options={SERVICE_TYPES}
-                              value={SERVICE_TYPES.find(t => t.value === field.value)}
-                              onChange={(option) => field.onChange(option?.value)}
-                              theme={(theme) => selectTheme(theme, isDarkMode)}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
+                
+
+              <FormField
+                control={form.control}
+                name="title"
+                rules={{ required: "Title is required" }}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{I18n.t('products.service.form.title')}</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+
+              <div className="flex-1">
+                <FormField
+                  control={form.control}
+                  name="category"
+                  rules={{ required: "Category is required" }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{I18n.t('products.service.form.category')}</FormLabel>
+                      <FormControl>
+                      
+                        <Select
+                          id="category"
+                          placeholder={I18n.t('products.service.form.select_category')}
+                          options={SERVICE_TYPES}
+                          value={SERVICE_TYPES.find(t => t.value === field.value)}
+                          onChange={(option) => field.onChange(option?.value)}
+                          theme={(theme) => selectTheme(theme, isDarkMode)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              
+              <div className="flex space-x-2">
+                  
 
                   <div className="flex-1">
                     <FormField
@@ -196,43 +216,8 @@ export default function ServiceForm({ product, isEditing = false }) {
                       )}
                     />
                   </div>
-                </div>
 
-                
-                <FormField
-                  control={form.control}
-                  name="title"
-                  rules={{ required: "Title is required" }}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{I18n.t('products.service.form.title')}</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
 
-                <FormField
-                  control={form.control}
-                  name="description"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{I18n.t('products.service.form.description')}</FormLabel>
-                      <FormControl>
-                        <SimpleEditor
-                          value={field.value}
-                          onChange={field.onChange}
-                          scope="product"
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <FormField
                     control={form.control}
                     name="duration_minutes"
@@ -260,6 +245,30 @@ export default function ServiceForm({ product, isEditing = false }) {
                     )}
                   />
 
+
+                </div>
+
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{I18n.t('products.service.form.description')}</FormLabel>
+                      <FormControl>
+                        <SimpleEditor
+                          value={field.value}
+                          onChange={field.onChange}
+                          aiPromptContext="This is an AI text enhancer for a music service product."
+                          scope="product"
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                 
                   {category === 'classes' && (
                     <FormField
                       control={form.control}
@@ -288,9 +297,17 @@ export default function ServiceForm({ product, isEditing = false }) {
                     />
                   )}
                 </div>
+
+                <PhotosSection control={form.control} setValue={form.setValue} watch={form.watch} />
+
               </div>
 
+              
+
               <div className="flex flex-col flex-grow md:col-span-3 col-span-1 space-y-6">
+                
+                <PricingSection control={form.control} isPriceOnly={true} />
+
                 <Card>
                   <CardHeader>
                     <CardTitle>{I18n.t('products.service.form.details')}</CardTitle>
@@ -307,6 +324,7 @@ export default function ServiceForm({ product, isEditing = false }) {
                               value={field.value}
                               onChange={field.onChange}
                               scope="product"
+                              aiPromptContext="This is an AI text enhancer for a music service product, this is a text for the services prerequisites"
                               plain
                             />
                           </FormControl>
@@ -326,6 +344,7 @@ export default function ServiceForm({ product, isEditing = false }) {
                               value={field.value}
                               onChange={field.onChange}
                               scope="product"
+                              aiPromptContext="This is an AI text enhancer for a music service product. This is the text for a what to expect for the clients"
                               plain
                             />
                           </FormControl>
@@ -345,6 +364,7 @@ export default function ServiceForm({ product, isEditing = false }) {
                               value={field.value}
                               onChange={field.onChange}
                               scope="product"
+                              aiPromptContext="This is an AI text enhancer for a music service product. This is the text for the cancellation policy"
                               plain
                             />
                           </FormControl>
@@ -354,10 +374,6 @@ export default function ServiceForm({ product, isEditing = false }) {
                     />
                   </CardContent>
                 </Card>
-
-                <PricingSection control={form.control} />
-                <PhotosSection control={form.control} setValue={form.setValue} watch={form.watch} />
-                <ShippingSection control={form.control} />
 
                 <div className="flex flex-col md:flex-row gap-4">
 

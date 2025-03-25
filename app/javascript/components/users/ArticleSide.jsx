@@ -21,8 +21,8 @@ export default function ArticleSide({ articles }) {
           <Carousel className="w-full">
 
           <div className="hidden md:block space-x-3">
-            <CarouselPrevious className="" />
-            <CarouselNext className="" />
+            <CarouselPrevious className="z-50" />
+            <CarouselNext className="z-50" />
           </div>
 
             <CarouselContent className="-ml-2 sm:-ml-4">
