@@ -7,6 +7,7 @@ json.collection @user_links do |link|
   json.created_at link.created_at
   json.updated_at link.updated_at
   json.can_edit current_user == @user
+  json.icon_url image_url(link.image_name)
 end
 
 

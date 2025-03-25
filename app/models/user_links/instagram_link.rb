@@ -8,7 +8,7 @@ module UserLinks
 
 
     def image_name
-      "logos/instagram.jpg"
+      "logos/instagram.svg"
     end
 
     protected

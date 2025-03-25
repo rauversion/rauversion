@@ -7,7 +7,7 @@ module UserLinks
     end
 
     def image_name
-      "logos/tiktok.jpg"
+      "logos/tiktok.svg"
     end
 
     protected

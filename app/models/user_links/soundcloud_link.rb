@@ -7,7 +7,7 @@ module UserLinks
     end
 
     def image_name
-      "logos/soundcloud.jpg"
+      "logos/soundcloud.svg"
     end
 
     protected

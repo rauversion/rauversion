@@ -173,7 +173,9 @@ export default function UserLinks() {
     return (
       <div key={type} className="bg-muted p-4 rounded-lg">
         <div className="flex items-center space-x-3 mb-4">
-          <i className={`${linkData.icon_class} text-xl`}></i>
+          <div className="bg-white rounded-lg p-1">
+            <img src={linkData.icon_url} alt={`${linkData.name} logo`} className="h-8 w-8" />
+          </div>
           <h3 className="text-lg font-medium text-default">{linkData.name}</h3>
         </div>
 
@@ -374,7 +376,9 @@ export default function UserLinks() {
                                       className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
                                     />
                                     <div className="flex items-center space-x-3">
-                                      <i className={`${data.icon_class} text-xl`}></i>
+                                      <div className="bg-white rounded-lg p-1">
+                                        <img src={data.icon_url} alt={`${data.name} logo`} className="h-8 w-8" />
+                                      </div>
                                       <Label htmlFor={`services[${type}]`} className="text-lg font-medium text-default">
                                         {data.name}
                                       </Label>
@@ -423,7 +427,9 @@ export default function UserLinks() {
                       console.log('Link clicked:', link.title, link.url)
                     }}
                   >
-                    <i className={`${link.icon_class} text-muted`} />
+                    <div className="bg-white rounded-lg p-1">
+                      <img src={link.icon_url} alt={`${link.title} logo`} className="h-8 w-8" />
+                    </div>
                     <div className="flex flex-col">
                       <span className="font-medium text-default">{link.title}</span>
                       <p className="text-sm text-muted mt-1">{link.url}</p>

@@ -4,6 +4,7 @@ json.user_links @user.user_links.select(&:new_record?) do |link|
   json.custom_url link.custom_url
   json.title link.title
   json.id link.id
+  json.icon_url image_url(link.image_name)
 end
 
 if flash[:error].present?
