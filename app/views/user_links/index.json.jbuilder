@@ -1,5 +1,8 @@
 json.user do
   json.partial! 'users/user', user: @user, show_full_name: true
+  json.social_description @user.social_description
+  json.social_title @user.social_title.presence || "#{@user.username}'s Links"
+
 end
 
 json.collection @user_links do |link|
