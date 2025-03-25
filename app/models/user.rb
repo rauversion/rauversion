@@ -312,7 +312,7 @@ class User < ApplicationRecord
   }
   
   validates :age_restriction, inclusion: { 
-    in: ['', '14', '18', '21'],
+    in: ['all', '13', '14', '16', '18', '21'],
     message: "must be one of: 14+, 18+, or 21+"
   }, allow_blank: true
 

@@ -2,6 +2,8 @@ import React from "react"
 import { useNavigate, Link } from "react-router-dom"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
+import { InterestAlert } from "../shared/alerts"
+import useAuthStore from '@/stores/authStore'
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Music } from "lucide-react"
@@ -26,6 +28,7 @@ export default function NewTrack() {
   const navigate = useNavigate()
   const { toast } = useToast()
   const { isDarkMode } = useThemeStore()
+  const { currentUser } = useAuthStore()
   const [step, setStep] = React.useState("upload") // upload or info
   const [uploading, setUploading] = React.useState(false)
   const [files, setFiles] = React.useState([])
@@ -417,6 +420,52 @@ export default function NewTrack() {
             </Card>
           ))}
         </div>
+      </div>
+    )
+  }
+
+  const handleArtistInterest = async () => {
+    try {
+      const response = await post('/api/artist_requests', {
+        responseKind: 'json',
+        body: JSON.stringify({
+          artist_request: {
+            status: 'pending'
+          }
+        })
+      });
+
+      const data = await response.json;
+      
+      if (data.success) {
+        toast({
+          title: "Success!",
+          description: "Your interest in becoming an artist has been submitted. We'll review your request shortly.",
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: "There was a problem submitting your request. Please try again.",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      toast({
+        title: "Error",
+        description: "There was a problem submitting your request. Please try again.",
+        variant: "destructive",
+      });
+    }
+  }
+
+  if (!currentUser?.is_creator) {
+    return (
+      <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <InterestAlert 
+          type="artist"
+          onSubmit={handleArtistInterest}
+        />
       </div>
     )
   }

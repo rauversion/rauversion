@@ -3,6 +3,7 @@ import useAudioStore from '../stores/audioStore';
 import { get } from '@rails/request.js';
 import { cn } from "@/lib/utils"
 import { motion, AnimatePresence } from "framer-motion"
+import { Link } from "react-router-dom";
 import {
   Sheet,
   SheetContent,
@@ -95,8 +96,8 @@ const TrackInfo = ({ playerData }) => (
         animate={{ y: 0, opacity: 1 }}
         className="font-medium text-sm group overflow-hidden"
       >
-        <a 
-          href={playerData?.track?.url}
+        <Link
+          to={playerData?.track?.url}
           className="hover:text-primary transition-colors whitespace-nowrap w-[200px] block overflow-hidden hover:overflow-visible"
           style={{
             animation: playerData?.track?.title?.length > 24 ? 'marquee 10s linear infinite' : 'none'
@@ -104,7 +105,7 @@ const TrackInfo = ({ playerData }) => (
           data-turbo-frame="_top"
         >
           {playerData?.track?.title}
-        </a>
+        </Link>
       </motion.div>
       <motion.div
         initial={{ y: 10, opacity: 0 }}
@@ -112,13 +113,13 @@ const TrackInfo = ({ playerData }) => (
         transition={{ delay: 0.1 }}
         className="text-xs text-white/60"
       >
-        <a 
-          href={playerData?.track?.user_url}
+        <Link 
+          to={playerData?.track?.user_url}
           className="hover:text-white/80 transition-colors"
           data-turbo-frame="_top"
         >
           {playerData?.track?.user_username}
-        </a>
+        </Link>
       </motion.div>
     </div>
   </div>
@@ -265,13 +266,7 @@ export default function AudioPlayer({ id, url, peaks, height }) {
 
   const trackEvent = async (trackId) => {
     try {
-      const response = await fetch(`/tracks/${trackId}/events`, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          "X-CSRF-Token": document.querySelector('meta[name="csrf-token"]').content
-        },
-      });
+      const response = await get(`/tracks/${trackId}/events`);
       const data = await response.json;
       console.log("Event tracked:", data);
     } catch (error) {

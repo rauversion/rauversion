@@ -29,6 +29,12 @@ Rails.application.routes.draw do
       resources :users, param: :username, only: [] do
         resources :user_links, only: [:index]
       end
+      
+      resources :user_links, only: [:create, :update, :destroy] do
+        collection do
+          post :wizard
+        end
+      end
     end
   end
 

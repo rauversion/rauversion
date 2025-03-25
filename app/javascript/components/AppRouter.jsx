@@ -86,6 +86,7 @@ import { ServiceBookings } from "./ServiceBookings"
 import { ServiceBookingDetail } from "./ServiceBookings/ServiceBookingDetail"
 import NewTrack from "./tracks/NewTrack"
 import CategoryView from "./store/CategoryView"
+import { InterestAlertDemo } from "./shared/alerts"
 
 import CheckoutSuccess from "./checkout/CheckoutSuccess"
 import CheckoutFailure from "./checkout/CheckoutFailure"
@@ -236,6 +237,7 @@ function AppContent() {
           <Route path="/artists" element={<ArtistsIndex />} />
           <Route path="/store" element={<StoreIndex />} />
           <Route path="/store/:type" element={<CategoryView />} />
+          <Route path="/demo/alerts" element={<InterestAlertDemo />} />
           <Route path="/:username/products/new" element={<RequireAuth><ProductNew /></RequireAuth>} />
           <Route path="/:username/products/gear/new" element={<RequireAuth><GearForm /></RequireAuth>} />
           <Route path="/:username/products/music/new" element={<RequireAuth><MusicForm /></RequireAuth>} />

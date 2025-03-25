@@ -3,10 +3,32 @@ import TypeCard from './TypeCard'
 import useAuthStore from '@/stores/authStore'
 import I18n from '@/stores/locales'
 import { PRODUCT_TYPES } from './shared/constants'
+import { InterestAlert } from '../shared/alerts'
+import { useToast } from "@/hooks/use-toast"
 
 
 export default function ProductNew() {
   const { currentUser } = useAuthStore()
+  const { toast } = useToast()
+
+  const handleSellerInterest = async () => {
+    // Mock success for now, will implement API call later
+    toast({
+      title: "Success!",
+      description: "Your interest in becoming a seller has been submitted. We'll review your request shortly.",
+    })
+  }
+
+  if (!currentUser?.seller) {
+    return (
+      <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <InterestAlert 
+          type="seller"
+          onSubmit={handleSellerInterest}
+        />
+      </div>
+    )
+  }
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-12">

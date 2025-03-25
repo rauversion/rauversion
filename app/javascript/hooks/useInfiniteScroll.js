@@ -3,6 +3,7 @@ import { get } from '@rails/request.js'
 
 export function useInfiniteScroll(fetchUrl, options = {}) {
   const [items, setItems] = useState([])
+  const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [hasMore, setHasMore] = useState(true)
   const [page, setPage] = useState(1)
@@ -25,12 +26,13 @@ export function useInfiniteScroll(fetchUrl, options = {}) {
       const url = `${fetchUrl}${fetchUrl.includes('?') ? '&' : '?'}page=${pageNum}`
       const response = await get(url)
       if (response.ok) {
-        const data = await response.json
+        const responseData = await response.json
+        setData(responseData)
         setItems(prevItems => {
-          if (pageNum === 1) return data.collection
-          return [...prevItems, ...data.collection]
+          if (pageNum === 1) return responseData.collection
+          return [...prevItems, ...responseData.collection]
         })
-        setHasMore(data.metadata.next_page !== null)
+        setHasMore(responseData.metadata.next_page !== null)
       }
     } catch (error) {
       console.error('Error fetching items:', error)
@@ -61,6 +63,7 @@ export function useInfiniteScroll(fetchUrl, options = {}) {
     resetList,
     setItems,
     fetchItems,
+    data,
     page
   }
 }

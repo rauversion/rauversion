@@ -6,6 +6,7 @@ TODO:
   + correos de success pago a account holder y comprador
   + complete downloads
   + USD display
+  + LIVE STREAMING EVENTS TEST PAY WALL
 
   + mercado pago
   + user playlists list edit button / modal
