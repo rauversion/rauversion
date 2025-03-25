@@ -59,6 +59,8 @@ export default function MusicForm({ product, isEditing = false }) {
       name_your_price: product?.name_your_price || false,
       quantity: product?.quantity || 1,
       product_images_attributes: product?.photos || [],
+      accept_barter: product?.accept_barter || false,
+      barter_description: product?.barter_description || '',
       product_shippings_attributes: product?.shipping_options?.map(option => ({
         id: option.id,
         country: option.country,
@@ -137,6 +139,7 @@ export default function MusicForm({ product, isEditing = false }) {
   }
 
   const limitedEdition = form.watch('limited_edition')
+  const digitalIncluded = form.watch('include_digital_album')
 
   return (
     <div className="m-4 rounded-lg border border-default bg-card text-card-foreground shadow-sm">
@@ -160,6 +163,23 @@ export default function MusicForm({ product, isEditing = false }) {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid md:grid-cols-5 gap-4 grid-cols-1">
             <div className="block pt-0 space-y-3 md:col-span-2">
+              
+            
+              <FormField
+                control={form.control}
+                name="title"
+                rules={{ required: "Title is required" }}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{I18n.t('products.music.form.title')}</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            
               <div className="flex space-x-2">
                 <div className="flex-1">
                   <FormField
@@ -250,54 +270,60 @@ export default function MusicForm({ product, isEditing = false }) {
                       )}
                     />
                   )}
-                </div>
 
-                <div className="flex-1">
+
                   <FormField
                     control={form.control}
-                    name="playlist_id"
+                    name="include_digital_album"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>{I18n.t('products.music.form.album')}</FormLabel>
+                      <FormItem className="flex items-center space-x-2">
                         <FormControl>
-                          <Select
-                            id="playlist_id"
-                            placeholder={I18n.t('products.music.form.select_album')}
-                            options={albums.map(album => ({
-                              value: album.id,
-                              label: album.title
-                            }))}
-                            value={albums
-                              .map(album => ({
-                                value: album.id,
-                                label: album.title
-                              }))
-                              .find(a => a.value === field.value)}
-                            onChange={(option) => field.onChange(option?.value)}
-                            theme={(theme) => selectTheme(theme, isDarkMode)}
+                          <Checkbox
+                            checked={field.value}
+                            onCheckedChange={field.onChange}
                           />
                         </FormControl>
+                        <FormLabel>{I18n.t('products.music.form.include_digital')}</FormLabel>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-                </div>
-              </div>
 
-              <FormField
-                control={form.control}
-                name="title"
-                rules={{ required: "Title is required" }}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{I18n.t('products.music.form.title')}</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+                  {
+                    digitalIncluded && (
+                      <FormField
+                      control={form.control}
+                      name="playlist_id"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{I18n.t('products.music.form.album')}</FormLabel>
+                          <FormControl>
+                            <Select
+                              id="playlist_id"
+                              placeholder={I18n.t('products.music.form.select_album')}
+                              options={albums.map(album => ({
+                                value: album.id,
+                                label: album.title
+                              }))}
+                              value={albums
+                                .map(album => ({
+                                  value: album.id,
+                                  label: album.title
+                                }))
+                                .find(a => a.value === field.value)}
+                              onChange={(option) => field.onChange(option?.value)}
+                              theme={(theme) => selectTheme(theme, isDarkMode)}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}/>
+                  )}
+
+
+                </div>
+
+              </div>
 
               <FormField
                 control={form.control}
@@ -317,26 +343,10 @@ export default function MusicForm({ product, isEditing = false }) {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="include_digital_album"
-                render={({ field }) => (
-                  <FormItem className="flex items-center space-x-2">
-                    <FormControl>
-                      <Checkbox
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormLabel>{I18n.t('products.music.form.include_digital')}</FormLabel>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
             </div>
 
             <div className="flex flex-col flex-grow md:col-span-3 col-span-1 space-y-6">
-              <PricingSection control={form.control} showLimitedEdition />
+              <PricingSection control={form.control} form={form} showLimitedEdition />
               <PhotosSection control={form.control} setValue={form.setValue} watch={form.watch} />
               <ShippingSection control={form.control} />
 

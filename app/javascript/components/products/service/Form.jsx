@@ -306,7 +306,7 @@ export default function ServiceForm({ product, isEditing = false }) {
 
               <div className="flex flex-col flex-grow md:col-span-3 col-span-1 space-y-6">
                 
-                <PricingSection control={form.control} isPriceOnly={true} />
+                <PricingSection control={form.control} form={form} isPriceOnly={true} />
 
                 <Card>
                   <CardHeader>

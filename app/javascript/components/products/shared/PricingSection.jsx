@@ -14,7 +14,10 @@ import {
 } from "@/components/ui/form"
 import I18n from '@/stores/locales'
 
-export default function PricingSection({ control, isPriceOnly  }) {
+export default function PricingSection({ control, isPriceOnly, form  }) {
+
+  const accepsBarter = form.watch('accept_barter')
+
   return (
     <Card>
       <CardHeader>
@@ -96,31 +99,35 @@ export default function PricingSection({ control, isPriceOnly  }) {
               )}
             />
 
-            <FormField
-              control={control}
-              name="compare_at_price"
-              rules={{
-                min: {
-                  value: 0,
-                  message: "Compare at price must be greater than or equal to 0"
-                }
-              }}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>{I18n.t('products.form.pricing.compare_at_price')}</FormLabel>
-                  <FormControl>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      {...field}
-                      onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+            {
+              /*
+                <FormField
+                  control={control}
+                  name="compare_at_price"
+                  rules={{
+                    min: {
+                      value: 0,
+                      message: "Compare at price must be greater than or equal to 0"
+                    }
+                  }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{I18n.t('products.form.pricing.compare_at_price')}</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          {...field}
+                          onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />              
+              */
+            }
 
             <FormField
               control={control}
@@ -142,13 +149,10 @@ export default function PricingSection({ control, isPriceOnly  }) {
               )}
             />
 
-            <FormField
+            {accepsBarter && <FormField
               control={control}
               name="barter_description"
               render={({ field }) => {
-                const acceptBarter = control._formValues.accept_barter
-                if (!acceptBarter) return null
-
                 return (
                   <FormItem>
                     <FormLabel>{I18n.t('products.form.pricing.barter_description')}</FormLabel>
@@ -162,7 +166,7 @@ export default function PricingSection({ control, isPriceOnly  }) {
                   </FormItem>
                 )
               }}
-            />
+            />}
           </>
         )}
 

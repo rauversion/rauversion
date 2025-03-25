@@ -50,7 +50,7 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
   const [track, setTrack] = useState(initialTrack)
   const [loading, setLoading] = useState(false)
   
-  const { control, handleSubmit, setValue, watch } = useForm({
+  const { control, handleSubmit, setValue, watch, form } = useForm({
     defaultValues: {
       title: track.title || "",
       description: track.description || "",
@@ -333,7 +333,7 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
                 </TabsContent>
 
                 <TabsContent value="pricing" className="p-6">
-                  <PricingForm control={control} />
+                  <PricingForm control={control} form={form} />
                 </TabsContent>
 
                 <TabsContent value="permissions" className="p-6">

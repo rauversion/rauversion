@@ -17,6 +17,8 @@ json.product do
   json.created_at @product.created_at
   json.updated_at @product.updated_at
   json.playlist_id @product.playlist_id
+  json.accept_barter @product.accept_barter
+  json.barter_description @product.barter_description
 
   # Associated album details
   if @product.album.present?

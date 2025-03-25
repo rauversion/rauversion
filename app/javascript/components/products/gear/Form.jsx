@@ -150,12 +150,27 @@ export default function GearForm({ product, isEditing = false }) {
 
         <FormErrors errors={backendErrors} />
 
-        
-
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid md:grid-cols-5 gap-4 grid-cols-1">
+            
             <div className="block pt-0 space-y-3 md:col-span-2">
+
+              <FormField
+                control={form.control}
+                name="title"
+                rules={{ required: "Title is required" }}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{I18n.t('products.gear.form.title')}</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+          
               <FormField
                 control={form.control}
                 name="category"
@@ -268,21 +283,6 @@ export default function GearForm({ product, isEditing = false }) {
 
               <FormField
                 control={form.control}
-                name="title"
-                rules={{ required: "Title is required" }}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{I18n.t('products.gear.form.title')}</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
                 name="status"
                 rules={{ required: "Status is required" }}
                 render={({ field }) => (
@@ -323,7 +323,7 @@ export default function GearForm({ product, isEditing = false }) {
             </div>
 
             <div className="flex flex-col flex-grow md:col-span-3 col-span-1 space-y-6">
-              <PricingSection control={form.control} />
+              <PricingSection control={form.control} form={form} />
               <PhotosSection control={form.control} setValue={form.setValue} watch={form.watch} />
               <ShippingSection control={form.control} />
 

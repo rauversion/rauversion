@@ -28,6 +28,7 @@ export default function ShippingSection({ control, setValue }) {
 
   const addShippingOption = () => {
     append({
+      id: null,
       country: '',
       base_cost: 0,
       additional_cost: 0

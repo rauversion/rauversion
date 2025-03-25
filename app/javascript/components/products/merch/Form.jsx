@@ -253,7 +253,7 @@ export default function MerchForm({ product, isEditing = false }) {
               </div>
 
               <div className="flex flex-col flex-grow md:col-span-3 col-span-1 space-y-6">
-                <PricingSection control={form.control} showLimitedEdition />
+                <PricingSection control={form.control} form={form} showLimitedEdition />
                 <PhotosSection control={form.control} setValue={form.setValue} watch={form.watch} />
                 <ShippingSection control={form.control} />
 

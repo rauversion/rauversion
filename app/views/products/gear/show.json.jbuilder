@@ -17,6 +17,7 @@ json.product do
   json.shipping_days @product.shipping_days
   json.created_at @product.created_at
   json.updated_at @product.updated_at
+  json.sku @product.sku
 
   # Product photos
   json.photos @product.product_images do |photo|

@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useId } from "react";
 
-export function CurrencyInput({ field, onChange, currency, label, currencySymbol, placeholder}) {
+export function CurrencyInput({ currency, currencySymbol, label, ...props}) {
   const id = useId();
   return (
     <div className="*:not-first:mt-2">
@@ -17,11 +17,7 @@ export function CurrencyInput({ field, onChange, currency, label, currencySymbol
         <Input
           id={id}
           className="-me-px rounded-e-none ps-6 shadow-none"
-
-          placeholder={placeholder}
-          type="text"
-          {...field}
-          onChange={onChange}
+          {...props}
         />
         <span className="border-input bg-default text-default z-10 inline-flex items-center rounded-e-md border px-3 text-sm">
           {currency}
