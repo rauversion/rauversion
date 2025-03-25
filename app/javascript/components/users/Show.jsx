@@ -175,16 +175,13 @@ export default function UserShow() {
                         const response = await post(`/${username}/follows.json`)
                         if (response.ok) {
                           const data = await response.json
-                          setUser(prev => ({
-                            ...prev,
-                            stats: {
-                              ...prev.stats,
-                              followers_count: data.is_following 
-                                ? prev.stats.followers_count + 1 
-                                : prev.stats.followers_count - 1
-                            },
-                            is_following: data.is_following
-                          }))
+                          console.log(user)
+                          const newUser = {
+                            ...user, 
+                            stats: {...user.stats, ...data }, 
+                            is_following: data.is_following 
+                          }
+                          setUser(newUser)
                         }
                       } catch (error) {
                         console.error('Error following user:', error)
