@@ -20,16 +20,23 @@ export default function ProfileForm() {
   const [avatarBlobId, setAvatarBlobId] = React.useState(null)
   const [headerBlobId, setHeaderBlobId] = React.useState(null)
 
-  const { register, handleSubmit, reset, getValues } = useForm()
+  const { register, handleSubmit, reset, getValues } = useForm({
+    defaultValues: {
+      username: "",
+      hide_username_from_profile: false,
+      first_name: "",
+      last_name: "",
+      bio: "",
+      country: "",
+      city: "",
+    }
+  })
 
   const fetchUser = async () => {
     const response = await get(`/${username}/settings.json`)
     if (response.ok) {
       const data = await response.json
-      setUser(data.user)
-      setAvatarBlobId(data.user.avatar_blob_id)
-      setHeaderBlobId(data.user.profile_header_blob_id)
-      
+
       // Reset form with user data
       reset({
         username: data.user.username,
@@ -40,6 +47,13 @@ export default function ProfileForm() {
         country: data.user.country,
         city: data.user.city,
       })
+
+      setUser(data.user)
+      setAvatarBlobId(data.user.avatar_blob_id)
+      setHeaderBlobId(data.user.profile_header_blob_id)
+      
+      console.log("DATA USER")
+      console.log(data.user)
     }
   }
 
@@ -103,6 +117,7 @@ export default function ProfileForm() {
 
   if (!user) return null
 
+  {console.log(register("bio"))}
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
       <Card>
@@ -119,6 +134,7 @@ export default function ProfileForm() {
               <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-sm">
                 {I18n.t('user_settings.profile.form.username.prefix')}
               </span>
+              
               <Input
                 id="username"
                 {...register("username")}
@@ -128,6 +144,7 @@ export default function ProfileForm() {
             <div className="flex items-center space-x-2 pt-2">
               <Checkbox
                 id="hide_username"
+
                 {...register("hide_username_from_profile")}
               />
               <Label 
