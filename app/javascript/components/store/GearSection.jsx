@@ -1,9 +1,9 @@
-import React, { useState } from "react"
-import { motion } from "framer-motion"
-import { Button } from "../ui/button"
-import { ChevronLeft, ChevronRight, Plus } from "lucide-react"
-import { useInfiniteScroll } from "../../hooks/useInfiniteScroll"
-import { Link } from 'react-router-dom'
+import React, { useState } from "react";
+import { motion } from "framer-motion";
+import { Button } from "../ui/button";
+import { ChevronLeft, ChevronRight, Plus } from "lucide-react";
+import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
+import { Link } from "react-router-dom";
 import {
   Card,
   CardContent,
@@ -11,28 +11,27 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "../ui/card"
-import { Badge } from "../ui/badge"
-
+} from "../ui/card";
+import { Badge } from "../ui/badge";
 
 const GearSection = () => {
-  const [currentPage, setCurrentPage] = useState(1)
-  const totalPages = 12
-  const [activeImage, setActiveImage] = useState(0)
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalPages = 12;
+  const [activeImage, setActiveImage] = useState(0);
 
-  const { 
-    items: products, 
-    loading, 
-    lastElementRef 
-  } = useInfiniteScroll("/store/gear.json")
+  const {
+    items: products,
+    loading,
+    lastElementRef,
+  } = useInfiniteScroll("/store/gear.json");
 
   const nextImage = () => {
-    setActiveImage((prev) => (prev + 1) % totalPages)
-  }
+    setActiveImage((prev) => (prev + 1) % totalPages);
+  };
 
   const prevImage = () => {
-    setActiveImage((prev) => (prev - 1 + totalPages) % totalPages)
-  }
+    setActiveImage((prev) => (prev - 1 + totalPages) % totalPages);
+  };
 
   return (
     <div className="bg-default py-16">
@@ -42,8 +41,12 @@ const GearSection = () => {
             Instrumentos musicales Nuevos y usados
           </h2>
           <p className="text-lg text-gray-600 max-w-2xl">
-            Encuentra los mejores instrumentos musicales para tu banda o proyecto musical
+            Encuentra los mejores instrumentos musicales para tu banda o
+            proyecto musical
           </p>
+          <Link to="/store/gear" className="text-blue-500 hover:underline">
+            Explore More Gear
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -64,9 +67,12 @@ const GearSection = () => {
                         className="w-full h-full object-contain transition-transform duration-500 group-hover:scale-105"
                       />
                     </div>
-                    
+
                     {product.variants && (
-                      <Badge variant="secondary" className="absolute top-4 right-4 backdrop-blur-sm">
+                      <Badge
+                        variant="secondary"
+                        className="absolute top-4 right-4 backdrop-blur-sm"
+                      >
                         +{product.variants} variantes
                       </Badge>
                     )}
@@ -77,8 +83,8 @@ const GearSection = () => {
                         size="icon"
                         className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                         onClick={(e) => {
-                          e.stopPropagation()
-                          prevImage()
+                          e.stopPropagation();
+                          prevImage();
                         }}
                       >
                         <ChevronLeft className="h-4 w-4" />
@@ -88,8 +94,8 @@ const GearSection = () => {
                         size="icon"
                         className="h-8 w-8 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                         onClick={(e) => {
-                          e.stopPropagation()
-                          nextImage()
+                          e.stopPropagation();
+                          nextImage();
                         }}
                       >
                         <ChevronRight className="h-4 w-4" />
@@ -105,7 +111,9 @@ const GearSection = () => {
                   </CardHeader>
 
                   <CardFooter className="p-4 pt-0 flex justify-between items-center">
-                    <span className="text-lg font-semibold">{product.price}</span>
+                    <span className="text-lg font-semibold">
+                      {product.price}
+                    </span>
                     <span className="text-sm text-muted-foreground">
                       {activeImage + 1}/{totalPages}
                     </span>
@@ -117,7 +125,7 @@ const GearSection = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default GearSection
+export default GearSection;

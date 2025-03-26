@@ -1,17 +1,15 @@
-import React from "react"
-import { motion } from "framer-motion"
-import { Button } from "../ui/button"
-import { Heart, ArrowRight } from "lucide-react"
-import { useInfiniteScroll } from "../../hooks/useInfiniteScroll"
-import { Link } from 'react-router-dom'
+import React from "react";
+import { motion } from "framer-motion";
+import { Button } from "../ui/button";
+import { Heart, ArrowRight } from "lucide-react";
+import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
+import { Link } from "react-router-dom";
 const EcoFriendlySection = () => {
-
-
-  const { 
-    items: products, 
-    loading, 
-    lastElementRef 
-  } = useInfiniteScroll("/store/music.json")
+  const {
+    items: products,
+    loading,
+    lastElementRef,
+  } = useInfiniteScroll("/store/music.json");
 
   return (
     <div className="bg-default py-24">
@@ -20,7 +18,7 @@ const EcoFriendlySection = () => {
           <div className="flex items-end justify-between mb-12">
             <div>
               <h2 className="text-6xl font-medium leading-tight">
-                CD, cassettes{" "}y Vinilos.
+                CD, cassettes y Vinilos.
                 <br />
                 Ediciones limitadas para coleccionistas{" "}
                 <motion.span
@@ -31,6 +29,9 @@ const EcoFriendlySection = () => {
                   <ArrowRight className="inline-block w-12 h-12" />
                 </motion.span>
               </h2>
+              <Link to="/store/music" className="text-blue-500 hover:underline">
+                Explore More Music
+              </Link>
             </div>
 
             <div className="flex items-center gap-4">
@@ -57,7 +58,6 @@ const EcoFriendlySection = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {products.map((product) => (
-            
             <motion.div
               key={product.id}
               initial={{ opacity: 0, y: 20 }}
@@ -78,7 +78,11 @@ const EcoFriendlySection = () => {
                     <button className="w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-colors">
                       <Heart className="w-4 h-4" />
                     </button>
-                    <Button size="sm" variant="outline" className="rounded-full bg-white/90 backdrop-blur-sm hover:bg-white">
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="rounded-full bg-white/90 backdrop-blur-sm hover:bg-white"
+                    >
                       Buy Now
                     </Button>
                   </div>
@@ -95,7 +99,7 @@ const EcoFriendlySection = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default EcoFriendlySection
+export default EcoFriendlySection;

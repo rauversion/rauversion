@@ -1,7 +1,6 @@
 require "faker"
 namespace :utils do
 
-
   desc "Create a user with a role of 'artist' and an attached avatar"
   task gen_artists: :environment do
 
@@ -62,6 +61,32 @@ namespace :utils do
   
     IO.binwrite(path, png.to_s)
     puts "QR code generated at #{path}"
+  end
+
+
+  desc "Resize all images in a folder using ruby-vips and save to output folder"
+  task resize: :environment do
+    source_dir = ENV["SOURCE"] || "input_images"
+    output_dir = ENV["OUTPUT"] || "output_images"
+
+    FileUtils.mkdir_p(output_dir)
+
+    Dir.glob("#{source_dir}/*.{png}").each do |file_path|
+      filename = File.basename(file_path)
+      output_path = File.join(output_dir, filename)
+
+      puts "Processing #{filename}..."
+
+      processed = ImageProcessing::Vips
+        .source(File.open(file_path))
+        .resize_to_limit(800, 800)
+        .saver(quality: 55, strip: true)
+        .call(destination: output_path)
+
+      puts "✅ Saved to #{output_path}"
+    end
+
+    puts "🎉 All images processed successfully."
   end
 
 end
