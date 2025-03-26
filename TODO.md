@@ -1,9 +1,10 @@
 TODO:
 
   + digital checkout , set price, validation on price
-  + download link
   + disable products when no stripe account setup
   + correos de success pago a account holder y comprador
+  
+  + download link
   + complete downloads
   + USD display
   + LIVE STREAMING EVENTS TEST PAY WALL
@@ -14,7 +15,6 @@ TODO:
   + React app
     + merch crud
     + blank render for all pages
-    + tickets obtain
     + label user site
     + redactor user site
     + artist user site

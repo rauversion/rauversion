@@ -24,7 +24,7 @@ const EcoFriendlySection = () => {
         <div className="mb-16">
           <div className="flex items-end justify-between mb-12">
             <div>
-              <h2 className="text-6xl font-medium leading-tight">
+              <h2 className="text-2xl sm:text-6xl font-medium leading-tight">
                 CD, cassettes y Vinilos.
                 <br />
                 Ediciones limitadas para coleccionistas{" "}
@@ -41,7 +41,7 @@ const EcoFriendlySection = () => {
               </Link>
             </div>
 
-            <div className="flex items-center gap-4">
+            <div className="hidden flex items-center gap-4">
               <div className="flex -space-x-2">
                 {[1, 2, 3].map((i) => (
                   <div
@@ -97,7 +97,7 @@ const EcoFriendlySection = () => {
                     </div>
 
                     <div className="absolute inset-0 p-6 flex flex-col">
-                      <div className="flex justify-between items-start">
+                      {/*<div className="flex justify-between items-start">
                         <button className="w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-colors">
                           <Heart className="w-4 h-4" />
                         </button>
@@ -108,7 +108,7 @@ const EcoFriendlySection = () => {
                         >
                           Buy Now
                         </Button>
-                      </div>
+                      </div>*/}
 
                       <div className="mt-auto">
                         <h3 className="text-2xl font-medium max-w-[200px] leading-tight text-white">
