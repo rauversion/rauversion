@@ -29,6 +29,9 @@ class HomeController < ApplicationController
     when 'latest_releases'
       @tracks = fetch_latest_releases
       render "tracks/index" and return
+    when 'podcasts'
+      @tracks = fetch_podcasts
+      render "tracks/index" and return
     else
       # fetch_all
     end
@@ -95,10 +98,20 @@ class HomeController < ApplicationController
     Playlist.published
       .latests
       .includes(:releases)
-      .where.not(playlist_type: ["ep", "album"])
+      .where(playlist_type: ["playlist"])
       .order("editor_choice_position asc, release_date desc, id desc")
       .page(params[:page])
       .per(10)
+  end
+
+  def fetch_podcasts
+    Track.published
+    .latests
+    .with_attached_cover
+    .where(podcast: "podcast")
+    .includes(user: { avatar_attachment: :blob })
+    .page(params[:page])
+    .per(10)
   end
 
   def fetch_latest_releases
@@ -106,6 +119,7 @@ class HomeController < ApplicationController
       .latests
       .with_attached_cover
       .includes(user: { avatar_attachment: :blob })
+      .where.not(podcast: "podcast")
       .page(params[:page])
       .per(10)
   end

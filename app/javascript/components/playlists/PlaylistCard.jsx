@@ -1,10 +1,10 @@
-import React from 'react'
-import { Link } from 'react-router-dom'
-import { ShareDialog } from "@/components/ui/share-dialog"
-import { cn } from "@/lib/utils"
+import React from "react";
+import { Link } from "react-router-dom";
+import { ShareDialog } from "@/components/ui/share-dialog";
+import { cn } from "@/lib/utils";
 
 export default function PlaylistCard({ playlist }) {
-  const shareUrl = `${window.location.origin}/playlists/${playlist.slug}`
+  const shareUrl = `${window.location.origin}/playlists/${playlist.slug}`;
 
   return (
     <div className="group">
@@ -18,39 +18,15 @@ export default function PlaylistCard({ playlist }) {
         </Link>
 
         <div className="absolute bottom-3 right-3 flex items-center gap-2">
-          <ShareDialog 
+          <ShareDialog
             url={shareUrl}
             title={playlist.title}
             description={`Listen to ${playlist.title} by ${playlist.user.username} on Rauversion`}
           />
-          
-          <div className="bg-primary p-2 rounded-full">
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              width="24" 
-              height="24" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              className="lucide lucide-list-music w-4 h-4"
-            >
-              <path d="M21 15V6"></path>
-              <path d="M18.5 18a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"></path>
-              <path d="M12 12H3"></path>
-              <path d="M16 6H3"></path>
-              <path d="M12 18H3"></path>
-            </svg>
-          </div>
         </div>
       </div>
 
-      <Link 
-        to={`/playlists/${playlist.slug}`}
-        className="block"
-      >
+      <Link to={`/playlists/${playlist.slug}`} className="block">
         <h3 className="font-bold mb-1 hover:text-primary transition-colors">
           {playlist.title}
         </h3>
@@ -59,5 +35,5 @@ export default function PlaylistCard({ playlist }) {
         </p>
       </Link>
     </div>
-  )
+  );
 }

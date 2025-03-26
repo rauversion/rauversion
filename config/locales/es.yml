@@ -77,10 +77,6 @@ es:
     title: Notificaciones
     mark_all_as_read: Marcar todas como leídas
 
-  artists:
-    featured: Artistas Destacados
-    title: Artistas
-
   podcasters:
     all: Todos los anfitriones
     new_host: Anfitrion nuevo
@@ -917,6 +913,9 @@ es:
 
   home:
     artists: Artistas que deberías conocer
+    podcasts:
+      title: Podcasts
+      subtitle: Escucha los podcasts de la comunidad
     hero:
       title: Sé tu propia industria musical
       subtitle: Empoderando comunidades musicales independientes en internet
@@ -973,12 +972,6 @@ es:
     go_to: Ir al perfil
     follow: Seguir
     following: Siguendo
-
-
-  artists:
-    title: Artistas
-    description: Explora los artistas más recientes de la comunidad
-    no_albums:  No se encontraron artistas
 
   albums:
     title: Álbumes
@@ -1822,6 +1815,10 @@ es:
         details: "Detalles"
 
   artists:
+    description: Explora el directorio de artistas y descubre nueva música
+    no_albums:  No se encontraron artistas
+    featured: Artistas Destacados
+    title: Artistas
     new_connection: "Nueva Conexión"
     new_artist: "Nuevo Artista"
     existing_artist:  "Artista Existente"

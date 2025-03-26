@@ -841,6 +841,9 @@ en:
         waiting: Waiting...
         complete: Completed
   home:
+    podcasts:
+      title: Podcasts
+      subtitle: Escucha los podcasts de la comunidad
     artists: Artists you should know
     hero:
       title: Be your own music industry

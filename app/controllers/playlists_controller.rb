@@ -2,16 +2,20 @@ class PlaylistsController < ApplicationController
   before_action :authenticate_user!, except: [:index, :show, :albums]
 
   def index
-    @playlists = Playlist.published
+    
+    respond_to do |format|
+      format.html { render_blank }
+      format.json {
+
+      @playlists = Playlist.published
       .with_attached_cover
       .includes(:tracks, user: {avatar_attachment: :blob})
     @playlists = @playlists.where(playlist_type: params[:type]) if params[:type].present? && params[:type] != "all"
     @playlists = @playlists.page(params[:page]).per(24)
     # @playlists_by_type = @playlists.group_by(&:playlist_type)
 
-    respond_to do |format|
-      format.html
-      format.json
+
+      }
     end
   end
 

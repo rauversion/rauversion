@@ -1,45 +1,50 @@
-import React, { useEffect, useState } from 'react'
-import { get } from '@rails/request.js'
-import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { Button } from '../ui/button'
-import I18n from 'stores/locales'
-import useAudioStore from "@/stores/audioStore"
-import { MinimalTrackCell } from '../tracks/TrackCell'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import React, { useEffect, useState } from "react";
+import { get } from "@rails/request.js";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Button } from "../ui/button";
+import I18n from "stores/locales";
+import useAudioStore from "@/stores/audioStore";
+import { MinimalTrackCell } from "../tracks/TrackCell";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@/components/ui/carousel"
+} from "@/components/ui/carousel";
 
-export default function LatestReleases() {
-  const [tracks, setTracks] = useState([])
-  const [loading, setLoading] = useState(true)
-  const { addMultipleToPlaylist } = useAudioStore()
+export default function LatestReleases({
+  url,
+  title,
+  subtitle,
+  skipAddToPlaylist,
+}) {
+  const [tracks, setTracks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { addMultipleToPlaylist } = useAudioStore();
   useEffect(() => {
     const loadTracks = async () => {
       try {
-        const response = await get('/tracks.json')
+        const response = await get(url);
         if (response.ok) {
-          const data = await response.json
-          setTracks(data.tracks.slice(0, 10))
-          
-          addMultipleToPlaylist(data.tracks)
+          const data = await response.json;
+          setTracks(data.tracks.slice(0, 10));
+
+          if (!skipAddToPlaylist) addMultipleToPlaylist(data.tracks);
         } else {
-          console.error('Failed to fetch tracks:', response.statusText)
+          console.error("Failed to fetch tracks:", response.statusText);
         }
       } catch (error) {
-        console.error('Error fetching tracks:', error)
+        console.error("Error fetching tracks:", error);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    loadTracks()
-  }, [])
+    loadTracks();
+  }, []);
 
   if (loading) {
     return (
@@ -53,7 +58,10 @@ export default function LatestReleases() {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
             {[...Array(5)].map((_, i) => (
-              <div key={i} className="bg-muted/50 rounded-2xl p-4 animate-pulse">
+              <div
+                key={i}
+                className="bg-muted/50 rounded-2xl p-4 animate-pulse"
+              >
                 <div className="flex items-start gap-4">
                   <div className="w-16 h-16 bg-muted rounded-lg" />
                   <div className="flex-1 space-y-3">
@@ -67,10 +75,10 @@ export default function LatestReleases() {
           </div>
         </div>
       </section>
-    )
+    );
   }
 
-  if (!tracks || tracks.length === 0) return null
+  if (!tracks || tracks.length === 0) return null;
 
   return (
     <section className="px-4 sm:px-8 py-12 bg-background">
@@ -82,20 +90,18 @@ export default function LatestReleases() {
             className="space-y-2"
           >
             <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-foreground">
-              {I18n.t('home.latest_tracks.title')}
+              {title}
             </h2>
-            <p className="text-lg text-muted-foreground">
-              {I18n.t('home.latest_tracks.subtitle')}
-            </p>
+            <p className="text-lg text-muted-foreground">{subtitle}</p>
           </motion.div>
-          
+
           <Link to="/tracks">
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               size="lg"
               className="group border-border text-foreground hover:bg-foreground hover:text-background transition-all duration-300"
             >
-              {I18n.t('home.latest_tracks.browse_all')}
+              {I18n.t("home.latest_tracks.browse_all")}
               <ChevronRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
             </Button>
           </Link>
@@ -104,13 +110,16 @@ export default function LatestReleases() {
         <Carousel
           opts={{
             align: "start",
-            loop: true
+            loop: true,
           }}
           className="relative w-full"
         >
           <CarouselContent className="-ml-4">
             {tracks.map((track) => (
-              <CarouselItem key={track.id} className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4 2xl:basis-1/5">
+              <CarouselItem
+                key={track.id}
+                className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4 2xl:basis-1/5"
+              >
                 <MinimalTrackCell track={track} />
               </CarouselItem>
             ))}
@@ -124,5 +133,5 @@ export default function LatestReleases() {
         </Carousel>
       </div>
     </section>
-  )
+  );
 }

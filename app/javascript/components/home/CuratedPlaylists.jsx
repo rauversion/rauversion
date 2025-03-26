@@ -1,9 +1,9 @@
-import React, { useRef } from 'react'
-import { Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
-import { Button } from '../ui/button'
-import { Badge } from '../ui/badge'
-import I18n from 'stores/locales'
+import React, { useRef } from "react";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Button } from "../ui/button";
+import { Badge } from "../ui/badge";
+import I18n from "stores/locales";
 
 const PlaylistCard = ({ playlist }) => {
   return (
@@ -16,7 +16,7 @@ const PlaylistCard = ({ playlist }) => {
       <Link to={`/playlists/${playlist.slug}`}>
         <div className="relative overflow-hidden rounded-2xl bg-background aspect-[4/3]">
           {/* Playlist Cover */}
-          <motion.div 
+          <motion.div
             className="absolute inset-0 bg-cover bg-center"
             style={{ backgroundImage: `url(${playlist.cover_url.medium})` }}
             whileHover={{ scale: 1.05 }}
@@ -34,11 +34,12 @@ const PlaylistCard = ({ playlist }) => {
               animate={{ opacity: 1, y: 0 }}
               className="flex justify-between items-start"
             >
-              <Badge 
-                variant="outline" 
+              <Badge
+                variant="outline"
                 className="bg-background/50 text-foreground border-border"
               >
-                {playlist.tracks_count} {I18n.t('home.curated_playlists.tracks')}
+                {playlist.tracks_count}{" "}
+                {I18n.t("home.curated_playlists.tracks")}
               </Badge>
             </motion.div>
 
@@ -49,7 +50,8 @@ const PlaylistCard = ({ playlist }) => {
               className="space-y-4"
             >
               <div className="flex items-center gap-4">
-              {/*
+                {/*
+                  
                 <motion.button 
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
@@ -73,7 +75,8 @@ const PlaylistCard = ({ playlist }) => {
                     {playlist.title}
                   </h3>
                   <p className="text-default font-medium">
-                    {I18n.t('home.curated_playlists.by')} {playlist.user.username}
+                    {I18n.t("home.curated_playlists.by")}{" "}
+                    {playlist.user.username}
                   </p>
                 </div>
               </div>
@@ -82,15 +85,15 @@ const PlaylistCard = ({ playlist }) => {
         </div>
       </Link>
     </motion.div>
-  )
-}
+  );
+};
 
 const CarouselButton = ({ direction, onClick, disabled }) => (
   <Button
     variant="outline"
     size="icon"
     className="absolute top-1/2 -translate-y-1/2 z-10 bg-background/80 border-border text-foreground hover:bg-foreground hover:text-background transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-    style={{ [direction === 'left' ? 'left' : 'right']: '1rem' }}
+    style={{ [direction === "left" ? "left" : "right"]: "1rem" }}
     onClick={onClick}
     disabled={disabled}
   >
@@ -104,26 +107,26 @@ const CarouselButton = ({ direction, onClick, disabled }) => (
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-      style={{ transform: direction === 'left' ? 'rotate(180deg)' : 'none' }}
+      style={{ transform: direction === "left" ? "rotate(180deg)" : "none" }}
     >
       <path d="M5 12h14"></path>
       <path d="m12 5 7 7-7 7"></path>
     </motion.svg>
   </Button>
-)
+);
 
 export default function CuratedPlaylists({ playlists, title, subtitle }) {
-  const scrollContainerRef = useRef(null)
-  
-  const scroll = (direction) => {
-    const container = scrollContainerRef.current
-    if (!container) return
-    
-    const scrollAmount = direction === 'left' ? -400 : 400
-    container.scrollBy({ left: scrollAmount, behavior: 'smooth' })
-  }
+  const scrollContainerRef = useRef(null);
 
-  if (!playlists || playlists.length === 0) return null
+  const scroll = (direction) => {
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    const scrollAmount = direction === "left" ? -400 : 400;
+    container.scrollBy({ left: scrollAmount, behavior: "smooth" });
+  };
+
+  if (!playlists || playlists.length === 0) return null;
 
   return (
     <section className="py-16 md:py-24 bg-background">
@@ -135,32 +138,29 @@ export default function CuratedPlaylists({ playlists, title, subtitle }) {
             className="space-y-2"
           >
             <h2 className="text-4xl md:text-6xl font-black tracking-tighter text-foreground">
-              {title || I18n.t('home.curated_playlists.title')}
+              {title || I18n.t("home.curated_playlists.title")}
             </h2>
             <p className="text-lg text-muted-foreground">
-              {subtitle || I18n.t('home.curated_playlists.subtitle')}
+              {subtitle || I18n.t("home.curated_playlists.subtitle")}
             </p>
           </motion.div>
-          
+
           <Link to="/playlists">
-            <Button 
-              variant="outline" 
-              size="lg"
-            >
+            <Button variant="outline" size="lg">
               <span className="text-foreground">
-                {I18n.t('home.curated_playlists.view_all')}
+                {I18n.t("home.curated_playlists.view_all")}
               </span>
-              
-              <motion.svg 
-                xmlns="http://www.w3.org/2000/svg" 
-                width="24" 
-                height="24" 
-                viewBox="0 0 24 24" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="2" 
-                strokeLinecap="round" 
-                strokeLinejoin="round" 
+
+              <motion.svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
                 className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform"
               >
                 <path d="M5 12h14"></path>
@@ -171,16 +171,13 @@ export default function CuratedPlaylists({ playlists, title, subtitle }) {
         </div>
 
         <div className="relative group">
-          <CarouselButton 
-            direction="left" 
-            onClick={() => scroll('left')}
-          />
-          
-          <div 
+          <CarouselButton direction="left" onClick={() => scroll("left")} />
+
+          <div
             ref={scrollContainerRef}
             className="overflow-x-auto scrollbar-hide px-4 sm:px-8"
           >
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
@@ -193,12 +190,9 @@ export default function CuratedPlaylists({ playlists, title, subtitle }) {
             </motion.div>
           </div>
 
-          <CarouselButton 
-            direction="right" 
-            onClick={() => scroll('right')}
-          />
+          <CarouselButton direction="right" onClick={() => scroll("right")} />
         </div>
       </div>
     </section>
-  )
+  );
 }
