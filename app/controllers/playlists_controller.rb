@@ -7,7 +7,7 @@ class PlaylistsController < ApplicationController
       .includes(:tracks, user: {avatar_attachment: :blob})
     @playlists = @playlists.where(playlist_type: params[:type]) if params[:type].present? && params[:type] != "all"
     @playlists = @playlists.page(params[:page]).per(24)
-    @playlists_by_type = @playlists.group_by(&:playlist_type)
+    # @playlists_by_type = @playlists.group_by(&:playlist_type)
 
     respond_to do |format|
       format.html
