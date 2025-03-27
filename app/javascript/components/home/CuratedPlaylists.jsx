@@ -5,7 +5,7 @@ import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import I18n from "stores/locales";
 
-const PlaylistCard = ({ playlist }) => {
+const PlaylistCard = ({ playlist, namespace }) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -13,7 +13,7 @@ const PlaylistCard = ({ playlist }) => {
       whileHover={{ scale: 1.02 }}
       className="dark group relative flex-shrink-0 w-[300px] md:w-[400px]"
     >
-      <Link to={`/playlists/${playlist.slug}`}>
+      <Link to={`${namespace ? namespace : "/playlists"}/${playlist.slug}`}>
         <div className="relative overflow-hidden rounded-2xl bg-background aspect-[4/3]">
           {/* Playlist Cover */}
           <motion.div
@@ -115,7 +115,12 @@ const CarouselButton = ({ direction, onClick, disabled }) => (
   </Button>
 );
 
-export default function CuratedPlaylists({ playlists, title, subtitle }) {
+export default function CuratedPlaylists({
+  namespace,
+  playlists,
+  title,
+  subtitle,
+}) {
   const scrollContainerRef = useRef(null);
 
   const scroll = (direction) => {
@@ -145,7 +150,7 @@ export default function CuratedPlaylists({ playlists, title, subtitle }) {
             </p>
           </motion.div>
 
-          <Link to="/playlists">
+          <Link to={`${namespace ? namespace : "/playlists"}`}>
             <Button variant="outline" size="lg">
               <span className="text-foreground">
                 {I18n.t("home.curated_playlists.view_all")}
@@ -185,7 +190,11 @@ export default function CuratedPlaylists({ playlists, title, subtitle }) {
               className="flex space-x-6"
             >
               {playlists.map((playlist) => (
-                <PlaylistCard key={playlist.id} playlist={playlist} />
+                <PlaylistCard
+                  key={playlist.id}
+                  playlist={playlist}
+                  namespace={namespace}
+                />
               ))}
             </motion.div>
           </div>

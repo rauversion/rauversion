@@ -273,6 +273,7 @@ export default function Home() {
 
             <motion.div variants={fadeInUp}>
               <CuratedPlaylists
+                // namespace={"/albums"}
                 playlists={data.albums}
                 title={"Lanzamientos recientes"}
                 subtitle={"Escucha los últimos lanzamientos en Rauversion"}

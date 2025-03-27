@@ -11,7 +11,21 @@ class ZipperJob < ApplicationJob
         track_zip(resource)
       elsif resource.is_a?(Playlist)
         playlist_zip(resource)
-      end 
+      end
+      
+      resource.reload
+      Rails.logger.info "ZipperJob completed for purchase #{purchase.id}."
+      # Notify the user via ActionCable that the zip is ready
+      if resource.zip.attached? && purchase.user
+        ActionCable.server.broadcast(
+          "purchase_channel_#{purchase.user.id}",
+          {
+            action: 'download_ready',
+            purchase_id: purchase.id,
+            download_url: Rails.application.routes.url_helpers.rails_blob_url(resource.zip)
+          }
+        )
+      end
     elsif track_id
       track = Track.find_by(id: track_id)
       return unless track

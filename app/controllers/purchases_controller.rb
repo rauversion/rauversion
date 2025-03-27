@@ -61,32 +61,80 @@ class PurchasesController < ApplicationController
   def download
     @purchase = Purchase.find(params[:id])
     
-    if @purchase.purchasable.zip.attached?
-      render turbo_stream: turbo_stream.replace(
-        "purchase_#{@purchase.id}_download",
-        partial: 'purchases/download_ready',
-        locals: { purchase: @purchase }
-      )
-    else
-      ZipperJob.perform_later(purchase_id: @purchase.id)
-      render turbo_stream: turbo_stream.replace(
-        "purchase_#{@purchase.id}_download",
-        partial: 'purchases/download_processing',
-        locals: { purchase: @purchase }
-      )
+    respond_to do |format|
+      format.html do
+        if @purchase.purchasable.zip.attached?
+          render turbo_stream: turbo_stream.replace(
+            "purchase_#{@purchase.id}_download",
+            partial: 'purchases/download_ready',
+            locals: { purchase: @purchase }
+          )
+        else
+          ZipperJob.perform_later(purchase_id: @purchase.id)
+          render turbo_stream: turbo_stream.replace(
+            "purchase_#{@purchase.id}_download",
+            partial: 'purchases/download_processing',
+            locals: { purchase: @purchase }
+          )
+        end
+      end
+      
+      format.json do
+        if @purchase.purchasable.zip.attached?
+          render json: {
+            status: 'ready',
+            purchase_id: @purchase.id,
+            download_url: rails_blob_url(@purchase.purchasable.zip)
+          }
+        else
+          ZipperJob.perform_later(purchase_id: @purchase.id)
+          ActionCable.server.broadcast(
+            "purchase_channel_#{current_user.id}",
+            {
+              action: 'processing_download',
+              purchase_id: @purchase.id
+            }
+          )
+          render json: {
+            status: 'processing',
+            purchase_id: @purchase.id,
+            message: 'Your download is being prepared. You will be notified when it is ready.'
+          }
+        end
+      end
     end
   end
 
   def check_zip_status
     @purchase = Purchase.find(params[:id])
-    if @purchase.purchasable.zip.attached?
-      render turbo_stream: turbo_stream.replace(
-        "purchase_#{@purchase.id}_download",
-        partial: 'purchases/download_ready',
-        locals: { purchase: @purchase }
-      )
-    else
-      head :no_content
+    
+    respond_to do |format|
+      format.html do
+        if @purchase.purchasable.zip.attached?
+          render turbo_stream: turbo_stream.replace(
+            "purchase_#{@purchase.id}_download",
+            partial: 'purchases/download_ready',
+            locals: { purchase: @purchase }
+          )
+        else
+          head :no_content
+        end
+      end
+      
+      format.json do
+        if @purchase.purchasable.zip.attached?
+          render json: {
+            status: 'ready',
+            purchase_id: @purchase.id,
+            download_url: rails_blob_url(@purchase.purchasable.zip)
+          }
+        else
+          render json: {
+            status: 'processing',
+            purchase_id: @purchase.id
+          }
+        end
+      end
     end
   end
 end

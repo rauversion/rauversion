@@ -30,6 +30,8 @@ class Product < ApplicationRecord
   attribute :name_your_price, :boolean
   attribute :quantity, :integer
 
+  scope :visibles, -> { where(status: 'active') }
+
   enum :status, { 
     active: 'active', 
     inactive: 'inactive', 

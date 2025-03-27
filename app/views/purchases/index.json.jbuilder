@@ -4,6 +4,10 @@ json.collection @collection do |purchase|
   json.updated_at purchase.updated_at
   json.state purchase.state
   json.price purchase.price
+
+  if purchase.is_downloadable?
+    json.download_path download_purchase_path(purchase, format: :json)
+  end
   
   json.purchased_items purchase.purchased_items do |item|
     json.id item.id

@@ -10,7 +10,7 @@ class StoreController < ApplicationController
   end
 
   def services
-    @products = Product.where(type: 'Products::ServiceProduct')
+    @products = Product.visibles.where(type: 'Products::ServiceProduct')
     .includes(
       product_images: {image_attachment: :blob}
     )
@@ -22,7 +22,7 @@ class StoreController < ApplicationController
   end
 
   def music
-    @products = Product.where(type: 'Products::MusicProduct')
+    @products = Product.visibles.where(type: 'Products::MusicProduct')
     .includes(
       product_images: {image_attachment: :blob}
     )
@@ -35,7 +35,7 @@ class StoreController < ApplicationController
   end
 
   def classes
-    @products = Product.where(type: 'Products::ServiceProduct')
+    @products = Product.visibles.where(type: 'Products::ServiceProduct')
     .includes(
       product_images: {image_attachment: :blob}
     )
@@ -47,7 +47,7 @@ class StoreController < ApplicationController
   end
 
   def feedback
-    @products = Product.where(type: 'Products::ServiceProduct')
+    @products = Product.visibles.where(type: 'Products::ServiceProduct')
     .includes(
       product_images: {image_attachment: :blob}
     )
@@ -59,7 +59,7 @@ class StoreController < ApplicationController
   end
 
   def accessories
-    @products = Product.where(type: 'Products::AccessoryProduct')
+    @products = Product.visibles.where(type: 'Products::AccessoryProduct')
     .includes(
       product_images: {image_attachment: :blob}
     )
@@ -71,7 +71,7 @@ class StoreController < ApplicationController
   end
 
   def gear
-    @products = Product.where(type: 'Products::GearProduct')
+    @products = Product.visibles.where(type: 'Products::GearProduct')
     .includes(
       product_images: {image_attachment: :blob}
     )
