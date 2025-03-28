@@ -1865,3 +1865,29 @@ es:
       subject: Asunto
       participants: Participantes
       message: Mensajes
+
+
+  interest_alert:
+    roles:
+      artist: Artista
+      seller: Vendedor
+    title:
+      artist: "Conviértete en Artista"
+      seller: "Conviértete en Vendedor"
+    description:
+      artist: "Comparte tu música con el mundo y haz crecer tu base de fans"
+      seller: "Comienza a vender tu mercancía y llega a más clientes"
+    input:
+      placeholder: "Cuéntanos por qué quieres unirte como %{type} include links y detalles de tu trabajo"
+    submit: "Enviar Solicitud"
+    default_message: "Estoy interesado en convertirme en %{type} en la plataforma."
+    review:
+      title: "Solicitud en Revisión"
+      message: "Estamos revisando tu solicitud para convertirte en %{type}. Te notificaremos cuando sea aprobada."
+    toast:
+      success:
+        title: "¡Éxito!"
+        description: "Tu solicitud para convertirte en %{type} ha sido enviada."
+      error:
+        title: "Error"
+        description: "Ocurrió un error inesperado"

@@ -36,7 +36,7 @@ class User < ApplicationRecord
   has_many :provider_service_bookings, class_name: 'ServiceBooking', foreign_key: :provider_id
   has_many :customer_service_bookings, class_name: 'ServiceBooking', foreign_key: :customer_id
   has_many :coupons
-
+  has_many :interest_alerts
   has_many :product_purchases
 
   

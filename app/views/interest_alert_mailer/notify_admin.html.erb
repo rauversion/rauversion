@@ -1,0 +1,16 @@
+<h1>New Role Request</h1>
+
+<p>Hello <%= @admin.username %>,</p>
+
+<p>A new role request has been submitted:</p>
+
+<ul>
+  <li><strong>User:</strong> <%= @user.username %></li>
+  <li><strong>Requested Role:</strong> <%= @interest_alert.role %></li>
+  <li><strong>Message:</strong> <%= @interest_alert.body %></li>
+</ul>
+
+<p>You can approve this request by visiting the admin dashboard.</p>
+
+<p>Best regards,<br>
+The Rauversion Team</p>

@@ -22,8 +22,8 @@ class Backstage::BaseController < ApplicationController
     # @q = resource_class.ransack(ransack_params[:conditions], combinator: ransack_params[:combinator])
     # @resources = @q.result
     
-    @resources = apply_filters(resource_class, @filter_form.filter_items)
-
+    applied_filters = apply_filters(resource_class, @filter_form.filter_items)
+    @resources = applied_filters if applied_filters.present?
     @resources = resource_class if @resources.nil?
 
     @resources = @filter_form.apply_scope(@resources) if @filter_form.scope.present?
@@ -143,7 +143,7 @@ class Backstage::BaseController < ApplicationController
       end
     end
 
-    @resources = @resources.page(params[:page]).per(10) # Adjust per-page as needed
+    # @resources = @resources.page(params[:page]).per(10) # Adjust per-page as needed
   end
 
   def resource_class

@@ -1,30 +1,93 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { post, get } from "@rails/request.js";
+import I18n from "@/stores/locales";
 
 interface InterestAlertProps {
-  type: 'artist' | 'seller';
+  type: "artist" | "seller";
   onSubmit: () => void;
 }
 
 const InterestAlert: React.FC<InterestAlertProps> = ({ type, onSubmit }) => {
   const [isSubmitted, setIsSubmitted] = useState(false);
-
+  const [message, setMessage] = useState("");
+  const [hasPendingRequest, setHasPendingRequest] = useState(false);
   const { toast } = useToast();
 
-  const handleSubmit = () => {
-    setIsSubmitted(true);
-    onSubmit();
-    
-    setTimeout(() => {
-      toast({
-        title: "Success!",
-        description: `Your interest in becoming a ${type} has been submitted.`,
+  console.log("Intereset alert for ", type);
+  const localeType = I18n.t(`interest_alert.roles.${type}`);
+
+  useEffect(() => {
+    const checkStatus = async () => {
+      try {
+        const response = await get(`/interest_alerts/status?role=${type}`);
+        const data = await response.json;
+        setHasPendingRequest(data.has_pending_request);
+        if (data.approved) {
+          // If already approved, they shouldn't see this component
+          onSubmit();
+        }
+      } catch (error) {
+        console.error("Error checking status:", error);
+      }
+    };
+
+    checkStatus();
+  }, [type]);
+
+  const handleSubmit = async () => {
+    try {
+      const response = await post("/interest_alerts.json", {
+        body: JSON.stringify({
+          interest_alert: {
+            role: type,
+            body:
+              message ||
+              I18n.t("interest_alert.default_message", { type: localeType }),
+          },
+        }),
       });
-    }, 1000);
+
+      const data = await response.json;
+
+      setIsSubmitted(true);
+      onSubmit();
+      toast({
+        title: I18n.t("interest_alert.toast.success.title"),
+        description:
+          data.message ||
+          I18n.t("interest_alert.toast.success.description", {
+            type: localeType,
+          }),
+      });
+    } catch (error: any) {
+      toast({
+        title: I18n.t("interest_alert.toast.error.title"),
+        description:
+          error?.message || t("interest_alert.toast.error.description"),
+        variant: "destructive",
+      });
+    }
   };
+
+  if (hasPendingRequest) {
+    return (
+      <Card className="p-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+        <div className="space-y-4">
+          <h3 className="text-2xl font-bold">
+            {I18n.t("interest_alert.review.title")}
+          </h3>
+          <p className="text-lg opacity-90">
+            {I18n.t("interest_alert.review.message", { type: localeType })}
+          </p>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <AnimatePresence>
@@ -43,13 +106,20 @@ const InterestAlert: React.FC<InterestAlertProps> = ({ type, onSubmit }) => {
               className="space-y-4"
             >
               <h3 className="text-2xl font-bold">
-                {type === 'artist' ? 'Become an Artist' : 'Become a Seller'}
+                {I18n.t(`interest_alert.title.${type}`)}
               </h3>
               <p className="text-lg opacity-90">
-                {type === 'artist' 
-                  ? 'Share your music with the world and grow your fanbase'
-                  : 'Start selling your merchandise and reach more customers'}
+                {I18n.t(`interest_alert.description.${type}`)}
               </p>
+
+              <Textarea
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                placeholder={I18n.t("interest_alert.input.placeholder", {
+                  type: localeType,
+                })}
+                className="bg-white/10 border-white/20 text-white placeholder:text-white/50"
+              />
               <motion.div
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -58,7 +128,7 @@ const InterestAlert: React.FC<InterestAlertProps> = ({ type, onSubmit }) => {
                   onClick={handleSubmit}
                   className="w-full bg-white text-purple-600 hover:bg-opacity-90"
                 >
-                  Submit Interest
+                  {I18n.t("interest_alert.submit")}
                 </Button>
               </motion.div>
             </motion.div>

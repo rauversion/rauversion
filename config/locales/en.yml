@@ -1801,3 +1801,30 @@ en:
       subject: Subject
       participants: Participants
       message: Message
+
+
+
+  interest_alert:
+    roles:
+      artist: "Artist"
+      seller: "Seller"
+    title:
+      artist: "Become an Artist"
+      seller: "Become a Seller"
+    description:
+      artist: "Share your music with the world and grow your fanbase"
+      seller: "Start selling your merchandise and reach more customers"
+    input:
+      placeholder: "Tell us why you want to join as a %{type} incude links to your work"
+    submit: "Submit Interest"
+    default_message: "I'm interested in becoming a %{type} on the platform."
+    review:
+      title: "Request Under Review"
+      message: "We're currently reviewing your request to become a %{type}. We'll notify you once it's approved."
+    toast:
+      success:
+        title: "Success!"
+        description: "Your interest in becoming a %{type} has been submitted."
+      error:
+        title: "Error"
+        description: "An unexpected error occurred"

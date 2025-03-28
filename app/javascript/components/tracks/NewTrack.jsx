@@ -1,230 +1,244 @@
-import React from "react"
-import { useNavigate, Link } from "react-router-dom"
-import { useToast } from "@/hooks/use-toast"
-import { Button } from "@/components/ui/button"
-import { InterestAlert } from "../shared/alerts"
-import useAuthStore from '@/stores/authStore'
-import { Label } from "@/components/ui/label"
-import { Switch } from "@/components/ui/switch"
-import { Music } from "lucide-react"
-import { DirectUpload } from "@rails/activestorage"
-import { post } from "@rails/request.js"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import Select from "react-select"
-import { Category } from "@/lib/constants"
-import { useThemeStore } from '@/stores/theme'
-import { ImageUploader } from "@/components/ui/image-uploader"
-import { Share2, X } from "lucide-react"
-import { Card, CardContent } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
-import selectTheme from "@/components/ui/selectTheme"
-import I18n from 'stores/locales'
+import React from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { InterestAlert } from "../shared/alerts";
+import useAuthStore from "@/stores/authStore";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Music } from "lucide-react";
+import { DirectUpload } from "@rails/activestorage";
+import { post } from "@rails/request.js";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import Select from "react-select";
+import { Category } from "@/lib/constants";
+import { useThemeStore } from "@/stores/theme";
+import { ImageUploader } from "@/components/ui/image-uploader";
+import { Share2, X } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import selectTheme from "@/components/ui/selectTheme";
+import I18n from "stores/locales";
 
-import "@/styles/react-select.css"
+import "@/styles/react-select.css";
 
 export default function NewTrack() {
-  const navigate = useNavigate()
-  const { toast } = useToast()
-  const { isDarkMode } = useThemeStore()
-  const { currentUser } = useAuthStore()
-  const [step, setStep] = React.useState("upload") // upload or info
-  const [uploading, setUploading] = React.useState(false)
-  const [files, setFiles] = React.useState([])
-  const [uploadProgress, setUploadProgress] = React.useState({})
-  const [uploadedFiles, setUploadedFiles] = React.useState([])
-  const [makePlaylist, setMakePlaylist] = React.useState(false)
-  const [privacy, setPrivacy] = React.useState("public")
-  const [completedTracks, setCompletedTracks] = React.useState([])
-  const fileInputRef = React.useRef(null)
-  const progressContainerRef = React.useRef(null)
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const { isDarkMode } = useThemeStore();
+  const { currentUser } = useAuthStore();
+  const [step, setStep] = React.useState("upload"); // upload or info
+  const [uploading, setUploading] = React.useState(false);
+  const [files, setFiles] = React.useState([]);
+  const [uploadProgress, setUploadProgress] = React.useState({});
+  const [uploadedFiles, setUploadedFiles] = React.useState([]);
+  const [makePlaylist, setMakePlaylist] = React.useState(false);
+  const [privacy, setPrivacy] = React.useState("public");
+  const [completedTracks, setCompletedTracks] = React.useState([]);
+  const fileInputRef = React.useRef(null);
+  const progressContainerRef = React.useRef(null);
 
   const handleDrop = (e) => {
-    e.preventDefault()
-    const droppedFiles = Array.from(e.dataTransfer.files)
-    handleFiles(droppedFiles)
-  }
+    e.preventDefault();
+    const droppedFiles = Array.from(e.dataTransfer.files);
+    handleFiles(droppedFiles);
+  };
 
   const handleFileSelect = (e) => {
-    const selectedFiles = Array.from(e.target.files)
-    handleFiles(selectedFiles)
-  }
+    const selectedFiles = Array.from(e.target.files);
+    handleFiles(selectedFiles);
+  };
 
   const handleFiles = (newFiles) => {
     // Filter for audio files
-    const audioFiles = newFiles.filter(file => file.type.startsWith('audio/'))
+    const audioFiles = newFiles.filter((file) =>
+      file.type.startsWith("audio/")
+    );
     if (audioFiles.length !== newFiles.length) {
       toast({
-        title: I18n.t('tracks.new.messages.invalid_files'),
-        description: I18n.t('tracks.new.messages.audio_only'),
+        title: I18n.t("tracks.new.messages.invalid_files"),
+        description: I18n.t("tracks.new.messages.audio_only"),
         variant: "destructive",
-      })
+      });
     }
-    setFiles(prev => [...prev, ...audioFiles])
-  }
+    setFiles((prev) => [...prev, ...audioFiles]);
+  };
 
-  const uploadFile = async (file, type = 'audio') => {
+  const uploadFile = async (file, type = "audio") => {
     return new Promise((resolve, reject) => {
-      const upload = new DirectUpload(file, '/rails/active_storage/direct_uploads', {
-        directUploadWillStoreFileWithXHR: (request) => {
-          request.upload.addEventListener('progress', (event) => {
-            const progress = (event.loaded / event.total) * 100
-            if (type === 'audio') {
-              setUploadProgress(prev => ({
-                ...prev,
-                [file.name]: progress
-              }))
-            }
-          })
+      const upload = new DirectUpload(
+        file,
+        "/rails/active_storage/direct_uploads",
+        {
+          directUploadWillStoreFileWithXHR: (request) => {
+            request.upload.addEventListener("progress", (event) => {
+              const progress = (event.loaded / event.total) * 100;
+              if (type === "audio") {
+                setUploadProgress((prev) => ({
+                  ...prev,
+                  [file.name]: progress,
+                }));
+              }
+            });
+          },
         }
-      })
-      
+      );
+
       upload.create((error, blob) => {
         if (error) {
-          reject(error)
+          reject(error);
         } else {
-          resolve(blob)
+          resolve(blob);
         }
-      })
-    })
-  }
+      });
+    });
+  };
 
   const handleUpload = async (e) => {
-    e.preventDefault()
+    e.preventDefault();
     if (files.length === 0) {
       toast({
-        title: I18n.t('tracks.new.messages.no_files'),
-        description: I18n.t('tracks.new.messages.select_files'),
+        title: I18n.t("tracks.new.messages.no_files"),
+        description: I18n.t("tracks.new.messages.select_files"),
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    setUploading(true)
+    setUploading(true);
     try {
       // Upload all files
-      const uploadPromises = files.map(file => uploadFile(file))
-      const blobs = await Promise.all(uploadPromises)
+      const uploadPromises = files.map((file) => uploadFile(file));
+      const blobs = await Promise.all(uploadPromises);
 
       // Store uploaded files info
-      setUploadedFiles(files.map((file, index) => ({
-        name: file.name,
-        blobId: blobs[index].signed_id,
-        title: file.name.replace(/\.[^/.]+$/, ""), // Remove extension
-        description: "",
-        tags: [],
-        coverId: null,
-        private: false,
-      })))
+      setUploadedFiles(
+        files.map((file, index) => ({
+          name: file.name,
+          blobId: blobs[index].signed_id,
+          title: file.name.replace(/\.[^/.]+$/, ""), // Remove extension
+          description: "",
+          tags: [],
+          coverId: null,
+          private: false,
+        }))
+      );
 
-      setStep("info")
+      setStep("info");
       toast({
-        description: I18n.t('tracks.new.messages.upload_success', {
+        description: I18n.t("tracks.new.messages.upload_success", {
           count: files.length,
-          plural: files.length > 1 ? 's' : ''
+          plural: files.length > 1 ? "s" : "",
         }),
         variant: "success",
-      })
+      });
     } catch (error) {
-      console.error('Upload error:', error)
+      console.error("Upload error:", error);
       toast({
         title: "Error",
-        description: I18n.t('tracks.new.messages.upload_error'),
+        description: I18n.t("tracks.new.messages.upload_error"),
         variant: "destructive",
-      })
+      });
     } finally {
-      setUploading(false)
+      setUploading(false);
     }
-  }
+  };
 
   const handleCoverUpload = async (e, index) => {
-    const file = e.target.files[0]
-    if (!file) return
+    const file = e.target.files[0];
+    if (!file) return;
 
     try {
-      const blob = await uploadFile(file, 'image')
-      updateTrackInfo(index, 'coverId', blob.signed_id)
+      const blob = await uploadFile(file, "image");
+      updateTrackInfo(index, "coverId", blob.signed_id);
     } catch (error) {
-      console.error('Cover upload error:', error)
+      console.error("Cover upload error:", error);
       toast({
         title: "Error",
-        description: I18n.t('tracks.new.messages.cover_error'),
+        description: I18n.t("tracks.new.messages.cover_error"),
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   const handleSubmitInfo = async (e) => {
-    e.preventDefault()
-    
+    e.preventDefault();
+
     try {
-      const response = await post('/tracks', {
-        responseKind: 'json',
+      const response = await post("/tracks", {
+        responseKind: "json",
         body: JSON.stringify({
           track_form: {
             step: "info",
             make_playlist: makePlaylist,
             privacy: privacy,
-            tracks_attributes: uploadedFiles.map(file => ({
+            tracks_attributes: uploadedFiles.map((file) => ({
               audio: file.blobId,
               title: file.title,
               description: file.description,
               tags: file.tags,
               cover: file.coverId,
               private: file.private,
-            }))
-          }
+            })),
+          },
         }),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error('Network response was not ok')
+        throw new Error("Network response was not ok");
       }
 
-      const data = await response.json
-      
+      const data = await response.json;
+
       if (data.success) {
-        setCompletedTracks(data.tracks)
-        setStep("share")
+        setCompletedTracks(data.tracks);
+        setStep("share");
       } else {
         toast({
           title: "Error",
           description: data.errors.join(", "),
           variant: "destructive",
-        })
+        });
       }
     } catch (error) {
-      console.error('Error:', error)
+      console.error("Error:", error);
       toast({
         title: "Error",
-        description: I18n.t('tracks.new.messages.save_error'),
+        description: I18n.t("tracks.new.messages.save_error"),
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   const removeFile = (index) => {
-    setFiles(prev => prev.filter((_, i) => i !== index))
-    setUploadProgress(prev => {
-      const newProgress = { ...prev }
-      delete newProgress[files[index].name]
-      return newProgress
-    })
-  }
+    setFiles((prev) => prev.filter((_, i) => i !== index));
+    setUploadProgress((prev) => {
+      const newProgress = { ...prev };
+      delete newProgress[files[index].name];
+      return newProgress;
+    });
+  };
 
   const updateTrackInfo = (index, field, value) => {
-    setUploadedFiles(prev => prev.map((file, i) => 
-      i === index ? { ...file, [field]: value } : file
-    ))
-  }
+    setUploadedFiles((prev) =>
+      prev.map((file, i) => (i === index ? { ...file, [field]: value } : file))
+    );
+  };
 
   if (step === "info") {
     return (
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <form onSubmit={handleSubmitInfo} className="mt-8 sm:mx-auto sm:w-full sm:max-w-4xl space-y-4">
+        <form
+          onSubmit={handleSubmitInfo}
+          className="mt-8 sm:mx-auto sm:w-full sm:max-w-4xl space-y-4"
+        >
           {uploadedFiles.map((file, index) => (
-            <div key={index} className="min-h-full flex justify-center py-6 sm:px-6 lg:px-8 border rounded-md">
+            <div
+              key={index}
+              className="min-h-full flex justify-center py-6 sm:px-6 lg:px-8 border rounded-md"
+            >
               <div className="flex gap-8 w-full max-w-4xl">
                 {/* Left side - Cover Image */}
                 <div className="w-48 flex flex-col gap-2">
@@ -243,9 +257,13 @@ export default function NewTrack() {
                   </div>
                   <ImageUploader
                     aspectRatio={1}
-                    imageUrl={file.coverId ? `/rails/active_storage/blobs/redirect/${file.coverId}/cover.jpg` : null}
+                    imageUrl={
+                      file.coverId
+                        ? `/rails/active_storage/blobs/redirect/${file.coverId}/cover.jpg`
+                        : null
+                    }
                     onUploadComplete={(signedId) => {
-                      updateTrackInfo(index, 'coverId', signedId)
+                      updateTrackInfo(index, "coverId", signedId);
                     }}
                     preview={false}
                   />
@@ -254,44 +272,57 @@ export default function NewTrack() {
                 {/* Right side - Form Fields */}
                 <div className="flex-1 space-y-4">
                   <div>
-                    <Label htmlFor={`title-${index}`}>{I18n.t('tracks.new.form.title')}</Label>
+                    <Label htmlFor={`title-${index}`}>
+                      {I18n.t("tracks.new.form.title")}
+                    </Label>
                     <Input
                       id={`title-${index}`}
                       value={file.title}
-                      onChange={(e) => updateTrackInfo(index, 'title', e.target.value)}
+                      onChange={(e) =>
+                        updateTrackInfo(index, "title", e.target.value)
+                      }
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor={`tags-${index}`}>{I18n.t('tracks.new.form.tags')}</Label>
+                    <Label htmlFor={`tags-${index}`}>
+                      {I18n.t("tracks.new.form.tags")}
+                    </Label>
                     <Select
                       id={`tags-${index}`}
-                      value={file.tags.map(tag => ({ value: tag, label: tag }))}
+                      value={file.tags.map((tag) => ({
+                        value: tag,
+                        label: tag,
+                      }))}
                       theme={(theme) => selectTheme(theme, isDarkMode)}
-                      onChange={(selected) => 
+                      onChange={(selected) =>
                         updateTrackInfo(
                           index,
-                          'tags',
-                          selected ? selected.map(option => option.value) : []
+                          "tags",
+                          selected ? selected.map((option) => option.value) : []
                         )
                       }
-                      options={Category.Genres.map(genre => ({
+                      options={Category.Genres.map((genre) => ({
                         value: genre,
-                        label: genre
+                        label: genre,
                       }))}
                       isMulti
                       className="react-select-container"
                       classNamePrefix="react-select"
-                      placeholder={I18n.t('tracks.new.form.tags_placeholder')}
+                      placeholder={I18n.t("tracks.new.form.tags_placeholder")}
                     />
                   </div>
 
                   <div>
-                    <Label htmlFor={`description-${index}`}>{I18n.t('tracks.new.form.description')}</Label>
+                    <Label htmlFor={`description-${index}`}>
+                      {I18n.t("tracks.new.form.description")}
+                    </Label>
                     <Textarea
                       id={`description-${index}`}
                       value={file.description}
-                      onChange={(e) => updateTrackInfo(index, 'description', e.target.value)}
+                      onChange={(e) =>
+                        updateTrackInfo(index, "description", e.target.value)
+                      }
                     />
                   </div>
 
@@ -299,10 +330,12 @@ export default function NewTrack() {
                     <Switch
                       id={`private-${index}`}
                       checked={file.private}
-                      onCheckedChange={(checked) => updateTrackInfo(index, 'private', checked)}
+                      onCheckedChange={(checked) =>
+                        updateTrackInfo(index, "private", checked)
+                      }
                     />
                     <Label htmlFor={`private-${index}`}>
-                      {I18n.t('tracks.new.form.private_track')}
+                      {I18n.t("tracks.new.form.private_track")}
                     </Label>
                   </div>
                 </div>
@@ -312,12 +345,12 @@ export default function NewTrack() {
 
           <div className="mt-6">
             <Button type="submit" className="w-full">
-              {I18n.t('tracks.new.form.save')}
+              {I18n.t("tracks.new.form.save")}
             </Button>
           </div>
         </form>
       </div>
-    )
+    );
   }
 
   if (step === "share") {
@@ -356,18 +389,18 @@ export default function NewTrack() {
 
                     {track.private && (
                       <Badge variant="secondary" className="mb-2">
-                        {I18n.t('tracks.private')}
+                        {I18n.t("tracks.private")}
                       </Badge>
                     )}
 
                     <div className="flex items-center justify-between">
                       <div className="text-sm text-muted-foreground">
-                        <p>{I18n.t('tracks.new.share.upload_complete')}</p>
+                        <p>{I18n.t("tracks.new.share.upload_complete")}</p>
                         <Link
                           to={`/tracks/${track.slug}`}
                           className="text-primary hover:text-primary/90"
                         >
-                          {I18n.t('tracks.new.share.go_to_track')}
+                          {I18n.t("tracks.new.share.go_to_track")}
                         </Link>
                       </div>
                     </div>
@@ -379,23 +412,27 @@ export default function NewTrack() {
                       <div>
                         <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
                           <Share2 className="h-4 w-4" />
-                          {I18n.t('tracks.new.share.share')}
+                          {I18n.t("tracks.new.share.share")}
                         </h4>
-                        
+
                         <div className="space-y-2">
                           <Button
                             variant="outline"
                             className="w-full justify-start text-sm"
                             onClick={() => {
-                              navigator.clipboard.writeText(`${window.location.origin}/tracks/${track.id}`)
+                              navigator.clipboard.writeText(
+                                `${window.location.origin}/tracks/${track.id}`
+                              );
                               toast({
-                                description: I18n.t('tracks.new.messages.link_copied'),
-                              })
+                                description: I18n.t(
+                                  "tracks.new.messages.link_copied"
+                                ),
+                              });
                             }}
                           >
-                            {I18n.t('tracks.new.share.copy_link')}
+                            {I18n.t("tracks.new.share.copy_link")}
                           </Button>
-                          
+
                           <Button
                             variant="outline"
                             className="w-full justify-start text-sm"
@@ -408,7 +445,7 @@ export default function NewTrack() {
                               target="_blank"
                               rel="noopener noreferrer"
                             >
-                              {I18n.t('tracks.new.share.share_twitter')}
+                              {I18n.t("tracks.new.share.share_twitter")}
                             </a>
                           </Button>
                         </div>
@@ -421,53 +458,23 @@ export default function NewTrack() {
           ))}
         </div>
       </div>
-    )
+    );
   }
 
   const handleArtistInterest = async () => {
-    try {
-      const response = await post('/api/artist_requests', {
-        responseKind: 'json',
-        body: JSON.stringify({
-          artist_request: {
-            status: 'pending'
-          }
-        })
-      });
-
-      const data = await response.json;
-      
-      if (data.success) {
-        toast({
-          title: "Success!",
-          description: "Your interest in becoming an artist has been submitted. We'll review your request shortly.",
-        });
-      } else {
-        toast({
-          title: "Error",
-          description: "There was a problem submitting your request. Please try again.",
-          variant: "destructive",
-        });
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      toast({
-        title: "Error",
-        description: "There was a problem submitting your request. Please try again.",
-        variant: "destructive",
-      });
-    }
-  }
+    toast({
+      title: "Success!",
+      description:
+        "Your interest in becoming an artist has been submitted. We'll review your request shortly.",
+    });
+  };
 
   if (!currentUser?.is_creator) {
     return (
       <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <InterestAlert 
-          type="artist"
-          onSubmit={handleArtistInterest}
-        />
+        <InterestAlert type="artist" onSubmit={handleArtistInterest} />
       </div>
-    )
+    );
   }
 
   return (
@@ -476,10 +483,10 @@ export default function NewTrack() {
         <div className="flex-col max-w-2xl w-full">
           <div className="text-center">
             <h3 className="text-2xl font-semibold text-default">
-              {I18n.t('tracks.new.upload.title')}
+              {I18n.t("tracks.new.upload.title")}
             </h3>
             <p className="mt-2 text-sm text-muted-foreground">
-              {I18n.t('tracks.new.upload.subtitle')}
+              {I18n.t("tracks.new.upload.subtitle")}
             </p>
           </div>
 
@@ -492,15 +499,17 @@ export default function NewTrack() {
             className="mt-8 flex flex-col items-center justify-center w-full p-6 border-2 border-dashed rounded-lg border-muted hover:border-muted-foreground transition-colors cursor-pointer"
           >
             <Music className="h-12 w-12 text-muted-foreground mb-4" />
-            
+
             <Label
               htmlFor="audio-upload"
               className="text-sm font-medium text-primary hover:text-primary/80 cursor-pointer"
             >
-              {I18n.t('tracks.new.upload.button')}
+              {I18n.t("tracks.new.upload.button")}
             </Label>
-            <p className="mt-1 text-sm text-muted-foreground">{I18n.t('tracks.new.upload.or_drop')}</p>
-            
+            <p className="mt-1 text-sm text-muted-foreground">
+              {I18n.t("tracks.new.upload.or_drop")}
+            </p>
+
             <input
               id="audio-upload"
               type="file"
@@ -512,7 +521,7 @@ export default function NewTrack() {
             />
 
             <p className="mt-2 text-xs text-muted-foreground">
-              {I18n.t('tracks.new.upload.size_limit')}
+              {I18n.t("tracks.new.upload.size_limit")}
             </p>
           </div>
         </div>
@@ -544,12 +553,12 @@ export default function NewTrack() {
                         size="icon"
                         className="h-8 w-8"
                         onClick={() => {
-                          setFiles(files.filter((_, i) => i !== index))
-                          setUploadProgress(prev => {
-                            const newProgress = { ...prev }
-                            delete newProgress[file.name]
-                            return newProgress
-                          })
+                          setFiles(files.filter((_, i) => i !== index));
+                          setUploadProgress((prev) => {
+                            const newProgress = { ...prev };
+                            delete newProgress[file.name];
+                            return newProgress;
+                          });
                         }}
                       >
                         <X className="h-4 w-4" />
@@ -565,10 +574,12 @@ export default function NewTrack() {
                         <span>
                           {uploadProgress[file.name]
                             ? `${Math.round(uploadProgress[file.name])}%`
-                            : I18n.t('tracks.new.controls.waiting')}
+                            : I18n.t("tracks.new.controls.waiting")}
                         </span>
                         {uploadProgress[file.name] === 100 && (
-                          <span className="text-primary">{I18n.t('tracks.new.controls.complete')}</span>
+                          <span className="text-primary">
+                            {I18n.t("tracks.new.controls.complete")}
+                          </span>
                         )}
                       </div>
                     </div>
@@ -589,13 +600,15 @@ export default function NewTrack() {
                     onCheckedChange={setMakePlaylist}
                   />
                   <Label htmlFor="make-playlist">
-                    {I18n.t('tracks.new.controls.create_playlist')}
+                    {I18n.t("tracks.new.controls.create_playlist")}
                   </Label>
                 </div>
               )}
 
               <div className="space-y-2">
-                <Label className="text-sm font-medium">{I18n.t('tracks.new.controls.privacy')}</Label>
+                <Label className="text-sm font-medium">
+                  {I18n.t("tracks.new.controls.privacy")}
+                </Label>
                 <div className="flex items-center space-x-4">
                   <div className="flex items-center space-x-2">
                     <RadioGroup
@@ -605,11 +618,15 @@ export default function NewTrack() {
                     >
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="public" id="public" />
-                        <Label htmlFor="public">{I18n.t('tracks.new.controls.public')}</Label>
+                        <Label htmlFor="public">
+                          {I18n.t("tracks.new.controls.public")}
+                        </Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="private" id="private" />
-                        <Label htmlFor="private">{I18n.t('tracks.new.controls.private')}</Label>
+                        <Label htmlFor="private">
+                          {I18n.t("tracks.new.controls.private")}
+                        </Label>
                       </div>
                     </RadioGroup>
                   </div>
@@ -622,21 +639,23 @@ export default function NewTrack() {
             <Button
               variant="outline"
               onClick={() => {
-                setFiles([])
-                setUploadProgress({})
+                setFiles([]);
+                setUploadProgress({});
               }}
             >
-              {I18n.t('tracks.new.controls.clear_all')}
+              {I18n.t("tracks.new.controls.clear_all")}
             </Button>
             <Button
               onClick={handleUpload}
               disabled={uploading || files.length === 0}
             >
-              {uploading ? I18n.t('tracks.new.controls.uploading') : I18n.t('tracks.new.controls.start_upload')}
+              {uploading
+                ? I18n.t("tracks.new.controls.uploading")
+                : I18n.t("tracks.new.controls.start_upload")}
             </Button>
           </div>
         </div>
       )}
     </div>
-  )
+  );
 }

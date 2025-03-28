@@ -4,8 +4,6 @@ TODO:
   + disable products when no stripe account setup
   + correos de success pago a account holder y comprador
   
-  + download link
-  + complete downloads
   + USD display
   + LIVE STREAMING EVENTS TEST PAY WALL
 

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_09_055209) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_28_022105) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -208,6 +208,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_09_055209) do
     t.index ["slug", "sluggable_type", "scope"], name: "index_friendly_id_slugs_on_slug_and_sluggable_type_and_scope", unique: true
     t.index ["slug", "sluggable_type"], name: "index_friendly_id_slugs_on_slug_and_sluggable_type"
     t.index ["sluggable_type", "sluggable_id"], name: "index_friendly_id_slugs_on_sluggable_type_and_sluggable_id"
+  end
+
+  create_table "interest_alerts", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.text "body", null: false
+    t.string "role", null: false
+    t.boolean "approved", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_interest_alerts_on_user_id"
   end
 
   create_table "likes", force: :cascade do |t|
@@ -853,6 +863,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_09_055209) do
   add_foreign_key "event_schedules", "events"
   add_foreign_key "event_tickets", "events"
   add_foreign_key "events", "users"
+  add_foreign_key "interest_alerts", "users"
   add_foreign_key "message_reads", "messages"
   add_foreign_key "message_reads", "participants"
   add_foreign_key "messages", "conversations"

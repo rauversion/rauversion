@@ -99,4 +99,34 @@ Backstage::Config.configure do
     action :edit
     action :delete
   end
+
+  resource :interest_alerts do
+    column :id
+    column :user do |alert, view|
+      view.link_to alert.user.username, view.user_path(alert.user.username)
+    end
+    column :role
+    column :body
+    column :approved
+    column :created_at
+
+    scope :all
+    scope :pending, -> { where(approved: false) }
+    scope :approved, -> { where(approved: true) }
+
+    filter :role_eq, :select, collection: -> { ["artist", "seller"] }
+    filter :approved_eq, :select, collection: -> { [["Yes", true], ["No", false]] }
+
+    form_field :role, :string, readonly: true
+    form_field :body, :text, readonly: true
+    form_field :approved, :boolean
+
+    action :view
+    action :edit
+
+    custom_action :approve, label: 'Approve Request', only: :show do |alert|
+      alert.approve!
+      redirect_to backstage.interest_alert_path(alert), notice: 'Request approved successfully'
+    end
+  end
 end

@@ -147,6 +147,12 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :interest_alerts, only: [:create] do
+    collection do
+      get :status
+    end
+  end
+
   resources :articles do
     member do
       get :preview
