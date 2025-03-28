@@ -15,6 +15,7 @@ class InterestAlert < ApplicationRecord
       user.update(seller: true, role: "artist")
     end
     
+    InterestAlertMailer.notify_approval(self).deliver_later
   end
 
   private
