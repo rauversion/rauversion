@@ -118,14 +118,16 @@ export default function UserMenu() {
                 >
                   {I18n.t("menu.magazine")}
                 </Link>
-                {currentUser && currentUser.can_sell_products && (
-                  <Link
-                    to="/store"
-                    className="rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted"
-                  >
-                    {I18n.t("menu.store")}
-                  </Link>
-                )}
+                {currentUser &&
+                  currentUser.can_sell_products &&
+                  currentUser.is_admin && (
+                    <Link
+                      to="/store"
+                      className="rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted"
+                    >
+                      {I18n.t("menu.store")}
+                    </Link>
+                  )}
               </div>
             </div>
 
