@@ -1838,6 +1838,7 @@ es:
 
   messages:
     title: Mensajes
+    loading: Cargando mensajes...
     status:
       archived: Archivado
       active: Activo
@@ -1865,6 +1866,11 @@ es:
       subject: Asunto
       participants: Participantes
       message: Mensajes
+    notifications:
+      message_sent: Mensaje enviado
+      message_error: Error al enviar mensaje
+      status_updated: Estado actualizado
+      created: Creado
 
 
   interest_alert:

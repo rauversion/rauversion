@@ -1779,6 +1779,7 @@ en:
 
   messages:
     title: Messages 
+    loading: Loading...
     status:
       archived: Archived
       active: Active
@@ -1802,7 +1803,11 @@ en:
       participants: Participants
       message: Message
 
-
+    notifications:
+      message_sent: Message sent 
+      message_error:  Error sending message
+      status_updated: Status updated
+      created: Created
 
   interest_alert:
     roles:

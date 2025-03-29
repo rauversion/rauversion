@@ -5,7 +5,7 @@ json.message do
   json.created_at @message.created_at
   json.read false # New messages are always unread for recipients
   json.user do
-    json.partial! 'users/user', user: @messager.user, show_full_name: true
+    json.partial! 'users/user', user: @message.user, show_full_name: true
   end
 end
 
