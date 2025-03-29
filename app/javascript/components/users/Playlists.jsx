@@ -1,18 +1,27 @@
-import React from 'react'
-import { useParams, Link } from 'react-router-dom'
-import useAudioStore from '../../stores/audioStore'
-import { Play, Pause, Lock } from 'lucide-react'
-import MusicPurchase from '../shared/MusicPurchase'
-import { useInfiniteScroll } from '../../hooks/useInfiniteScroll'
-import PlaylistListItem from './PlaylistItem'
-import { motion } from 'framer-motion'
-import { cn } from "@/lib/utils"
+import React from "react";
+import { useParams, Link } from "react-router-dom";
+import useAudioStore from "../../stores/audioStore";
+import { Play, Pause, Lock } from "lucide-react";
+import MusicPurchase from "../shared/MusicPurchase";
+import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
+import PlaylistListItem from "./PlaylistItem";
+import { motion } from "framer-motion";
+import { cn } from "@/lib/utils";
 
-function PlaylistCard({ playlist, index, isLast, lastElementRef, currentTrackId, isPlaying, handlePlayTrack, handlePlayPlaylist }) {
-  const cardRef = isLast ? lastElementRef : null
+function PlaylistCard({
+  playlist,
+  index,
+  isLast,
+  lastElementRef,
+  currentTrackId,
+  isPlaying,
+  handlePlayTrack,
+  handlePlayPlaylist,
+}) {
+  const cardRef = isLast ? lastElementRef : null;
 
   return (
-    <motion.div 
+    <motion.div
       ref={cardRef}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -27,8 +36,8 @@ function PlaylistCard({ playlist, index, isLast, lastElementRef, currentTrackId,
       )}
     >
       <div className="flex flex-col sm:flex-row gap-4">
-        <motion.div 
-          className="sm:w-48 w-full aspect-square relative group rounded-lg overflow-hidden"
+        <motion.div
+          className="w-48 h-48 flex-shrink-0 relative group rounded-lg overflow-hidden sticky top-4"
           whileHover={{ scale: 1.02 }}
           transition={{ duration: 0.2 }}
         >
@@ -47,7 +56,8 @@ function PlaylistCard({ playlist, index, isLast, lastElementRef, currentTrackId,
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
           >
-            {isPlaying && playlist.tracks?.some(track => track.id === currentTrackId) ? (
+            {isPlaying &&
+            playlist.tracks?.some((track) => track.id === currentTrackId) ? (
               <Pause className="w-16 h-16 text-white" />
             ) : (
               <Play className="w-16 h-16 text-white" />
@@ -60,16 +70,24 @@ function PlaylistCard({ playlist, index, isLast, lastElementRef, currentTrackId,
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
               <div className="space-y-1">
                 <h3 className="text-xl font-bold tracking-tight text-default line-clamp-1">
-                  <Link to={`/playlists/${playlist.slug}`} className="hover:text-brand-500 transition-colors">
+                  <Link
+                    to={`/playlists/${playlist.slug}`}
+                    className="hover:text-brand-500 transition-colors"
+                  >
                     {playlist.title}
                   </Link>
                 </h3>
 
-                {playlist.playlist_type === 'album' && playlist.release_date && (
-                  <span className="text-sm text-zinc-400 font-medium">
-                    Album • {new Date(playlist.release_date).toLocaleDateString(undefined, { month: 'long', year: 'numeric' })}
-                  </span>
-                )}
+                {playlist.playlist_type === "album" &&
+                  playlist.release_date && (
+                    <span className="text-sm text-zinc-400 font-medium">
+                      Album •{" "}
+                      {new Date(playlist.release_date).toLocaleDateString(
+                        undefined,
+                        { month: "long", year: "numeric" }
+                      )}
+                    </span>
+                  )}
               </div>
 
               <div className="flex items-center gap-2 flex-wrap">
@@ -86,7 +104,10 @@ function PlaylistCard({ playlist, index, isLast, lastElementRef, currentTrackId,
                     "focus:outline-none focus:ring-2 focus:ring-brand-500 focus:ring-offset-2 focus:ring-offset-background"
                   )}
                 >
-                  {isPlaying && playlist.tracks?.some(track => track.id === currentTrackId) ? (
+                  {isPlaying &&
+                  playlist.tracks?.some(
+                    (track) => track.id === currentTrackId
+                  ) ? (
                     <>
                       <Pause className="w-4 h-4 mr-2" />
                       Pause
@@ -130,7 +151,7 @@ function PlaylistCard({ playlist, index, isLast, lastElementRef, currentTrackId,
                 />
               ))}
               <div className="mt-4 flex justify-end">
-                <MusicPurchase 
+                <MusicPurchase
                   resource={playlist}
                   type="Playlist"
                   variant="mini"
@@ -141,44 +162,39 @@ function PlaylistCard({ playlist, index, isLast, lastElementRef, currentTrackId,
         </div>
       </div>
     </motion.div>
-  )
+  );
 }
 
-export default function UserPlaylists({ namespace = 'playlists' }) {
-  const { username } = useParams()
-  const { 
-    currentTrackId, 
-    isPlaying, 
-    play,
-    pause,
-    setPlaylist
-  } = useAudioStore()
+export default function UserPlaylists({ namespace = "playlists" }) {
+  const { username } = useParams();
+  const { currentTrackId, isPlaying, play, pause, setPlaylist } =
+    useAudioStore();
 
   const {
     items: playlists,
     loading,
-    lastElementRef
-  } = useInfiniteScroll(`/${username}/${namespace}.json`)
+    lastElementRef,
+  } = useInfiniteScroll(`/${username}/${namespace}.json`);
 
   const handlePlayTrack = (track, playlist) => {
     if (currentTrackId === track.id) {
       if (isPlaying) {
-        pause()
+        pause();
       } else {
-        play(track.id)
+        play(track.id);
       }
     } else {
-      setPlaylist(playlist.tracks)
-      play(track.id)
+      setPlaylist(playlist.tracks);
+      play(track.id);
     }
-  }
+  };
 
   const handlePlayPlaylist = (playlist) => {
     if (playlist.tracks && playlist.tracks.length > 0) {
-      setPlaylist(playlist.tracks)
-      play(playlist.tracks[0].id)
+      setPlaylist(playlist.tracks);
+      play(playlist.tracks[0].id);
     }
-  }
+  };
 
   return (
     <div className="pb-8">
@@ -197,7 +213,7 @@ export default function UserPlaylists({ namespace = 'playlists' }) {
       ))}
 
       {loading && (
-        <motion.div 
+        <motion.div
           className="flex justify-center p-8"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -208,7 +224,7 @@ export default function UserPlaylists({ namespace = 'playlists' }) {
       )}
 
       {playlists.length === 0 && !loading && (
-        <motion.div 
+        <motion.div
           className="text-center py-16"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -218,5 +234,5 @@ export default function UserPlaylists({ namespace = 'playlists' }) {
         </motion.div>
       )}
     </div>
-  )
+  );
 }
