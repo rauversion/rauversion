@@ -35,9 +35,9 @@ function PlaylistCard({
         "sm:mx-4 mx-2"
       )}
     >
-      <div className="flex flex-col sm:flex-row gap-4">
+      <div className="flex flex-col sm:flex-row gap-4 items-center sm:items-start">
         <motion.div
-          className="w-48 h-48 flex-shrink-0 relative group rounded-lg overflow-hidden sticky top-4"
+          className="w-48 h-48 flex-shrink-0 relative group rounded-lg overflow-hidden sm:sticky top-4"
           whileHover={{ scale: 1.02 }}
           transition={{ duration: 0.2 }}
         >
@@ -90,7 +90,7 @@ function PlaylistCard({
                   )}
               </div>
 
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-2 flex-wrap sm:justify-start justify-center">
                 <motion.button
                   onClick={() => handlePlayPlaylist(playlist)}
                   whileHover={{ scale: 1.05 }}
