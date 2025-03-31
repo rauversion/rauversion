@@ -33,7 +33,7 @@ json.cover_url do
     json.medium track.cover_url(:medium)
     json.small track.cover_url(:small)
     json.large track.cover_url(:large)
-    json.cropped_image track.cropped_image
+    json.cropped_image url_for(track.cropped_image)
   else
     json.medium track.user.avatar_url(:medium)
     json.small track.user.avatar_url(:small)
