@@ -32,9 +32,13 @@ json.cover_url do
   if track.cover.attached?
     json.medium track.cover_url(:medium)
     json.small track.cover_url(:small)
+    json.large track.cover_url(:large)
+    json.cropped_image track.cropped_image
   else
     json.medium track.user.avatar_url(:medium)
     json.small track.user.avatar_url(:small)
+    json.large track.cover_url(:large)
+    json.cropped_image track.user.avatar_url(:medium)
   end
 end
 json.user do

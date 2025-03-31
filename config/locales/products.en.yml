@@ -192,7 +192,7 @@ en:
       show:
         business_days: Business days
         shipping_cost: Shipping cost
-        accept_barter: Accept barter
+        accepts_barter: Accept barter
         barter: "Trueque"
         barter_available: Barter Available
 
