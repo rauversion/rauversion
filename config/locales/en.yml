@@ -172,6 +172,16 @@ en:
     no_image: Without image
     online: Online
     edit:
+      menu:
+        event_summary: "Event Summary"
+        event_schedule: "Event Schedule"
+        teams_and_managers: "Teams and Managers"
+        tickets: "Tickets"
+        live_streaming: "Live Streaming"
+        event_attendees: "Event Attendees"
+        event_recordings: "Event Recordings"
+        configuration: "Configuration"
+
       overview: Summary of the Event
       form:
         title:

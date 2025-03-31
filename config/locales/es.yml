@@ -192,6 +192,15 @@ es:
     no_image: Sin imagen
     online: En línea
     edit:
+      menu:
+        event_summary: "Resumen del Evento"
+        event_schedule: "Horario del Evento"
+        teams_and_managers: "Equipos y Gestores"
+        tickets: "Entradas"
+        live_streaming: "Transmisión en Vivo"
+        event_attendees: "Asistentes al Evento"
+        event_recordings: "Grabaciones del Evento"
+        configuration: "Configuracion"
       messages:
         success: Evento actualizado exitosamente
         error: No se pudo actualizar el evento
