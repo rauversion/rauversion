@@ -13,9 +13,9 @@
 ![Image](https://github.com/user-attachments/assets/028a6093-7f1a-4bf9-8fff-bbcebb4a1e18)
 
 
-<!-- [![CI](https://github.com/rauversion/rauversion-ror/actions/workflows/ruby.yml/badge.svg)](https://github.com/rauversion/rauversion-ror/actions/workflows/ruby.yml)
+[![CI](https://github.com/rauversion/rauversion-ror/actions/workflows/ruby.yml/badge.svg)](https://github.com/rauversion/rauversion-ror/actions/workflows/ruby.yml)
 
-[![Maintainability](https://api.codeclimate.com/v1/badges/29736b742904813c7fec/maintainability)](https://codeclimate.com/github/rauversion/rauversion-ror/maintainability)-->
+[![Maintainability](https://api.codeclimate.com/v1/badges/29736b742904813c7fec/maintainability)](https://codeclimate.com/github/rauversion/rauversion-ror/maintainability)
 
 Rauversion is an open source music sharing platform.
 
