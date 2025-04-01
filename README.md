@@ -1,6 +1,14 @@
-# Rauversion
+# Rauversion: Music Multiverses
+
+Rauversion is an open-source music platform that empowers artists to share, distribute, and monetize their music directly with fans. Our mission is to provide a transparent and artist-friendly alternative to mainstream streaming services.
+
+Rauversion is built on Ruby on Rails.
 
 ---
+
+[![CI](https://github.com/rauversion/rauversion-ror/actions/workflows/ruby.yml/badge.svg)](https://github.com/rauversion/rauversion-ror/actions/workflows/ruby.yml)
+
+[![Maintainability](https://api.codeclimate.com/v1/badges/29736b742904813c7fec/maintainability)](https://codeclimate.com/github/rauversion/rauversion-ror/maintainability)
 
 ![Image](https://github.com/user-attachments/assets/7ec88799-364f-4200-8fc2-160a7a47bfa8)
 
@@ -11,15 +19,6 @@
 ![Image](https://github.com/user-attachments/assets/36512ed5-1520-4723-b02b-3c92ad7ab433)
 
 ![Image](https://github.com/user-attachments/assets/028a6093-7f1a-4bf9-8fff-bbcebb4a1e18)
-
-
-[![CI](https://github.com/rauversion/rauversion-ror/actions/workflows/ruby.yml/badge.svg)](https://github.com/rauversion/rauversion-ror/actions/workflows/ruby.yml)
-
-[![Maintainability](https://api.codeclimate.com/v1/badges/29736b742904813c7fec/maintainability)](https://codeclimate.com/github/rauversion/rauversion-ror/maintainability)
-
-Rauversion is an open source music sharing platform.
-
-Rauversion is built on Ruby on Rails.
 
 
 ## Features:
