@@ -1,5 +1,6 @@
 TODO:
 
+
   + digital checkout , set price, validation on price
   + disable products when no stripe account setup
   + correos de success pago a account holder y comprador
@@ -16,6 +17,11 @@ TODO:
     + label user site
     + redactor user site
     + artist user site
+
+  + Playlist block
+    + Color accent on puck
+  + images too big , use variants
+  + slider is cluncky
 
   + Marketplace: 
     + translations
