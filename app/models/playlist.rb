@@ -42,7 +42,7 @@ class Playlist < ApplicationRecord
   end
 
   scope :latests, -> { order("id desc") }
-  scope :published, -> { where(private: false) }
+  scope :published, -> { where(private: [false, nil]) }
   scope :albums, -> { where(playlist_type: "album") }
   store_accessor :metadata, :buy_link, :string
   store_accessor :metadata, :buy_link_title, :string

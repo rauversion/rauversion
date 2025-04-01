@@ -99,6 +99,7 @@ class HomeController < ApplicationController
       .latests
       .includes(:releases)
       .where(playlist_type: ["playlist"])
+      .where.not(editor_choice_position: nil)
       .order("editor_choice_position asc, release_date desc, id desc")
       .page(params[:page])
       .per(10)
