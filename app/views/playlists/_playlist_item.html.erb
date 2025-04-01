@@ -58,6 +58,10 @@
                 <% playlist.track_playlists.order("position").each do |tp|%>
                   <li class="py-4 px-2 dark:hover:bg-gray-800">
                     <%= link_to player_path(id: tp.track.id, t: true),
+                    data: {
+                      action:"click->track-player#play",
+                      track_id: tp.track.id
+                    },
                       class: "flex items-center space-x-4" do %>
                       <div class="flex-shrink-0">
                         <%= image_tag(

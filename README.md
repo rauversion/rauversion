@@ -2,7 +2,16 @@
 
 ---
 
-![image](https://user-images.githubusercontent.com/11976/174422926-b392a1f5-bd6a-4bd2-b6c8-8d41dad6711d.png)
+![Image](https://github.com/user-attachments/assets/7ec88799-364f-4200-8fc2-160a7a47bfa8)
+
+![Image](https://github.com/user-attachments/assets/9610bc9e-c5ba-47dc-a8a1-4dd9eb781d10)
+
+![Image](https://github.com/user-attachments/assets/c6e13ff3-5ef6-41d1-bbd8-66533f68815e)
+
+![Image](https://github.com/user-attachments/assets/36512ed5-1520-4723-b02b-3c92ad7ab433)
+
+![Image](https://github.com/user-attachments/assets/028a6093-7f1a-4bf9-8fff-bbcebb4a1e18)
+
 
 [![CI](https://github.com/rauversion/rauversion-ror/actions/workflows/ruby.yml/badge.svg)](https://github.com/rauversion/rauversion-ror/actions/workflows/ruby.yml)
 
@@ -16,6 +25,7 @@ Rauversion is built on Ruby on Rails.
 ## Features:
  + Account system with different providers, Twitter, Discord, Twitch.
  + Roles to open or closed communities.
+  
 ### Music publishing:
   + Audio processing to format mp3 and audio analysis to draw audio peaks.
   + Audio player, embeddable, with chunk range loading processing to save bandwidth.
@@ -46,13 +56,24 @@ Rauversion is built on Ruby on Rails.
   + Cover image.
   + Article Categories.
   
+### Marketplace:
+  + Sell Music: Physical formats, CD, Vinyls, Casettes.
+  + Sell Gear: Used gear for trade or Barter.
+  + Offer services: Different services for professionals.
+  + Merch: General merch offerings.
+  
+### LinkTree like Supported
+  + add multiple links from different sources.
 
+### Service Bookings:
+  + Book the services with clients
+  + Use Messaging board to coordinate stuff
 
 ## setup
 
 Rauversion is written in Ruby on top of the Rails Framework:
 
-> Ruby 3.2
+> Ruby 3.3.5
 
 You can develop directly in a container with [vscode devcontainer](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) or [neovim devcontainer](https://github.com/jamestthompson3/nvim-remote-containers)
 
@@ -107,3 +128,12 @@ Foto de <a href="https://unsplash.com/@denitdao?utm_source=unsplash&utm_medium=r
 test mailers
 
 http://localhost:3000/rails/mailers/purchases/event_ticket_confirmation
+
+
+mercado pago test cards:
+https://www.mercadopago.cl/developers/panel/app/8566160701393530/test-cards
+mercadopago categories
+https://api.mercadopago.com/item_categories
+
+
+card 5416 7526 0258 2580 11/30 123 APRO (otro)123456789

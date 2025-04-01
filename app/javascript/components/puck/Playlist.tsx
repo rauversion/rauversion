@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Play, Pause, MoreHorizontal } from 'lucide-react';
 import useAudioStore from '../../stores/audioStore';
+import ColorPicker from './ColorPicker';
 
 interface Track {
   id: number;
@@ -43,11 +44,10 @@ interface Playlist {
   updated_at: string;
   user: User;
   label?: User;
-  cover_url: string;
+  cover_url: object;
   tracks: Track[];
   likes_count: number;
   comments_count: number;
-  author: User;
 }
 
 interface PlaylistProps {
@@ -92,7 +92,7 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
         if(data.error){
           throw new Error(data.error);
         }
-        setPlaylist(data);
+        setPlaylist(data.playlist);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
@@ -104,7 +104,7 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
   }, [playlistId]);
 
   useEffect(() => {
-    if (playlist && currentTrackId) {
+    if (playlist && playlist.tracks && currentTrackId) {
       const index = playlist.tracks.findIndex(track => track.id === currentTrackId);
       if (index !== -1) {
         setCurrentTrackIndex(index);
@@ -117,9 +117,11 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
     useAudioStore.setState({ playlist: tracks });
   };
 
+
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
   if (!playlist) return <div>No playlist found</div>;
+  if (!playlist.user) return <div>No playlist user found</div>;
 
   return (
     <>{
@@ -129,30 +131,31 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
         <div className="flex items-start gap-6">
           {playlist.cover_url && (
             <img 
-              src={playlist.cover_url} 
+              src={playlist.cover_url.medium} 
               alt={playlist.title}
               className="w-[160px] h-[160px] rounded-md shadow-lg"
             />
           )}
           
           <div className="flex-1">
-            <h2 className="text-white font-bold text-3xl mb-2">{playlist.title}</h2>
-            <p className="text-zinc-400 mb-4">{playlist.user.full_name}</p>
+            <h2 className="text-default font-bold text-3xl mb-2">{playlist.title}</h2>
+            <p className="text-default/10 mb-4">{playlist.user.full_name}</p>
             <div className="flex items-center gap-4">
               <a 
-                href={playlist.tracks[0] ? `/player?id=${playlist.tracks[0].slug}&t=true` : ''}
+                // href={playlist.tracks[0] ? `/player?id=${playlist.tracks[0].slug}&t=true` : ''}
                 // data-action="track-detector#addGroup" 
                 onClick={(e) => {
-                  if(audioPlaying() && currentTrackId === playlist.tracks[0].id) {
-                    audioElement.pause();
+                  if(audioPlaying()) {
+                    //audioElement.pause();
                     useAudioStore.setState({ isPlaying: false });
                     e.preventDefault();
                   } else {
                     setTracksToStore(0);
+                    useAudioStore.setState({ currentTrackId: playlist.tracks[0].id + "", isPlaying: true });
                   }
                 }}
-                style={{ backgroundColor: accentColor }}
-                className={`bg-default text-black font-semibold rounded-full p-3 hover:scale-105 transition`}
+                //style={{ backgroundColor: accentColor }}
+                className={`bg-black/20 cursor-pointer text-black font-semibold rounded-full p-3 hover:scale-105 transition`}
               >
                 {isPlaying ? <Pause size={24} /> : <Play size={24} />}
               </a>
@@ -164,8 +167,8 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
         </div>
   
         <div className="mt-8">
-          <div className="space-y-1 bg-black/5 p-4 rounded-lg">
-            {playlist.tracks.map((track, index) => (
+          <div className="space-y-1 bg-black/30 p-4 rounded-lg">
+            {playlist.tracks && playlist.tracks.map((track, index) => (
               <div 
                 key={track.id}
                 className={`flex items-center justify-between p-2 rounded hover:bg-white hover:bg-opacity-10 group ${
@@ -178,24 +181,21 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
                   </span>
                   
                   <a 
-                    href={`/player?id=${track.slug}&t=true`}
-                    onClick={(e) => {
-                      if(audioPlaying() && currentTrackId === track.id) {
+                    onClick={async (e) => {
+                      e.preventDefault();
+                      
+                      if(audioPlaying()) {
                         audioElement.pause();
-                        useAudioStore.setState({ isPlaying: false });
-                        e.preventDefault();
+                        useAudioStore.setState({ currentTrackId: track.id + "", isPlaying: false });
                       } else {
-                        const trackIndex = playlist.tracks.map(t => t.id).indexOf(track.id);
-                        setTracksToStore(trackIndex);
+                        useAudioStore.setState({ currentTrackId: track.id + "", isPlaying: true });
                       }
+
+                      // Set the track in the store
                     }}
-                    data-track-id={track.id}
-                    data-track-detector-targetnono="track"
-                    className={`${
-                      currentTrackId === track.id ? `text-[${accentColor}] opacity-100` : 'text-zinc-400 opacity-0'
-                    } group-hover:opacity-100 hover:text-white transition`}
+                    className="cursor-pointer"
                   >
-                    {currentTrackId === track.id && isPlaying ? 
+                    {currentTrackId === track.id + "" && isPlaying ? 
                       <Pause size={20} /> : 
                       <Play size={20} />
                     }
@@ -207,13 +207,13 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
                     }`}>
                       {track.title}
                     </p>
-                    <p className="text-zinc-400 text-sm">{track.author.full_name}</p>
+                    <p className="text-default text-sm">{track.user.full_name}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
                   {
                     track.duration !== "xx;xx" && (
-                      <span className="text-zinc-400">
+                      <span className="text-default text-sm">
                         {track.duration}
                       </span>
                     )
@@ -250,9 +250,9 @@ export const config = {
       label: "Playlist ID"
     },
     accentColor: {
-      type: "color",
+      type: "custom",
       label: "Accent Color",
-      defaultValue: "#1DB954"
+      render: ColorPicker,
     }
   },
   defaultProps: {

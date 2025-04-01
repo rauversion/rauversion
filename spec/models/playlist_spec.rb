@@ -21,7 +21,7 @@ RSpec.describe Playlist, type: :model do
 
     describe ".published" do
       it "returns only published tracks" do
-        expect(Playlist.published).to contain_exactly(@playlist1, @playlist3)
+        expect(Playlist.published.ids).to contain_exactly(@playlist1.id, @playlist3.id)
       end
     end
 

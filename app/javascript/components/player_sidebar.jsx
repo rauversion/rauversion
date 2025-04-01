@@ -7,7 +7,7 @@ import { Button } from "./ui/button";
 const PlayerSidebar = () => {
   const [tracks, setTracks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { currentTrackId, isPlaying } = useAudioStore();
+  const { currentTrackId, isPlaying, play } = useAudioStore();
   const audioElement = document.getElementById("audioElement");
 
   const audioPlaying = () => {
@@ -80,26 +80,17 @@ const PlayerSidebar = () => {
               key={track.id}
               className="flex items-center gap-2 px-2 py-1 hover:bg-accent rounded-lg group cursor-pointer"
             >
-              <a
-                href={`/player?id=${track.slug}&t=true`}
-                onClick={(e) => {
-                  if (audioPlaying() && currentTrackId === track.id) {
-                    audioElement.pause();
-                    useAudioStore.setState({ isPlaying: false });
-                    e.preventDefault();
-                  } else {
-                    const trackIndex = tracks.findIndex((t) => t.id === track.id);
-                    setTracksToStore(trackIndex);
-                  }
-                }}
+              <button
+                // href={`/player?id=${track.slug}&t=true`}
+                onClick={()=> play(track.id) }
                 className="flex items-center gap-2 flex-1"
               >
                 <div className="w-10 h-10 relative group">
-                  {/*<img
-                    src={track.cover_url}
+                  <img
+                    src={track.cover_url.small}
                     alt={track.title}
                     className="w-full h-full object-cover rounded"
-                  />*/}
+                  />
                   <div className={`absolute inset-0 flex items-center justify-center bg-black/40 ${
                     currentTrackId === track.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
                   } transition-opacity`}>
@@ -117,11 +108,11 @@ const PlayerSidebar = () => {
                   }`}>
                     {track.title}
                   </span>
-                  <span className="text-xs text-muted-foreground truncate">
+                  <span className="text-xs text-left text-muted-foreground truncate">
                     {track.user.username}
                   </span>
                 </div>
-              </a>
+              </button>
               
               <Button
                 variant="ghost"

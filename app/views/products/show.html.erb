@@ -1,4 +1,3 @@
-<div class="bg-default">
 
   <main class="pt-10 sm:pt-16">
     <nav aria-label="Breadcrumb">
@@ -84,7 +83,7 @@
               </div>
               <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt class="text-sm font-medium text-muted">Category</dt>
-                <dd class="mt-1 text-sm text-muted sm:mt-0 sm:col-span-2"><%= @product.category.titleize %></dd>
+                <dd class="mt-1 text-sm text-muted sm:mt-0 sm:col-span-2"><%= @product.category.to_s.titleize %></dd>
               </div>
               <div class="px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt class="text-sm font-medium text-muted">Status</dt>
@@ -118,15 +117,14 @@
 
           <div class="flex flex-col space-x-4 mb-8">
             <% if @product.available? %>             
-              <%= button_to "Add to cart", product_cart_add_path(product_id: @product.id), method: :post, class: "button-sm-outline w-full text-center justify-center" %>
-              <% # button_to "Add to Cart", "#", method: :post, class: "mt-10 flex w-full items-center justify-center rounded-md border border-transparent bg-indigo-600 px-8 py-3 text-base font-medium text-default hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2" %>
+              <%= button_to t("add_to_cart"), product_cart_add_path(product_id: @product.id), method: :post, class: "button-sm-outline w-full text-center justify-center" %>
             <% else %>
               <p class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-100">Sold Out</p>
             <% end %>
 
             <div class="flex space-x-4 items-center justify-between mt-5">
               <% if current_user == @product.user || current_user&.is_admin? %>
-                <%= link_to "Edit Product", edit_product_path(@product), class: "btn-outlined" %>
+                <%= link_to "Edit Product", @product.edit_path(current_user), class: "btn-outlined" %>
                 <%= button_to "Delete Product", product_path(@product), method: :delete, data: { confirm: "Are you sure you want to delete this product?" }, class: "inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-default bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500" %>
               <% end %>
             </div>
@@ -260,7 +258,7 @@
             </div>
             <div class="mt-4 flex justify-between">
               <div>
-                <h3 class="text-sm text-gray-700">
+                <h3 class="text-sm font-medium text-gray-700">
                   <a href="#">
                     <span aria-hidden="true" class="absolute inset-0"></span>
                     Basic Tee

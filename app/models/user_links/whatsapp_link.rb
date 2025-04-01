@@ -10,7 +10,7 @@ module UserLinks
     end
 
     def image_name
-      "logos/whatsapp.jpg"
+      "logos/whatsapp.svg"
     end
 
     protected

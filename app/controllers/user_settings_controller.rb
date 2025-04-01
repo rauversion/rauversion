@@ -1,41 +1,83 @@
 class UserSettingsController < ApplicationController
   before_action :authenticate_user!
   before_action :disable_footer
+  before_action :set_user
 
   def show
     @section = params[:section] || "profile"
-    @user = current_user
     if @user.podcaster_info.blank? && params[:section] == "podcast"
       @user.build_podcaster_info
     end
-    render "index"
+    render_blank
   end
 
   def index
     @section = params[:section] || "profile"
-    @user = current_user #User.find_by(username: params[:user_id])
+    respond_to do |format|
+      format.html { render_blank }
+      format.json
+    end
   end
 
   def update
-    @user = current_user
     @section = params[:section]
-    if @user.update(user_attributes)
-      flash.now[:notice] = "#{params[:section]} updated"
+
+    respond_to do |format|
+      if update_user
+        format.json { render :update }
+      else
+        format.json { render json: { errors: @user.errors.messages }, status: :unprocessable_entity }
+      end
+    end
+  end
+
+  def podcast
+    respond_to do |format|
+      if update_user
+        format.json { render :update }
+      else
+        format.json { render json: { errors: @user.errors.messages }, status: :unprocessable_entity }
+      end
+    end
+  end
+
+  def social_links
+    respond_to do |format|
+      if update_user
+        format.json { render :update }
+      else
+        format.json { render json: { errors: @user.errors.messages }, status: :unprocessable_entity }
+      end
     end
   end
 
   private
 
+  def set_user
+    @user = current_user
+  end
+
+  def update_user
+    @user.update(user_attributes)
+  end
+
   def user_attributes
-    params.require(:user).permit(
+    attrs = params.require(:user).permit(
       :username,
-      :hide_username_from_profile,
-      :last_name, 
-      :first_name, 
-      :bio, :avatar, 
-      :country, 
-      :city,
-      :email, :current_password,
+      :email,
+      :bio,
+      :current_password,
+      :avatar,
+      :avatar_blob_id,
+      :profile_header,
+      :profile_header_blob_id,
+      :page_title,
+      :page_description,
+      :google_analytics_id,
+      :facebook_pixel,
+      :mailing_list_subscription,
+      :display_sensitive_content,
+      :age_restriction,
       :new_follower_email,
       :new_follower_app,
       :repost_of_your_post_email,
@@ -49,29 +91,20 @@ class UserSettingsController < ApplicationController
       :suggested_content_app,
       :new_message_email,
       :new_message_app,
-      :profile_header,
       :like_and_plays_on_your_post_email,
-      :tbk_commerce_code, :pst_enabled, :tbk_test_mode,
-      
-      :mailing_list_provider,
-      :mailing_list_api_key,
-      :mailing_list_list_id,
-      :email_sign_up,
-      :google_analytics_id,
-      :facebook_pixel_id,
-      :social_title,
-      :social_description,
-      :sensitive_content,
-      :age_restriction,
-      
       podcaster_info_attributes: [
-        :title, :about, :description, :avatar, :id,
-        :active,
+        :id,
+        :title, :about, :description, :avatar, :active,
         :spotify_url, :apple_podcasts_url, :google_podcasts_url, :stitcher_url, :overcast_url, :pocket_casts_url,
         podcaster_hosts_ids: []
       ]
-      
     )
+
+    if attrs[:current_password].present?
+      attrs
+    else
+      attrs.except(:email, :current_password)
+    end
   end
 
   def podcaster_info_params

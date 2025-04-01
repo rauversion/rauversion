@@ -41,7 +41,7 @@ class EventPurchasesController < ApplicationController
     end
 
     case @event.payment_gateway 
-    when "stripe" then handle_stripe_session
+    when "stripe", "none" then handle_stripe_session
     when "transbank" then handle_tbk_session
     else
       raise "No payment gateway available for this event"
@@ -76,55 +76,23 @@ class EventPurchasesController < ApplicationController
   end
 
   def handle_stripe_session
-    # @purchase.errors.add(:base, "hahahaha")
-    account = @event.user.oauth_credentials.find_by(provider: "stripe_connect")
-    Stripe.stripe_account = account.uid
-
     ActiveRecord::Base.transaction do
       @purchase.store_items
       if @purchase.save
-        line_items = @purchase.purchased_items.group(:purchased_item_id).count.map do |k, v|
-          ticket = EventTicket.find(k)
-          {
-            "quantity" => v,
-            "price_data" => {
-              "unit_amount" => ((ticket.price * v) * 100).to_i,
-              "currency" => ticket.event.ticket_currency,
-              "product_data" => {
-                "name" => ticket.title,
-                "description" => "#{ticket.short_description} \r for event: #{ticket.event.title}"
-              }
-            }
-          }
+        provider = PaymentProviders::EventStripeProvider.new(
+          event: @event,
+          user: current_user,
+          purchase: @purchase
+        )
+
+        result = provider.create_checkout_session
+
+        if result[:error].present?
+          @purchase.errors.add(:base, result[:error])
+          raise ActiveRecord::Rollback
         end
 
-        puts line_items
-
-      
-        total = line_items.map{|o| o["price_data"]["unit_amount"] }.sum
-
-        @session = Stripe::Checkout::Session.create(
-          payment_method_types: ["card"],
-          line_items: line_items,
-          payment_intent_data: {
-            application_fee_amount: @purchase.calculate_fee(total, @event.ticket_currency).to_i
-            # "transfer_data"=> %{
-            #  "destination"=> c.uid
-            # }
-          },
-          customer_email: current_user.email,
-          mode: "payment",
-          success_url: success_event_event_purchase_url(@event, @purchase), # Replace with your success URL
-          cancel_url: failure_event_event_purchase_url(@event, @purchase)   # Replace with your cancel URL
-        )
-
-        @purchase.update(
-          checkout_type: "stripe",
-          checkout_id: @session["id"]
-        )
-
-        @payment_url = @session["url"]
-
+        @payment_url = result[:checkout_url]
       end
     end
   end

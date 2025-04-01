@@ -9,7 +9,8 @@ class User < ApplicationRecord
     :recoverable, :rememberable, :validatable, :confirmable,
     :invitable, :omniauthable, :trackable, :lockable
 
-  
+  has_many :participants
+  has_many :conversations, through: :participants
   has_many :tracks
   has_many :playlists
   has_many :releases
@@ -21,6 +22,7 @@ class User < ApplicationRecord
   has_many :listening_events
   has_many :invitations, class_name: to_s, as: :invited_by
   has_many :oauth_credentials
+  has_one :mercado_pago_credentials, -> { where(provider: "mercado_pago") }, class_name: "OauthCredential"
   has_many :events
   has_many :event_hosts
   has_many :hosted_events, through: :event_hosts
@@ -31,8 +33,10 @@ class User < ApplicationRecord
   has_many :comments
   has_one :podcaster_info
   has_many :products
+  has_many :provider_service_bookings, class_name: 'ServiceBooking', foreign_key: :provider_id
+  has_many :customer_service_bookings, class_name: 'ServiceBooking', foreign_key: :customer_id
   has_many :coupons
-
+  has_many :interest_alerts
   has_many :product_purchases
 
   
@@ -121,7 +125,9 @@ class User < ApplicationRecord
       avatar.variant(resize_to_fill: [200, 200]) # &.processed&.url
     end
 
-    url || "daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
+    return Rails.application.routes.url_helpers.rails_storage_proxy_url(url) if url.present?
+
+    "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
   end
 
   def self.track_preloaded_by_user(current_user_id:, user: )
@@ -306,7 +312,7 @@ class User < ApplicationRecord
   }
   
   validates :age_restriction, inclusion: { 
-    in: ['', '14', '18', '21'],
+    in: ['all', '13', '14', '16', '18', '21'],
     message: "must be one of: 14+, 18+, or 21+"
   }, allow_blank: true
 

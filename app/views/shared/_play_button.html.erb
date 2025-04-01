@@ -1,0 +1,36 @@
+<%# Usage: render "shared/play_button", track: @track %>
+
+<div data-controller="track-player-stimulus"
+     data-track-player-stimulus-track-id-value="<%= track.id %>"
+     data-track-player-stimulus-audio-element-value="audioElement">
+  
+  <button data-track-player-stimulus-target="playButton"
+          data-action="click->track-player-stimulus#play"
+          class="text-default bg-muted rounded-full p-2">
+    
+    <svg class="play-icon <%= 'hidden' if track.id.to_s == current_track_id && is_playing %>"
+         xmlns="http://www.w3.org/2000/svg" 
+         width="24" height="24" 
+         viewBox="0 0 24 24" 
+         fill="none" 
+         stroke="currentColor" 
+         stroke-width="2" 
+         stroke-linecap="round" 
+         stroke-linejoin="round">
+      <polygon points="6 3 20 12 6 21 6 3"/>
+    </svg>
+
+    <svg class="pause-icon <%= 'hidden' unless track.id.to_s == current_track_id && is_playing %>"
+         xmlns="http://www.w3.org/2000/svg" 
+         width="24" height="24" 
+         viewBox="0 0 24 24" 
+         fill="none" 
+         stroke="currentColor" 
+         stroke-width="2" 
+         stroke-linecap="round" 
+         stroke-linejoin="round">
+      <rect x="14" y="4" width="4" height="16" rx="1"/>
+      <rect x="6" y="4" width="4" height="16" rx="1"/>
+    </svg>
+  </button>
+</div>

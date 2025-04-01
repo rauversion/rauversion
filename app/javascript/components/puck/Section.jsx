@@ -1,6 +1,7 @@
 import React from 'react';
 import ColorPicker from './ColorPicker';
 import ImageUploadField from './ImageUploadField';
+import SimpleEditor from '@/components/ui/SimpleEditor';
 
 const Section = ({ 
   variant,
@@ -24,9 +25,11 @@ const Section = ({
         {image && (
           <img src={image} alt="" className="rounded-lg w-full object-cover" />
         )}
-        <div className={`${textSize} text-subtle`} style={{ color: textColor }}>
-          {description}
-        </div>
+        <div 
+          className={`${textSize} text-subtle`} 
+          style={{ color: textColor }}
+          dangerouslySetInnerHTML={{ __html: description }}
+        />
       </div>
       <div className="flex flex-col justify-between">
         <div className="flex justify-end">
@@ -47,9 +50,10 @@ const Section = ({
         <h2 className={`${titleSize} font-bold uppercase`} style={{ color: titleColor }}>
           {title}
         </h2>
-        <div className={`${textSize} text-subtle`} style={{ color: textColor }}>
-          {description}
-        </div>
+        <div className={`${textSize} text-subtle`} 
+          style={{ color: textColor }}
+          dangerouslySetInnerHTML={{ __html: description }}
+        />
       </div>
       <div className="flex justify-end flex-col">
         {image && (
@@ -69,9 +73,10 @@ const Section = ({
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="md:col-span-2">
-          <div className={`${textSize} text-subtle`} style={{ color: textColor }}>
-            {description}
-          </div>
+          <div 
+            className={`${textSize} text-subtle`} 
+            style={{ color: textColor }}
+            dangerouslySetInnerHTML={{ __html: description }}/>
         </div>
         <div className="flex flex-col">
           {image && (
@@ -136,7 +141,7 @@ const Section = ({
 
   return (
     <section 
-      className={`${variant === 'overlay' ? '' : 'container mx-auto'} ${padding} border-t-4`}
+      className={`${variant === 'overlay' ? '' : 'container--- mx-auto---'} ${padding} border-t-4`}
       style={{ 
         backgroundColor: variant === 'overlay' ? 'transparent' : backgroundColor,
         borderColor: borderColor
@@ -202,8 +207,9 @@ export const config = {
       render: ColorPicker,
     },
     description: {
-      type: "textarea",
+      type: "custom",
       label: "Description",
+      render: SimpleEditor,
     },
     textSize: {
       type: "select",

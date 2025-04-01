@@ -11,7 +11,7 @@ module UserLinks
     end
 
     def image_name
-      "logos/threads.jpg"
+      "logos/threads.svg"
     end
 
     protected

@@ -1,15 +1,19 @@
 class TracksController < ApplicationController
   before_action :authenticate_user!, except: [:index, :show, :private_access]
   before_action :check_activated_account, only: [:new, :create, :update, :delete]
+
+  layout :layout_by_resource
+
   def index
-    @tracks = Track.published.order("id desc")
+    @tracks = Track.published
       .with_attached_cover
       .includes(user: {avatar_attachment: :blob})
 
     # Filter by tag if present
     @tracks = @tracks.where('? = ANY(tags)', params[:tag]) if params[:tag].present?
     
-    @tracks = @tracks.page(params[:page]).per(12)
+    @tracks = @tracks.page(params[:page]).per(15)
+    @tracks = @tracks.order("RANDOM()") unless params[:tag].present?
     
     @popular_tags = Track.published
       .where.not(tags: [])
@@ -28,24 +32,21 @@ class TracksController < ApplicationController
       .order("editor_choice_position asc, release_date desc")
       .first
 
-
     @q = Track.ransack(params[:q])
     @q.sorts = 'created_at desc' if @q.sorts.empty?
 
     if params[:q].present?
-    
       @tracks = @q.result(distinct: true)
-      .published
-      .includes(:user)
-      #.with_attached_audio_file
-      #.with_attached_cover
-      .page(params[:page])
-      .per(12)
+        .published
+        .includes(:user)
+        .page(params[:page])
+        .per(12)
     end
       
     respond_to do |format|
       format.html
       format.turbo_stream
+      format.json
     end
   end
 
@@ -79,6 +80,16 @@ class TracksController < ApplicationController
       @track_form.save
       if @track_form.errors.blank?
         @track_form.step = "share"
+        
+        respond_to do |format|
+          format.html { redirect_to track_path(@track_form.tracks.first) }
+          format.json
+        end
+      else
+        respond_to do |format|
+          format.html { render :new }
+          format.json
+        end
       end
     end
   end
@@ -118,6 +129,11 @@ class TracksController < ApplicationController
   def show
     @track = Track.friendly.find(params[:id])
     get_meta_tags
+
+    respond_to do |format|
+      format.html
+      format.json
+    end
   end
 
   def destroy
@@ -179,7 +195,7 @@ class TracksController < ApplicationController
   end
 
   def track_bulk_params
-    params.require(:track_bulk_creator).permit(
+    params.require(:track_form).permit(
       :make_playlist, 
       :private,
       :enable_label,

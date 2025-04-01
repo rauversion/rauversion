@@ -1,11 +1,19 @@
 {
   "compilerOptions": {
+    "target": "es2015",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "moduleResolution": "node",
     "jsx": "react",
     "module": "esnext",
     "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true,
     "baseUrl": "./app/javascript",
     "paths": {
       "@/*": ["./*"]
     }
-  }
+  },
+  "include": ["app/javascript/**/*"],
+  "exclude": ["node_modules"]
 }

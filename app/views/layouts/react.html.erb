@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html class="">
+  <head>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
+    <%= display_meta_tags site: "Rauversion" %>
+
+
+    <meta name="google-maps-api-key" content="<%= ENV['GOOGLE_MAPS_KEY'] %>">
+    <meta name="rauversion-environment" content="<%= Rails.env %>">
+
+    <meta name="default-locale" content="<%= I18n.locale %>">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
+
+    <meta name="turbo-refresh-method" content="morph">
+    <meta name="turbo-refresh-scroll" content="preserve">
+    <meta name="turbo-prefetch" content="false">
+
+    <meta name="current-user-id" content="<%= current_user&.username %>">
+  
+    <%# Initialize user data for React components %>
+    <script type="text/javascript">
+      window.I18n = { locale: '<%= I18n.locale %>' };
+      window.ENV = {
+        APP_NAME: '<%= ENV["APP_NAME"] %>'
+      };
+    </script>
+  </head>
+
+  <body class="bg-default font-sans antialiased text-default dark">
+    <% # if !@disable_user_menu %>
+      <%#= render "shared/user_menu" %>
+    <% #end %>
+
+    <div id="react-root"></div>
+
+    <div id="flash-messages" style="display: none;">
+      <%= render "shared/flash" %>
+    </div>
+
+    <% if ENV["GA_ID"] %>
+      <!-- Google tag (gtag.js) -->
+      <script async src="https://www.googletagmanager.com/gtag/js?id=<%= ENV["GA_ID"] %>">
+      </script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '<%= ENV["GA_ID"] %>');
+      </script>
+    <% end %>
+  </body>
+</html>

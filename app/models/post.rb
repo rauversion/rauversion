@@ -23,6 +23,7 @@ class Post < ApplicationRecord
   }
 
   scope :draft, -> { where(state: "draft") }
+  scope :latests, -> { order("created_at desc") }
 
   def tags=(list)
     self[:tags] = list.map(&:downcase).reject { |item| item.empty? }
@@ -48,7 +49,7 @@ class Post < ApplicationRecord
     return Rails.application.routes.url_helpers.rails_storage_proxy_url(url) if url.present?
 
 
-    url || "daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
+    url || "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
   end
 
   def self.ransackable_attributes(auth_object = nil)

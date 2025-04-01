@@ -1,6 +1,7 @@
 class Track < ApplicationRecord
   extend FriendlyId
   include Croppable
+  include Notifiable
 
   friendly_id :title, use: :slugged
 
@@ -145,7 +146,7 @@ class Track < ApplicationRecord
 
     return Rails.application.routes.url_helpers.rails_storage_proxy_url(url) if url.present?
 
-    url || "daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
+    url || "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
   end
 
   def self.permission_definitions
@@ -387,5 +388,21 @@ class Track < ApplicationRecord
 
   def self.ransackable_associations(auth_object = nil)
     ["user"]
+  end
+
+  def some_action
+    # Send user-specific notification
+    broadcast_notification(user.id, {
+      type: 'success',
+      title: 'Track Uploaded',
+      message: 'Your track was successfully uploaded'
+    })
+
+    # Or send global notification
+    broadcast_global({
+      type: 'info',
+      title: 'New Release',
+      message: 'Check out the latest release!'
+    })
   end
 end

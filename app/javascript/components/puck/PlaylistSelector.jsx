@@ -64,11 +64,12 @@ const PlaylistSelector = ({ onChange, value = [] }) => {
     }),
   };
 
+
   const formatOptionLabel = ({ label, coverUrl }) => (
     <div className="flex items-center gap-2">
       {coverUrl && (
         <img 
-          src={coverUrl} 
+          src={coverUrl.small} 
           alt={label} 
           className="w-8 h-8 object-cover rounded"
         />

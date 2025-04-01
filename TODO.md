@@ -1,11 +1,33 @@
 TODO:
+
+
+  + digital checkout , set price, validation on price
+  + disable products when no stripe account setup
+  + correos de success pago a account holder y comprador
+  
+  + USD display
+  + LIVE STREAMING EVENTS TEST PAY WALL
+
+  + mercado pago
+  + user playlists list edit button / modal
+  + 
+  + React app
+    + merch crud
+    + blank render for all pages
+    + label user site
+    + redactor user site
+    + artist user site
+
   + Playlist block
     + Color accent on puck
   + images too big , use variants
   + slider is cluncky
 
-  + featured artists
-  + podcaster section
+  + Marketplace: 
+    + translations
+    + indexes right categories filters
+    + improve users produtcs show
+    + view cart details
 
   + Current.label_user not set on impersonate new track
   
@@ -17,11 +39,9 @@ TODO:
 
   + tracks: 
     show:
-    + track purchase
     + purchase downloads
 
   + playlists:
-    + album purchase
     + purchase downloads
 
   + events

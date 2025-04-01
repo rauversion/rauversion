@@ -7,7 +7,7 @@ GIT
 
 GIT
   remote: https://github.com/hotwired/turbo-rails.git
-  revision: 0e42702df40698521cc7e506fea927bc3a2a08ab
+  revision: 0ea92f344395234dd7fc39b0ef9ab02388e33235
   branch: main
   specs:
     turbo-rails (2.0.11)
@@ -217,8 +217,8 @@ GEM
       xpath (~> 3.2)
     chunky_png (1.4.0)
     coderay (1.1.3)
-    concurrent-ruby (1.3.4)
-    connection_pool (2.4.1)
+    concurrent-ruby (1.3.5)
+    connection_pool (2.5.0)
     countries (7.0.0)
       unaccent (~> 0.3)
     country_select (10.0.0)
@@ -285,6 +285,7 @@ GEM
     geocoder (1.8.3)
       base64 (>= 0.1.0)
       csv (>= 3.0.0)
+    glob (0.4.1)
     globalid (1.2.1)
       activesupport (>= 6.1)
     groupdate (6.5.1)
@@ -296,22 +297,27 @@ GEM
       http-cookie (~> 1.0)
       http-form_data (~> 2.2)
       llhttp-ffi (~> 0.5.0)
+    http-accept (1.7.0)
     http-cookie (1.0.7)
       domain_name (~> 0.5)
     http-form_data (2.3.0)
-    i18n (1.14.6)
+    i18n (1.14.7)
       concurrent-ruby (~> 1.0)
+    i18n-js (4.2.3)
+      glob (>= 0.4.0)
+      i18n
     image_processing (1.13.0)
       mini_magick (>= 4.9.5, < 5)
       ruby-vips (>= 2.0.17, < 3)
-    importmap-rails (2.0.3)
+    importmap-rails (2.1.0)
       actionpack (>= 6.0.0)
       activesupport (>= 6.0.0)
       railties (>= 6.0.0)
     invisible_captcha (2.3.0)
       rails (>= 5.2)
     io-console (0.8.0)
-    irb (1.14.3)
+    irb (1.15.1)
+      pp (>= 0.6.0)
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
     jbuilder (2.13.0)
@@ -339,13 +345,17 @@ GEM
       activemodel (>= 6.0.0)
       activesupport (>= 6.0.0)
       redis (>= 4.2, < 6)
+    langchain (0.1.0)
     language_server-protocol (3.17.0.3)
     lint_roller (1.1.0)
+    listen (3.9.0)
+      rb-fsevent (~> 0.10, >= 0.10.3)
+      rb-inotify (~> 0.9, >= 0.9.10)
     llhttp-ffi (0.5.0)
       ffi-compiler (~> 1.0)
       rake (~> 13.0)
-    logger (1.6.4)
-    loofah (2.23.1)
+    logger (1.6.5)
+    loofah (2.24.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
     mail (2.8.1)
@@ -358,7 +368,14 @@ GEM
     mercadopago (2.3.0)
       faraday (>= 0.9.0)
       json (>= 1.4.6)
+    mercadopago-sdk (2.3.0)
+      json (~> 2.5)
+      rest-client (~> 2.1)
     method_source (1.1.0)
+    mime-types (3.6.0)
+      logger
+      mime-types-data (~> 3.2015)
+    mime-types-data (3.2025.0304)
     mini_magick (4.13.2)
     mini_mime (1.1.5)
     mini_portile2 (2.8.8)
@@ -388,7 +405,7 @@ GEM
     multipart-post (2.4.1)
     net-http (0.5.0)
       uri
-    net-imap (0.5.4)
+    net-imap (0.5.5)
       date
       net-protocol
     net-pop (0.1.2)
@@ -402,8 +419,9 @@ GEM
     net-smtp (0.5.0)
       net-protocol
     net-ssh (7.3.0)
+    netrc (0.11.0)
     nio4r (2.7.4)
-    nokogiri (1.18.0)
+    nokogiri (1.18.2)
       mini_portile2 (~> 2.8.2)
       racc (~> 1.4)
     nondisposable (0.1.0)
@@ -459,10 +477,15 @@ GEM
     platform_agent (1.0.1)
       activesupport (>= 5.2.0)
       useragent (~> 0.16.3)
-    pry (0.15.0)
+    pp (0.6.2)
+      prettyprint
+    prettyprint (0.2.0)
+    pry (0.14.2)
       coderay (~> 1.1)
       method_source (~> 1.0)
-    psych (5.2.2)
+    pry-nav (1.0.0)
+      pry (>= 0.9.10, < 0.15)
+    psych (5.2.3)
       date
       stringio
     public_suffix (6.0.1)
@@ -472,12 +495,13 @@ GEM
       faraday (>= 2.0.1, < 3)
     raabro (1.4.0)
     racc (1.8.1)
-    rack (3.1.8)
+    rack (3.1.9)
     rack-protection (4.1.1)
       base64 (>= 0.1.0)
       logger (>= 1.6.0)
       rack (>= 3.0.0, < 4)
-    rack-session (2.0.0)
+    rack-session (2.1.0)
+      base64 (>= 0.1.0)
       rack (>= 3.0.0)
     rack-test (2.2.0)
       rack (>= 1.3)
@@ -525,7 +549,10 @@ GEM
       activerecord (>= 6.1.5)
       activesupport (>= 6.1.5)
       i18n
-    rdoc (6.10.0)
+    rb-fsevent (0.11.2)
+    rb-inotify (0.11.1)
+      ffi (~> 1.0)
+    rdoc (6.11.0)
       psych (>= 4.0.0)
     redcarpet (3.6.0)
     redis (5.3.0)
@@ -538,6 +565,11 @@ GEM
     responders (3.1.1)
       actionpack (>= 5.2)
       railties (>= 5.2)
+    rest-client (2.1.0)
+      http-accept (>= 1.7.0, < 2.0)
+      http-cookie (>= 1.0.2, < 2.0)
+      mime-types (>= 1.16, < 4.0)
+      netrc (~> 0.8)
     rexml (3.3.9)
     rqrcode (2.2.0)
       chunky_png (~> 1.0)
@@ -659,7 +691,8 @@ GEM
       rubyzip (>= 1.3.0)
       selenium-webdriver (~> 4.0)
     websocket (1.2.11)
-    websocket-driver (0.7.6)
+    websocket-driver (0.7.7)
+      base64
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.5)
     xpath (3.2.0)
@@ -695,13 +728,17 @@ DEPENDENCIES
   groupdate (~> 6.3)
   hotwire_combobox!
   http (~> 5.1)
+  i18n-js (~> 4.2)
   image_processing (~> 1.2)
   invisible_captcha
   jbuilder
   jsbundling-rails
   kaminari
   kredis (~> 1.5)
+  langchain (~> 0.1.0)
+  listen
   mercadopago (~> 2.3)
+  mercadopago-sdk (~> 2.3)
   meta-tags!
   mission_control-jobs
   mrsk (~> 0.15.1)
@@ -715,6 +752,7 @@ DEPENDENCIES
   paranoia
   pg (~> 1.1)
   pry
+  pry-nav
   puma
   qdrant-ruby (~> 0.9.2)
   rails (~> 8.0.1)

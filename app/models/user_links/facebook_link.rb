@@ -7,7 +7,7 @@ module UserLinks
     end
 
     def image_name
-      "logos/facebook.jpg"
+      "logos/facebook.svg"
     end
 
     protected

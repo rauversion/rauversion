@@ -7,7 +7,7 @@ module UserLinks
     end
 
     def image_name
-      "logos/pinterest.jpg"
+      "logos/pinterest.svg"
     end
 
     protected

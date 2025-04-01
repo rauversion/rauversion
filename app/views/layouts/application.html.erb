@@ -1,9 +1,11 @@
 <!DOCTYPE html>
-<html class="">
+<html class="h-full antialiased">
   <head>
+    <title><%= content_for?(:title) ? yield(:title) : "Rauversion" %></title>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    <meta name="google-maps-api-key" content="<%= ENV['GOOGLE_MAPS_KEY'] %>">
 
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
@@ -27,21 +29,31 @@
       <link rel="alternate" type="application/json+oembed" href="<%= @oembed_json %>" />
     <% end %>
 
+    <%# Remove home data from window object since we're fetching it via JSON %>
+    <script type="text/javascript">
+      window.ENV = {
+        APP_NAME: '<%= ENV["APP_NAME"] %>'
+      };
+    </script>
+
   </head>
 
-  <body class="bg-default font-sans antialiased text-default dark"
-     data-controller="track-detector dark-mode">
+  <body class="bg-default font-sans antialiased text-default dark h-full"
+     data-controller="track-detector dark-mode track-player">
     
     <% if !@disable_user_menu %>
       <%= render "shared/user_menu" %>
     <% end %>
 
-    <%= yield %>
+    <div id="root">
+      <%= yield %>
+    </div>
 
     <% unless @disable_player%>
     <div id="cart-counter" data-turbo-permanent>
-      <%= turbo_frame_tag "player-frame", src: player_path(id: Track.published&.last&.id) %>
-      <% #= render "player/player", track: Track.first %>
+      <%= turbo_frame_tag "player-frame", 
+      refresh: "morph",
+      src: player_path(id: Track.published&.last&.id) %>
     </div>
     <% end %>
 
@@ -51,7 +63,6 @@
 
     <%= turbo_frame_tag "modal" %>
     <%= render "shared/turbo_delete_modal" %>
-
 
     <% 
     # live_render(@conn, RauversionWeb.TrackLive.Player,

@@ -2,10 +2,16 @@
 json.extract! @release,
   :id,
   :title,
+  :slug,
   :subtitle,
   :template,
   :created_at,
-  :updated_at
+  :updated_at,
+  :editor_data
+
+json.playlist do
+  json.extract! @release.playlist, :id, :title, :description, :slug if @release.playlist.present?
+end
 
 # Config attributes
 json.config do
@@ -21,6 +27,7 @@ end
 json.cover_url @release.cover.attached? ? url_for(@release.cover) : nil
 json.sleeve_url @release.sleeve.attached? ? url_for(@release.sleeve) : nil
 
+=begin
 # Main playlist (owner)
 json.playlist do
   json.extract! @release.playlist, :id, :title, :description
@@ -36,6 +43,8 @@ if @release.product.present?
     json.extract! @release.product, :id, :title, :description, :price
   end
 end
+
+
 
 # Release playlists (other albums in the release)
 json.release_playlists @release.release_playlists.includes(:playlist).order(:position) do |release_playlist|
@@ -77,3 +86,4 @@ json.release_sections @release.release_sections.includes(:release_section_images
     end
   end
 end
+=end

@@ -1,6 +1,43 @@
 require_relative "../lib/constraints/username_route_contrainer"
 
 Rails.application.routes.draw do
+  # Stripe Connect routes
+  resource :stripe_connect, only: [:show, :create], controller: :stripe_connect do
+    get :reauth
+    get :return
+    get :status
+  end
+
+  resources :conversations do
+    member do
+      post :archived
+      post :close
+    end
+    resources :messages, only: [:create, :index] do
+      member do
+        put :mark_as_read
+      end
+    end
+  end
+  # API routes
+  namespace :api do
+    namespace :v1 do
+      get 'me', to: 'me#show'
+      resources :categories, only: [:index]
+      get 'tags/popular', to: 'tags#popular'
+      
+      resources :users, param: :username, only: [] do
+        resources :user_links, only: [:index]
+      end
+      
+      resources :user_links, only: [:create, :update, :destroy] do
+        collection do
+          post :wizard
+        end
+      end
+    end
+  end
+
   # devise_for :users
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
@@ -23,14 +60,24 @@ Rails.application.routes.draw do
   #  # Add more admin resources as needed
   #end
 
-
   post 'product_cart/add/:product_id', to: 'product_cart#add', as: 'product_cart_add'
   get 'product_cart', to: 'product_cart#show', as: 'product_cart'
   delete 'product_cart/remove/:product_id', to: 'product_cart#remove', as: 'product_cart_remove'
 
+  get 'change_locale', to: 'application#change_locale'
   get 'puck', to: 'releases#puck'
 
   resources :product_purchases, only: [:index, :show]
+
+
+
+  namespace :products do
+   
+    get 'services', to: 'services#index'
+    get 'music', to: 'music#index'
+    get 'accessories', to: 'accessories#index'
+    get 'gear', to: 'gear#index'
+  end
 
   resources :products do
     member do
@@ -48,7 +95,12 @@ Rails.application.routes.draw do
     end
   end
   
+  get 'checkout/success', to: 'product_checkout#success', as: :checkout_success
+  get 'checkout/failure', to: 'product_checkout#cancel', as: :checkout_failure
+
   root to: "home#index"
+  get "/home", to: "home#index"
+  get "/home/:section", to: "home#index"
 
   get "/searchables", to: "users#index", as: :searchable_users
   # resource :oembed, controller: 'oembed', only: :show
@@ -56,6 +108,17 @@ Rails.application.routes.draw do
   get "/become/:id", to: "application#become"
   get "/artists", to: "users#index"
   get "/store", to: "store#index"
+  
+  resources :store do
+    collection do
+      get :services
+      get :music
+      get :classes
+      get :feedback
+      get :accessories
+      get :gear
+    end
+  end
   
   get "/oembed/:track_id", to: "embeds#oembed_show", as: :oembed_show
   get "/oembed/:track_id/private", to: "embeds#oembed_private_show", as: :private_oembed_track
@@ -84,19 +147,30 @@ Rails.application.routes.draw do
     end
   end
 
+  resources :interest_alerts, only: [:create] do
+    collection do
+      get :status
+    end
+  end
+
   resources :articles do
     member do
       get :preview
     end
     collection do
       get :mine
+      get :categories
+      get :tags
     end
   end
 
+  resources :sales, only: [:index]
+  
   resources :purchases do
     collection do
-      get :tickets
       get :music
+      get :tickets
+      get :products
     end
 
     member do
@@ -105,19 +179,15 @@ Rails.application.routes.draw do
     end
   end
 
-  devise_for :users, controllers: {
+  devise_for :users, 
+  # defaults: { format: [:html, :json] },
+  controllers: {
     omniauth_callbacks: "users/omniauth_callbacks",
     registrations: "users/registrations",
-    sessions: "users/sessions"
-    # :invitations => 'users/invitations'
+    sessions: "users/sessions",
+    passwords: "users/passwords",
+    invitations: 'users/invitations'
   }
-
-  resources :sales do
-    member do
-      get :product_show
-      post :refund
-    end
-  end
 
   resources :event_webhooks
 
@@ -128,12 +198,20 @@ Rails.application.routes.draw do
       get :mine
     end
     member do
+      get :schedule
+      get :team
+      get :tickets
+      get :streaming
+      get :attendees
+      get :recordings
+      get :settings
     end
 
     resources :event_hosts
     resources :event_recordings
     resources :event_tickets
-    resources :event_streaming_services
+    resources :event_streaming_services, only: [:new, :update]
+    resources :event_attendees, only: [:index]
     resources :event_purchases do
       member do
         get :success
@@ -163,7 +241,6 @@ Rails.application.routes.draw do
   end
 
   resources :photos
-  resource :spotlight
 
   resources :releases do
     member do
@@ -227,12 +304,28 @@ Rails.application.routes.draw do
 
   resources :labels
   resources :albums
+  resource :spotlight
+
+
+  resources :service_bookings do
+    member do
+      patch :confirm
+      get :schedule_form
+      patch :schedule
+      patch :complete
+      patch :cancel
+      get :feedback_form
+    end
+  end
 
   constraints(Constraints::UsernameRouteConstrainer.new) do
+    # get ':username/about', to: 'users#about', as: :user_about
+    # get ':username/stats', to: 'users#stats', as: :user_stats
     # Same route as before, only within the constraints block
     resources :users, path: "" do
       resource :insights
       resources :artists, controller: "label_artists"
+      resource :spotlight
       resources :user_links, path: 'links' do
         collection do
           get 'wizard/new', to: 'user_links/wizard#new', as: :wizard_new
@@ -248,14 +341,53 @@ Rails.application.routes.draw do
         :index, :create, :destroy
       ]
 
+
+
+      namespace :products, path: :products do
+
+        resources :music do
+          collection do
+            get :search
+          end
+        end
+    
+        resources :gear do
+          collection do
+            get :search
+            get :brands
+          end
+        end
+    
+        resources :merch do
+          collection do
+            get :search
+          end
+        end
+    
+        resources :accessory do
+          collection do
+            get :search
+          end
+        end
+
+        resources :service do
+          collection do
+            get :search
+          end
+        end
+      end
+
       resources :products do
-        get :used_gear, on: :collection
+        collection do
+          get :used_gear
+        end
       end
       resources :coupons
 
       resources :podcaster_hosts, only: [:new, :create, :destroy]
       resources :podcasts, controller: "podcasts" do
         collection do
+          get :podcaster_info
           get :about
         end
       end
@@ -263,6 +395,7 @@ Rails.application.routes.draw do
       get "followers", to: "user_follows#followers"
       get "followees", to: "user_follows#followees"
       get "/tracks", to: "users#tracks"
+      get "/tracks/search", to: "users#search_tracks"
       get "/playlists", to: "users#playlists"
       get "/playlists_filter", to: "users#playlists_filter"
       get "/reposts", to: "users#reposts"
@@ -276,6 +409,8 @@ Rails.application.routes.draw do
       end
     end
   end
+
+  post 'ai_enhancements/enhance', to: 'ai_enhancements#enhance'
 
   # mount Plain::Engine => "/plain"
 end

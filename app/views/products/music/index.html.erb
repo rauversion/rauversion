@@ -1,0 +1,122 @@
+<div class="min-h-screen bg-default text-default">
+  <section class="relative h-[40vh] overflow-hidden">
+    <div class="absolute inset-0 bg-cover bg-center" style="background-image: url(&quot;https://images.unsplash.com/photo-1511379938547-c1f69419868d?q=80&amp;w=2070&quot;);">
+      <div class="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent"></div>
+    </div>
+    <div class="relative h-full px-4 sm:px-8">
+      <div class="max-w-6xl mx-auto h-full flex items-end pb-12">
+        <div>
+          <div class="flex items-center gap-3 mb-4">
+            <%= render "products/icons/music" %>
+            <span class="text-primary font-medium"><%= t(".music") %></span>
+          </div>
+          <h1 class="text-4xl md:text-5xl font-bold mb-4"><%= t(".music_title") %></h1>
+          <p class="text-gray-300 max-w-xl"><%= t(".music_subtitle") %></p>
+          <%= link_to 'Add New Music Product', new_user_products_music_path(current_user.username), class: 'btn btn-primary' if current_user == @profile %>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="px-4 sm:px-8 py-12">
+    <div class="max-w-6xl mx-auto">
+      <!-- Search and Filters -->
+      <div class="mb-12 space-y-6">
+        <%= search_form_for @q, url: "user_products_music_index_path(@profile.username)", class: 'space-y-6' do |f| %>
+          <div class="relative max-w-md">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-search absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400">
+              <circle cx="11" cy="11" r="8"></circle>
+              <path d="m21 21-4.3-4.3"></path>
+            </svg>
+            <%= f.search_field :title_or_description_cont, 
+                placeholder: t(".search_placeholder"), 
+                class: "w-full pl-10 pr-4 py-2 bg-neutral-900 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary" %>
+          </div>
+
+          <div class="flex flex-wrap gap-3">
+            <%= link_to t(".all_formats"), "user_products_music_index_path(@profile.username)", 
+                class: "px-4 py-2 rounded-full text-sm font-medium transition-colors #{!params[:q]&.dig(:format_eq) ? 'bg-primary text-white' : 'bg-neutral-900 hover:bg-neutral-800'}" %>
+            
+            <% Products::MusicProduct.categories.keys.each do |format| %>
+              <%= link_to t(".format.#{format}"), "user_products_music_index_path(@profile.username)", 
+                  class: "px-4 py-2 rounded-full text-sm font-medium transition-colors #{params[:q]&.dig(:format_eq) == format ? 'bg-primary text-white' : 'bg-neutral-900 hover:bg-neutral-800'}" %>
+            <% end %>
+          </div>
+        <% end %>
+      </div>
+
+      <!-- Featured Albums -->
+      <% if @featured_products&.any? %>
+        <div class="mb-12">
+          <h2 class="text-2xl font-bold mb-6"><%= t(".featured_albums") %></h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <% @featured_products.each do |product| %>
+              <%= link_to product.show_path, class: "group relative overflow-hidden rounded-xl aspect-video" do %>
+                <% if product.product_images.any? %>
+                  <div class="absolute inset-0">
+                    <%= image_tag product.product_images.first.image, 
+                        class: "w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" %>
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent"></div>
+                  </div>
+                <% end %>
+                <div class="relative h-full p-6 flex flex-col justify-end">
+                  <h3 class="text-2xl font-bold text-white mb-2"><%= product.title %></h3>
+                  <p class="text-gray-300 mb-4"><%= product.user.full_name %></p>
+                  <div class="flex items-center gap-4">
+                    <span class="text-primary font-bold"><%= number_to_currency(product.price) %></span>
+                    <span class="text-gray-400"><%= product.format&.titleize %></span>
+                  </div>
+                </div>
+              <% end %>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+
+      <!-- All Albums Grid -->
+      <div class="mb-8">
+        <h2 class="text-2xl font-bold mb-6"><%= t(".all_albums") %></h2>
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          <% @products.each do |product| %>
+            <%= link_to product.show_path, class: "group" do %>
+              <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
+                <% if product.product_images.any? %>
+                  <div class="relative aspect-square">
+                    <%= image_tag product.product_images.first.image, 
+                        class: "w-full h-full object-cover group-hover:scale-105 transition-transform duration-500",
+                        alt: product.product_images.first.title %>
+                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  </div>
+                <% end %>
+
+                <div class="p-4">
+                  <h3 class="font-semibold mb-1 line-clamp-1"><%= product.title %></h3>
+                  <p class="text-sm text-gray-500 mb-2"><%= product.user.full_name %></p>
+                  
+                  <div class="flex items-center justify-between">
+                    <span class="text-primary font-bold"><%= number_to_currency(product.price) %></span>
+                    <span class="text-sm text-gray-500"><%= product.category&.titleize %></span>
+                  </div>
+                </div>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+
+      <!-- Pagination -->
+      <% if @products.total_pages > 1 %>
+        <div class="mt-8 flex justify-center">
+          <%= paginate @products, theme: 'tailwind' %>
+        </div>
+      <% end %>
+
+      <% if @products.empty? %>
+        <div class="text-center py-12">
+          <h3 class="text-xl font-semibold mb-2"><%= t(".no_albums_found") %></h3>
+          <p class="text-gray-500"><%= t(".try_different_filters") %></p>
+        </div>
+      <% end %>
+    </div>
+  </div>
+</div>

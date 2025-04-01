@@ -13,7 +13,9 @@ module.exports = {
     './app/assets/stylesheets/**/*.css',
     './app/javascript/**/*.js',
     './app/javascript/**/*.tsx',
-    './app/javascript/**/*.jsx'
+    './app/javascript/**/*.jsx',
+    "./config/locales/*.yml",
+
   ],
   theme: {
     fontFamily: {
@@ -21,19 +23,12 @@ module.exports = {
       serif: ["'Host Grotesk'", 'sans-serif'],
     },
     extend: {
-
       spacing: {
         18: '4.5rem',
         112: '28rem',
         120: '30rem',
       },
-
-      colorsDisabled: {
-        cyan: '#9cdbff',
-        //gray: grayColors,
-      },
       colors: {
-
         emphasis: "var(--rau-bg-emphasis)",
         default: "var(--rau-bg, white)",
         subtle: "var(--rau-bg-subtle)",
@@ -44,81 +39,19 @@ module.exports = {
         attention: "var(--rau-bg-attention)",
         error: "var(--rau-bg-error)",
         darkerror: "var(--rau-bg-dark-error)",
-        
-        transparent: 'transparent',
-        current: 'currentColor',
-        black: colors.black,
-        white: colors.white,
-        gray: colors.zinc,
-        indigo: colors.indigo,
-        red: colors.rose,
-        green: colors.emerald,
-        yellow: colors.amber,
-        brand: {
-          default: "var(--rau-brand)",
-          /*50: "#faf5ff",
-          100: "#f3e8ff",
-          200: "#e9d5ff",
-          300: "#d8b4fe",
-          400: "#c084fc",
-          500: "#a855f7",
-          600: "#9333ea",
-          700: "#7e22ce",
-          800: "#6b21a8",
-          900: "#581c87",*/
-          /*50:  "#fff7ed",
-          100: "#ffedd5",
-          200: "#fed7aa",
-          300: "#fdba74",
-          400: "#fb923c",
-          500: "#f97316",
-          600: "#ea580c",
-          700: "#c2410c",
-          800: "#9a3412",
-          900: "#7c2d12"*/
-          /*50:  "#000",
-          100: "#000",
-          200: "#000",
-          300: "#000",
-          400: "#000",
-          500: "#000",
-          600: "#000",
-          700: "#000",
-          800: "#000",
-          900: "#000"*/
-
-          50:  "#fdf2f8",
-          100: "#fce7f3",
-          200: "#fbcfe8",
-          300: "#f9a8d4",
-          400: "#f472b6",
-          500: "#ec4899",
-          600: "#db2777",
-          700: "#be185d",
-          800: "#9d174d",
-          900: "#831843",
-          950: "#500724"
-        },
-        link: {
-          50: '#0053F20D',
-          100: '#0053F21A',
-          200: '#0053F233',
-          300: '#0053F24D',
-          400: '#0053F266',
-          500: '#0053F280',
-          600: '#0053F299',
-          700: '#0053F2B3',
-          800: '#0053F2CC',
-          900: '#0053F2E6',
-          DEFAULT: '#0053F2',
-        },
-      },
-
-      border: "hsl(var(--border))",
+        border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -147,13 +80,50 @@ module.exports = {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
-      
-      borderRadius: {
-        lg: `var(--radius)`,
-        md: `calc(var(--radius) - 2px)`,
-        sm: "calc(var(--radius) - 4px)",
+        transparent: 'transparent',
+        current: 'currentColor',
+        black: colors.black,
+        white: colors.white,
+        gray: colors.stone,
+        indigo: colors.indigo,
+        red: colors.rose,
+        green: colors.emerald,
+        purple: colors.violet,
+        blue: colors.blue,
+        pink: colors.pink,
+        amber: colors.amber,
+        orange: colors.orange,
+        teal: colors.teal,
+        cyan: colors.cyan,
+        yellow: colors.amber,
+        brand: {
+          default: "var(--rau-brand)",
+          50: "#fdf2f8",
+          100: "#fce7f3",
+          200: "#fbcfe8",
+          300: "#f9a8d4",
+          400: "#f472b6",
+          500: "#ec4899",
+          600: "#db2777",
+          700: "#be185d",
+          800: "#9d174d",
+          900: "#831843",
+          950: "#500724"
+        },
+        link: {
+          50: '#0053F20D',
+          100: '#0053F21A',
+          200: '#0053F233',
+          300: '#0053F24D',
+          400: '#0053F266',
+          500: '#0053F280',
+          600: '#0053F299',
+          700: '#0053F2B3',
+          800: '#0053F2CC',
+          900: '#0053F2E6',
+          DEFAULT: '#0053F2',
+        },
       },
-
       borderColor: {
         emphasis: "var(--rau-border-emphasis, #9CA3AF)",
         default: "var(--rau-border, #D1D5DB)",
@@ -172,9 +142,12 @@ module.exports = {
         success: "var(--rau-text-success, #285231)",
         attention: "var(--rau-text-attention, #73321B)",
         error: "var(--rau-text-error, #752522)",
-        //brand: "var(--rau-brand-text,'white')",
       },
-
+      borderRadius: {
+        lg: `var(--radius)`,
+        md: `calc(var(--radius) - 2px)`,
+        sm: "calc(var(--radius) - 4px)",
+      },
       animation: {
         marquee: 'marquee 25s linear infinite',
         marquee2: 'marquee2 25s linear infinite',
@@ -214,7 +187,7 @@ module.exports = {
   plugins: [
     require('postcss-import'),
     require('@tailwindcss/forms'),
-   require("tailwindcss-animate"),
+    require("tailwindcss-animate"),
     // require('@tailwindcss/aspect-ratio'),
     require('@tailwindcss/typography'),
   ]

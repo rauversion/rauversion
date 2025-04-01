@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 
 class Users::PasswordsController < Devise::PasswordsController
+  respond_to :html, :json
+
   # GET /resource/password/new
   # def new
   #   super

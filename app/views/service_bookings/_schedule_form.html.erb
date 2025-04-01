@@ -1,0 +1,100 @@
+<%= render "shared/modal", title: t('.schedule_service') do %>
+  <div class="p-4">
+    <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+      <%= t('.schedule_description') %>
+    </p>
+
+    <%= form_with(model: @service_booking, 
+                  url: schedule_service_booking_path(@service_booking), 
+                  method: :patch,
+                  data: { turbo_frame: "_top" }) do |f| %>
+      
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <%= t('.date') %>
+          </label>
+          <div class="mt-1">
+            <%= f.date_field :scheduled_date,
+                min: Date.tomorrow,
+                required: true,
+                class: "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md" %>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <%= t('.time') %>
+          </label>
+          <div class="mt-1">
+            <%= f.time_field :scheduled_time,
+                required: true,
+                class: "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md" %>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <%= t('.timezone') %>
+          </label>
+          <div class="mt-1">
+            <%= f.time_zone_select :timezone,
+                ActiveSupport::TimeZone.all.sort,
+                { default: Time.zone.name },
+                { class: "mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md" } %>
+          </div>
+        </div>
+
+        <div>
+          <div class="mt-1">
+            <%= f.text_field :meeting_link,
+                label: t('.meeting_link'),
+                placeholder: t('.meeting_link_placeholder'),
+                class: "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md" %>
+          </div>
+          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            <%= t('.meeting_link_help') %>
+          </p>
+        </div>
+
+        <div>
+          <div class="mt-1">
+            <%= f.text_field :meeting_location,
+                label: t('.meeting_location'),
+                placeholder: t('.meeting_location_placeholder'),
+                class: "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md" %>
+          </div>
+          <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">
+            <%= t('.meeting_location_help') %>
+          </p>
+        </div>
+
+        <div>
+          <div class="mt-1">
+            <%= f.text_area :provider_notes,
+                rows: 3,
+                label: t('.provider_notes'),
+                class: "shadow-sm focus:ring-blue-500 focus:border-blue-500 block w-full sm:text-sm border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded-md",
+                placeholder: t('.provider_notes_placeholder') %>
+          </div>
+          <p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+            <%= t('.provider_notes_help') %>
+          </p>
+        </div>
+      </div>
+
+      <div class="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
+        <%= f.submit t('.schedule_button'),
+            class: "w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-purple-600 text-base font-medium text-white hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-purple-500 sm:col-start-2 sm:text-sm" %>
+        <button type="button"
+                data-action="modal#close"
+                class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 dark:border-gray-600 shadow-sm px-4 py-2 bg-white dark:bg-gray-700 text-base font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:col-start-1 sm:text-sm">
+          <%= t('.cancel_button') %>
+        </button>
+      </div>
+    <% end %>
+  </div>
+<% end %>
+
+<%# Add this at the bottom of the layout to ensure the modal is always available %>
+<%= turbo_frame_tag "modal" %>

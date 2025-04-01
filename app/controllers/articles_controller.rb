@@ -1,8 +1,8 @@
 class ArticlesController < ApplicationController
-  before_action :authenticate_user!, except: [:index, :show]
+  before_action :authenticate_user!, except: [:index, :show, :categories, :tags]
 
   def index
-    @articles = Post.published.order("id desc")
+    @articles = Post.published.order("created_at desc")
       .with_attached_cover
       .includes(user: {avatar_attachment: :blob})
 
@@ -12,7 +12,12 @@ class ArticlesController < ApplicationController
       @articles = @articles.where(category: @current_category)
     end
 
-    @articles = @articles.page(params[:page]).per(6)
+    # Filter by tag if present
+    if params[:tag].present?
+      @articles = @articles.where("tags @> ARRAY[?]::varchar[]", [params[:tag]])
+    end
+
+    @articles = @articles.page(params[:page]).per(1)
 
     if request.headers["Turbo-Frame"]&.include?("articles_list")
       respond_to do |format|
@@ -52,6 +57,7 @@ class ArticlesController < ApplicationController
 
     respond_to do |format|
       format.html
+      format.json
       format.turbo_stream
     end
   end
@@ -64,10 +70,7 @@ class ArticlesController < ApplicationController
     @post = Post.published.friendly.find(params[:id])
 
     set_meta_tags(
-      # title: @post.title,
-      # description: @post.excerpt,
       keywords: "",
-      # url: Routes.articles_show_url(socket, :show, post.id),
       title: "#{@post.title} on Rauversion",
       description: "Read #{@post.title} by #{@post.user.username} on Rauversion.",
       image: @post&.cover_url(:medium),
@@ -87,6 +90,11 @@ class ArticlesController < ApplicationController
         "image:src": @post&.cover_url(:medium)
       }
     )
+
+    respond_to do |format|
+      format.html
+      format.json
+    end
   end
 
   def preview
@@ -95,24 +103,55 @@ class ArticlesController < ApplicationController
   end
 
   def create
-    @article = current_user.posts.create(
-      body: params[:post][:body],
-      title: params[:post][:title]
-    )
-    redirect_to edit_article_path(@article), status: :see_other
+    @article = current_user.posts.new(article_params)
+
+    respond_to do |format|
+      if @article.save
+        format.html { redirect_to article_url(@article), notice: "Article was successfully created." }
+        format.json { render json: { article: { id: @article.id, slug: @article.slug } }, status: :created }
+      else
+        format.html { render :new, status: :unprocessable_entity }
+        format.json { render json: { errors: @article.errors }, status: :unprocessable_entity }
+      end
+    end
   end
 
   def edit
     @article = current_user.posts.friendly.find(params[:id])
-    # redirect_to edit_article_path(@article)
   end
 
   def update
     @article = current_user.posts.friendly.find(params[:id])
-    @article.assign_attributes(crop_data: JSON.parse(params[:post][:crop_data])) unless params.dig(:post, :crop_data).blank?
-    @article.update(article_params)
-    # redirect_to edit_article_path(@article)
-    flash.now[:notice] = "aloha!!"
+    
+    # Handle cover attachment if blob_id is present
+    if params.dig(:post, :cover_blob_id).present?
+      @article.cover.attach(params[:post][:cover_blob_id])
+      
+      # Handle crop data if present
+      if params.dig(:post, :crop_data).present?
+        @article.update(crop_data: params[:post][:crop_data])
+      end
+    end
+
+    if @article.update(article_params)
+      render json: { 
+        article: @article.as_json.merge(
+          cover_url: @article.cover.attached? ? url_for(@article.cover) : nil
+        ) 
+      }
+    else
+      render json: { errors: @article.errors }, status: :unprocessable_entity
+    end
+  end
+
+  def destroy
+    @article = current_user.posts.find(params[:id])
+    @article.destroy
+
+    respond_to do |format|
+      format.html { redirect_to articles_url, notice: "Article was successfully destroyed." }
+      format.json { render json: { article: { id: @article.id, slug: @article.slug } }, status: :ok }
+    end
   end
 
   def mine
@@ -126,20 +165,47 @@ class ArticlesController < ApplicationController
       current_user.posts
     end
 
-    @posts.page(params[:page]).per(10)
+    @posts = @posts
+    .latests
+    .page(params[:page]).per(10)
+  end
+
+  def categories
+    @categories = Category.joins(:posts)
+      .where(posts: { state: "published" })
+      .select('categories.*, COUNT(posts.id) as posts_count')
+      .group('categories.id')
+      .order('posts_count DESC')
+
+    respond_to do |format|
+      format.json
+    end
+  end
+
+  def tags
+    @popular_tags = Post.published
+      .where.not(tags: [])
+      .select('unnest(tags) as tag, count(*) as count')
+      .group('unnest(tags)')
+      .order('count DESC')
+      .limit(10)
+
+    respond_to do |format|
+      format.json
+    end
   end
 
   private
 
   def article_params
     params.require(:post).permit(
-      :id, 
       :title, 
-      :private,
-      :cover,
-      :category_id, 
-      :state, 
+      :crop_data,
       :excerpt, 
+      :private, 
+      :state, 
+      :category_id,
+      tags: [],
       body: {}
     )
   end

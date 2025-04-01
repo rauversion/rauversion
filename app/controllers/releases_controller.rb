@@ -1,16 +1,23 @@
 class ReleasesController < ApplicationController
-  before_action :authenticate_user!, except: [:show]
+  before_action :authenticate_user!, except: [:show, :preview]
   # before_action :find_playlist, except: [:puck, :upload_puck_image, :edit]
   before_action :disable_footer, only: [:editor]
 
   def index
     @releases = current_user.releases.page(params[:page]).per(10)
+    respond_to do |format|
+      format.html
+      format.json
+    end
   end
 
   def editor
     @release = current_user.releases.friendly.find(params[:id])
     @disable_player = true
-    render "puck"
+    respond_to do |format|
+      format.html { render "puck" }
+      format.json
+    end
   end
 
   def new
@@ -19,11 +26,17 @@ class ReleasesController < ApplicationController
 
   def create
     @release = current_user.releases.new
+    @release.template = "puck"
     permitted_params = release_params
-    if @release.update(permitted_params)
-      redirect_to edit_release_path(@release), notice: "success", status: 422
-    else
-      render "new", status: 422
+    
+    respond_to do |format|
+      if @release.update(permitted_params)
+        format.html { redirect_to edit_release_path(@release), notice: "success" }
+        format.json { render :show, status: :created }
+      else
+        format.html { render "new", status: :unprocessable_entity }
+        format.json { render json: @release.errors, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -32,6 +45,14 @@ class ReleasesController < ApplicationController
   end
 
   def show
+    @release = Release.friendly.find(params[:id])
+    respond_to do |format|
+      format.html
+      format.json
+    end
+  end
+
+  def preview
     @release = Release.friendly.find(params[:id])
     respond_to do |format|
       format.html
@@ -60,21 +81,30 @@ class ReleasesController < ApplicationController
       return
     end
 
-    if @release.update(permitted_params)
-      flash.now[:notice] = "updated"
-      respond_to do |format|
-        format.html { redirect_to edit_release_path(@release) }
+    respond_to do |format|
+      if @release.update(permitted_params)
+        format.html { 
+          flash.now[:notice] = "updated"
+          redirect_to edit_release_path(@release)
+        }
+        format.json { render :show }
         format.turbo_stream
+      else
+        format.html { render :edit, status: :unprocessable_entity }
+        format.json { render json: @release.errors, status: :unprocessable_entity }
+        format.turbo_stream { render :edit, status: :unprocessable_entity }
       end
-    else
-      render :edit, status: :unprocessable_entity
     end
   end
 
   def destroy
     @release = current_user.releases.friendly.find(params[:id])
     @release.destroy
-    redirect_to releases_path
+    
+    respond_to do |format|
+      format.html { redirect_to releases_path }
+      format.json { head :no_content }
+    end
   end
 
   def upload_puck_image
@@ -104,6 +134,7 @@ class ReleasesController < ApplicationController
       :price, :currency, :minimum_price, :show_credits,
       :show_more_button, :credits, :about, :purchase_message,
       :purchase_description, :upsell_enabled, :upsell_message,
+      :playlist_id,
       playlist_ids: [],
       release_playlists_attributes: [],
       release_sections_attributes: [],

@@ -1,4 +1,12 @@
 es:
+  mailers:
+    message:
+      new_message:
+        subject: "Nuevo mensaje de %{sender}"
+        greeting: "¡Hola %{recipient}!"
+        body: "%{sender} te ha enviado un nuevo mensaje en tu conversación"
+        view_conversation: "Ver Conversación"
+        footer: "Haz clic en el enlace de arriba para ver y responder al mensaje"
   hello: "Hola mundo"
   by: "Por %{name}"
   see_everything: Ver Todo
@@ -14,8 +22,12 @@ es:
   back: "Volver"
   view_all: "Ver todo"
   view: Ver
-
+  add_to_cart: "Agregar al carrito"
+  common:
+    go_back: Go back
   menu:
+    store: Tienda
+    profile: Profile
     my_label: Mi sello
     home: Inicio
     music: Música
@@ -31,15 +43,39 @@ es:
     my_events: Mis eventos
     my_purchases: Mis compras
     my_sales: Mis ventas
+    my_products: Mis Productos
     settings: Configuraciones
     log_out: Cerrar sesión
+    profile: Perfil
+    acting_on_behalf: Actuando en nombre de
+    back_to_label: "volver a: sello %{username}"
+    language: Idioma
+    dark_mode: Modo oscuro
+    light_mode: Modo claro
 
+
+    my_label: Mi sello
+    home: Inicio
+    music: Música
+    events: Eventos
+    magazine: Revista
+    upload: "Subir"
+    my_products_merch: Mi tienda
+    register: "Registrar"
+    log_in: "Iniciar sesión"
+    notifications: "Notificaciones"
+    my_music: Mi música
+    my_articles: Mis artículos
+    my_events: Mis eventos
+    my_sales: Mis ventas
+    my_purchases: Mis compras
+    my_products: Mis productos
+    settings: Configuraciones
+    language: idioma
+    log_out: Cerrar sesión
   notifications:
     title: Notificaciones
     mark_all_as_read: Marcar todas como leídas
-
-  artists:
-    featured: Artistas Destacados
 
   podcasters:
     all: Todos los anfitriones
@@ -59,10 +95,81 @@ es:
     my_articles: Mis artículos
     drafts: Borradores
     published: Publicados
-    new_article: nuevo_artículo
+    new_article: Nuevo Artículo
     view: Ver Artículo
+    blog_title: "Blog de %{name}"
+    back_to_music: "volver a la música de %{username}"
+    no_articles: No se encontraron artículos
+    loading: Cargando...
     edit: Editar Artículo
-    create: Crear Artículo 
+    create: Crear Artículo
+    mine:
+      title: Mis Artículos
+      subtitle: Gestiona tus artículos y publicaciones
+      tabs:
+        all: Todos
+        drafts: Borradores
+        published: Publicados
+      table:
+        title: Título
+        status: Estado
+        date: Fecha
+        actions: Acciones
+        menu:
+          edit: Editar
+          view: Ver
+          delete: Eliminar
+          open: Abrir menú
+      status:
+        draft: Borrador
+        published: Publicado
+      empty:
+        title: No hay artículos
+        description: Comienza a escribir tu primer artículo
+      new_article: Escribir Nuevo Artículo
+      edit_article: Editar Artículo
+      delete_article: Eliminar Artículo
+      form:
+        title:
+          label: Título
+          placeholder: Título del artículo
+        content:
+          label: Contenido
+          placeholder: Escribe tu artículo aquí...
+        cover:
+          label: Imagen de Portada
+          help: "Recomendado: 1200x630px para redes sociales"
+        tags:
+          label: Etiquetas
+          placeholder: Añade etiquetas relevantes
+        visibility:
+          label: Visibilidad
+          options:
+            public: Público
+            private: Privado
+        validation:
+          title_min: El título debe tener al menos 2 caracteres
+      messages:
+        delete_confirm: ¿Estás seguro de que deseas eliminar este artículo?
+        delete_success: Artículo eliminado exitosamente
+        delete_error: No se pudo eliminar el artículo
+        save_success: Artículo guardado exitosamente
+        save_error: No se pudo guardar el artículo
+        publish_success: Artículo publicado exitosamente
+        publish_error: No se pudo publicar el artículo
+        unpublish_success: Artículo despublicado exitosamente
+        unpublish_error: No se pudo despublicar el artículo
+        load_error: No se pudo cargar el artículo
+      buttons:
+        save: Guardar
+        publish: Publicar
+        unpublish: Despublicar
+        delete: Eliminar
+        preview: Vista Previa
+        back: Volver a Mis Artículos
+      loading:
+        initial: Cargando artículos...
+        more: Cargando más artículos...
 
   attribution:
     some: Algunos derechos reservados
@@ -81,7 +188,582 @@ es:
     people_attending: Personas asistentes
     venue: recinto
     location: ubicación
-    copyright: Derechos de autor ©
+    loading: Cargando...
+    no_image: Sin imagen
+    online: En línea
+    edit:
+      menu:
+        event_summary: "Resumen del Evento"
+        event_schedule: "Horario del Evento"
+        teams_and_managers: "Equipos y Gestores"
+        tickets: "Entradas"
+        live_streaming: "Transmisión en Vivo"
+        event_attendees: "Asistentes al Evento"
+        event_recordings: "Grabaciones del Evento"
+        configuration: "Configuracion"
+      messages:
+        success: Evento actualizado exitosamente
+        error: No se pudo actualizar el evento
+      overview: Resumen del Evento
+      form:
+        success: Evento actualizado exitosamente
+        title:
+          label: Título
+          placeholder: Título del evento
+        description:
+          label: Descripción
+          placeholder: Descripción del evento
+        venue:
+          label: Lugar
+          placeholder: Lugar del evento
+        timezone:
+          label: Zona Horaria
+          placeholder: Seleccionar zona horaria
+        start_date:
+          label: Fecha de Inicio
+          placeholder: Seleccionar fecha
+        start_time:
+          label: Hora de Inicio
+          placeholder: Seleccionar hora
+        end_date:
+          label: Fecha de Finalización
+          placeholder: Seleccionar fecha
+        end_time:
+          label: Hora de Finalización
+        location:
+          label: Ubicación
+        save: Guardar Cambios
+        state:
+          label: Estado
+          description: Alternar entre estado de borrador y publicado
+        cover:
+          label: Imagen de Portada
+          description: La imagen de portada del evento
+      tickets:
+        title: Entradas
+      breadcrumb:
+        events: Eventos
+
+      title: "Eventos"
+      description: Explora eventos y experiencias en música electrónica
+      visibility:
+        label: Visibilidad
+        options:
+          public: Público
+      registration:
+        label:
+          options: 
+            open: 
+              label: Registro Abierto
+              description: Cualquiera puede registrarse
+            invite:
+              label: Solo por Invitación
+              description: Solo usuarios invitados pueden registrarse
+            approval:
+              label: Requiere Aprobación
+              description: El registro requiere aprobación
+      require_login:
+        label: Requerir Inicio de Sesión
+        description: Los usuarios deben iniciar sesión para ver los detalles del evento
+
+      attendees:
+        export_csv: Exportar CSV      
+        title: Asistentes al Evento
+        subtitle: Gestionar asistentes al evento y su estado
+        description: Ver y gestionar asistentes al evento
+        export: Exportar Lista de Asistentes
+        search:
+          all_statuses: Todos los Estados
+          placeholder: Buscar por nombre o email
+          filter: Filtrar por estado
+          all: Todos los Estados
+          button: Buscar
+        table:
+          name: Nombre
+          email: Email
+          ticket: Entrada
+          status: Estado
+          attendee: Asistente
+          purchase_date: Fecha de Compra
+          actions: Acciones
+        status:
+          attending: Asistiendo
+          cancelled: Cancelado
+          pending: Pendiente
+          checked_in: Registrado a las %{time}
+        messages:
+          update_success: Estado del asistente actualizado exitosamente
+          update_error: No se pudo actualizar el estado del asistente
+          remove_confirm: ¿Estás seguro de que deseas eliminar este asistente?
+          remove_success: Asistente eliminado exitosamente
+          remove_error: No se pudo eliminar el asistente
+
+      settings:
+        title: "Configuracion"
+        save: Guardar
+        tabs:
+          general: General
+          privacy: Privacidad
+          danger: Zona de Peligro
+
+        danger:
+          title: Zona de Peligro
+          description: Las acciones aquí no se pueden deshacer
+          warning:
+            title: Advertencia
+            description: Eliminar tu evento eliminará permanentemente todos los datos asociados, incluyendo entradas, asistentes
+          delete:
+            button: Eliminar Evento
+
+        privacy:
+          title: Privacidad y Acceso
+          description: Controla quién puede ver y registrarse en tu evento
+          visibility:
+            label: Visibilidad del Evento
+            placeholder: Seleccionar visibilidad
+            options:
+              public: Público
+              private: Privado
+              unlisted: No listado
+          registration:
+            label: Tipo de Registro
+            placeholder: Seleccionar tipo de registro
+            options:
+              open:
+                label: Registro Abierto
+                description: Cualquiera puede registrarse
+              invite:
+                label: Solo por Invitación
+                description: Solo usuarios invitados pueden registrarse
+              approval:
+                label: Requiere Aprobación
+                description: El registro requiere aprobación
+          require_login:
+            label: Requerir Inicio de Sesión
+            description: Los usuarios deben iniciar sesión para ver los detalles del evento
+        messages:
+          success: Configuración actualizada exitosamente
+        general:
+          title: Configuración General
+          description: Configurar ajustes básicos del evento
+          url:
+            label: URL del Evento
+            description: La URL única para tu evento
+          remaining_tickets:
+            label: Mostrar Entradas Restantes
+            description: Mostrar el número de entradas restantes para cada tipo
+          attendee_list:
+            label: Mostrar Lista de Asistentes
+            description: Mostrar la lista de asistentes en la página del evento
+          comments:
+            label: Permitir Comentarios
+            description: Permitir que los asistentes dejen comentarios
+          social_sharing:
+            label: Compartir en Redes
+            description: Habilitar botones para compartir en redes sociales
+      streaming:
+        title: Transmisión en Vivo
+        description: Configurar ajustes de transmisión en vivo
+        platform:
+          label: Plataforma de Transmisión
+          description: Selecciona tu plataforma de transmisión
+          options:
+            twitch: Twitch
+            youtube: YouTube
+            custom: RTMP Personalizado
+        stream_key:
+          label: Clave de Transmisión
+          description: Tu clave única de transmisión
+        embed_code:
+          label: Código de Inserción
+          description: Código para insertar tu transmisión
+        status:
+          live: En Vivo
+          offline: Fuera de Línea
+        messages:
+          update_success: Configuración de transmisión actualizada exitosamente
+          update_error: No se pudo actualizar la configuración de transmisión
+      schedule:
+
+        title: Horario del Evento
+        description: Gestionar horario y sesiones del evento
+        add_item: Agregar Elemento al Horario
+        name: Nombre
+        date_time_range: Rango de Fecha y Hora
+        name: Name
+
+        schedulings:
+          title: Programaciones
+          add: Agregar Programación
+          name: Nombre
+          short_description: Descripción Corta
+          date_time_range: Rango de Fecha y Hora
+        save: Guardar Horario
+
+        item:
+          name: Nombre del Elemento
+          description: Descripción
+          start_time: Hora de Inicio
+          end_time: Hora de Finalización
+          type: Tipo de Elemento
+        types:
+          session: Sesión
+          break: Descanso
+          activity: Actividad
+        messages:
+          add_success: Elemento agregado exitosamente
+          add_error: No se pudo agregar el elemento
+          update_success: Horario actualizado exitosamente
+          update_error: No se pudo actualizar el horario
+          remove_confirm: ¿Estás seguro de que deseas eliminar este elemento?
+          remove_success: Elemento eliminado exitosamente
+          remove_error: No se pudo eliminar el elemento
+          form_success: Horario actualizado exitosamente
+          form_error: No se pudo actualizar el horario
+      recordings:
+        title: Grabaciones del Evento
+        description: Agregar grabaciones de Twitch, YouTube u otras plataformas
+        add_recording: Agregar Grabación
+        edit_recording: Editar Grabación
+        dialog:
+          add_description: Agrega una grabación para destacarla en la página del evento
+          edit_description: Actualizar los detalles de la grabación
+        form:
+          title:
+            label: Título
+            placeholder: Título de la grabación
+            required: El título es requerido
+          description:
+            label: Descripción
+            placeholder: Descripción de la grabación
+          platform:
+            label: Plataforma
+            placeholder: Seleccionar plataforma
+            description: Selecciona la plataforma donde está alojada tu grabación
+            options:
+              twitch: Twitch
+              youtube: YouTube
+              iframe: Otro (iframe)
+          embed:
+            label: Código de Inserción
+            placeholder: Pega el código de inserción o URL aquí
+            description: Para YouTube/Twitch pega el código de inserción. Para otras plataformas, usa el código HTML iframe completo.
+            required: El código iframe es requerido
+        buttons:
+          add: Agregar Grabación
+          update: Actualizar Grabación
+          edit: Editar
+          delete: Eliminar
+        messages:
+          create_success: Grabación creada exitosamente
+          update_success: Grabación actualizada exitosamente
+          delete_success: Grabación eliminada exitosamente
+          create_error: No se pudo crear la grabación
+          update_error: No se pudo actualizar la grabación
+          delete_error: No se pudo eliminar la grabación
+          delete_confirm: ¿Estás seguro de que deseas eliminar esta grabación?
+          general_error: Algo salió mal
+      teams:
+
+        title: Equipos y Gestores
+        description: Gestionar miembros del equipo y roles
+        current_team:
+          title: Equipo Actual
+          description: Personas que actualmente forman parte del equipo
+        add_member:
+          title: Agregar Miembro
+          description: Invitar nuevas personas para ayudar a gestionar el evento
+        roles:
+          host: Anfitrión
+          manager: Gestor
+          special_guest: Invitado Especial
+        form:
+          name: Nombre
+          email: Email
+          role: Rol
+          listed: Listado en Página
+          manager: Gestor del Evento
+        messages:
+          add_success: Miembro agregado exitosamente
+          add_error: No se pudo agregar el miembro
+          update_success: Miembro actualizado exitosamente
+          update_error: No se pudo actualizar el miembro
+          remove_confirm: ¿Estás seguro de que deseas eliminar este miembro?
+          remove_success: Miembro eliminado exitosamente
+          remove_error: No se pudo eliminar el miembro
+      
+        current_team:
+          title: Equipo Actual
+          description: Personas que actualmente forman parte del equipo de tu evento
+          members: Miembros del Equipo Actual
+        pending:
+          title: Invitaciones Pendientes
+          description: Invitaciones que han sido enviadas pero aún no han sido aceptadas
+          table:
+            email: Email
+            role: Rol
+            sent_at: Enviado el
+        add_members:
+          title: Agregar Miembros al Equipo
+          description: Invita a nuevas personas para ayudar a gestionar tu evento
+          add_person: Agregar Persona
+          email_placeholder: email@ejemplo.com
+          role_placeholder: Seleccionar rol
+          send_invitations: Enviar Invitaciones
+        roles:
+          host: Anfitrión
+          manager: Gestor
+          special_guest: Invitado Especial
+        edit_member:
+          title: Editar Miembro del Equipo
+          profile_image: Imagen de Perfil
+          name:
+            label: Nombre
+            required: El nombre es requerido
+          description: Descripción
+          listed:
+            label: Listado en Página
+            description: Mostrar este miembro del equipo en la página del evento
+          manager:
+            label: Gestor del Evento
+            description: Permitir que este miembro gestione el evento
+          cancel: Cancelar
+          save: Guardar Cambios
+          saving: Guardando...
+        delete_member:
+          title: ¿Estás absolutamente seguro?
+          description: Esto eliminará a %{name} del equipo. Esta acción no se puede deshacer.
+          cancel: Cancelar
+          continue: Continuar
+        messages:
+          invites_success: Invitaciones enviadas exitosamente
+          invites_error: No se pudieron enviar las invitaciones
+          update_success: Miembro del equipo actualizado exitosamente
+          update_error: No se pudo actualizar el miembro del equipo
+          remove_success: Miembro del equipo eliminado exitosamente
+          remove_error: No se pudo eliminar el miembro del equipo
+          load_error: No se pudieron cargar los datos del equipo
+    my_events:
+      tabs:
+        all: Todos los Eventos
+        drafts: Borradores
+        published: Publicados
+        manager: Gestor
+
+
+      new_event_modal:
+        title: "Crear Nuevo Evento"
+        description: "Completa la información para crear un nuevo evento."
+        form:
+          title:
+            label: "Título del Evento"
+            placeholder: "Ingresa el título del evento"
+          cancel: "Cancelar"
+          create: "Crear Evento"
+
+        toast:
+          error:
+            title: "Error Creating Event"
+            description: "There was a problem creating your event. Please try again."
+
+
+      title: "Eventos %{tab}"
+      subtitle: Tus eventos.
+      new_event: Nuevo Evento
+      table:
+        title: Título
+        location: Ubicación
+        start_date: Fecha de Inicio
+        status: Estado
+        actions: Acciones
+        menu:
+          edit: Editar
+          view: Ver
+      location:
+        online: Evento en Línea
+        tbd: Ubicación por Determinar
+      date:
+        tbd: Fecha por Determinar
+      loading:
+        initial: Cargando...
+        more: Cargando más eventos...
+      untitled: -- sin título
+      settings:
+        tabs:
+          general: General
+          privacy: Privacidad y Acceso
+          danger: Zona de Peligro
+        general:
+          title: Configuración General
+          description: Configura los ajustes básicos y preferencias del evento
+          url:
+            label: URL del Evento
+            description: Esta es la URL única de tu evento en nuestra plataforma
+          remaining_tickets:
+            label: Mostrar Entradas Restantes
+            description: Mostrar el número de entradas restantes para cada tipo de entrada
+          attendee_list:
+            label: Mostrar Lista de Asistentes
+            description: Mostrar la lista de asistentes en la página del evento
+          comments:
+            label: Permitir Comentarios
+            description: Permitir que los asistentes dejen comentarios en la página del evento
+          social_sharing:
+            label: Compartir en Redes Sociales
+            description: Mostrar botones para compartir en redes sociales
+        privacy:
+          title: Privacidad y Acceso
+          description: Controla quién puede ver y registrarse en tu evento
+          visibility:
+            label: Visibilidad del Evento
+            placeholder: Seleccionar visibilidad
+            options:
+              public: Público
+              private: Privado
+              unlisted: No listado
+          registration:
+            label: Tipo de Registro
+            placeholder: Seleccionar tipo de registro
+            options:
+              open:
+                label: Registro Abierto
+                description: Cualquiera puede registrarse
+              invite:
+                label: Solo por Invitación
+                description: Solo usuarios invitados pueden registrarse
+              approval:
+                label: Requiere Aprobación
+                description: El registro requiere aprobación
+          require_login:
+            label: Requerir Inicio de Sesión
+            description: Los usuarios deben iniciar sesión para ver los detalles del evento
+        danger:
+          title: Zona de Peligro
+          description: Las acciones aquí no se pueden deshacer
+          warning:
+            title: Advertencia
+            description: Eliminar tu evento eliminará permanentemente todos los datos asociados, incluyendo entradas, asistentes y grabaciones.
+          delete:
+            button: Eliminar Evento
+            confirm_title: ¿Estás absolutamente seguro?
+            confirm_description: Esta acción no se puede deshacer. Esto eliminará permanentemente tu evento y todos los datos asociados de nuestros servidores.
+            cancel: Cancelar
+        save: Guardar Cambios
+        messages:
+          success: Configuración actualizada exitosamente
+          error: No se pudo actualizar la configuración
+          delete_success: Evento eliminado exitosamente
+          delete_error: No se pudo eliminar el evento
+        validation:
+          slug_min: El slug debe tener al menos 2 caracteres.
+          slug_format: El slug solo puede contener letras minúsculas, números y guiones.
+      schedule:
+        title: Elementos del Horario
+        add_item: Agregar Elemento
+        name: Nombre
+        description: Descripción
+        date_time_range: Rango de Fecha y Hora
+        schedulings:
+          title: Programaciones
+          add: Agregar Programación
+          name: Nombre
+          short_description: Descripción Corta
+          date_time_range: Rango de Fecha y Hora
+        save: Guardar Horario
+        messages:
+          success: Horario actualizado exitosamente
+          error: No se pudo actualizar el horario
+          form_error: Por favor revisa el formulario por errores
+          validation:
+            name_min: El nombre debe tener al menos 2 caracteres.
+            start_date_required: La fecha de inicio es requerida
+            end_date_required: La fecha de finalización es requerida
+      attendees:
+        title: Asistentes al Evento
+        subtitle: Gestiona los asistentes al evento y su estado
+        export_csv: Exportar CSV
+        search:
+          placeholder: Buscar por nombre o email
+          filter_status: Filtrar por estado
+          all_statuses: Todos los Estados
+          button: Buscar
+        table:
+          attendee: Asistente
+          ticket: Entrada
+          status: Estado
+          purchase_date: Fecha de Compra
+        status:
+          attending: Asistiendo
+          cancelled: Cancelado
+          pending: Pendiente
+          checked_in: Registrado a las %{time}
+        messages:
+          update_success: Estado del asistente actualizado exitosamente
+          update_error: No se pudo actualizar el estado del asistente
+          remove_confirm: ¿Estás seguro de que deseas eliminar este asistente?
+          remove_success: Asistente eliminado exitosamente
+          remove_error: No se pudo eliminar el asistente
+        title:
+          label: Título
+          placeholder: Título del evento
+        timezone:
+          label: Zona horaria
+          placeholder: Seleccionar zona horaria
+        start_date:
+          label: Fecha de inicio
+          placeholder: Seleccionar fecha
+        start_time:
+          label: Hora de inicio
+        end_date:
+          label: Fecha de finalización
+          placeholder: Seleccionar fecha
+        end_time:
+          label: Hora de finalización
+        location:
+          label: Ubicación
+        description:
+          label: Descripción
+          placeholder: Descripción del evento
+        venue:
+          label: Recinto
+          placeholder: Recinto del evento
+        save: Guardar cambios
+        success: Evento actualizado exitosamente
+        error: No se pudo actualizar el evento
+    show:
+      not_found: Evento no encontrado
+      back_to_events: Volver a eventos
+      get_tickets: Obtener entradas
+      speakers: Ponentes
+      people_attending: Personas Asistentes
+      venue: Recinto
+      location: Ubicación
+      event_manager: Gestor del Evento
+      all_rights: Todos los derechos reservados
+      schedule:
+        title: Horario
+        description: Editar programación del evento
+      teams:
+        title: Equipos y Gestores
+        description: Agregar anfitriones, invitados especiales y gestores del evento
+      tickets:
+        title: Entradas
+        description: Gestionar las entradas del evento
+      streaming:
+        title: Transmisión
+        description: Gestionar fuentes de transmisión en vivo
+      attendees:
+        title: Asistentes
+        description: Ver la lista de asistentes al evento
+      recordings:
+        title: Grabaciones
+        description: Gestionar grabaciones del evento
+      settings:
+        title: Configuración
+        description: Configuración del evento
+      breadcrumb:
+        events: Eventos
+    copyright: Derechos de autor 
     all_rights: Todos los derechos reservados.
     get_tickets: Consigue tus entradas
     watch_live: Ver transmisión en vivo
@@ -91,20 +773,38 @@ es:
     past_events: Eventos pasados
     view_more: Ver más
 
-    my_events: Mis Eventos
+    # my_events: Mis Eventos
     your_events: Tus eventos
     drafts: Borradores
     published: Publicados
     manager: Eventos que gestiono
     new_event: Nuevo Evento
 
-    edit: Editar Evento
+    # edit: Editar Evento
     create: Crear Evento
 
     published: Tu evento ha sido publicado
     unpublished: Tu evento no ha sido publicado
     unpublish: Despublicar Evento
     publish: Publicar Evento
+
+
+    purchase_form:
+      title: "Comprar Entradas"
+      subtitle: "Selecciona la cantidad de entradas que deseas comprar"
+      price: "$%{price}"
+      available_tickets: "%{count} disponibles"
+      purchase_button: "Comprar Entradas"
+      processing: "Procesando..."
+      quantity_label: "Cantidad de entradas"
+      validation:
+        quantity_negative: "La cantidad no puede ser negativa"
+        max_tickets: "Máximo %{count} entradas disponibles"
+      toast:
+        error:
+          title: "Error"
+          load_tickets: "No se pudieron cargar las entradas. Por favor, inténtalo de nuevo."
+          process_purchase: "No se pudo procesar la compra. Por favor, inténtalo de nuevo."
 
   event_hosts:
     listed: Listado en página
@@ -127,6 +827,7 @@ es:
     or_more: o más
     supporters: Partidarios
     edit: Editar esta pista
+    count: "%{count} Pistas"
 
     private_label: Privado 
     private_hint: Acceso privado. Oculto para el mundo
@@ -135,49 +836,242 @@ es:
     public_hint: Acceso público para todos
     pending_state_message: "Espera, esta pista está en estado %{state}"
 
-    new_releases: New Releases
-    featured_albums: Featured Albums
-    curated_playlists: Curated Playlists
-    featured_labels: Featured Labels
+    index:
+      new_release: Nuevo Lanzamiento
+      view_album: Ver Álbum
+      discover: Descubrir Música
+      all: Todo
+      featured_albums:
+        title: Álbumes
+        subtitle: Últimos lanzamientos
+      curated_playlists:
+        title: Listas de Reproducción Curadas
+        subtitle: Colecciones seleccionadas para cada estado de ánimo
+      featured_labels: Sellos
+      view_all: Ver Todo
+    edit:
+      dialog:
+        loading: Cargando...
+        title: Editar Pista
+        description: Realiza cambios en tu pista aquí. Haz clic en guardar cuando hayas terminado.
+        save: Guardar Cambios
+      tabs:
+        basic_info: Información Básica
+        metadata: Metadatos
+        pricing: Precios
+        permissions: Permisos
+        share: Compartir
+      form:
+        cover: Imagen de Portada
+        title: Título
+        tags: Etiquetas
+        description: Descripción
+        private: Privado
+        podcast: Podcast
+      delete:
+        button: Eliminar Pista
+        confirm_title: ¿Estás absolutamente seguro?
+        confirm_description: Esta acción no se puede deshacer. Esto eliminará permanentemente tu pista y todos los datos asociados de nuestros servidores.
+        cancel: Cancelar
+      messages:
+        cover_success: Imagen de portada actualizada exitosamente
+        update_success: Pista actualizada exitosamente
+        update_error: Error al actualizar la pista
+        delete_success: Pista eliminada exitosamente
+        delete_error: Error al eliminar la pista
+    new:
+      upload:
+        title: Arrastra y suelta tus pistas aquí
+        subtitle: Proporciona FLAC, WAV, ALAC o AIFF para la mejor calidad de audio
+        button: Subir archivos de audio
+        or_drop: o arrastra y suelta
+        size_limit: Archivos de audio hasta 200MB
+      form:
+        title: Título
+        tags: Etiquetas
+        tags_placeholder: Seleccionar etiquetas
+        description: Descripción
+        private_track: Pista Privada
+        save: Guardar Todas las Pistas
+      share:
+        upload_complete: Subida completada
+        go_to_track: Ir a la pista
+        share: Compartir
+        copy_link: Copiar Enlace
+        share_twitter: Compartir en Twitter
+      messages:
+        invalid_files: Archivos inválidos
+        audio_only: Solo se permiten archivos de audio
+        no_files: No hay archivos seleccionados
+        select_files: Por favor selecciona al menos un archivo de audio
+        upload_success: "Se ha%{plural} subido %{count} pista%{plural} exitosamente"
+        upload_error: Error al subir las pistas
+        cover_error: Error al subir la imagen de portada
+        save_error: Error al guardar la información de la pista
+        link_copied: Enlace copiado al portapapeles
+      controls:
+        create_playlist: Crear una lista de reproducción con estas pistas
+        privacy: Privacidad
+        public: Público
+        private: Privado
+        clear_all: Limpiar Todo
+        start_upload: Iniciar Subida
+        uploading: Subiendo...
+        waiting: Esperando...
+        complete: Completado
 
   home:
     artists: Artistas que deberías conocer
+    podcasts:
+      title: Podcasts
+      subtitle: Escucha los podcasts de la comunidad
+    hero:
+      title: Sé tu propia industria musical
+      subtitle: Empoderando comunidades musicales independientes en internet
+      start_now: Empezar ahora
+    header:
+      explore: EXPLORAR
+    main_articles:
+      latest_publications: Últimas Publicaciones
+      view_all: Ver Todo
+    album_releases:
+      new_release: Nuevo Lanzamiento
+      tracks_count: Pistas
+      default_genre: Música
+      title: Últimos Lanzamientos
+      subtitle: Últimos lanzamientos
+      browse_all: Ver Todo
+      join_title: Únete a la comunidad
+      join_description: Descubre y comparte música con la comunidad
+      join_button: Únete
+      new_release: Nuevo Lanzamiento
+    featured_artists:
+      tracks: Pistas
+      followers: Seguidores
+      view_profile: Ver Perfil
+      title: Artistas Destacados
+      subtitle: Descubre nuevos artistas y música
+      view_all: Ver Todo
+    curated_playlists:
+      tracks: Pistas
+      by: Por
+      title: Listas de Reproducción Curadas
+      subtitle: Colecciones seleccionadas para cada estado de ánimo
+      view_all: Ver Todo
+    latest_tracks:
+      title: Últimas Pistas
+      subtitle: Escucha la musica más reciente de nuestra comunidad
+      browse_all: Ver Todo
 
   profile:
+    all: "Todo"
+    albums: "Álbumes"
+    tracks: "Pistas"
+    artists: "Artistas"
+    podcasts: "Podcasts"
+    reposts: "Reposteos"
+    articles: "Artículos"
+    playlists: "Listas de reproducción"
+    followers: "Seguidores"
+    followings: "Siguiendo"
     stats: Tus estadísticas
     edit: Editar perfil
-    followings: Siguiendo
-    followers: Seguidores
     comments: Comentarios
     likes: Me gusta
-    tracks: Pistas
     go_to: Ir al perfil
+    follow: Seguir
+    following: Siguendo
 
-    albums: Álbumes
-    playlists: Listas de reproducción
-    reposts: Reposts
-    tracks: Pistas
+  albums:
+    title: Álbumes
+    description: Explora los últimos lanzamientos de la comunidad
+    no_albums: No se encontraron álbumes
 
   playlists:
+    title: Playlists
+    description: Escucha las listas de reproducción más populares
+    no_playlists: No se encontraron listas de reproducción
     add_to_playlists: Añadir a lista
     create: Crear una lista
     remove_from_playlist: Quitar de la lista
     available_products: "Productos disponibles"
+    edit:
+      dialog:
+        loading: Cargando...
+        title: Editar Lista de Reproducción
+        description: Realiza cambios en tu lista de reproducción aquí. Haz clic en guardar cuando hayas terminado.
+        save: Guardar Cambios
+      tabs:
+        basic_info: Información Básica
+        tracks: Pistas
+        metadata: Metadatos
+        permissions: Permisos
+        share: Compartir
+        pricing: Precios
+      form:
+        title: Título
+        description: Descripción
+        cover: Imagen de Portada
+        playlist_type: Tipo de Lista
+        release_date: Fecha de Lanzamiento
+        private: Privado
+        enable_label: Habilitar Sello
+        types:
+          album: Álbum
+          single: Sencillo
+          ep: EP
+          compilation: Compilación
+      delete:
+        button: Eliminar Lista
+        confirm_title: ¿Estás absolutamente seguro?
+        confirm_description: Esta acción no se puede deshacer. Esto eliminará permanentemente tu lista de reproducción y todos los datos asociados de nuestros servidores.
+        cancel: Cancelar
+      messages:
+        cover_success: Imagen de portada subida exitosamente
+        update_success: Lista de reproducción actualizada exitosamente
+        update_error: Error al actualizar la lista de reproducción
+        delete_success: Lista de reproducción eliminada exitosamente
+        delete_error: Error al eliminar la lista de reproducción
 
   users:
     sign_in: Iniciar sesión en tu cuenta
     register: Registrar nueva cuenta
     or: O continuar con
     follow: Seguir
+    not_found: "El perfil al que intentas acceder no está activado"
     unfollow: Dejar de seguir
     following: Siguiendo
     artists: Artistas
+    artist_page:
+      loading: Cargando...
+      tracks: pistas
+      albums: álbumes
+      bio: Biografía
+      view_profile: Ver Perfil
+      name: "%{name}"
+      username: "@%{username}"
+      tracks_count: "%{count} pistas"
+      albums_count: "%{count} álbumes"
+      impersonate: Impersonar
+      label:
+        back_to_label: Volver al sello
+        name: "%{name}"
+        username: "@%{username}"
+    show:
+      not_found: Usuario no encontrado
+      error_fetching: Error al cargar el usuario
+      location:
+        separator: ", "
 
   user_settings:
     title_account: Cuenta
     sub_account: Información básica de la cuenta.
     title_email: Cambiar Email
     sub_email: Cambiar información del Email.
+    podcaster_info: Información de Podcaster
+    sub_podcasts: Gestiona tu información de podcaster.
+    title_social_links: Redes Sociales
+    sub_social_links: Gestiona tus enlaces a redes sociales.
     title_security: Seguridad
     sub_credentials: Cambiar tus credenciales
     title_notifications: Notificaciones
@@ -189,6 +1083,256 @@ es:
     title_invitations: Invitaciones
     sub_invitations: Invitar otros artistas a tu cuenta.
     podcast_info: Podcast Info
+    profile:
+      title: Información del Perfil
+      subtitle: Actualiza tu información personal y detalles del perfil
+      messages: 
+        success: Perfil actualizado exitosamente
+        error: No se pudo actualizar el perfil
+      form:
+        username:
+          label: Nombre de Usuario
+          prefix: Rauversion
+          hide: Ocultar nombre de usuario en la página de perfil
+        name:
+          first: Nombre
+          last: Apellido
+        bio:
+          label: Biografía
+          help: Escribe algunas frases sobre ti
+        location:
+          country: País
+          city: Ciudad
+        images:
+          title: Imágenes del Perfil
+          subtitle: Tu avatar e imagen de cabecera se mostrarán en tu página de perfil
+          avatar:
+            label: Avatar
+            help: "Recomendado: Imagen cuadrada, mínimo 400x400px"
+          header:
+            label: Cabecera del Perfil
+            help: "Recomendado: 1500x500px"
+    email:
+      title: Configuración de Email
+      subtitle: Actualiza tu dirección de email. Necesitarás verificar cualquier nueva dirección de email.
+      form:
+        email:
+          label: Dirección de Email
+      buttons:
+        update: Actualizar Email
+      messages: 
+        success: Email actualizado exitosamente
+        error: No se pudo actualizar el email
+  
+    security:
+      title: Configuración de Seguridad
+      subtitle: Actualiza tu contraseña para mantener tu cuenta segura.
+      buttons:
+        update: Actualizar Contraseña
+      form:
+        password:
+          label: Contraseña Actual
+        confirm_password:
+          label: Confirmar Contraseña
+      messages: 
+        success: Contraseña actualizada exitosamente
+        error: No se pudo actualizar la contraseña
+    notifications:
+      title: Configuración de Notificaciones por Email y App
+      subtitle: Gestiona tus preferencias de notificaciones por email y en la aplicación
+      messages: 
+        success:  Preferencias de notificación actualizadas exitosamente
+        error:  No se pudieron actualizar las preferencias de notificación
+      form:
+        labels:
+          email: Notificaciones por Email
+          app: Notificaciones en la App
+        sections:
+          new_follower:
+            title: Nuevo Seguidor
+            description: Cuando alguien te sigue
+          reposts:
+            title: Reposteos
+            description: Cuando alguien repostea tu contenido
+          new_posts:
+            title: Nuevas Publicaciones
+            description: Cuando alguien que sigues publica nuevo contenido
+          likes_plays:
+            title: Me gusta y Reproducciones
+            description: Cuando alguien da me gusta o reproduce tu contenido
+          comments:
+            title: Comentarios
+            description: Cuando alguien comenta en tu contenido
+          suggested:
+            title: Contenido Sugerido
+            description: Recomendaciones basadas en tus intereses
+          messages:
+            title: Mensajes
+            description: Cuando recibes nuevos mensajes
+    integrations:
+      title: Integraciones
+      subtitle: Conecta tu cuenta con otros servicios para desbloquear funciones adicionales
+      providers:
+        google:
+          name: Google OAuth2
+          description: Conéctate con Google para autenticación y funciones adicionales
+        zoom:
+          name: Zoom
+          description: Integra con Zoom para transmisiones en vivo y webinars
+        discord:
+          name: Discord
+          description: Conecta tu servidor de Discord para interacción con la comunidad
+        twitch:
+          name: Twitch
+          description: Transmite directamente a tu canal de Twitch
+        stripe:
+          name: Stripe Connect
+          description: Acepta pagos y gestiona tus ganancias
+      connected_with: Conectado con ID
+      buttons:
+        connect: Conectar
+        disconnect: Desconectar
+      messages: 
+        success: Conexión exitosa
+        error:  No se pudo conectar
+    invitations:
+      title: Enviar Invitaciones
+      subtitle: Invita a otros usuarios a unirse a la plataforma
+      messages: 
+        success: Invitaciones enviadas exitosamente
+        error: No se pudieron enviar las invitaciones
+      form:
+        email:
+          label: Email
+          placeholder: Ingresa dirección de email
+        message:
+          label: Mensaje
+          placeholder: Añade un mensaje personal (opcional)
+      buttons:
+        send: Enviar Invitación
+      sent:
+        title: Invitaciones Enviadas
+        subtitle: Rastrea el estado de tus invitaciones enviadas
+        status:
+          pending: Enviada el %{date}
+          accepted: Aceptada el %{date}
+          not_sent: No enviada aún
+    social_links:
+      messages: 
+        success: Enlaces sociales actualizados exitosamente 
+        error: No se pudieron actualizar los enlaces sociales
+      seo:
+        title: Configuración SEO
+        subtitle: Personaliza cómo aparece tu perfil en los motores de búsqueda.
+        messages: 
+          success: Configuración SEO actualizada exitosamente
+          error: No se pudo actualizar la configuración SEO
+        form:
+          social_title:
+            label: Título para Redes Sociales
+            placeholder: Tu título social
+          social_description:
+            label: Descripción para Redes Sociales
+            placeholder: Una breve descripción de tu página
+      analytics:
+        title: Integración de Analíticas
+        subtitle: Conecta tus cuentas de analíticas para rastrear el rendimiento de tu perfil
+        form:
+          google:
+            label: ID de Google Analytics
+            placeholder: UA-XXXXXXXXX-X o G-XXXXXXXXXX
+          facebook:
+            label: ID de Facebook Pixel
+            placeholder: XXXXXXXXXXXXXXXXXX
+      mailing:
+        title: Lista de Correo
+        subtitle: Configura tus preferencias de lista de correo
+        form:
+          email_signup:
+            label: Suscripción por Email
+            description: Permite que los fans se suscriban para recibir actualizaciones sobre nuevo contenido
+      content:
+        title: Configuración de Contenido
+        subtitle: Gestiona tus preferencias de visualización de contenido
+        form:
+          sensitive:
+            label: Mostrar Contenido Sensible
+            description: Mostrar contenido que puede ser sensible para algunos espectadores
+          age:
+            label: Restricción de Edad
+            placeholder: Seleccionar restricción de edad
+            options:
+              all: Todas las Edades
+              13: 13+
+              16: 16+
+              18: 18+
+              21: 21+
+      buttons:
+        update: Actualizar Configuraciones
+    transbank:
+      title: Integración Transbank
+      subtitle: Configura tus ajustes de pago de Transbank.
+      messages: 
+        success: Configuración de Transbank actualizada exitosamente
+        error: No se pudo actualizar la configuración de Transbank
+      status:
+        title: Estado de Integración
+        verified: Verificado
+        error: Error
+        unverified: No Verificado
+      form:
+        commerce_code:
+          label: Código de Comercio
+        api_key:
+          label: Clave API
+        test_mode:
+          label: Modo de Prueba
+          description: Usar entorno de prueba de Transbank
+        automatic_transfer:
+          label: Transferencia Automática
+          description: Transferir fondos automáticamente a tu cuenta bancaria
+      buttons:
+        verify: Verificar Credenciales
+        save: Guardar Configuración
+    podcast:
+      title: Configuración de Podcast
+      subtitle: Configura tu perfil y ajustes de podcast.
+      messages: 
+        success: Configuración de podcast actualizada exitosamente
+        error: No se pudo actualizar la configuración de podcast
+      form:
+        avatar:
+          label: Avatar del Podcast
+          help: "Recomendado: Imagen cuadrada, mínimo 400x400px"
+        active:
+          label: Perfil de Podcaster Activo
+        title:
+          label: Título
+        about:
+          label: Acerca de
+        description:
+          label: Descripción
+        distribution:
+          title: Enlaces de Distribución
+          spotify:
+            label: URL de Spotify
+          apple:
+            label: URL de Apple Podcasts
+          google:
+            label: URL de Google Podcasts
+          stitcher:
+            label: URL de Stitcher
+          overcast:
+            label: URL de Overcast
+          pocket:
+            label: URL de Pocket Casts
+      buttons:
+        save: Guardar cambios
+      messages:
+        success: Configuración de podcast actualizada exitosamente
+        error: No se pudo actualizar la configuración de podcast
+        load_error: No se pudieron cargar las configuraciones de podcast.
+        general_error: Ocurrió un error al actualizar las configuraciones de podcast
 
   purchases:
     title: Compras
@@ -215,6 +1359,68 @@ es:
   sessions:
     forgot_pass: "¿Olvidaste tu contraseña?"
     sign_in: Iniciar sesión
+    title: "¡Bienvenido de nuevo!"
+    subtitle: "Inicia sesión en tu cuenta"
+    register:
+      title: "Crea tu cuenta"
+      subtitle: "Únete a nuestra comunidad de creadores"
+      steps:
+        email:
+          label: "¿Cuál es tu correo electrónico?"
+          required: "El correo electrónico es requerido"
+          invalid: "Correo electrónico inválido"
+        username:
+          label: "Elige un nombre de usuario"
+          required: "El nombre de usuario es requerido"
+          pattern: "El nombre de usuario solo puede contener letras, números, guiones bajos y guiones"
+          min_length: "El nombre de usuario debe tener al menos 3 caracteres"
+        password:
+          label: "Crea una contraseña"
+          required: "La contraseña es requerida"
+          min_length: "La contraseña debe tener al menos 6 caracteres"
+          confirm_label: "Confirmar Contraseña"
+          confirm_required: "Por favor confirma tu contraseña"
+          mismatch: "Las contraseñas no coinciden"
+      navigation:
+        back: "Atrás"
+        next: "Siguiente"
+        complete: "Completar Registro"
+      progress:
+        creating: "Creando cuenta..."
+      social:
+        or_register: "O regístrate con"
+        google: "Continuar con Google"
+        discord: "Continuar con Discord"
+      have_account: "¿Ya tienes una cuenta?"
+      login_link: "Iniciar sesión"
+      toast:
+        success:
+          title: "¡Bienvenido a bordo! 🎉"
+          message: "Tu cuenta ha sido creada exitosamente"
+        error:
+          title: "Error"
+          generic: "Algo salió mal"
+    email:
+      label: "Correo electrónico"
+      required: "El correo electrónico es requerido"
+      invalid: "Correo electrónico inválido"
+    password:
+      label: "Contraseña"
+      required: "La contraseña es requerida"
+    or_continue_with: "O continuar con"
+    google: "Iniciar sesión con Google"
+    discord: "Iniciar sesión con Discord"
+    signing_in: "Iniciando sesión..."
+    no_account: "¿No tienes una cuenta?"
+    register_link: "Regístrate"
+    toast:
+      success:
+        title: "¡Bienvenido de nuevo! 👋"
+        message: "Has iniciado sesión exitosamente"
+      error:
+        title: "Error"
+        invalid_credentials: "Correo electrónico o contraseña inválidos"
+        generic: "Algo salió mal"
 
   errors:
     404:
@@ -232,6 +1438,98 @@ es:
       desc: Por favor, revisa la URL y prueba de nuevo
       action: Volver al inicio
       cta: Contactar soporte
+
+  shared:
+    modal:
+      meeting_link: "Enlace de Reunión"
+      meeting_location: "Ubicación de la Reunión"
+      provider_notes: "Notas del Proveedor"
+      close: "Cerrar"
+      meeting_link_placeholder: "ej., https://zoom.us/j/123456789"
+      meeting_location_placeholder: "ej., Calle Principal 123, Oficina 100"
+      provider_notes_placeholder: "Agrega instrucciones especiales o notas para el cliente"
+      meeting_link_help: "Agrega un enlace de videoconferencia (Zoom, Google Meet, etc.) si es una reunión virtual"
+      meeting_location_help: "Agrega la ubicación física si es una reunión presencial"
+      provider_notes_help: "Estas notas serán visibles para el cliente"
+
+    music_purchase_form:
+      title: Comprar %{type} Digital
+      price:
+        label: Precio
+        name_your_price_placeholder: Elige tu precio (mínimo $%{price})
+        required: El precio es requerido
+        minimum: El precio mínimo es $%{price}
+        currency: USD
+      message:
+        label: Mensaje (opcional)
+        placeholder: Añade un mensaje para el artista...
+      purchase_includes: Tu compra incluye transmisión ilimitada a través de la app Rauversion, más descarga de alta calidad en MP3, FLAC y más.
+      buttons:
+        processing: Procesando...
+        complete: Completar Compra
+      errors:
+        title: Error
+        description: Hubo un problema al procesar tu compra.
+    music_purchase:
+      track:
+        button: Comprar Pista Digital
+      playlist:
+        button: Comprar Lista
+      price:
+        name_your_price: Elige tu precio
+        or_more: o más
+        currency: USD
+      supporters:
+        title: Seguidores
+    forms:
+      pricing:
+        price:
+          label: Precio
+          hint: $0 o más. Aplicamos una tarifa cuando el precio es mayor que $0.
+        name_your_price:
+          label: Permitir que los fans paguen más si lo desean
+      share:
+        link:
+          title: Enlace para Compartir
+          description: Comparte tu %{type} directamente usando este enlace
+        social:
+          title: Compartir en Redes Sociales
+          description: Comparte tu %{type} en tu plataforma social favorita
+          twitter: Twitter
+          facebook: Facebook
+        embed:
+          title: Insertar
+          description: Añade este %{type} a tu sitio web copiando el código de inserción
+          preview: Vista Previa
+      permissions:
+        license:
+          label: Licencia
+          all_rights: Todos los derechos reservados
+          common: Creative commons
+        attribution:
+          label: Atribución
+          description: Permite a otros copiar, distribuir, mostrar y ejecutar tu trabajo con derechos de autor solo si te dan crédito de la manera que solicitas.
+        noncommercial:
+          label: No Comercial
+        usage_rights:
+          label: Derechos de Uso
+          non_derivative:
+            label: Sin trabajos derivados
+            description: Permite a otros copiar, distribuir, mostrar y ejecutar solo copias textuales de tu trabajo, no trabajos derivados basados en él.
+          share_alike:
+            label: Compartir Igual
+            description: Permite a otros distribuir trabajos derivados solo bajo una licencia idéntica a la licencia que gobierna tu trabajo.
+      metadata:
+        buy_link: Enlace de Compra
+        buy_link_title: Título del Enlace de Compra
+        record_label: Sello Discográfico
+        isrc: ISRC
+        composer: Compositor
+        release_title: Título del Lanzamiento
+        album_title: Título del Álbum
+        publisher: Editorial
+        artist: Artista
+        genre: Género
 
   sharer:
     share: "Compartir"
@@ -255,6 +1553,104 @@ es:
 
   invitations:
     left: Te quedan %{count} invitaciones
+
+  service_bookings:
+    index:
+      title: "Reservas de Servicios"
+      subtitle: "Gestiona tus reservas y citas de servicios"
+      all: "Todas las Reservas"
+      as_customer: "Mis Reservas"
+      as_provider: "Vista de Proveedor"
+      with_provider: "con %{provider}"
+      for_customer: "para %{customer}"
+      view_details: "Ver Detalles"
+      not_scheduled: "Aún no programada"
+      waiting_schedule: "Reserva confirmada. Esperando programación."
+      minutes: "minutos"
+      online_meeting: "Unirse a la Reunión Virtual"
+      in_person: "Presencial"
+      no_bookings: "No se encontraron reservas"
+      no_bookings_description: "Aún no tienes reservas de servicios."
+      confirm: "Confirmar Reserva"
+      schedule: "Programar Servicio"
+      mark_complete: "Marcar como Completado"
+      cancel: "Cancelar Reserva"
+      cancel_confirm: "¿Estás seguro de que deseas cancelar esta reserva? Esta acción no se puede deshacer."
+      provider_notes: "Notas del Proveedor"
+
+    schedule_modal:
+      schedule_service: "Programar Servicio"
+      schedule_description: "Establece la fecha y hora para este servicio. Asegúrate de coordinar con el cliente previamente."
+      date: "Fecha"
+      time: "Hora"
+      timezone: "Zona Horaria"
+      meeting_link: "Enlace de Reunión"
+      meeting_link_placeholder: "ej., https://zoom.us/j/123456789"
+      meeting_link_help: "Agrega un enlace de videoconferencia (Zoom, Google Meet, etc.) si es una reunión virtual"
+      meeting_location: "Ubicación de la Reunión"
+      meeting_location_placeholder: "ej., Calle Principal 123, Oficina 100"
+      meeting_location_help: "Agrega la ubicación física si es una reunión presencial"
+      provider_notes: "Notas del Proveedor"
+      provider_notes_placeholder: "Agrega instrucciones especiales o notas para el cliente"
+      provider_notes_help: "Estas notas serán visibles para el cliente"
+      schedule_button: "Programar Servicio"
+      cancel_button: "Cancelar"
+
+    feedback_form:
+      add_feedback: "Agrega tu Opinión"
+      rating: "Califica tu experiencia"
+      feedback: "Tu opinión"
+      feedback_placeholder: "Cuéntanos sobre tu experiencia..."
+      submit: "Enviar Opinión"
+    update:
+      feedback_submitted: "¡Gracias por tu opinión!"
+    confirm:
+      success: "La reserva ha sido confirmada exitosamente"
+      invalid_status: "Esta reserva no puede ser confirmada"
+
+    schedule:
+      success: "El servicio ha sido programado exitosamente"
+      invalid_status: "Esta reserva no puede ser programada"
+
+    complete:
+      success: "El servicio ha sido marcado como completado"
+      invalid_status: "Este servicio no puede ser marcado como completado aún"
+
+    cancel:
+      success: "La reserva ha sido cancelada"
+      invalid_status: "Esta reserva no puede ser cancelada"
+
+    status:
+      pending_confirmation: "Pendiente de Confirmación"
+      confirmed: "Confirmado"
+      scheduled: "Programado"
+      in_progress: "En Progreso"
+      completed: "Completado"
+      cancelled: "Cancelado"
+      refunded: "Reembolsado"
+
+    create:
+      success: "Reserva de servicio creada exitosamente"
+
+    show:
+      title: "Detalles de la Reserva"
+      provider_section: "Acciones del Proveedor"
+      confirm_button: "Confirmar Reserva"
+      schedule_button: "Programar Servicio"
+      complete_button: "Marcar como Completado"
+      cancel_button: "Cancelar Reserva"
+      scheduling:
+        title: "Programar Servicio"
+        date_label: "Fecha"
+        time_label: "Hora"
+        timezone_label: "Zona Horaria"
+        meeting_link_label: "Enlace de Reunión"
+        meeting_location_label: "Ubicación de la Reunión"
+        notes_label: "Notas del Proveedor"
+      customer_info:
+        title: "Información del Cliente"
+        special_requirements: "Requerimientos Especiales"
+
   time:
     formats:
       day: '%b %d'
@@ -262,3 +1658,251 @@ es:
       default: "%Y-%m-%d"
       short: "%b %d"
       long: "%B %d, %Y"
+
+  service_booking_mailer:
+    new_booking_notification:
+      subject: "Nueva solicitud de reserva para %{service} de %{customer}"
+      greeting: "¡Hola %{provider}!"
+      intro: "%{customer} ha solicitado reservar tu servicio: %{service}"
+      booking_details: "Detalles de la Reserva"
+      service: "Servicio"
+      category: "Categoría"
+      duration: "Duración"
+      minutes: "minutos"
+      special_requirements: "Requisitos Especiales"
+      view_booking_button: "Ver Detalles de la Reserva"
+      action_required: "Por favor, revisa y confirma esta solicitud de reserva lo antes posible."
+
+    booking_confirmed_notification:
+      subject: "Tu reserva para %{service} ha sido confirmada por %{provider}"
+      greeting: "¡Hola %{customer}!"
+      confirmation_message: "¡Buenas noticias! %{provider} ha confirmado tu reserva para %{service}."
+      booking_details: "Detalles de la Reserva"
+      service: "Servicio"
+      provider: "Proveedor"
+      category: "Categoría"
+      duration: "Duración"
+      minutes: "minutos"
+      view_booking_button: "Ver Detalles de la Reserva"
+      delivery_method: "Método de Entrega"
+      next_steps: "El proveedor te contactará pronto para programar el servicio."
+      support_message: "Si tienes alguna pregunta, contacta a nuestro equipo de soporte en %{email}"
+
+    booking_scheduled_notification:
+      subject: "%{service} con %{provider} ha sido programado"
+      greeting: "¡Hola %{customer}!"
+      scheduled_message: "¡Tu sesión ha sido programada!"
+      timezone: "Zona Horaria"
+      date_time: "Fecha y Hora"
+      meeting_details: "Detalles de la Reunión"
+      location: "Ubicación"
+      online_meeting: "Enlace de Reunión Online"
+      view_booking_button: "Ver Detalles de la Reserva"
+      calendar_button: "Agregar al Calendario"
+
+    service_completed_notification:
+      subject: "Tu sesión de %{service} ha sido completada"
+      greeting: "¡Hola %{customer}!"
+      completion_message: "Tu servicio ha sido marcado como completado."
+      feedback_request: "¡Nos encantaría conocer tu experiencia!"
+      rate_button: "Calificar este Servicio"
+    booking_cancelled_notification:
+
+      subject: "Reserva de %{service} cancelada por %{cancelled_by}"
+      greeting: "¡Hola!"
+      cancellation_message: "La reserva ha sido cancelada."
+      refund_info: "Si has realizado algún pago, será reembolsado en 5-7 días hábiles."
+
+    reminder_notification:
+      subject: "Recordatorio: %{service} programado para %{time}"
+      greeting: "¡Hola!"
+      reminder_message: "Este es un recordatorio amistoso sobre tu próximo servicio."
+      view_details_button: "Ver Detalles"
+
+  store:
+    index:
+      store_title: "Tienda de Música"
+      store_subtitle: "Descubre música, equipamiento y servicios profesionales de nuestra comunidad"
+      search_placeholder: "Buscar en la tienda..."
+      all: "Todos los Productos"
+      music: "Música"
+      music_description: "Álbumes digitales y físicos de artistas independientes"
+      gear: "Equipamiento"
+      gear_description: "Equipos y accesorios musicales de calidad"
+      services_description: "Servicios profesionales y educación musical"
+      accessories: "Accesorios"
+      services: "Servicios"
+
+  music:
+    index:
+      music: "Música"
+      music_title: "Tienda de Música"
+      music_subtitle: "Descubre y colecciona música de artistas independientes"
+      search_placeholder: "Buscar por título o descripción..."
+      all_formats: "Todos los Formatos"
+      featured_albums: "Álbumes Destacados"
+      all_albums: "Todos los Álbumes"
+      try_different_filters: "Prueba diferentes filtros o elimina algunos para encontrar más álbumes"
+      no_albums_found: "No se encontraron álbumes"
+      format:
+        vinyl: "Vinilo"
+        cassette: "Casete"
+        cd: "CD"
+        digital: "Digital"
+  
+  products:
+    add_to_cart: "Agregar al carrito"
+    added_to_cart: "Añadido al carrito"
+    added_to_cart_message: "%{title} ha sido añadido a tu carrito"
+    add_to_cart_error: "No se pudo añadir al carrito. Por favor, inténtalo de nuevo"
+    quick_view: "Vista rápida"
+    stock:
+      low_stock: "Solo quedan %{count} en stock"
+      out_of_stock: "Agotado"
+    cart:
+      title: "Carrito de Compras"
+      empty: "Tu carrito está vacío"
+      total: "Total"
+      remove: "Eliminar"
+      checkout: "Pagar"
+      processing: "Procesando..."
+      view_details: "Ver Detalles del Carrito"
+      error: "Error"
+      sr_label: "Carrito de compras"
+    checkout:
+      success:
+        title: "¡Pago Exitoso!"
+        message: "Gracias por tu compra. Recibirás un correo de confirmación en breve."
+        view_orders: "Ver Pedidos"
+        continue_shopping: "Continuar Comprando"
+      failure:
+        title: "Pago Fallido"
+        message: "No pudimos procesar tu pago. No te preocupes, los artículos de tu carrito siguen guardados."
+        return_to_cart: "Volver al Carrito"
+        continue_shopping: "Continuar Comprando"
+        support_message: "Si continúas experimentando problemas, por favor contacta a nuestro equipo de soporte."
+    accessory:
+      show:
+        about: "Acerca de"
+        description: "Descripción"
+        details: "Detalles"
+        shipping: "Envío"
+        add_to_cart: "Añadir al Carrito"
+    music:
+      show:
+        about: "Acerca de"
+        description: "Descripción"
+        tracks: "Pistas"
+        condition: "Condición"
+        limited_edition: "Edición Limitada"
+        shipping: "Envío"
+        add_to_cart: "Añadir al Carrito"
+        details: "Detalles"
+    gear:
+      show:
+        about: "Acerca de"
+        description: "Descripción"
+        details: "Detalles"
+        brand: "Marca"
+        condition: "Condición"
+        model: "Modelo"
+        shipping: "Envío"
+        add_to_cart: "Añadir al Carrito"
+        year: "Año"
+    service:
+      delivery_methods:
+        online: "Reunión Virtual"
+        in_person: "Presencial"
+      show:
+        about: "Acerca de"
+        what_you_get: "Lo que Recibes"
+        what_to_expect: "Qué Esperar"
+        description: "Descripción"
+        cancellation_policy: "Política de Cancelación"
+        duration: "Duración"
+        book_now: "Reservar Ahora"
+        details: "Detalles"
+
+  artists:
+    description: Explora el directorio de artistas y descubre nueva música
+    no_albums:  No se encontraron artistas
+    featured: Artistas Destacados
+    title: Artistas
+    new_connection: "Nueva Conexión"
+    new_artist: "Nuevo Artista"
+    existing_artist:  "Artista Existente"
+    username: "Nombre de Usuario"
+    email:  "Correo Electrónico"
+    first_name: "Nombre"
+    last_name:  "Apellido"
+    create_connection:  "Crear Conexión"
+    search: "Buscar"
+    search_placeholder: "Buscar por nombre de usuario o correo electrónico" 
+    send_connection_request:  "Enviar Solicitud de Conexión"
+    no_results: "No se encontraron resultados"
+    connection_error: Error con la conexión
+    connection_error_desc: Hubo un error al enviar la solicitud de conexión. Por favor, inténtalo de nuevo.
+    connection_success: Conexión Exitosa
+    connection_success_desc:  Tu solicitud de conexión ha sido enviada exitosamente.
+
+  messages:
+    title: Mensajes
+    loading: Cargando mensajes...
+    status:
+      archived: Archivado
+      active: Activo
+    search: Buscar Mensajes
+    new_message: Nuevo Mensaje
+    no_messages: No hay mensajes
+    no_conversations: No hay conversaciones
+    no_conversations_desc: Empieza una conversación con otros
+    no_messages_desc: Envía un mensaje a otros usuarios
+    new_conversation: Nueva Conversación
+
+    new_message: Nuevo Mensaje
+    start_conversation: Nuevo Mensaje
+    placeholders: Nuevo Mensaje
+    placeholders: Nuevo Mensaje
+    placeholders: Nuevo Mensaje
+    cancel: Nuevo Mensaje
+    create_conversation: Nuevo Mensaje
+    no_participants_found: No hay participantes
+    reply: Nuevo Mensaje
+    send: Enviar
+    cancel: Cancelar
+    placeholders:
+      search: Buscar
+      subject: Asunto
+      participants: Participantes
+      message: Mensajes
+    notifications:
+      message_sent: Mensaje enviado
+      message_error: Error al enviar mensaje
+      status_updated: Estado actualizado
+      created: Creado
+
+
+  interest_alert:
+    roles:
+      artist: Artista
+      seller: Vendedor
+    title:
+      artist: "Conviértete en Artista"
+      seller: "Conviértete en Vendedor"
+    description:
+      artist: "Comparte tu música con el mundo y haz crecer tu base de fans"
+      seller: "Comienza a vender tu mercancía y llega a más clientes"
+    input:
+      placeholder: "Cuéntanos por qué quieres unirte como %{type} include links y detalles de tu trabajo"
+    submit: "Enviar Solicitud"
+    default_message: "Estoy interesado en convertirme en %{type} en la plataforma."
+    review:
+      title: "Solicitud en Revisión"
+      message: "Estamos revisando tu solicitud para convertirte en %{type}. Te notificaremos cuando sea aprobada."
+    toast:
+      success:
+        title: "¡Éxito!"
+        description: "Tu solicitud para convertirte en %{type} ha sido enviada."
+      error:
+        title: "Error"
+        description: "Ocurrió un error inesperado"

@@ -6,53 +6,67 @@ class ProductsController < ApplicationController
   def index
     @profile = User.find_by(username: params[:id] || params[:user_id])
 
-    #@profile = User.find_by(username: params[:username]) || current_user
-    @q = @profile.products.active.includes(:user, :album)
-                 .where.not(category: ['instrument', 'audio_gear', 'dj_gear', 'accessories'])
+    @q = @profile.products
+    .active.includes(:user, :album, product_images: {image_attachment: :blob}) 
+                 # .where.not(category: ['instrument', 'audio_gear', 'dj_gear', 'accessories'])
                  .ransack(params[:q])
     @products = @q.result(distinct: true).order(created_at: :desc)
 
-    #@products = @profile.products.active.includes(:user, :album).order(created_at: :desc)
     @products = @products.by_category(params[:category]) if params[:category].present?
+    @available_brands = Products::GearProduct.distinct.pluck(:brand).compact
     @products = @products.page(params[:page]).per(20) # Assuming you're using Kaminari for pagination
+    respond_to do |format| 
+      format.html { render_blank }
+      format.json { render 'index' }
+    end
   end
 
   def used_gear
     @profile = User.find_by(username: params[:id] || params[:user_id])
     
     @q = if @profile
-           @profile.products.used_gear.active
+           @profile.products.merge(Products::GearProduct.used_gear).active
          else
-           Product.used_gear.active
+           Products::GearProduct.used_gear.active
          end
 
     @q = @q.includes(:user).ransack(params[:q])
     @products = @q.result(distinct: true).order(created_at: :desc)
     
-    # Filter by specific gear category if provided
     @products = @products.by_category(params[:gear_category]) if params[:gear_category].present?
-    
-    # Filter by condition
     @products = @products.where(condition: params[:condition]) if params[:condition].present?
-    
-    # Filter by brand
     @products = @products.where(brand: params[:brand]) if params[:brand].present?
-    
-    # Filter barter-only items
-    @products = @products.accept_barter if params[:barter_only].present?
+    @products = @products.where(accept_barter: true) if params[:barter_only].present?
     
     @products = @products.page(params[:page]).per(20)
     
-    # Get unique brands for filtering
-    @available_brands = Product.used_gear.distinct.pluck(:brand).compact
+    @available_brands = Products::GearProduct.distinct.pluck(:brand).compact
     
     render 'used_gear'
   end
 
   def show
-    @profile = User.find_by(username: params[:user_id])
-    @product = @profile.products.friendly.find(params[:id])
+    #@profile = User.find_by(username: params[:user_id])
+    #@product = @profile.products.friendly.find(params[:id])
+    @product = Product.friendly.find(params[:id])
     @product_variants = @product.product_variants
+
+
+
+    view_path = case @product.type
+    when "Products::GearProduct" then "products/gear/show"
+    when "Products::MusicProduct" then "products/music/show"
+    when "Products::MerchProduct" then "products/merch/show"
+    when "Products::AccessoryProduct" then "products/accessory/show"
+    when "Products::ServiceProduct" then "products/service/show"
+    else
+      "products/show"
+    end
+
+    respond_to do |format|  
+      format.html { }
+      format.json { render view_path and return } 
+    end
     
     if request.headers["Turbo-Frame"] == "gallery-photo"
       product_image = @product.product_images.find(params[:image])
@@ -67,18 +81,33 @@ class ProductsController < ApplicationController
   end
 
   def new
-    @product = current_user.products.new
+    product_class = case params[:product_type]
+                   when 'used_gear'
+                     Products::GearProduct
+                   when 'music'
+                     Products::MusicProduct
+                   when 'merch'
+                     Products::MerchProduct
+                   when 'accessory'
+                     Products::AccessoryProduct
+                   else
+                     Product
+                   end
+
+    @product = product_class.new(user: current_user)
     
-    # Set default values for used gear if specified
     if params[:product_type] == 'used_gear'
-      @product.category = params[:gear_category] if Product.categories.key?(params[:gear_category])
-      @product.condition = 'good' # Default condition
-      @product.accept_barter = true # Default to accepting barter
+      @product.category = params[:gear_category] if product_class.categories.key?(params[:gear_category])
+      @product.condition = 'good'
+      @product.accept_barter = true
     end
   end
 
   def create
-    @product = current_user.products.new(product_params)
+    product_class = determine_product_class(product_params[:category])
+    @product = product_class.new(product_params)
+    @product.user = current_user
+
     if params[:changed_form]
       render "create" and return
     end
@@ -91,6 +120,9 @@ class ProductsController < ApplicationController
   end
 
   def edit
+    respond_to do |format|
+      format.html { render html: "", layout: "react" }
+    end
   end
 
   def update
@@ -109,7 +141,10 @@ class ProductsController < ApplicationController
 
   def destroy
     @product.destroy
-    redirect_to products_url, notice: 'Product was successfully deleted.'
+    respond_to do |format|
+      format.html { redirect_to products_url, notice: 'Product was successfully deleted.' }
+      format.json { render json: { success: true } }
+    end
   end
 
   private
@@ -121,6 +156,21 @@ class ProductsController < ApplicationController
   def authorize_user
     unless @product.user == current_user || current_user.is_admin?
       redirect_to products_path, alert: 'You are not authorized to perform this action.'
+    end
+  end
+
+  def determine_product_class(category)
+    case category
+    when 'merch'
+      Products::MerchProduct
+    when 'vinyl', 'cassette', 'cd'
+      Products::MusicProduct
+    when 'instrument', 'audio_gear', 'dj_gear'
+      Products::GearProduct
+    when 'accessories'
+      Products::AccessoryProduct
+    else
+      Product
     end
   end
 

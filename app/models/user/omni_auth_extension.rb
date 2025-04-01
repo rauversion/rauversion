@@ -40,6 +40,25 @@ module User::OmniAuthExtension
             secret: data["credentials"]["secret"]
           )
         end
+        # else
+        #   # Create new user with omniauth data
+        #   current_user = User.new(
+        #     email: data["info"]["email"],
+        #     first_name: data["info"]["first_name"],
+        #     last_name: data["info"]["last_name"],
+        #     password: Devise.friendly_token[0, 20]
+        #   )
+        #   current_user.skip_confirmation!
+        #   current_user.save!
+        #   
+        #   # Create identity for the new user
+        #   current_user.identities.create!(
+        #     provider: provider,
+        #     uid: data["uid"],
+        #     token: data["credentials"]["token"],
+        #     secret: data["credentials"]["secret"]
+        #   )
+        # end
         current_user
       end
     end

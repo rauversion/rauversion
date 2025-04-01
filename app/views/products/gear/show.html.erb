@@ -1,0 +1,100 @@
+<div class="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <div class="max-w-3xl mx-auto">
+    <div class="bg-white dark:bg-gray-800 shadow rounded-lg overflow-hidden">
+      <% if @product.product_images.any? %>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 p-6">
+          <% @product.product_images.each do |image| %>
+            <div class="relative aspect-square rounded-lg overflow-hidden">
+              <%= image_tag image.image,
+                  class: "w-full h-full object-cover",
+                  alt: image.title %>
+            </div>
+          <% end %>
+        </div>
+      <% end %>
+
+      <div class="p-6">
+        <div class="flex justify-between items-start">
+          <div>
+            <h1 class="text-3xl font-bold mb-2"><%= @product.title %></h1>
+            <div class="flex flex-wrap items-center text-gray-500 mb-4 gap-2">
+              <span class="text-lg font-semibold"><%= @product.category.to_s.titleize %></span>
+              <span class="mx-2">•</span>
+              <span><%= @product.brand %> <%= @product.model %></span>
+              <% if @product.year.present? %>
+                <span class="mx-2">•</span>
+                <span>Year: <%= @product.year %></span>
+              <% end %>
+              <span class="mx-2">•</span>
+              <span>Condition: <%= @product.condition.to_s.titleize %></span>
+              <% if @product.accept_barter? %>
+                <span class="mx-2">•</span>
+                <span class="text-green-500">Accepts Barter</span>
+              <% end %>
+            </div>
+          </div>
+
+          <div class="text-right">
+            <div class="text-2xl font-bold mb-2">
+              <%= number_to_currency(@product.price) %>
+            </div>
+            <% if @product.name_your_price? %>
+              <div class="text-sm text-gray-500">Name your price enabled</div>
+            <% end %>
+            <% if @product.stock_quantity.present? %>
+              <div class="text-sm text-gray-500">
+                <%= @product.stock_quantity %> in stock
+              </div>
+            <% end %>
+          </div>
+        </div>
+
+        <div class="prose dark:prose-invert max-w-none mt-6">
+          <%= raw @product.description %>
+        </div>
+
+        <% if @product.product_shippings.any? %>
+          <div class="mt-8">
+            <h3 class="text-lg font-semibold mb-4">Shipping Options</h3>
+            <div class="space-y-4">
+              <% @product.product_shippings.each do |shipping| %>
+                <div class="border dark:border-gray-700 rounded-lg p-4">
+                  <div class="flex justify-between items-center">
+                    <div>
+                      <h4 class="font-medium"><%= shipping %></h4>
+                 
+                    </div>
+                    <span class="text-primary font-medium">
+                      <%= number_to_currency(shipping.base_cost) %>
+                    </span>
+                  </div>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+
+        <div class="mt-8">
+          <h3 class="text-lg font-semibold mb-4">Additional Details</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      
+
+          </div>
+        </div>
+
+        <div class="mt-8 flex justify-end space-x-4">
+          <% if current_user == @product.user %>
+            <%= link_to "Edit Product",
+                edit_user_products_gear_path(current_user.username, @product),
+                class: "btn btn-secondary" %>
+          <% else %>
+            <%= button_to "Add to Cart",
+                add_to_cart_user_product_path(@product.user.username, @product),
+                method: :post,
+                class: "btn btn-primary" %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

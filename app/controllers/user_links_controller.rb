@@ -4,29 +4,32 @@ class UserLinksController < ApplicationController
   
   def index
     @user = User.find_by!(username: params[:user_id])
-    @user_links = @user.user_links
+    @user_links = @user.user_links.page(params[:page]).per(10)
 
-    set_meta_tags title: @user.social_title.presence || "#{@user.username}'s Links",
-                  site: 'Rauversion',
-                  reverse: true,
-                  description: @user.social_description,
-                  keywords: ['social links', 'profile', @user.username],
-                  og: {
-                    title: @user.social_title.presence || "#{@user.username}'s Links",
+    respond_to do |format|
+      format.html do
+        set_meta_tags title: @user.social_title.presence || "#{@user.username}'s Links",
+                    site: 'Rauversion',
+                    reverse: true,
                     description: @user.social_description,
-                    type: 'profile',
-                    url: user_user_links_url(@user.username),
-                    image: @user.avatar_url(:medium)
-                  },
-                  twitter: {
-                    card: 'summary',
-                    site: '@rauversion',
-                    title: @user.social_title.presence || "#{@user.username}'s Links",
-                    description: @user.social_description,
-                    image: @user.avatar_url(:medium)
-                  }
-
-    render "user_links/index", layout: "social_links"
+                    keywords: ['social links', 'profile', @user.username],
+                    og: {
+                      title: @user.social_title.presence || "#{@user.username}'s Links",
+                      description: @user.social_description,
+                      type: 'profile',
+                      url: user_user_links_url(@user.username),
+                      image: @user.avatar_url(:medium)
+                    },
+                    twitter: {
+                      card: 'summary',
+                      site: '@rauversion',
+                      title: @user.social_title.presence || "#{@user.username}'s Links",
+                      description: @user.social_description,
+                      image: @user.avatar_url(:medium)
+                    }
+      end
+      format.json
+    end
   end
 
   def new
@@ -37,10 +40,15 @@ class UserLinksController < ApplicationController
   def create
     @user_link = current_user.user_links.new(user_link_params)
     @user_link.type = "UserLinks::WebsiteLink"
-    if @user_link.save
-      redirect_to user_user_links_path(user_id: current_user.username), notice: 'Link was successfully created.'
-    else
-      render :new
+    
+    respond_to do |format|
+      if @user_link.save
+        format.html { redirect_to user_user_links_path(user_id: current_user.username), notice: 'Link was successfully created.' }
+        format.json { render :create }
+      else
+        format.html { render :new }
+        format.json { render json: { error: @user_link.errors.full_messages.to_sentence }, status: :unprocessable_entity }
+      end
     end
   end
 
@@ -48,16 +56,23 @@ class UserLinksController < ApplicationController
   end
 
   def update
-    if @user_link.update(user_link_params)
-      redirect_to user_user_links_path(user_id: current_user.username), notice: 'Link was successfully updated.'
-    else
-      render :edit
+    respond_to do |format|
+      if @user_link.update(user_link_params)
+        format.html { redirect_to user_user_links_path(user_id: current_user.username), notice: 'Link was successfully updated.' }
+        format.json { render :update }
+      else
+        format.html { render :edit }
+        format.json { render json: { error: @user_link.errors.full_messages.to_sentence }, status: :unprocessable_entity }
+      end
     end
   end
 
   def destroy
     @user_link.destroy
-    redirect_to user_user_links_path(user_id: current_user.username), notice: 'Link was successfully deleted.'
+    respond_to do |format|
+      format.html { redirect_to user_user_links_path(user_id: current_user.username), notice: 'Link was successfully deleted.' }
+      format.json { render json: { message: 'Link was successfully deleted.' } }
+    end
   end
 
   private

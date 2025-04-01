@@ -129,7 +129,7 @@ class Event < ApplicationRecord
       cover.variant(resize_to_limit: [200, 200])&.processed&.url
     end
 
-    url || "daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
+    url || "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
   end
 
   def sales_count
@@ -146,6 +146,6 @@ class Event < ApplicationRecord
   end
 
   def has_stripe?
-    self.user.oauth_credentials.where(provider: "stripe_connect").present?
+    self.user.stripe_account_id # oauth_credentials.where(provider: "stripe_connect").present?
   end
 end

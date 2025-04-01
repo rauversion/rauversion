@@ -1,6 +1,7 @@
 import React from 'react';
 import ImageUploadField from './ImageUploadField';
 import Button from './Button';
+import SimpleEditor from '@/components/ui/SimpleEditor';
 
 const HeroSection = ({ 
   backgroundImage, 
@@ -88,8 +89,9 @@ export const config = {
       label: "Title"
     },
     description: {
-      type: "textarea",
-      label: "Description"
+      type: "custom",
+      label: "Description",
+      render: SimpleEditor
     },
     backgroundImage: {
       type: "custom",

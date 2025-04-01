@@ -1,0 +1,28 @@
+<h1>Congratulations!</h1>
+
+<p>Hello <%= @user.username %>,</p>
+
+<p>Great news! Your request to become a <%= @interest_alert.role %> has been approved.</p>
+
+<p>You now have access to all <%= @interest_alert.role %> features on the platform. Here's what you can do now:</p>
+
+<% if @interest_alert.role == "artist" %>
+<ul>
+  <li>Upload and share your music</li>
+  <li>Create and manage your artist profile</li>
+  <li>Connect with your fans</li>
+  <li>Track your music analytics</li>
+</ul>
+<% else %>
+<ul>
+  <li>List products in your store</li>
+  <li>Manage your inventory</li>
+  <li>Process orders and payments</li>
+  <li>Track your sales analytics</li>
+</ul>
+<% end %>
+
+<p>To get started, simply log in to your account and explore your new features.</p>
+
+<p>Best regards,<br>
+The Rauversion Team</p>

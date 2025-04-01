@@ -40,12 +40,12 @@ jobs:
 
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 22
           cache: "yarn"
 
       - name: Build and precompile
         run: |
-          sudo apt-get -yqq install libpq-dev curl libgconf-2-4
+          sudo apt-get -yqq install libpq-dev curl
           gem install bundler
           bundle install --jobs 4 --retry 3
           bundle exec rails db:prepare

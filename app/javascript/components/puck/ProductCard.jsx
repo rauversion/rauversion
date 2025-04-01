@@ -3,6 +3,8 @@ import { get, post } from '@rails/request.js';
 import ColorPicker from './ColorPicker';
 import CheckboxField from './CheckboxField';
 import Select from 'react-select';
+import useCartStore from '@/stores/cartStore'
+import I18n from '@/stores/locales'
 
 const ProductSelector = ({ value, onChange }) => {
   const [products, setProducts] = useState([]);
@@ -16,8 +18,8 @@ const ProductSelector = ({ value, onChange }) => {
         const response = await get(`/${userId}/products.json`);
         if (response.ok) {
           const data = await response.json;
-          setProducts(data.map(product => ({
-            value: product.id,
+          setProducts(data.collection.map(product => ({
+            value: product.slug,
             label: product.title,
             ...product
           })));
@@ -68,6 +70,7 @@ const ProductCard = ({
   const [selectedImage, setSelectedImage] = useState(null);
   const [userId, setUserId] = useState(null);
   const [product, setProduct] = useState(null);
+  const { addToCart } = useCartStore()
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -79,12 +82,12 @@ const ProductCard = ({
           return;
         }
 
-        const response = await get(`/${u}/products/${productId}.json`);
+        const response = await get(`/products/${productId}.json`);
         if (response.ok) {
           const data = await response.json;
-          setProduct(data);
-          if (data.product_images?.length > 0) {
-            setSelectedImage(data.product_images[0]);
+          setProduct(data.product);
+          if (data.photos?.length > 0) {
+            setSelectedImage(data.photos[0]);
           }
         }
       } catch (error) {
@@ -102,16 +105,7 @@ const ProductCard = ({
     
     setAdding(true);
     try {
-      const response = await post(`/${userId}/product_cart/add/${product.id}`, {
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content,
-        }
-      });
-      
-      if (response.ok) {
-        console.log('Product added to cart');
-      }
+      addToCart(product.id)
     } catch (error) {
       console.error('Error adding to cart:', error);
     } finally {
@@ -120,11 +114,11 @@ const ProductCard = ({
   };
 
   if (loading) {
-    return <div className="animate-pulse bg-gray-200 rounded-lg h-96"></div>;
+    return <div className="animate-pulse bg-muted rounded-lg h-96"></div>;
   }
 
   if (!product) {
-    return <div className="text-center text-gray-500">Please select a product</div>;
+    return <div className="text-center text-muted">Please select a product</div>;
   }
 
   const buttonClasses = buttonStyle === 'outline' 
@@ -229,12 +223,12 @@ const ProductCard = ({
         <div className={`${selectedVariant.imageWrapper} ${getAspectRatioClass()}`}>
           <img 
             className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
-            src={selectedImage?.image_url || product.cover_url}
+            src={selectedImage?.url || product.photos[0]?.url}
             alt={product.title}
           />
-          {showGallery && product.product_images?.length > 0 && (
+          {showGallery && product.photos?.length > 0 && (
             <div className="absolute bottom-0 left-0 right-0 p-2 bg-black bg-opacity-50 flex gap-2 overflow-x-auto">
-              {product.product_images.map((image) => (
+              {product.photos.map((image) => (
                 <button
                   key={image.id}
                   onClick={() => setSelectedImage(image)}
@@ -243,7 +237,7 @@ const ProductCard = ({
                   }`}
                 >
                   <img 
-                    src={image.image_url} 
+                    src={image.url} 
                     alt={`${product.title} - Image ${image.id}`}
                     className="w-full h-full object-cover"
                   />
@@ -294,7 +288,7 @@ const ProductCard = ({
               onClick={handleAddToCart}
               disabled={adding}
             >
-              {adding ? 'Adding...' : buttonText || 'Add to Cart'}
+              {adding ? 'Adding...' : buttonText || I18n.t("products.add_to_cart")}
             </button>
           </div>
         </div>

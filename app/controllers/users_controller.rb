@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :find_user, except: [:index]
+  before_action :find_user, except: [:index, :stats]
   before_action :check_user_role, except: [:index]
 
   def index
@@ -11,28 +11,61 @@ class UsersController < ApplicationController
     if q.present?
       @artists = @artists.where("username ILIKE :q OR email ILIKE :q OR first_name ILIKE :q OR last_name ILIKE :q", q: "%#{q}%")
     end
-    #.with_attached_avatar
-    #.order("id desc")
     @artists = @artists.page(params[:page]).per(5)
+
+    respond_to do |format|
+      format.html
+      format.json
+    end
   end
 
   def show
     @title = "All"
     get_tracks
+    get_playlists
     get_meta_tags
     @as = :track
     @section = "tracks/track_item"
-
-    # render @user.label ? "labels/show" : "show"
+    @collection = @tracks
+    respond_to do |format|
+      format.html # show.html.erb
+      format.json # show.json.jbuilder
+    end
   end
 
   def tracks
-    get_tracks
-    # @collection = @user.tracks.page(params[:page]).per(5)
-    @as = :track
     @title = "Tracks"
-    @section = "tracks/track_item"
-    paginated_render
+    @q = @user.tracks.ransack(params[:q])
+    @q.sorts = 'created_at desc' if @q.sorts.empty?
+
+    @tracks = @q.result
+      .with_attached_cover
+      .includes(user: { avatar_attachment: :blob })
+      .page(params[:page])
+      .per(12)
+
+    @collection = @tracks
+    respond_to do |format|
+      format.html do
+        @as = :track
+        @section = "tracks/track_item"
+        paginated_render
+      end
+      format.json
+    end
+  end
+
+  def search_tracks
+    @q = @user.tracks.ransack(title_cont: params[:q])
+    @tracks = @q.result
+      .with_attached_cover
+      .includes(cover_attachment: :blob)
+      .includes(user: { avatar_attachment: :blob })
+      .limit(10)
+
+    respond_to do |format|
+      format.json
+    end
   end
 
   def playlists_filter
@@ -55,7 +88,10 @@ class UsersController < ApplicationController
 
     @playlists = @playlists.page(params[:page]).per(5)
 
-    render "playlist_cards"
+    respond_to do |format|
+      format.html { render "playlist_cards" }
+      format.json
+    end
   end
 
   def playlists
@@ -76,14 +112,14 @@ class UsersController < ApplicationController
     .page(params[:page])
     .per(5)
 
-    @as = :playlist
-    @section = "playlists/playlist_item"
-    # render "show"
-
-    if request.format.json?
-      render "playlists" and return
+    respond_to do |format|
+      format.html do
+        @as = :playlist
+        @section = "playlists/playlist_item"
+        paginated_render
+      end
+      format.json
     end
-    paginated_render
   end
 
   def artists
@@ -96,7 +132,11 @@ class UsersController < ApplicationController
     @cta_label = "New account connection"
     @collection_class = "mt-6 grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-4 md:gap-y-0 lg:gap-x-8"
     @admin = current_user && current_user.id == @label&.id
-    render "show"
+
+    respond_to do |format|
+      format.html { render "show" }
+      format.json
+    end
   end
 
   def reposts
@@ -104,45 +144,70 @@ class UsersController < ApplicationController
     @collection = @user.reposts_preloaded.page(params[:page]).per(5)
     @as = :track
     @section = "tracks/track_item"
-    render "show"
+
+    respond_to do |format|
+      format.html 
+      format.json { render "tracks" }
+    end
   end
 
   def albums
     @title = "Albums"
     @section = "albums"
     @collection = Playlist
-      .where(user_id: @user.id).or(Playlist.where(label_id: @user.id))
+      .where(user_id: @user.id)
+      .or(Playlist.where(label_id: @user.id))
       .where(playlist_type: ["album", "ep"])
       .with_attached_cover
       .includes(user: {avatar_attachment: :blob})
       .includes(tracks: {cover_attachment: :blob})
+      .order(created_at: :desc)
 
     if current_user.blank? || current_user != @user
-      @collection = @collection.where(private: false)
+      @collection = @collection.where(private: [false, nil])
     end
 
     @collection = @collection.ransack(title_cont: params[:q]).result if params[:q].present?
-    @collection = @collection.page(params[:page]).per(10)
+    @collection = @collection.page(params[:page]).per(12)
 
-    if request.format.json?
-      render "playlists" and return
+    respond_to do |format|
+      format.html do
+        @as = :playlist
+        @namespace = :album
+        @section = "playlists/playlist_item"
+        paginated_render
+      end
+      format.json { render "playlists" }
     end
-    
-    @as = :playlist
-    @namespace = :album
-    @section = "playlists/playlist_item"
-    paginated_render
   end
 
   def about
-    @title = "Albums"
-    @section = "albums"
-    render "about"
+    respond_to do |format|
+      format.html
+      format.json
+    end
   end
 
   def articles
-    @articles = @user.posts.order("id desc").page(params[:page]).per(10)
-    render "articles"
+    @articles = @user.posts.published.order("id desc").page(params[:page]).per(params[:per] || 10)
+
+    respond_to do |format|
+      format.html { render "articles" }
+      format.json
+    end
+  end
+
+  def stats
+    @user = User.friendly.find(params[:username])
+    @stats = {
+      followers_count: @user.followers(User).size,
+      monthly_listeners: Track.series_by_month(@user.id, range: 1).first&.fetch(:count, 0),
+      top_countries: Track.top_countries(@user.id)
+    }
+
+    respond_to do |format|
+      format.json
+    end
   end
 
   private
@@ -158,20 +223,23 @@ class UsersController < ApplicationController
   end
 
   def get_tracks
-    # @collection = @user.tracks.page(params[:page]).per(2)
-    @collection = if current_user && @user.id == current_user&.id 
-      User.track_preloaded_by_user(current_user_id: current_user&.id, user: @user )
-        #.where(user_id: @user.id)
-    else
-      User.track_preloaded_by_user_n(user: @user).where(private: [nil, false])
-      #.where(user_id: @user.id)
-        #@user.tracks.published
-    end
+    @tracks = @user.tracks
+      .with_attached_cover
+      .includes(user: { avatar_attachment: :blob })
+      .order(created_at: :desc)
+      .page(params[:page])
+      .per(12)
+  end
 
-    @collection = @collection
+  def get_playlists
+    @playlists = Playlist
+      .where(user_id: @user.id)
+      .or(Playlist.where(label_id: @user.id))
+      .where(private: false)
       .with_attached_cover
       .includes(user: {avatar_attachment: :blob})
-      .order("id desc").page(params[:page]).per(6)
+      .includes(tracks: {cover_attachment: :blob})
+      .order(created_at: :desc)
   end
 
   def find_user
@@ -200,6 +268,14 @@ class UsersController < ApplicationController
   end
 
   def check_user_role
-    redirect_to root_url, notice: "The profile you are trying to access is not activated" and return unless @user.is_creator?
+    return if @user.is_creator?
+    respond_to do |format|
+      format.html { 
+        render inline: "", layout: "react", notice: I18n.t("users.not_found") 
+      }
+      format.json { 
+        render json: { error: I18n.t("users.not_found")}, status: :unprocessable_entity
+      }
+    end
   end
 end

@@ -1,0 +1,284 @@
+---
+en:
+  products:
+    conditions:
+      new: New
+      like_new: As new
+      excellent: Excellent
+      very_good: Very good
+      good: Good
+      fair: Regular
+      poor: Bad
+
+    index:
+      products: Products
+      coupons: Coupons
+      add_new_product: Add New Product
+      music: Music
+      gear: Equipment
+      services: Services
+      search_title: Search
+      search_placeholder: Search by title or description...
+      format: Format
+      gear_category: Category
+      service_type: Type of Service
+      condition: Condition
+      brand: Brand
+      all_formats: All Formats
+      all_categories: All Categories
+      all_conditions: All Conditions
+      all_brands: All Brands
+      all_service_types: All Types of Service
+      show_barter_only: Show Only Available for Barter
+      search: Search
+      no_products_found: No products were found
+      try_different_filters: Try different filters or remove some to find more products
+    form:
+      update: "Update"
+      submit: Save
+      submitting: Saving...
+      submit: Save
+      edit: Edit
+      cancel: Cancel
+      delete: Delete
+      delete_confirm:
+        Are you sure you want to delete this product? This action
+        cannot be undone.
+      pricing:
+        title: Prices
+        price: Price
+        sku: SKU
+        stock_quantity: Quantity in Stock
+        compare_at_price: Price comparison
+        accept_barter: Accept barter
+        barter_description: Description of barter
+        barter_description_placeholder:
+          Describe what type of equipment you would
+          accept in exchange...
+      shipping:
+        title: Shipments
+        shipping_days: Shipping Days
+        shipping_begins_on: Begins shipping on
+        shipping_options: Shipping Options
+        add_shipping_option: Add Shipping Option
+        option: Option
+        country: Country
+        select_country: Select country
+        base_cost: Base cost for first item
+        additional_cost: Cost per additional item
+        shipping_cost: Shipping cost
+        ships_internationally: International shipments
+        international_shipping_cost: International shipping cost
+        shipping_notes: Shipping notes
+        shipping_notes_placeholder: Add additional information about shipments...
+        local_pickup: Allow withdrawal in person
+      photos:
+        title: Photos
+        drop_here: Release the photos here
+        drag_or_click: Drag photos or click to upload them
+        uploading: Uploading photos...
+   
+    show:
+      edit_product: Edit Product
+      delete_product: Delete Product
+      add_to_cart: Add to Cart
+    new:
+      title: What would you like to sell?
+      subtitle: Choose the type of product you want to create
+      types:
+        music:
+          title: Music
+          description: Sell your vinyl records, CDs, cassettes, and digital albums.
+        gear:
+          title: Music Equipment
+          description: List your instruments, audio equipment, and DJ equipment.
+        merch:
+          title: Merchandise
+          description: Sells t-shirts, posters, and other merchandising products.
+        accessory:
+          title: Accessories
+          description: It offers accessories and collectibles related to music.
+        service:
+          title: Services
+          description: It offers coaching, feedback, and music classes.
+    shared:
+      product_card:
+        includes_digital: Includes Digital
+        accepts_barter: Accepts Barter
+        limited_edition: Edición Limitada (%{count} disponibles)
+    service:
+      index:
+        title: Services
+        subtitle: Manage your services and appointments
+        all: All Services
+        as_customer: My Services
+        as_provider: Provider View
+        with_provider: con %{provider}
+        for_customer: para %{customer}
+        view_details: See Details
+        no_services: No services were found
+        no_services_description: You do not have any scheduled services yet.
+        confirm: Confirm Service
+        schedule: Schedule Service
+        mark_complete: Mark as Completed
+        cancel: Cancel Service
+        cancel_confirm:
+          Are you sure you want to cancel this service? This action
+          cannot be undone.
+        provider_notes: Notes from the Supplier
+        search_placeholder: Search in the store...
+      new:
+        title: New Service
+      form:
+        category: Type of service
+        select_category: Select type of service
+        delivery_method: Delivery method
+        select_delivery_method: Select delivery method
+        title: Title
+        prerequisities: Requirements prior
+        description: Description
+        duration: Duration (minutes)
+        max_participants: Maximum number of participants
+        details: Details of the service
+        prerequisites: Requirements prior
+        prerequisites_placeholder: List the necessary requirements or knowledge...
+        what_to_expect: What to expect
+        what_to_expect_placeholder: Describe what participants can expect...
+        cancellation_policy: Cancellation Policy
+        cancellation_policy_placeholder: Describe your cancellation and refund policy...
+      show:
+        prerequisites: Requirements prior
+        what_to_expect: What to expect
+      edit:
+        title: Edit Service
+    gear:
+      index:
+        gear: Equipment
+        gear_title: Musical Equipment
+        gear_subtitle: Explore quality music equipment from our community
+        search_placeholder: Search by title or description...
+        filter_by_category: Filter by Category
+        filter_by_condition: Filter by Condition
+        filter_by_brand: Filter by Brand
+        filter_by_barter: Options for Bartering
+        show_barter_only: Show Only Available for Barter
+        all_categories: All Categories
+        all_brands: All Brands
+        barter_available: Barter Available
+        no_gear_found: Equipment not found
+        try_different_filters: Try different filters or remove some to find more equipment
+        category:
+          instrument: Instruments
+          audio_gear: Audio Team
+          dj_gear: DJ Team
+          synth: Synthesizers
+          drum_kit: Batteries
+          keyboard: Keyboards
+          percussion: Percussion
+          bass: Low
+          guitar: Guitars
+          effect: Effects
+          amp: Amplifiers
+          console: Consoles
+          controller: Controllers
+        condition:
+          new: New
+          like_new: As new
+          excellent: Excellent
+          very_good: Very good
+          good: Good
+          fair: Regular
+          poor: Bad
+      show:
+        business_days: Business days
+        shipping_cost: Shipping cost
+        accepts_barter: Accept barter
+        barter: "Trueque"
+        barter_available: Barter Available
+
+      new:
+        title: New Musical Equipment
+      form:
+        category: Category
+        select_category: Select category
+        brand: Brand
+        model: Model
+        year: Year
+        status: State
+        submit: Save
+        select_status: Select state
+        condition: Condition
+        select_condition: Select condition
+        title: Title
+        description: Description
+      edit:
+        title: Edit Musical Equipment
+      categories:
+        instrument: Instruments
+        audio_gear: Audio Team
+        dj_gear: DJ Team
+        synth: Synthesizers
+        drum_kit: Batteries
+        keyboard: Keyboards
+        percussion: Percussion
+        bass: Low
+        guitar: Guitars
+        effect: Effects
+        amp: Amplifiers
+        console: Consoles
+        controller: Controllers
+    music:
+      includes_digital: Includes Digital
+      limited_edition: Limited edition (%{count} available)
+      new:
+        title: New Musical Product
+      show:
+        business_days: Business days
+        shipping_cost: Shipping cost
+      edit:
+        title: Edit Musical Product
+      form:
+        format: Format
+        select_format: Select format
+        album: Album
+        select_album: Select album
+        title: Title
+        description: Description
+        include_digital: Include digital album
+        update: "Update"
+        submitting: Saving...
+      formats:
+        vinyl: Vinyl
+        cassette: Casette
+        cd: CD
+        blue_ray: Blue Ray
+        digital: Digital
+        other: Another
+    merch:
+      new:
+        title: New Merchandise
+      edit:
+        title: Edit Merchandise
+      show:
+        about: About
+        details: Details
+        shipping: Shipments
+        add_to_cart: Add to Cart
+      form:
+        title: Título
+        description: Descripción
+        brand: Brand
+        model: Modelo
+        update: "Update"
+        limited_edition: Limited edition
+        limited_edition_count: Quantity of limited edition
+    accessory:
+      new:
+        title: New Accessory
+      form:
+        category: Category
+        select_category: Select category
+        title: Title
+        description: Description
+        brand: Brand
+        model: Model

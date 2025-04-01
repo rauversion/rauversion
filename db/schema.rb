@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_01_27_221924) do
+ActiveRecord::Schema[8.0].define(version: 2025_03_28_022105) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -70,6 +70,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_27_221924) do
     t.string "password"
     t.index ["parent_id"], name: "index_connected_accounts_on_parent_id"
     t.index ["user_id"], name: "index_connected_accounts_on_user_id"
+  end
+
+  create_table "conversations", force: :cascade do |t|
+    t.string "subject"
+    t.string "messageable_type", null: false
+    t.bigint "messageable_id", null: false
+    t.string "status"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["messageable_type", "messageable_id"], name: "index_conversations_on_messageable"
   end
 
   create_table "coupons", force: :cascade do |t|
@@ -200,6 +210,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_27_221924) do
     t.index ["sluggable_type", "sluggable_id"], name: "index_friendly_id_slugs_on_sluggable_type_and_sluggable_id"
   end
 
+  create_table "interest_alerts", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.text "body", null: false
+    t.string "role", null: false
+    t.boolean "approved", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_interest_alerts_on_user_id"
+  end
+
   create_table "likes", force: :cascade do |t|
     t.string "liker_type"
     t.integer "liker_id"
@@ -259,6 +279,28 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_27_221924) do
     t.index ["mentioner_id", "mentioner_type"], name: "fk_mentions"
   end
 
+  create_table "message_reads", force: :cascade do |t|
+    t.bigint "message_id", null: false
+    t.bigint "participant_id", null: false
+    t.datetime "read_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["message_id", "participant_id"], name: "index_message_reads_on_message_id_and_participant_id", unique: true
+    t.index ["message_id"], name: "index_message_reads_on_message_id"
+    t.index ["participant_id"], name: "index_message_reads_on_participant_id"
+  end
+
+  create_table "messages", force: :cascade do |t|
+    t.text "body"
+    t.bigint "conversation_id", null: false
+    t.bigint "user_id", null: false
+    t.string "message_type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["conversation_id"], name: "index_messages_on_conversation_id"
+    t.index ["user_id"], name: "index_messages_on_user_id"
+  end
+
   create_table "nondisposable_disposable_domains", force: :cascade do |t|
     t.string "name", null: false
     t.datetime "created_at", null: false
@@ -275,6 +317,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_27_221924) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_oauth_credentials_on_user_id"
+  end
+
+  create_table "participants", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.bigint "conversation_id", null: false
+    t.string "role"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["conversation_id"], name: "index_participants_on_conversation_id"
+    t.index ["user_id"], name: "index_participants_on_user_id"
   end
 
   create_table "photos", force: :cascade do |t|
@@ -597,6 +649,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_27_221924) do
     t.bigint "product_id"
     t.bigint "user_id"
     t.jsonb "editor_data"
+    t.boolean "published"
     t.index ["playlist_id"], name: "index_releases_on_playlist_id"
     t.index ["product_id"], name: "index_releases_on_product_id"
     t.index ["user_id"], name: "index_releases_on_user_id"
@@ -784,6 +837,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_27_221924) do
     t.boolean "seller"
     t.jsonb "social_links_settings", default: {}, null: false
     t.boolean "featured", default: false
+    t.string "stripe_account_id"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["featured"], name: "index_users_on_featured"
@@ -793,6 +847,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_27_221924) do
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
     t.index ["seller"], name: "index_users_on_seller"
     t.index ["social_links_settings"], name: "index_users_on_social_links_settings", using: :gin
+    t.index ["stripe_account_id"], name: "index_users_on_stripe_account_id"
     t.index ["unlock_token"], name: "index_users_on_unlock_token", unique: true
   end
 
@@ -808,7 +863,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_01_27_221924) do
   add_foreign_key "event_schedules", "events"
   add_foreign_key "event_tickets", "events"
   add_foreign_key "events", "users"
+  add_foreign_key "interest_alerts", "users"
+  add_foreign_key "message_reads", "messages"
+  add_foreign_key "message_reads", "participants"
+  add_foreign_key "messages", "conversations"
+  add_foreign_key "messages", "users"
   add_foreign_key "oauth_credentials", "users"
+  add_foreign_key "participants", "conversations"
+  add_foreign_key "participants", "users"
   add_foreign_key "photos", "users"
   add_foreign_key "plain_messages", "plain_conversations"
   add_foreign_key "playlists", "users"

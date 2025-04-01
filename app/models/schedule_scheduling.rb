@@ -5,7 +5,8 @@ class ScheduleScheduling < ApplicationRecord
 
   validates :end_date, comparison: {greater_than: :start_date}
 
-  validate :dates_within_event_schedule
+  # TODO: skip for now, lets ditch the date, and only use times 
+  # validate :dates_within_event_schedule
 
   private
 

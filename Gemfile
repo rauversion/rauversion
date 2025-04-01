@@ -115,6 +115,8 @@ gem "sentry-rails"
 
 group :development, :test do
   gem "pry"
+  gem "pry-nav"
+  gem "listen"
   # See https://guides.rubyonrails.org/debugging_rails_applications.html#debugging-with-the-debug-gem
   gem "debug", platforms: %i[mri mingw x64_mingw]
 end
@@ -130,13 +132,14 @@ group :development do
   # gem "spring"
 end
 
+gem "faker"
+
 group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
   gem "selenium-webdriver"
   gem "webdrivers"
   gem "shoulda-matchers", "~> 5.0"
-  gem "faker"
   gem "database_cleaner"
   gem 'database_cleaner-active_record'
 end
@@ -182,3 +185,8 @@ gem "mrsk", "~> 0.15.1"
 
 # gem 'backstage-rails', path: 'backstage-rails'
 gem 'backstage', path: 'backstage'
+gem "langchain", "~> 0.1.0"
+
+gem "i18n-js", "~> 4.2"
+
+gem "mercadopago-sdk", "~> 2.3"

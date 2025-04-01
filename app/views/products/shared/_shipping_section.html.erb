@@ -1,0 +1,38 @@
+<div data-accordeon data-controller="accordeon" class="w-full rounded-lg mb-2.5 bg-subtle dark:bg-black">
+  <%= render "products/shared/section_header", title: "Shipping" %>
+  <div class="p-5 block pt-0" data-accordeon-target="panel">
+    <div class="p-4 my-4">
+      <h3 class="text-lg">Shipping</h3>
+      
+      <div>
+        <%= form.label :shipping_days, "Orders ship out within" %>
+        <%= form.number_field :shipping_days %>
+        <span>days of being placed</span>
+      </div>
+
+      <div>
+        <%= form.date_field :shipping_begins_on, label: "Begins shipping on", class: "mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50" %>
+      </div>
+
+      <div data-controller="nested-form" class="py-6 sm:col-span-6">
+        <template data-nested-form-target="template">
+          <%= form.fields_for :product_shippings, ProductShipping.new, child_index: 'NEW_RECORD' do |ff| %>
+            <%= render "products/shared/shipping_fields", form: ff %>
+          <% end %>
+        </template>
+
+        <div data-nested-form-target="wrap">
+          <%= form.fields_for :product_shippings do |shipping_form| %>
+            <%= render "products/shared/shipping_fields", form: shipping_form %>
+          <% end %>
+        </div>
+
+        <div class="my-3" data-nested-form-target="links">
+          <%= link_to "Add new shipping options", "#", 
+          class: "inline-flex items-center px-3 py-1.5 border border-transparent text-xs font-medium rounded-full shadow-sm text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500", 
+          data: { action: "click->nested-form#add_association" } %>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
