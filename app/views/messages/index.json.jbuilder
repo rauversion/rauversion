@@ -5,7 +5,7 @@ json.collection @messages do |message|
   json.created_at message.created_at
   json.read message.read_by?(@conversation.participants.find_by(user: current_user))
   json.user do
-    json.partial! 'users/user', user: messager.user, show_full_name: true
+    json.partial! 'users/user', user: message.user, show_full_name: true
   end
 end
 
