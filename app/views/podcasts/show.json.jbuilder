@@ -4,7 +4,7 @@ json.slug @track.slug
 json.description @track.description
 json.created_at @track.created_at
 json.updated_at @track.updated_at
-json.cover_url @track.cropped_image
+json.cover_url image_url(@track.cropped_image)
 
 json.audio_url @track.mp3_audio.url
 json.peaks @track.peaks

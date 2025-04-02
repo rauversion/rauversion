@@ -1269,6 +1269,7 @@ en:
           pocket:
             label: URL of Pocket Casts
       buttons:
+        view_site: View Podcast Site
         save: Save changes
   purchases:
     title: Shopping

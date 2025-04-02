@@ -1,5 +1,5 @@
 import React from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,7 @@ import { get, patch } from "@rails/request.js";
 import { useToast } from "@/hooks/use-toast";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import I18n from "stores/locales";
+import { ExternalLink } from "lucide-react";
 
 export default function PodcastSettings() {
   const { username } = useParams();
@@ -142,11 +143,20 @@ export default function PodcastSettings() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
       <Card>
-        <CardHeader>
-          <CardTitle>{I18n.t("user_settings.podcast.title")}</CardTitle>
-          <p className="text-sm text-muted-foreground">
-            {I18n.t("user_settings.podcast.subtitle")}
-          </p>
+        <CardHeader className="flex sm:flex-row flex-col justify-between items-center space-x-4">
+          <div>
+            <CardTitle>{I18n.t("user_settings.podcast.title")}</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              {I18n.t("user_settings.podcast.subtitle")}
+            </p>
+          </div>
+          <Link
+            className="flex items-center space-x-2 p-4 border-sm rounded-sm bg-muted hover:bg-subtle"
+            to={`/${username}/podcasts`}
+          >
+            {I18n.t("user_settings.podcast.buttons.view_site")}
+            <ExternalLink className="w-4 h-4 ml-1" />
+          </Link>
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-2">

@@ -1327,6 +1327,7 @@ es:
           pocket:
             label: URL de Pocket Casts
       buttons:
+        view_site: Ver Sitio
         save: Guardar cambios
       messages:
         success: Configuración de podcast actualizada exitosamente
