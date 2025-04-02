@@ -30,12 +30,10 @@ class Product < ApplicationRecord
   attribute :name_your_price, :boolean
   attribute :quantity, :integer
 
-  scope :visibles, -> { where(status: 'active') }
-
   enum :status, { 
     active: 'active', 
-    inactive: 'inactive', 
-    sold_out: 'sold_out' 
+    inactive: 'inactive' 
+    # sold_out: 'sold_out' 
   }, default: :inactive
 
   enum :condition, {
@@ -48,6 +46,7 @@ class Product < ApplicationRecord
     poor: 'poor'
   }, prefix: true
 
+  scope :visibles, -> { where(status: 'active') }
   scope :active, -> { where(status: 'active') }
   scope :by_category, ->(category) { where(category: category) }
 

@@ -1,9 +1,13 @@
 TODO:
 
 
+  Articles:
+    control display on main site. adin setting or something
+
   + digital checkout , set price, validation on price
   + disable products when no stripe account setup
   + correos de success pago a account holder y comprador
+  + 
   
   + USD display
   + LIVE STREAMING EVENTS TEST PAY WALL
