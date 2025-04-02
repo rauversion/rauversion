@@ -22,6 +22,8 @@ Backstage::Config.configure do
 
     scope :all
     scope :admins, -> { where(role: 'admin') }
+    scope :sellers, -> { where(seller: true) }
+    scope :editor, -> { where(editor: true) }
     scope :artists
     scope :recent, -> { where('created_at > ?', 1.week.ago) }
 
@@ -73,8 +75,8 @@ Backstage::Config.configure do
     end
 
     scope :all
-    scope :published, -> { where(published: true) }
-    scope :draft, -> { where(published: false) }
+    scope :published, -> { published }
+    scope :draft, -> { draft }
     scope :recent, -> { where('created_at > ?', 1.week.ago) }
     
     filter :title, :string, label: 'Name contains'
