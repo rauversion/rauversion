@@ -20,13 +20,12 @@ const item = {
 };
 
 const CARD_COLORS = {
-  junior: "bg-[#E4FF80]",
-  youth: "bg-[#F4F1ED]",
-  adult: "bg-[#F4F1ED]",
-
-  coaching: "bg-[#E4FF80]",
-  feedback: "bg-[#F4F1ED]",
-  mastering: "bg-[#F4F1ED]",
+  junior: { bg: "bg-[#E4FF80]", text: "text-black" },
+  youth: { bg: "bg-[#F4F1ED]", text: "text-black" },
+  adult: { bg: "bg-[#F4F1ED]", text: "text-black" },
+  coaching: { bg: "bg-[#E4FF80]", text: "text-black" },
+  feedback: { bg: "bg-[#F4F1ED]", text: "text-black" },
+  mastering: { bg: "bg-[#F4F1ED]", text: "text-black" },
 };
 
 import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
@@ -99,7 +98,7 @@ const ServiceCategories = () => {
               <Link to={`/${service.user.username}/products/${service.id}`}>
                 <Card
                   className={`overflow-hidden h-full group cursor-pointer relative ${
-                    CARD_COLORS[service.category]
+                    CARD_COLORS[service.category]?.bg || "bg-white"
                   }`}
                 >
                   <div className="p-6">
@@ -112,7 +111,11 @@ const ServiceCategories = () => {
                       </span>
                     </div>
 
-                    <h3 className="text-4xl font-bold mb-4 whitespace-pre-line leading-tight">
+                    <h3
+                      className={`text-4xl ${
+                        CARD_COLORS[service.category]?.text || "text-black"
+                      } font-bold mb-4 whitespace-pre-line leading-tight`}
+                    >
                       {service.title}
                     </h3>
 
