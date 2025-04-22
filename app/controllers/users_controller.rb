@@ -35,14 +35,13 @@ class UsersController < ApplicationController
 
   def tracks
     @title = "Tracks"
-    @q = @user.tracks.ransack(params[:q])
+    query = @user.tracks.with_attached_cover.includes(user: {avatar_attachment: :blob})
+    query = query.published if current_user.blank? || current_user != @user
+    @q = query.ransack(params[:q])
+    
     @q.sorts = 'created_at desc' if @q.sorts.empty?
 
-    @tracks = @q.result
-      .with_attached_cover
-      .includes(user: { avatar_attachment: :blob })
-      .page(params[:page])
-      .per(12)
+    @tracks = @q.result.page(params[:page]).per(12)
 
     @collection = @tracks
     respond_to do |format|
