@@ -1,5 +1,6 @@
 module ApplicationHelper
-  ActionView::Base.default_form_builder = TailwindFormBuilder
+  
+  # ActionView::Base.default_form_builder = TailwindFormBuilder
 
   def current_cart
     ProductCart.find(session[:cart_id])

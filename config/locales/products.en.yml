@@ -149,6 +149,7 @@ en:
       show:
         prerequisites: Requirements prior
         what_to_expect: What to expect
+        max_participants: Maximum number of participants
       edit:
         title: Edit Service
     gear:

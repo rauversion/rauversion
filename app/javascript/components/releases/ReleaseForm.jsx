@@ -26,7 +26,7 @@ export default function ReleaseForm() {
   const { toast } = useToast()
   const [loading, setLoading] = React.useState(false)
   const [playlists, setPlaylists] = React.useState([])
-  const {currentUser} = useAuthStore()
+  const { currentUser } = useAuthStore()
   const { isDarkMode } = useThemeStore()
   const isEditing = Boolean(id)
 
@@ -46,9 +46,9 @@ export default function ReleaseForm() {
 
   React.useEffect(() => {
     const fetchPlaylists = async () => {
-      if(!currentUser) return
+      if (!currentUser) return
       try {
-        const response = await get(`/${currentUser.username}/playlists.json`)
+        const response = await get(`/${currentUser.username}/all_playlists.json`)
         if (response.ok) {
           const data = await response.json
           setPlaylists(data.collection || [])
@@ -107,13 +107,13 @@ export default function ReleaseForm() {
 
       const response = isEditing
         ? await put(`/releases/${id}`, {
-            body: JSON.stringify({ release: formData }),
-            responseKind: "json",
-          })
+          body: JSON.stringify({ release: formData }),
+          responseKind: "json",
+        })
         : await post("/releases", {
-            body: JSON.stringify({ release: formData }),
-            responseKind: "json",
-          })
+          body: JSON.stringify({ release: formData }),
+          responseKind: "json",
+        })
 
       if (response.ok) {
         const data = await response.json

@@ -35,7 +35,7 @@ GIT
 
 GIT
   remote: https://github.com/mbleigh/acts-as-taggable-on.git
-  revision: 69e6bffd12f50848e115c1e3da8ffaf0ea503001
+  revision: 25266d63eda379a5525b0a2f27e9f8c8fb8c4f4c
   specs:
     acts-as-taggable-on (12.0.0)
       activerecord (>= 7.1, < 8.1)
@@ -218,7 +218,7 @@ GEM
     chunky_png (1.4.0)
     coderay (1.1.3)
     concurrent-ruby (1.3.5)
-    connection_pool (2.5.0)
+    connection_pool (2.5.1)
     countries (7.0.0)
       unaccent (~> 0.3)
     country_select (10.0.0)
@@ -354,7 +354,7 @@ GEM
     llhttp-ffi (0.5.0)
       ffi-compiler (~> 1.0)
       rake (~> 13.0)
-    logger (1.6.5)
+    logger (1.7.0)
     loofah (2.24.0)
       crass (~> 1.0.2)
       nokogiri (>= 1.12.0)
@@ -379,7 +379,7 @@ GEM
     mini_magick (4.13.2)
     mini_mime (1.1.5)
     mini_portile2 (2.8.8)
-    minitest (5.25.4)
+    minitest (5.25.5)
     mission_control-jobs (1.0.1)
       actioncable (>= 7.1)
       actionpack (>= 7.1)
@@ -676,7 +676,7 @@ GEM
       concurrent-ruby (~> 1.0)
     unaccent (0.4.0)
     unicode-display_width (2.6.0)
-    uri (1.0.2)
+    uri (1.0.3)
     useragent (0.16.11)
     version_gem (1.1.4)
     warden (1.2.9)
@@ -697,7 +697,7 @@ GEM
     websocket-extensions (0.1.5)
     xpath (3.2.0)
       nokogiri (~> 1.8)
-    zeitwerk (2.7.1)
+    zeitwerk (2.7.2)
 
 PLATFORMS
   ruby

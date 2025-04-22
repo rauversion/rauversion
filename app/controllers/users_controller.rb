@@ -122,35 +122,6 @@ class UsersController < ApplicationController
     end
   end
 
-  def artists
-    @label = User.where(role: ["artist", "admin"], label: true).find_by(username: params[:user_id])
-    @collection = @label.child_accounts.page(params[:page]).per(50) #    connected_accounts.page(params[:page]).per(5)
-    @as = :artist
-    @section = "label_artists/artist"
-    @title = "Artists"
-    @cta_url = new_account_connection_path
-    @cta_label = "New account connection"
-    @collection_class = "mt-6 grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-4 md:gap-y-0 lg:gap-x-8"
-    @admin = current_user && current_user.id == @label&.id
-
-    respond_to do |format|
-      format.html { render "show" }
-      format.json
-    end
-  end
-
-  def reposts
-    @title = "Reposts"
-    @collection = @user.reposts_preloaded.page(params[:page]).per(5)
-    @as = :track
-    @section = "tracks/track_item"
-
-    respond_to do |format|
-      format.html 
-      format.json { render "tracks" }
-    end
-  end
-
   def albums
     @title = "Albums"
     @section = "albums"
@@ -178,6 +149,64 @@ class UsersController < ApplicationController
         paginated_render
       end
       format.json { render "playlists" }
+    end
+  end
+
+  def all_playlists
+    @title = "Albums"
+    @section = "albums"
+    @collection = Playlist
+      .where(user_id: @user.id)
+      .or(Playlist.where(label_id: @user.id))
+      .with_attached_cover
+      .includes(user: {avatar_attachment: :blob})
+      .includes(tracks: {cover_attachment: :blob})
+      .order(created_at: :desc)
+
+    if current_user.blank? || current_user != @user
+      @collection = @collection.where(private: [false, nil])
+    end
+
+    @collection = @collection.ransack(title_cont: params[:q]).result if params[:q].present?
+    @collection = @collection.page(params[:page]).per(12)
+
+    respond_to do |format|
+      format.html do
+        @as = :playlist
+        @namespace = :album
+        @section = "playlists/playlist_item"
+        paginated_render
+      end
+      format.json { render "playlists" }
+    end
+  end
+
+  def artists
+    @label = User.where(role: ["artist", "admin"], label: true).find_by(username: params[:user_id])
+    @collection = @label.child_accounts.page(params[:page]).per(50) #    connected_accounts.page(params[:page]).per(5)
+    @as = :artist
+    @section = "label_artists/artist"
+    @title = "Artists"
+    @cta_url = new_account_connection_path
+    @cta_label = "New account connection"
+    @collection_class = "mt-6 grid grid-cols-2 gap-x-4 gap-y-10 sm:gap-x-6 md:grid-cols-4 md:gap-y-0 lg:gap-x-8"
+    @admin = current_user && current_user.id == @label&.id
+
+    respond_to do |format|
+      format.html { render "show" }
+      format.json
+    end
+  end
+
+  def reposts
+    @title = "Reposts"
+    @collection = @user.reposts_preloaded.page(params[:page]).per(5)
+    @as = :track
+    @section = "tracks/track_item"
+
+    respond_to do |format|
+      format.html 
+      format.json { render "tracks" }
     end
   end
 

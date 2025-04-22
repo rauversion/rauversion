@@ -397,6 +397,7 @@ Rails.application.routes.draw do
       get "/tracks", to: "users#tracks"
       get "/tracks/search", to: "users#search_tracks"
       get "/playlists", to: "users#playlists"
+      get "/all_playlists", to: "users#all_playlists"
       get "/playlists_filter", to: "users#playlists_filter"
       get "/reposts", to: "users#reposts"
       get "/albums", to: "users#albums"
