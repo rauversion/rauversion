@@ -135,10 +135,13 @@ class Track < ApplicationRecord
       cover.variant(resize_to_limit: [200, 200])
 
     when :large
-      cover.variant(resize_to_limit: [500, 500])
+      cover.variant(resize_to_limit: [1000, 1000])
 
     when :small
       cover.variant(resize_to_limit: [50, 50])
+    
+    when :original
+      cover
 
     else
       cover.variant(resize_to_limit: [200, 200])

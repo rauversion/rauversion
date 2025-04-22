@@ -11,7 +11,7 @@ export default function PlaylistCard({ playlist }) {
       <div className="relative aspect-square overflow-hidden rounded-lg mb-4 bg-neutral-900">
         <Link to={`/playlists/${playlist.slug}`}>
           <img
-            src={playlist.cover_url.large}
+            src={playlist.cover_url.cropped_image}
             alt={playlist.title}
             className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
           />

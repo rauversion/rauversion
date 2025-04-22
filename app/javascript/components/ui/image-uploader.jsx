@@ -14,22 +14,46 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 
-export function ImageUploader({ 
+export function ImageUploader({
   onUploadComplete,
-  aspectRatio = 16/9,
+  aspectRatio = 16 / 9,
   maxSize = 10, // MB
   className,
   preview = true,
   enableCropper = true,
-  imageUrl = null
+  initialCropData = null,
+  imageUrl = null,
+  imageCropped = null,
+  cropUploadMode = "crop" // "crop" (default) or "original_with_coords"
 }) {
   const { toast } = useToast()
   const [dragActive, setDragActive] = React.useState(false)
   const [cropperOpen, setCropperOpen] = React.useState(false)
   const [cropData, setCropData] = React.useState(null)
   const [image, setImage] = React.useState(null)
+  const [originalFile, setOriginalFile] = React.useState(null)
   const cropperRef = React.useRef(null)
   const inputRef = React.useRef(null)
+
+  // Set initial crop data when cropper opens and image is set
+  React.useEffect(() => {
+    if (
+      cropperOpen &&
+      initialCropData //&&
+      //cropperRef.current &&
+      //cropperRef.current.cropper
+    ) {
+      // Wait a tick to ensure cropper is ready
+      setTimeout(() => {
+        try {
+          console.log('Setting crop data:', initialCropData)
+          cropperRef.current.cropper.setData(initialCropData)
+        } catch (e) {
+          // ignore
+        }
+      }, 200)
+    }
+  }, [cropperOpen, initialCropData])
 
   const handleDrag = (e) => {
     e.preventDefault()
@@ -40,13 +64,13 @@ export function ImageUploader({
       setDragActive(false)
     }
   }
-  
+
 
   const handleDrop = async (e) => {
     e.preventDefault()
     e.stopPropagation()
     setDragActive(false)
-    
+
     const file = e.dataTransfer.files[0]
     if (file) {
       await handleFile(file)
@@ -78,6 +102,7 @@ export function ImageUploader({
       const reader = new FileReader()
       reader.onload = () => {
         setImage(reader.result)
+        setOriginalFile(file)
         setCropperOpen(true)
       }
       reader.readAsDataURL(file)
@@ -90,7 +115,7 @@ export function ImageUploader({
     try {
       const upload = new DirectUpload(
         file,
-        '/rails/active_storage/direct_uploads'
+        '/api/v1/direct_uploads'
       )
 
       upload.create((error, blob) => {
@@ -102,7 +127,8 @@ export function ImageUploader({
             variant: "destructive",
           })
         } else {
-          onUploadComplete(blob.signed_id, cropData)
+          const serviceUrl = blob.service_url
+          onUploadComplete(blob.signed_id, cropData, serviceUrl)
           toast({
             title: "Éxito",
             description: "Imagen subida correctamente",
@@ -125,31 +151,45 @@ export function ImageUploader({
 
   const getCropData = async () => {
     if (cropperRef.current?.cropper) {
-      const canvas = cropperRef.current.cropper.getCroppedCanvas()
+      const cropper = cropperRef.current.cropper
       const cropData = {
-        x: cropperRef.current.cropper.getData().x,
-        y: cropperRef.current.cropper.getData().y,
-        width: cropperRef.current.cropper.getData().width,
-        height: cropperRef.current.cropper.getData().height,
-        rotation: cropperRef.current.cropper.getData().rotate,
-        scaleX: cropperRef.current.cropper.getData().scaleX,
-        scaleY: cropperRef.current.cropper.getData().scaleY
+        x: cropper.getData().x,
+        y: cropper.getData().y,
+        width: cropper.getData().width,
+        height: cropper.getData().height,
+        rotation: cropper.getData().rotate,
+        scaleX: cropper.getData().scaleX,
+        scaleY: cropper.getData().scaleY
       }
-      
-      // Convert canvas to blob
-      const blob = await new Promise(resolve => canvas.toBlob(resolve))
-      const file = new File([blob], 'cropped.jpg', { type: 'image/jpeg' })
-      
-      await handleUpload(file, cropData)
-      setCropperOpen(false)
+
+      if (!originalFile && image && image === imageUrl) {
+        // Cropping an already-uploaded image: just send new cropData
+        // Assume parent has the signed_id and imageUrl
+        onUploadComplete(undefined, cropData, imageUrl)
+        setCropperOpen(false)
+      } else if (cropUploadMode === "original_with_coords" && originalFile) {
+        // Upload original file, send cropData
+        await handleUpload(originalFile, cropData)
+        setCropperOpen(false)
+        setOriginalFile(null)
+      } else {
+        // Default: upload cropped image
+        const canvas = cropper.getCroppedCanvas()
+        // Convert canvas to blob
+        const blob = await new Promise(resolve => canvas.toBlob(resolve))
+        const file = new File([blob], 'cropped.jpg', { type: 'image/jpeg' })
+        await handleUpload(file, cropData)
+        setCropperOpen(false)
+        setOriginalFile(null)
+      }
     }
   }
 
   return (
     <>
-      <div 
+      <div
         className={cn(
-          "border border-dashed rounded-lg p-4 space-y-4",
+          "flex border border-dashed rounded-lg p-4 space-y-4",
           dragActive ? "border-pink-500" : "border-zinc-700",
           className
         )}
@@ -170,16 +210,18 @@ export function ImageUploader({
             }
           }}
         />
-        <div 
+        <div
           className="aspect-[16/9]- py-4 bg-subtle rounded-lg flex items-center justify-center cursor-pointer"
           onClick={onButtonClick}
         >
           {preview && imageUrl ? (
-            <img 
-              src={imageUrl} 
-              alt="Preview" 
-              className="w-full h-full object-cover rounded-lg"
-            />
+            <>
+              <img
+                src={imageCropped || imageUrl}
+                alt="Preview"
+                className="w-full h-full object-cover rounded-lg"
+              />
+            </>
           ) : (
             <div className="text-center">
               <div className="flex justify-center mb-2">
@@ -194,7 +236,27 @@ export function ImageUploader({
             </div>
           )}
         </div>
+
       </div>
+
+      {preview && imageUrl && (
+        <div className="flex justify-between items-center mt-2">
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            onClick={e => {
+              e.stopPropagation()
+              setImage(imageUrl)
+              setOriginalFile(null)
+              setCropperOpen(true)
+            }}
+          >
+            Crop
+          </Button>
+        </div>
+      )
+      }
 
       <Dialog open={cropperOpen} onOpenChange={setCropperOpen}>
         <DialogContent className="sm:max-w-[800px] max-h-[90vh] flex flex-col">
@@ -204,7 +266,7 @@ export function ImageUploader({
               Recorta y ajusta la imagen antes de subirla
             </DialogDescription>
           </DialogHeader>
-          
+
           <div className="flex-1 overflow-hidden">
             <Cropper
               ref={cropperRef}

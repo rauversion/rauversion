@@ -22,6 +22,8 @@ json.playlist do
       json.small @playlist.cover_url(:small)
       json.medium @playlist.cover_url(:medium)
       json.large @playlist.cover_url(:large)
+      json.original @playlist.cover_url(:original)
+      json.cropped_image url_for(@playlist.cropped_image)
     else
       json.small "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
       json.medium "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"

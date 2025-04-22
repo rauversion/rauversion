@@ -104,7 +104,6 @@ class TracksController < ApplicationController
     @track = current_user.tracks.friendly.find(params[:id])
     @tab = params[:track][:tab] || "basic-info-tab"
     @track.assign_attributes(track_params)
-    @track.assign_attributes(crop_data: JSON.parse(params[:track][:crop_data])) unless params.dig(:track, :crop_data).blank?
 
     if params[:nonpersist]
       @track.valid?
@@ -186,6 +185,7 @@ class TracksController < ApplicationController
       :cover,
       :podcast,
       :copyright, :attribution, :noncommercial, :copies,
+      crop_data: [:x, :y, :width, :height],
       tags: []
     )
   end

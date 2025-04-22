@@ -42,7 +42,7 @@ function PlaylistCard({
           transition={{ duration: 0.2 }}
         >
           <img
-            src={playlist.cover_url.medium}
+            src={playlist.cover_url.cropped_image}
             alt={playlist.title}
             className="w-full h-full object-center object-cover transition-opacity duration-300 group-hover:opacity-75"
           />
@@ -57,7 +57,7 @@ function PlaylistCard({
             whileTap={{ scale: 0.95 }}
           >
             {isPlaying &&
-            playlist.tracks?.some((track) => track.id === currentTrackId) ? (
+              playlist.tracks?.some((track) => track.id === currentTrackId) ? (
               <Pause className="w-16 h-16 text-white" />
             ) : (
               <Play className="w-16 h-16 text-white" />
@@ -105,9 +105,9 @@ function PlaylistCard({
                   )}
                 >
                   {isPlaying &&
-                  playlist.tracks?.some(
-                    (track) => track.id === currentTrackId
-                  ) ? (
+                    playlist.tracks?.some(
+                      (track) => track.id === currentTrackId
+                    ) ? (
                     <>
                       <Pause className="w-4 h-4 mr-2" />
                       Pause

@@ -24,10 +24,12 @@ json.cover_url do
     json.small playlist.cover_url(:small)
     json.medium playlist.cover_url(:medium)
     json.large playlist.cover_url(:large) if defined?(show_large) && show_large
+    json.cropped_image url_for(playlist.cropped_image)
   else
     json.small "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
     json.medium "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
     json.large "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png" if defined?(show_large) && show_large
+    json.cropped_image "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
   end
 end
 
