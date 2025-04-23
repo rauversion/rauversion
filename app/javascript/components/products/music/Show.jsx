@@ -31,7 +31,8 @@ import useAuthStore from '@/stores/authStore'
 import I18n from '@/stores/locales'
 import useCartStore from '@/stores/cartStore'
 
-import {FORMAT_ICONS, FORMAT_LABELS, CONDITIONS} from '../shared/constants'
+import { FORMAT_ICONS, FORMAT_LABELS, CONDITIONS } from '../shared/constants'
+import PhotosSection from "../shared/PhotosSection"
 
 
 export default function MusicShow({ product }) {
@@ -85,12 +86,12 @@ export default function MusicShow({ product }) {
             <div className="text-2xl font-bold">
               ${product.price}
             </div>
-            <Badge 
+            <Badge
               variant={product.stock_quantity > 0 ? "default" : "destructive"}
               className="mt-1"
             >
-              {product.stock_quantity > 0 ? 
-                `${product.stock_quantity} in stock` : 
+              {product.stock_quantity > 0 ?
+                `${product.stock_quantity} in stock` :
                 'Sold out'
               }
             </Badge>
@@ -98,23 +99,8 @@ export default function MusicShow({ product }) {
         </div>
       </div>
 
-      {product.photos.length > 0 && (
-        <Carousel className="mb-8">
-          <CarouselContent>
-            {product.photos.map((photo) => (
-              <CarouselItem key={photo.id}>
-                <img
-                  src={photo.url}
-                  alt={product.title}
-                  className="w-full h-[400px] object-cover rounded-lg"
-                />
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselPrevious />
-          <CarouselNext />
-        </Carousel>
-      )}
+
+      <PhotosSection product={product} />
 
       <div className="grid md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-6">
@@ -156,8 +142,8 @@ export default function MusicShow({ product }) {
               <CardTitle>{I18n.t('products.music.show.about')}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="prose dark:prose-invert max-w-none" 
-                dangerouslySetInnerHTML={{ __html: product.description }} 
+              <div className="prose dark:prose-invert max-w-none"
+                dangerouslySetInnerHTML={{ __html: product.description }}
               />
             </CardContent>
           </Card>
@@ -205,7 +191,7 @@ export default function MusicShow({ product }) {
               </div>
 
               {product.stock_quantity > 0 && (
-                <Button onClick={()=> addToCart(product.id)} className="w-full" size="lg">
+                <Button onClick={() => addToCart(product.id)} className="w-full" size="lg">
                   {I18n.t('products.music.show.add_to_cart')}
                 </Button>
               )}

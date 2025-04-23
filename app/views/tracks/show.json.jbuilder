@@ -36,7 +36,11 @@ json.track do
     json.small @track.cover_url(:small)
     json.medium @track.cover_url(:medium)
     json.large @track.cover_url(:large)
+    json.original @track.cover_url(:original)
+    json.cropped_image url_for(@track.cropped_image)
   end
+
+  json.crop_data @track.crop_data
 
   if @track.audio.attached?
     json.audio_url Rails.application.routes.url_helpers.rails_storage_proxy_url(@track.audio)

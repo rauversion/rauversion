@@ -49,7 +49,8 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
   const navigate = useNavigate()
   const [track, setTrack] = useState(initialTrack)
   const [loading, setLoading] = useState(false)
-  
+  const [cropUploadMode, setCropUploadMode] = useState("original_with_coords") // "crop" or "original_with_coords"
+
   const { control, handleSubmit, setValue, watch, form } = useForm({
     defaultValues: {
       title: track.title || "",
@@ -91,12 +92,15 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
       const response = await fetch(`/tracks/${track.slug}.json`)
       const data = await response.json()
       setTrack(data.track)
-      
+      setValue('cropped_image', data.cover_url?.cropped_image)
+
       // Update form values with fetched data
       Object.entries(data.track).forEach(([key, value]) => {
         if (key === "metadata") {
           Object.entries(value).forEach(([metaKey, metaValue]) => {
-            setValue(metaKey, metaValue)
+            if (metaKey === "peaks") {
+              setValue(metaKey, metaValue)
+            }
           })
         } else {
           setValue(key, value)
@@ -113,8 +117,16 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
     fetchTrack()
   }, [open])
 
-  const handleCoverUpload = async (signedBlobId) => {
-    setValue('cover', signedBlobId)
+  const handleCoverUpload = async (signedBlobId, cropData, serviceUrl) => {
+    if (signedBlobId) {
+      setValue('cover', signedBlobId)
+    }
+    if (cropData) setValue('crop_data', cropData)
+    if (serviceUrl) {
+      setValue('cover_service_url', serviceUrl)
+      setValue('cropped_image', serviceUrl)
+    }
+
     toast({
       description: I18n.t('tracks.edit.messages.cover_success'),
     })
@@ -131,7 +143,7 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
         body: JSON.stringify({ track: payload }),
         responseKind: "json"
       })
-      
+
       if (response.ok) {
         toast({
           title: "Success",
@@ -165,7 +177,7 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
       const response = await destroy(`/tracks/${track.slug}`, {
         responseKind: "json"
       })
-      
+
       if (response.ok) {
         toast({
           title: "Success",
@@ -229,14 +241,18 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
                     <div className="sm:col-span-1">
                       <Label>{I18n.t('tracks.edit.form.cover')}</Label>
                       <div className="mt-2 aspect-square">
+
                         <ImageUploader
                           onUploadComplete={handleCoverUpload}
-                          aspectRatio={1}
+                          aspectRatio={1 / 1}
                           maxSize={10}
-                          imageUrl={track.cover_url.medium}
+                          imageUrl={watch('cover_service_url') || track.cover_url.original}
+                          imageCropped={watch('cropped_image') || track.cover_url.cropped_image}
                           preview={true}
+                          initialCropData={watch('crop_data')}
                           enableCropper={true}
-                          className="w-full h-full"
+                          cropUploadMode={cropUploadMode}
+                          className=""
                         />
                       </div>
                     </div>
@@ -341,7 +357,7 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
                 </TabsContent>
 
                 <TabsContent value="share" className="p-6">
-                  <ShareForm item={{ type: "track", slug: track.slug, user: {username: track.user.username} }} />
+                  <ShareForm item={{ type: "track", slug: track.slug, user: { username: track.user.username } }} />
                 </TabsContent>
               </div>
             </Tabs>

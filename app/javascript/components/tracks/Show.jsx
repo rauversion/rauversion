@@ -9,7 +9,7 @@ import TrackSkeleton from './TrackSkeleton'
 import { Settings, Share2, Heart, Repeat, Play, Pause, ShoppingCart } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import useAuthStore from '@/stores/authStore'
-import { useAudioPlaying , } from '@/hooks/useAudioPlaying'
+import { useAudioPlaying, } from '@/hooks/useAudioPlaying'
 import useAudioStore from '@/stores/audioStore'
 import MusicPurchase from '@/components/shared/MusicPurchase'
 
@@ -22,7 +22,7 @@ export default function TrackShow() {
   const { currentUser } = useAuthStore()
   const isPlaying = useAudioPlaying()
 
-  const {currentTrackId} = useAudioStore()
+  const { currentTrackId } = useAudioStore()
 
   const fetchTrack = async () => {
     try {
@@ -44,7 +44,7 @@ export default function TrackShow() {
 
   const handlePlay = () => {
     //setCurrentTrackId(track.id)
-    if(isPlaying) {
+    if (isPlaying) {
       //audioElement.pause();
       useAudioStore.setState({ isPlaying: false });
       e.preventDefault();
@@ -84,7 +84,7 @@ export default function TrackShow() {
                   />
                 </div>
                 <div>
-                  <Link 
+                  <Link
                     to={`/${track.user.username}`}
                     className="text-sm font-medium text-muted-foreground hover:text-primary"
                   >
@@ -111,11 +111,11 @@ export default function TrackShow() {
             <div className="w-1/3">
               <div className="relative group">
                 <img
-                  src={track.cover_url?.large || "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"}
+                  src={track.cover_url?.cropped_image || track.cover_url?.large || "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"}
                   alt={track.title}
                   className="w-full h-auto rounded-lg shadow-lg"
                 />
-                
+
                 <button
                   onClick={() => handlePlay()}
                   className="absolute inset-0 flex items-center justify-center bg-background/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
@@ -137,7 +137,7 @@ export default function TrackShow() {
           <MusicPurchase resource={track} type="Track" variant="mini" />
 
           {/* Share Button */}
-          <ShareDialog 
+          <ShareDialog
             url={`${window.location.origin}/${track.user.username}/tracks/${track.slug}`}
             title={track.title}
             description={`Listen to ${track.title} by ${track.user.username} on Rauversion`}
@@ -198,7 +198,7 @@ export default function TrackShow() {
                   <dt className="text-sm font-medium text-muted-foreground">
                     About
                   </dt>
-                  <dd 
+                  <dd
                     className="whitespace-pre-line mt-1 mb-4 max-w-prose text-lg text-foreground space-y-5 prose lg:prose-xl dark:prose-invert"
                     dangerouslySetInnerHTML={{ __html: track.description }}
                   />
@@ -220,10 +220,10 @@ export default function TrackShow() {
                   Created at
                 </dt>
                 <dd className="mt-1 text-sm text-foreground">
-                  {new Date(track.created_at).toLocaleDateString('en-US', { 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
+                  {new Date(track.created_at).toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
                   })}
                 </dd>
               </div>
@@ -301,9 +301,9 @@ export default function TrackShow() {
           <h2 className="text-xl font-bold text-foreground mb-6">
             Comments
           </h2>
-          <Comments 
-            resourceType="track" 
-            resourceId={track.slug} 
+          <Comments
+            resourceType="track"
+            resourceId={track.slug}
           />
         </div>
       </div>

@@ -179,6 +179,7 @@ class PlaylistsController < ApplicationController
       :copyright,
       :name_your_price,
       :attribution, :noncommercial, :non_derivative_works, :copies,
+      crop_data: [:x, :y, :width, :height],
       track_playlists_attributes: [
         :id,
         :_destroy,

@@ -96,7 +96,7 @@ export default function PlaylistShow() {
             >
               <div className="relative aspect-square rounded-lg overflow-hidden shadow-xl">
                 <img
-                  src={playlist.cover_url.large}
+                  src={playlist.cover_url.cropped_image}
                   alt={playlist.title}
                   className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                 />
@@ -188,7 +188,7 @@ export default function PlaylistShow() {
                   whileTap={{ scale: 0.95 }}
                 >
                   {isPlaying &&
-                  playlist.tracks?.find((o) => o.id === currentTrackId) ? (
+                    playlist.tracks?.find((o) => o.id === currentTrackId) ? (
                     <motion.div
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}

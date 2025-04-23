@@ -5,12 +5,12 @@ import TrackPlayer from '../tracks/TrackPlayer'
 import TrackItemMenu from './TrackItemMenu'
 import MusicPurchase from '@/components/shared/MusicPurchase'
 
-export default function TrackItem({ 
-  track, 
-  currentTrackId, 
-  isPlaying, 
+export default function TrackItem({
+  track,
+  currentTrackId,
+  isPlaying,
   onPlay,
-  elementRef 
+  elementRef
 }) {
   const isCurrentTrack = currentTrackId === track.id
   const isCurrentlyPlaying = isCurrentTrack && isPlaying
@@ -23,7 +23,7 @@ export default function TrackItem({
       <div className="flex items-center gap-4">
         <div className="hidden sm:block relative w-20 h-20 flex-shrink-0">
           <img
-            src={track.cover_url.medium}
+            src={track.cover_url.cropped_image}
             alt={track.title}
             className="w-full h-full object-cover rounded"
           />
@@ -82,7 +82,7 @@ export default function TrackItem({
               urlLink={`/${track.user.username}/${track.slug}`}
             />
           </div>
-          
+
           {track.tag_list && track.tag_list.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-4">
               {track.tag_list.map((tag, index) => (

@@ -22,6 +22,7 @@ import { Separator } from "@/components/ui/separator"
 import useAuthStore from '@/stores/authStore'
 import I18n from '@/stores/locales'
 import useCartStore from '@/stores/cartStore'
+import PublicPhotosSection from "../shared/public/PublicPhotosSection"
 
 const DELIVERY_METHOD_ICONS = {
   online: <Globe className="h-4 w-4" />,
@@ -82,7 +83,7 @@ export default function ServiceShow({ product }) {
             <div className="text-2xl font-bold">
               ${product.price}
             </div>
-            <Badge 
+            <Badge
               variant={product.stock_quantity > 0 ? "default" : "destructive"}
               className="mt-1"
             >
@@ -95,23 +96,8 @@ export default function ServiceShow({ product }) {
         </div>
       </div>
 
-      {product.photos.length > 0 && (
-        <Carousel className="mb-8">
-          <CarouselContent>
-            {product.photos.map((photo) => (
-              <CarouselItem key={photo.id}>
-                <img
-                  src={photo.url}
-                  alt={product.title}
-                  className="w-full h-[400px] object-cover rounded-lg"
-                />
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselPrevious />
-          <CarouselNext />
-        </Carousel>
-      )}
+
+      <PublicPhotosSection product={product} />
 
       <div className="grid md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-6">
@@ -120,8 +106,8 @@ export default function ServiceShow({ product }) {
               <CardTitle>{I18n.t('products.service.show.about')}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="prose dark:prose-invert max-w-none" 
-                dangerouslySetInnerHTML={{ __html: product.description }} 
+              <div className="prose dark:prose-invert max-w-none"
+                dangerouslySetInnerHTML={{ __html: product.description }}
               />
             </CardContent>
           </Card>
@@ -131,8 +117,8 @@ export default function ServiceShow({ product }) {
               <CardTitle>{I18n.t('products.service.show.what_to_expect')}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="prose dark:prose-invert max-w-none" 
-                dangerouslySetInnerHTML={{ __html: product.what_to_expect }} 
+              <div className="prose dark:prose-invert max-w-none"
+                dangerouslySetInnerHTML={{ __html: product.what_to_expect }}
               />
             </CardContent>
           </Card>
@@ -143,8 +129,8 @@ export default function ServiceShow({ product }) {
                 <CardTitle>{I18n.t('products.service.show.prerequisites')}</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="prose dark:prose-invert max-w-none" 
-                  dangerouslySetInnerHTML={{ __html: product.prerequisites }} 
+                <div className="prose dark:prose-invert max-w-none"
+                  dangerouslySetInnerHTML={{ __html: product.prerequisites }}
                 />
               </CardContent>
             </Card>
@@ -155,8 +141,8 @@ export default function ServiceShow({ product }) {
               <CardTitle>{I18n.t('products.service.show.cancellation_policy')}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="prose dark:prose-invert max-w-none" 
-                dangerouslySetInnerHTML={{ __html: product.cancellation_policy }} 
+              <div className="prose dark:prose-invert max-w-none"
+                dangerouslySetInnerHTML={{ __html: product.cancellation_policy }}
               />
             </CardContent>
           </Card>
@@ -189,7 +175,7 @@ export default function ServiceShow({ product }) {
               <Separator />
 
               {product.stock_quantity > 0 && (
-                <Button onClick={()=> addToCart(product.id)} className="w-full" size="lg">
+                <Button onClick={() => addToCart(product.id)} className="w-full" size="lg">
                   {I18n.t('products.service.show.book_now')}
                 </Button>
               )}

@@ -1,5 +1,6 @@
 class Playlist < ApplicationRecord
 
+
   class Types
     def self.plain
       [
@@ -11,6 +12,8 @@ class Playlist < ApplicationRecord
       ]
     end
   end
+
+  include Croppable
 
   extend FriendlyId
   friendly_id :title, use: :slugged
@@ -94,7 +97,7 @@ class Playlist < ApplicationRecord
   store_attribute :metadata, :price, :decimal
   store_attribute :metadata, :name_your_price, :boolean
   store_attribute :metadata, :transcription, :string
-
+  store_accessor :metadata, :crop_data, :json, default: {}
 
 
   def self.ransackable_attributes(auth_object = nil)
@@ -103,6 +106,11 @@ class Playlist < ApplicationRecord
   
   def name_your_price?
     name_your_price.present?
+  end
+
+  # Example method to call cropped_image with specific attributes
+  def cropped_image(fallback: :large)
+    cropped_image_setup(attached_attribute: :cover, crop_data_attribute: :crop_data, fallback: fallback)
   end
 
   def cover_url(size = nil)
@@ -115,6 +123,9 @@ class Playlist < ApplicationRecord
 
     when :small
       cover.variant(resize_to_limit: [50, 50])&.processed&.url
+    
+    when :original
+      cover.url
 
     else
       cover.variant(resize_to_limit: [200, 200])&.processed&.url

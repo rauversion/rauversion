@@ -25,7 +25,7 @@ export default function PhotosSection({ control }) {
           name="product_images_attributes"
           rules={{
             validate: {
-              atLeastOne: (value) => 
+              atLeastOne: (value) =>
                 (value && value.some(img => !img._destroy)) || "At least one photo is required"
             }
           }}
@@ -66,7 +66,7 @@ export default function PhotosSection({ control }) {
                       <div key={index} className="relative group space-y-2">
                         <div className="relative">
                           <img
-                            src={image.id ? 
+                            src={image.id ?
                               image.url :
                               `/rails/active_storage/blobs/redirect/${image.image}/photo.jpg`
                             }

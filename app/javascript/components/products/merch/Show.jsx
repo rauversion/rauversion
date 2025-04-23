@@ -1,8 +1,8 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { 
-  ChevronLeft, 
-  Truck, 
+import {
+  ChevronLeft,
+  Truck,
   Tag,
   Shirt,
   Coffee,
@@ -31,6 +31,8 @@ import useAuthStore from '@/stores/authStore'
 import I18n from '@/stores/locales'
 import useCartStore from '@/stores/cartStore'
 import { CATEGORY_ICONS, CATEGORY_LABELS } from '../shared/constants'
+import PhotosSection from "../shared/PhotosSection"
+import PublicPhotosSection from "../shared/public/PublicPhotosSection"
 
 export default function MerchShow({ product }) {
   const navigate = useNavigate()
@@ -71,12 +73,12 @@ export default function MerchShow({ product }) {
             <div className="text-2xl font-bold">
               ${product.price}
             </div>
-            <Badge 
+            <Badge
               variant={product.stock_quantity > 0 ? "default" : "destructive"}
               className="mt-1"
             >
-              {product.stock_quantity > 0 ? 
-                `${product.stock_quantity} in stock` : 
+              {product.stock_quantity > 0 ?
+                `${product.stock_quantity} in stock` :
                 'Sold out'
               }
             </Badge>
@@ -84,23 +86,7 @@ export default function MerchShow({ product }) {
         </div>
       </div>
 
-      {product.photos.length > 0 && (
-        <Carousel className="mb-8">
-          <CarouselContent>
-            {product.photos.map((photo) => (
-              <CarouselItem key={photo.id}>
-                <img
-                  src={photo.url}
-                  alt={product.title}
-                  className="w-full h-[400px] object-cover rounded-lg"
-                />
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselPrevious />
-          <CarouselNext />
-        </Carousel>
-      )}
+      <PublicPhotosSection product={product} />
 
       <div className="grid md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-6">
@@ -109,8 +95,8 @@ export default function MerchShow({ product }) {
               <CardTitle>{I18n.t('products.merch.show.about')}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="prose dark:prose-invert max-w-none" 
-                dangerouslySetInnerHTML={{ __html: product.description }} 
+              <div className="prose dark:prose-invert max-w-none"
+                dangerouslySetInnerHTML={{ __html: product.description }}
               />
             </CardContent>
           </Card>
@@ -143,8 +129,8 @@ export default function MerchShow({ product }) {
               <Separator />
 
               {product.stock_quantity > 0 && (
-                <Button onClick={()=> addToCart(product.id)} className="w-full" size="lg">
-                ${product.price} {I18n.t('products.merch.show.add_to_cart')}
+                <Button onClick={() => addToCart(product.id)} className="w-full" size="lg">
+                  ${product.price} {I18n.t('products.merch.show.add_to_cart')}
                 </Button>
               )}
             </CardContent>

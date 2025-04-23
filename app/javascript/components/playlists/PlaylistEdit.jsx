@@ -55,7 +55,7 @@ export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenCh
       const response = await fetch(`/playlists/${playlist.slug}/edit.json`)
       const data = await response.json()
       setPlaylist(data.playlist)
-      
+
       // Update form values with fetched data
       Object.entries(data.playlist).forEach(([key, value]) => {
         if (key === "metadata") {
@@ -92,11 +92,19 @@ export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenCh
       record_label: playlist?.metadata?.record_label || "",
       cover: playlist?.cover || "",
       tags: playlist?.tags || [],
+      crop_data: playlist?.crop_data || null,
     }
   })
 
-  const handleCoverUpload = async (signedBlobId) => {
-    setValue('cover', signedBlobId)
+  const handleCoverUpload = async (signedBlobId, cropData, serviceUrl) => {
+    if (signedBlobId) {
+      setValue('cover', signedBlobId)
+    }
+    if (cropData) setValue('crop_data', cropData)
+    if (serviceUrl) {
+      setValue('cover_service_url', serviceUrl)
+      setValue('cropped_image', serviceUrl)
+    }
     toast({
       title: "Success",
       description: I18n.t('playlists.edit.messages.cover_success')
@@ -116,7 +124,7 @@ export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenCh
           playlist: data
         })
       })
-      
+
       if (response.ok) {
         toast({
           title: "Success",
@@ -146,7 +154,7 @@ export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenCh
       const response = await destroy(`/playlists/${playlist.slug}`, {
         responseKind: "json"
       })
-      
+
       if (response.ok) {
         toast({
           title: "Success",
@@ -240,9 +248,18 @@ export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenCh
 
                   <div>
                     <Label>{I18n.t('playlists.edit.form.cover')}</Label>
+
                     <ImageUploader
-                      onUpload={handleCoverUpload}
-                      preview={playlist.cover_url?.medium}
+                      onUploadComplete={handleCoverUpload}
+                      aspectRatio={1}
+                      maxSize={10}
+                      imageUrl={watch('cover_service_url') || playlist.cover_url.original}
+                      imageCropped={watch('cropped_image') || playlist.cover_url.cropped_image}
+                      preview={true}
+                      initialCropData={watch('crop_data')}
+                      enableCropper={true}
+                      cropUploadMode={'original_with_coords'}
+                      className=""
                     />
                   </div>
 
@@ -303,7 +320,7 @@ export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenCh
               </TabsContent>
 
               <TabsContent value="tracks" className="p-6">
-                <PlaylistTracks 
+                <PlaylistTracks
                   playlist={playlist}
                   onTracksChange={(tracks) => {
                     // Optional: Update local state if needed

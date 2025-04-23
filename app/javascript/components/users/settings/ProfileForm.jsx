@@ -51,7 +51,7 @@ export default function ProfileForm() {
       setUser(data.user)
       setAvatarBlobId(data.user.avatar_blob_id)
       setHeaderBlobId(data.user.profile_header_blob_id)
-      
+
       console.log("DATA USER")
       console.log(data.user)
     }
@@ -64,14 +64,14 @@ export default function ProfileForm() {
   const onSubmit = async (data) => {
     try {
       const response = await patch(`/${username}/settings/profile.json`, {
-        body: JSON.stringify({ 
+        body: JSON.stringify({
           user: {
             ...data
-          } 
+          }
         }),
         responseKind: "json"
       })
-      
+
       if (response.ok) {
         toast({
           title: "Success",
@@ -117,7 +117,7 @@ export default function ProfileForm() {
 
   if (!user) return null
 
-  {console.log(register("bio"))}
+  { console.log(register("bio")) }
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
       <Card>
@@ -134,7 +134,7 @@ export default function ProfileForm() {
               <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-input bg-muted text-muted-foreground text-sm">
                 {I18n.t('user_settings.profile.form.username.prefix')}
               </span>
-              
+
               <Input
                 id="username"
                 {...register("username")}
@@ -147,8 +147,8 @@ export default function ProfileForm() {
 
                 {...register("hide_username_from_profile")}
               />
-              <Label 
-                htmlFor="hide_username" 
+              <Label
+                htmlFor="hide_username"
                 className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
                 {I18n.t('user_settings.profile.form.username.hide')}
@@ -213,9 +213,9 @@ export default function ProfileForm() {
             <div className="grid gap-6 lg:grid-cols-2">
               <div className="space-y-2">
                 <Label>{I18n.t('user_settings.profile.form.images.avatar.label')}</Label>
-   
+
                 <ImageUploader
-                  aspectRatio={16/9}
+                  aspectRatio={1}
                   maxSize={10}
                   preview={true}
                   variant="avatar"
@@ -230,10 +230,10 @@ export default function ProfileForm() {
 
               <div className="space-y-2">
                 <Label>{I18n.t('user_settings.profile.form.images.header.label')}</Label>
-     
+
                 <ImageUploader
                   variant="header"
-                  aspectRatio={16/9}
+                  aspectRatio={16 / 6}
                   maxSize={10}
                   preview={true}
                   enableCropper={true}
