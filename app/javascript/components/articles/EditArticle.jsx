@@ -35,7 +35,7 @@ import {
   SheetClose,
 } from "@/components/ui/sheet"
 import Dante, {
-  defaultTheme, 
+  defaultTheme,
   darkTheme,
   ImageBlockConfig,
   CodeBlockConfig,
@@ -72,16 +72,16 @@ const formSchema = z.object({
 
 function EditorComponent({ value, onChange, onUpload }) {
   const debouncedValue = useDebounce(value, 500)
-  
+
   React.useEffect(() => {
     onChange?.(debouncedValue)
   }, [debouncedValue])
 
   const uploadFile = (file, cb) => {
-    if(!file) return
+    if (!file) return
     const url = '/api/v1/direct_uploads'
     const upload = new DirectUpload(file, url)
-  
+
     upload.create((error, blob) => {
       if (error) {
         // Handle the error
@@ -92,14 +92,14 @@ function EditorComponent({ value, onChange, onUpload }) {
   }
 
   return (
-    <Dante 
+    <Dante
       theme={darkTheme}
       content={value}
       widgets={[
         ImageBlockConfig({
           options: {
             upload_handler: (file, ctx) => {
-              uploadFile(file, (blob)=>{
+              uploadFile(file, (blob) => {
                 ctx.updateAttributes({
                   url: blob.service_url
                 })
@@ -169,7 +169,7 @@ export default function EditArticle() {
     e.preventDefault()
     e.stopPropagation()
     setDragActive(false)
-    
+
     const file = e.dataTransfer.files[0]
     if (file) {
       await handleUpload(file)
@@ -305,7 +305,7 @@ export default function EditArticle() {
           setArticle(article)
           setCategories(categories)
           setStates(states)
-          
+
           form.reset({
             title: article.title,
             excerpt: article.excerpt || "",
@@ -358,7 +358,7 @@ export default function EditArticle() {
             message: errors[key].join(', ')
           })
         })
-        
+
         toast({
           title: "Error",
           description: "Por favor corrige los errores en el formulario",
@@ -377,7 +377,7 @@ export default function EditArticle() {
 
   if (!article) return <div>Loading...</div>
 
-  
+
   return (
     <div className="container mx-auto py-10">
       <Breadcrumb className="mb-6 flex items-center">
@@ -397,7 +397,7 @@ export default function EditArticle() {
               <Settings2 className="h-4 w-4" />
             </Button>
           </SheetTrigger>
-          <SheetContent className="w-[400px] sm:w-[540px] border-l bg-zinc-900 flex flex-col h-full p-0">
+          <SheetContent className="w-[400px] sm:w-[540px] border-l bg-default flex flex-col h-full p-0">
             <SheetHeader className="flex flex-row justify-between items-center border-b pb-4 p-6">
               <div>
                 <SheetTitle className="text-lg">Nuevo artículo</SheetTitle>
@@ -411,13 +411,13 @@ export default function EditArticle() {
                 </Button>
               </SheetClose>
             </SheetHeader>
-            
+
             <div className="flex-1 overflow-y-auto px-6">
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 py-6">
                   <ImageUploader
                     onUploadComplete={handleImageUpload}
-                    aspectRatio={16/9}
+                    aspectRatio={16 / 9}
                     maxSize={10}
                     preview={true}
                     enableCropper={true}
@@ -430,10 +430,10 @@ export default function EditArticle() {
                       <FormItem>
                         <FormLabel className="text-zinc-300">Title</FormLabel>
                         <FormControl>
-                          <Input 
-                            placeholder="Article title" 
+                          <Input
+                            placeholder="Article title"
                             {...field}
-                            className="bg-zinc-800 border-zinc-700" 
+                            className="bg-zinc-800 border-zinc-700"
                           />
                         </FormControl>
                         <FormMessage />
@@ -488,8 +488,8 @@ export default function EditArticle() {
                         control={form.control}
                         name="state"
                         render={({ field }) => (
-                          <Select 
-                            onValueChange={field.onChange} 
+                          <Select
+                            onValueChange={field.onChange}
                             defaultValue={field.value}
                           >
                             <FormControl>
@@ -564,8 +564,8 @@ export default function EditArticle() {
                         control={form.control}
                         name="category_id"
                         render={({ field }) => (
-                          <Select 
-                            onValueChange={field.onChange} 
+                          <Select
+                            onValueChange={field.onChange}
                             defaultValue={field.value}
                           >
                             <FormControl>
@@ -629,8 +629,8 @@ export default function EditArticle() {
                     Cancelar
                   </Button>
                 </SheetClose>
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   className="bg-pink-600 hover:bg-pink-500"
                   onClick={form.handleSubmit(onSubmit)}
                   disabled={!form.formState.isDirty || form.formState.isSubmitting}
@@ -644,19 +644,19 @@ export default function EditArticle() {
       </div>
 
       <div className="max-w-4xl mx-auto">
-      <div className="prose dark:prose-invert max-w-none">
-        <FormField
-          control={form.control}
-          name="body"
-          render={({ field }) => (
-            <EditorComponent
-              value={article.body}
-              onChange={editorOnChangeHandler}
-              onUpload={handleUpload}
-            />
-          )}
-        />
-      </div>
+        <div className="prose dark:prose-invert max-w-none">
+          <FormField
+            control={form.control}
+            name="body"
+            render={({ field }) => (
+              <EditorComponent
+                value={article.body}
+                onChange={editorOnChangeHandler}
+                onUpload={handleUpload}
+              />
+            )}
+          />
+        </div>
       </div>
     </div>
   )

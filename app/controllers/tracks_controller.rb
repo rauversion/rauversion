@@ -44,7 +44,7 @@ class TracksController < ApplicationController
     end
       
     respond_to do |format|
-      format.html
+      format.html {render_blank}
       format.turbo_stream
       format.json
     end
@@ -87,7 +87,7 @@ class TracksController < ApplicationController
         end
       else
         respond_to do |format|
-          format.html { render :new }
+          format.html {render_blank}
           format.json
         end
       end
@@ -130,7 +130,7 @@ class TracksController < ApplicationController
     get_meta_tags
 
     respond_to do |format|
-      format.html
+      format.html {render_blank}
       format.json
     end
   end

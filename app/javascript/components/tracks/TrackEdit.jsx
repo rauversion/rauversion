@@ -244,7 +244,7 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
 
                         <ImageUploader
                           onUploadComplete={handleCoverUpload}
-                          aspectRatio={1}
+                          aspectRatio={1 / 1}
                           maxSize={10}
                           imageUrl={watch('cover_service_url') || track.cover_url.original}
                           imageCropped={watch('cropped_image') || track.cover_url.cropped_image}

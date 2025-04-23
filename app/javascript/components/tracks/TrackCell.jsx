@@ -3,34 +3,34 @@ import { Link } from 'react-router-dom'
 import useAudioStore from '../../stores/audioStore'
 
 const PlayIcon = ({ className }) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    fill="none" 
-    viewBox="0 0 24 24" 
-    strokeWidth="1.5" 
-    stroke="currentColor" 
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth="1.5"
+    stroke="currentColor"
     className={className}
   >
-    <path 
-      strokeLinecap="round" 
-      strokeLinejoin="round" 
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
       d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.348a1.125 1.125 0 010 1.971l-11.54 6.347a1.125 1.125 0 01-1.667-.985V5.653z"
     />
   </svg>
 )
 
 const PauseIcon = ({ className }) => (
-  <svg 
-    xmlns="http://www.w3.org/2000/svg" 
-    fill="none" 
-    viewBox="0 0 24 24" 
-    strokeWidth="1.5" 
-    stroke="currentColor" 
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    fill="none"
+    viewBox="0 0 24 24"
+    strokeWidth="1.5"
+    stroke="currentColor"
     className={className}
   >
-    <path 
-      strokeLinecap="round" 
-      strokeLinejoin="round" 
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
       d="M15.75 5.25v13.5m-7.5-13.5v13.5"
     />
   </svg>
@@ -52,17 +52,17 @@ export function ClassicTrackCell({ track }) {
   }
 
   return (
-    <Link 
+    <Link
       to={`/tracks/${track.slug}`}
       className="w-64 md:w-48 group space-y-2 p-2 hover:bg-subtle rounded-md"
     >
       <div className="w-full aspect-w-1 aspect-h-1 bg-muted dark:bg-subtle rounded-lg overflow-hidden xl:aspect-w-7 xl:aspect-h-8">
-        <div 
+        <div
           data-track-id={track.id}
           data-audio-id={track.id}
           className="smooth-color group-hover:absolute group-hover:z-10 w-full h-full flex justify-center items-center"
         >
-          <button 
+          <button
             onClick={handlePlay}
             className="smooth-grow flex justify-center items-center w-24 h-24 rounded-full bg-default border-4 border-brand-100 focus:outline-none"
           >
@@ -73,10 +73,10 @@ export function ClassicTrackCell({ track }) {
             )}
           </button>
         </div>
-        <img 
-          src={track.cover_url.medium} 
+        <img
+          src={track.cover_url.medium}
           alt={track.title}
-          className="w-full h-full object-center object-cover group-hover:opacity-75" 
+          className="w-full h-full object-center object-cover group-hover:opacity-75"
         />
       </div>
 
@@ -108,16 +108,16 @@ export function ModernTrackCell({ track }) {
 
   return (
     <Link to={`/tracks/${track.slug}`}>
-      <div 
+      <div
         data-track-id={track.id}
         data-audio-id={track.id}
         className="group cursor-pointer"
       >
         <div className="relative aspect-square overflow-hidden rounded-lg mb-4">
-          <img 
-            src={track.cover_url.medium} 
+          <img
+            src={track.cover_url.medium}
             alt={track.title}
-            className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500" 
+            className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
           />
           <button onClick={handlePlay}>
             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
@@ -158,22 +158,22 @@ export function MinimalTrackCell({ track }) {
 
   return (
     <Link to={`/tracks/${track.slug}`}>
-      <div 
+      <div
         data-track-id={track.id}
         data-audio-id={track.id}
         className="group relative bg-black border border-white/10 rounded-xl overflow-hidden hover:border-white/30 transition-all duration-300"
       >
         <div className="relative aspect-[4/3]">
           {/* Background Image with Gradient */}
-          <img 
-            src={track.cover_url.medium} 
+          <img
+            src={track.cover_url.cropped_image}
             alt={track.title}
-            className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-300" 
+            className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 transition-all duration-300"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-60 group-hover:opacity-80 transition-all duration-300" />
-          
+
           {/* Play Button */}
-          <button 
+          <button
             onClick={handlePlay}
             className="absolute inset-0 flex items-center justify-center"
           >
