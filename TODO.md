@@ -1,6 +1,9 @@
 TODO:
 
 
+  playlists
+    + uploader need some feedback when loading
+
   Articles:
     control display on main site. adin setting or something
 

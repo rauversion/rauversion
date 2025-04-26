@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { get, put } from '@rails/request.js';
+import { get } from '@rails/request.js';
 import AsyncSelect from 'react-select/async';
 
-const PlaylistSelector = ({ onChange, value = [] }) => {
-  // value is always an array of ids
-  const [playlistIds, setPlaylistIds] = useState(value);
+const PlaylistSelectorSingle = ({ onChange, value = null }) => {
+  // value is a single id or null
+  const [playlistId, setPlaylistId] = useState(value ? [value] : []);
   const [playlists, setPlaylists] = useState([]);
   const [releaseId, setReleaseId] = useState(null);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    setPlaylistIds(value);
+    setPlaylistId(value ? [value] : []);
   }, [value]);
 
   useEffect(() => {
@@ -43,9 +43,8 @@ const PlaylistSelector = ({ onChange, value = [] }) => {
     }
   };
 
-  const handleChange = async (newSelectedOptions) => {
-    // Multi select: newSelectedOptions is array
-    const newValue = newSelectedOptions ? newSelectedOptions.map(option => option.value) : [];
+  const handleChange = async (newSelectedOption) => {
+    const newValue = newSelectedOption ? newSelectedOption.value : null;
     onChange(newValue);
   };
 
@@ -57,15 +56,7 @@ const PlaylistSelector = ({ onChange, value = [] }) => {
       gap: '8px',
       padding: '8px',
     }),
-    multiValue: (provided) => ({
-      ...provided,
-      display: 'flex',
-      alignItems: 'center',
-      gap: '4px',
-      backgroundColor: 'rgb(243 244 246)',
-    }),
   };
-
 
   const formatOptionLabel = ({ label, coverUrl }) => (
     <div className="flex items-center gap-2">
@@ -83,16 +74,16 @@ const PlaylistSelector = ({ onChange, value = [] }) => {
   return (
     <div className="w-full">
       <AsyncSelect
-        isMulti={true}
+        isMulti={false}
         cacheOptions
         defaultOptions
-        value={playlists.filter(playlist => playlistIds.includes(playlist.value))}
+        value={playlists.find(playlist => playlist.value === playlistId[0]) || null}
         onChange={handleChange}
         loadOptions={(inputValue) => new Promise((resolve) => loadOptions(inputValue, resolve))}
         isLoading={saving}
         styles={customStyles}
         formatOptionLabel={formatOptionLabel}
-        placeholder="Search and select playlists..."
+        placeholder="Select playlist..."
         noOptionsMessage={() => "No playlists found"}
         loadingMessage={() => "Loading playlists..."}
         className="min-w-[200px]"
@@ -101,4 +92,4 @@ const PlaylistSelector = ({ onChange, value = [] }) => {
   );
 };
 
-export default PlaylistSelector;
+export default PlaylistSelectorSingle;

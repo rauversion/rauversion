@@ -270,9 +270,10 @@ export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenCh
                       control={control}
                       render={({ field }) => (
                         <Select
-                          {...field}
+                          value={playlistTypes.find(opt => opt.value === field.value) || null}
+                          onChange={option => field.onChange(option ? option.value : "")}
                           options={playlistTypes}
-                          theme={(theme) => selectTheme(theme, isDarkMode)}
+                          theme={theme => selectTheme(theme, isDarkMode)}
                         />
                       )}
                     />

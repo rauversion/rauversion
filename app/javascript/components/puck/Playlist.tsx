@@ -2,6 +2,8 @@ import React, { useEffect, useState, useRef } from "react";
 import { Play, Pause, MoreHorizontal } from 'lucide-react';
 import useAudioStore from '../../stores/audioStore';
 import ColorPicker from './ColorPicker';
+import PlaylistSelector from './PlaylistSelectorSingle';
+import { get } from '@rails/request.js';
 
 interface Track {
   id: number;
@@ -139,7 +141,7 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
           
           <div className="flex-1">
             <h2 className="text-default font-bold text-3xl mb-2">{playlist.title}</h2>
-            <p className="text-default/10 mb-4">{playlist.user.full_name}</p>
+            <p className="text-default/80 mb-4">{playlist.user.full_name}</p>
             <div className="flex items-center gap-4">
               <a 
                 // href={playlist.tracks[0] ? `/player?id=${playlist.tracks[0].slug}&t=true` : ''}
@@ -155,7 +157,7 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
                   }
                 }}
                 //style={{ backgroundColor: accentColor }}
-                className={`bg-black/20 cursor-pointer text-black font-semibold rounded-full p-3 hover:scale-105 transition`}
+                className={`bg-black/10 cursor-pointer text-black font-semibold rounded-full p-3 hover:scale-105 transition`}
               >
                 {isPlaying ? <Pause size={24} /> : <Play size={24} />}
               </a>
@@ -170,13 +172,13 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
           <div className="space-y-1 bg-black/30 p-4 rounded-lg">
             {playlist.tracks && playlist.tracks.map((track, index) => (
               <div 
-                key={track.id}
+                key={`${track.id}-${index}`}
                 className={`flex items-center justify-between p-2 rounded hover:bg-white hover:bg-opacity-10 group ${
                   currentTrackId === track.id ? 'bg-white bg-opacity-20' : ''
                 }`}
               >
                 <div className="flex items-center gap-4">
-                  <span className={`w-6 ${currentTrackId === track.id ? `text-[${accentColor}]` : 'text-zinc-400'}`}>
+                  <span className={`w-6 ${currentTrackId === track.id ? `text-[${accentColor}]` : 'text-white'}`}>
                     {index + 1}
                   </span>
                   
@@ -246,8 +248,9 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
 export const config = {
   fields: {
     playlistId: {
-      type: "text",
-      label: "Playlist ID"
+      type: "custom",
+      render: PlaylistSelector,
+      label: "Select Playlists"
     },
     accentColor: {
       type: "custom",
