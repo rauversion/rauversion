@@ -9,7 +9,7 @@ class PlaylistsController < ApplicationController
 
       @playlists = Playlist.published
       .with_attached_cover
-      .includes(:tracks, user: {avatar_attachment: :blob})
+      .includes(tracks: {cover_attachment: :blob, mp3_audio_attachment: :blob }, user: {avatar_attachment: :blob})
       .where.not(playlist_type: [nil, "podcast"])
       .order("id desc")
     @playlists = @playlists.where(playlist_type: params[:type]) if params[:type].present? && params[:type] != "all"
