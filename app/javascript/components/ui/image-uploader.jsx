@@ -34,6 +34,7 @@ export function ImageUploader({
   const [originalFile, setOriginalFile] = React.useState(null)
   const cropperRef = React.useRef(null)
   const inputRef = React.useRef(null)
+  const [loading, setLoading] = React.useState(false)
 
   // Set initial crop data when cropper opens and image is set
   React.useEffect(() => {
@@ -112,6 +113,7 @@ export function ImageUploader({
   }
 
   const handleUpload = async (file, cropData = null) => {
+    setLoading(true)
     try {
       const upload = new DirectUpload(
         file,
@@ -119,6 +121,7 @@ export function ImageUploader({
       )
 
       upload.create((error, blob) => {
+        setLoading(false)
         if (error) {
           console.error('Error uploading file:', error)
           toast({
@@ -136,6 +139,7 @@ export function ImageUploader({
         }
       })
     } catch (error) {
+      setLoading(false)
       console.error('Error in upload:', error)
       toast({
         title: "Error",
@@ -187,56 +191,65 @@ export function ImageUploader({
 
   return (
     <>
-      <div
-        className={cn(
-          "flex border border-dashed rounded-lg p-4 space-y-4",
-          dragActive ? "border-pink-500" : "border-zinc-700",
-          className
-        )}
-        onDragEnter={handleDrag}
-        onDragLeave={handleDrag}
-        onDragOver={handleDrag}
-        onDrop={handleDrop}
-      >
-        <input
-          ref={inputRef}
-          type="file"
-          className="hidden"
-          accept="image/*"
-          onChange={(e) => {
-            const file = e.target.files[0]
-            if (file) {
-              handleFile(file)
-            }
-          }}
-        />
+      <div className="relative">
         <div
-          className="aspect-[16/9]- py-4 bg-subtle rounded-lg flex items-center justify-center cursor-pointer"
-          onClick={onButtonClick}
-        >
-          {preview && imageUrl ? (
-            <>
-              <img
-                src={imageCropped || imageUrl}
-                alt="Preview"
-                className="w-full h-full object-cover rounded-lg"
-              />
-            </>
-          ) : (
-            <div className="text-center">
-              <div className="flex justify-center mb-2">
-                <ImageIcon className="h-8 w-8 text-zinc-500" />
-              </div>
-              <p className="text-sm text-zinc-500">
-                Subir imagen o arrastra y suelta
-              </p>
-              <p className="text-xs text-zinc-600 mt-1">
-                PNG, JPG, GIF hasta {maxSize}MB
-              </p>
-            </div>
+          className={cn(
+            "flex border border-dashed rounded-lg p-4 space-y-4",
+            dragActive ? "border-pink-500" : "border-zinc-700",
+            className
           )}
+          onDragEnter={handleDrag}
+          onDragLeave={handleDrag}
+          onDragOver={handleDrag}
+          onDrop={handleDrop}
+        >
+          <input
+            ref={inputRef}
+            type="file"
+            className="hidden"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files[0]
+              if (file) {
+                handleFile(file)
+              }
+            }}
+          />
+          <div
+            className="aspect-[16/9]- py-4 bg-subtle rounded-lg flex items-center justify-center cursor-pointer"
+            onClick={onButtonClick}
+          >
+            {preview && imageUrl ? (
+              <>
+                <img
+                  src={imageCropped || imageUrl}
+                  alt="Preview"
+                  className="w-full h-full object-cover rounded-lg"
+                />
+              </>
+            ) : (
+              <div className="text-center">
+                <div className="flex justify-center mb-2">
+                  <ImageIcon className="h-8 w-8 text-zinc-500" />
+                </div>
+                <p className="text-sm text-zinc-500">
+                  Subir imagen o arrastra y suelta
+                </p>
+                <p className="text-xs text-zinc-600 mt-1">
+                  PNG, JPG, GIF hasta {maxSize}MB
+                </p>
+              </div>
+            )}
+          </div>
         </div>
-
+        {loading && (
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center z-10 rounded-lg">
+            <svg className="animate-spin h-8 w-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+          </div>
+        )}
       </div>
 
       {preview && imageUrl && (
