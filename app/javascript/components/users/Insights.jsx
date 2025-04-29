@@ -39,7 +39,7 @@ export default function Insights() {
     // Only initialize chart when both data and canvas element are available
     if (data?.chart_data && chartRef.current) {
       const ctx = chartRef.current.getContext('2d')
-      
+
       if (chartInstance.current) {
         chartInstance.current.destroy()
       }
@@ -136,7 +136,7 @@ export default function Insights() {
           <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100">
             Last 30 days
           </h3>
-          <dl className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-3">
+          <dl className="hidden mt-5 grid grid-cols-1 gap-5 sm:grid-cols-3">
             <div className="px-4 py-5 bg-white shadow rounded-lg overflow-hidden sm:p-6 dark:bg-gray-900">
               <dt className="text-sm font-medium text-gray-500 truncate">
                 Total de escuchas

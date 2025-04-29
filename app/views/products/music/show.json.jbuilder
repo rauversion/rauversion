@@ -23,14 +23,7 @@ json.product do
   # Associated album details
   if @product.album.present?
     json.album do
-      json.id @product.album.id
-      json.title @product.album.title
-      json.description @product.album.description
-      json.cover_url url_for(@product.album.cover) if @product.album.cover.attached?
-      json.tracks @product.album.track_playlists do |track_playlist|
-        track = track_playlist.track
-        json.partial! 'tracks/track', track: track
-      end
+      json.partial! 'playlists/playlist', playlist: @product.album
     end
   end
 

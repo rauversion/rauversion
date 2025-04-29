@@ -245,9 +245,9 @@ export default function MusicForm({ product, isEditing = false }) {
                               value={
                                 field.value
                                   ? {
-                                      value: field.value,
-                                      label: CONDITIONS[field.value],
-                                    }
+                                    value: field.value,
+                                    label: CONDITIONS[field.value],
+                                  }
                                   : null
                               }
                               onChange={(option) =>
@@ -417,8 +417,8 @@ export default function MusicForm({ product, isEditing = false }) {
                     {form.formState.isSubmitting
                       ? I18n.t("products.form.submitting")
                       : isEditing
-                      ? I18n.t("products.form.update")
-                      : I18n.t("products.form.submit")}
+                        ? I18n.t("products.form.update")
+                        : I18n.t("products.form.submit")}
                   </Button>
                   {isEditing && <DeleteButton product={product} />}
                 </div>

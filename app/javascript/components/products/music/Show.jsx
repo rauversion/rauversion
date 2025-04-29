@@ -30,9 +30,10 @@ import {
 import useAuthStore from '@/stores/authStore'
 import I18n from '@/stores/locales'
 import useCartStore from '@/stores/cartStore'
+import PlaylistCard from "@/components/playlists/PlaylistCard"
 
 import { FORMAT_ICONS, FORMAT_LABELS, CONDITIONS } from '../shared/constants'
-import PhotosSection from "../shared/PhotosSection"
+import PublicPhotosSection from "../shared/public/PublicPhotosSection"
 
 
 export default function MusicShow({ product }) {
@@ -99,8 +100,7 @@ export default function MusicShow({ product }) {
         </div>
       </div>
 
-
-      <PhotosSection product={product} />
+      <PublicPhotosSection product={product} />
 
       <div className="grid md:grid-cols-3 gap-6">
         <div className="md:col-span-2 space-y-6">
@@ -113,26 +113,10 @@ export default function MusicShow({ product }) {
                 )}
               </CardHeader>
               <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-12">#</TableHead>
-                      <TableHead>Title</TableHead>
-                      <TableHead className="w-24 text-right">Duration</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {product.album.tracks.map((track) => (
-                      <TableRow key={track.id}>
-                        <TableCell>{track.position}</TableCell>
-                        <TableCell>{track.title}</TableCell>
-                        <TableCell className="text-right">
-                          {formatDuration(track.duration)}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+                <PlaylistCard
+                  skipCover={true}
+                  playlist={product.album}></PlaylistCard>
+
               </CardContent>
             </Card>
           )}

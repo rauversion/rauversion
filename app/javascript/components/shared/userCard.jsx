@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card"
 import { Link } from 'react-router-dom'
 
 
-export default function UserCard({artist, username, variant = 'default'}) {
+export default function UserCard({ artist, username, variant = 'default' }) {
   if (variant === 'rounded') {
     return (
       <Link to={`/${artist.username}`}>
@@ -22,7 +22,7 @@ export default function UserCard({artist, username, variant = 'default'}) {
                 <div className="h-full w-full bg-gradient-to-br from-gray-800 to-gray-900" />
               )}
             </div>
-            
+
             <div className="text-center">
               <h3 className="font-bold text-base text-foreground">
                 {artist.full_name}
@@ -32,10 +32,11 @@ export default function UserCard({artist, username, variant = 'default'}) {
               </p>*/}
 
 
-              { username && useAuthStore.getState().currentUser?.username === username && (
+              {username && useAuthStore.getState().currentUser?.username === username && (
                 <a
                   href={`/account_connections/impersonate?username=${artist.username}`}
                   className="text-link"
+                  target="_blank"
                 >
                   {I18n.t('users.artist_page.impersonate')}
                 </a>
@@ -75,13 +76,13 @@ export default function UserCard({artist, username, variant = 'default'}) {
 
         <div className="space-y-6">
           <div className="flex gap-4 text-lg">
-            { artist.tracks_count && <div className="border border-white/20 px-4 py-2">
+            {artist.tracks_count && <div className="border border-white/20 px-4 py-2">
               <span className="font-bold text-white" title={I18n.t('users.artist_page.tracks_count', { count: artist.tracks_count })}>
                 {artist.tracks_count}
               </span>
               <span className="text-gray-400 uppercase text-sm ml-2">{I18n.t('users.artist_page.tracks')}</span>
             </div>}
-            { artist.albums_count && <div className="border border-white/20 px-4 py-2">
+            {artist.albums_count && <div className="border border-white/20 px-4 py-2">
               <span className="font-bold text-white" title={I18n.t('users.artist_page.albums_count', { count: artist.albums_count })}>
                 {artist.albums_count}
               </span>
@@ -103,7 +104,7 @@ export default function UserCard({artist, username, variant = 'default'}) {
               {I18n.t('users.artist_page.view_profile')}
             </Link>
 
-            { username && useAuthStore.getState().currentUser?.username === username && (
+            {username && useAuthStore.getState().currentUser?.username === username && (
               <a
                 href={`/account_connections/impersonate?username=${artist.username}`}
                 className="block w-full bg-primary text-white py-4 text-center text-lg font-bold uppercase hover:bg-primary/90 transition-colors"
