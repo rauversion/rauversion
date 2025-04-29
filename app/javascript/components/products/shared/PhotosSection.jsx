@@ -77,7 +77,11 @@ export default function PhotosSection({ control }) {
                             variant="destructive"
                             size="icon"
                             className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
-                            onClick={() => removeImage(index)}
+                            onClick={(e) => {
+                              e.preventDefault()
+                              removeImage(index)
+                            }
+                            }
                           >
                             <X className="h-4 w-4" />
                           </Button>

@@ -50,9 +50,9 @@ class Product < ApplicationRecord
   scope :active, -> { where(status: 'active') }
   scope :by_category, ->(category) { where(category: category) }
 
-  accepts_nested_attributes_for :product_variants
-  accepts_nested_attributes_for :product_options
-  accepts_nested_attributes_for :product_images
+  accepts_nested_attributes_for :product_variants, allow_destroy: true
+  accepts_nested_attributes_for :product_options, allow_destroy: true
+  accepts_nested_attributes_for :product_images, allow_destroy: true
   accepts_nested_attributes_for :product_shippings, allow_destroy: true, reject_if: :all_blank
 
   def edit_path(user)
