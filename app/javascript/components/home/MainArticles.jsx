@@ -14,9 +14,9 @@ export default function MainArticles({ posts }) {
     if (!text || text.length <= maxLength) {
       return text;
     }
-    
+
     let truncated = text.substring(0, maxLength);
-    
+
     // If cutting at word boundaries is enabled
     if (cutAtWord) {
       // Find the last space within the truncated text
@@ -25,12 +25,12 @@ export default function MainArticles({ posts }) {
         truncated = truncated.substring(0, lastSpaceIndex);
       }
     }
-    
+
     // Add ellipsis if enabled
     if (addEllipsis) {
       truncated += '...';
     }
-    
+
     return truncated;
   }
 
@@ -41,21 +41,21 @@ export default function MainArticles({ posts }) {
           <h2 className="text-2xl md:text-3xl font-bold">
             {I18n.t('home.main_articles.latest_publications')}
           </h2>
-          <Link 
-            to="/articles" 
+          <Link
+            to="/articles"
             className="group flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors"
           >
             {I18n.t('home.main_articles.view_all')}
-            <svg 
-              xmlns="http://www.w3.org/2000/svg" 
-              width="24" 
-              height="24" 
-              viewBox="0 0 24 24" 
-              fill="none" 
-              stroke="currentColor" 
-              strokeWidth="2" 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
               className="lucide lucide-arrow-right w-4 h-4 group-hover:translate-x-1 transition-transform"
             >
               <path d="M5 12h14"></path>
@@ -70,15 +70,15 @@ export default function MainArticles({ posts }) {
               <article className="group cursor-pointer dark">
                 <Link to={`/articles/${mainPost.slug}`}>
                   <div className="relative aspect-[16/9] overflow-hidden rounded-lg mb-6">
-                    <img 
-                      src={mainPost.cover_url.large} 
+                    <img
+                      src={mainPost.cover_url.large}
                       alt={mainPost.title}
                       className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-background/60 to-transparent"></div>
                     <div className="absolute bottom-0 left-0 p-6">
                       {mainPost.category && (
-                        <span className="inline-block px-3 py-1 bg-primary text-sm font-medium mb-4">
+                        <span className="inline-block px-3 py-1 bg-default text-sm font-medium mb-4">
                           {mainPost.category.name}
                         </span>
                       )}
@@ -89,10 +89,10 @@ export default function MainArticles({ posts }) {
                         {truncateText(mainPost.excerpt, 150)}
                       </p>
                       <div className="flex items-center gap-3">
-                        <img 
-                          src={mainPost.author.avatar_url.medium} 
+                        <img
+                          src={mainPost.author.avatar_url.medium}
                           alt={mainPost.author.username}
-                          className="w-10 h-10 rounded-full object-cover" 
+                          className="w-10 h-10 rounded-full object-cover"
                         />
                         <div>
                           <span className="block font-medium text-foreground">
@@ -115,8 +115,8 @@ export default function MainArticles({ posts }) {
               <Link key={post.id} to={`/articles/${post.slug}`}>
                 <article className="group cursor-pointer flex gap-4">
                   <div className="relative w-24 h-24 flex-shrink-0 overflow-hidden rounded-lg">
-                    <img 
-                      src={post.cover_url.medium} 
+                    <img
+                      src={post.cover_url.medium}
                       alt={post.title}
                       className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
                     />

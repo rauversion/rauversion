@@ -421,7 +421,7 @@ export default function NewTrack() {
                             className="w-full justify-start text-sm"
                             onClick={() => {
                               navigator.clipboard.writeText(
-                                `${window.location.origin}/tracks/${track.id}`
+                                `${window.location.origin}/tracks/${track.slug}`
                               );
                               toast({
                                 description: I18n.t(

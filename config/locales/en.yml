@@ -29,7 +29,7 @@ en:
   menu:
     store: Store
     profile: Profile
-    my_label: My stamp
+    my_label: My Label
     home: Start/Beginning
     music: Music
     events: Events
@@ -943,7 +943,7 @@ en:
         playlist_type: Type of List
         release_date: Release Date
         private: Private
-        enable_label: Enable Stamp
+        enable_label: Enable Label
         types:
           album: Album
           single: Simple

@@ -12,6 +12,9 @@ json.playlist do
   json.price @playlist.price
   json.name_your_price @playlist.name_your_price
   json.formatted_price number_to_currency(@playlist.price)
+  json.label do
+    json.partial! 'users/user', user: @playlist.label, show_full_name: true
+  end if @playlist.label_id.present?
 
   json.user do
     json.partial! 'users/user', user: @playlist.user, show_full_name: true

@@ -154,6 +154,24 @@ export default function PlaylistShow() {
                       {playlist.user.username}
                     </span>
                   </Link>
+                  {/* Label info */}
+                  {playlist.label && (
+                    <>
+                      <span className="hidden sm:block text-zinc-600">•</span>
+                      <Link
+                        to={`/${playlist.label.username}`}
+                        className="hover:text-foreground transition-colors flex items-center gap-2 group"
+                      >
+                        <span className="font-semibold group-hover:text-brand-500 transition-colors">
+                          {playlist.label.name}
+                        </span>
+                        <span className="text-xs text-zinc-500 group-hover:text-brand-400">
+                          @{playlist.label.username}
+
+                        </span>
+                      </Link>
+                    </>
+                  )}
                   <span className="hidden sm:block text-zinc-600">•</span>
                   <span>
                     {format(
