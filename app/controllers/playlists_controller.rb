@@ -10,6 +10,8 @@ class PlaylistsController < ApplicationController
       @playlists = Playlist.published
       .with_attached_cover
       .includes(:tracks, user: {avatar_attachment: :blob})
+      .where.not(playlist_type: [nil, "podcast"])
+      .order("id desc")
     @playlists = @playlists.where(playlist_type: params[:type]) if params[:type].present? && params[:type] != "all"
     @playlists = @playlists.page(params[:page]).per(24)
     # @playlists_by_type = @playlists.group_by(&:playlist_type)
