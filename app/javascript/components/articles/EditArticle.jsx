@@ -207,6 +207,16 @@ export default function EditArticle() {
               })
               const { article } = await response.json
               setArticle(article)
+              form.reset({
+                title: article.title,
+                excerpt: article.excerpt || "",
+                // body: article.body,
+                category_id: article.category?.id?.toString() || "null",
+                private: article.private,
+                state: article.state,
+                tags: article.tags?.join(", ") || "",
+                visibility: article.private ? "private" : "public"
+              })
             }
           })
         }
@@ -240,6 +250,16 @@ export default function EditArticle() {
       if (response.ok) {
         const { article } = await response.json
         setArticle(article)
+        form.reset({
+          title: article.title,
+          excerpt: article.excerpt || "",
+          // body: article.body,
+          category_id: article.category?.id?.toString() || "null",
+          private: article.private,
+          state: article.state,
+          tags: article.tags?.join(", ") || "",
+          visibility: article.private ? "private" : "public"
+        })
       }
     } catch (error) {
       console.error('Error updating article:', error)
