@@ -144,6 +144,7 @@ es:
       show:
         prerequisites: "Requisitos previos"
         what_to_expect: "Qué esperar"
+        max_participants: "Máximo de participantes"
 
       edit:
         title: "Editar Servicio"
