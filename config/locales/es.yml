@@ -89,7 +89,7 @@ es:
     magazine:
       news:
         title: "Noticias"
-        description: "Las últimas novedades y noticias del mundo de la música."
+        description: "Las últimas novedades de la red Rauversion."
       interviews:
         title: "Entrevistas"
         description: "Conversaciones en profundidad con artistas, productores y expertos de la industria."
@@ -98,14 +98,14 @@ es:
         description: "Reseñas críticas de nuevos lanzamientos, álbumes y presentaciones."
       releases:
         title: "Lanzamientos"
-        description: "Mantente al día con los lanzamientos y contenidos más recientes."
+        description: "conversamos acerca de los contenidos más recientes."
     music:
       all:
         title: "Toda la Música"
-        description: "Explora todas las pistas y álbumes disponibles."
+        description: "Ep, LP y Pistas disponibles."
       artists:
         title: "Artistas"
-        description: "Descubre y sigue a tus artistas."
+        description: "Explora artistas y sellos."
       playlists:
         title: "Listas de Reproducción"
         description: "Listas seleccionadas desde la comunidad Rauversion."
