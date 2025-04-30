@@ -109,12 +109,12 @@ export function MobileNavigation({ currentUser, storeNavItems, eventsNavItems, m
       </SheetTrigger>
       <SheetContent side="left" className="w-[300px] sm:w-[350px] p-0">
         <SheetHeader className="p-4 border-b">
-          <SheetTitle className="text-left">MusicHub</SheetTitle>
+          <SheetTitle className="text-left">Rauversion</SheetTitle>
         </SheetHeader>
         <div className="py-4 overflow-y-auto">
-          <NavSection title="Events" items={eventsNavItems} />
           <NavSection title="Magazine" items={magazineNavItems} />
           <NavSection title="Music" items={musicNavItems} />
+          <NavSection title="Events" items={eventsNavItems} />
           {currentUser?.is_admin && <NavSection title="Store" items={storeNavItems} />}
         </div>
       </SheetContent>
