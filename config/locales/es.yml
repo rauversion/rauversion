@@ -105,13 +105,13 @@ es:
         description: "Explora todas las pistas y álbumes disponibles."
       artists:
         title: "Artistas"
-        description: "Descubre y sigue a tus artistas favoritos."
+        description: "Descubre y sigue a tus artistas."
       playlists:
         title: "Listas de Reproducción"
-        description: "Listas seleccionadas para cada estado de ánimo y ocasión."
+        description: "Listas seleccionadas desde la comunidad Rauversion."
       releases:
         title: "Lanzamientos"
-        description: "Los lanzamientos musicales más recientes y exclusivos."
+        description: "Los lanzamientos musicales recientes."
     store:
       music:
         title: "Música"
