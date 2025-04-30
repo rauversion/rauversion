@@ -30,6 +30,7 @@ module Products
     #}, prefix: true
 
 
+    has_many :service_bookings, class_name: 'ServiceBooking', foreign_key: :service_product_id, dependent: :destroy
 
     validates :category, presence: true
     validates :delivery_method, presence: true
@@ -60,30 +61,40 @@ module Products
       super(value.presence && value.to_i)
     end
 
-    def decrease_quantity(amount, customer = nil)
-      return unless amount.positive?
+    def set_service_booking_for(item, purchase)
+      ServiceBooking.create!(
+        service_product: self,
+        customer: purchase.user,
+        provider: user,
+        status: :pending_confirmation
+      )
+    end
+
+    def decrease_quantity(amount)
       
-      with_lock do
-        new_quantity = stock_quantity - amount
-        if new_quantity >= 0
-          update!(stock_quantity: new_quantity)
-          update!(status: :sold_out) if new_quantity == 0
-          
-          # Create service booking for each purchased slot
-          if customer.present?
-            amount.times do
-              ServiceBooking.create!(
-                service_product: self,
-                customer: customer,
-                provider: user,
-                status: :pending_confirmation
-              )
-            end
-          end
-        else
-          raise ActiveRecord::RecordInvalid.new(self)
-        end
-      end
+      return false
+
+      # with_lock do
+      #   new_quantity = stock_quantity - amount
+      #   if new_quantity >= 0
+      #     update!(stock_quantity: new_quantity)
+      #     update!(status: :sold_out) if new_quantity == 0
+      #     
+      #     # Create service booking for each purchased slot
+      #     if customer.present?
+      #       amount.times do
+      #         ServiceBooking.create!(
+      #           service_product: self,
+      #           customer: customer,
+      #           provider: user,
+      #           status: :pending_confirmation
+      #         )
+      #       end
+      #     end
+      #   else
+      #     raise ActiveRecord::RecordInvalid.new(self)
+      #   end
+      # end
     end
   end
 end

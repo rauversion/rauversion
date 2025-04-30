@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useActionCable } from "@/hooks/useActionCable";
 import useAuthStore from "@/stores/authStore";
 import { get } from "@rails/request.js";
+import { Link } from "react-router";
 
 function PurchaseItem({ purchase, toast, downloadUrl }) {
   const [downloadStatus, setDownloadStatus] = useState(
@@ -86,7 +87,7 @@ function PurchaseItem({ purchase, toast, downloadUrl }) {
                 <p className="text-sm font-medium leading-none">
                   {item.purchased_item.title}
                 </p>
-                <p className="text-sm text-muted-foreground">
+                <p className="hidden text-sm text-muted-foreground">
                   Type: {item.purchased_item.type}
                 </p>
                 <p className="text-xs text-muted-foreground">
@@ -95,6 +96,20 @@ function PurchaseItem({ purchase, toast, downloadUrl }) {
                   })}
                 </p>
               </div>
+
+              {item.service_booking && (
+                <div className="flex items-center gap-2 mt-1">
+                  <Badge variant="outline" className="text-xs">
+                    <span className="capitalize">{item.service_booking.status}</span>
+                  </Badge>
+                  <Link
+                    to={`/service_bookings/${item.service_booking.id}`}
+                    className="text-blue-600 hover:underline text-xs"
+                  >
+                    View Booking
+                  </Link>
+                </div>
+              )}
             </div>
           ))}
       </div>

@@ -5,8 +5,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { formatDistance } from "date-fns"
-import {useInfiniteScroll} from "@/hooks/useInfiniteScroll"
+import { useInfiniteScroll } from "@/hooks/useInfiniteScroll"
 import { Loader2 } from "lucide-react"
+import { Link } from "react-router"
 
 function SaleItem({ sale }) {
   return (
@@ -23,14 +24,30 @@ function SaleItem({ sale }) {
             <AvatarFallback>{sale.purchased_item?.title?.charAt(0) || "T"}</AvatarFallback>
           </Avatar>
         )}
-        
+
         <div className="space-y-1">
           <p className="text-sm font-medium leading-none">
             {sale.type === "Product" ? (
               <div>
                 {sale.items.map((item) => (
-                  <div key={item.id}>
-                    {item.quantity}x {item.product.title} - ${item.price}
+                  <div key={item.id} className="flex flex-col gap-1">
+                    <span>
+                      {item.quantity}x {item.product.title} - ${item.price}
+                    </span>
+
+                    {item.service_booking && (
+                      <div className="flex items-center gap-2 mt-1">
+                        <Badge variant="outline" className="text-xs">
+                          <span className="capitalize">{item.service_booking.status}</span>
+                        </Badge>
+                        <Link
+                          to={`/service_bookings/${item.service_booking.id}`}
+                          className="text-blue-600 hover:underline text-xs"
+                        >
+                          View Booking
+                        </Link>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -54,7 +71,7 @@ function SaleItem({ sale }) {
       </div>
       <div className="flex items-center space-x-2">
         <Badge variant={
-          sale.type === "Product" 
+          sale.type === "Product"
             ? sale.status === "completed" ? "success" : "secondary"
             : sale.purchase.state === "completed" ? "success" : "secondary"
         }>

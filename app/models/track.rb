@@ -149,7 +149,7 @@ class Track < ApplicationRecord
 
     return Rails.application.routes.url_helpers.rails_storage_proxy_url(url) if url.present?
 
-    url || "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
+    url || AlbumsHelper.default_image_sqr
   end
 
   def self.permission_definitions

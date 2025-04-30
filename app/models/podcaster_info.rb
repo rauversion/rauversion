@@ -41,7 +41,7 @@ class PodcasterInfo < ApplicationRecord
 
     return Rails.application.routes.url_helpers.rails_storage_proxy_url(url) if url.present?
 
-    "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
+    AlbumsHelper.default_image_sqr
   end
   # You can add custom methods to work with these fields
   def has_podcast_links?

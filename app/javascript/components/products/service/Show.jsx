@@ -174,11 +174,10 @@ export default function ServiceShow({ product }) {
 
               <Separator />
 
-              {product.stock_quantity > 0 && (
-                <Button onClick={() => addToCart(product.id)} className="w-full" size="lg">
-                  {I18n.t('products.service.show.book_now')}
-                </Button>
-              )}
+              <Button onClick={() => addToCart(product.id)} className="w-full" size="lg">
+                {I18n.t('products.service.show.book_now')}
+              </Button>
+
             </CardContent>
           </Card>
         </div>

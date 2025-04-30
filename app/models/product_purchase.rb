@@ -55,4 +55,10 @@ class ProductPurchase < ApplicationRecord
   def payment_session_id=(value)
     self.stripe_session_id = value
   end
+
+  def set_service_booking
+    product_purchase_items.each do |item|
+      item.product.set_service_booking_for(item, self) if item.product.respond_to?(:set_service_booking_for)
+    end
+  end 
 end

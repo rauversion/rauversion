@@ -183,11 +183,11 @@ class ServiceBookingsController < ApplicationController
     @service_booking = ServiceBooking.find(params[:id])
   end
 
-  private
-
   def set_service_booking
     @service_booking = ServiceBooking.find(params[:id])
   end
+
+  private
 
   def ensure_customer_or_provider
     unless [@service_booking.customer, @service_booking.provider].include?(current_user)

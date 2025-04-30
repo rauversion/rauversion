@@ -32,6 +32,23 @@ json.collection @collection do |purchase|
     json.shipping_cost item.shipping_cost
     json.total_price_with_shipping item.total_price_with_shipping
     
+
+    if item.product.is_a?(Products::ServiceProduct)
+      service_booking = item.product.service_bookings.where(customer_id: purchase.user.id).first
+      json.service_booking do
+        json.id service_booking.id
+        json.scheduled_date service_booking.scheduled_date
+        json.scheduled_time service_booking.scheduled_date
+        json.timezone service_booking.scheduled_date
+        json.status service_booking.status
+        json.user do
+          json.id service_booking.customer.id
+          json.email service_booking.customer.email
+          json.name service_booking.customer.full_name
+        end
+      end 
+    end
+
     json.purchased_item do
       json.id item.product.id
       json.title item.product.title
@@ -39,7 +56,6 @@ json.collection @collection do |purchase|
       json.price item.product.price
       json.slug item.product.slug
       json.type "#{item.product.class} #{item.product.category}"
-
 
       json.cover_url item.product.product_images&.first&.image_url(:small)
       

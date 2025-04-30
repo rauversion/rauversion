@@ -24,9 +24,9 @@ json.playlist do
       json.original @playlist.cover_url(:original)
       json.cropped_image url_for(@playlist.cropped_image)
     else
-      json.small "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
-      json.medium "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
-      json.large "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
+      json.small AlbumsHelper.default_image_sqr
+      json.medium AlbumsHelper.default_image_sqr
+      json.large AlbumsHelper.default_image_sqr
     end
   end
 
@@ -53,9 +53,9 @@ json.playlist do
         json.medium track.cover_url(:medium)
         json.large track.cover_url(:large)
       else
-        json.small "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
-        json.medium "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
-        json.large "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
+        json.small AlbumsHelper.default_image_sqr
+        json.medium AlbumsHelper.default_image_sqr
+        json.large AlbumsHelper.default_image_sqr
       end
     end
   end

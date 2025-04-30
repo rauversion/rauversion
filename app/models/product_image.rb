@@ -20,7 +20,7 @@ class ProductImage < ApplicationRecord
 
     return Rails.application.routes.url_helpers.rails_storage_proxy_url(url) if url.present?
 
-    "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
+    AlbumsHelper.default_image_sqr
   end
 end
 

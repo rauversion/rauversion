@@ -131,7 +131,7 @@ class Playlist < ApplicationRecord
       cover.variant(resize_to_limit: [200, 200])&.processed&.url
     end
 
-    url || "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"
+    url || AlbumsHelper.default_image_sqr
   end
 
   def album?

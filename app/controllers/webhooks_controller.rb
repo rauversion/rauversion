@@ -168,6 +168,8 @@ class WebhooksController < ApplicationController
         @purchase.product_purchase_items.each do |item|
           item.product.decrease_quantity(item.quantity)
         end
+
+        @purchase.set_service_booking
   
         ProductPurchaseMailer.purchase_confirmation(@purchase).deliver_later
   

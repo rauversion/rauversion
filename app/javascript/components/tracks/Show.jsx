@@ -111,7 +111,7 @@ export default function TrackShow() {
             <div className="w-1/3">
               <div className="relative group">
                 <img
-                  src={track.cover_url?.cropped_image || track.cover_url?.large || "/daniel-schludi-mbGxz7pt0jM-unsplash-sqr-s-bn.png"}
+                  src={track.cover_url?.cropped_image || track.cover_url?.large || AlbumsHelper.default_image_sqr}
                   alt={track.title}
                   className="w-full h-auto rounded-lg shadow-lg"
                 />
