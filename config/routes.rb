@@ -134,6 +134,8 @@ Rails.application.routes.draw do
   get "/500" => "errors#fatal"
   post "webhooks/:provider", to: "webhooks#create", as: :webhooks
 
+  get "/articles/c/:id", to: "articles#index"
+
   resource :player, controller: "player" do
     member do
       get :tracklist
@@ -153,11 +155,13 @@ Rails.application.routes.draw do
     end
   end
 
+
   resources :articles do
     member do
       get :preview
     end
     collection do
+
       get :mine
       get :categories
       get :tags

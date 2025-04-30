@@ -46,15 +46,15 @@ const ProductCard = ({ product }) => {
       <Card className="overflow-hidden">
         <div className="relative h-[300px] overflow-hidden">
           {product.cover_url?.medium && (
-            <img 
-              src={product.cover_url.medium} 
+            <img
+              src={product.cover_url.medium}
               alt={product.title}
               className="w-full h-full object-cover transition-transform duration-500 hover:scale-110"
             />
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
         </div>
-        
+
         <CardHeader>
           <div className="flex items-center justify-between mb-2">
             <CardTitle className="line-clamp-1 flex-1">{product.title}</CardTitle>
@@ -65,7 +65,7 @@ const ProductCard = ({ product }) => {
 
         <CardContent>
           <div className="flex items-center justify-between">
-            <button 
+            <button
               onClick={(e) => {
                 e.stopPropagation();
                 navigate(`/${product.user.username}`);
@@ -73,8 +73,8 @@ const ProductCard = ({ product }) => {
               className="flex items-center space-x-2 hover:opacity-80 transition-opacity group/user"
             >
               <div className="relative">
-                <img 
-                  src={product.user.avatar_url.small} 
+                <img
+                  src={product.user.avatar_url.small}
                   alt={product.user.username}
                   className="w-10 h-10 rounded-full border-2 border-gray-200"
                 />
@@ -95,7 +95,7 @@ const ProductCard = ({ product }) => {
         </CardContent>
 
         <CardFooter>
-          <Button 
+          <Button
             className="w-full"
             onClick={() => navigate(product.path)}
           >
@@ -120,7 +120,7 @@ const StoreIndex = () => {
   const navigate = useNavigate()
   const location = useLocation()
   const currentCategory = CATEGORIES.find(cat => cat.path === location.pathname) || CATEGORIES[0]
-  
+
 
   /*
   const [categoryProducts, setCategoryProducts] = useState({})
@@ -167,21 +167,21 @@ const StoreIndex = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       {/*<MarketplaceHeader />*/}
-      
-      <ProductHeader />
 
       <ServiceCategories />
 
+      <ProductHeader />
+
       <MusicSection />
-      
+
       <GearSection />
-      
+
       {
         /* 
         <CategoryGrid />
-        */ 
+        */
       }
-      
+
       {
         /*
         

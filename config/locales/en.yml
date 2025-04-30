@@ -52,6 +52,58 @@ en:
     language: Language
     dark_mode: Dark mode
     light_mode: Light mode
+
+  menu_main:
+    events:
+      physical:
+        title: "Physical Events"
+        description: "Attend in-person concerts, festivals, and meetups."
+      digital:
+        title: "Digital Events"
+        description: "Join live streams, webinars, and online music experiences."
+      hybrid:
+        title: "Hybrid Events"
+        description: "Participate in events that blend physical and digital experiences."
+    magazine:
+      news:
+        title: "News"
+        description: "Latest updates and breaking news from the music world."
+      interviews:
+        title: "Interviews"
+        description: "In-depth conversations with artists, producers, and industry insiders."
+      reviews:
+        title: "Reviews"
+        description: "Critical reviews of new releases, albums, and performances."
+      releases:
+        title: "Releases"
+        description: "Stay up to date with the newest music and content drops."
+    music:
+      all:
+        title: "All Music"
+        description: "Browse all available tracks and albums."
+      artists:
+        title: "Artists"
+        description: "Discover and follow your favorite artists."
+      playlists:
+        title: "Playlists"
+        description: "Curated playlists for every mood and occasion."
+      releases:
+        title: "Releases"
+        description: "Latest music releases and exclusive drops."
+    store:
+      music:
+        title: "Music"
+        description: "Buy and download tracks, albums, and exclusive releases."
+      services:
+        title: "Services"
+        description: "Book music lessons, consulting, and other creative services."
+      merch:
+        title: "Merch"
+        description: "Shop for apparel, physical goods, and limited edition merch."
+
+
+
+
   notifications:
     title: Notifications
     mark_all_as_read: Mark all as read

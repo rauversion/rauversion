@@ -50,14 +50,14 @@ const images = [
     title: "Producción Musical",
     image: "/images/store/34874ebb-cd65-4cd6-91f6-351fe78cd991.png",
   },
-  {
+  /*{
     title: "",
     image: "/images/store/653203c9-ee6f-4ee6-a18e-4618c976b6b0.png",
   },
   {
     title: "",
     image: "/images/store/eb8edf58-5704-4570-b0bc-7b0b34b32447.png",
-  },
+  },*/
 ];
 
 const features = [

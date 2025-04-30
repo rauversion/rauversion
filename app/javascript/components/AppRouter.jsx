@@ -101,7 +101,7 @@ function RequireAuth({ children }) {
   const { currentUser, loading: currentUserLoading } = useAuthStore()
   const location = useLocation()
 
-  if(currentUserLoading) {
+  if (currentUserLoading) {
     return <LoadingSpinner />
   }
 
@@ -152,7 +152,7 @@ function AppContent() {
           ...rest
         })
         break
-        
+
       default:
         console.log('Unhandled notification:', data)
     }
@@ -161,7 +161,7 @@ function AppContent() {
   useEffect(() => {
     if (currentUser) {
       // Subscribe to user-specific notifications
-      const userChannel = subscribe(`NotificationsChannel`, 
+      const userChannel = subscribe(`NotificationsChannel`,
         { user_id: currentUser.id },
         {
           received: handleNotification
@@ -198,6 +198,8 @@ function AppContent() {
           <Route path="/sales" element={<RequireAuth><MySales /></RequireAuth>} />
           <Route path="/purchases" element={<RequireAuth><MyPurchases /></RequireAuth>} />
           <Route path="/articles" element={<ArticlesIndex />} />
+          <Route path="/articles/c/:categorySlug" element={<ArticlesIndex />} />
+
           <Route path="/articles/mine" element={<RequireAuth><MyArticles /></RequireAuth>} />
           <Route path="/articles/:id/edit" element={<RequireAuth><EditArticle /></RequireAuth>} />
           <Route path="/articles/:slug/preview" element={<ArticleShow preview={true} />} />
@@ -221,7 +223,7 @@ function AppContent() {
           <Route path="/events/:slug/event_purchases/:purchase_id/success" element={<CheckoutSuccess />} />
           <Route path="/events/:slug/event_tickets/:id" element={<EventTicketShow />} />
 
-          
+
           <Route path="/tracks" element={<TracksIndex />} />
           <Route path="/tracks/new" element={<NewTrack />} />
           <Route path="/tracks/:slug" element={<TrackShow />} />
@@ -295,14 +297,14 @@ function AppContent() {
       <AudioPlayer />
 
       {
-        !location.pathname.includes('edit') && 
-        !location.pathname.includes('new') && 
-        !location.pathname.includes('editor') && 
+        !location.pathname.includes('edit') &&
+        !location.pathname.includes('new') &&
+        !location.pathname.includes('editor') &&
         !location.pathname.includes('preview') &&
         !location.pathname.includes('albums') &&
         !location.pathname.includes('conversations') &&
-         (
-          <Footer/>
+        (
+          <Footer />
         )
       }
     </>

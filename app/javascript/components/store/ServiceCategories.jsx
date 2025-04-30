@@ -47,12 +47,12 @@ const ServiceCategories = () => {
           <h2 className="text-6xl font-extrabold mb-4 leading-tight">
             RAU ADVISOR
           </h2>
-          <h3 className="text-2xl text-gray-400">
+          <h3 className="text-5xl font-bold mb-2 text-muted">
             Conoce a nuestros asesores y recibe consejos personalizados para
             crecer en lo musical y humano.
           </h3>
           <Link to="/store/services" className="text-blue-500 hover:underline">
-            Explore More Services
+            Ver más
           </Link>
         </div>
 
@@ -97,9 +97,8 @@ const ServiceCategories = () => {
             >
               <Link to={`/${service.user.username}/products/${service.id}`}>
                 <Card
-                  className={`overflow-hidden h-full group cursor-pointer relative ${
-                    CARD_COLORS[service.category]?.bg || "bg-white"
-                  }`}
+                  className={`overflow-hidden h-full group cursor-pointer relative ${CARD_COLORS[service.category]?.bg || "bg-white"
+                    }`}
                 >
                   <div className="p-6">
                     <div className="flex items-center gap-2 mb-6">
@@ -112,9 +111,8 @@ const ServiceCategories = () => {
                     </div>
 
                     <h3
-                      className={`text-4xl ${
-                        CARD_COLORS[service.category]?.text || "text-black"
-                      } font-bold mb-4 whitespace-pre-line leading-tight`}
+                      className={`text-4xl ${CARD_COLORS[service.category]?.text || "text-black"
+                        } font-bold mb-4 whitespace-pre-line leading-tight`}
                     >
                       {service.title}
                     </h3>

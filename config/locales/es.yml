@@ -73,6 +73,56 @@ es:
     settings: Configuraciones
     language: idioma
     log_out: Cerrar sesión
+  
+  
+  menu_main:
+    events:
+      physical:
+        title: "Eventos Presenciales"
+        description: "Asiste a conciertos, festivales y encuentros presenciales."
+      digital:
+        title: "Eventos Digitales"
+        description: "Únete a transmisiones en vivo, seminarios web y experiencias musicales en línea."
+      hybrid:
+        title: "Eventos Híbridos"
+        description: "Participa en eventos que combinan experiencias físicas y digitales."
+    magazine:
+      news:
+        title: "Noticias"
+        description: "Las últimas novedades y noticias del mundo de la música."
+      interviews:
+        title: "Entrevistas"
+        description: "Conversaciones en profundidad con artistas, productores y expertos de la industria."
+      reviews:
+        title: "Reseñas"
+        description: "Reseñas críticas de nuevos lanzamientos, álbumes y presentaciones."
+      releases:
+        title: "Lanzamientos"
+        description: "Mantente al día con los lanzamientos y contenidos más recientes."
+    music:
+      all:
+        title: "Toda la Música"
+        description: "Explora todas las pistas y álbumes disponibles."
+      artists:
+        title: "Artistas"
+        description: "Descubre y sigue a tus artistas favoritos."
+      playlists:
+        title: "Listas de Reproducción"
+        description: "Listas seleccionadas para cada estado de ánimo y ocasión."
+      releases:
+        title: "Lanzamientos"
+        description: "Los lanzamientos musicales más recientes y exclusivos."
+    store:
+      music:
+        title: "Música"
+        description: "Compra y descarga pistas, álbumes y lanzamientos exclusivos."
+      services:
+        title: "Servicios"
+        description: "Reserva clases de música, consultorías y otros servicios creativos."
+      merch:
+        title: "Merch"
+        description: "Compra ropa, productos físicos y merchandising de edición limitada."
+  
   notifications:
     title: Notificaciones
     mark_all_as_read: Marcar todas como leídas

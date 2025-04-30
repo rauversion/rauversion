@@ -1,24 +1,35 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-  DropdownMenuGroup,
-  DropdownMenuSub,
-  DropdownMenuSubContent,
-  DropdownMenuSubTrigger,
-} from "../ui/dropdown-menu";
-import { CartIndicator } from "@/components/cart/CartIndicator";
-import I18n, { useLocaleStore } from "@/stores/locales";
-
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {
+  Collapsible,
+  CollapsibleTrigger,
+  CollapsibleContent,
+} from "@/components/ui/collapsible";
 import { Button } from "../ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useThemeStore } from "../../stores/theme";
 import useAuthStore from "../../stores/authStore";
+import { CartIndicator } from "@/components/cart/CartIndicator";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent
+} from "@/components/ui/dropdown-menu";
+import I18n, { useLocaleStore } from "@/stores/locales";
 import {
   User,
   Settings,
@@ -36,7 +47,113 @@ import {
   Languages,
   CalendarClock,
   MessageSquare,
+  CalendarDays,
+  Laptop,
+  Newspaper,
+  Users,
+  Headphones,
+  Menu,
+  ChevronDown,
 } from "lucide-react";
+import {
+  NavigationMenu,
+  NavigationMenuList,
+  NavigationMenuItem,
+  NavigationMenuTrigger,
+  NavigationMenuContent,
+  NavigationMenuLink,
+} from "@/components/ui/navigation-menu";
+
+
+// ListItem for NavigationMenu
+const ListItem = React.forwardRef(
+  ({ className, title, children, to, icon: Icon, ...props }, ref) => (
+    <li>
+      <NavigationMenuLink asChild>
+        <Link
+          ref={ref}
+          to={to}
+          className={[
+            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
+            className,
+          ]
+            .filter(Boolean)
+            .join(" ")}
+          {...props}
+        >
+          <div className="text-sm font-medium leading-none flex items-center gap-2">
+            {Icon && <Icon className="h-4 w-4" />}
+            {title}
+          </div>
+          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground flex items-center gap-2">
+            {children}
+          </p>
+        </Link>
+      </NavigationMenuLink>
+    </li>
+  )
+);
+ListItem.displayName = "ListItem";
+
+// MobileNavigation and NavSection components
+export function MobileNavigation({ currentUser, storeNavItems, eventsNavItems, magazineNavItems, musicNavItems }) {
+  const [open, setOpen] = React.useState(false);
+
+  return (
+    <Sheet open={open} onOpenChange={setOpen}>
+      <SheetTrigger asChild>
+        <Button variant="ghost" size="icon" className="md:hidden">
+          <Menu className="h-5 w-5" />
+          <span className="sr-only">Toggle menu</span>
+        </Button>
+      </SheetTrigger>
+      <SheetContent side="left" className="w-[300px] sm:w-[350px] p-0">
+        <SheetHeader className="p-4 border-b">
+          <SheetTitle className="text-left">MusicHub</SheetTitle>
+        </SheetHeader>
+        <div className="py-4 overflow-y-auto">
+          <NavSection title="Events" items={eventsNavItems} />
+          <NavSection title="Magazine" items={magazineNavItems} />
+          <NavSection title="Music" items={musicNavItems} />
+          {currentUser?.is_admin && <NavSection title="Store" items={storeNavItems} />}
+        </div>
+      </SheetContent>
+    </Sheet>
+  );
+}
+
+function NavSection({ title, items }) {
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  return (
+    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="border-b last:border-b-0">
+      <CollapsibleTrigger asChild>
+        <button className="flex w-full items-center justify-between p-4 text-left">
+          <span className="text-sm font-medium">{title}</span>
+          <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+        </button>
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        <div className="space-y-1 p-2">
+          {items.map((item) => {
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.href}
+                to={item.href}
+                className="flex items-center gap-3 rounded-md px-3 py-2 text-sm hover:bg-muted"
+                onClick={() => setIsOpen(false)}
+              >
+                <Icon className="h-4 w-4" />
+                <span>{item.title}</span>
+              </Link>
+            );
+          })}
+        </div>
+      </CollapsibleContent>
+    </Collapsible>
+  );
+}
 
 export default function UserMenu() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -58,6 +175,103 @@ export default function UserMenu() {
       </Link>
     </DropdownMenuItem>
   );
+
+
+  const eventsNavItems = [
+    {
+      title: I18n.t('menu_main.events.physical.title'),
+      href: "/events",
+      description: I18n.t('menu_main.events.physical.description'),
+      icon: CalendarDays,
+    },
+    {
+      title: I18n.t('menu_main.events.digital.title'),
+      href: "/events",
+      description: I18n.t('menu_main.events.digital.description'),
+      icon: Laptop,
+    },
+    {
+      title: I18n.t('menu_main.events.hybrid.title'),
+      href: "/events",
+      description: I18n.t('menu_main.events.hybrid.description'),
+      icon: CalendarClock,
+    },
+  ];
+
+  const magazineNavItems = [
+    {
+      title: I18n.t('menu_main.magazine.news.title'),
+      href: "/articles/c/news",
+      description: I18n.t('menu_main.magazine.news.description'),
+      icon: Newspaper,
+    },
+    {
+      title: I18n.t('menu_main.magazine.interviews.title'),
+      href: "/articles/c/interviews",
+      description: I18n.t('menu_main.magazine.interviews.description'),
+      icon: Users,
+    },
+    {
+      title: I18n.t('menu_main.magazine.reviews.title'),
+      href: "/articles/c/reviews",
+      description: I18n.t('menu_main.magazine.reviews.description'),
+      icon: Headphones,
+    },
+    {
+      title: I18n.t('menu_main.magazine.releases.title'),
+      href: "/articles/c/releases",
+      description: I18n.t('menu_main.magazine.releases.description'),
+      icon: Music,
+    },
+  ];
+
+  const musicNavItems = [
+    {
+      title: I18n.t('menu_main.music.all.title'),
+      href: "/tracks",
+      description: I18n.t('menu_main.music.all.description'),
+      icon: Music,
+    },
+    {
+      title: I18n.t('menu_main.music.artists.title'),
+      href: "/artists",
+      description: I18n.t('menu_main.music.artists.description'),
+      icon: Users,
+    },
+    {
+      title: I18n.t('menu_main.music.playlists.title'),
+      href: "/playlists",
+      description: I18n.t('menu_main.music.playlists.description'),
+      icon: Headphones,
+    },
+    {
+      title: I18n.t('menu_main.music.releases.title'),
+      href: "/albums",
+      description: I18n.t('menu_main.music.releases.description'),
+      icon: Music,
+    },
+  ];
+
+  const storeNavItems = [
+    {
+      title: I18n.t('menu_main.store.music.title'),
+      href: "/store/music",
+      description: I18n.t('menu_main.store.music.description'),
+      icon: Music,
+    },
+    {
+      title: I18n.t('menu_main.store.services.title'),
+      href: "/store/services",
+      description: I18n.t('menu_main.store.services.description'),
+      icon: CalendarClock,
+    },
+    {
+      title: I18n.t('menu_main.store.merch.title'),
+      href: "/store/merch",
+      description: I18n.t('menu_main.store.merch.description'),
+      icon: Package,
+    },
+  ];
 
   return (
     <>
@@ -99,35 +313,116 @@ export default function UserMenu() {
                   <span className="hidden md:block">{window.ENV.APP_NAME}</span>
                 </Link>
               </div>
-              <div className="lg:ml-8 lg:flex lg:space-x-4">
-                <Link
-                  to="/tracks"
-                  className="rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted"
-                >
-                  {I18n.t("menu.music")}
-                </Link>
-                <Link
-                  to="/events"
-                  className="rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted"
-                >
-                  {I18n.t("menu.events")}
-                </Link>
-                <Link
-                  to="/articles"
-                  className="rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted"
-                >
-                  {I18n.t("menu.magazine")}
-                </Link>
-                {currentUser &&
-                  currentUser.can_sell_products &&
-                  currentUser.is_admin && (
-                    <Link
-                      to="/store"
-                      className="rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted"
-                    >
-                      {I18n.t("menu.store")}
-                    </Link>
-                  )}
+              <div className="hidden lg:ml-8 lg:flex lg:space-x-4">
+                <NavigationMenu>
+                  <NavigationMenuList>
+                    <NavigationMenuItem>
+                      <NavigationMenuTrigger className="rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted">
+                        {I18n.t("menu.magazine")}
+                      </NavigationMenuTrigger>
+                      <NavigationMenuContent>
+                        <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+                          {magazineNavItems.map((item) => (
+                            <ListItem
+                              key={item.title}
+                              to={item.href}
+                              title={item.title}
+                              icon={item.icon}
+                            >
+                              {item.description}
+                            </ListItem>
+                          ))}
+                        </ul>
+                      </NavigationMenuContent>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                      <NavigationMenuTrigger className="rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted">
+                        {I18n.t("menu.events")}
+                      </NavigationMenuTrigger>
+                      <NavigationMenuContent>
+                        <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+                          {eventsNavItems.map((item) => (
+                            <ListItem
+                              key={item.title}
+                              to={item.href}
+                              title={item.title}
+                              icon={item.icon}
+                            >
+                              {item.description}
+                            </ListItem>
+                          ))}
+                        </ul>
+                      </NavigationMenuContent>
+                    </NavigationMenuItem>
+                    <NavigationMenuItem>
+                      <NavigationMenuTrigger className="rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted">
+                        {I18n.t("menu.music")}
+                      </NavigationMenuTrigger>
+
+                      <NavigationMenuContent>
+                        <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+                          {musicNavItems.map((item) => (
+                            <ListItem
+                              key={item.title}
+                              to={item.href}
+                              title={item.title}
+                              icon={item.icon}
+                            >
+                              {item.description}
+                            </ListItem>
+                          ))}
+                        </ul>
+                      </NavigationMenuContent>
+                    </NavigationMenuItem>
+                    {currentUser?.is_admin &&
+                      <NavigationMenuItem>
+                        <NavigationMenuTrigger className="rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted">
+                          {I18n.t("menu.store")}
+                        </NavigationMenuTrigger>
+                        <NavigationMenuContent>
+                          <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
+                            <li className="row-span-3">
+                              <NavigationMenuLink asChild>
+                                <Link
+                                  to="/store"
+                                  className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
+                                >
+                                  <Store className="h-6 w-6 mb-2" />
+                                  <div className="mb-2 mt-4 text-lg font-medium">Store</div>
+                                  <p className="text-sm leading-tight text-muted-foreground">
+                                    Discover and purchase music, services, and merch from your favorite creators.
+                                  </p>
+                                </Link>
+                              </NavigationMenuLink>
+                            </li>
+
+                            <ListItem
+                              to="/store/music"
+                              title="Music"
+                              icon={Music}
+                            >
+                              Buy and download tracks, albums, and exclusive releases.
+                            </ListItem>
+                            <ListItem
+                              to="/store/services"
+                              title="Services"
+                              icon={CalendarClock}
+                            >
+                              Book music lessons, consulting, and other creative services.
+                            </ListItem>
+                            <ListItem
+                              to="/store/merch"
+                              title="Merch"
+                              icon={Package}
+                            >
+                              Shop for apparel, physical goods, and limited edition merch.
+                            </ListItem>
+                          </ul>
+                        </NavigationMenuContent>
+                      </NavigationMenuItem>
+                    }
+                  </NavigationMenuList>
+                </NavigationMenu>
               </div>
             </div>
 
@@ -136,168 +431,13 @@ export default function UserMenu() {
               <div className="flex items-center gap-2">
                 <CartIndicator />
               </div>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      className="h-6 w-6"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M4 6h16M4 12h16M4 18h16"
-                      />
-                    </svg>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem asChild>
-                      <Link to="/tracks">
-                        <Music className="mr-2 h-4 w-4" />
-                        <span>{I18n.t("menu.music")}</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/events">
-                        <Calendar className="mr-2 h-4 w-4" />
-                        <span>{I18n.t("menu.events")}</span>
-                      </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/articles">
-                        <FileText className="mr-2 h-4 w-4" />
-                        <span>{I18n.t("menu.magazine")}</span>
-                      </Link>
-                    </DropdownMenuItem>
-                  </DropdownMenuGroup>
-
-                  <DropdownMenuSeparator />
-
-                  {currentUser ? (
-                    <>
-                      <DropdownMenuItem asChild>
-                        <Link to="/tracks/new">
-                          <Music className="mr-2 h-4 w-4" />
-                          <span>{I18n.t("menu.upload")}</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuGroup>
-                        <DropdownMenuItem asChild>
-                          <Link to={`/${currentUser.username}`}>
-                            <User className="mr-2 h-4 w-4" />
-                            <span>{I18n.t("menu.profile")}</span>
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link to={`/${currentUser.username}/settings`}>
-                            <Settings className="mr-2 h-4 w-4" />
-                            <span>{I18n.t("menu.settings")}</span>
-                          </Link>
-                        </DropdownMenuItem>
-                        {renderMessagesMenuItem()}
-                      </DropdownMenuGroup>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuGroup>
-                        <DropdownMenuItem asChild>
-                          <Link to={`/${currentUser.username}/tracks`}>
-                            <Music className="mr-2 h-4 w-4" />
-                            <span>{I18n.t("menu.my_music")}</span>
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link to="/articles/mine">
-                            <FileText className="mr-2 h-4 w-4" />
-                            <span>{I18n.t("menu.my_articles")}</span>
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link to="/events/mine">
-                            <Calendar className="mr-2 h-4 w-4" />
-                            <span>{I18n.t("menu.my_events")}</span>
-                          </Link>
-                        </DropdownMenuItem>
-                      </DropdownMenuGroup>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuGroup>
-                        <DropdownMenuItem asChild>
-                          <Link to="/purchases">
-                            <ShoppingCart className="mr-2 h-4 w-4" />
-                            <span>{I18n.t("menu.my_purchases")}</span>
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                          <Link to="/sales">
-                            <Store className="mr-2 h-4 w-4" />
-                            <span>{I18n.t("menu.my_sales")}</span>
-                          </Link>
-                        </DropdownMenuItem>
-                        {currentUser && currentUser.can_sell_products && (
-                          <DropdownMenuItem asChild>
-                            <Link to={`/${currentUser.username}/products`}>
-                              <Package className="mr-2 h-4 w-4" />
-                              <span>{I18n.t("menu.my_products")}</span>
-                            </Link>
-                          </DropdownMenuItem>
-                        )}
-                        {currentUser && currentUser.can_sell_products && (
-                          <DropdownMenuItem asChild>
-                            <Link to="/service_bookings">
-                              <CalendarClock className="mr-2 h-4 w-4" />
-                              <span>Service Bookings</span>
-                            </Link>
-                          </DropdownMenuItem>
-                        )}
-                      </DropdownMenuGroup>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem
-                        onClick={handleSignOut}
-                        className="text-red-600"
-                      >
-                        <LogOut className="mr-2 h-4 w-4" />
-                        <span>{I18n.t("menu.log_out")}</span>
-                      </DropdownMenuItem>
-                    </>
-                  ) : (
-                    <DropdownMenuGroup>
-                      <DropdownMenuItem asChild>
-                        <Link to="/users/sign_in">
-                          <User className="mr-2 h-4 w-4" />
-                          <span>{I18n.t("menu.log_in")}</span>
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                        <Link to="/users/sign_up" className="text-primary">
-                          <User className="mr-2 h-4 w-4" />
-                          <span>{I18n.t("menu.register")}</span>
-                        </Link>
-                      </DropdownMenuItem>
-                    </DropdownMenuGroup>
-                  )}
-
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={toggleDarkMode}>
-                    {isDarkMode ? (
-                      <>
-                        <Moon className="mr-2 h-4 w-4" />
-                        <span>{I18n.t("menu.dark_mode")}</span>
-                      </>
-                    ) : (
-                      <>
-                        <Sun className="mr-2 h-4 w-4" />
-                        <span>{I18n.t("menu.light_mode")}</span>
-                      </>
-                    )}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <MobileNavigation
+                storeNavItems={storeNavItems}
+                eventsNavItems={eventsNavItems}
+                magazineNavItems={magazineNavItems}
+                musicNavItems={musicNavItems}
+                currentUser={currentUser}
+              />
             </div>
 
             <div className="hidden lg:flex items-center justify-end space-x-4">

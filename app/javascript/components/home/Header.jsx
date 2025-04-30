@@ -19,15 +19,15 @@ export default function Header({ posts }) {
   const post = posts[0]
 
   return (
-    <motion.header 
+    <motion.header
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.6 }}
       className="relative h-[90vh] md:h-screen overflow-hidden dark"
     >
-      <motion.div 
+      <motion.div
         style={{ y }}
-        className="absolute inset-0 bg-cover bg-center scale-110" 
+        className="absolute inset-0 bg-cover bg-center scale-110"
         initial={{ scale: 1.2 }}
         animate={{ scale: 1 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
@@ -44,9 +44,9 @@ export default function Header({ posts }) {
         <div className="absolute inset-0 bg-gradient-to-b from-background/70 via-background/50 to-background/80"></div>
       </motion.div>
 
-      <motion.div 
+      <motion.div
         style={{ opacity }}
-        className="relative z-10 px-4 sm:px-8 pt-32 md:pt-48"
+        className="relative z-2 px-4 sm:px-8 pt-32 md:pt-48"
       >
         <Link to={`/articles/${post.slug}`}>
           <div className="max-w-6xl mx-auto">
@@ -55,7 +55,7 @@ export default function Header({ posts }) {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <motion.h1 
+              <motion.h1
                 className="text-[10vw] md:text-[6vw] font-bold leading-none tracking-tighter mb-6 text-foreground"
                 whileHover={{ scale: 1.02 }}
                 transition={{ duration: 0.2 }}
@@ -65,7 +65,7 @@ export default function Header({ posts }) {
             </motion.div>
 
             <div className="flex flex-col md:flex-row md:justify-between md:items-end gap-6 md:gap-0">
-              <motion.p 
+              <motion.p
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3 }}
@@ -74,7 +74,7 @@ export default function Header({ posts }) {
                 {truncate(post.excerpt, 220)}
               </motion.p>
 
-              <motion.button 
+              <motion.button
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.4 }}
@@ -83,19 +83,19 @@ export default function Header({ posts }) {
                 className="group flex items-center gap-2 text-sm font-medium text-foreground hover:text-primary transition-colors"
               >
                 {I18n.t('home.header.explore')}
-                <motion.svg 
-                  xmlns="http://www.w3.org/2000/svg" 
-                  width="24" 
-                  height="24" 
-                  viewBox="0 0 24 24" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  strokeWidth="2" 
-                  strokeLinecap="round" 
-                  strokeLinejoin="round" 
+                <motion.svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                   className="lucide lucide-arrow-right w-4 h-4 group-hover:translate-x-1 transition-transform"
                   animate={{ x: [0, 5, 0] }}
-                  transition={{ 
+                  transition={{
                     duration: 1.5,
                     repeat: Infinity,
                     repeatType: "reverse",
