@@ -84,5 +84,23 @@ module Products
     def product_class
       Products::GearProduct
     end
+
+    private
+
+    def product_params
+      permitted = params.require(:product).permit(
+        :category, :brand, :model, :year, :condition, :title, :description,
+        :accept_barter, :barter_description, :price, :stock_quantity, :sku,
+        :status, :shipping_days, :shipping_begins_on, :visibility, :name_your_price, :quantity,
+        product_images_attributes: [:id, :title, :description, :image, :_destroy],
+        product_shippings_attributes: [:id, :country, :base_cost, :additional_cost, :_destroy]
+      )
+
+      if permitted[:product_shippings_attributes].is_a?(Array)
+        permitted[:product_shippings_attributes] = permitted[:product_shippings_attributes].reject { |attr| attr[:id].nil? }
+      end
+
+      permitted
+    end
   end
 end
