@@ -67,6 +67,8 @@ class UserSettingsController < ApplicationController
       :email,
       :first_name,
       :last_name,
+      :country,
+      :city,
       :bio,
       :current_password,
       :avatar,
