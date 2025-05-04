@@ -21,7 +21,7 @@ module Products
     end
 
     def product_params
-      params.require(:product).permit(
+      permitted = params.require(:product).permit(
         :title, :coupon_id,
         :limited_edition, :limited_edition_count, :include_digital_album, :visibility, 
         :name_your_price, :shipping_days, :shipping_begins_on, :shipping_within_country_price, 
@@ -38,6 +38,12 @@ module Products
         product_images_attributes: [:id, :title, :description, :image, :_destroy],
         product_shippings_attributes: [:id, :country, :base_cost, :additional_cost, :_destroy]
       )
+
+      if permitted[:product_shippings_attributes].is_a?(Array)
+        permitted[:product_shippings_attributes] = permitted[:product_shippings_attributes].reject { |attr| attr[:id].nil? }
+      end
+
+      permitted
     end
   end
 end
