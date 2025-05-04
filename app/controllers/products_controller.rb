@@ -68,6 +68,50 @@ class ProductsController < ApplicationController
       "products/show"
     end
 
+
+    # Define dynamic descriptions and OG types
+    meta_description = case @product
+    when Products::MusicProduct
+      "Listen to #{@product.title} — new music on Rauversion."
+    when Products::GearProduct
+      "Explore #{@product.title}, creative tools and gear to level up your sound."
+    when Products::MerchProduct
+      "Grab #{@product.title}, exclusive merch from your favorite artists."
+    when Products::AccessoryProduct
+      "Get #{@product.title}, custom accessories made for music lovers."
+    when Products::ServiceProduct
+      "Book #{@product.title} — services and sessions by creators, for creators."
+    else
+      "#{@product.title} available now on Rauversion."
+    end
+
+    og_type = case @product
+      when Products::MusicProduct then 'music.album'
+      when Products::ServiceProduct then 'product'
+      when Products::GearProduct then 'product'
+      when Products::MerchProduct then 'product'
+      else 'website'
+    end
+
+    set_meta_tags(
+      title: @product.title,
+      description: meta_description,
+      og: {
+        title: @product.title,
+        description: @product.description.presence || meta_description,
+        image: (url_for(@product.product_images.first.image_url(:medium)) rescue nil),
+        type: og_type,
+        site_name: 'Rauversion'
+      },
+      twitter: {
+        card: "summary_large_image",
+        site: "@rauversion",
+        title: @product.title,
+        description: meta_description,
+        image: (@product.product_images.first.image_url(:medium) rescue nil)
+      }
+    )
+
     respond_to do |format|  
       format.html { }
       format.json { render view_path and return } 
