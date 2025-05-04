@@ -46,7 +46,7 @@ es:
     my_products: Mis Productos
     settings: Configuraciones
     log_out: Cerrar sesión
-    profile: Perfil
+    profile: Mi Página
     acting_on_behalf: Actuando en nombre de
     back_to_label: "volver a: sello %{username}"
     language: Idioma
@@ -59,7 +59,7 @@ es:
     music: Música
     events: Eventos
     magazine: Revista
-    upload: "Subir"
+    upload: "Subir música"
     my_products_merch: Mi tienda
     register: "Registrar"
     log_in: "Iniciar sesión"

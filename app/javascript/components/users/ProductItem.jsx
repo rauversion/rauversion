@@ -39,7 +39,7 @@ export default function ProductItem({ product, elementRef }) {
       transition={{ duration: 0.3 }}
       className="group relative bg-card rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 flex flex-col"
     >
-      <Link 
+      <Link
         to={`/${product.user.username}/products/${product.slug}`}
         className="block flex-1"
       >
@@ -54,7 +54,7 @@ export default function ProductItem({ product, elementRef }) {
       <div className="p-5 flex-1 flex flex-col">
         <div className="flex-1">
           <div className="flex items-start justify-between mb-3">
-            <Link 
+            <Link
               to={`/${product.user.username}/products/${product.slug}`}
               className="block flex-1"
             >
@@ -63,7 +63,7 @@ export default function ProductItem({ product, elementRef }) {
               </h3>
             </Link>
             <p className="text-xl font-bold text-primary ml-3 whitespace-nowrap">
-              ${product.price}
+              {product.price}
             </p>
           </div>
 

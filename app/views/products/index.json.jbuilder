@@ -1,5 +1,13 @@
 json.collection @products do |product|
-  json.extract! product, :id, :slug, :title, :description, :price, :category, :slug
+
+  json.id product.id
+  json.slug product.slug
+  json.title product.title
+  json.description sanitize(product.description, tags: %w(strong em))
+  json.category product.category
+  json.slug product.slug
+  json.price number_to_currency(product.price)
+
     
   json.user do
     json.partial! 'users/user', user: product.user, show_full_name: true
