@@ -34,6 +34,7 @@ import PlaylistCard from "@/components/playlists/PlaylistCard"
 
 import { FORMAT_ICONS, FORMAT_LABELS, CONDITIONS } from '../shared/constants'
 import PublicPhotosSection from "../shared/public/PublicPhotosSection"
+import ShippingOptions from "../shared/ShippingOptions"
 
 
 export default function MusicShow({ product }) {
@@ -156,23 +157,7 @@ export default function MusicShow({ product }) {
 
               <Separator />
 
-              <div className="space-y-3">
-                <h4 className="font-medium flex items-center gap-2">
-                  <Truck className="h-4 w-4" />
-                  {I18n.t('products.music.show.shipping')}
-                </h4>
-                {product.shipping_options.map((option) => (
-                  <div key={option.id} className="flex items-center justify-between text-sm">
-                    <span>{option.region}</span>
-                    <div className="text-right">
-                      <div>${option.price}</div>
-                      <div className="text-muted-foreground text-xs">
-                        {option.estimated_days} {I18n.t('products.music.show.business_days')}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <ShippingOptions product={product} />
 
               {product.stock_quantity > 0 && (
                 <Button onClick={() => addToCart(product.id)} className="w-full" size="lg">

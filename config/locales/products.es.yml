@@ -187,7 +187,8 @@ es:
           good: "Bueno"
           fair: "Regular"
           poor: "Malo"
-
+      edit:
+        title: "Editar Equipamiento Musical"
       show:
         business_days: "Días hábiles"
         shipping_cost: "Costo de envío"

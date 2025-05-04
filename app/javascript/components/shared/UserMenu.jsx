@@ -266,9 +266,9 @@ export default function UserMenu() {
       icon: CalendarClock,
     },
     {
-      title: I18n.t('menu_main.store.merch.title'),
-      href: "/store/merch",
-      description: I18n.t('menu_main.store.merch.description'),
+      title: I18n.t('menu_main.store.gear.title'),
+      href: "/store/gear",
+      description: I18n.t('menu_main.store.gear.description'),
       icon: Package,
     },
   ];
@@ -385,12 +385,14 @@ export default function UserMenu() {
                               <NavigationMenuLink asChild>
                                 <Link
                                   to="/store"
-                                  className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-muted p-6 no-underline outline-none focus:shadow-md"
+                                  className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-pink-800 p-6 no-underline outline-none focus:shadow-md"
                                 >
                                   <Store className="h-6 w-6 mb-2" />
-                                  <div className="mb-2 mt-4 text-lg font-medium">Store</div>
+                                  <div className="mb-2 mt-4 text-lg font-medium">Rau Tienda</div>
                                   <p className="text-sm leading-tight text-muted-foreground">
-                                    Discover and purchase music, services, and merch from your favorite creators.
+                                    {
+                                      I18n.t("menu_main.store.descr")
+                                    }
                                   </p>
                                 </Link>
                               </NavigationMenuLink>
@@ -398,24 +400,41 @@ export default function UserMenu() {
 
                             <ListItem
                               to="/store/music"
-                              title="Music"
+                              title={I18n.t("menu_main.store.music.title")}
                               icon={Music}
                             >
-                              Buy and download tracks, albums, and exclusive releases.
+                              {
+                                I18n.t("menu_main.store.music.description")
+                              }
                             </ListItem>
                             <ListItem
                               to="/store/services"
-                              title="Services"
+                              title={I18n.t("menu_main.store.services.title")}
                               icon={CalendarClock}
                             >
-                              Book music lessons, consulting, and other creative services.
+                              {
+                                I18n.t("menu_main.store.services.description")
+                              }
                             </ListItem>
-                            <ListItem
+
+                            {/*<ListItem
                               to="/store/merch"
-                              title="Merch"
+                              title={I18n.t("menu_main.store.merch.description")}
                               icon={Package}
                             >
-                              Shop for apparel, physical goods, and limited edition merch.
+                              {
+                                I18n.t("menu_main.store.merch.description")
+                              }
+                            </ListItem>*/}
+
+                            <ListItem
+                              to="/store/gear"
+                              title={I18n.t("menu_main.store.gear.description")}
+                              icon={Package}
+                            >
+                              {
+                                I18n.t("menu_main.store.gear.description")
+                              }
                             </ListItem>
                           </ul>
                         </NavigationMenuContent>

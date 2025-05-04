@@ -96,9 +96,9 @@ module Products
         product_shippings_attributes: [:id, :country, :base_cost, :additional_cost, :_destroy]
       )
 
-      if permitted[:product_shippings_attributes].is_a?(Array)
-        permitted[:product_shippings_attributes] = permitted[:product_shippings_attributes].reject { |attr| attr[:id].nil? }
-      end
+      #if permitted[:product_shippings_attributes].is_a?(Array)
+      #  permitted[:product_shippings_attributes] = permitted[:product_shippings_attributes].reject { |attr| attr[:id].nil? }
+      #end
 
       permitted
     end

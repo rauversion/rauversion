@@ -91,6 +91,7 @@ en:
         title: "Releases"
         description: "Latest music releases and exclusive drops."
     store:
+      descr: Discover and purchase music, services, and merch from your favorite creators.
       music:
         title: "Music"
         description: "Buy and download tracks, albums, and exclusive releases."
@@ -100,7 +101,9 @@ en:
       merch:
         title: "Merch"
         description: "Shop for apparel, physical goods, and limited edition merch."
-
+      gear:
+        title: "Gear"
+        description: "Find gear, instruments, and unique instruments."
 
 
 

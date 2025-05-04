@@ -48,8 +48,12 @@ const ServiceCategories = () => {
             RAU ADVISOR
           </h2>
           <h3 className="text-5xl font-bold mb-2 text-muted">
-            Conoce a nuestros asesores y recibe consejos personalizados para
-            crecer en lo musical y humano.
+
+            {["A veces solo necesitas que alguien escuche con atención y te diga la firme. Rau advisors.",
+              "Un espacio para probar ideas, recibir feedback honesto y llevar tu música más allá.",
+              "Feedback sin chamullo. Gente que escucha, entiende y te ayuda a crecer."][Math.floor(Math.random() * 3)]}
+
+
           </h3>
           <Link to="/store/services" className="text-blue-500 hover:underline">
             Ver más

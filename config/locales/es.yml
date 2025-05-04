@@ -111,18 +111,22 @@ es:
         description: "Listas seleccionadas desde la comunidad Rauversion."
       releases:
         title: "Lanzamientos"
-        description: "Los lanzamientos musicales recientes."
+        description: "Los lanzamientos musicales recientes."     
     store:
+      descr: Descubre y compra música, servicios y merchandising de tus creadores favoritos.
       music:
         title: "Música"
-        description: "Compra y descarga pistas, álbumes y lanzamientos exclusivos."
+        description: "Baja tracks, compra discos en formato fisico y lanzamientos exclusivos."
       services:
         title: "Servicios"
-        description: "Reserva clases de música, consultorías y otros servicios creativos."
+        description: "Agenda clases, asesorías y otros servicios creativos."
       merch:
         title: "Merch"
-        description: "Compra ropa, productos físicos y merchandising de edición limitada."
-  
+        description: "Pilla ropa, objetos y merch edición limitada."
+      gear:
+        title: "Equipos Musicales"
+        description: "Encuentra equipos, instrumentos y usados únicos."
+      
   notifications:
     title: Notificaciones
     mark_all_as_read: Marcar todas como leídas

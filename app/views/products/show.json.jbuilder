@@ -13,3 +13,10 @@ json.product_images @product.product_images do |product_image|
   json.image_url rails_blob_url(product_image.image)
   json.gallery_url user_product_path(@product.user.username, @product, image: product_image.id)
 end
+
+json.product_shippings @product.product_shippings do |product_shipping|
+  json.id product_shipping.id
+  json.country product_shipping.country
+  json.base_cost product_shipping.base_cost
+  json.additional_cost product_shipping.additional_cost
+end

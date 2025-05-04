@@ -1,11 +1,11 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
-import { 
-  ChevronLeft, 
-  Truck, 
-  Calendar, 
-  Box, 
-  Tag, 
+import {
+  ChevronLeft,
+  Truck,
+  Calendar,
+  Box,
+  Tag,
   Repeat,
   Guitar,
   Headphones,
@@ -29,6 +29,7 @@ import useAuthStore from '@/stores/authStore'
 import I18n from '@/stores/locales'
 import useCartStore from '@/stores/cartStore'
 import PublicPhotosSection from "../shared/public/PublicPhotosSection"
+import ShippingOptions from "../shared/ShippingOptions"
 
 const CATEGORY_ICONS = {
   instrument: <Guitar className="h-4 w-4" />,
@@ -111,12 +112,12 @@ export default function GearShow({ product }) {
             <div className="text-2xl font-bold">
               ${product.price}
             </div>
-            <Badge 
+            <Badge
               variant={product.stock_quantity > 0 ? "default" : "destructive"}
               className="mt-1"
             >
-              {product.stock_quantity > 0 ? 
-                `${product.stock_quantity} in stock` : 
+              {product.stock_quantity > 0 ?
+                `${product.stock_quantity} in stock` :
                 'Sold out'
               }
             </Badge>
@@ -133,8 +134,8 @@ export default function GearShow({ product }) {
               <CardTitle>{I18n.t('products.gear.show.about')}</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="prose dark:prose-invert max-w-none" 
-                dangerouslySetInnerHTML={{ __html: product.description }} 
+              <div className="prose dark:prose-invert max-w-none"
+                dangerouslySetInnerHTML={{ __html: product.description }}
               />
             </CardContent>
           </Card>
@@ -145,8 +146,8 @@ export default function GearShow({ product }) {
                 <CardTitle>{I18n.t('products.gear.show.barter')}</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="prose dark:prose-invert max-w-none" 
-                  dangerouslySetInnerHTML={{ __html: product.barter_description }} 
+                <div className="prose dark:prose-invert max-w-none"
+                  dangerouslySetInnerHTML={{ __html: product.barter_description }}
                 />
               </CardContent>
             </Card>
@@ -202,26 +203,10 @@ export default function GearShow({ product }) {
 
               <Separator />
 
-              <div className="space-y-3">
-                <h4 className="font-medium flex items-center gap-2">
-                  <Truck className="h-4 w-4" />
-                  {I18n.t('products.gear.show.shipping')}
-                </h4>
-                {product.shipping_options.map((option) => (
-                  <div key={option.id} className="flex items-center justify-between text-sm">
-                    <span>{option.region}</span>
-                    <div className="text-right">
-                      <div>${option.price}</div>
-                      <div className="text-muted-foreground text-xs">
-                        {option.estimated_days} {I18n.t('products.gear.show.business_days')}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <ShippingOptions product={product} />
 
               {product.stock_quantity > 0 && (
-                <Button onClick={()=> addToCart(product.id)} className="w-full" size="lg">
+                <Button onClick={() => addToCart(product.id)} className="w-full" size="lg">
                   {I18n.t('products.gear.show.add_to_cart')}
                 </Button>
               )}

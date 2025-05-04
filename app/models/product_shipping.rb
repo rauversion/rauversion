@@ -1,5 +1,5 @@
 class ProductShipping < ApplicationRecord
-  belongs_to :product
+  belongs_to :product, optional: true
 
   validates :country, presence: true
   validates :base_cost, :additional_cost, numericality: { greater_than_or_equal_to: 0 }, allow_nil: true

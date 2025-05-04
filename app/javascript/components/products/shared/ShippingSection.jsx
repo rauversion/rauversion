@@ -10,21 +10,30 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form"
-import { useFieldArray } from "react-hook-form"
+import { useFieldArray, useWatch, useFormContext } from "react-hook-form"
 import Select from "react-select"
 import { useThemeStore } from '@/stores/theme'
 import selectTheme from "@/components/ui/selectTheme"
 import I18n from '@/stores/locales'
 import countryList from 'react-select-country-list'
 
-export default function ShippingSection({ control, setValue }) {
+export default function ShippingSection({ control, setValue: setValueProp }) {
   const { isDarkMode } = useThemeStore()
   const countries = React.useMemo(() => countryList().getData(), [])
-  
+
+  // Use setValue from context if not provided as prop
+  const methods = useFormContext()
+  const setValue = setValueProp || methods.setValue
+  const usedControl = control || methods.control
+
   const { fields, append, remove } = useFieldArray({
-    control,
+    control: usedControl,
     name: "product_shippings_attributes"
   })
+  const watchedShippings = useWatch({
+    control: usedControl,
+    name: "product_shippings_attributes"
+  }) || []
 
   const addShippingOption = () => {
     append({
@@ -101,110 +110,121 @@ export default function ShippingSection({ control, setValue }) {
             </Button>
           </div>
 
-          {fields.map((field, index) => (
-            <div key={field.id} className="p-4 border rounded-lg space-y-4">
-              <div className="flex justify-between items-start">
-                <h4 className="text-sm font-medium">
-                  {I18n.t('products.form.shipping.option')} {index + 1}
-                </h4>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => remove(index)}
-                  className="text-destructive"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
+          {watchedShippings
+            .filter(field => !field._destroy)
+            .map((field, index) => (
+              <div key={field.id || index} className="p-4 border rounded-lg space-y-4">
+                <div className="flex justify-between items-start">
+                  <h4 className="text-sm font-medium">
+                    {I18n.t('products.form.shipping.option')} {index + 1}
+                  </h4>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      if (field.id) {
+                        // Mark for destroy
+                        const updated = [...(watchedShippings || [])]
+                        updated[index]._destroy = true
+                        setValue("product_shippings_attributes", updated, { shouldDirty: true })
+                      } else {
+                        remove(index)
+                      }
+                    }}
+                    className="text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
 
-              <FormField
-                control={control}
-                name={`product_shippings_attributes.${index}.country`}
-                rules={{ required: "Country is required" }}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{I18n.t('products.form.shipping.country')}</FormLabel>
-                    <FormControl>
-                      <Select
-                        options={countries}
-                        value={countries.find(c => c.value === field.value)}
-                        onChange={(option) => field.onChange(option?.value)}
-                        theme={(theme) => selectTheme(theme, isDarkMode)}
-                        placeholder={I18n.t('products.form.shipping.select_country')}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
+                <FormField
+                  control={control}
+                  name={`product_shippings_attributes.${index}.country`}
+                  rules={{ required: "Country is required" }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{I18n.t('products.form.shipping.country')}</FormLabel>
+                      <FormControl>
+                        <Select
+                          options={countries}
+                          value={countries.find(c => c.value === field.value)}
+                          onChange={(option) => field.onChange(option?.value)}
+                          theme={(theme) => selectTheme(theme, isDarkMode)}
+                          placeholder={I18n.t('products.form.shipping.select_country')}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <FormField
+                    control={control}
+                    name={`product_shippings_attributes.${index}.base_cost`}
+                    rules={{
+                      required: "Base cost is required",
+                      min: {
+                        value: 0,
+                        message: "Base cost must be greater than or equal to 0"
+                      }
+                    }}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{I18n.t('products.form.shipping.base_cost')}</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={control}
+                    name={`product_shippings_attributes.${index}.additional_cost`}
+                    rules={{
+                      required: "Additional cost is required",
+                      min: {
+                        value: 0,
+                        message: "Additional cost must be greater than or equal to 0"
+                      }
+                    }}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{I18n.t('products.form.shipping.additional_cost')}</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            step="0.01"
+                            min="0"
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Hidden field for id when editing */}
+                {field.id && (
+                  <input
+                    type="hidden"
+                    {...control.register(`product_shippings_attributes.${index}.id`)}
+                    value={field.id}
+                  />
                 )}
-              />
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <FormField
-                  control={control}
-                  name={`product_shippings_attributes.${index}.base_cost`}
-                  rules={{
-                    required: "Base cost is required",
-                    min: {
-                      value: 0,
-                      message: "Base cost must be greater than or equal to 0"
-                    }
-                  }}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{I18n.t('products.form.shipping.base_cost')}</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          {...field}
-                          onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={control}
-                  name={`product_shippings_attributes.${index}.additional_cost`}
-                  rules={{
-                    required: "Additional cost is required",
-                    min: {
-                      value: 0,
-                      message: "Additional cost must be greater than or equal to 0"
-                    }
-                  }}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>{I18n.t('products.form.shipping.additional_cost')}</FormLabel>
-                      <FormControl>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          min="0"
-                          {...field}
-                          onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
               </div>
-
-              {/* Hidden field for id when editing */}
-              {field.id && (
-                <input
-                  type="hidden"
-                  {...control.register(`product_shippings_attributes.${index}.id`)}
-                  value={field.id}
-                />
-              )}
-            </div>
-          ))}
+            ))}
         </div>
       </CardContent>
     </Card>

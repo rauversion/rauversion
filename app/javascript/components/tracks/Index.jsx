@@ -106,7 +106,7 @@ export default function TracksIndex() {
   return (
     <div className="min-h-screen bg-black text-white">
       {highlightedPlaylist && (
-        <section className="relative h-[70vh] overflow-hidden">
+        <section className="hidden relative h-[70vh] overflow-hidden">
           <motion.div
             initial={{ opacity: 0, scale: 1.1 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -166,11 +166,10 @@ export default function TracksIndex() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => handleTagSelect(null)}
-              className={`px-6 py-3 rounded-lg text-sm font-mono border transition-colors ${
-                !selectedTag
-                  ? "bg-white text-black border-white"
-                  : "border-white/10 hover:border-white/30"
-              }`}
+              className={`px-6 py-3 rounded-lg text-sm font-mono border transition-colors ${!selectedTag
+                ? "bg-white text-black border-white"
+                : "border-white/10 hover:border-white/30"
+                }`}
             >
               {I18n.t("tracks.index.all")}
             </motion.button>
@@ -183,11 +182,10 @@ export default function TracksIndex() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => handleTagSelect(tag.tag)}
-                className={`px-6 py-3 rounded-lg text-sm font-mono border transition-colors ${
-                  selectedTag === tag.tag
-                    ? "bg-white text-black border-white"
-                    : "border-white/10 hover:border-white/30"
-                }`}
+                className={`px-6 py-3 rounded-lg text-sm font-mono border transition-colors ${selectedTag === tag.tag
+                  ? "bg-white text-black border-white"
+                  : "border-white/10 hover:border-white/30"
+                  }`}
               >
                 {tag.tag}
               </motion.button>
@@ -198,9 +196,8 @@ export default function TracksIndex() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 ${
-              tagLoading ? "opacity-50" : ""
-            }`}
+            className={`grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 ${tagLoading ? "opacity-50" : ""
+              }`}
           >
             {tracks.map((track) => (
               <MinimalTrackCell key={track.id} track={track} />

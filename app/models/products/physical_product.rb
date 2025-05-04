@@ -11,7 +11,7 @@ module Products
     has_many :product_shippings, dependent: :destroy, foreign_key: 'product_id'
     accepts_nested_attributes_for :product_shippings, allow_destroy: true, reject_if: :all_blank
 
-    # validates :product_shippings, presence: true
+    validates :product_shippings, presence: true
     # after_create :create_default_shippings
   end
 end

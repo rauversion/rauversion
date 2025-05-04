@@ -33,6 +33,7 @@ import useCartStore from '@/stores/cartStore'
 import { CATEGORY_ICONS, CATEGORY_LABELS } from '../shared/constants'
 import PhotosSection from "../shared/PhotosSection"
 import PublicPhotosSection from "../shared/public/PublicPhotosSection"
+import ShippingOptions from "../shared/ShippingOptions"
 
 export default function MerchShow({ product }) {
   const navigate = useNavigate()
@@ -108,23 +109,8 @@ export default function MerchShow({ product }) {
               <CardTitle>{I18n.t('products.merch.show.details')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-3">
-                <h4 className="font-medium flex items-center gap-2">
-                  <Truck className="h-4 w-4" />
-                  {I18n.t('products.merch.show.shipping')}
-                </h4>
-                {product.shipping_options.map((option) => (
-                  <div key={option.id} className="flex items-center justify-between text-sm">
-                    <span>{option.region}</span>
-                    <div className="text-right">
-                      <div>${option.price}</div>
-                      <div className="text-muted-foreground text-xs">
-                        {option.estimated_days} {I18n.t('products.merch.show.business_days')}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+
+              <ShippingOptions product={product} />
 
               <Separator />
 

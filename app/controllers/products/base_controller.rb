@@ -40,7 +40,9 @@ module Products
       )
 
       if permitted[:product_shippings_attributes].is_a?(Array)
-        permitted[:product_shippings_attributes] = permitted[:product_shippings_attributes].reject { |attr| attr[:id].nil? }
+        permitted[:product_shippings_attributes].each do |attr|
+          attr.delete(:id) if attr[:id].nil?
+        end
       end
 
       permitted
