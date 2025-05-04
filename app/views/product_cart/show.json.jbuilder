@@ -1,7 +1,7 @@
 json.cart do
   json.id @cart.id
   #json.total_items @cart.product_items.sum(:quantity)
-  #json.total_price @cart.total_price
+  json.total_price number_to_currency(@cart.total_price)
 
   json.items @cart_items do |item|
     
@@ -9,13 +9,13 @@ json.cart do
       json.id item.id
       json.quantity item.quantity
       # json.price item.price
-      json.total_price item.total_price
+      json.total_price number_to_currency(item.total_price)
       
         product = item.product
         json.id product.id
         json.title product.title
         json.description product.description
-        json.price product.price
+        json.price number_to_currency(product.price)
         json.slug product.slug
         
         json.user do

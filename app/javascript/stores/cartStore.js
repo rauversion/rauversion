@@ -43,14 +43,14 @@ const useCartStore = create((set, get) => ({
         set({ cart: data.cart, error: null })
         toast({
           title: "Added to Cart",
-          description: "Item successfully added to your cart"
+          description: I18n.t("products.cart.added")
         })
       } else {
-        set({ error: 'Failed to add item to cart' })
+        set({ error: I18n.t("products.cart.failed") })
         toast({
           variant: "destructive",
           title: "Error",
-          description: "Failed to add item to cart"
+          description: I18n.t("products.cart.failed")
         })
       }
     } catch (error) {
@@ -74,14 +74,14 @@ const useCartStore = create((set, get) => ({
         set({ cart: data.cart, error: null })
         toast({
           title: "Removed from Cart",
-          description: "Item successfully removed from your cart"
+          description: I18n.t("products.cart.removed")
         })
       } else {
-        set({ error: 'Failed to remove item from cart' })
+        set({ error: I18n.t("products.cart.failed_removed") })
         toast({
           variant: "destructive",
           title: "Error",
-          description: "Failed to remove item from cart"
+          description: I18n.t("products.cart.failed_removed")
         })
       }
     } catch (error) {
@@ -112,7 +112,7 @@ const useCartStore = create((set, get) => ({
         toast({
           variant: "destructive",
           title: "Error",
-          description: "Failed to create checkout session"
+          description: I18n.t("products.cart.failed_checkout_session")
         })
       }
     } catch (error) {

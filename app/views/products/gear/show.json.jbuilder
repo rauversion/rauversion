@@ -9,7 +9,7 @@ json.product do
   json.model @product.model
   json.year @product.year
   json.condition @product.condition
-  json.price @product.price
+  json.price number_to_currency(@product.price)
   json.stock_quantity @product.stock_quantity
   json.status @product.status
   json.accept_barter @product.accept_barter
@@ -30,8 +30,8 @@ json.product do
   json.shipping_options @product.product_shippings do |shipping|
     json.id shipping.id
     json.country shipping.country
-    json.base_cost shipping.base_cost
-    json.additional_cost shipping.additional_cost
+    json.base_cost number_to_currency(shipping.base_cost)
+    json.additional_cost number_to_currency(shipping.additional_cost)
     # json.estimated_days shipping.estimated_days
   end
 

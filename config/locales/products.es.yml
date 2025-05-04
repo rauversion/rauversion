@@ -1,5 +1,13 @@
 es:
   products:
+
+    cart:
+      added: "Artículo agregado a tu carrito"
+      failed: "Error al agregar el artículo a tu carrito"
+      removed: "Artículo eliminado de tu carrito"
+      failed_removed: "Error al eliminar el artículo de tu carrito"
+      failed_checkout_session: "Error al crear la sesión de pago"
+
     conditions:
       new: Nuevo
       like_new: Como nuevo

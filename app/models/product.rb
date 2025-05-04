@@ -112,15 +112,15 @@ class Product < ApplicationRecord
 
   def decrease_quantity(amount)
     return unless amount.positive?
-    
+
     with_lock do
       new_quantity = stock_quantity - amount
-      if new_quantity >= 0
-        update!(stock_quantity: new_quantity)
+      #if new_quantity >= 0
+        update!(stock_quantity: new_quantity) if new_quantity >= 0
         update!(status: :sold_out) if new_quantity == 0
-      else
-        raise ActiveRecord::RecordInvalid.new(self)
-      end
+      #else
+      #  raise ActiveRecord::RecordInvalid.new(self)
+      # end
     end
   end
 end

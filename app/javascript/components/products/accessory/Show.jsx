@@ -33,6 +33,7 @@ import useCartStore from '@/stores/cartStore'
 
 import { ACCESORY_ICONS, ACCESSORY_LABELS } from '../shared/constants'
 import PublicPhotosSection from "../shared/public/PublicPhotosSection"
+import ShippingOptions from "../shared/ShippingOptions"
 
 export default function AccessoryShow({ product }) {
   const navigate = useNavigate()
@@ -71,7 +72,7 @@ export default function AccessoryShow({ product }) {
           </div>
           <div className="text-right">
             <div className="text-2xl font-bold">
-              ${product.price}
+              {product.price}
             </div>
             <Badge
               variant={product.stock_quantity > 0 ? "default" : "destructive"}
@@ -113,17 +114,7 @@ export default function AccessoryShow({ product }) {
                   <Truck className="h-4 w-4" />
                   {I18n.t('products.accessory.show.shipping')}
                 </h4>
-                {product.shipping_options.map((option) => (
-                  <div key={option.id} className="flex items-center justify-between text-sm">
-                    <span>{option.region}</span>
-                    <div className="text-right">
-                      <div>${option.price}</div>
-                      <div className="text-muted-foreground text-xs">
-                        {option.estimated_days} {I18n.t('products.accessory.show.business_days')}
-                      </div>
-                    </div>
-                  </div>
-                ))}
+                <ShippingOptions product={product} />
               </div>
 
               <Separator />

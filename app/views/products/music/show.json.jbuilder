@@ -4,7 +4,7 @@ json.product do
   json.slug @product.slug
   json.description @product.description
   json.category @product.category
-  json.price @product.price
+  json.price number_to_currency(@product.price)
   json.type @product.type
   json.stock_quantity @product.stock_quantity
   json.sku @product.sku
@@ -38,8 +38,8 @@ json.product do
   json.shipping_options @product.product_shippings do |shipping|
     json.id shipping.id
     json.country shipping.country
-    json.base_cost shipping.base_cost
-    json.additional_cost shipping.additional_cost
+    json.base_cost number_to_currency(shipping.base_cost)
+    json.additional_cost number_to_currency(shipping.additional_cost)
     # json.estimated_days shipping.estimated_days
   end
 

@@ -71,7 +71,7 @@ export function CartIndicator() {
                     {item.product.title}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {item.product.quantity} × ${item.product.price}
+                    {item.product.quantity} × {item.product.price}
                   </p>
                 </div>
                 <Button
@@ -88,22 +88,22 @@ export function CartIndicator() {
             <div className="p-4">
               <div className="flex justify-between text-sm mb-4">
                 <span>{I18n.t('products.cart.total')}</span>
-                <span className="font-medium">${cart.total_price}</span>
+                <span className="font-medium">{cart.total_price}</span>
               </div>
               <div className="space-y-2">
-                <Button 
+                <Button
                   className="w-full"
                   onClick={() => useCartStore.getState().checkout()}
                   disabled={loading}
                 >
                   {loading ? I18n.t('products.cart.processing') : I18n.t('products.cart.checkout')}
                 </Button>
-                <Link 
+                {/*<Link 
                   to="/cart"
                   className="block w-full text-center text-muted-foreground hover:text-foreground text-sm"
                 >
                   {I18n.t('products.cart.view_details')}
-                </Link>
+                </Link>*/}
               </div>
             </div>
           </>

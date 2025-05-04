@@ -95,7 +95,6 @@ class WebhooksController < ApplicationController
   end
 
   def confirm_stripe_purchase(event_object)
-    
     if event_object&.metadata&.source_type == "product"
       handle_product_purchase(event_object&.metadata)
     elsif event_object&.metadata&.source_type == "track"
@@ -125,7 +124,7 @@ class WebhooksController < ApplicationController
 
   def handle_product_purchase(event_object)
     @purchase = ProductPurchase.find(event_object.purchase_id)
-    
+
     if @purchase.pending?
       stripe_session = Stripe::Checkout::Session.retrieve(@purchase.stripe_session_id)
       

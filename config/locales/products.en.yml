@@ -1,6 +1,12 @@
 ---
 en:
   products:
+    cart:
+      added: "Item successfully added to your cart"
+      failed: "Failed to add item to your cart"
+      removed: "Item successfully removed from your cart"
+      failed_removed: "Failed to remove item from your cart"
+      failed_checkout_session: "Failed to create checkout session"
     conditions:
       new: New
       like_new: As new

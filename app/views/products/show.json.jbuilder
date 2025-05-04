@@ -17,6 +17,6 @@ end
 json.product_shippings @product.product_shippings do |product_shipping|
   json.id product_shipping.id
   json.country product_shipping.country
-  json.base_cost product_shipping.base_cost
-  json.additional_cost product_shipping.additional_cost
+  json.base_cost number_to_currency(product_shipping.base_cost)
+  json.additional_cost number_to_currency(product_shipping.additional_cost)
 end

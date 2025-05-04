@@ -15,7 +15,7 @@ export default function ShippingOptions({ product }) {
         <div key={option.id} className="flex items-center justify-between text-sm">
           <span>{option.country}</span>
           <div className="text-right">
-            <div>${option.base_cost}</div>
+            <div>{option.base_cost}</div>
             <div className="text-muted-foreground text-xs">
               {product.shipping_days} {I18n.t('products.music.show.business_days')}
             </div>

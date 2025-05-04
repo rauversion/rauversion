@@ -6,7 +6,7 @@ FactoryBot.define do
     stock_quantity { 1 }
     sku { "MyString" }
     category { "MyString" }
-    status { "MyString" }
+    status { "active" }
     user { nil }
   end
 end

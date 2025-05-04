@@ -1879,6 +1879,7 @@ es:
         details: "Detalles"
 
   artists:
+    no_artists: "No se encontraron artistas"
     description: Explora el directorio de artistas y descubre nueva música
     no_albums:  No se encontraron artistas
     featured: Artistas Destacados
