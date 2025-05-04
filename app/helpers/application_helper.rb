@@ -546,7 +546,7 @@ module ApplicationHelper
       {to: user_albums_path(@user.username), name: t("profile.albums"), key: "albums" },
       {to: user_tracks_path(@user.username), name: t("profile.tracks"), key: "tracks" },
       @user&.podcaster_info&.active? ? {to: user_podcasts_path(@user.username), name: t("profile.podcasts"), key: "podcasts" } : nil,
-      # {to: user_playlists_path(@user.username), name: t("profile.playlists") },
+      {to: user_playlists_path(@user.username), name: t("profile.playlists") },
       # {to: user_reposts_path(@user.username), name: t("profile.reposts"), key: "reposts" },
       {to: user_articles_path(@user.username), name: t("profile.articles"), hidden: !@user.is_admin?, key: "articles" },
       {to: user_products_path(@user.username), name: t("menu.store"), hidden: !@user.can_sell_products?, key: "products" },
