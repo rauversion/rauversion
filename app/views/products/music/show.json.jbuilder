@@ -4,7 +4,8 @@ json.product do
   json.slug @product.slug
   json.description @product.description
   json.category @product.category
-  json.price number_to_currency(@product.price)
+  json.price @product.price
+  json.formatted_price number_to_currency(@product.price)
   json.type @product.type
   json.stock_quantity @product.stock_quantity
   json.sku @product.sku
