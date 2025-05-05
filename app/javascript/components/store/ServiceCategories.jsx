@@ -49,10 +49,11 @@ const ServiceCategories = () => {
           </h2>
           <h3 className="text-5xl font-bold mb-2 text-muted">
 
-            {["A veces solo necesitas que alguien escuche con atención y te diga la firme. Rau advisors.",
-              "Un espacio para probar ideas, recibir feedback honesto y llevar tu música más allá.",
-              "Feedback sin chamullo. Gente que escucha, entiende y te ayuda a crecer."][Math.floor(Math.random() * 3)]}
-
+            {[
+              "Un espacio para probar ideas, recibir feedback honesto y llevar tu música al siguiente paso.",
+              "Feedback sin chamullo."][Math.floor(Math.random() * 3)
+            ]
+            }
 
           </h3>
           <Link to="/store/services" className="text-blue-500 hover:underline">
@@ -109,10 +110,11 @@ const ServiceCategories = () => {
                       <span className="bg-black text-white text-sm px-3 py-1 rounded-full">
                         {service?.category}
                       </span>
-                      <span className="bg-black text-white text-sm px-3 py-1 rounded-full">
-                        {service.user?.username}
-                      </span>
                     </div>
+
+                    <span className="text-black text-sm font-bold uppercase mb-2">
+                      Por: {service.user?.username}
+                    </span>
 
                     <h3
                       className={`text-4xl ${CARD_COLORS[service.category]?.text || "text-black"
@@ -124,7 +126,7 @@ const ServiceCategories = () => {
                     <p className="text-sm mb-8">{/*service.description*/}</p>
 
                     <Button className="bg-black/10 backdrop-blur-sm text-black px-4 py-2 rounded-full flex items-center gap-2 hover:bg-black/20 transition-colors">
-                      Read More
+                      Leer más
                       <ArrowRight size={16} />
                     </Button>
                   </div>

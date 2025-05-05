@@ -111,7 +111,7 @@ en:
     title: Notifications
     mark_all_as_read: Mark all as read
   artists:
-    title: Artistas
+    title: Artists
     description: Explore the most recent artists in the community
     no_albums: No artists were found
   podcasters:
@@ -1825,6 +1825,9 @@ en:
 
 
   artists:
+    title: Artists
+    description: Explore the most recent artists in the community
+    no_albums: No artists were found
     new_connection: New Connection
     new_artist: New Artist
     existing_artist: Existing Artist

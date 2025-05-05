@@ -79,10 +79,10 @@ const ProductHeader = () => {
         >
           {/* Left Content */}
           <motion.div variants={item} className="space-y-8">
-            <div className="inline-flex items-center gap-2 bg-black/5 px-4 py-1.5 rounded-full">
+            {/*<div className="inline-flex items-center gap-2 bg-black/5 px-4 py-1.5 rounded-full">
               <span className="text-sm">New products</span>
               <ChevronRight className="w-4 h-4" />
-            </div>
+            </div>*/}
 
             <div>
               <h1 className="text-5xl font-bold mb-2">
@@ -98,21 +98,21 @@ const ProductHeader = () => {
             </div>
 
             <div className="flex flex-wrap gap-3">
-              {features.map((feature, index) => (
+              {/*features.map((feature, index) => (
                 <div
                   key={index}
                   className="bg-black/5 px-4 py-1.5 rounded-full text-sm"
                 >
                   {feature}
                 </div>
-              ))}
+              ))*/}
             </div>
 
-            <div className="pt-4">
+            {/*<div className="pt-4">
               <Button className="bg-black text-white hover:bg-black/90">
                 Explore Collection
               </Button>
-            </div>
+            </div>*/}
           </motion.div>
 
           {/* Right Content */}
