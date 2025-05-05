@@ -4,7 +4,15 @@ import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
-import { useNavigate } from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
+import { MessageCircle } from "lucide-react"
+
+interface Conversation {
+  id: number
+  subject: string
+  status: string
+  created_at: string
+}
 
 interface ServiceBooking {
   id: number
@@ -35,6 +43,7 @@ interface ServiceBooking {
     provider_notes?: string
     cancellation_reason?: string
   }
+  conversations: Conversation[]
 }
 
 interface Props {
@@ -125,10 +134,30 @@ export function ServiceBookingsList({ bookings }: Props) {
               </div>
             )}
 
-            <div className="mt-4">
-              <Button variant="outline" className="w-full">
-                View Details
-              </Button>
+            <div className="flex items-center justify-between mt-4">
+              <div className="mt-4">
+                <Button variant="outline" className="w-full">
+                  View Details
+                </Button>
+              </div>
+
+              <div className="mt-4">
+                {booking.conversations && booking.conversations.length > 0 && (
+                  <div className="flex flex-col gap-2">
+                    {booking.conversations.map((conversation) => (
+                      <Link
+                        key={conversation.id}
+                        to={`/conversations/${conversation.id}`}
+                        className="text-xs underline text-blue-600 hover:text-blue-800"
+                        onClick={e => e.stopPropagation()}
+                      >
+                        <MessageCircle className="inline mr-1" />
+                        {"View Conversation"}
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>

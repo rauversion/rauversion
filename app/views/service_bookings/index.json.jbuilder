@@ -15,6 +15,13 @@ json.service_bookings @service_bookings do |booking|
     json.avatar_url booking.customer.avatar_url
   end
 
+  json.conversations booking.conversations do |conversation|
+    json.id conversation.id
+    json.subject conversation.subject
+    json.status conversation.status 
+    json.created_at conversation.created_at
+  end
+
   json.provider do
     json.id booking.provider.id
     # json.name booking.provider.name

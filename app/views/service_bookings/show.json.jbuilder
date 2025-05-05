@@ -43,6 +43,13 @@ json.service_booking do
     end
   end
 
+  json.conversations @service_booking.conversations do |conversation|
+    json.id conversation.id
+    json.subject conversation.subject
+    json.status conversation.status 
+    json.created_at conversation.created_at
+  end
+
   json.actions do
     json.can_confirm @service_booking.pending_confirmation? && current_user == @service_booking.provider
     json.can_schedule @service_booking.confirmed? && current_user == @service_booking.provider

@@ -20,6 +20,13 @@ import { ScheduleForm } from "./ScheduleForm"
 import { FeedbackForm } from "./FeedbackForm"
 
 
+interface Conversation {
+  id: number
+  subject: string
+  status: string
+  created_at: string
+}
+
 interface ServiceBooking {
   id: number
   status: string
@@ -64,6 +71,7 @@ interface ServiceBooking {
     can_cancel: boolean
     can_give_feedback: boolean
   }
+  conversations: Conversation[]
 }
 
 const statusColors = {
@@ -201,6 +209,26 @@ export function ServiceBookingDetail() {
 
         <CardContent>
           <div className="grid gap-6">
+
+            {service_booking.conversations && service_booking.conversations.length > 0 && (
+              <div>
+                <h3 className="font-medium mb-2">Conversations</h3>
+                <div className="flex flex-col gap-2">
+                  {service_booking.conversations.map((conversation) => (
+                    <a
+                      key={conversation.id}
+                      href={`/conversations/${conversation.id}`}
+                      className="text-xs underline text-blue-600 hover:text-blue-800"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {conversation.subject || "View Conversation"}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="flex justify-between items-start">
               <div>
                 <h3 className="font-medium mb-2">Provider</h3>
