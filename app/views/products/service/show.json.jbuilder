@@ -11,7 +11,9 @@ json.product do
   json.prerequisites @product.prerequisites
   json.what_to_expect @product.what_to_expect
   json.cancellation_policy @product.cancellation_policy
-  json.price number_to_currency(@product.price)
+  json.price @product.price
+  json.formatted_price number_to_currency(@product.price)
+  json.post_purchase_instructions @product.post_purchase_instructions
   json.stock_quantity @product.stock_quantity
   json.status @product.status
   json.created_at @product.created_at

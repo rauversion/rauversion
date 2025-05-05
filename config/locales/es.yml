@@ -52,6 +52,7 @@ es:
     language: Idioma
     dark_mode: Modo oscuro
     light_mode: Modo claro
+    service_bookings: "Bookings"
 
 
     my_label: Mi sello

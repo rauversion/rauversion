@@ -52,7 +52,55 @@ class ServiceBooking < ApplicationRecord
     !completed? && !cancelled? && !refunded?
   end
 
+  def set_service_product_conversation
+    # 3. Link conversation between buyer and seller
+    buyer = customer
+    seller = provider
+
+    # Find or create a conversation for this purchase and seller
+    conversation = Conversation.find_or_create_by(
+      messageable: self,
+      subject: "Booking ##{buyer.full_name} - #{seller.full_name}",
+      status: 'active'
+    )
+
+    conversation.messages.create!(
+      user: seller,
+      message_type: 'text',
+      body: text_default_for_start_of_conversation(service_product),
+    )
+
+    # Add buyer and seller as participants if not already present
+    conversation.add_participant(buyer) unless conversation.participant?(buyer)
+    conversation.add_participant(seller) unless conversation.participant?(seller)
+  end
+
   private
+
+  def text_default_for_start_of_conversation(service_product)
+    buyer = customer
+    seller = provider
+    %Q(
+        Hola #{customer.full_name},
+        <br/>
+        Gracias por solicitar el servicio con #{provider.full_name}.
+        <br/>
+        Este es un mensaje automático para informarte que tu solicitud ha sido enviada.
+        Aún no hay una fecha confirmada. Debes coordinar el día y la hora del servicio.
+        <br/>  
+        Aquí los detalles de lo solicitado:
+        <br/>
+        Servicio: #{service_product.title}
+
+        <br/>
+        Una vez que acuerden la fecha, te enviaremos una confirmación oficial.
+
+        <br/>
+        #{service_product.post_purchase_instructions ? 
+         "#{provider.full_name} dice: <br/>#{service_product.post_purchase_instructions}"
+        : ""}
+    ).html_safe
+  end
 
   def set_initial_status
     self.status ||= :pending_confirmation
@@ -97,4 +145,5 @@ class ServiceBooking < ApplicationRecord
         .deliver_later(wait_until: reminder_time)
     end
   end
+
 end

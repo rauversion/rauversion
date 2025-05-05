@@ -19,6 +19,7 @@ class ProductCheckoutController < ApplicationController
 
       result = provider.create_checkout_session(promo_code: params[:promo_code])
 
+      Rails.logger.info "Checkout session result: #{result.inspect}"
       raise ActiveRecord::Rollback if result[:error].present?
       
       if result[:error].present?
@@ -34,11 +35,13 @@ class ProductCheckoutController < ApplicationController
         format.json { render json: { checkout_url: result[:checkout_url] } }
       end
 
-    rescue => e
-      respond_to do |format|
-        format.html { redirect_to "/product_cart", notice: result[:error] }
-        format.json { render json: { error: result[:error] }, status: :unprocessable_entity }
-      end
+    #rescue => e
+    #  Rails.logger.error "Checkout session result: #{e.message}"
+    #
+    #  respond_to do |format|
+    #    format.html { redirect_to "/product_cart", notice: result[:error] }
+    #    format.json { render json: { error: result[:error] }, status: :unprocessable_entity }
+    #  end
     end
   end
 

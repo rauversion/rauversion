@@ -148,7 +148,8 @@ es:
         what_to_expect_placeholder: "Describe lo que los participantes pueden esperar..."
         cancellation_policy: "Política de cancelación"
         cancellation_policy_placeholder: "Describe tu política de cancelación y reembolsos..."
-
+        post_purchase_instructions: "Instrucciones post-compra"
+        post_purchase_instructions_placeholder: "Instrucciones para el cliente después de la compra..."
       show:
         prerequisites: "Requisitos previos"
         what_to_expect: "Qué esperar"

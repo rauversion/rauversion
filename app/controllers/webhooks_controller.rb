@@ -168,11 +168,10 @@ class WebhooksController < ApplicationController
           item.product.decrease_quantity(item.quantity)
         end
 
-        @purchase.set_service_booking
-  
-        ProductPurchaseMailer.purchase_confirmation(@purchase).deliver_later
-  
         cart.product_cart_items.destroy_all
+
+        # Enqueue webhook worker for mail, service booking, and conversation
+        WebhookWorkerJob.perform_later(@purchase.id)
       else
         @purchase.update(status: :failed)
       end
@@ -273,7 +272,8 @@ class WebhooksController < ApplicationController
       item.product.decrease_quantity(item.quantity)
     end
 
-    ProductPurchaseMailer.purchase_confirmation(purchase).deliver_later
+    # Enqueue webhook worker for mail, service booking, and conversation
+    WebhookWorkerJob.perform_later(purchase.id)
   end
 
   def handle_mercadopago_failure(payment_info)

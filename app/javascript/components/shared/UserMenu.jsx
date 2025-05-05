@@ -597,14 +597,16 @@ export default function UserMenu() {
                                 <span>{I18n.t("menu.my_products")}</span>
                               </Link>
                             </DropdownMenuItem>
-                            <DropdownMenuItem asChild>
-                              <Link to="/service_bookings">
-                                <CalendarClock className="mr-2 h-4 w-4" />
-                                <span>Service Bookings</span>
-                              </Link>
-                            </DropdownMenuItem>
                           </>
                         )}
+
+
+                        <DropdownMenuItem asChild>
+                          <Link to="/service_bookings">
+                            <CalendarClock className="mr-2 h-4 w-4" />
+                            <span>{I18n.t('menu.service_bookings')}</span>
+                          </Link>
+                        </DropdownMenuItem>
                       </DropdownMenuGroup>
 
                       <DropdownMenuSeparator />

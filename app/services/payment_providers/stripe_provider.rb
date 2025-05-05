@@ -133,9 +133,9 @@ module PaymentProviders
       connected_accounts = cart.products.map{|o| o.user.stripe_account_id}
       connected_account_id = connected_accounts.first
 
-      return render json: {
-        error: "Multiple connected accounts not supported"
-      }, status: 422 if connected_accounts.size > 1
+      #return render json: {
+      #  error: "Multiple connected accounts not supported"
+      #}, status: 422 if connected_accounts.size > 1
 
       params = {
         payment_method_types: ['card'],

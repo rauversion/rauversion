@@ -47,6 +47,7 @@ export default function ServiceForm({ product, isEditing = false }) {
       prerequisites: product?.prerequisites || "",
       what_to_expect: product?.what_to_expect || "",
       cancellation_policy: product?.cancellation_policy || "",
+      post_purchase_instructions: product?.post_purchase_instructions || "",
       price: product?.price || "",
       stock_quantity: product?.stock_quantity || "",
       status: product?.status || "active",
@@ -411,8 +412,35 @@ export default function ServiceForm({ product, isEditing = false }) {
                         </FormItem>
                       )}
                     />
+
+
+                    <FormField
+                      control={form.control}
+                      name="post_purchase_instructions"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>
+                            {I18n.t(
+                              "products.service.form.post_purchase_instructions"
+                            )}
+                          </FormLabel>
+                          <FormControl>
+                            <SimpleEditor
+                              value={field.value}
+                              onChange={field.onChange}
+                              scope="product"
+                              aiPromptContext="This is an AI text enhancer for the post purchase instructions to be sent to the buyer. This is the text for the instructions policy"
+                              plain
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </CardContent>
                 </Card>
+
+
 
                 <div className="flex flex-col md:flex-row gap-4">
                   <Button
@@ -423,8 +451,8 @@ export default function ServiceForm({ product, isEditing = false }) {
                     {form.formState.isSubmitting
                       ? I18n.t("products.form.submitting")
                       : isEditing
-                      ? I18n.t("products.form.update")
-                      : I18n.t("products.form.submit")}
+                        ? I18n.t("products.form.update")
+                        : I18n.t("products.form.submit")}
                   </Button>
 
                   {isEditing && <DeleteButton product={product} />}

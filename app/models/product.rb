@@ -53,7 +53,7 @@ class Product < ApplicationRecord
   accepts_nested_attributes_for :product_variants, allow_destroy: true
   accepts_nested_attributes_for :product_options, allow_destroy: true
   accepts_nested_attributes_for :product_images, allow_destroy: true
-  accepts_nested_attributes_for :product_shippings, allow_destroy: true, reject_if: :all_blank
+  accepts_nested_attributes_for :product_shippings, allow_destroy: true #, reject_if: :all_blank
 
   def edit_path(user)
     case type
@@ -116,8 +116,8 @@ class Product < ApplicationRecord
     with_lock do
       new_quantity = stock_quantity - amount
       #if new_quantity >= 0
-        update!(stock_quantity: new_quantity) if new_quantity >= 0
-        update!(status: :sold_out) if new_quantity == 0
+        update_column(:stock_quantity, new_quantity) if new_quantity >= 0
+        update_column(:status, :sold_out) if new_quantity == 0
       #else
       #  raise ActiveRecord::RecordInvalid.new(self)
       # end

@@ -7,7 +7,7 @@ import I18n from '@/stores/locales'
 
 const Message = ({ message, currentUserId }) => {
   const isOwn = message.user.id === currentUserId
-  
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -19,7 +19,7 @@ const Message = ({ message, currentUserId }) => {
           <AvatarImage src={message.user.avatar_url.small} />
           <AvatarFallback>{message.user.username[0].toUpperCase()}</AvatarFallback>
         </Avatar>
-        
+
         <div className="flex-1">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -36,9 +36,7 @@ const Message = ({ message, currentUserId }) => {
           <div className={cn(
             "mt-1 text-sm",
             message.message_type === 'system' && "italic text-muted-foreground"
-          )}>
-            {message.body}
-          </div>
+          )} dangerouslySetInnerHTML={{ __html: message.body }} />
         </div>
       </div>
     </motion.div>

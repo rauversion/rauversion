@@ -75,6 +75,7 @@ module Products
         :prerequisites, :what_to_expect, :cancellation_policy,
         :name_your_price, :status, :coupon_id,
         :stock_quantity, :sku,
+        :post_purchase_instructions,
         product_images_attributes: [:id, :title, :description, :image, :_destroy]
       )
     end

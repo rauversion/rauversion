@@ -234,7 +234,7 @@ class ProductsController < ApplicationController
       :limited_edition, :limited_edition_count, :include_digital_album,
       :visibility, :name_your_price, :shipping_days, :shipping_begins_on,
       :shipping_within_country_price, :shipping_worldwide_price, :quantity,
-      :shipping_days,
+      :shipping_days, :post_purchase_instructions,
       images: [], 
       product_variants_attributes: [:id, :name, :price, :stock_quantity, :_destroy],
       product_options_attributes: [:id, :name, :quantity, :sku, :_destroy],

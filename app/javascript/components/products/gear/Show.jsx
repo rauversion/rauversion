@@ -110,7 +110,7 @@ export default function GearShow({ product }) {
           </div>
           <div className="text-right">
             <div className="text-2xl font-bold">
-              {product.price}
+              {product.formatted_price}
             </div>
             <Badge
               variant={product.stock_quantity > 0 ? "default" : "destructive"}
@@ -207,7 +207,7 @@ export default function GearShow({ product }) {
 
               {product.stock_quantity > 0 && (
                 <Button onClick={() => addToCart(product.id)} className="w-full" size="lg">
-                  {I18n.t('products.gear.show.add_to_cart')}
+                  {product.price_formatted} {I18n.t('products.gear.show.add_to_cart')}
                 </Button>
               )}
             </CardContent>

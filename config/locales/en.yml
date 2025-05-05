@@ -52,6 +52,7 @@ en:
     language: Language
     dark_mode: Dark mode
     light_mode: Light mode
+    service_bookings: "Bookings"
 
   menu_main:
     events:

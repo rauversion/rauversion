@@ -86,7 +86,7 @@ export default function MusicShow({ product }) {
           </div>
           <div className="text-right">
             <div className="text-2xl font-bold">
-              {product.price}
+              {product.formatted_price}
             </div>
             <Badge
               variant={product.stock_quantity > 0 ? "default" : "destructive"}

@@ -20,7 +20,8 @@ module Products
       :max_participants,
       :prerequisites,
       :what_to_expect,
-      :cancellation_policy
+      :cancellation_policy,
+      :post_purchase_instructions
 
     # Define the enum after declaring the attribute
     #enum :delivery_method, {
@@ -62,12 +63,15 @@ module Products
     end
 
     def set_service_booking_for(item, purchase)
-      ServiceBooking.create!(
+      service_booking = ServiceBooking.create!(
         service_product: self,
         customer: purchase.user,
         provider: user,
         status: :pending_confirmation
       )
+
+      service_booking.set_service_product_conversation
+      service_booking
     end
 
     def decrease_quantity(amount)
