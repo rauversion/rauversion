@@ -2,7 +2,9 @@ json.collection @products do |product|
   json.id product.id
   json.title product.title
   json.description sanitize(product.description, tags: %w(strong em))
-  json.price number_to_currency(product.price)
+  json.formatted_price number_to_currency(product.price)
+  json.price product.price
+
   json.category product.category
   json.path user_product_path(product.user.username, product)
 

@@ -72,8 +72,8 @@ const ProductCard = ({ product }) => {
       <Card className="overflow-hidden">
         {product.cover_url?.medium && (
           <div className="aspect-square overflow-hidden">
-            <img 
-              src={product.cover_url.medium} 
+            <img
+              src={product.cover_url.medium}
               alt={product.title}
               className="w-full h-full object-cover transition-transform hover:scale-105"
             />
@@ -85,10 +85,10 @@ const ProductCard = ({ product }) => {
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-between">
-            <p className="text-2xl font-bold">${product.price}</p>
+            <p className="text-2xl font-bold">{product.formatted_price}</p>
             <div className="flex items-center space-x-2">
-              <img 
-                src={product.user.avatar_url.small} 
+              <img
+                src={product.user.avatar_url.small}
                 alt={product.user.username}
                 className="w-8 h-8 rounded-full"
               />
@@ -97,11 +97,11 @@ const ProductCard = ({ product }) => {
           </div>
         </CardContent>
         <CardFooter>
-          <Button 
+          <Button
             className="w-full"
             onClick={() => navigate(product.path)}
           >
-            View Details
+            {I18n.t("more")}
           </Button>
         </CardFooter>
       </Card>
@@ -123,10 +123,10 @@ const CategoryView = () => {
   const [selectedSubcategory, setSelectedSubcategory] = useState("all")
   const categoryConfig = CATEGORY_CONFIG[type]
 
-  const { 
-    items: products, 
-    loading, 
-    lastElementRef 
+  const {
+    items: products,
+    loading,
+    lastElementRef
   } = useInfiniteScroll(`/store/${type}.json${selectedSubcategory !== 'all' ? `?subcategory=${selectedSubcategory}` : ''}`)
 
   if (!categoryConfig) return null

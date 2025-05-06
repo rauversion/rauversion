@@ -16,7 +16,7 @@ class StoreController < ApplicationController
     )
     .page(params[:page]).per(12)
     respond_to do |format|
-      format.html
+      format.html { render_blank }
       format.json { render :index }
     end
   end
@@ -29,7 +29,7 @@ class StoreController < ApplicationController
     @products = @products.where(category: params[:subcategory]) if params[:subcategory].present?
     @products = @products.page(params[:page]).per(12)
     respond_to do |format|
-      format.html
+      format.html {render_blank}
       format.json { render :index }
     end
   end
@@ -41,7 +41,7 @@ class StoreController < ApplicationController
     )
     .page(params[:page]).per(12)
     respond_to do |format|
-      format.html
+      format.html { render_blank }
       format.json { render :index }
     end
   end
@@ -53,7 +53,7 @@ class StoreController < ApplicationController
     )
     .page(params[:page]).per(12)
     respond_to do |format|
-      format.html
+      format.html { render_blank}
       format.json { render :index }
     end
   end
@@ -65,7 +65,7 @@ class StoreController < ApplicationController
     )
     .page(params[:page]).per(12)
     respond_to do |format|
-      format.html
+      format.html { render_blank}
       format.json { render :index }
     end
   end
@@ -77,7 +77,7 @@ class StoreController < ApplicationController
     )
     .page(params[:page]).per(12)
     respond_to do |format|
-      format.html
+      format.html { render_blank }
       format.json { render :index }
     end
   end
