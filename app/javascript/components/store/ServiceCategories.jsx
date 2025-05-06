@@ -50,8 +50,7 @@ const ServiceCategories = () => {
           <h3 className="text-5xl font-bold mb-2 text-muted">
 
             {[
-              "Un espacio para probar ideas, recibir feedback honesto y llevar tu música al siguiente paso.",
-              "Feedback sin chamullo."][Math.floor(Math.random() * 3)
+              "Recibe feedback o tutorias directas de artistas consagrados con un par de clics."][Math.floor(Math.random() * 0)
             ]
             }
 

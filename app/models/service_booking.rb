@@ -1,5 +1,5 @@
 class ServiceBooking < ApplicationRecord
-  has_many :conversations, as: :messageable, dependent: :destroy
+  has_many :conversations, as: :messageable
   belongs_to :service_product, class_name: 'Products::ServiceProduct'
   belongs_to :customer, class_name: 'User'
   belongs_to :provider, class_name: 'User'
