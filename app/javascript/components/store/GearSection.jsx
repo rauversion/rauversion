@@ -128,16 +128,16 @@ const GearSection = () => {
 
                       <CardHeader className="space-y-1 p-4">
                         <CardTitle className="text-xl">
-                          {product.name}
+                          {product.title}
                         </CardTitle>
-                        <CardDescription className="text-sm line-clamp-2">
+                        {/*<CardDescription className="text-sm line-clamp-2">
                           {product.description}
-                        </CardDescription>
+                        </CardDescription>*/}
                       </CardHeader>
 
                       <CardFooter className="p-4 pt-0 flex justify-between items-center">
                         <span className="text-lg font-semibold">
-                          {product.price}
+                          {product.formatted_price}
                         </span>
                         <span className="text-sm text-muted-foreground">
                           {activeImage + 1}/{totalPages}
