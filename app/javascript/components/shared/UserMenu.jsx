@@ -379,7 +379,7 @@ export default function UserMenu() {
                           </ul>
                         </NavigationMenuContent>
                       </NavigationMenuItem>
-                      {currentUser?.is_admin &&
+                      {(true || currentUser?.is_admin) &&
                         <NavigationMenuItem>
                           <NavigationMenuTrigger className="rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted">
                             {I18n.t("menu.store")}
