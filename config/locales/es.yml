@@ -114,13 +114,13 @@ es:
         title: "Lanzamientos"
         description: "Los lanzamientos musicales recientes."     
     store:
-      descr: Descubre y compra música, servicios y merchandising de tus creadores favoritos.
+      descr: Recibe feedback o tutorías directas de expertos en música electrónica en un par de clics.
       music:
         title: "Música"
         description: "Baja tracks, compra discos en formato fisico y lanzamientos exclusivos."
       services:
-        title: "Servicios"
-        description: "Agenda clases, asesorías y otros servicios creativos."
+        title: "Advisors"
+        description: "Agenda clases, asesorías y otros servicios de aprendizaje creativo."
       merch:
         title: "Merch"
         description: "Pilla ropa, objetos y merch edición limitada."

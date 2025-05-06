@@ -291,6 +291,7 @@ Rails.application.routes.draw do
   resources :track_playlists
 
   mount MissionControl::Jobs::Engine, at: "/jobs"
+  mount Mailbin::Engine => :mailbin if Rails.env.development?
 
   get "/onbehalf/parent/:username", to: "label_auth#back"
   get "/onbehalf/:username", to: "label_auth#add"

@@ -190,3 +190,5 @@ gem "langchain", "~> 0.1.0"
 gem "i18n-js", "~> 4.2"
 
 gem "mercadopago-sdk", "~> 2.3"
+
+gem "mailbin", "~> 1.0"

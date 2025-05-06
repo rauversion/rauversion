@@ -131,7 +131,7 @@ const ProductHeader = () => {
                         <h2 className="text-4xl font-extrabold">
                           {item.title}
                         </h2>
-                        <p className="text-lg mt-2">Explore our {item.title}</p>
+                        <p className="text-lg mt-2">{item.title}</p>
                       </div>
                     </div>
                   </CarouselItem>

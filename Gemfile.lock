@@ -363,6 +363,10 @@ GEM
       net-imap
       net-pop
       net-smtp
+    mailbin (1.0.0)
+      importmap-rails
+      rails (>= 7.1.0)
+      turbo-rails
     marcel (1.0.4)
     matrix (0.4.2)
     mercadopago (2.3.0)
@@ -737,6 +741,7 @@ DEPENDENCIES
   kredis (~> 1.5)
   langchain (~> 0.1.0)
   listen
+  mailbin (~> 1.0)
   mercadopago (~> 2.3)
   mercadopago-sdk (~> 2.3)
   meta-tags!

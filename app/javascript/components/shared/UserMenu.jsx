@@ -393,7 +393,7 @@ export default function UserMenu() {
                                     className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-pink-800 p-6 no-underline outline-none focus:shadow-md"
                                   >
                                     <Store className="h-6 w-6 mb-2" />
-                                    <div className="mb-2 mt-4 text-lg font-medium">Rau Tienda</div>
+                                    <div className="mb-2 mt-4 text-lg font-medium">Rau Advisors</div>
                                     <p className="text-sm leading-tight text-muted-foreground">
                                       {
                                         I18n.t("menu_main.store.descr")
