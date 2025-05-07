@@ -69,15 +69,13 @@ Rails.application.routes.draw do
 
   resources :product_purchases, only: [:index, :show]
 
-
-
   namespace :products do
-   
     get 'services', to: 'services#index'
     get 'music', to: 'music#index'
     get 'accessories', to: 'accessories#index'
     get 'gear', to: 'gear#index'
   end
+
 
   resources :products do
     member do
