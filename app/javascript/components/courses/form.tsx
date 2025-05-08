@@ -8,7 +8,7 @@ import CourseDetailsForm from "@/components/courses/admin/course-details-form"
 import ModulesManager from "@/components/courses/admin/modules-manager"
 import ResourcesManager from "@/components/courses/admin/resources-manager"
 import CourseSettings from "@/components/courses/admin/course-settings"
-import { post, put } from "@rails/request.js"
+import { post, put, destroy, get } from "@rails/request.js"
 
 export default function NewCoursePage() {
   const [activeTab, setActiveTab] = useState("details")
@@ -65,6 +65,24 @@ export default function NewCoursePage() {
     fetchCourse()
   }, [])
 
+  // Load modules when modules tab is selected
+  React.useEffect(() => {
+    const fetchModules = async () => {
+      if (activeTab === "modules" && courseData.id) {
+        try {
+          const response = await get(`/courses/${courseData.id}/course_modules.json`);
+          const data = await response.json;
+          if (data && data.course_modules) {
+            setCourseData((prev) => ({ ...prev, modules: data.course_modules as any[] }))
+          }
+        } catch (error) {
+          console.error("Error fetching course modules:", error)
+        }
+      }
+    }
+    fetchModules()
+  }, [activeTab, courseData.id])
+
   // Use a more controlled approach to update state
   interface CourseData {
     id: number | null
@@ -89,6 +107,49 @@ export default function NewCoursePage() {
       if (!hasChanged) return prev // Return previous state if nothing changed
       return { ...prev, ...data }
     })
+  }
+
+  const syncModulesWithBackend = async (updatedModules: CourseData["modules"]) => {
+    if (!courseData.id) {
+      console.warn("Cannot sync modules without course id")
+      return
+    }
+
+    // Find new modules (id is temporary, e.g., number > some large value)
+    const newModules = updatedModules.filter((m) => typeof m.id === "number" && m.id > 1000000000000)
+    // Find deleted modules by comparing with current state
+    const deletedModules = courseData.modules.filter((m) => !updatedModules.some((um) => um.id === m.id))
+
+    // Create new modules
+    for (const module of newModules) {
+      try {
+        const response = await post(`/courses/${courseData.id}.json`, {
+          body: JSON.stringify({ course: { course_module_attributes: updatedModules } }),
+        })
+        if (response.ok) {
+          const data = await response.json()
+          // Replace temporary id with real id
+          setCourseData((prev) => {
+            const modules = prev.modules.map((mod) => (mod.id === module.id ? data.course_module : mod))
+            return { ...prev, modules }
+          })
+        }
+      } catch (error) {
+        console.error("Failed to create module:", error)
+      }
+    }
+
+    // Delete removed modules
+    for (const module of deletedModules) {
+      try {
+        const response = await destroy(`/courses/${courseData.id}/course_modules/${module.id}.json`)
+        if (!response.ok) {
+          console.error("Failed to delete module:", module.id)
+        }
+      } catch (error) {
+        console.error("Failed to delete module:", error)
+      }
+    }
   }
 
   const handleSaveCourse = async () => {
@@ -181,15 +242,94 @@ export default function NewCoursePage() {
 
           <TabsContent value="modules">
             <ModulesManager
-              modules={courseData.modules as unknown as never[]}
-              onModulesChange={(modules: any[]) => handleCourseDataChange({ modules })}
+              modules={courseData.modules as any[]}
+              onModulesChange={async (modules: any[]) => {
+                // Detect added module (present in modules, not in courseData.modules)
+                const addedModule = modules.find(
+                  (m) => !courseData.modules.some((old) => old.id === m.id)
+                );
+                if (addedModule && courseData.id) {
+                  try {
+                    const response = await post(
+                      `/courses/${courseData.id}/course_modules.json`,
+                      {
+                        body: JSON.stringify({
+                          course_module: {
+                            title: addedModule.title,
+                            description: addedModule.description,
+                          },
+                        }),
+                      }
+                    );
+                    if (response.ok) {
+                      const data = await response.json;
+                      // Replace temp module with backend module
+                      const newModules = modules.map((mod) =>
+                        mod.id === addedModule.id ? data.course_module : mod
+                      );
+                      handleCourseDataChange({ modules: newModules });
+                      return;
+                    }
+                  } catch (error) {
+                    console.error("Failed to create module:", error);
+                  }
+                }
+
+                // Detect added lessons for each module
+                for (const mod of modules) {
+                  const prevMod = courseData.modules.find((m) => m.id === mod.id);
+                  if (!prevMod) continue;
+                  const addedLesson = (mod.lessons || []).find(
+                    (l) => !(prevMod.lessons || []).some((oldL) => oldL.id === l.id)
+                  );
+                  if (addedLesson && courseData.id && mod.id) {
+                    try {
+                      const response = await post(
+                        `/courses/${courseData.id}/course_modules/${mod.id}/lessons.json`,
+                        {
+                          body: JSON.stringify({
+                            lesson: {
+                              title: addedLesson.title,
+                              description: addedLesson.description,
+                              duration: addedLesson.duration,
+                              type: addedLesson.type,
+                              // add other lesson fields as needed
+                            },
+                          }),
+                        }
+                      );
+                      if (response.ok) {
+                        const data = await response.json;
+                        // Replace temp lesson with backend lesson
+                        const newModules = modules.map((m) =>
+                          m.id === mod.id
+                            ? {
+                                ...m,
+                                lessons: m.lessons.map((lesson) =>
+                                  lesson.id === addedLesson.id ? data.lesson : lesson
+                                ),
+                              }
+                            : m
+                        );
+                        handleCourseDataChange({ modules: newModules });
+                        return;
+                      }
+                    } catch (error) {
+                      console.error("Failed to create lesson:", error);
+                    }
+                  }
+                }
+
+                // Otherwise, just update state
+                handleCourseDataChange({ modules });
+              }}
             />
           </TabsContent>
 
           <TabsContent value="resources">
             <ResourcesManager
-              resources={courseData.resources}
-              onResourcesChange={(resources) => handleCourseDataChange({ resources })}
+              resources={courseData.resources as any[]}
+              onResourcesChange={(resources: any[]) => handleCourseDataChange({ resources })}
             />
           </TabsContent>
 
