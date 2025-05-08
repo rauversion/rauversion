@@ -2,9 +2,11 @@ class CoursesController < ApplicationController
   before_action :set_course, only: [:destroy]
 
   def index
-    @courses = current_user.courses
     respond_to do |format|
-      format.json { render json: @courses }
+      format.json { 
+        @courses = current_user.courses.page(params[:page]).per(10)
+        render :index 
+      }
       format.html { render_blank }
     end
   end

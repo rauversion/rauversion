@@ -1,4 +1,4 @@
-json.courses @courses do |course|
+json.collection @courses do |course|
   json.id course.id
   json.title course.title
   json.description course.description
@@ -11,4 +11,10 @@ json.courses @courses do |course|
   json.is_published course.is_published
   json.created_at course.created_at
   json.updated_at course.updated_at
+end
+
+if @courses.respond_to?(:current_page)
+  json.metadata do
+    json.partial! 'shared/pagination_metadata', collection: @courses
+  end
 end
