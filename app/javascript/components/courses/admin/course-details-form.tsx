@@ -20,7 +20,7 @@ const formSchema = z.object({
   duration: z.string().min(1, { message: "Please enter estimated duration" }),
   price: z.string().min(1, { message: "Please enter a price" }),
   instructor: z.string().min(1, { message: "Please enter instructor name" }),
-  instructorTitle: z.string().min(1, { message: "Please enter instructor title" }),
+  instructor_title: z.string().min(1, { message: "Please enter instructor title" }),
 })
 
 interface CourseDetailsFormProps {
@@ -33,7 +33,7 @@ interface CourseDetailsFormProps {
     duration: string
     price: string
     instructor: string
-    instructorTitle: string
+    instructor_title: string
   }
   onDataChange: (data: Partial<CourseDetailsFormProps["courseData"]>) => void
 }
@@ -53,7 +53,7 @@ export default function CourseDetailsForm({ courseData, onDataChange }: CourseDe
       duration: courseData.duration || "",
       price: courseData.price || "",
       instructor: courseData.instructor || "",
-      instructorTitle: courseData.instructorTitle || "",
+      instructor_title: courseData.instructor_title || "",
     },
   })
 
@@ -79,7 +79,7 @@ export default function CourseDetailsForm({ courseData, onDataChange }: CourseDe
         duration: courseData.duration || "",
         price: courseData.price || "",
         instructor: courseData.instructor || "",
-        instructorTitle: courseData.instructorTitle || "",
+        instructor_title: courseData.instructor_title || "",
       })
       if (!isInitialized) {
         setIsInitialized(true)
@@ -301,7 +301,7 @@ export default function CourseDetailsForm({ courseData, onDataChange }: CourseDe
 
             <FormField
               control={form.control}
-              name="instructorTitle"
+              name="instructor_title"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Instructor Title</FormLabel>

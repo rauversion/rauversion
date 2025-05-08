@@ -23,8 +23,8 @@ export default function NewCoursePage() {
     duration: string
     price: string
     instructor: string
-    instructorTitle: string
-    isPublished: boolean
+    instructor_title: string
+    is_published: boolean
     modules: any[]
     resources: any[]
   }
@@ -38,11 +38,32 @@ export default function NewCoursePage() {
     duration: "",
     price: "",
     instructor: "",
-    instructorTitle: "",
-    isPublished: false,
+    instructor_title: "",
+    is_published: false,
     modules: [],
     resources: [],
   })
+
+  React.useEffect(() => {
+    const fetchCourse = async () => {
+      try {
+        const urlParams = new URLSearchParams(window.location.search)
+        const courseId = urlParams.get("id") || window.location.pathname.split("/")[2]
+        if (courseId) {
+          const response = await fetch(`/courses/${courseId}.json`)
+          if (response.ok) {
+            const data = await response.json()
+            setCourseData((prev) => ({ ...prev, ...data.course }))
+          } else {
+            console.error("Failed to fetch course details")
+          }
+        }
+      } catch (error) {
+        console.error("Error fetching course details:", error)
+      }
+    }
+    fetchCourse()
+  }, [])
 
   // Use a more controlled approach to update state
   interface CourseData {
@@ -54,8 +75,8 @@ export default function NewCoursePage() {
     duration: string
     price: string
     instructor: string
-    instructorTitle: string
-    isPublished: boolean
+    instructor_title: string
+    is_published: boolean
     modules: any[]
     resources: any[]
   }
@@ -95,7 +116,7 @@ export default function NewCoursePage() {
   }
 
   const handlePublishCourse = () => {
-    setCourseData((prev) => ({ ...prev, isPublished: true }))
+    setCourseData((prev) => ({ ...prev, is_published: true }))
     // In a real app, this would publish the course
     alert("Course published successfully!")
   }
@@ -160,7 +181,7 @@ export default function NewCoursePage() {
 
           <TabsContent value="modules">
             <ModulesManager
-              modules={courseData.modules as any[]}
+              modules={courseData.modules as unknown as never[]}
               onModulesChange={(modules: any[]) => handleCourseDataChange({ modules })}
             />
           </TabsContent>

@@ -29,7 +29,7 @@ const coursesData = [
     id: 1,
     title: "Guitar Fundamentals",
     instructor: "John Smith",
-    instructorTitle: "Professional Guitarist & Music Teacher",
+    instructor_title: "Professional Guitarist & Music Teacher",
     instructorImage: "/placeholder.svg?height=100&width=100",
     image: "/placeholder.svg?height=400&width=800",
     progress: 75,
@@ -197,7 +197,7 @@ export default function CoursePage() {
                 />
                 <div>
                   <p className="font-medium">{course.instructor}</p>
-                  <p className="text-sm text-muted-foreground">{course.instructorTitle}</p>
+                  <p className="text-sm text-muted-foreground">{course.instructor_title}</p>
                 </div>
               </div>
 

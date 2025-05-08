@@ -42,6 +42,16 @@ class CoursesController < ApplicationController
     end
   end
 
+  def update
+    @course = current_user.courses.find_by(id: params[:id])
+    @course.assign_attributes(course_params)
+    if @course.save
+      render :show, status: :ok
+    else
+      render json: { errors: @course.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def set_course

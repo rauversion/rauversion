@@ -25,8 +25,8 @@ export default function CourseSettings({ courseData, onDataChange }) {
             </div>
             <Switch
               id="published"
-              checked={courseData.isPublished}
-              onCheckedChange={(checked) => handleToggleChange("isPublished", checked)}
+              checked={courseData.is_published}
+              onCheckedChange={(checked) => handleToggleChange("is_published", checked)}
             />
           </div>
 

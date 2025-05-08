@@ -1,8 +1,8 @@
 require_relative "../lib/constraints/username_route_contrainer"
 
 Rails.application.routes.draw do
-  resources :courses, only: [:show, :index, :edit, :create, :destroy] do
-    resources :course_modules, only: [:index, :create, :destroy] do
+  resources :courses, only: [:show, :index, :edit, :create, :update, :destroy] do
+    resources :course_modules do
       resources :lessons, only: [:index, :create, :destroy]
     end
   end
