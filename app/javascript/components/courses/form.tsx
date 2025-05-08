@@ -1,7 +1,5 @@
-"use client"
-
 import React, { useState } from "react"
-import { Link } from "react-router-dom"
+import { Link , useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -10,10 +8,29 @@ import CourseDetailsForm from "@/components/courses/admin/course-details-form"
 import ModulesManager from "@/components/courses/admin/modules-manager"
 import ResourcesManager from "@/components/courses/admin/resources-manager"
 import CourseSettings from "@/components/courses/admin/course-settings"
+import { post, put } from "@rails/request.js"
 
 export default function NewCoursePage() {
   const [activeTab, setActiveTab] = useState("details")
-  const [courseData, setCourseData] = useState({
+
+  const navigate = useNavigate()
+  interface CourseData {
+    id: number | null
+    title: string
+    description: string
+    category: string
+    level: string
+    duration: string
+    price: string
+    instructor: string
+    instructorTitle: string
+    isPublished: boolean
+    modules: any[]
+    resources: any[]
+  }
+
+  const [courseData, setCourseData] = useState<CourseData>({
+    id: null,
     title: "",
     description: "",
     category: "",
@@ -28,22 +45,53 @@ export default function NewCoursePage() {
   })
 
   // Use a more controlled approach to update state
-  const handleCourseDataChange = (data) => {
+  interface CourseData {
+    id: number | null
+    title: string
+    description: string
+    category: string
+    level: string
+    duration: string
+    price: string
+    instructor: string
+    instructorTitle: string
+    isPublished: boolean
+    modules: any[]
+    resources: any[]
+  }
+
+  const handleCourseDataChange = (data: Partial<CourseData>) => {
     // Only update if data actually changed to prevent unnecessary renders
     setCourseData((prev) => {
       // Check if the new data is different from the current data
-      const hasChanged = Object.keys(data).some((key) => prev[key] !== data[key])
+      const hasChanged = Object.keys(data).some((key) => (prev as any)[key] !== (data as any)[key])
       if (!hasChanged) return prev // Return previous state if nothing changed
       return { ...prev, ...data }
     })
   }
 
-  const handleSaveCourse = () => {
-    // In a real app, this would save to a database
-    console.log("Saving course:", courseData)
-    // Mock successful save
-    alert("Course saved successfully!")
-    // router.push("/admin/courses")
+  const handleSaveCourse = async () => {
+    try {
+      let response
+      if (courseData.id) {
+        response = await put(`/courses/${courseData.id}.json`, { body: JSON.stringify({ course: courseData }) })
+      } else {
+        response = await post("/courses.json", { body: JSON.stringify({ course: courseData }) })
+      }
+      const data = await response.json
+
+      setCourseData((prev) => ({ ...prev, ...data.course }))
+      alert("Course saved successfully!")
+
+      if (data.course.id) {
+        // Navigate to edit page for the newly created course
+        navigate(`/courses/${data.course.id}/edit`)
+      }
+      // router.push("/admin/courses")
+    } catch (error) {
+      console.error("Failed to save course:", error)
+      alert("Failed to save course. Please try again.")
+    }
   }
 
   const handlePublishCourse = () => {
@@ -112,8 +160,8 @@ export default function NewCoursePage() {
 
           <TabsContent value="modules">
             <ModulesManager
-              modules={courseData.modules}
-              onModulesChange={(modules) => handleCourseDataChange({ modules })}
+              modules={courseData.modules as any[]}
+              onModulesChange={(modules: any[]) => handleCourseDataChange({ modules })}
             />
           </TabsContent>
 

@@ -12,7 +12,7 @@ class CoursesController < ApplicationController
   def show
     @course = current_user.courses.find_by(id: params[:id])
     respond_to do |format|
-      format.json { render json: @course }
+      format.json { render :show }
       format.html { render_blank }
     end
   end

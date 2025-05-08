@@ -23,9 +23,24 @@ const formSchema = z.object({
   instructorTitle: z.string().min(1, { message: "Please enter instructor title" }),
 })
 
-export default function CourseDetailsForm({ courseData, onDataChange }) {
-  const [thumbnailPreview, setThumbnailPreview] = useState(null)
-  const [instructorImagePreview, setInstructorImagePreview] = useState(null)
+interface CourseDetailsFormProps {
+  courseData: {
+    id?: number | null
+    title: string
+    description: string
+    category: string
+    level: string
+    duration: string
+    price: string
+    instructor: string
+    instructorTitle: string
+  }
+  onDataChange: (data: Partial<CourseDetailsFormProps["courseData"]>) => void
+}
+
+export default function CourseDetailsForm({ courseData, onDataChange }: CourseDetailsFormProps) {
+  const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null)
+  const [instructorImagePreview, setInstructorImagePreview] = useState<string | null>(null)
   const [isInitialized, setIsInitialized] = useState(false)
 
   const form = useForm({
@@ -44,7 +59,7 @@ export default function CourseDetailsForm({ courseData, onDataChange }) {
 
   // Memoize the update function to prevent unnecessary re-renders
   const updateParent = useCallback(
-    (data) => {
+    (data: Partial<CourseDetailsFormProps["courseData"]>) => {
       if (isInitialized) {
         onDataChange(data)
       }
@@ -52,14 +67,10 @@ export default function CourseDetailsForm({ courseData, onDataChange }) {
     [onDataChange, isInitialized],
   )
 
-  // Update form when courseData changes, but only if it's different from current values
+  // Update form when courseData changes, but only if courseData.id changes or on initial mount
   useEffect(() => {
-    const currentValues = form.getValues()
-    const hasChanged = Object.keys(currentValues).some(
-      (key) => courseData[key] !== undefined && currentValues[key] !== courseData[key],
-    )
-
-    if (hasChanged) {
+    const currentId = (form.getValues() as any).id
+    if (!isInitialized || courseData.id !== currentId) {
       form.reset({
         title: courseData.title || "",
         description: courseData.description || "",
@@ -70,12 +81,11 @@ export default function CourseDetailsForm({ courseData, onDataChange }) {
         instructor: courseData.instructor || "",
         instructorTitle: courseData.instructorTitle || "",
       })
+      if (!isInitialized) {
+        setIsInitialized(true)
+      }
     }
-
-    if (!isInitialized) {
-      setIsInitialized(true)
-    }
-  }, [courseData, form, isInitialized])
+  }, [courseData.id, form, isInitialized])
 
   // Use a debounced approach to update parent component
   useEffect(() => {
@@ -93,23 +103,23 @@ export default function CourseDetailsForm({ courseData, onDataChange }) {
     return () => subscription.unsubscribe()
   }, [form, updateParent])
 
-  const handleThumbnailUpload = (e) => {
-    const file = e.target.files[0]
+  const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
     if (file) {
       const reader = new FileReader()
       reader.onloadend = () => {
-        setThumbnailPreview(reader.result)
+        setThumbnailPreview(reader.result as string)
       }
       reader.readAsDataURL(file)
     }
   }
 
-  const handleInstructorImageUpload = (e) => {
-    const file = e.target.files[0]
+  const handleInstructorImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
     if (file) {
       const reader = new FileReader()
       reader.onloadend = () => {
-        setInstructorImagePreview(reader.result)
+        setInstructorImagePreview(reader.result as string)
       }
       reader.readAsDataURL(file)
     }
