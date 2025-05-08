@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_03_28_022105) do
+ActiveRecord::Schema[8.0].define(version: 2025_05_08_000003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -93,6 +93,40 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_28_022105) do
     t.datetime "updated_at", null: false
     t.index ["code"], name: "index_coupons_on_code", unique: true
     t.index ["user_id"], name: "index_coupons_on_user_id"
+  end
+
+  create_table "course_documents", force: :cascade do |t|
+    t.bigint "lesson_id", null: false
+    t.string "title"
+    t.string "name"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["lesson_id"], name: "index_course_documents_on_lesson_id"
+  end
+
+  create_table "course_modules", force: :cascade do |t|
+    t.bigint "course_id", null: false
+    t.string "title"
+    t.text "description"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["course_id"], name: "index_course_modules_on_course_id"
+  end
+
+  create_table "courses", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "title"
+    t.text "description"
+    t.string "category"
+    t.string "level"
+    t.string "duration"
+    t.decimal "price"
+    t.string "instructor"
+    t.string "instructor_title"
+    t.boolean "is_published"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_courses_on_user_id"
   end
 
   create_table "event_hosts", force: :cascade do |t|
@@ -218,6 +252,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_28_022105) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_interest_alerts_on_user_id"
+  end
+
+  create_table "lessons", force: :cascade do |t|
+    t.bigint "course_module_id", null: false
+    t.string "title"
+    t.string "duration"
+    t.string "lesson_type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["course_module_id"], name: "index_lessons_on_course_module_id"
   end
 
   create_table "likes", force: :cascade do |t|
@@ -857,6 +901,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_28_022105) do
   add_foreign_key "connected_accounts", "users"
   add_foreign_key "connected_accounts", "users", column: "parent_id"
   add_foreign_key "coupons", "users"
+  add_foreign_key "course_documents", "lessons"
+  add_foreign_key "course_modules", "courses"
+  add_foreign_key "courses", "users"
   add_foreign_key "event_hosts", "events"
   add_foreign_key "event_hosts", "users"
   add_foreign_key "event_recordings", "events"
@@ -864,6 +911,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_03_28_022105) do
   add_foreign_key "event_tickets", "events"
   add_foreign_key "events", "users"
   add_foreign_key "interest_alerts", "users"
+  add_foreign_key "lessons", "course_modules"
   add_foreign_key "message_reads", "messages"
   add_foreign_key "message_reads", "participants"
   add_foreign_key "messages", "conversations"

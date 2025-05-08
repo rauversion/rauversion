@@ -93,6 +93,11 @@ import CheckoutFailure from "./checkout/CheckoutFailure"
 import ConversationsIndex from "./messaging/ConversationsIndex"
 import NewConversation from "./messaging/NewConversation"
 
+import CoursesAdminPage from "./courses/CoursesAdminPage"
+import CoursesIndex from "./courses/index"
+import CourseShow from "./courses/show"
+import CourseForm from "./courses/form"
+
 import { Footer, ScrollRestoration, LoadingSpinner } from '@/components/shared'
 
 import { useLocaleStore } from "@/stores/locales"
@@ -192,8 +197,16 @@ function AppContent() {
           <Route path="/users/invitation/accept" element={<AcceptInvitation />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
 
+
           <Route path="/" element={<Home />} />
           <Route path="/albums/:slug" element={<AlbumShow />} />
+
+          <Route path="/courses" element={<CoursesIndex />} />
+
+          <Route path="/courses/new" element={<CourseForm />} />
+          <Route path="/courses/:id/edit" element={<CourseForm />} />
+          <Route path="/courses/mine" element={<CoursesAdminPage />} />
+          <Route path="/courses/:id" element={<CourseShow />} />
 
           <Route path="/sales" element={<RequireAuth><MySales /></RequireAuth>} />
           <Route path="/purchases" element={<RequireAuth><MyPurchases /></RequireAuth>} />
