@@ -244,7 +244,22 @@ export default function NewCoursePage() {
             <ModulesManager
               modules={courseData.modules as any[]}
               onModulesChange={async (modules: any[]) => {
-                // Detect added module (present in modules, not in courseData.modules)
+                // Helper to refresh modules from backend
+                const fetchModules = async () => {
+                  if (courseData.id) {
+                    try {
+                      const response = await get(`/courses/${courseData.id}/course_modules.json`);
+                      const data = await response.json;
+                      if (data && data.course_modules) {
+                        setCourseData((prev) => ({ ...prev, modules: data.course_modules as any[] }))
+                      }
+                    } catch (error) {
+                      console.error("Error refreshing modules after change:", error);
+                    }
+                  }
+                };
+
+                // Detect added module
                 const addedModule = modules.find(
                   (m) => !courseData.modules.some((old) => old.id === m.id)
                 );
@@ -262,12 +277,7 @@ export default function NewCoursePage() {
                       }
                     );
                     if (response.ok) {
-                      const data = await response.json;
-                      // Replace temp module with backend module
-                      const newModules = modules.map((mod) =>
-                        mod.id === addedModule.id ? data.course_module : mod
-                      );
-                      handleCourseDataChange({ modules: newModules });
+                      await fetchModules();
                       return;
                     }
                   } catch (error) {
@@ -275,14 +285,33 @@ export default function NewCoursePage() {
                   }
                 }
 
-                // Detect added lessons for each module
+                // Detect deleted module
+                const deletedModule = courseData.modules.find(
+                  (old) => !modules.some((m) => m.id === old.id)
+                );
+                if (deletedModule && courseData.id) {
+                  try {
+                    const response = await destroy(
+                      `/courses/${courseData.id}/course_modules/${deletedModule.id}.json`
+                    );
+                    if (response.ok) {
+                      await fetchModules();
+                      return;
+                    }
+                  } catch (error) {
+                    console.error("Failed to delete module:", error);
+                  }
+                }
+
+                // Detect added/updated/deleted lessons for each module
                 for (const mod of modules) {
                   const prevMod = courseData.modules.find((m) => m.id === mod.id);
                   if (!prevMod) continue;
+                  // Added lesson
                   const addedLesson = (mod.lessons || []).find(
                     (l) => !(prevMod.lessons || []).some((oldL) => oldL.id === l.id)
                   );
-                  if (addedLesson && courseData.id && mod.id) {
+                  if (addedLesson && mod.id) {
                     try {
                       const response = await post(
                         `/courses/${courseData.id}/course_modules/${mod.id}/lessons.json`,
@@ -293,29 +322,68 @@ export default function NewCoursePage() {
                               description: addedLesson.description,
                               duration: addedLesson.duration,
                               type: addedLesson.type,
-                              // add other lesson fields as needed
                             },
                           }),
                         }
                       );
                       if (response.ok) {
-                        const data = await response.json;
-                        // Replace temp lesson with backend lesson
-                        const newModules = modules.map((m) =>
-                          m.id === mod.id
-                            ? {
-                                ...m,
-                                lessons: m.lessons.map((lesson) =>
-                                  lesson.id === addedLesson.id ? data.lesson : lesson
-                                ),
-                              }
-                            : m
-                        );
-                        handleCourseDataChange({ modules: newModules });
+                        await fetchModules();
                         return;
                       }
                     } catch (error) {
                       console.error("Failed to create lesson:", error);
+                    }
+                  }
+                  // Updated lessons
+                  for (const lesson of mod.lessons || []) {
+                    const prevLesson = (prevMod.lessons || []).find((l) => l.id === lesson.id);
+                    if (
+                      prevLesson &&
+                      (
+                        lesson.title !== prevLesson.title ||
+                        lesson.description !== prevLesson.description ||
+                        lesson.duration !== prevLesson.duration ||
+                        lesson.type !== prevLesson.type
+                      )
+                    ) {
+                      try {
+                        const response = await put(
+                          `/courses/${courseData.id}/course_modules/${mod.id}/lessons/${lesson.id}.json`,
+                          {
+                            body: JSON.stringify({
+                              lesson: {
+                                title: lesson.title,
+                                description: lesson.description,
+                                duration: lesson.duration,
+                                type: lesson.type,
+                              },
+                            }),
+                          }
+                        );
+                        if (response.ok) {
+                          await fetchModules();
+                          return;
+                        }
+                      } catch (error) {
+                        console.error("Failed to update lesson:", error);
+                      }
+                    }
+                  }
+                  // Deleted lessons
+                  const deletedLesson = (prevMod.lessons || []).find(
+                    (oldL) => !(mod.lessons || []).some((l) => l.id === oldL.id)
+                  );
+                  if (deletedLesson && mod.id) {
+                    try {
+                      const response = await destroy(
+                        `/courses/${courseData.id}/course_modules/${mod.id}/lessons/${deletedLesson.id}.json`
+                      );
+                      if (response.ok) {
+                        await fetchModules();
+                        return;
+                      }
+                    } catch (error) {
+                      console.error("Failed to delete lesson:", error);
                     }
                   }
                 }
