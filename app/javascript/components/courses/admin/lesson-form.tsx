@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label"
 import { DialogClose, DialogFooter } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Upload, X, Video, FileText } from "lucide-react"
+import { DirectUpload } from "@rails/activestorage"
 
 export default function LessonForm({ lesson = {}, onSubmit }) {
   // Initialize state once with lesson data or defaults
@@ -17,8 +18,13 @@ export default function LessonForm({ lesson = {}, onSubmit }) {
     description: "",
     type: "video",
     duration: "",
+    video_url: "",
   })
-  const [videoPreview, setVideoPreview] = useState(null)
+  const [videoPreview, setVideoPreview] = useState(lesson.video_url || null)
+  const [videoFile, setVideoFile] = useState<File | null>(null)
+  const [videoSignedId, setVideoSignedId] = useState<string | null>(null)
+  const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
   const [documentPreview, setDocumentPreview] = useState(null)
   const [activeTab, setActiveTab] = useState("details")
   const [isInitialized, setIsInitialized] = useState(false)
@@ -49,6 +55,9 @@ export default function LessonForm({ lesson = {}, onSubmit }) {
     const file = e.target.files[0]
     if (file) {
       setVideoPreview(URL.createObjectURL(file))
+      setVideoFile(file)
+      setVideoSignedId(null)
+      setUploadProgress(0)
     }
   }
 
@@ -59,10 +68,35 @@ export default function LessonForm({ lesson = {}, onSubmit }) {
     }
   }
 
-  const handleSubmit = () => {
-    // Combine form data with file data
+  const handleSubmit = async () => {
+    if (uploading) return
+    let signedId = videoSignedId
+    if (videoFile && !videoSignedId) {
+      setUploading(true)
+      const upload = new DirectUpload(videoFile, "/api/v1/direct_uploads")
+      upload.create((error, blob) => {
+        setUploading(false)
+        if (error) {
+          alert("Error uploading video: " + error)
+        } else {
+          signedId = blob.signed_id
+          setVideoSignedId(blob.signed_id)
+          // After upload, submit the form
+          const completeData = {
+            ...formData,
+            video: blob.signed_id,
+            videoFile: videoPreview ? { name: "video-file.mp4" } : null,
+            documentFile: documentPreview ? { name: documentPreview } : null,
+          }
+          onSubmit(completeData)
+        }
+      })
+      return
+    }
+    // If no upload needed, submit immediately
     const completeData = {
       ...formData,
+      video: signedId,
       videoFile: videoPreview ? { name: "video-file.mp4" } : null,
       documentFile: documentPreview ? { name: documentPreview } : null,
     }
@@ -141,9 +175,18 @@ export default function LessonForm({ lesson = {}, onSubmit }) {
                   <div className="aspect-video bg-black rounded-md overflow-hidden">
                     <video src={videoPreview} controls className="w-full h-full" />
                   </div>
+                  {uploading && (
+                    <div className="flex items-center gap-2 mt-2">
+                      <span className="text-sm">Uploading...</span>
+                      <svg className="animate-spin h-5 w-5 text-muted-foreground" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                      </svg>
+                    </div>
+                  )}
                   <div className="flex justify-between items-center">
-                    <p className="text-sm font-medium truncate">Video uploaded</p>
-                    <Button variant="destructive" size="sm" onClick={() => setVideoPreview(null)}>
+                    <p className="text-sm font-medium truncate">Video selected</p>
+                    <Button variant="destructive" size="sm" onClick={() => { setVideoPreview(null); setVideoFile(null); setVideoSignedId(null) }}>
                       <X className="h-4 w-4 mr-2" />
                       Remove
                     </Button>
@@ -216,8 +259,16 @@ export default function LessonForm({ lesson = {}, onSubmit }) {
           <Button variant="outline">Cancel</Button>
         </DialogClose>
         <DialogClose asChild>
-          <Button onClick={handleSubmit} disabled={!formData.title || !formData.duration}>
-            {lesson.id ? "Update Lesson" : "Add Lesson"}
+          <Button onClick={handleSubmit} disabled={!formData.title || !formData.duration || uploading}>
+            {uploading ? (
+              <>
+                <svg className="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                </svg>
+                Uploading...
+              </>
+            ) : lesson.id ? "Update Lesson" : "Add Lesson"}
           </Button>
         </DialogClose>
       </DialogFooter>

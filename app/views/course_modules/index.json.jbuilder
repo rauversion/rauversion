@@ -9,7 +9,8 @@ json.course_modules @course_modules.map { |mod|
         title: lesson.title,
         description: lesson.description,
         duration: lesson.duration,
-        type: lesson.type
+        type: lesson.type,
+        video_url: lesson.video.attached? ? url_for(lesson.video) : nil
       }
     }
   }

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_08_000003) do
+ActiveRecord::Schema[8.0].define(version: 2025_05_08_132044) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -110,6 +110,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_08_000003) do
     t.text "description"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "position"
     t.index ["course_id"], name: "index_course_modules_on_course_id"
   end
 
@@ -126,6 +127,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_08_000003) do
     t.boolean "is_published"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "seo_title"
+    t.text "seo_description"
+    t.string "seo_keywords"
+    t.integer "max_students", default: 0
+    t.string "enrollment_type"
+    t.boolean "certificate"
+    t.boolean "featured"
+    t.boolean "published"
+    t.string "slug"
     t.index ["user_id"], name: "index_courses_on_user_id"
   end
 
@@ -261,6 +271,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_08_000003) do
     t.string "lesson_type"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "description"
+    t.string "type"
+    t.bigint "position"
     t.index ["course_module_id"], name: "index_lessons_on_course_module_id"
   end
 

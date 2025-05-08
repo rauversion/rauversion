@@ -69,8 +69,16 @@ class CoursesController < ApplicationController
       :price,
       :instructor, 
       :instructor_title, 
-      :is_published,
-      :thumbnail
+      :thumbnail,
+      :seo_title,
+      :seo_description,
+      :seo_keywords,
+      :max_students,
+      :enrollment_type,
+      :certificate,
+      :featured,
+      :published,
+      :slug
     )
   end
 end

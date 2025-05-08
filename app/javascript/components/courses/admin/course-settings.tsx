@@ -8,9 +8,25 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
 
-export default function CourseSettings({ courseData, onDataChange }) {
+export default function CourseSettings({ courseData, onDataChange, onSave }) {
+  const [localSettings, setLocalSettings] = React.useState(courseData)
+
+  React.useEffect(() => {
+    setLocalSettings(courseData)
+  }, [courseData])
+
   const handleToggleChange = (field, value) => {
+    setLocalSettings((prev) => ({ ...prev, [field]: value }))
     onDataChange({ [field]: value })
+  }
+
+  const handleFieldChange = (field, value) => {
+    setLocalSettings((prev) => ({ ...prev, [field]: value }))
+    onDataChange({ [field]: value })
+  }
+
+  const handleSave = () => {
+    onSave && onSave(localSettings)
   }
 
   return (
@@ -25,8 +41,8 @@ export default function CourseSettings({ courseData, onDataChange }) {
             </div>
             <Switch
               id="published"
-              checked={courseData.is_published}
-              onCheckedChange={(checked) => handleToggleChange("is_published", checked)}
+              checked={localSettings.published}
+              onCheckedChange={(checked) => handleToggleChange("published", checked)}
             />
           </div>
 
@@ -37,8 +53,8 @@ export default function CourseSettings({ courseData, onDataChange }) {
             </div>
             <Switch
               id="featured"
-              checked={courseData.isFeatured}
-              onCheckedChange={(checked) => handleToggleChange("isFeatured", checked)}
+              checked={localSettings.featured}
+              onCheckedChange={(checked) => handleToggleChange("featured", checked)}
             />
           </div>
 
@@ -49,8 +65,8 @@ export default function CourseSettings({ courseData, onDataChange }) {
             </div>
             <Switch
               id="certificate"
-              checked={courseData.hasCertificate}
-              onCheckedChange={(checked) => handleToggleChange("hasCertificate", checked)}
+              checked={localSettings.certificate}
+              onCheckedChange={(checked) => handleToggleChange("certificate", checked)}
             />
           </div>
         </div>
@@ -64,8 +80,8 @@ export default function CourseSettings({ courseData, onDataChange }) {
           <div className="grid gap-2">
             <Label htmlFor="enrollment-type">Enrollment Type</Label>
             <Select
-              defaultValue={courseData.enrollmentType || "open"}
-              onValueChange={(value) => onDataChange({ enrollmentType: value })}
+              defaultValue={localSettings.enrollmentType || "open"}
+              onValueChange={(value) => handleFieldChange("enrollmentType", value)}
             >
               <SelectTrigger id="enrollment-type">
                 <SelectValue placeholder="Select enrollment type" />
@@ -84,8 +100,8 @@ export default function CourseSettings({ courseData, onDataChange }) {
               id="max-students"
               type="number"
               placeholder="0"
-              value={courseData.maxStudents || "0"}
-              onChange={(e) => onDataChange({ maxStudents: e.target.value })}
+              value={localSettings.max_students || "0"}
+              onChange={(e) => handleFieldChange("max_students", e.target.value)}
             />
           </div>
         </div>
@@ -101,8 +117,8 @@ export default function CourseSettings({ courseData, onDataChange }) {
             <Input
               id="seo-title"
               placeholder="SEO optimized title"
-              value={courseData.seoTitle || ""}
-              onChange={(e) => onDataChange({ seoTitle: e.target.value })}
+              value={localSettings.seo_title || ""}
+              onChange={(e) => handleFieldChange("seo_title", e.target.value)}
             />
           </div>
 
@@ -111,8 +127,8 @@ export default function CourseSettings({ courseData, onDataChange }) {
             <Textarea
               id="seo-description"
               placeholder="Brief description for search engines"
-              value={courseData.seoDescription || ""}
-              onChange={(e) => onDataChange({ seoDescription: e.target.value })}
+              value={localSettings.seo_description || ""}
+              onChange={(e) => handleFieldChange("seo_description", e.target.value)}
             />
           </div>
 
@@ -121,8 +137,8 @@ export default function CourseSettings({ courseData, onDataChange }) {
             <Input
               id="seo-keywords"
               placeholder="music, guitar, lessons"
-              value={courseData.seoKeywords || ""}
-              onChange={(e) => onDataChange({ seoKeywords: e.target.value })}
+              value={localSettings.seoKeywords || ""}
+              onChange={(e) => handleFieldChange("seoKeywords", e.target.value)}
             />
           </div>
         </div>
@@ -134,7 +150,7 @@ export default function CourseSettings({ courseData, onDataChange }) {
         <Button variant="destructive" className="mr-2">
           Delete Course
         </Button>
-        <Button>Save Settings</Button>
+        <Button onClick={handleSave}>Save Settings</Button>
       </div>
     </div>
   )

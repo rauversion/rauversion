@@ -9,6 +9,7 @@ import ModulesManager from "@/components/courses/admin/modules-manager"
 import ResourcesManager from "@/components/courses/admin/resources-manager"
 import CourseSettings from "@/components/courses/admin/course-settings"
 import { post, put, destroy, get } from "@rails/request.js"
+import { useToast } from '@/hooks/use-toast'
 
 export default function NewCoursePage() {
   const [activeTab, setActiveTab] = useState("details")
@@ -24,10 +25,12 @@ export default function NewCoursePage() {
     price: string
     instructor: string
     instructor_title: string
-    is_published: boolean
+    published: boolean
     modules: any[]
     resources: any[]
   }
+
+  const { toast } = useToast()
 
   const [courseData, setCourseData] = useState<CourseData>({
     id: null,
@@ -39,7 +42,7 @@ export default function NewCoursePage() {
     price: "",
     instructor: "",
     instructor_title: "",
-    is_published: false,
+    published: false,
     modules: [],
     resources: [],
   })
@@ -66,21 +69,24 @@ export default function NewCoursePage() {
   }, [])
 
   // Load modules when modules tab is selected
-  React.useEffect(() => {
-    const fetchModules = async () => {
-      if (activeTab === "modules" && courseData.id) {
-        try {
-          const response = await get(`/courses/${courseData.id}/course_modules.json`);
-          const data = await response.json;
-          if (data && data.course_modules) {
-            setCourseData((prev) => ({ ...prev, modules: data.course_modules as any[] }))
-          }
-        } catch (error) {
-          console.error("Error fetching course modules:", error)
+  const fetchModules = async () => {
+    if (courseData.id) {
+      try {
+        const response = await get(`/courses/${courseData.id}/course_modules.json`);
+        const data = await response.json;
+        if (data && data.course_modules) {
+          setCourseData((prev) => ({ ...prev, modules: data.course_modules as any[] }))
         }
+      } catch (error) {
+        console.error("Error fetching course modules:", error)
       }
     }
-    fetchModules()
+  }
+
+  React.useEffect(() => {
+    if (activeTab === "modules") {
+      fetchModules()
+    }
   }, [activeTab, courseData.id])
 
   // Use a more controlled approach to update state
@@ -94,7 +100,7 @@ export default function NewCoursePage() {
     price: string
     instructor: string
     instructor_title: string
-    is_published: boolean
+    published: boolean
     modules: any[]
     resources: any[]
   }
@@ -163,7 +169,10 @@ export default function NewCoursePage() {
       const data = await response.json
 
       setCourseData((prev) => ({ ...prev, ...data.course }))
-      alert("Course saved successfully!")
+
+      toast({
+        title: "Course saved successfully!"
+      })
 
       if (data.course.id) {
         // Navigate to edit page for the newly created course
@@ -172,14 +181,18 @@ export default function NewCoursePage() {
       // router.push("/admin/courses")
     } catch (error) {
       console.error("Failed to save course:", error)
-      alert("Failed to save course. Please try again.")
+      toast({
+        title: "Failed to save course. Please try again."
+      })
     }
   }
 
   const handlePublishCourse = () => {
-    setCourseData((prev) => ({ ...prev, is_published: true }))
+    setCourseData((prev) => ({ ...prev, published: true }))
     // In a real app, this would publish the course
-    alert("Course published successfully!")
+    toast({
+      title: "Course published successfully!"
+    })
   }
 
   return (
@@ -243,153 +256,40 @@ export default function NewCoursePage() {
           <TabsContent value="modules">
             <ModulesManager
               modules={courseData.modules as any[]}
-              onModulesChange={async (modules: any[]) => {
-                // Helper to refresh modules from backend
-                const fetchModules = async () => {
-                  if (courseData.id) {
-                    try {
-                      const response = await get(`/courses/${courseData.id}/course_modules.json`);
-                      const data = await response.json;
-                      if (data && data.course_modules) {
-                        setCourseData((prev) => ({ ...prev, modules: data.course_modules as any[] }))
-                      }
-                    } catch (error) {
-                      console.error("Error refreshing modules after change:", error);
-                    }
-                  }
-                };
-
-                // Detect added module
-                const addedModule = modules.find(
-                  (m) => !courseData.modules.some((old) => old.id === m.id)
-                );
-                if (addedModule && courseData.id) {
-                  try {
-                    const response = await post(
-                      `/courses/${courseData.id}/course_modules.json`,
-                      {
-                        body: JSON.stringify({
-                          course_module: {
-                            title: addedModule.title,
-                            description: addedModule.description,
-                          },
-                        }),
-                      }
-                    );
-                    if (response.ok) {
-                      await fetchModules();
-                      return;
-                    }
-                  } catch (error) {
-                    console.error("Failed to create module:", error);
-                  }
-                }
-
-                // Detect deleted module
-                const deletedModule = courseData.modules.find(
-                  (old) => !modules.some((m) => m.id === old.id)
-                );
-                if (deletedModule && courseData.id) {
-                  try {
-                    const response = await destroy(
-                      `/courses/${courseData.id}/course_modules/${deletedModule.id}.json`
-                    );
-                    if (response.ok) {
-                      await fetchModules();
-                      return;
-                    }
-                  } catch (error) {
-                    console.error("Failed to delete module:", error);
-                  }
-                }
-
-                // Detect added/updated/deleted lessons for each module
-                for (const mod of modules) {
-                  const prevMod = courseData.modules.find((m) => m.id === mod.id);
-                  if (!prevMod) continue;
-                  // Added lesson
-                  const addedLesson = (mod.lessons || []).find(
-                    (l) => !(prevMod.lessons || []).some((oldL) => oldL.id === l.id)
-                  );
-                  if (addedLesson && mod.id) {
-                    try {
-                      const response = await post(
-                        `/courses/${courseData.id}/course_modules/${mod.id}/lessons.json`,
-                        {
-                          body: JSON.stringify({
-                            lesson: {
-                              title: addedLesson.title,
-                              description: addedLesson.description,
-                              duration: addedLesson.duration,
-                              type: addedLesson.type,
-                            },
-                          }),
-                        }
-                      );
-                      if (response.ok) {
-                        await fetchModules();
-                        return;
-                      }
-                    } catch (error) {
-                      console.error("Failed to create lesson:", error);
-                    }
-                  }
-                  // Updated lessons
-                  for (const lesson of mod.lessons || []) {
-                    const prevLesson = (prevMod.lessons || []).find((l) => l.id === lesson.id);
-                    if (
-                      prevLesson &&
-                      (
-                        lesson.title !== prevLesson.title ||
-                        lesson.description !== prevLesson.description ||
-                        lesson.duration !== prevLesson.duration ||
-                        lesson.type !== prevLesson.type
-                      )
-                    ) {
-                      try {
-                        const response = await put(
-                          `/courses/${courseData.id}/course_modules/${mod.id}/lessons/${lesson.id}.json`,
-                          {
-                            body: JSON.stringify({
-                              lesson: {
-                                title: lesson.title,
-                                description: lesson.description,
-                                duration: lesson.duration,
-                                type: lesson.type,
-                              },
-                            }),
-                          }
-                        );
-                        if (response.ok) {
-                          await fetchModules();
-                          return;
-                        }
-                      } catch (error) {
-                        console.error("Failed to update lesson:", error);
-                      }
-                    }
-                  }
-                  // Deleted lessons
-                  const deletedLesson = (prevMod.lessons || []).find(
-                    (oldL) => !(mod.lessons || []).some((l) => l.id === oldL.id)
-                  );
-                  if (deletedLesson && mod.id) {
-                    try {
-                      const response = await destroy(
-                        `/courses/${courseData.id}/course_modules/${mod.id}/lessons/${deletedLesson.id}.json`
-                      );
-                      if (response.ok) {
-                        await fetchModules();
-                        return;
-                      }
-                    } catch (error) {
-                      console.error("Failed to delete lesson:", error);
-                    }
-                  }
-                }
-
-                // Otherwise, just update state
-                handleCourseDataChange({ modules });
+              onModuleCreate={async (module) => {
+                if (!courseData.id) return
+                await post(`/courses/${courseData.id}/course_modules.json`, {
+                  body: JSON.stringify({ course_module: module }),
+                })
+                await fetchModules()
+              }}
+              onModuleUpdate={async (moduleId, updatedModule) => {
+                if (!courseData.id) return
+                await put(`/courses/${courseData.id}/course_modules/${moduleId}.json`, {
+                  body: JSON.stringify({ course_module: updatedModule }),
+                })
+                await fetchModules()
+              }}
+              onModuleDelete={async (moduleId) => {
+                if (!courseData.id) return
+                await destroy(`/courses/${courseData.id}/course_modules/${moduleId}.json`)
+                await fetchModules()
+              }}
+              onLessonCreate={async (moduleId, lesson) => {
+                await post(`/courses/${courseData.id}/course_modules/${moduleId}/lessons.json`, {
+                  body: JSON.stringify({ lesson }),
+                })
+                await fetchModules()
+              }}
+              onLessonUpdate={async (moduleId, lessonId, updatedLesson) => {
+                await put(`/courses/${courseData.id}/course_modules/${moduleId}/lessons/${lessonId}.json`, {
+                  body: JSON.stringify({ lesson: updatedLesson }),
+                })
+                await fetchModules()
+              }}
+              onLessonDelete={async (moduleId, lessonId) => {
+                await destroy(`/courses/${courseData.id}/course_modules/${moduleId}/lessons/${lessonId}.json`)
+                await fetchModules()
               }}
             />
           </TabsContent>
@@ -404,7 +304,33 @@ export default function NewCoursePage() {
           <TabsContent value="settings">
             <Card>
               <CardContent className="pt-6">
-                <CourseSettings courseData={courseData} onDataChange={handleCourseDataChange} />
+                <CourseSettings
+                  courseData={courseData}
+                  onDataChange={handleCourseDataChange}
+                  onSave={async (settings) => {
+                    if (!courseData.id) return
+                    const response = await put(`/courses/${courseData.id}.json`, {
+                      body: JSON.stringify({ course: settings }),
+                    })
+
+                    if(!response.ok) {
+                      // const response = await get(`/courses/${courseData.id}.json`)
+                      // const data = await response.json
+                      // setCourseData((prev) => ({ ...prev, ...data.course }))
+                      toast({
+                        title: "updated course settings successfully!"
+                      })
+                    } else {
+                      toast({
+                        title: "error updating course settings"
+                      })
+                    }
+                    // Optionally refresh course data
+                    // const response = await get(`/courses/${courseData.id}.json`)
+                    // const data = await response.json
+                    // setCourseData((prev) => ({ ...prev, ...data.course }))
+                  }}
+                />
               </CardContent>
             </Card>
           </TabsContent>

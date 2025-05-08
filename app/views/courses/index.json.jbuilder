@@ -8,9 +8,20 @@ json.collection @courses do |course|
   json.price course.price
   json.instructor course.instructor
   json.instructor_title course.instructor_title
-  json.is_published course.is_published
+  json.published course.published
   json.created_at course.created_at
   json.updated_at course.updated_at
+
+
+  json.seo_title course.seo_title
+  json.seo_description course.seo_description
+  json.seo_keywords course.seo_keywords
+  json.max_students course.max_students
+  json.enrollment_type course.enrollment_type
+  json.certificate course.certificate
+  json.featured course.featured
+  json.published course.published
+  json.slug course.slug
 end
 
 if @courses.respond_to?(:current_page)

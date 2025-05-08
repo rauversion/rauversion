@@ -18,7 +18,15 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Plus, Trash2, GripVertical, Video, FileText, Edit, ArrowUp, ArrowDown } from "lucide-react"
 import LessonForm from "@/components/courses/admin/lesson-form"
 
-export default function ModulesManager({ modules = [], onModulesChange }) {
+export default function ModulesManager({
+  modules = [],
+  onModuleCreate,
+  onModuleUpdate,
+  onModuleDelete,
+  onLessonCreate,
+  onLessonUpdate,
+  onLessonDelete,
+}) {
   const [expandedModule, setExpandedModule] = useState(null)
   const [editingModule, setEditingModule] = useState(null)
   const [addingLessonToModule, setAddingLessonToModule] = useState(null)
@@ -30,78 +38,31 @@ export default function ModulesManager({ modules = [], onModulesChange }) {
 
   const handleAddModule = () => {
     if (!newModule.title.trim()) return
-
-    const updatedModules = [
-      ...modules,
-      {
-        id: Date.now(),
+    onModuleCreate &&
+      onModuleCreate({
         title: newModule.title,
         description: newModule.description,
         lessons: [],
-      },
-    ]
-
-    onModulesChange(updatedModules)
+      })
     setNewModule({ title: "", description: "" })
   }
 
   const handleDeleteModule = (moduleId) => {
-    const updatedModules = modules.filter((module) => module.id !== moduleId)
-    onModulesChange(updatedModules)
+    onModuleDelete && onModuleDelete(moduleId)
   }
 
   const handleAddLesson = (moduleId, lesson) => {
-    // Create a new array to avoid direct state mutation
-    const updatedModules = modules.map((module) => {
-      if (module.id === moduleId) {
-        return {
-          ...module,
-          lessons: [
-            ...module.lessons,
-            {
-              id: Date.now(),
-              ...lesson,
-            },
-          ],
-        }
-      }
-      return module
-    })
-
-    // Update state in parent component
-    onModulesChange(updatedModules)
-
-    // Reset the adding lesson state
+    onLessonCreate && onLessonCreate(moduleId, lesson)
     setAddingLessonToModule(null)
   }
 
   const handleUpdateLesson = (moduleId, lessonId, updatedLesson) => {
-    const updatedModules = modules.map((module) => {
-      if (module.id === moduleId) {
-        return {
-          ...module,
-          lessons: module.lessons.map((lesson) => (lesson.id === lessonId ? { ...lesson, ...updatedLesson } : lesson)),
-        }
-      }
-      return module
-    })
-
-    onModulesChange(updatedModules)
+    onLessonUpdate && onLessonUpdate(moduleId, lessonId, updatedLesson)
     setEditingLesson(null)
   }
 
   const handleDeleteLesson = (moduleId, lessonId) => {
-    const updatedModules = modules.map((module) => {
-      if (module.id === moduleId) {
-        return {
-          ...module,
-          lessons: module.lessons.filter((lesson) => lesson.id !== lessonId),
-        }
-      }
-      return module
-    })
-
-    onModulesChange(updatedModules)
+    onLessonDelete && onLessonDelete(moduleId, lessonId)
   }
 
   const moveModule = (index, direction) => {
