@@ -3,7 +3,10 @@ require_relative "../lib/constraints/username_route_contrainer"
 Rails.application.routes.draw do
   resources :courses do
     resources :course_modules do
-      resources :lessons
+      resources :lessons do
+        resources :course_documents, only: [:index, :create, :destroy]
+      end
+
     end
   end
 

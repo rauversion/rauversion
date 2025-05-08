@@ -26,6 +26,8 @@ export default function ModulesManager({
   onLessonCreate,
   onLessonUpdate,
   onLessonDelete,
+  onLessonDocumentCreate,
+  onLessonDocumentDelete,
 }) {
   const [expandedModule, setExpandedModule] = useState(null)
   const [editingModule, setEditingModule] = useState(null)
@@ -238,7 +240,12 @@ export default function ModulesManager({
                                 <DialogTitle>Add New Lesson</DialogTitle>
                               </DialogHeader>
                               {addingLessonToModule === module.id && (
-                                <LessonForm onSubmit={(lessonData) => handleAddLesson(module.id, lessonData)} />
+                                <LessonForm
+                                  onSubmit={(lessonData) => handleAddLesson(module.id, lessonData)}
+                                  documents={module.documents || []}
+                                  onDocumentCreate={(doc) => onLessonDocumentCreate && onLessonDocumentCreate(module.id, doc)}
+                                  onDocumentDelete={(docId) => onLessonDocumentDelete && onLessonDocumentDelete(module.id, docId)}
+                                />
                               )}
                             </DialogContent>
                           </Dialog>
@@ -307,6 +314,9 @@ export default function ModulesManager({
                                           onSubmit={(updatedLesson) =>
                                             handleUpdateLesson(module.id, lesson.id, updatedLesson)
                                           }
+                                          documents={lesson.documents || []}
+                                          onDocumentCreate={(doc) => onLessonDocumentCreate && onLessonDocumentCreate(module.id, doc, lesson.id)}
+                                          onDocumentDelete={(docId) => onLessonDocumentDelete && onLessonDocumentDelete(module.id, docId, lesson.id)}
                                         />
                                       )}
                                     </DialogContent>

@@ -10,8 +10,9 @@ import { DialogClose, DialogFooter } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Upload, X, Video, FileText } from "lucide-react"
 import { DirectUpload } from "@rails/activestorage"
+import CourseDocumentUploader from "@/components/courses/admin/CourseDocumentUploader"
 
-export default function LessonForm({ lesson = {}, onSubmit }) {
+export default function LessonForm({ lesson = {}, onSubmit, documents = [], onDocumentCreate, onDocumentDelete }) {
   // Initialize state once with lesson data or defaults
   const [formData, setFormData] = useState({
     title: "",
@@ -26,6 +27,7 @@ export default function LessonForm({ lesson = {}, onSubmit }) {
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [documentPreview, setDocumentPreview] = useState(null)
+  // Documents are now managed by parent via props/callbacks
   const [activeTab, setActiveTab] = useState("details")
   const [isInitialized, setIsInitialized] = useState(false)
 
@@ -216,40 +218,13 @@ export default function LessonForm({ lesson = {}, onSubmit }) {
         <TabsContent value="resources" className="space-y-4 pt-4">
           <div className="space-y-2">
             <Label>Additional Resources</Label>
-            <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6">
-              {documentPreview ? (
-                <div className="flex justify-between items-center p-3 bg-muted rounded-md">
-                  <div className="flex items-center">
-                    <FileText className="h-5 w-5 text-muted-foreground mr-2" />
-                    <p className="text-sm font-medium truncate">{documentPreview}</p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                    onClick={() => setDocumentPreview(null)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              ) : (
-                <div className="flex flex-col items-center justify-center text-center py-8">
-                  <FileText className="h-10 w-10 text-muted-foreground mb-2" />
-                  <p className="text-sm text-muted-foreground mb-2">Upload lesson resources</p>
-                  <p className="text-xs text-muted-foreground mb-4">PDF, DOCX, or other document formats</p>
-                  <Button variant="outline" className="relative">
-                    <Upload className="h-4 w-4 mr-2" />
-                    Upload Document
-                    <input
-                      type="file"
-                      className="absolute inset-0 opacity-0 cursor-pointer"
-                      accept=".pdf,.doc,.docx,.txt"
-                      onChange={handleDocumentUpload}
-                    />
-                  </Button>
-                </div>
-              )}
-            </div>
+            <CourseDocumentUploader
+              documents={documents}
+              onDocumentCreate={onDocumentCreate}
+              onDocumentDelete={onDocumentDelete}
+            />
+
+            {JSON.stringify(documents)}
           </div>
         </TabsContent>
       </Tabs>

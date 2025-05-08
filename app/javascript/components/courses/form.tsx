@@ -291,6 +291,19 @@ export default function NewCoursePage() {
                 await destroy(`/courses/${courseData.id}/course_modules/${moduleId}/lessons/${lessonId}.json`)
                 await fetchModules()
               }}
+              onLessonDocumentCreate={async (moduleId, doc, lessonId) => {
+                // lessonId may be undefined for new lessons
+                if (!lessonId) return
+                await post(`/courses/${courseData.id}/course_modules/${moduleId}/lessons/${lessonId}/course_documents.json`, {
+                  body: JSON.stringify({ course_document: doc }),
+                })
+                await fetchModules()
+              }}
+              onLessonDocumentDelete={async (moduleId, docId, lessonId) => {
+                if (!lessonId || !docId) return
+                await destroy(`/courses/${courseData.id}/course_modules/${moduleId}/lessons/${lessonId}/course_documents/${docId}.json`)
+                await fetchModules()
+              }}
             />
           </TabsContent>
 
