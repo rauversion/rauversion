@@ -3,5 +3,5 @@ class Lesson < ApplicationRecord
   has_one_attached :video
   has_many :course_documents, dependent: :destroy
 
-  inheritance_column = false
+  self.inheritance_column = :_type_disabled
 end

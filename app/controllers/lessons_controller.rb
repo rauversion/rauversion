@@ -24,6 +24,16 @@ class LessonsController < ApplicationController
     end
   end
 
+  def update
+    @lesson = @course_module.lessons.find(params[:id])
+    @lesson.assign_attributes(lesson_params)
+    if @lesson.save
+      render :show, status: :ok
+    else
+      render json: { errors: @lesson.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def set_course_module
@@ -35,6 +45,6 @@ class LessonsController < ApplicationController
   end
 
   def lesson_params
-    params.require(:lesson).permit(:title, :duration, :lesson_type)
+    params.require(:lesson).permit(:title, :duration, :lesson_type, :description, :video, :type)
   end
 end

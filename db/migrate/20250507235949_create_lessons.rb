@@ -7,6 +7,7 @@ class CreateLessons < ActiveRecord::Migration[8.0]
       t.string :lesson_type
       t.text :description
       t.string :type
+      t.integer :position
 
       t.timestamps
     end

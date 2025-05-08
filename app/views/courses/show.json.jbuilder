@@ -11,4 +11,5 @@ json.course do
   json.is_published @course.is_published
   json.created_at @course.created_at
   json.updated_at @course.updated_at
+  json.thumbnail_url @course.thumbnail.url if @course.thumbnail.attached?
 end

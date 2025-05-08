@@ -7,7 +7,9 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
 import { Upload, X, ImageIcon } from "lucide-react"
+import { ImageUploader } from "@/components/ui/image-uploader"
 import { useForm } from "react-hook-form"
+import { useToast } from "@/hooks/use-toast"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { Label } from "@/components/ui/label"
@@ -21,6 +23,10 @@ const formSchema = z.object({
   price: z.string().min(1, { message: "Please enter a price" }),
   instructor: z.string().min(1, { message: "Please enter instructor name" }),
   instructor_title: z.string().min(1, { message: "Please enter instructor title" }),
+  thumbnail: z.string().optional(),
+  thumbnail_url: z.string().optional(),
+  instructor_image: z.string().optional(),
+  instructor_image_url: z.string().optional(),
 })
 
 interface CourseDetailsFormProps {
@@ -34,6 +40,8 @@ interface CourseDetailsFormProps {
     price: string
     instructor: string
     instructor_title: string
+    thumbnail?: string
+    thumbnail_url?: string
   }
   onDataChange: (data: Partial<CourseDetailsFormProps["courseData"]>) => void
 }
@@ -41,6 +49,7 @@ interface CourseDetailsFormProps {
 export default function CourseDetailsForm({ courseData, onDataChange }: CourseDetailsFormProps) {
   const [thumbnailPreview, setThumbnailPreview] = useState<string | null>(null)
   const [instructorImagePreview, setInstructorImagePreview] = useState<string | null>(null)
+  const { toast } = useToast()
   const [isInitialized, setIsInitialized] = useState(false)
 
   const form = useForm({
@@ -54,7 +63,11 @@ export default function CourseDetailsForm({ courseData, onDataChange }: CourseDe
       price: courseData.price || "",
       instructor: courseData.instructor || "",
       instructor_title: courseData.instructor_title || "",
-    },
+      thumbnail: (courseData as any).thumbnail || "",
+      thumbnail_url: (courseData as any).thumbnail_url || "",
+      instructor_image: (courseData as any).instructor_image || "",
+      instructor_image_url: (courseData as any).instructor_image_url || "",
+    }
   })
 
   // Memoize the update function to prevent unnecessary re-renders
@@ -103,27 +116,6 @@ export default function CourseDetailsForm({ courseData, onDataChange }: CourseDe
     return () => subscription.unsubscribe()
   }, [form, updateParent])
 
-  const handleThumbnailUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setThumbnailPreview(reader.result as string)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
-
-  const handleInstructorImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setInstructorImagePreview(reader.result as string)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
 
   return (
     <Form {...form}>
@@ -247,41 +239,22 @@ export default function CourseDetailsForm({ courseData, onDataChange }: CourseDe
           <div className="space-y-6">
             <div>
               <Label htmlFor="thumbnail">Course Thumbnail</Label>
-              <div className="mt-2 flex flex-col items-center justify-center border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 h-[200px]">
-                {thumbnailPreview ? (
-                  <div className="relative w-full h-full">
-                    <img
-                      src={thumbnailPreview || "/placeholder.svg"}
-                      alt="Course thumbnail preview"
-                      className="w-full h-full object-cover rounded-md"
-                    />
-                    <Button
-                      variant="destructive"
-                      size="icon"
-                      className="absolute top-2 right-2 h-8 w-8 rounded-full"
-                      onClick={() => setThumbnailPreview(null)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center text-center">
-                    <ImageIcon className="h-10 w-10 text-muted-foreground mb-2" />
-                    <p className="text-sm text-muted-foreground mb-2">Upload course thumbnail</p>
-                    <p className="text-xs text-muted-foreground mb-4">Recommended size: 1280x720px</p>
-                    <Button variant="outline" size="sm" className="relative">
-                      <Upload className="h-4 w-4 mr-2" />
-                      Upload Image
-                      <input
-                        id="thumbnail"
-                        type="file"
-                        className="absolute inset-0 opacity-0 cursor-pointer"
-                        accept="image/*"
-                        onChange={handleThumbnailUpload}
-                      />
-                    </Button>
-                  </div>
-                )}
+              <div className="mt-2 flex flex-col items-center justify-center border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 h-[auto]">
+                <ImageUploader
+                  cropUploadMode={"crop"}
+                  imageUrl={courseData.thumbnail_url}
+                  previewImage={courseData.thumbnail_url}
+                  onUploadComplete={async (signedBlobId, cropData, serviceUrl) => {
+                    if (signedBlobId) {
+                      form.setValue("thumbnail", signedBlobId)
+                    }
+                    if (serviceUrl) {
+                      setThumbnailPreview(serviceUrl)
+                      form.setValue("thumbnail_url", serviceUrl)
+                    }
+                    toast({ description: "Thumbnail uploaded successfully!" })
+                  }}
+                />
               </div>
             </div>
 
@@ -316,37 +289,19 @@ export default function CourseDetailsForm({ courseData, onDataChange }: CourseDe
             <div>
               <Label htmlFor="instructor-image">Instructor Image</Label>
               <div className="mt-2 flex items-center justify-center border-2 border-dashed border-muted-foreground/25 rounded-lg p-4 h-[100px]">
-                {instructorImagePreview ? (
-                  <div className="relative h-full aspect-square">
-                    <img
-                      src={instructorImagePreview || "/placeholder.svg"}
-                      alt="Instructor image preview"
-                      className="h-full aspect-square object-cover rounded-full"
-                    />
-                    <Button
-                      variant="destructive"
-                      size="icon"
-                      className="absolute top-0 right-0 h-6 w-6 rounded-full"
-                      onClick={() => setInstructorImagePreview(null)}
-                    >
-                      <X className="h-3 w-3" />
-                    </Button>
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center">
-                    <Button variant="outline" size="sm" className="relative">
-                      <Upload className="h-4 w-4 mr-2" />
-                      Upload Image
-                      <input
-                        id="instructor-image"
-                        type="file"
-                        className="absolute inset-0 opacity-0 cursor-pointer"
-                        accept="image/*"
-                        onChange={handleInstructorImageUpload}
-                      />
-                    </Button>
-                  </div>
-                )}
+                <ImageUploader
+                  value={form.getValues("instructor_image")}
+                  onUploadComplete={async (signedBlobId, cropData, serviceUrl) => {
+                    if (signedBlobId) {
+                      form.setValue("instructor_image", signedBlobId)
+                    }
+                    if (serviceUrl) {
+                      setInstructorImagePreview(serviceUrl)
+                      form.setValue("instructor_image_url", serviceUrl)
+                    }
+                    toast({ description: "Instructor image uploaded successfully!" })
+                  }}
+                />
               </div>
             </div>
           </div>
