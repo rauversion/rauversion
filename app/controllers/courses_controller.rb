@@ -54,6 +54,22 @@ class CoursesController < ApplicationController
     end
   end
 
+  def show_lesson
+    @course = current_user.courses.find_by(id: params[:course_id])
+    if @course
+      @lesson = @course.lessons.find(params[:lesson_id])
+      @course_module = @lesson.course_module
+      @lessons = @course_module.lessons
+      respond_to do |format|
+        format.json { render "lessons/show_lessons" }
+        format.html { render_blank }
+      end
+      
+    else
+      render json: { error: 'Course not found' }, status: :not_found
+    end
+  end
+
   private
 
   def set_course

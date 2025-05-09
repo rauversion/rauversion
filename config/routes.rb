@@ -2,11 +2,11 @@ require_relative "../lib/constraints/username_route_contrainer"
 
 Rails.application.routes.draw do
   resources :courses do
+    get "/lessons/:lesson_id", to: "courses#show_lesson", as: :lesson
     resources :course_modules do
       resources :lessons do
         resources :course_documents, only: [:index, :create, :destroy]
       end
-
     end
   end
 

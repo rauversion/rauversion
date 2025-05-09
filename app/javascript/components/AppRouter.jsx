@@ -97,6 +97,7 @@ import CoursesAdminPage from "./courses/CoursesAdminPage"
 import CoursesIndex from "./courses/index"
 import CourseShow from "./courses/show"
 import CourseForm from "./courses/form"
+import LessonShow from "./courses/lessonShow"
 
 import { Footer, ScrollRestoration, LoadingSpinner } from '@/components/shared'
 
@@ -207,6 +208,7 @@ function AppContent() {
           <Route path="/courses/:id/edit" element={<CourseForm />} />
           <Route path="/courses/mine" element={<CoursesAdminPage />} />
           <Route path="/courses/:id" element={<CourseShow />} />
+          <Route path="/courses/:id/lessons/:lesson_id" element={<LessonShow />} />
 
           <Route path="/sales" element={<RequireAuth><MySales /></RequireAuth>} />
           <Route path="/purchases" element={<RequireAuth><MyPurchases /></RequireAuth>} />

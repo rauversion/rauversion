@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Clock, Award } from "lucide-react"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function CourseList() {
   const [activeTab, setActiveTab] = useState("all")
@@ -25,7 +26,46 @@ export default function CourseList() {
         : courses.filter((course) => course.progress === 100)
 
   if (loading && courses.length === 0) {
-    return <div className="p-8 text-center">Loading courses...</div>
+    return (
+      <div className="mx-auto p-4">
+        <Tabs defaultValue="all" className="mb-6">
+          <TabsList>
+            <TabsTrigger value="all">All Courses</TabsTrigger>
+            <TabsTrigger value="in-progress">In Progress</TabsTrigger>
+            <TabsTrigger value="completed">Completed</TabsTrigger>
+          </TabsList>
+        </Tabs>
+        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {[...Array(6)].map((_, idx) => (
+            <Card key={idx} className="overflow-hidden">
+              <div className="aspect-video relative overflow-hidden">
+                <Skeleton className="absolute inset-0 w-full h-full" />
+                <Skeleton className="absolute top-2 right-2 h-6 w-16 rounded" />
+              </div>
+              <CardContent className="p-4">
+                <div className="flex justify-between items-center mb-2">
+                  <Skeleton className="h-4 w-20" />
+                  <Skeleton className="h-4 w-16" />
+                </div>
+                <Skeleton className="h-6 w-3/4 mb-1" />
+                <Skeleton className="h-4 w-1/2 mb-2" />
+                <div className="mt-3">
+                  <div className="flex justify-between text-sm mb-1">
+                    <Skeleton className="h-4 w-1/4" />
+                    <Skeleton className="h-4 w-1/4" />
+                  </div>
+                  <Skeleton className="h-2 w-full" />
+                </div>
+              </CardContent>
+              <CardFooter className="p-4 pt-0 flex justify-between">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-4 w-6" />
+              </CardFooter>
+            </Card>
+          ))}
+        </div>
+      </div>
+    )
   }
 
   if (error) {

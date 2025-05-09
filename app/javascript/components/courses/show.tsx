@@ -22,6 +22,7 @@ import {
   Settings,
 } from "lucide-react"
 import { get } from "@rails/request.js"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function CoursePage() {
   const params = useParams()
@@ -77,7 +78,64 @@ export default function CoursePage() {
   }, [courseId])
 
   if (loading || modulesLoading) {
-    return <div className="container py-10">Loading course...</div>
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="sticky top-0 z-10 border-b bg-background">
+          <div className="flex h-16 items-center px-4 md:px-6">
+            <Skeleton className="h-8 w-40 mr-4" />
+            <Skeleton className="h-6 w-1/3 flex-1" />
+            <div className="flex items-center gap-2 ml-auto">
+              <Skeleton className="h-8 w-20 rounded" />
+              <Skeleton className="h-8 w-8 rounded-full" />
+              <Skeleton className="h-8 w-8 rounded-full" />
+            </div>
+          </div>
+        </header>
+        <div className="px-4 py-6 md:px-6 md:py-8">
+          <div className="grid gap-8 lg:grid-cols-3">
+            <div className="lg:col-span-2">
+              <Skeleton className="aspect-video w-full mb-6" />
+              <div className="mb-6">
+                <Skeleton className="h-6 w-1/2 mb-2" />
+                <Skeleton className="h-4 w-1/3 mb-2" />
+                <Skeleton className="h-4 w-1/4 mb-4" />
+                <div className="flex items-center gap-3 mb-6">
+                  <Skeleton className="h-10 w-10 rounded-full" />
+                  <div>
+                    <Skeleton className="h-4 w-32 mb-1" />
+                    <Skeleton className="h-3 w-24" />
+                  </div>
+                </div>
+                <Skeleton className="h-4 w-1/3 mb-2" />
+                <Skeleton className="h-2 w-full" />
+              </div>
+              <div className="space-y-4">
+                {[...Array(2)].map((_, i) => (
+                  <div key={i} className="mb-4">
+                    <Skeleton className="h-5 w-1/2 mb-2" />
+                    <Skeleton className="h-3 w-1/3 mb-1" />
+                    <Skeleton className="h-3 w-1/4" />
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div className="lg:col-span-1">
+              <div className="sticky top-24">
+                <Skeleton className="h-8 w-32 mb-4" />
+                <Skeleton className="h-2 w-full mb-2" />
+                <Skeleton className="h-2 w-3/4 mb-2" />
+                <Skeleton className="h-2 w-1/2 mb-6" />
+                <div className="space-y-4">
+                  {[...Array(2)].map((_, i) => (
+                    <Skeleton key={i} className="h-3 w-full" />
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
   if (error || modulesError) {
     return <div className="container py-10 text-red-500">{error || modulesError}</div>
@@ -241,7 +299,9 @@ export default function CoursePage() {
                                 </div>
                               </div>
                               <Button variant="ghost" size="sm">
-                                {lesson.completed ? "Review" : "Start"}
+                                <Link to={`/courses/${courseId}/lessons/${lesson.id}`}>
+                                  {lesson.completed ? "Review" : "Start"}
+                                </Link>
                               </Button>
                             </div>
                           ))}
