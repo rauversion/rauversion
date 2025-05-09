@@ -112,10 +112,10 @@ export function MobileNavigation({ currentUser, storeNavItems, eventsNavItems, m
           <SheetTitle className="text-left">Rauversion</SheetTitle>
         </SheetHeader>
         <div className="py-4 overflow-y-auto">
-          <NavSection title="Magazine" items={magazineNavItems} />
-          <NavSection title="Music" items={musicNavItems} />
-          <NavSection title="Events" items={eventsNavItems} />
-          {currentUser?.is_admin && <NavSection title="Store" items={storeNavItems} />}
+          <NavSection title={I18n.t("menu.magazine")} items={magazineNavItems} />
+          <NavSection title={I18n.t("menu.music")} items={musicNavItems} />
+          <NavSection title={I18n.t("menu.events")} items={eventsNavItems} />
+          <NavSection title={I18n.t("menu.store")} items={storeNavItems} />
         </div>
       </SheetContent>
     </Sheet>
