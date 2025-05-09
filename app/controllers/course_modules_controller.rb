@@ -16,6 +16,16 @@ class CourseModulesController < ApplicationController
     end
   end
 
+  def update
+    @course_module = @course.course_modules.find(params[:id])
+    @course_module.assign_attributes(course_module_params)
+    if @course_module.save
+      render :show, status: :ok
+    else
+      render json: { errors: @course_module.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
   def destroy
     if @course_module.destroy
       head :no_content

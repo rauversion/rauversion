@@ -17,6 +17,8 @@ import {
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Plus, Trash2, GripVertical, Video, FileText, Edit, ArrowUp, ArrowDown } from "lucide-react"
 import LessonForm from "@/components/courses/admin/lesson-form"
+import { useForm } from "react-hook-form"
+import { useToast } from "@/hooks/use-toast"
 
 export default function ModulesManager({
   modules = [],
@@ -30,13 +32,14 @@ export default function ModulesManager({
   onLessonDocumentDelete,
 }) {
   const [expandedModule, setExpandedModule] = useState(null)
-  const [editingModule, setEditingModule] = useState(null)
+  const [editingModule, setEditingModule] = useState(null) // module object or null
   const [addingLessonToModule, setAddingLessonToModule] = useState(null)
   const [editingLesson, setEditingLesson] = useState(null)
   const [newModule, setNewModule] = useState({
     title: "",
     description: "",
   })
+  const { toast } = useToast()
 
   const handleAddModule = () => {
     if (!newModule.title.trim()) return
@@ -105,6 +108,25 @@ export default function ModulesManager({
 
   return (
     <div className="space-y-6">
+      {/* Edit Module Dialog */}
+      <Dialog open={!!editingModule} onOpenChange={(open) => { if (!open) setEditingModule(null) }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Module</DialogTitle>
+          </DialogHeader>
+          {editingModule && (
+            <EditModuleForm
+              module={editingModule}
+              onSubmit={async (data) => {
+                await onModuleUpdate && onModuleUpdate(editingModule.id, data)
+                setEditingModule(null)
+                toast({ title: "Module updated" })
+              }}
+              onCancel={() => setEditingModule(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
       <Card>
         <CardHeader className="flex flex-row items-center">
           <CardTitle>Course Modules</CardTitle>
@@ -202,6 +224,17 @@ export default function ModulesManager({
                         disabled={moduleIndex === modules.length - 1}
                       >
                         <ArrowDown className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          setEditingModule(module)
+                        }}
+                        aria-label="Edit module"
+                      >
+                        <Edit className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
@@ -348,5 +381,52 @@ export default function ModulesManager({
         </CardContent>
       </Card>
     </div>
+  )
+}
+
+// EditModuleForm component (moved outside main component for syntax correctness)
+function EditModuleForm({ module, onSubmit, onCancel }: any) {
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
+    defaultValues: {
+      title: module.title || "",
+      description: module.description || "",
+    }
+  })
+
+  return (
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="space-y-4 py-2"
+    >
+      <div className="space-y-2">
+        <label htmlFor="edit-module-title" className="text-sm font-medium">
+          Module Title
+        </label>
+        <Input
+          id="edit-module-title"
+          placeholder="e.g. Getting Started with Guitar"
+          {...register("title", { required: "Title is required" })}
+        />
+        {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
+      </div>
+      <div className="space-y-2">
+        <label htmlFor="edit-module-description" className="text-sm font-medium">
+          Description (Optional)
+        </label>
+        <Textarea
+          id="edit-module-description"
+          placeholder="Brief description of this module"
+          {...register("description")}
+        />
+      </div>
+      <DialogFooter>
+        <Button type="button" variant="outline" onClick={onCancel}>
+          Cancel
+        </Button>
+        <Button type="submit" disabled={isSubmitting}>
+          Save Changes
+        </Button>
+      </DialogFooter>
+    </form>
   )
 }
