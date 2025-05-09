@@ -80,7 +80,7 @@ export default function CoursePage() {
   if (loading || modulesLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <header className="sticky top-0 z-10 border-b bg-background">
+        <header className="sticky top-0 z-5 border-b bg-background">
           <div className="flex h-16 items-center px-4 md:px-6">
             <Skeleton className="h-8 w-40 mr-4" />
             <Skeleton className="h-6 w-1/3 flex-1" />
@@ -168,7 +168,7 @@ export default function CoursePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-10 border-b bg-background">
+      <header className="sticky top-0 z-5 border-b bg-background">
         <div className="flex h-16 items-center px-4 md:px-6">
           <Link to="/courses" className="flex items-center mr-4">
             <ArrowLeft className="h-5 w-5 mr-2" />

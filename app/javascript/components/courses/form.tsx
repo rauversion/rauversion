@@ -197,7 +197,7 @@ export default function NewCoursePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-10 border-b bg-background">
+      <header className="sticky top-0 z-5 border-b bg-background">
         <div className="flex h-16 items-center px-4 md:px-6">
           <Link to="/courses/mine" className="flex items-center mr-4">
             <ArrowLeft className="h-5 w-5 mr-2" />
