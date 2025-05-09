@@ -1,6 +1,5 @@
 "use client"
-import React from "react"
-import { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react"
 import { useParams, Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
@@ -22,104 +21,74 @@ import {
   MessageSquare,
   Settings,
 } from "lucide-react"
-
-// Mock course data
-const coursesData = [
-  {
-    id: 1,
-    title: "Guitar Fundamentals",
-    instructor: "John Smith",
-    instructor_title: "Professional Guitarist & Music Teacher",
-    instructorImage: "/placeholder.svg?height=100&width=100",
-    image: "/placeholder.svg?height=400&width=800",
-    progress: 75,
-    category: "Instruments",
-    duration: "12 hours",
-    level: "Beginner",
-    description:
-      "Master the basics of guitar playing with this comprehensive course designed for beginners. Learn chords, strumming patterns, and essential techniques to start playing your favorite songs.",
-    lastAccessed: "2 days ago",
-    modules: [
-      {
-        id: 1,
-        title: "Getting Started with Guitar",
-        progress: 100,
-        lessons: [
-          { id: 1, title: "Introduction to the Course", duration: "5 min", completed: true, type: "video" },
-          { id: 2, title: "Parts of the Guitar", duration: "10 min", completed: true, type: "video" },
-          { id: 3, title: "Proper Posture and Hand Position", duration: "15 min", completed: true, type: "video" },
-          { id: 4, title: "Tuning Your Guitar", duration: "12 min", completed: true, type: "video" },
-        ],
-      },
-      {
-        id: 2,
-        title: "Basic Chords and Strumming",
-        progress: 75,
-        lessons: [
-          { id: 5, title: "E Minor and A Minor Chords", duration: "18 min", completed: true, type: "video" },
-          { id: 6, title: "D Major and G Major Chords", duration: "20 min", completed: true, type: "video" },
-          { id: 7, title: "C Major and Basic Chord Transitions", duration: "25 min", completed: true, type: "video" },
-          { id: 8, title: "Basic Strumming Patterns", duration: "15 min", completed: false, type: "video" },
-        ],
-      },
-      {
-        id: 3,
-        title: "Your First Songs",
-        progress: 50,
-        lessons: [
-          { id: 9, title: "Simple Two-Chord Songs", duration: "22 min", completed: true, type: "video" },
-          { id: 10, title: "Three-Chord Progressions", duration: "25 min", completed: true, type: "video" },
-          {
-            id: 11,
-            title: "Practice Session: 'Horse With No Name'",
-            duration: "30 min",
-            completed: false,
-            type: "practice",
-          },
-          {
-            id: 12,
-            title: "Practice Session: 'Knockin' on Heaven's Door'",
-            duration: "35 min",
-            completed: false,
-            type: "practice",
-          },
-        ],
-      },
-      {
-        id: 4,
-        title: "Fingerpicking Basics",
-        progress: 0,
-        lessons: [
-          { id: 13, title: "Introduction to Fingerpicking", duration: "15 min", completed: false, type: "video" },
-          { id: 14, title: "Basic Fingerpicking Patterns", duration: "20 min", completed: false, type: "video" },
-          { id: 15, title: "Simple Fingerpicking Songs", duration: "25 min", completed: false, type: "video" },
-          { id: 16, title: "Practice Session: Fingerpicking", duration: "30 min", completed: false, type: "practice" },
-        ],
-      },
-    ],
-  },
-  // Other courses would be defined here
-]
+import { get } from "@rails/request.js"
 
 export default function CoursePage() {
   const params = useParams()
-  const courseId = Number(params.id)
-  const [course, setCourse] = useState(null)
+  const courseId = params.id
+  const [course, setCourse] = useState<any>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("content")
+  const [modules, setModules] = useState<any[]>([])
+  const [modulesLoading, setModulesLoading] = useState(true)
+  const [modulesError, setModulesError] = useState<string | null>(null)
 
   useEffect(() => {
-    // In a real app, this would be an API call
-    const foundCourse = coursesData.find((c) => c.id === courseId)
-    setCourse(foundCourse)
+    async function fetchCourse() {
+      setLoading(true)
+      setError(null)
+      try {
+        const response = await get(`/courses/${courseId}.json`)
+        if (response.ok) {
+          const data = await response.json
+          setCourse(data.course)
+        } else {
+          setError("Failed to fetch course")
+        }
+      } catch (err) {
+        setError("Failed to fetch course")
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchCourse()
   }, [courseId])
 
-  if (!course) {
+  useEffect(() => {
+    async function fetchModules() {
+      setModulesLoading(true)
+      setModulesError(null)
+      try {
+        const response = await get(`/courses/${courseId}/course_modules.json`)
+        if (response.ok) {
+          const data = await response.json
+          setModules(data.course_modules)
+        } else {
+          setModulesError("Failed to fetch modules")
+        }
+      } catch (err) {
+        setModulesError("Failed to fetch modules")
+      } finally {
+        setModulesLoading(false)
+      }
+    }
+    fetchModules()
+  }, [courseId])
+
+  if (loading || modulesLoading) {
     return <div className="container py-10">Loading course...</div>
+  }
+  if (error || modulesError) {
+    return <div className="container py-10 text-red-500">{error || modulesError}</div>
+  }
+  if (!course) {
+    return <div className="container py-10">Course not found.</div>
   }
 
   // Find the next incomplete lesson
   const findNextLesson = () => {
-    for (const module of course.modules) {
+    for (const module of modules) {
       for (const lesson of module.lessons) {
         if (!lesson.completed) {
           return { moduleId: module.id, lessonId: lesson.id, title: lesson.title }
@@ -132,12 +101,12 @@ export default function CoursePage() {
   const nextLesson = findNextLesson()
 
   // Calculate overall progress
-  const totalLessons = course.modules.reduce((acc, module) => acc + module.lessons.length, 0)
-  const completedLessons = course.modules.reduce(
+  const totalLessons = modules.reduce((acc, module) => acc + module.lessons.length, 0)
+  const completedLessons = modules.reduce(
     (acc, module) => acc + module.lessons.filter((lesson) => lesson.completed).length,
     0,
   )
-  const overallProgress = Math.round((completedLessons / totalLessons) * 100)
+  const overallProgress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0
 
   return (
     <div className="min-h-screen bg-background">
@@ -173,7 +142,7 @@ export default function CoursePage() {
         <div className="grid gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2">
             <div className="aspect-video rounded-lg overflow-hidden mb-6">
-              <img src={course.image || "/placeholder.svg"} alt={course.title} className="object-cover w-full h-full" />
+              <img src={course.thumbnail_url || "/placeholder.svg"} alt={course.title} className="object-cover w-full h-full" />
             </div>
 
             <div className="mb-6">
@@ -235,7 +204,7 @@ export default function CoursePage() {
               </TabsList>
               <TabsContent value="content" className="mt-4">
                 <Accordion type="multiple" className="w-full">
-                  {course.modules.map((module) => (
+                  {modules.map((module) => (
                     <AccordionItem value={`module-${module.id}`} key={module.id}>
                       <AccordionTrigger className="hover:no-underline">
                         <div className="flex flex-1 items-center justify-between pr-4">
@@ -348,7 +317,7 @@ export default function CoursePage() {
                   </div>
 
                   <div className="space-y-4">
-                    {course.modules.map((module) => (
+                    {modules.map((module) => (
                       <div key={module.id}>
                         <div className="flex justify-between text-sm mb-1">
                           <span className="truncate pr-2">{module.title}</span>

@@ -98,8 +98,8 @@ export default function LessonForm({ lesson = {}, onSubmit, documents = [], onDo
     // If no upload needed, submit immediately
     const completeData = {
       ...formData,
-      video: signedId,
-      videoFile: videoPreview ? { name: "video-file.mp4" } : null,
+      //video: signedId,
+      //videoFile: videoPreview ? { name: "video-file.mp4" } : null,
       documentFile: documentPreview ? { name: documentPreview } : null,
     }
     onSubmit(completeData)

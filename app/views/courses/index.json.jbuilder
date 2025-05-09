@@ -11,7 +11,7 @@ json.collection @courses do |course|
   json.published course.published
   json.created_at course.created_at
   json.updated_at course.updated_at
-
+  json.thumbnail_url url_for(course.thumbnail.variant(resize_to_limit: [800, 800])) if course.thumbnail.attached?
 
   json.seo_title course.seo_title
   json.seo_description course.seo_description

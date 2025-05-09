@@ -23,5 +23,5 @@ json.course do
   json.published @course.published
   json.slug @course.slug
 
-  json.thumbnail_url @course.thumbnail.url if @course.thumbnail.attached?
+  json.thumbnail_url @course.thumbnail.variant(resize_to_limit: [800, 800]).processed.url if @course.thumbnail.attached?
 end
