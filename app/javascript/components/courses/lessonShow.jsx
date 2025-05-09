@@ -86,9 +86,9 @@ export default function LessonPage() {
 
     // Navigate to next lesson if available
     if (next) {
-      navigate(`/course/${courseId}/lesson/${next.id}`)
+      navigate(`/courses/${courseId}/lesson/${next.id}`)
     } else {
-      navigate(`/course/${courseId}`)
+      navigate(`/courses/${courseId}`)
     }
   }
 
@@ -190,7 +190,7 @@ export default function LessonPage() {
                       size="icon"
                       className="text-white hover:bg-white/20"
                       disabled={!prev}
-                      onClick={() => prev && router.push(`/course/${courseId}/lesson/${prev.id}`)}
+                      onClick={() => prev && router.push(`/courses/${courseId}/lesson/${prev.id}`)}
                     >
                       <SkipBack className="h-5 w-5" />
                     </Button>
@@ -209,7 +209,7 @@ export default function LessonPage() {
                       size="icon"
                       className="text-white hover:bg-white/20"
                       disabled={!next}
-                      onClick={() => next && router.push(`/course/${courseId}/lesson/${next.id}`)}
+                      onClick={() => next && router.push(`/courses/${courseId}/lesson/${next.id}`)}
                     >
                       <SkipForward className="h-5 w-5" />
                     </Button>
@@ -250,7 +250,7 @@ export default function LessonPage() {
               </Button>
               {next && (
                 <Button size="sm" asChild>
-                  <Link to={`/course/${courseId}/lesson/${next.id}`}>
+                  <Link to={`/courses/${courseId}/lesson/${next.id}`}>
                     Next Lesson
                     <ArrowRight className="h-4 w-4 ml-2" />
                   </Link>
@@ -341,7 +341,7 @@ export default function LessonPage() {
                     <div className="flex items-center justify-between mb-4">
                       <h3 className="font-semibold">Module Lessons</h3>
                       <Button variant="ghost" size="sm" asChild>
-                        <Link to={`/course/${courseId}`}>
+                        <Link to={`/courses/${courseId}`}>
                           <List className="h-4 w-4 mr-2" />
                           All Modules
                         </Link>
@@ -350,7 +350,9 @@ export default function LessonPage() {
 
                     <div className="space-y-2">
                       {module.lessons.map((moduleLesson) => (
-                        <Link key={moduleLesson.id} href={`/course/${courseId}/lesson/${moduleLesson.id}`}>
+                        <Link
+                          key={moduleLesson.id}
+                          to={`/courses/${courseId}/lessons/${moduleLesson.id}`}>
                           <div
                             className={`flex items-center p-2 rounded-md ${moduleLesson.id === lessonId
                               ? "bg-primary/10 border border-primary/20"
@@ -388,7 +390,7 @@ export default function LessonPage() {
                     <div className="flex justify-between items-center">
                       <Button variant="outline" size="sm" disabled={!prev} asChild={!!prev}>
                         {prev ? (
-                          <Link to={`/course/${courseId}/lesson/${prev.id}`}>
+                          <Link to={`/courses/${courseId}/lessons/${prev.id}`}>
                             <ArrowLeft className="h-4 w-4 mr-2" />
                             Previous
                           </Link>
@@ -402,7 +404,7 @@ export default function LessonPage() {
 
                       <Button variant="outline" size="sm" disabled={!next} asChild={!!next}>
                         {next ? (
-                          <Link to={`/course/${courseId}/lesson/${next.id}`}>
+                          <Link to={`/courses/${courseId}/lessons/${next.id}`}>
                             Next
                             <ArrowRight className="h-4 w-4 ml-2" />
                           </Link>

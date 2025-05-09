@@ -124,7 +124,7 @@ export default function CoursesAdminPage() {
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild>
-                            <Link to={`/course/${course.id}`}>
+                            <Link to={`/courses/${course.id}`}>
                               <Eye className="h-4 w-4 mr-2" />
                               Preview
                             </Link>
