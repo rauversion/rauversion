@@ -21,6 +21,7 @@ Rails.application.routes.draw do
         resources :course_documents, only: [:index, :create, :destroy]
         member do
           patch :move
+          get :stream
         end
       end
     end

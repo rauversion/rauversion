@@ -140,7 +140,8 @@ export default function LessonPage() {
           onMouseLeave={() => isPlaying && setShowControls(false)}
         >
           <VideoPlayer
-            videoUrl={lesson.video_url}
+            //videoUrl={lesson.video_url}
+            videoUrl={`/courses/${courseId}/course_modules/${module.id}/lessons/${lessonId}/stream.json`}
             isPlaying={isPlaying}
             setIsPlaying={setIsPlaying}
             onProgressUpdate={handleProgressUpdate}
