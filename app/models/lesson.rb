@@ -4,4 +4,7 @@ class Lesson < ApplicationRecord
   has_many :course_documents, dependent: :destroy
 
   self.inheritance_column = :_type_disabled
+
+  acts_as_list scope: [:course_module_id]
+
 end

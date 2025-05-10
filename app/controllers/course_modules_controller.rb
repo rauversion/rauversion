@@ -1,9 +1,9 @@
 class CourseModulesController < ApplicationController
   before_action :set_course
-  before_action :set_course_module, only: [:destroy]
+  before_action :set_course_module, only: [:destroy, :move]
 
   def index
-    @course_modules = @course.course_modules
+    @course_modules = @course.course_modules.order(:position)
     render :index
   end
 
@@ -31,6 +31,18 @@ class CourseModulesController < ApplicationController
       head :no_content
     else
       render json: { errors: @course_module.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+  # PATCH /courses/:course_id/course_modules/:id/move
+  def move
+    position = params[:position].to_i
+    if position > 0
+      @course_module.insert_at(position)
+      #render :show, status: :ok
+      head :no_content
+    else
+      render json: { errors: ["Invalid position"] }, status: :unprocessable_entity
     end
   end
 

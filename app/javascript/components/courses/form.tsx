@@ -255,6 +255,7 @@ export default function NewCoursePage() {
 
           <TabsContent value="modules">
             <ModulesManager
+              courseId={courseData.id}
               modules={courseData.modules as any[]}
               onModuleCreate={async (module) => {
                 if (!courseData.id) return
@@ -263,6 +264,7 @@ export default function NewCoursePage() {
                 })
                 await fetchModules()
               }}
+              refreshModules={fetchModules}
               onModuleUpdate={async (moduleId, updatedModule) => {
                 if (!courseData.id) return
                 await put(`/courses/${courseData.id}/course_modules/${moduleId}.json`, {

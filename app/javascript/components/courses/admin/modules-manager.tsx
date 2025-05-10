@@ -20,7 +20,10 @@ import LessonForm from "@/components/courses/admin/lesson-form"
 import { useForm } from "react-hook-form"
 import { useToast } from "@/hooks/use-toast"
 
+import { patch } from "@rails/request.js"
+
 export default function ModulesManager({
+  courseId,
   modules = [],
   onModuleCreate,
   onModuleUpdate,
@@ -30,6 +33,7 @@ export default function ModulesManager({
   onLessonDelete,
   onLessonDocumentCreate,
   onLessonDocumentDelete,
+  refreshModules
 }) {
   const [expandedModule, setExpandedModule] = useState(null)
   const [editingModule, setEditingModule] = useState(null) // module object or null
@@ -70,17 +74,23 @@ export default function ModulesManager({
     onLessonDelete && onLessonDelete(moduleId, lessonId)
   }
 
-  const moveModule = (index, direction) => {
+  const moveModule = async (index, direction) => {
     if ((direction === -1 && index === 0) || (direction === 1 && index === modules.length - 1)) {
       return
     }
+    const module = modules[index]
+    if (!courseId || !module?.id) return
 
-    const newModules = [...modules]
-    const temp = newModules[index]
-    newModules[index] = newModules[index + direction]
-    newModules[index + direction] = temp
-
-    onModulesChange(newModules)
+    // acts_as_list is 1-based
+    const newPosition = index + direction + 1
+    await patch(`/courses/${courseId}/course_modules/${module.id}/move`, {
+      body: JSON.stringify({ position: newPosition }),
+      headers: { "Content-Type": "application/json" }
+    })
+    // After move, trigger reload via onModuleUpdate (with no-op update)
+    if (refreshModules) {
+      await refreshModules()
+    }
   }
 
   const moveLesson = (moduleId, lessonIndex, direction) => {
@@ -200,14 +210,14 @@ export default function ModulesManager({
                       <GripVertical className="h-5 w-5" />
                     </div>
                     <AccordionTrigger className="hover:no-underline py-0 [&[data-state=open]>svg]:rotate-180">
-                      <div className="flex-1 text-left font-medium">{module.title}</div>
+                      <div className="flex-1 text-left font-medium">{module.title} {module.position}</div>
                     </AccordionTrigger>
                     <div className="flex items-center gap-1 ml-auto mr-4">
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={(e) => {
-                          e.stopPropagation()
+                          e.preventDefault()
                           moveModule(moduleIndex, -1)
                         }}
                         disabled={moduleIndex === 0}
@@ -218,7 +228,7 @@ export default function ModulesManager({
                         variant="ghost"
                         size="icon"
                         onClick={(e) => {
-                          e.stopPropagation()
+                          e.preventDefault()
                           moveModule(moduleIndex, 1)
                         }}
                         disabled={moduleIndex === modules.length - 1}

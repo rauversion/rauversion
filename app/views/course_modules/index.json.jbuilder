@@ -3,6 +3,7 @@ json.course_modules @course_modules.map { |mod|
     id: mod.id,
     title: mod.title,
     description: mod.description,
+    position: mod.position,
     lessons: mod.lessons.map { |lesson|
       {
         id: lesson.id,

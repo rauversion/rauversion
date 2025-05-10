@@ -223,8 +223,6 @@ export default function LessonForm({ lesson = {}, onSubmit, documents = [], onDo
               onDocumentCreate={onDocumentCreate}
               onDocumentDelete={onDocumentDelete}
             />
-
-            {JSON.stringify(documents)}
           </div>
         </TabsContent>
       </Tabs>

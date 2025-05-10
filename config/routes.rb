@@ -9,9 +9,16 @@ Rails.application.routes.draw do
   end
   resources :courses do
     get "/lessons/:lesson_id", to: "courses#show_lesson", as: :lesson
+    
     resources :course_modules do
+      member do
+        patch :move
+      end
       resources :lessons do
         resources :course_documents, only: [:index, :create, :destroy]
+        member do
+          patch :move
+        end
       end
     end
   end
