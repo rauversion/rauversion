@@ -93,27 +93,26 @@ export default function ModulesManager({
     }
   }
 
-  const moveLesson = (moduleId, lessonIndex, direction) => {
-    const moduleIndex = modules.findIndex((m) => m.id === moduleId)
-    if (moduleIndex === -1) return
-
-    const module = modules[moduleIndex]
+  const moveLesson = async (moduleId, lessonIndex, direction) => {
+    const module = modules.find((m) => m.id === moduleId)
+    if (!module || !module.lessons) return
     if ((direction === -1 && lessonIndex === 0) || (direction === 1 && lessonIndex === module.lessons.length - 1)) {
       return
     }
+    const lesson = module.lessons[lessonIndex]
+    if (!courseId || !moduleId || !lesson?.id) return
 
-    const newModules = [...modules]
-    const lessons = [...module.lessons]
-    const temp = lessons[lessonIndex]
-    lessons[lessonIndex] = lessons[lessonIndex + direction]
-    lessons[lessonIndex + direction] = temp
-
-    newModules[moduleIndex] = {
-      ...module,
-      lessons,
+    // acts_as_list is 1-based
+    const newPosition = lessonIndex + direction + 1
+    await patch(`/courses/${courseId}/course_modules/${moduleId}/lessons/${lesson.id}/move`, {
+      body: JSON.stringify({ position: newPosition }),
+      headers: { "Content-Type": "application/json" }
+    })
+    // After move, trigger reload via onLessonUpdate (with no-op update)
+    if (onLessonUpdate) {
+      await refreshModules()
+      // await onLessonUpdate(moduleId, lesson.id, {})
     }
-
-    onModulesChange(newModules)
   }
 
   return (

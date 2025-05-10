@@ -4,7 +4,7 @@ json.course_modules @course_modules.map { |mod|
     title: mod.title,
     description: mod.description,
     position: mod.position,
-    lessons: mod.lessons.map { |lesson|
+    lessons: mod.lessons.order(:position).map { |lesson|
       {
         id: lesson.id,
         title: lesson.title,

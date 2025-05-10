@@ -1,6 +1,6 @@
 class LessonsController < ApplicationController
   before_action :set_course_module
-  before_action :set_lesson, only: [:destroy]
+  before_action :set_lesson, only: [:destroy, :move]
 
   def index
     @lessons = @course_module.lessons
@@ -31,6 +31,17 @@ class LessonsController < ApplicationController
       render :show, status: :ok
     else
       render json: { errors: @lesson.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+  # PATCH /courses/:course_id/course_modules/:course_module_id/lessons/:id/move
+  def move
+    position = params[:position].to_i
+    if position > 0
+      @lesson.insert_at(position)
+      head :no_content
+    else
+      render json: { errors: ["Invalid position"] }, status: :unprocessable_entity
     end
   end
 
