@@ -1,6 +1,6 @@
 class CourseDocumentsController < ApplicationController
   before_action :set_course
-  before_action :set_course_document, only: [:show, :destroy]
+  before_action :set_course_document, only: [:show, :destroy, :download]
 
   def index
     @course_documents = @course.course_documents
@@ -30,6 +30,21 @@ class CourseDocumentsController < ApplicationController
       head :no_content
     else
       render json: { errors: @course_document.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+  def download
+    if @lesson
+      @course_document = @lesson.course_documents.find(params[:id])
+    else
+      @course_document = @course.course_documents.find(params[:id])
+    end
+
+    if @course_document.file.attached?
+      url = @course_document.file.url(expires_in: 5.seconds)
+      render json: { url: url }
+    else
+      render json: { error: "File not found" }, status: :not_found
     end
   end
 

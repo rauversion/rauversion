@@ -39,8 +39,11 @@ export default function CoursePage() {
   const [modulesLoading, setModulesLoading] = useState(true)
   const [modulesError, setModulesError] = useState<string | null>(null)
   const [showLoginDialog, setShowLoginDialog] = useState(false)
+  const [documents, setDocuments] = useState<any[]>([])
+  const [documentsLoading, setDocumentsLoading] = useState(false)
   const { currentUser } = useAuthStore()
   const navigate = useNavigate()
+
   useEffect(() => {
     async function fetchCourse() {
       setLoading(true)
@@ -87,6 +90,29 @@ export default function CoursePage() {
     }
     fetchModules()
   }, [courseId])
+
+  // Fetch course documents when resources tab is selected
+  useEffect(() => {
+    if (activeTab === "resources") {
+      async function fetchDocuments() {
+        setDocumentsLoading(true)
+        try {
+          const response = await get(`/courses/${courseId}/course_documents.json`)
+          if (response.ok) {
+            const data = await response.json
+            setDocuments(data)
+          } else {
+            setDocuments([])
+          }
+        } catch {
+          setDocuments([])
+        } finally {
+          setDocumentsLoading(false)
+        }
+      }
+      fetchDocuments()
+    }
+  }, [activeTab, courseId])
 
   if (loading || modulesLoading) {
     return (
@@ -452,39 +478,54 @@ export default function CoursePage() {
               </TabsContent>
               <TabsContent value="resources" className="mt-4">
                 <div className="space-y-4">
-                  <div className="flex items-center p-3 rounded-md border">
-                    <FileText className="h-5 w-5 mr-3 text-muted-foreground" />
-                    <div className="flex-1">
-                      <p className="font-medium">Course Workbook</p>
-                      <p className="text-sm text-muted-foreground">PDF, 2.4 MB</p>
+                  {documentsLoading ? (
+                    <div className="text-center py-8 text-muted-foreground">Loading resources...</div>
+                  ) : documents.length === 0 ? (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <p>No resources added yet.</p>
                     </div>
-                    <Button variant="ghost" size="sm">
-                      <Download className="h-4 w-4 mr-2" />
-                      Download
-                    </Button>
-                  </div>
-                  <div className="flex items-center p-3 rounded-md border">
-                    <FileText className="h-5 w-5 mr-3 text-muted-foreground" />
-                    <div className="flex-1">
-                      <p className="font-medium">Chord Charts</p>
-                      <p className="text-sm text-muted-foreground">PDF, 1.2 MB</p>
-                    </div>
-                    <Button variant="ghost" size="sm">
-                      <Download className="h-4 w-4 mr-2" />
-                      Download
-                    </Button>
-                  </div>
-                  <div className="flex items-center p-3 rounded-md border">
-                    <Music2 className="h-5 w-5 mr-3 text-muted-foreground" />
-                    <div className="flex-1">
-                      <p className="font-medium">Practice Backing Tracks</p>
-                      <p className="text-sm text-muted-foreground">ZIP, 45 MB</p>
-                    </div>
-                    <Button variant="ghost" size="sm">
-                      <Download className="h-4 w-4 mr-2" />
-                      Download
-                    </Button>
-                  </div>
+                  ) : (
+                    documents.map((doc) => (
+                      <div key={doc.id} className="flex items-center p-3 rounded-md border">
+                        <FileText className="h-5 w-5 mr-3 text-muted-foreground" />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium truncate">{doc.title}</p>
+                          <div className="flex items-center text-xs text-muted-foreground mt-1">
+                            <span>{doc.name}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {enrollment ? (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={async () => {
+                                try {
+                                  const response = await fetch(`/courses/${courseId}/course_documents/${doc.id}/download`)
+                                  if (response.ok) {
+                                    const data = await response.json()
+                                    if (data.url) {
+                                      window.open(data.url, "_blank", "noopener")
+                                    }
+                                  }
+                                } catch (e) {
+                                  // Optionally show error toast
+                                }
+                              }}
+                            >
+                              <Download className="h-4 w-4 mr-2" />
+                              Download
+                            </Button>
+                          ) : (
+                            <Button variant="ghost" size="sm" disabled>
+                              <Download className="h-4 w-4 mr-2" />
+                              Download
+                            </Button>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </TabsContent>
               <TabsContent value="discussion" className="mt-4">

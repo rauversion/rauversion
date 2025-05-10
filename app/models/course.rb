@@ -14,6 +14,10 @@ class Course < ApplicationRecord
   has_many :course_enrollments
 
   scope :published, -> { where(published: true) }
+
+  def enrolled?(user)
+    course_enrollments.exists?(user_id: user.id)
+  end
   
 
 end

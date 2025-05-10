@@ -29,7 +29,7 @@ export default function CourseDocumentUploader({ onDocumentCreate, onDocumentDel
         alert("Error uploading document: " + error)
       } else {
         onDocumentCreate && onDocumentCreate({
-          signed_id: blob.signed_id,
+          file: blob.signed_id,
           filename: selectedFile.name,
           content_type: selectedFile.type,
           byte_size: selectedFile.size,
