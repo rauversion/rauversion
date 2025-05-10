@@ -8,6 +8,9 @@ Rails.application.routes.draw do
     end
   end
   resources :courses do
+    collection do
+      get :mine
+    end
     member do
       get :enrollments
       post :invite

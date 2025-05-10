@@ -25,7 +25,7 @@ export default function CoursesAdminPage() {
   React.useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const response = await get("/courses.json")
+        const response = await get("/courses/mine.json")
         const data = await response.json
         if (data && data.collection) {
           setCourses(data.collection)
@@ -103,8 +103,8 @@ export default function CoursesAdminPage() {
                     <TableCell className="hidden md:table-cell">{course.students}</TableCell>
                     <TableCell className="hidden md:table-cell">{formatDate(course.updated_at)}</TableCell>
                     <TableCell>
-                      <Badge variant={course.status === "published" ? "default" : "secondary"}>
-                        {course.status === "published" ? "Published" : "Draft"}
+                      <Badge variant={course.published ? "default" : "secondary"}>
+                        {course.published ? "Published" : "Draft"}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-right">

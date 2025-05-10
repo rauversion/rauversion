@@ -4,7 +4,7 @@ class CoursesController < ApplicationController
   def index
     respond_to do |format|
       format.json { 
-        @courses = Course.page(params[:page]).per(10)
+        @courses = Course.published.page(params[:page]).per(10)
         render :index 
       }
       format.html { render_blank }

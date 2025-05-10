@@ -1,6 +1,7 @@
 json.collection @courses do |course|
   json.id course.id
   json.title course.title
+  json.slug course.slug
   json.description course.description
   json.category course.category
   json.level course.level

@@ -1,4 +1,9 @@
 class Course < ApplicationRecord
+  
+  extend FriendlyId
+
+  friendly_id :title, use: :slugged
+  
   belongs_to :user
 
   has_one_attached :thumbnail
@@ -7,5 +12,8 @@ class Course < ApplicationRecord
   has_many :lessons, through: :course_modules
   has_many :course_module_lessons, through: :course_modules
   has_many :course_enrollments
+
+  scope :published, -> { where(published: true) }
+  
 
 end
