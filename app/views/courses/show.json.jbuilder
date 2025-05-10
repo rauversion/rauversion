@@ -24,6 +24,10 @@ json.course do
   json.published @course.published
   json.slug @course.slug
 
+  json.user do
+    json.partial! 'users/user', locals: { user: @course.user }
+  end
+
   json.thumbnail_url @course.thumbnail.variant(resize_to_limit: [800, 800]).processed.url if @course.thumbnail.attached?
 end
 

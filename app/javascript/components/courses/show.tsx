@@ -285,13 +285,13 @@ export default function CoursePage() {
 
               <div className="flex items-center gap-3 mb-6">
                 <img
-                  src={course.instructorImage || "/placeholder.svg"}
-                  alt={course.instructor}
+                  src={course.user.avatar_url.medium}
+                  alt={course.user.name}
                   className="h-10 w-10 rounded-full"
                 />
                 <div>
-                  <p className="font-medium">{course.instructor}</p>
-                  <p className="text-sm text-muted-foreground">{course.instructor_title}</p>
+                  <p className="font-medium">{course.user.name}</p>
+                  <p className="text-sm text-muted-foreground">{course.user.username}</p>
                 </div>
               </div>
 
