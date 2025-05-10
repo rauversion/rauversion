@@ -32,6 +32,9 @@ class CoursesController < ApplicationController
         course_id: @course.id
       )
     end
+
+    get_meta_tags if @course
+
     respond_to do |format|
       format.json { render :show }
       format.html { render_blank }
@@ -163,6 +166,21 @@ class CoursesController < ApplicationController
       :featured,
       :published,
       :slug
+    )
+  end
+
+  def get_meta_tags
+    set_meta_tags(
+      title: @course.seo_title.presence || "#{@course.title} on Rauversion",
+      description: @course.seo_description.presence || @course.description,
+      keywords: @course.seo_keywords.presence || @course.category,
+      image: @course.thumbnail_url,
+      twitter: {
+        card: "summary_large_image",
+        title: @course.seo_title.presence || @course.title,
+        description: @course.seo_description.presence || @course.description,
+        image: @course.thumbnail_url
+      }
     )
   end
 end

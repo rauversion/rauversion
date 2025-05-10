@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { Link , useNavigate } from "react-router-dom"
+import { Link , useNavigate, useParams } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -14,7 +14,8 @@ import { useToast } from '@/hooks/use-toast'
 
 export default function NewCoursePage() {
   const [activeTab, setActiveTab] = useState("details")
-
+  const { id } = useParams()
+  const courseId = id
   const navigate = useNavigate()
   interface CourseData {
     id: number | null
@@ -51,8 +52,6 @@ export default function NewCoursePage() {
   React.useEffect(() => {
     const fetchCourse = async () => {
       try {
-        const urlParams = new URLSearchParams(window.location.search)
-        const courseId = urlParams.get("id") || window.location.pathname.split("/")[2]
         if (courseId) {
           const response = await fetch(`/courses/${courseId}.json`)
           if (response.ok) {
@@ -71,9 +70,9 @@ export default function NewCoursePage() {
 
   // Load modules when modules tab is selected
   const fetchModules = async () => {
-    if (courseData.id) {
+    if (courseId) {
       try {
-        const response = await get(`/courses/${courseData.id}/course_modules.json`);
+        const response = await get(`/courses/${courseId}/course_modules.json`);
         const data = await response.json;
         if (data && data.course_modules) {
           setCourseData((prev) => ({ ...prev, modules: data.course_modules as any[] }))
@@ -88,7 +87,7 @@ export default function NewCoursePage() {
     if (activeTab === "modules") {
       fetchModules()
     }
-  }, [activeTab, courseData.id])
+  }, [activeTab, courseId])
 
   // Use a more controlled approach to update state
   interface CourseData {
@@ -117,7 +116,7 @@ export default function NewCoursePage() {
   }
 
   const syncModulesWithBackend = async (updatedModules: CourseData["modules"]) => {
-    if (!courseData.id) {
+    if (!courseId) {
       console.warn("Cannot sync modules without course id")
       return
     }
@@ -130,7 +129,7 @@ export default function NewCoursePage() {
     // Create new modules
     for (const module of newModules) {
       try {
-        const response = await post(`/courses/${courseData.id}.json`, {
+        const response = await post(`/courses/${courseId}.json`, {
           body: JSON.stringify({ course: { course_module_attributes: updatedModules } }),
         })
         if (response.ok) {
@@ -149,7 +148,7 @@ export default function NewCoursePage() {
     // Delete removed modules
     for (const module of deletedModules) {
       try {
-        const response = await destroy(`/courses/${courseData.id}/course_modules/${module.id}.json`)
+        const response = await destroy(`/courses/${courseId}/course_modules/${module.id}.json`)
         if (!response.ok) {
           console.error("Failed to delete module:", module.id)
         }
@@ -162,8 +161,8 @@ export default function NewCoursePage() {
   const handleSaveCourse = async () => {
     try {
       let response
-      if (courseData.id) {
-        response = await put(`/courses/${courseData.id}.json`, { body: JSON.stringify({ course: courseData }) })
+      if (courseId) {
+        response = await put(`/courses/${courseId}.json`, { body: JSON.stringify({ course: courseData }) })
       } else {
         response = await post("/courses.json", { body: JSON.stringify({ course: courseData }) })
       }
@@ -260,62 +259,64 @@ export default function NewCoursePage() {
 
           <TabsContent value="modules">
             <ModulesManager
-              courseId={courseData.id}
+              courseId={courseId}
               modules={courseData.modules as any[]}
               onModuleCreate={async (module) => {
-                if (!courseData.id) return
-                await post(`/courses/${courseData.id}/course_modules.json`, {
+                if (!courseId) return
+                await post(`/courses/${courseId}/course_modules.json`, {
                   body: JSON.stringify({ course_module: module }),
                 })
                 await fetchModules()
               }}
               refreshModules={fetchModules}
               onModuleUpdate={async (moduleId, updatedModule) => {
-                if (!courseData.id) return
-                await put(`/courses/${courseData.id}/course_modules/${moduleId}.json`, {
+                if (!courseId) return
+                await put(`/courses/${courseId}/course_modules/${moduleId}.json`, {
                   body: JSON.stringify({ course_module: updatedModule }),
                 })
                 await fetchModules()
               }}
               onModuleDelete={async (moduleId) => {
-                if (!courseData.id) return
-                await destroy(`/courses/${courseData.id}/course_modules/${moduleId}.json`)
+                if (!courseId) return
+                await destroy(`/courses/${courseId}/course_modules/${moduleId}.json`)
                 await fetchModules()
               }}
               onLessonCreate={async (moduleId, lesson) => {
-                await post(`/courses/${courseData.id}/course_modules/${moduleId}/lessons.json`, {
+                await post(`/courses/${courseId}/course_modules/${moduleId}/lessons.json`, {
                   body: JSON.stringify({ lesson }),
                 })
                 await fetchModules()
               }}
               onLessonUpdate={async (moduleId, lessonId, updatedLesson) => {
-                await put(`/courses/${courseData.id}/course_modules/${moduleId}/lessons/${lessonId}.json`, {
+                await put(`/courses/${courseId}/course_modules/${moduleId}/lessons/${lessonId}.json`, {
                   body: JSON.stringify({ lesson: updatedLesson }),
                 })
                 await fetchModules()
               }}
               onLessonDelete={async (moduleId, lessonId) => {
-                await destroy(`/courses/${courseData.id}/course_modules/${moduleId}/lessons/${lessonId}.json`)
+                await destroy(`/courses/${courseId}/course_modules/${moduleId}/lessons/${lessonId}.json`)
                 await fetchModules()
               }}
               onLessonDocumentCreate={async (moduleId, doc, lessonId) => {
                 // lessonId may be undefined for new lessons
                 if (!lessonId) return
-                await post(`/courses/${courseData.id}/course_modules/${moduleId}/lessons/${lessonId}/course_documents.json`, {
+                await post(`/courses/${courseId}/course_modules/${moduleId}/lessons/${lessonId}/course_documents.json`, {
                   body: JSON.stringify({ course_document: doc }),
                 })
                 await fetchModules()
               }}
               onLessonDocumentDelete={async (moduleId, docId, lessonId) => {
                 if (!lessonId || !docId) return
-                await destroy(`/courses/${courseData.id}/course_modules/${moduleId}/lessons/${lessonId}/course_documents/${docId}.json`)
+                await destroy(`/courses/${courseId}/course_modules/${moduleId}/lessons/${lessonId}/course_documents/${docId}.json`)
                 await fetchModules()
               }}
             />
           </TabsContent>
 
+
           <TabsContent value="resources">
             <ResourcesManager
+              courseId={courseId}
               resources={courseData.resources as any[]}
               onResourcesChange={(resources: any[]) => handleCourseDataChange({ resources })}
             />
@@ -332,13 +333,13 @@ export default function NewCoursePage() {
                   courseData={courseData}
                   onDataChange={handleCourseDataChange}
                   onSave={async (settings) => {
-                    if (!courseData.id) return
-                    const response = await put(`/courses/${courseData.id}.json`, {
+                    if (!courseId) return
+                    const response = await put(`/courses/${courseId}.json`, {
                       body: JSON.stringify({ course: settings }),
                     })
 
                     if(!response.ok) {
-                      // const response = await get(`/courses/${courseData.id}.json`)
+                      // const response = await get(`/courses/${courseId}.json`)
                       // const data = await response.json
                       // setCourseData((prev) => ({ ...prev, ...data.course }))
                       toast({
@@ -350,7 +351,7 @@ export default function NewCoursePage() {
                       })
                     }
                     // Optionally refresh course data
-                    // const response = await get(`/courses/${courseData.id}.json`)
+                    // const response = await get(`/courses/${courseId}.json`)
                     // const data = await response.json
                     // setCourseData((prev) => ({ ...prev, ...data.course }))
                   }}

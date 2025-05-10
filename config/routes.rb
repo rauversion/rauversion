@@ -16,6 +16,8 @@ Rails.application.routes.draw do
       post :invite
     end
     get "/lessons/:lesson_id", to: "courses#show_lesson", as: :lesson
+    resources :course_documents, only: [:index, :create, :destroy]
+
     resources :course_modules do
       member do
         patch :move

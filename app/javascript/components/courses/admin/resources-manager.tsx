@@ -1,6 +1,5 @@
 "use client"
-import React from "react"
-import { useState } from "react"
+import React, { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
@@ -14,74 +13,113 @@ import {
   DialogClose,
 } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
-import { Plus, Trash2, FileText, Music2, Download, Upload, X } from "lucide-react"
+import { Plus, Trash2, FileText, Upload, X } from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
+import { get, post, destroy } from "@rails/request.js"
+import { DirectUpload } from "@rails/activestorage"
 
-export default function ResourcesManager({ resources = [], onResourcesChange }) {
-  const [newResource, setNewResource] = useState({
-    title: "",
-    type: "document",
-    file: null,
-  })
+interface CourseDocument {
+  id: number
+  title: string
+  name: string
+  file_url?: string
+}
 
-  const handleAddResource = () => {
-    if (!newResource.title.trim() || !newResource.file) return
+interface ResourcesManagerProps {
+  courseId: number | string
+}
 
-    const updatedResources = [
-      ...resources,
-      {
-        id: Date.now(),
-        title: newResource.title,
-        type: newResource.type,
-        fileName: newResource.file.name,
-        fileSize: formatFileSize(newResource.file.size),
-        file: newResource.file,
-      },
-    ]
+export default function ResourcesManager({ courseId }: ResourcesManagerProps) {
+  const [documents, setDocuments] = useState<CourseDocument[]>([])
+  const [loading, setLoading] = useState(false)
+  const [newResource, setNewResource] = useState<{ title: string; file: File | null }>({ title: "", file: null })
+  const [uploading, setUploading] = useState(false)
+  const [dialogOpen, setDialogOpen] = useState(false)
+  const { toast } = useToast()
 
-    onResourcesChange(updatedResources)
-    setNewResource({ title: "", type: "document", file: null })
-  }
+  // Fetch documents on mount
+  useEffect(() => {
+    fetchDocuments()
+    // eslint-disable-next-line
+  }, [courseId])
 
-  const handleDeleteResource = (resourceId) => {
-    const updatedResources = resources.filter((resource) => resource.id !== resourceId)
-    onResourcesChange(updatedResources)
-  }
-
-  const handleFileUpload = (e) => {
-    const file = e.target.files[0]
-    if (file) {
-      // Determine file type based on extension
-      const fileExtension = file.name.split(".").pop().toLowerCase()
-      let type = "document"
-
-      if (["mp3", "wav", "ogg"].includes(fileExtension)) {
-        type = "audio"
-      } else if (["mp4", "mov", "webm"].includes(fileExtension)) {
-        type = "video"
+  const fetchDocuments = async () => {
+    setLoading(true)
+    try {
+      const response = await get(`/courses/${courseId}/course_documents.json`)
+      if (response.ok) {
+        const data = await response.json
+        setDocuments(data)
+      } else {
+        toast({ description: "Failed to fetch course documents", variant: "destructive" })
       }
-
-      setNewResource((prev) => ({
-        ...prev,
-        file,
-        type,
-      }))
+    } catch (err) {
+      toast({ description: "Error fetching course documents", variant: "destructive" })
+    } finally {
+      setLoading(false)
     }
   }
 
-  const formatFileSize = (bytes) => {
-    if (bytes === 0) return "0 Bytes"
-    const k = 1024
-    const sizes = ["Bytes", "KB", "MB", "GB"]
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-    return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i]
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      setNewResource((prev) => ({ ...prev, file }))
+    }
   }
 
-  const getResourceIcon = (type) => {
-    switch (type) {
-      case "audio":
-        return <Music2 className="h-5 w-5" />
-      default:
-        return <FileText className="h-5 w-5" />
+  const handleAddResource = async () => {
+    if (!newResource.title.trim() || !newResource.file) return
+    setUploading(true)
+    try {
+      // Direct upload to storage
+      const upload = new DirectUpload(newResource.file, "/api/v1/direct_uploads")
+      upload.create(async (error, blob) => {
+        if (error) {
+          setUploading(false)
+          toast({ description: "Error uploading file: " + error, variant: "destructive" })
+        } else {
+          // POST to backend with signed_id
+          const payload = {
+            course_document: {
+              title: newResource.title,
+              file: blob.signed_id,
+              name: newResource.file.name,
+            }
+          }
+          const response = await post(`/courses/${courseId}/course_documents.json`, {
+            body: JSON.stringify(payload),
+            headers: { "Content-Type": "application/json" },
+          })
+          if (response.ok) {
+            const data = await response.json
+            setDocuments((prev) => [...prev, data])
+            toast({ description: "Resource added!" })
+            setNewResource({ title: "", file: null })
+            setDialogOpen(false)
+          } else {
+            const data = await response.json
+            toast({ description: data.errors?.join(", ") || "Failed to add resource", variant: "destructive" })
+          }
+          setUploading(false)
+        }
+      })
+    } catch (err) {
+      setUploading(false)
+      toast({ description: "Error adding resource", variant: "destructive" })
+    }
+  }
+
+  const handleDeleteResource = async (id: number) => {
+    try {
+      const response = await destroy(`/courses/${courseId}/course_documents/${id}.json`)
+      if (response.ok) {
+        setDocuments((prev) => prev.filter((doc) => doc.id !== id))
+        toast({ description: "Resource deleted" })
+      } else {
+        toast({ description: "Failed to delete resource", variant: "destructive" })
+      }
+    } catch (err) {
+      toast({ description: "Error deleting resource", variant: "destructive" })
     }
   }
 
@@ -89,7 +127,7 @@ export default function ResourcesManager({ resources = [], onResourcesChange }) 
     <Card>
       <CardHeader className="flex flex-row items-center">
         <CardTitle>Course Resources</CardTitle>
-        <Dialog>
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button className="ml-auto">
               <Plus className="h-4 w-4 mr-2" />
@@ -110,40 +148,39 @@ export default function ResourcesManager({ resources = [], onResourcesChange }) 
                   onChange={(e) => setNewResource((prev) => ({ ...prev, title: e.target.value }))}
                 />
               </div>
-
               <div className="space-y-2">
-                <Label>Upload File</Label>
-                <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6">
+                <Label htmlFor="resource-file">Upload File</Label>
+                <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 flex flex-col items-center justify-center text-center">
                   {newResource.file ? (
-                    <div className="flex justify-between items-center p-3 bg-muted rounded-md">
+                    <div className="flex justify-between items-center p-3 bg-muted rounded-md w-full max-w-xs">
                       <div className="flex items-center">
-                        {getResourceIcon(newResource.type)}
+                        <FileText className="h-5 w-5 text-muted-foreground" />
                         <div className="ml-2">
                           <p className="text-sm font-medium truncate">{newResource.file.name}</p>
-                          <p className="text-xs text-muted-foreground">{formatFileSize(newResource.file.size)}</p>
+                          <p className="text-xs text-muted-foreground">{(newResource.file.size / 1024).toFixed(2)} KB</p>
                         </div>
                       </div>
                       <Button
+                        size="icon"
                         variant="ghost"
-                        size="sm"
-                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
                         onClick={() => setNewResource((prev) => ({ ...prev, file: null }))}
                       >
                         <X className="h-4 w-4" />
                       </Button>
                     </div>
                   ) : (
-                    <div className="flex flex-col items-center justify-center text-center py-8">
+                    <div className="flex flex-col items-center justify-center text-center py-8 w-full">
                       <FileText className="h-10 w-10 text-muted-foreground mb-2" />
                       <p className="text-sm text-muted-foreground mb-2">Upload course resource</p>
                       <p className="text-xs text-muted-foreground mb-4">PDF, audio files, or other materials</p>
-                      <Button variant="outline" className="relative">
+                      <Button variant="outline" className="relative w-full max-w-xs">
                         <Upload className="h-4 w-4 mr-2" />
-                        Upload File
+                        Select File
                         <input
                           type="file"
                           className="absolute inset-0 opacity-0 cursor-pointer"
-                          onChange={handleFileUpload}
+                          onChange={handleFileChange}
+                          accept=".pdf,.doc,.docx,.txt,.mp3,.wav,.ogg,.mp4,.mov,.webm"
                         />
                       </Button>
                     </div>
@@ -153,45 +190,42 @@ export default function ResourcesManager({ resources = [], onResourcesChange }) 
             </div>
             <DialogFooter>
               <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
+                <Button variant="outline" onClick={() => setNewResource({ title: "", file: null })}>Cancel</Button>
               </DialogClose>
-              <DialogClose asChild>
-                <Button onClick={handleAddResource} disabled={!newResource.title || !newResource.file}>
-                  Add Resource
-                </Button>
-              </DialogClose>
+              <Button onClick={handleAddResource} disabled={!newResource.title || !newResource.file || uploading}>
+                {uploading ? "Uploading..." : "Add Resource"}
+              </Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
       </CardHeader>
       <CardContent>
-        {resources.length === 0 ? (
+        {loading ? (
+          <div className="text-center py-8 text-muted-foreground">Loading resources...</div>
+        ) : documents.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <p>No resources added yet. Click "Add Resource" to upload course materials.</p>
           </div>
         ) : (
           <div className="space-y-3">
-            {resources.map((resource) => (
-              <div key={resource.id} className="flex items-center p-3 rounded-md border">
-                <div className="mr-3 text-muted-foreground">{getResourceIcon(resource.type)}</div>
+            {documents.map((doc) => (
+              <div key={doc.id} className="flex items-center p-3 rounded-md border">
+                <div className="mr-3 text-muted-foreground">
+                  <FileText className="h-5 w-5" />
+                </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium truncate">{resource.title}</p>
+                  <p className="font-medium truncate">{doc.title}</p>
                   <div className="flex items-center text-xs text-muted-foreground mt-1">
-                    <span>{resource.fileName}</span>
-                    <span className="mx-1">•</span>
-                    <span>{resource.fileSize}</span>
+                    <span>{doc.name}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Button variant="ghost" size="sm">
-                    <Download className="h-4 w-4 mr-2" />
-                    Download
-                  </Button>
+                  {/* Download button could be implemented if file_url is available */}
                   <Button
                     variant="ghost"
                     size="icon"
                     className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                    onClick={() => handleDeleteResource(resource.id)}
+                    onClick={() => handleDeleteResource(doc.id)}
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>

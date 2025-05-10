@@ -16,6 +16,7 @@ json.course_modules @course_modules.map { |mod|
           {
             id: doc.id,
             title: doc.title,
+            name: doc.name,
             file_url: doc.file.attached? ? url_for(doc.file) : nil,
             created_at: doc.created_at,
             updated_at: doc.updated_at

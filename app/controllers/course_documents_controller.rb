@@ -4,17 +4,22 @@ class CourseDocumentsController < ApplicationController
 
   def index
     @course_documents = @course.course_documents
-    render :index
+    render json: @course_documents
   end
 
   def show
-    render :show
+    render json: @course_document
   end
 
   def create
-    @course_document = @lesson.course_documents.build(course_document_params)
+    if @lesson
+      @course_document = @lesson.course_documents.build(course_document_params)
+      @course_document.course = @course
+    else
+      @course_document = @course.course_documents.build(course_document_params)
+    end
     if @course_document.save
-      render :show, status: :created
+      render json: @course_document, status: :created
     else
       render json: { errors: @course_document.errors.full_messages }, status: :unprocessable_entity
     end
@@ -37,10 +42,14 @@ class CourseDocumentsController < ApplicationController
   end
 
   def set_course_document
-    @course_document = @lesson.course_documents.find(params[:id])
+    if @lesson
+      @course_document = @lesson.course_documents.find(params[:id])
+    else
+      @course_document = @course.course_documents.find(params[:id])
+    end
   end
 
   def course_document_params
-    params.require(:course_document).permit(:title, :file)
+    params.require(:course_document).permit(:title, :name, :file)
   end
 end

@@ -238,6 +238,7 @@ export default function CourseDetailsForm({ courseData, onDataChange }: CourseDe
 
           <div className="space-y-6">
             <div>
+             
               <Label htmlFor="thumbnail">Course Thumbnail</Label>
               <div className="mt-2 flex flex-col items-center justify-center border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 h-[auto]">
                 <ImageUploader
@@ -258,6 +259,7 @@ export default function CourseDetailsForm({ courseData, onDataChange }: CourseDe
               </div>
             </div>
 
+          {/*
             <FormField
               control={form.control}
               name="instructor"
@@ -304,6 +306,7 @@ export default function CourseDetailsForm({ courseData, onDataChange }: CourseDe
                 />
               </div>
             </div>
+            */}
           </div>
         </div>
       </form>
