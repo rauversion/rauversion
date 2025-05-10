@@ -10,6 +10,8 @@ import { get, post } from "@rails/request.js";
 
 type Enrollment = {
   id: number;
+  email?: string;
+  full_name?: string;
   completed_lessons: any[];
   remaining_lessons: any[];
   module_progress: Record<string, { completed: number; total: number; percent: number }>;
@@ -93,7 +95,7 @@ export default function CourseEnrollmentsTab() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>ID</TableHead>
+                <TableHead>User</TableHead>
                 <TableHead>Completed Lessons</TableHead>
                 <TableHead>Remaining Lessons</TableHead>
                 <TableHead>Progress (%)</TableHead>
@@ -111,7 +113,12 @@ export default function CourseEnrollmentsTab() {
               ) : (
                 enrollments.map((enrollment) => (
                   <TableRow key={enrollment.id}>
-                    <TableCell>{enrollment.id}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-col">
+                        <span className="font-medium">{enrollment?.full_name || "—"}</span>
+                        <span className="text-xs text-muted-foreground">{enrollment?.email || "—"}</span>
+                      </div>
+                    </TableCell>
                     <TableCell>{enrollment.completed_lessons?.length ?? 0}</TableCell>
                     <TableCell>{enrollment.remaining_lessons?.length ?? 0}</TableCell>
                     <TableCell>
