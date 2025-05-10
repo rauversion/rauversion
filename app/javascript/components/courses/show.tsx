@@ -25,6 +25,7 @@ import { get, post } from "@rails/request.js"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog"
 import CourseEnrollmentForm from "@/components/courses/CourseEnrollmentForm"
+import useAuthStore from '@/stores/authStore'
 
 export default function CoursePage() {
   const params = useParams()
@@ -37,6 +38,8 @@ export default function CoursePage() {
   const [modules, setModules] = useState<any[]>([])
   const [modulesLoading, setModulesLoading] = useState(true)
   const [modulesError, setModulesError] = useState<string | null>(null)
+  const [showLoginDialog, setShowLoginDialog] = useState(false)
+  const { currentUser } = useAuthStore()
   const navigate = useNavigate()
   useEffect(() => {
     async function fetchCourse() {
@@ -287,6 +290,11 @@ export default function CoursePage() {
                         className="bg-gradient-to-r from-blue-500 to-indigo-700 text-white shadow-lg hover:from-blue-600 hover:to-indigo-800 transition-all duration-200"
                         onClick={async (e) => {
                           e.preventDefault();
+                          // Check for currentUser
+                          if (!currentUser) {
+                            setShowLoginDialog(true);
+                            return;
+                          }
                           if (enrollment && !enrollment.started_lessons?.includes(nextLesson.id)) {
                             await post(`/course_enrollments/${enrollment.id}/start_lesson`, {
                               body: JSON.stringify({ lesson_id: nextLesson.id }),
@@ -372,6 +380,10 @@ export default function CoursePage() {
                                       className="bg-gradient-to-r from-blue-500 to-indigo-700 text-white shadow-lg hover:from-blue-600 hover:to-indigo-800 transition-all duration-200"
                                       onClick={async (e) => {
                                         e.preventDefault();
+                                        if (!currentUser) {
+                                          setShowLoginDialog(true);
+                                          return;
+                                        }
                                         navigate(`/courses/${courseId}/lessons/${lesson.id}`);
                                       }}
                                     >
@@ -388,7 +400,11 @@ export default function CoursePage() {
                                       size="lg"
                                       className="bg-gradient-to-r from-pink-500 to-fuchsia-600 text-white shadow-lg hover:from-pink-600 hover:to-fuchsia-700 transition-all duration-200"
                                       onClick={async (e) => {
-                                        e.preventDefault()
+                                        e.preventDefault();
+                                        if (!currentUser) {
+                                          setShowLoginDialog(true);
+                                          return;
+                                        }
                                         await post(`/course_enrollments/${enrollment.id}/start_lesson`, {
                                           body: JSON.stringify({ lesson_id: lesson.id })
                                         })
@@ -518,7 +534,18 @@ export default function CoursePage() {
                       </div>
                       <Dialog>
                         <DialogTrigger asChild>
-                          <Button size="sm" className="ml-2">Enroll</Button>
+                          <Button
+                            size="sm"
+                            className="ml-2"
+                            onClick={e => {
+                              if (!currentUser) {
+                                e.preventDefault();
+                                setShowLoginDialog(true);
+                              }
+                            }}
+                          >
+                            Enroll
+                          </Button>
                         </DialogTrigger>
                         <DialogContent>
                           <DialogHeader>
@@ -554,6 +581,29 @@ export default function CoursePage() {
           </div>
         </div>
       </div>
+
+
+      {/* Login Dialog */}
+      <Dialog open={showLoginDialog} onOpenChange={setShowLoginDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Login Required</DialogTitle>
+          </DialogHeader>
+          <div className="py-4 text-center">
+            <p className="mb-4 text-lg">You need to be logged in to access this feature.</p>
+            <Button
+              className="w-full bg-gradient-to-r from-blue-500 to-indigo-700 text-white shadow-lg hover:from-blue-600 hover:to-indigo-800 transition-all duration-200"
+              onClick={() => {
+                window.location.href = "/users/sign_in"
+              }}
+            >
+              Go to Login
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
     </div>
   )
+
 }

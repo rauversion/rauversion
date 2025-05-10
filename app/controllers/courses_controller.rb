@@ -4,6 +4,16 @@ class CoursesController < ApplicationController
   def index
     respond_to do |format|
       format.json { 
+        @courses = Course.page(params[:page]).per(10)
+        render :index 
+      }
+      format.html { render_blank }
+    end
+  end
+
+  def mine
+    respond_to do |format|
+      format.json { 
         @courses = current_user.courses.page(params[:page]).per(10)
         render :index 
       }
@@ -12,7 +22,10 @@ class CoursesController < ApplicationController
   end
 
   def show
-    @course = current_user.courses.find_by(id: params[:id])
+    @course = current_user.courses.find_by(id: params[:id]) if current_user
+    if @course.nil?
+      @course = Course.find_by(id: params[:id])
+    end
     if params[:get_enrollment] && current_user
       @course_enrollment = CourseEnrollment.find_by(
         user_id: current_user.id, 
@@ -61,7 +74,11 @@ class CoursesController < ApplicationController
   end
 
   def show_lesson
-    @course = current_user.courses.find_by(id: params[:course_id])
+    @course = current_user.courses.find_by(id: params[:course_id]) if current_user
+    if @course.nil?
+      @course = Course.find_by(id: params[:course_id])
+    end
+
     if @course
       @lesson = @course.lessons.find(params[:lesson_id])
       @course_module = @lesson.course_module
@@ -120,7 +137,11 @@ class CoursesController < ApplicationController
   private
 
   def set_course
-    @course = current_user.courses.find(params[:id])
+
+    @course = current_user.courses.find_by(id: params[:id]) if current_user
+    if @course.nil?
+      @course = Course.find_by(id: params[:id])
+    end
   end
 
   def course_params
