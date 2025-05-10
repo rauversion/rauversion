@@ -185,7 +185,7 @@ export default function CoursePage() {
       0,
     )
     overallProgress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0
-    // Build moduleProgress fallback
+    // Build moduleProgress fallback (per-module)
     moduleProgress = {}
     for (const module of modules) {
       const completed = module.lessons.filter((lesson: any) => lesson.completed).length
@@ -197,6 +197,12 @@ export default function CoursePage() {
       }
     }
   }
+
+  // If enrollment is present, update each module's .progress with moduleProgress
+  const modulesWithProgress = modules.map((module) => ({
+    ...module,
+    progress: moduleProgress[module.id]?.percent ?? 0,
+  }));
 
   return (
     <div className="min-h-screen bg-background">
@@ -276,9 +282,21 @@ export default function CoursePage() {
                         <h3 className="text-sm font-medium text-muted-foreground mb-1">Continue where you left off</h3>
                         <p className="font-medium">{nextLesson.title}</p>
                       </div>
-                      <Button size="sm">
+                      <Button
+                        size="sm"
+                        className="bg-gradient-to-r from-blue-500 to-indigo-700 text-white shadow-lg hover:from-blue-600 hover:to-indigo-800 transition-all duration-200"
+                        onClick={async (e) => {
+                          e.preventDefault();
+                          if (enrollment && !enrollment.started_lessons?.includes(nextLesson.id)) {
+                            await post(`/course_enrollments/${enrollment.id}/start_lesson`, {
+                              body: JSON.stringify({ lesson_id: nextLesson.id }),
+                            });
+                          }
+                          navigate(`/courses/${courseId}/lessons/${nextLesson.id}`);
+                        }}
+                      >
                         <Play className="mr-2 h-4 w-4" />
-                        Continue
+                        Continue Learning
                       </Button>
                     </div>
                   </CardContent>
@@ -294,7 +312,7 @@ export default function CoursePage() {
               </TabsList>
               <TabsContent value="content" className="mt-4">
                 <Accordion type="multiple" className="w-full">
-                  {modules.map((module) => (
+                  {modulesWithProgress.map((module) => (
                     <AccordionItem value={`module-${module.id}`} key={module.id}>
                       <AccordionTrigger className="hover:no-underline">
                         <div className="flex flex-1 items-center justify-between pr-4">
@@ -335,8 +353,13 @@ export default function CoursePage() {
                                 const finished = enrollment.finished_lessons?.includes(lesson.id)
                                 if (finished) {
                                   return (
-                                    <Button variant="ghost" size="sm">
-                                      <Link to={`/courses/${courseId}/lessons/${lesson.id}`}>
+                                    <Button
+                                      variant="success"
+                                      size="lg"
+                                      className="bg-gradient-to-r from-green-400 to-emerald-600 text-white shadow-lg hover:from-green-500 hover:to-emerald-700 transition-all duration-200"
+                                    >
+                                      <Link to={`/courses/${courseId}/lessons/${lesson.id}`} className="flex items-center gap-2">
+                                        <CheckCircle className="h-5 w-5" />
                                         Review
                                       </Link>
                                     </Button>
@@ -344,26 +367,26 @@ export default function CoursePage() {
                                 } else if (started) {
                                   return (
                                     <Button
-                                      variant="ghost"
-                                      size="sm"
-                                      //onClick={async (e) => {
-                                        /*e.preventDefault()
-                                        await post(`/course_enrollments/${enrollment.id}/finish_lesson`, {
-                                          body: JSON.stringify({ lesson_id: lesson.id })
-                                        })
-                                        navigate(0)*/ // reload page to update progress
-                                      //}}
+                                      variant="primary"
+                                      size="lg"
+                                      className="bg-gradient-to-r from-blue-500 to-indigo-700 text-white shadow-lg hover:from-blue-600 hover:to-indigo-800 transition-all duration-200"
+                                      onClick={async (e) => {
+                                        e.preventDefault();
+                                        navigate(`/courses/${courseId}/lessons/${lesson.id}`);
+                                      }}
                                     >
-                                      <Link to={`/courses/${courseId}/lessons/${lesson.id}`}>
+                                      <span className="flex items-center gap-2">
+                                        <Play className="h-5 w-5" />
                                         Continue
-                                      </Link>
+                                      </span>
                                     </Button>
                                   )
                                 } else {
                                   return (
                                     <Button
-                                      variant="ghost"
-                                      size="sm"
+                                      variant="secondary"
+                                      size="lg"
+                                      className="bg-gradient-to-r from-pink-500 to-fuchsia-600 text-white shadow-lg hover:from-pink-600 hover:to-fuchsia-700 transition-all duration-200"
                                       onClick={async (e) => {
                                         e.preventDefault()
                                         await post(`/course_enrollments/${enrollment.id}/start_lesson`, {
@@ -372,13 +395,33 @@ export default function CoursePage() {
                                         navigate(`/courses/${courseId}/lessons/${lesson.id}`)
                                       }}
                                     >
-                                      Start
+                                      <span className="flex items-center gap-2">
+                                        <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" />
+                                        </svg>
+                                        Start
+                                      </span>
                                     </Button>
                                   )
                                 }
                               })() : (
-                                <Button variant="ghost" size="sm">
-                                  <Link to={`/courses/${courseId}/lessons/${lesson.id}`}>
+                                <Button
+                                  variant={lesson.completed ? "success" : "secondary"}
+                                  size="lg"
+                                  className={
+                                    lesson.completed
+                                      ? "bg-gradient-to-r from-green-400 to-emerald-600 text-white shadow-lg hover:from-green-500 hover:to-emerald-700 transition-all duration-200"
+                                      : "bg-gradient-to-r from-pink-500 to-fuchsia-600 text-white shadow-lg hover:from-pink-600 hover:to-fuchsia-700 transition-all duration-200"
+                                  }
+                                >
+                                  <Link to={`/courses/${courseId}/lessons/${lesson.id}`} className="flex items-center gap-2">
+                                    {lesson.completed ? (
+                                      <CheckCircle className="h-5 w-5" />
+                                    ) : (
+                                      <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" />
+                                      </svg>
+                                    )}
                                     {lesson.completed ? "Review" : "Start"}
                                   </Link>
                                 </Button>
@@ -457,18 +500,15 @@ export default function CoursePage() {
                   </div>
 
                   <div className="space-y-4">
-                    {modules.map((module) => {
-                      const modProg = moduleProgress[module.id] || { percent: 0 }
-                      return (
-                        <div key={module.id}>
-                          <div className="flex justify-between text-sm mb-1">
-                            <span className="truncate pr-2">{module.title}</span>
-                            <span className="font-medium">{modProg.percent}%</span>
-                          </div>
-                          <Progress value={modProg.percent} className="h-1.5" />
+                    {modulesWithProgress.map((module) => (
+                      <div key={module.id}>
+                        <div className="flex justify-between text-sm mb-1">
+                          <span className="truncate pr-2">{module.title}</span>
+                          <span className="font-medium">{module.progress}%</span>
                         </div>
-                      )
-                    })}
+                        <Progress value={module.progress} className="h-1.5" />
+                      </div>
+                    ))}
                   </div>
 
                   <div className="mt-6 pt-6 border-t">

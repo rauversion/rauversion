@@ -112,7 +112,7 @@ class CourseEnrollment < ApplicationRecord
       completed = (lesson_ids & finished_ids).size
       total = lesson_ids.size
       percent = total > 0 ? completed.to_f / total : 0.0
-      hash[mod.id] = { completed: completed, total: total, percent: percent }
+      hash[mod.id] = { completed: completed, total: total, percent: (percent * 100).round(2) }
     end
   end
 end

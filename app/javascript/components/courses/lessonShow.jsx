@@ -48,32 +48,33 @@ export default function LessonPage() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    async function fetchLesson() {
-      setLoading(true)
-      setError(null)
-      try {
-        const response = await get(`/courses/${courseId}/lessons/${lessonId}.json`)
-        if (response.ok) {
-          const data = await response.json
-          setLesson(data.lesson)
-          setModule(data.course_module)
-          if (data.enrollment) {
-            setEnrollment(data.enrollment)
-          } else {
-            setEnrollment(null)
-          }
-        } else {
-          setError("Failed to fetch lesson")
-        }
-      } catch (err) {
-        setError("Failed to fetch lesson")
-      } finally {
-        setLoading(false)
-      }
-    }
     fetchLesson()
   }, [courseId, lessonId])
 
+
+  async function fetchLesson() {
+    setLoading(true)
+    setError(null)
+    try {
+      const response = await get(`/courses/${courseId}/lessons/${lessonId}.json`)
+      if (response.ok) {
+        const data = await response.json
+        setLesson(data.lesson)
+        setModule(data.course_module)
+        if (data.enrollment) {
+          setEnrollment(data.enrollment)
+        } else {
+          setEnrollment(null)
+        }
+      } else {
+        setError("Failed to fetch lesson")
+      }
+    } catch (err) {
+      setError("Failed to fetch lesson")
+    } finally {
+      setLoading(false)
+    }
+  }
   // Find next and previous lessons
   const findAdjacentLessons = () => {
     if (!module || !module.lessons) return { prev: null, next: null }
@@ -90,9 +91,6 @@ export default function LessonPage() {
   const { prev, next } = findAdjacentLessons()
 
   const handleComplete = () => {
-    // In a real app, this would update the database
-    alert("Lesson marked as complete!")
-
     // Navigate to next lesson if available
     if (next) {
       navigate(`/courses/${courseId}/lesson/${next.id}`)
@@ -312,7 +310,7 @@ export default function LessonPage() {
                         await post(`/course_enrollments/${enrollment.id}/start_lesson`, {
                           body: JSON.stringify({ lesson_id: lesson.id })
                         })
-                        window.location.reload()
+                        fetchLesson()
                       }}
                     >
                       <Play className="h-4 w-4 mr-2" />
@@ -321,14 +319,29 @@ export default function LessonPage() {
                   )
                 }
               })() : (
-                <Button variant="outline" size="sm" onClick={handleComplete}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={async () => {
+                    if (enrollment) {
+                      await post(`/course_enrollments/${enrollment.id}/finish_lesson`, {
+                        body: JSON.stringify({ lesson_id: lesson.id })
+                      })
+
+
+                      // Refetch lesson data to update UI
+                      fetchLesson()
+                      // handleComplete()
+                    }
+                  }}
+                >
                   <CheckCircle className="h-4 w-4 mr-2" />
                   Mark Complete
                 </Button>
               )}
               {next && (
                 <Button size="sm" asChild>
-                  <Link to={`/courses/${courseId}/lesson/${next.id}`}>
+                  <Link to={`/courses/${courseId}/lessons/${next.id}`}>
                     Next Lesson
                     <ArrowRight className="h-4 w-4 ml-2" />
                   </Link>

@@ -31,5 +31,7 @@ json.course_module do
 end
 
 if @course_enrollment.present?
-  json.partial! 'course_enrollments/enrollment', locals: { course_enrollment: @course_enrollment }
+  json.enrollment do
+    json.partial! 'course_enrollments/enrollment', locals: { course_enrollment: @course_enrollment }
+  end
 end
