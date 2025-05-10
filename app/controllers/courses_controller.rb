@@ -174,12 +174,12 @@ class CoursesController < ApplicationController
       title: @course.seo_title.presence || "#{@course.title} on Rauversion",
       description: @course.seo_description.presence || @course.description,
       keywords: @course.seo_keywords.presence || @course.category,
-      image: @course.thumbnail_url,
+      image: @course.thumbnail.url,
       twitter: {
         card: "summary_large_image",
         title: @course.seo_title.presence || @course.title,
         description: @course.seo_description.presence || @course.description,
-        image: @course.thumbnail_url
+        image: @course.thumbnail.url
       }
     )
   end
