@@ -7,6 +7,8 @@ import { Progress } from "@/components/ui/progress"
 import { Separator } from "@/components/ui/separator"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
+import { motion } from "framer-motion"
 import {
   ArrowLeft,
   ArrowRight,
@@ -25,7 +27,7 @@ import {
 } from "lucide-react"
 import VideoPlayer from "@/components/courses/videoPlayer"
 
-import { get } from "@rails/request.js"
+import { get, post } from "@rails/request.js"
 
 export default function LessonPage() {
   const { id, lesson_id } = useParams()
@@ -34,6 +36,7 @@ export default function LessonPage() {
 
   const [lesson, setLesson] = useState(null)
   const [module, setModule] = useState(null)
+  const [enrollment, setEnrollment] = useState(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [progress, setProgress] = useState(0)
   const [activeTab, setActiveTab] = useState("content")
@@ -41,6 +44,7 @@ export default function LessonPage() {
   const [showControls, setShowControls] = useState(true)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [showFinishDialog, setShowFinishDialog] = useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -53,6 +57,11 @@ export default function LessonPage() {
           const data = await response.json
           setLesson(data.lesson)
           setModule(data.course_module)
+          if (data.enrollment) {
+            setEnrollment(data.enrollment)
+          } else {
+            setEnrollment(null)
+          }
         } else {
           setError("Failed to fetch lesson")
         }
@@ -244,10 +253,79 @@ export default function LessonPage() {
               <p className="text-sm text-muted-foreground">{module.title}</p>
             </div>
             <div className="flex items-center gap-2">
-              <Button variant="outline" size="sm" onClick={handleComplete}>
-                <CheckCircle className="h-4 w-4 mr-2" />
-                Mark Complete
-              </Button>
+              {enrollment ? (() => {
+                const started = enrollment.started_lessons?.includes(lesson.id)
+                const finished = enrollment.finished_lessons?.includes(lesson.id)
+                if (finished) {
+                  return (
+                    <Button variant="outline" size="sm">
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Completed
+                    </Button>
+                  )
+                } else if (started) {
+                  return (
+                    <>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={async () => {
+                          await post(`/course_enrollments/${enrollment.id}/finish_lesson`, {
+                            body: JSON.stringify({ lesson_id: lesson.id })
+                          })
+                          // Refetch lesson data to update UI
+                          await fetchLesson()
+                          setShowFinishDialog(true)
+                        }}
+                      >
+                        <CheckCircle className="h-4 w-4 mr-2" />
+                        Finish Lesson
+                      </Button>
+                      <Dialog open={showFinishDialog} onOpenChange={setShowFinishDialog}>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>🎉 Lesson Completed!</DialogTitle>
+                          </DialogHeader>
+                          <motion.div
+                            initial={{ scale: 0.8, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                            className="flex flex-col items-center justify-center py-4"
+                          >
+                            <CheckCircle className="h-16 w-16 text-green-500 mb-4 animate-bounce" />
+                            <h2 className="text-xl font-bold mb-2">Congratulations!</h2>
+                            <p className="text-muted-foreground mb-4">You've finished this lesson. Keep going!</p>
+                          </motion.div>
+                          <DialogFooter>
+                            <Button onClick={() => setShowFinishDialog(false)}>Close</Button>
+                          </DialogFooter>
+                        </DialogContent>
+                      </Dialog>
+                    </>
+                  )
+                } else {
+                  return (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={async () => {
+                        await post(`/course_enrollments/${enrollment.id}/start_lesson`, {
+                          body: JSON.stringify({ lesson_id: lesson.id })
+                        })
+                        window.location.reload()
+                      }}
+                    >
+                      <Play className="h-4 w-4 mr-2" />
+                      Start Lesson
+                    </Button>
+                  )
+                }
+              })() : (
+                <Button variant="outline" size="sm" onClick={handleComplete}>
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Mark Complete
+                </Button>
+              )}
               {next && (
                 <Button size="sm" asChild>
                   <Link to={`/courses/${courseId}/lesson/${next.id}`}>
@@ -270,11 +348,11 @@ export default function LessonPage() {
 
                 <TabsContent value="content" className="mt-4">
                   <div className="prose max-w-none">
-                    <h2 className="text-xl font-semibold mb-4">About this lesson</h2>
+                    <h2 className="text-xl text-default font-semibold mb-4">About this lesson</h2>
                     <p className="text-muted-foreground">{lesson.description}</p>
 
                     <div className="mt-6">
-                      <h3 className="text-lg font-medium mb-3">What you'll learn</h3>
+                      <h3 className="text-lg text-default font-medium mb-3">What you'll learn</h3>
                       <ul className="space-y-2">
                         <li className="flex items-start">
                           <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5" />

@@ -8,8 +8,11 @@ Rails.application.routes.draw do
     end
   end
   resources :courses do
+    member do
+      get :enrollments
+      post :invite
+    end
     get "/lessons/:lesson_id", to: "courses#show_lesson", as: :lesson
-    
     resources :course_modules do
       member do
         patch :move

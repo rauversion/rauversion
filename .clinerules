@@ -16,3 +16,4 @@ main rules:
 14. we use @/components/ui for the shadcn components
 15. we use @/hooks for use-toast
 16. do not get sidetracked
+17. to get the params from the url we use react router dom useParams

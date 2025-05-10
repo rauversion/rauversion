@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect } from "react"
-import { useParams, Link } from "react-router-dom"
+import { useParams, Link, useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -21,29 +21,37 @@ import {
   MessageSquare,
   Settings,
 } from "lucide-react"
-import { get } from "@rails/request.js"
+import { get, post } from "@rails/request.js"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog"
+import CourseEnrollmentForm from "@/components/courses/CourseEnrollmentForm"
 
 export default function CoursePage() {
   const params = useParams()
   const courseId = params.id
   const [course, setCourse] = useState<any>(null)
+  const [enrollment, setEnrollment] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [activeTab, setActiveTab] = useState("content")
   const [modules, setModules] = useState<any[]>([])
   const [modulesLoading, setModulesLoading] = useState(true)
   const [modulesError, setModulesError] = useState<string | null>(null)
-
+  const navigate = useNavigate()
   useEffect(() => {
     async function fetchCourse() {
       setLoading(true)
       setError(null)
       try {
-        const response = await get(`/courses/${courseId}.json`)
+        const response = await get(`/courses/${courseId}.json?get_enrollment=true`)
         if (response.ok) {
           const data = await response.json
           setCourse(data.course)
+          if (data.enrollment) {
+            setEnrollment(data.enrollment)
+          } else {
+            setEnrollment(null)
+          }
         } else {
           setError("Failed to fetch course")
         }
@@ -144,27 +152,51 @@ export default function CoursePage() {
     return <div className="container py-10">Course not found.</div>
   }
 
-  // Find the next incomplete lesson
-  const findNextLesson = () => {
-    for (const module of modules) {
-      for (const lesson of module.lessons) {
-        if (!lesson.completed) {
-          return { moduleId: module.id, lessonId: lesson.id, title: lesson.title }
+  // Progress and next lesson logic using enrollment if present
+  let completedLessons = 0
+  let totalLessons = 0
+  let overallProgress = 0
+  let nextLesson = null
+  let moduleProgress: Record<string, any> = {}
+
+  if (enrollment) {
+    completedLessons = enrollment.completed_lessons?.length || 0
+    totalLessons = (enrollment.completed_lessons?.length || 0) + (enrollment.remaining_lessons?.length || 0)
+    overallProgress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0
+    nextLesson = enrollment.remaining_lessons?.find((l: any) => l && l.id) || null
+    moduleProgress = enrollment.module_progress || {}
+  } else {
+    // fallback to old logic
+    // Find the next incomplete lesson
+    const findNextLesson = () => {
+      for (const module of modules) {
+        for (const lesson of module.lessons) {
+          if (!lesson.completed) {
+            return { moduleId: module.id, lessonId: lesson.id, title: lesson.title }
+          }
         }
       }
+      return null
     }
-    return null
+    nextLesson = findNextLesson()
+    totalLessons = modules.reduce((acc, module) => acc + module.lessons.length, 0)
+    completedLessons = modules.reduce(
+      (acc, module) => acc + module.lessons.filter((lesson) => lesson.completed).length,
+      0,
+    )
+    overallProgress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0
+    // Build moduleProgress fallback
+    moduleProgress = {}
+    for (const module of modules) {
+      const completed = module.lessons.filter((lesson: any) => lesson.completed).length
+      const total = module.lessons.length
+      moduleProgress[module.id] = {
+        completed,
+        total,
+        percent: total > 0 ? Math.round((completed / total) * 100) : 0
+      }
+    }
   }
-
-  const nextLesson = findNextLesson()
-
-  // Calculate overall progress
-  const totalLessons = modules.reduce((acc, module) => acc + module.lessons.length, 0)
-  const completedLessons = modules.reduce(
-    (acc, module) => acc + module.lessons.filter((lesson) => lesson.completed).length,
-    0,
-  )
-  const overallProgress = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0
 
   return (
     <div className="min-h-screen bg-background">
@@ -298,11 +330,59 @@ export default function CoursePage() {
                                   {lesson.duration}
                                 </div>
                               </div>
-                              <Button variant="ghost" size="sm">
-                                <Link to={`/courses/${courseId}/lessons/${lesson.id}`}>
-                                  {lesson.completed ? "Review" : "Start"}
-                                </Link>
-                              </Button>
+                              {enrollment ? (() => {
+                                const started = enrollment.started_lessons?.includes(lesson.id)
+                                const finished = enrollment.finished_lessons?.includes(lesson.id)
+                                if (finished) {
+                                  return (
+                                    <Button variant="ghost" size="sm">
+                                      <Link to={`/courses/${courseId}/lessons/${lesson.id}`}>
+                                        Review
+                                      </Link>
+                                    </Button>
+                                  )
+                                } else if (started) {
+                                  return (
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      //onClick={async (e) => {
+                                        /*e.preventDefault()
+                                        await post(`/course_enrollments/${enrollment.id}/finish_lesson`, {
+                                          body: JSON.stringify({ lesson_id: lesson.id })
+                                        })
+                                        navigate(0)*/ // reload page to update progress
+                                      //}}
+                                    >
+                                      <Link to={`/courses/${courseId}/lessons/${lesson.id}`}>
+                                        Continue
+                                      </Link>
+                                    </Button>
+                                  )
+                                } else {
+                                  return (
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={async (e) => {
+                                        e.preventDefault()
+                                        await post(`/course_enrollments/${enrollment.id}/start_lesson`, {
+                                          body: JSON.stringify({ lesson_id: lesson.id })
+                                        })
+                                        navigate(`/courses/${courseId}/lessons/${lesson.id}`)
+                                      }}
+                                    >
+                                      Start
+                                    </Button>
+                                  )
+                                }
+                              })() : (
+                                <Button variant="ghost" size="sm">
+                                  <Link to={`/courses/${courseId}/lessons/${lesson.id}`}>
+                                    {lesson.completed ? "Review" : "Start"}
+                                  </Link>
+                                </Button>
+                              )}
                             </div>
                           ))}
                         </div>
@@ -377,15 +457,18 @@ export default function CoursePage() {
                   </div>
 
                   <div className="space-y-4">
-                    {modules.map((module) => (
-                      <div key={module.id}>
-                        <div className="flex justify-between text-sm mb-1">
-                          <span className="truncate pr-2">{module.title}</span>
-                          <span className="font-medium">{module.progress}%</span>
+                    {modules.map((module) => {
+                      const modProg = moduleProgress[module.id] || { percent: 0 }
+                      return (
+                        <div key={module.id}>
+                          <div className="flex justify-between text-sm mb-1">
+                            <span className="truncate pr-2">{module.title}</span>
+                            <span className="font-medium">{modProg.percent}%</span>
+                          </div>
+                          <Progress value={modProg.percent} className="h-1.5" />
                         </div>
-                        <Progress value={module.progress} className="h-1.5" />
-                      </div>
-                    ))}
+                      )
+                    })}
                   </div>
 
                   <div className="mt-6 pt-6 border-t">
@@ -393,6 +476,17 @@ export default function CoursePage() {
                       <div>
                         <p className="font-medium">Course Stats</p>
                       </div>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button size="sm" className="ml-2">Enroll</Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>Enroll in {course.title}</DialogTitle>
+                          </DialogHeader>
+                          <CourseEnrollmentForm courseId={courseId} />
+                        </DialogContent>
+                      </Dialog>
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="text-center p-3 bg-muted/50 rounded-md">

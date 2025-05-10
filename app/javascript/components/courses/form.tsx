@@ -3,11 +3,12 @@ import { Link , useNavigate } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ArrowLeft, Save, Eye, Settings, FileText, LayoutGrid, Upload } from "lucide-react"
+import { ArrowLeft, Save, Eye, Settings, FileText, LayoutGrid, Upload, Users } from "lucide-react"
 import CourseDetailsForm from "@/components/courses/admin/course-details-form"
 import ModulesManager from "@/components/courses/admin/modules-manager"
 import ResourcesManager from "@/components/courses/admin/resources-manager"
 import CourseSettings from "@/components/courses/admin/course-settings"
+import CourseEnrollmentsTab from "@/components/courses/CourseEnrollmentsTab"
 import { post, put, destroy, get } from "@rails/request.js"
 import { useToast } from '@/hooks/use-toast'
 
@@ -226,7 +227,7 @@ export default function NewCoursePage() {
 
       <div className="px-4 py-6 md:px-6 md:py-8">
         <Tabs defaultValue="details" className="space-y-4" onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="details">
               <FileText className="h-4 w-4 mr-2" />
               Course Details
@@ -238,6 +239,10 @@ export default function NewCoursePage() {
             <TabsTrigger value="resources">
               <Upload className="h-4 w-4 mr-2" />
               Resources
+            </TabsTrigger>
+            <TabsTrigger value="enrollments">
+              <Users className="h-4 w-4 mr-2" />
+              Enrollments
             </TabsTrigger>
             <TabsTrigger value="settings">
               <Settings className="h-4 w-4 mr-2" />
@@ -314,6 +319,10 @@ export default function NewCoursePage() {
               resources={courseData.resources as any[]}
               onResourcesChange={(resources: any[]) => handleCourseDataChange({ resources })}
             />
+          </TabsContent>
+
+          <TabsContent value="enrollments">
+            <CourseEnrollmentsTab />
           </TabsContent>
 
           <TabsContent value="settings">

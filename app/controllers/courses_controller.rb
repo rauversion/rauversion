@@ -1,5 +1,5 @@
 class CoursesController < ApplicationController
-  before_action :set_course, only: [:destroy]
+  before_action :set_course, only: [:destroy, :enrollments, :invite]
 
   def index
     respond_to do |format|
@@ -13,6 +13,12 @@ class CoursesController < ApplicationController
 
   def show
     @course = current_user.courses.find_by(id: params[:id])
+    if params[:get_enrollment] && current_user
+      @course_enrollment = CourseEnrollment.find_by(
+        user_id: current_user.id, 
+        course_id: @course.id
+      )
+    end
     respond_to do |format|
       format.json { render :show }
       format.html { render_blank }
@@ -60,6 +66,12 @@ class CoursesController < ApplicationController
       @lesson = @course.lessons.find(params[:lesson_id])
       @course_module = @lesson.course_module
       @lessons = @course_module.lessons
+
+      @course_enrollment = CourseEnrollment.find_by(
+        user_id: current_user.id,
+        course_id: @course.id
+      ) if current_user
+
       respond_to do |format|
         format.json { render "lessons/show_lessons" }
         format.html { render_blank }
@@ -67,6 +79,41 @@ class CoursesController < ApplicationController
       
     else
       render json: { error: 'Course not found' }, status: :not_found
+    end
+  end
+
+  # GET /courses/:id/enrollments
+  def enrollments
+    @course = current_user.courses.find_by(id: params[:id])
+    if @course
+      @enrollments = @course.course_enrollments.includes(:user)
+      respond_to do |format|
+        format.json { render "course_enrollments/index" }
+      end
+    else
+      render json: { error: "Course not found" }, status: :not_found
+    end
+  end
+
+  # POST /courses/:id/invite
+  def invite
+    email = params[:email].to_s.strip.downcase
+    if email.blank?
+      return render json: { error: "Email is required" }, status: :unprocessable_entity
+    end
+
+    user = User.find_by(email: email) || User.create(email: email, password: SecureRandom.hex(16))
+    enrollment = @course.course_enrollments.find_by(user_id: user.id)
+
+    if enrollment
+      render json: { error: "User already enrolled" }, status: :unprocessable_entity
+    else
+      enrollment = @course.course_enrollments.create(user_id: user.id)
+      if enrollment.persisted?
+        render json: { success: true, enrollment: enrollment }, status: :created
+      else
+        render json: { error: enrollment.errors.full_messages }, status: :unprocessable_entity
+      end
     end
   end
 

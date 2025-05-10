@@ -8,6 +8,11 @@ class CourseEnrollment < ApplicationRecord
   #   "finished_lessons": [lesson_id, ...],
   #   "metadata": { ... }
   # }
+  # 
+  
+
+  store_attribute :progress, :started_lessons, :json, default: []
+  store_attribute :progress, :finished_lessons, :json, default: []
 
   # Enroll is handled by creation, but you can add a class method if needed
   def self.enroll(user:, course:, metadata: {})

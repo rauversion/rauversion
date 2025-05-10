@@ -4,12 +4,15 @@ class CourseEnrollmentsController < ApplicationController
   # POST /course_enrollments
   # Params: { user_id, course_id, metadata (optional) }
   def create
-    enrollment = CourseEnrollment.find_or_create_by(user_id: enrollment_params[:user_id], course_id: enrollment_params[:course_id])
+    enrollment = CourseEnrollment.find_or_create_by(
+      user_id: current_user.id, 
+      course_id: enrollment_params[:course_id]
+    )
     if enrollment.persisted?
       enrollment.update_metadata!(enrollment_params[:metadata]) if enrollment_params[:metadata]
       render json: { enrollment: enrollment, progress: enrollment.progress }, status: :ok
     else
-      render json: { error: "Could not enroll" }, status: :unprocessable_entity
+      render json: { error: "Could not enroll, #{enrollment.errors.full_messages}" }, status: :unprocessable_entity
     end
   end
 

@@ -29,3 +29,7 @@ json.course_module do
     json.video_url lesson.video.attached? ? rails_storage_proxy_path(lesson.video) : nil
   end
 end
+
+if @course_enrollment.present?
+  json.partial! 'course_enrollments/enrollment', locals: { course_enrollment: @course_enrollment }
+end
