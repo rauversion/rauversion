@@ -10,5 +10,7 @@ class WebhookWorkerJob < ApplicationJob
 
     # 2. Set service booking
     product_purchase.set_service_booking
+
+    product_purchase.set_course_enrollment
   end
 end

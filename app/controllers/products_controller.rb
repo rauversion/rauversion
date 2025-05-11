@@ -56,14 +56,13 @@ class ProductsController < ApplicationController
     @product = Product.friendly.find(params[:id])
     @product_variants = @product.product_variants
 
-
-
     view_path = case @product.type
     when "Products::GearProduct" then "products/gear/show"
     when "Products::MusicProduct" then "products/music/show"
     when "Products::MerchProduct" then "products/merch/show"
     when "Products::AccessoryProduct" then "products/accessory/show"
     when "Products::ServiceProduct" then "products/service/show"
+    when "Products::CourseProduct" then "products/course/show"
     else
       "products/show"
     end

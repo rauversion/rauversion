@@ -55,7 +55,15 @@ json.collection @collection do |purchase|
       json.description item.product.description
       json.price item.product.price
       json.slug item.product.slug
-      json.type "#{item.product.class} #{item.product.category}"
+      json.type "#{item.product.class}"
+
+      json.course do
+        json.id item.product.course.id
+        json.title item.product.course.title
+        json.description item.product.course.description
+        json.slug item.product.course.slug
+        json.price item.product.course.price
+      end if item.product.is_a?(Products::CourseProduct)
 
       json.cover_url item.product.product_images&.first&.image_url(:small)
       

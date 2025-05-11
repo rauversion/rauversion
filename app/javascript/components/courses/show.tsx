@@ -610,7 +610,11 @@ export default function CoursePage() {
                             <DialogHeader>
                               <DialogTitle>Enroll in {course.title}</DialogTitle>
                             </DialogHeader>
-                            <CourseEnrollmentForm courseId={courseId} />
+                            <CourseEnrollmentForm
+                              courseId={courseId}
+                              courseProduct={course.course_product}
+                              enrollmentType={course.enrollment_type}
+                            />
                           </DialogContent>
                         </Dialog>
                       ) : (

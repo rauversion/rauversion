@@ -42,7 +42,8 @@ class CoursesController < ApplicationController
   end
 
   def create
-    @course = current_user.courses.build(course_params)
+    @course = current_user.courses.build(course_params.except(:price))
+    @course.product_price = course_params[:price]
     if @course.save
       render :show, status: :created
     else
@@ -68,7 +69,8 @@ class CoursesController < ApplicationController
 
   def update
     @course = current_user.courses.friendly.find(params[:id])
-    @course.assign_attributes(course_params)
+    @course.assign_attributes(course_params.except(:price))
+    @course.product_price = course_params[:price]
     if @course.save
       render :show, status: :ok
     else

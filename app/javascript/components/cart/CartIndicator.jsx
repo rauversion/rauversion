@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { ShoppingCart } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import {
@@ -15,8 +15,9 @@ import { useToast } from "@/hooks/use-toast"
 import I18n from '@/stores/locales'
 
 export function CartIndicator() {
-  const { cart, loading, error, fetchCart, clearError } = useCartStore()
+  const { cart, loading, error, fetchCart, clearError, openOnAdd, clearOpenOnAdd } = useCartStore()
   const { toast } = useToast()
+  const [open, setOpen] = useState(false)
 
   useEffect(() => {
     fetchCart()
@@ -33,10 +34,18 @@ export function CartIndicator() {
     }
   }, [error, toast, clearError])
 
+  // Open cart when a product is added
+  useEffect(() => {
+    if (openOnAdd) {
+      setOpen(true)
+      clearOpenOnAdd()
+    }
+  }, [openOnAdd, clearOpenOnAdd])
+
   if (loading || !cart) return null
 
   return (
-    <DropdownMenu>
+    <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
           <ShoppingCart className="h-5 w-5" />

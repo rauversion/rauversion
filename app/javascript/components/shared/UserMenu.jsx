@@ -155,6 +155,29 @@ function NavSection({ title, items }) {
   );
 }
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = React.useState(
+    typeof window !== "undefined"
+      ? window.matchMedia("(max-width: 1023px)").matches
+      : false
+  );
+
+  React.useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 1023px)");
+    const handler = (e) => setIsMobile(e.matches);
+    mediaQuery.addEventListener
+      ? mediaQuery.addEventListener("change", handler)
+      : mediaQuery.addListener(handler);
+    return () => {
+      mediaQuery.removeEventListener
+        ? mediaQuery.removeEventListener("change", handler)
+        : mediaQuery.removeListener(handler);
+    };
+  }, []);
+
+  return isMobile;
+}
+
 export default function UserMenu() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isDarkMode, toggleDarkMode } = useThemeStore();
@@ -162,6 +185,7 @@ export default function UserMenu() {
   const { setLocale, t, currentLocale } = useLocaleStore();
   const navigate = useNavigate();
   const location = useLocation();
+  const isMobile = useIsMobile();
 
   // Hide main menu if route matches "/:username/podcasts"
   const hideMainMenu = /^\/[^/]+\/podcasts(\/|$)/.test(location.pathname);
@@ -454,7 +478,7 @@ export default function UserMenu() {
             {/* Mobile Menu Button */}
             <div className="lg:hidden mt-3 flex items-center space-x-2">
               <div className="flex items-center gap-2">
-                <CartIndicator />
+                {isMobile && <CartIndicator isPrimary={false} />}
               </div>
               <MobileNavigation
                 storeNavItems={storeNavItems}
@@ -467,7 +491,7 @@ export default function UserMenu() {
 
             <div className="hidden lg:flex items-center justify-end space-x-4">
               <div className="flex items-center gap-2">
-                <CartIndicator />
+                {!isMobile && <CartIndicator isPrimary={true} />}
               </div>
 
               <Button

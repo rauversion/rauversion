@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_10_194745) do
+ActiveRecord::Schema[8.0].define(version: 2025_05_11_024032) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -629,10 +629,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_10_194745) do
     t.text "barter_description"
     t.jsonb "data"
     t.string "type"
+    t.bigint "course_id"
     t.index ["accept_barter"], name: "index_products_on_accept_barter"
     t.index ["brand"], name: "index_products_on_brand"
     t.index ["condition"], name: "index_products_on_condition"
     t.index ["coupon_id"], name: "index_products_on_coupon_id"
+    t.index ["course_id"], name: "index_products_on_course_id"
     t.index ["deleted_at"], name: "index_products_on_deleted_at"
     t.index ["model"], name: "index_products_on_model"
     t.index ["playlist_id"], name: "index_products_on_playlist_id"

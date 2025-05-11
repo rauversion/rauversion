@@ -5,7 +5,15 @@ json.course do
   json.category @course.category
   json.level @course.level
   json.duration @course.duration
-  json.price @course.price
+  # Deprecated: json.price @course.price
+
+  if @course.course_product
+    json.course_product  do
+      json.id @course.course_product.id
+      json.price @course.course_product.price
+      json.formatted_price number_to_currency(@course.course_product.price)
+    end
+  end
   json.instructor @course.instructor
   json.instructor_title @course.instructor_title
   json.published @course.published
