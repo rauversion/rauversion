@@ -300,7 +300,7 @@ export default function LessonPage() {
                 <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="content">Content</TabsTrigger>
                   <TabsTrigger value="resources">Resources</TabsTrigger>
-                  <TabsTrigger value="discussion">Discussion</TabsTrigger>
+                  {/*<TabsTrigger value="discussion">Discussion</TabsTrigger>*/}
                 </TabsList>
 
                 <TabsContent value="content" className="mt-4">

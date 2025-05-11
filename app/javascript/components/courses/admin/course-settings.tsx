@@ -80,8 +80,8 @@ export default function CourseSettings({ courseData, onDataChange, onSave }) {
           <div className="grid gap-2">
             <Label htmlFor="enrollment-type">Enrollment Type</Label>
             <Select
-              defaultValue={localSettings.enrollmentType || "open"}
-              onValueChange={(value) => handleFieldChange("enrollmentType", value)}
+              defaultValue={localSettings.enrollment_type || "open"}
+              onValueChange={(value) => handleFieldChange("enrollment_type", value)}
             >
               <SelectTrigger id="enrollment-type">
                 <SelectValue placeholder="Select enrollment type" />
@@ -89,7 +89,7 @@ export default function CourseSettings({ courseData, onDataChange, onSave }) {
               <SelectContent>
                 <SelectItem value="open">Open Enrollment</SelectItem>
                 <SelectItem value="invite">Invite Only</SelectItem>
-                <SelectItem value="approval">Requires Approval</SelectItem>
+                {/*<SelectItem value="approval">Requires Approval</SelectItem>*/}
               </SelectContent>
             </Select>
           </div>

@@ -632,14 +632,14 @@ export default function CoursePage() {
                     </div>
                   </div>
 
-                  {nextLesson && (
+                  {/*nextLesson && (
                     <div className="mt-6">
                       <Button className="w-full">
                         <Play className="mr-2 h-4 w-4" />
                         Continue Learning
                       </Button>
                     </div>
-                  )}
+                  )*/}
                 </CardContent>
               </Card>
             </div>
