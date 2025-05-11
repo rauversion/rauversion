@@ -252,10 +252,10 @@ export default function CoursePage() {
                 Admin
               </Link>
             </Button>
-            <Button variant="outline" size="icon" className="rounded-full">
+            {/*<Button variant="outline" size="icon" className="rounded-full">
               <Bookmark className="h-4 w-4" />
               <span className="sr-only">Bookmark</span>
-            </Button>
+            </Button>*/}
             <ShareDialog
               url={typeof window !== "undefined" ? window.location.href : ""}
               title={course?.title || ""}
@@ -349,7 +349,7 @@ export default function CoursePage() {
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="content">Content</TabsTrigger>
                 <TabsTrigger value="resources">Resources</TabsTrigger>
-                <TabsTrigger value="discussion">Discussion</TabsTrigger>
+                {/*<TabsTrigger value="discussion">Discussion</TabsTrigger>*/}
               </TabsList>
               <TabsContent value="content" className="mt-4">
                 <Accordion type="multiple" className="w-full">
@@ -580,28 +580,45 @@ export default function CoursePage() {
                       <div>
                         <p className="font-medium">Course Stats</p>
                       </div>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button
-                            size="sm"
-                            className="ml-2"
-                            onClick={e => {
-                              if (!currentUser) {
-                                e.preventDefault();
-                                setShowLoginDialog(true);
-                              }
-                            }}
-                          >
-                            Enroll
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Enroll in {course.title}</DialogTitle>
-                          </DialogHeader>
-                          <CourseEnrollmentForm courseId={courseId} />
-                        </DialogContent>
-                      </Dialog>
+                      {!enrollment ? (
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button
+                              size="lg"
+                              className="ml-2 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-white shadow-lg hover:from-pink-600 hover:to-yellow-600 transition-all duration-200 animate-pulse"
+                              style={{
+                                fontWeight: 700,
+                                letterSpacing: "0.03em",
+                                borderRadius: "9999px",
+                                paddingLeft: "2rem",
+                                paddingRight: "2rem",
+                                fontSize: "1.1rem"
+                              }}
+                              onClick={e => {
+                                if (!currentUser) {
+                                  e.preventDefault();
+                                  setShowLoginDialog(true);
+                                }
+                              }}
+                            >
+                              <span role="img" aria-label="sparkles" className="mr-2">✨</span>
+                              Enroll Now
+                              <span role="img" aria-label="arrow" className="ml-2">➡️</span>
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Enroll in {course.title}</DialogTitle>
+                            </DialogHeader>
+                            <CourseEnrollmentForm courseId={courseId} />
+                          </DialogContent>
+                        </Dialog>
+                      ) : (
+                        <span className="ml-2 px-4 py-2 rounded-full bg-green-100 text-green-700 font-semibold shadow-inner border border-green-200">
+                          <CheckCircle className="inline-block h-5 w-5 mr-1 text-green-500" />
+                          Already Enrolled
+                        </span>
+                      )}
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="text-center p-3 bg-muted/50 rounded-md">

@@ -45,12 +45,13 @@ export default function LessonPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [showFinishDialog, setShowFinishDialog] = useState(false)
+  const [documents, setDocuments] = useState([])
+  const [documentsLoading, setDocumentsLoading] = useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
     fetchLesson()
   }, [courseId, lessonId])
-
 
   async function fetchLesson() {
     setLoading(true)
@@ -75,6 +76,30 @@ export default function LessonPage() {
       setLoading(false)
     }
   }
+
+  // Fetch lesson documents when resources tab is selected
+  useEffect(() => {
+    if (activeTab === "resources" && module && lesson) {
+      async function fetchDocuments() {
+        setDocumentsLoading(true)
+        try {
+          const response = await get(`/courses/${courseId}/course_modules/${module.id}/lessons/${lessonId}/course_documents.json`)
+          if (response.ok) {
+            const data = await response.json
+            setDocuments(data)
+          } else {
+            setDocuments([])
+          }
+        } catch {
+          setDocuments([])
+        } finally {
+          setDocumentsLoading(false)
+        }
+      }
+      fetchDocuments()
+    }
+  }, [activeTab, courseId, module, lessonId, lesson])
+
   // Find next and previous lessons
   const findAdjacentLessons = () => {
     if (!module || !module.lessons) return { prev: null, next: null }
@@ -133,107 +158,7 @@ export default function LessonPage() {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className={`relative ${isFullscreen ? "fixed inset-0 z-50 bg-black" : ""}`}>
-        <div
-          className={`${isFullscreen ? "h-screen" : "aspect-video"} relative bg-black`}
-          onMouseEnter={() => setShowControls(true)}
-          onMouseLeave={() => isPlaying && setShowControls(false)}
-        >
-          <VideoPlayer
-            //videoUrl={lesson.video_url}
-            videoUrl={`/courses/${courseId}/course_modules/${module.id}/lessons/${lessonId}/stream.json`}
-            isPlaying={isPlaying}
-            setIsPlaying={setIsPlaying}
-            onProgressUpdate={handleProgressUpdate}
-          />
 
-          {/* Video Controls Overlay */}
-          {/*showControls && (
-            <div className="absolute inset-0 flex flex-col justify-between p-4 bg-gradient-to-t from-black/70 to-transparent">
-              <div className="flex justify-between items-center">
-                <div>
-                  <h3 className="text-white font-medium">{lesson.title}</h3>
-                  <p className="text-white/70 text-sm">{module.title}</p>
-                </div>
-                {isFullscreen ? (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-white hover:bg-white/20"
-                    onClick={() => setIsFullscreen(false)}
-                  >
-                    <X className="h-5 w-5" />
-                  </Button>
-                ) : (
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-white hover:bg-white/20"
-                    onClick={() => setIsFullscreen(true)}
-                  >
-                    <Maximize className="h-5 w-5" />
-                  </Button>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between items-center text-white text-xs">
-                  <span>
-                    {progress > 0
-                      ? `${Math.floor((progress * Number.parseInt(lesson.duration, 10)) / 100)}:${Math.floor(
-                        (((progress * Number.parseInt(lesson.duration, 10)) / 100) % 1) * 60,
-                      )
-                        .toString()
-                        .padStart(2, "0")}`
-                      : "0:00"}
-                  </span>
-                  <span>{formatDuration(lesson.duration)}</span>
-                </div>
-                <Progress value={progress} className="h-1" />
-
-                <div className="flex justify-between items-center">
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-white hover:bg-white/20"
-                      disabled={!prev}
-                      onClick={() => prev && router.push(`/courses/${courseId}/lesson/${prev.id}`)}
-                    >
-                      <SkipBack className="h-5 w-5" />
-                    </Button>
-
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-white hover:bg-white/20 h-12 w-12"
-                      onClick={() => setIsPlaying(!isPlaying)}
-                    >
-                      {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
-                    </Button>
-
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="text-white hover:bg-white/20"
-                      disabled={!next}
-                      onClick={() => next && router.push(`/courses/${courseId}/lesson/${next.id}`)}
-                    >
-                      <SkipForward className="h-5 w-5" />
-                    </Button>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" className="text-white hover:bg-white/20">
-                      <Volume2 className="h-5 w-5" />
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )*/}
-        </div>
-      </div>
 
       {!isFullscreen && (
         <div className="px-4 py-6 md:px-6 md:py-8">
@@ -353,6 +278,24 @@ export default function LessonPage() {
 
           <div className="grid gap-8 lg:grid-cols-3">
             <div className="lg:col-span-2">
+
+
+              <div className={`relative ${isFullscreen ? "fixed inset-0 z-50 bg-black" : ""}`}>
+                <div
+                  className={`${isFullscreen ? "h-screen" : "aspect-video"} relative bg-black`}
+                  onMouseEnter={() => setShowControls(true)}
+                  onMouseLeave={() => isPlaying && setShowControls(false)}
+                >
+                  <VideoPlayer
+                    //videoUrl={lesson.video_url}
+                    videoUrl={`/courses/${courseId}/course_modules/${module.id}/lessons/${lessonId}/stream.json`}
+                    isPlaying={isPlaying}
+                    setIsPlaying={setIsPlaying}
+                    onProgressUpdate={handleProgressUpdate}
+                  />
+                </div>
+              </div>
+
               <Tabs defaultValue="content" className="mb-6" onValueChange={setActiveTab}>
                 <TabsList className="grid w-full grid-cols-3">
                   <TabsTrigger value="content">Content</TabsTrigger>
@@ -364,43 +307,48 @@ export default function LessonPage() {
                   <div className="prose max-w-none">
                     <h2 className="text-xl text-default font-semibold mb-4">About this lesson</h2>
                     <p className="text-muted">{lesson.description}</p>
-
-                    {/*<div className="mt-6">
-                      <h3 className="text-lg text-default font-medium mb-3">What you'll learn</h3>
-                      <ul className="space-y-2">
-                        <li className="flex items-start">
-                          <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
-                          <span>Key concepts covered in this lesson</span>
-                        </li>
-                        <li className="flex items-start">
-                          <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
-                          <span>Practical skills you'll develop</span>
-                        </li>
-                        <li className="flex items-start">
-                          <CheckCircle className="h-5 w-5 text-green-500 mr-2 mt-0.5" />
-                          <span>How this connects to other lessons</span>
-                        </li>
-                      </ul>
-                    </div>*/}
                   </div>
                 </TabsContent>
 
                 <TabsContent value="resources" className="mt-4">
-                  {lesson.resources && lesson.resources.length > 0 ? (
+                  {documentsLoading ? (
+                    <div className="text-center py-8 text-muted-foreground">Loading resources...</div>
+                  ) : documents.length > 0 ? (
                     <div className="space-y-4">
-                      {lesson.resources.map((resource) => (
-                        <div key={resource.id} className="flex items-center p-3 rounded-md border">
+                      {documents.map((doc) => (
+                        <div key={doc.id} className="flex items-center p-3 rounded-md border">
                           <FileText className="h-5 w-5 mr-3 text-muted-foreground" />
                           <div className="flex-1">
-                            <p className="font-medium">{resource.title}</p>
-                            <p className="text-sm text-muted-foreground">
-                              {resource.fileType.toUpperCase()}, {resource.fileSize}
-                            </p>
+                            <p className="font-medium">{doc.title}</p>
+                            <p className="text-sm text-muted-foreground">{doc.name}</p>
                           </div>
-                          <Button variant="ghost" size="sm">
-                            <Download className="h-4 w-4 mr-2" />
-                            Download
-                          </Button>
+                          {enrollment ? (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={async () => {
+                                try {
+                                  const response = await fetch(`/courses/${courseId}/course_documents/${doc.id}/download`)
+                                  if (response.ok) {
+                                    const data = await response.json()
+                                    if (data.url) {
+                                      window.open(data.url, "_blank", "noopener")
+                                    }
+                                  }
+                                } catch (e) {
+                                  // Optionally show error toast
+                                }
+                              }}
+                            >
+                              <Download className="h-4 w-4 mr-2" />
+                              Download
+                            </Button>
+                          ) : (
+                            <Button variant="ghost" size="sm" disabled>
+                              <Download className="h-4 w-4 mr-2" />
+                              Download
+                            </Button>
+                          )}
                         </div>
                       ))}
                     </div>
