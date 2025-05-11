@@ -48,28 +48,28 @@ export default function CourseDocumentUploader({ onDocumentCreate, onDocumentDel
     <div className="space-y-4">
       <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 flex flex-col items-center justify-center text-center">
         <FileText className="h-10 w-10 text-muted-foreground mb-2" />
-        <p className="text-sm text-muted-foreground mb-2">Upload course document</p>
-        <p className="text-xs text-muted-foreground mb-4">PDF, DOCX, or other document formats</p>
+        <p className="text-sm text-muted-foreground mb-2">{I18n.t("courses.document_uploader.upload_course_document")}</p>
+        <p className="text-xs text-muted-foreground mb-4">{I18n.t("courses.document_uploader.accepted_formats")}</p>
         <div className="flex flex-col items-center gap-2 w-full">
           <div className="w-full max-w-xs space-y-2">
-            <Label htmlFor="doc-title">Title</Label>
+            <Label htmlFor="doc-title">{I18n.t("courses.document_uploader.title")}</Label>
             <Input
               id="doc-title"
-              placeholder="e.g. Course Workbook"
+              placeholder={I18n.t("courses.document_uploader.title_placeholder")}
               value={title}
               onChange={e => setTitle(e.target.value)}
             />
-            <Label htmlFor="doc-resource-name">Resource Name</Label>
+            <Label htmlFor="doc-resource-name">{I18n.t("courses.document_uploader.resource_name")}</Label>
             <Input
               id="doc-resource-name"
-              placeholder="e.g. workbook.pdf"
+              placeholder={I18n.t("courses.document_uploader.resource_name_placeholder")}
               value={resourceName}
               onChange={e => setResourceName(e.target.value)}
             />
           </div>
           <Button variant="outline" className="relative w-full max-w-xs mt-2">
             <Upload className="h-4 w-4 mr-2" />
-            {selectedFile ? selectedFile.name : "Select Document"}
+            {selectedFile ? selectedFile.name : I18n.t("courses.document_uploader.select_document")}
             <input
               type="file"
               className="absolute inset-0 opacity-0 cursor-pointer"
@@ -80,7 +80,7 @@ export default function CourseDocumentUploader({ onDocumentCreate, onDocumentDel
           {selectedFile && (
             <div className="flex items-center gap-2 mt-2">
               <Button size="sm" variant="default" onClick={handleUpload} disabled={uploading || !title || !resourceName}>
-                {uploading ? "Uploading..." : "Upload"}
+                {uploading ? I18n.t("courses.document_uploader.uploading") : I18n.t("courses.document_uploader.upload")}
               </Button>
               <Button size="icon" variant="ghost" onClick={() => { setSelectedFile(null); setResourceName(""); }}>
                 <X className="h-4 w-4" />

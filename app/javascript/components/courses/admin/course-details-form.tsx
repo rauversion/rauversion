@@ -127,9 +127,9 @@ export default function CourseDetailsForm({ courseData, onDataChange }: CourseDe
               name="title"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Course Title</FormLabel>
+                  <FormLabel>{I18n.t("courses.details_form.course_title")}</FormLabel>
                   <FormControl>
-                    <Input placeholder="e.g. Guitar Fundamentals" {...field} />
+                    <Input placeholder={I18n.t("courses.details_form.course_title_placeholder")} {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -141,10 +141,10 @@ export default function CourseDetailsForm({ courseData, onDataChange }: CourseDe
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Course Description</FormLabel>
+                  <FormLabel>{I18n.t("courses.details_form.course_description")}</FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="Describe what students will learn in this course"
+                      placeholder={I18n.t("courses.details_form.course_description_placeholder")}
                       className="min-h-[120px]"
                       {...field}
                     />
@@ -160,19 +160,19 @@ export default function CourseDetailsForm({ courseData, onDataChange }: CourseDe
                 name="category"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Category</FormLabel>
+                    <FormLabel>{I18n.t("courses.details_form.category")}</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select category" />
+                          <SelectValue placeholder={I18n.t("courses.details_form.select_category")} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="instruments">Instruments</SelectItem>
-                        <SelectItem value="theory">Music Theory</SelectItem>
-                        <SelectItem value="vocals">Vocals</SelectItem>
-                        <SelectItem value="composition">Composition</SelectItem>
-                        <SelectItem value="production">Music Production</SelectItem>
+                        <SelectItem value="instruments">{I18n.t("courses.details_form.instruments")}</SelectItem>
+                        <SelectItem value="theory">{I18n.t("courses.details_form.music_theory")}</SelectItem>
+                        <SelectItem value="vocals">{I18n.t("courses.details_form.vocals")}</SelectItem>
+                        <SelectItem value="composition">{I18n.t("courses.details_form.composition")}</SelectItem>
+                        <SelectItem value="production">{I18n.t("courses.details_form.music_production")}</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -185,18 +185,18 @@ export default function CourseDetailsForm({ courseData, onDataChange }: CourseDe
                 name="level"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Level</FormLabel>
+                    <FormLabel>{I18n.t("courses.details_form.level")}</FormLabel>
                     <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select level" />
+                          <SelectValue placeholder={I18n.t("courses.details_form.select_level")} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="beginner">Beginner</SelectItem>
-                        <SelectItem value="intermediate">Intermediate</SelectItem>
-                        <SelectItem value="advanced">Advanced</SelectItem>
-                        <SelectItem value="all-levels">All Levels</SelectItem>
+                        <SelectItem value="beginner">{I18n.t("courses.details_form.beginner")}</SelectItem>
+                        <SelectItem value="intermediate">{I18n.t("courses.details_form.intermediate")}</SelectItem>
+                        <SelectItem value="advanced">{I18n.t("courses.details_form.advanced")}</SelectItem>
+                        <SelectItem value="all-levels">{I18n.t("courses.details_form.all_levels")}</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -211,9 +211,9 @@ export default function CourseDetailsForm({ courseData, onDataChange }: CourseDe
                 name="duration"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Estimated Duration</FormLabel>
+                    <FormLabel>{I18n.t("courses.details_form.estimated_duration")}</FormLabel>
                     <FormControl>
-                      <Input placeholder="e.g. 12 hours" {...field} />
+                      <Input placeholder={I18n.t("courses.details_form.estimated_duration_placeholder")} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -225,9 +225,9 @@ export default function CourseDetailsForm({ courseData, onDataChange }: CourseDe
                 name="price"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Price ($)</FormLabel>
+                    <FormLabel>{I18n.t("courses.details_form.price")}</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="e.g. 49.99" {...field} />
+                      <Input type="number" placeholder={I18n.t("courses.details_form.price_placeholder")} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -239,7 +239,7 @@ export default function CourseDetailsForm({ courseData, onDataChange }: CourseDe
           <div className="space-y-6">
             <div>
              
-              <Label htmlFor="thumbnail">Course Thumbnail</Label>
+              <Label htmlFor="thumbnail">{I18n.t("courses.details_form.course_thumbnail")}</Label>
               <div className="mt-2 flex flex-col items-center justify-center border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 h-[auto]">
                 <ImageUploader
                   cropUploadMode={"crop"}
@@ -253,7 +253,7 @@ export default function CourseDetailsForm({ courseData, onDataChange }: CourseDe
                       setThumbnailPreview(serviceUrl)
                       form.setValue("thumbnail_url", serviceUrl)
                     }
-                    toast({ description: "Thumbnail uploaded successfully!" })
+                    toast({ description: I18n.t("courses.details_form.thumbnail_uploaded") })
                   }}
                 />
               </div>

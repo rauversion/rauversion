@@ -201,24 +201,24 @@ export default function NewCoursePage() {
         <div className="flex h-16 items-center px-4 md:px-6">
           <Link to="/courses/mine" className="flex items-center mr-4">
             <ArrowLeft className="h-5 w-5 mr-2" />
-            <span className="hidden sm:inline">Back to Courses</span>
+            <span className="hidden sm:inline">{I18n.t("courses.form.back_to_courses")}</span>
           </Link>
           <div className="flex-1">
-            <h1 className="text-lg font-semibold truncate">{courseData.title || "New Course"}</h1>
+            <h1 className="text-lg font-semibold truncate">{courseData.title || I18n.t("courses.form.new_course")}</h1>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="outline" size="sm" asChild>
               <Link to={`/courses/${courseId}`} target="_blank">
                 <Eye className="h-4 w-4 mr-2" />
-                Preview
+                {I18n.t("courses.form.preview")}
               </Link>
             </Button>
             <Button variant="outline" size="sm" onClick={handleSaveCourse}>
               <Save className="h-4 w-4 mr-2" />
-              Save Draft
+              {I18n.t("courses.form.save_draft")}
             </Button>
             <Button size="sm" onClick={handlePublishCourse}>
-              Publish
+              {I18n.t("courses.form.publish")}
             </Button>
           </div>
         </div>

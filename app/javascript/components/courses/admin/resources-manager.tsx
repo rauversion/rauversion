@@ -126,30 +126,30 @@ export default function ResourcesManager({ courseId }: ResourcesManagerProps) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center">
-        <CardTitle>Course Resources</CardTitle>
+        <CardTitle>{I18n.t("courses.resources_manager.course_resources")}</CardTitle>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button className="ml-auto">
               <Plus className="h-4 w-4 mr-2" />
-              Add Resource
+              {I18n.t("courses.resources_manager.add_resource")}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add Course Resource</DialogTitle>
+              <DialogTitle>{I18n.t("courses.resources_manager.add_course_resource")}</DialogTitle>
             </DialogHeader>
             <div className="space-y-4 py-4">
               <div className="space-y-2">
-                <Label htmlFor="resource-title">Resource Title</Label>
+                <Label htmlFor="resource-title">{I18n.t("courses.resources_manager.resource_title")}</Label>
                 <Input
                   id="resource-title"
-                  placeholder="e.g. Course Workbook"
+                  placeholder={I18n.t("courses.resources_manager.resource_title_placeholder")}
                   value={newResource.title}
                   onChange={(e) => setNewResource((prev) => ({ ...prev, title: e.target.value }))}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="resource-file">Upload File</Label>
+                <Label htmlFor="resource-file">{I18n.t("courses.resources_manager.upload_file")}</Label>
                 <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 flex flex-col items-center justify-center text-center">
                   {newResource.file ? (
                     <div className="flex justify-between items-center p-3 bg-muted rounded-md w-full max-w-xs">
@@ -171,11 +171,11 @@ export default function ResourcesManager({ courseId }: ResourcesManagerProps) {
                   ) : (
                     <div className="flex flex-col items-center justify-center text-center py-8 w-full">
                       <FileText className="h-10 w-10 text-muted-foreground mb-2" />
-                      <p className="text-sm text-muted-foreground mb-2">Upload course resource</p>
-                      <p className="text-xs text-muted-foreground mb-4">PDF, audio files, or other materials</p>
+                      <p className="text-sm text-muted-foreground mb-2">{I18n.t("courses.resources_manager.upload_course_resource")}</p>
+                      <p className="text-xs text-muted-foreground mb-4">{I18n.t("courses.resources_manager.accepted_formats")}</p>
                       <Button variant="outline" className="relative w-full max-w-xs">
                         <Upload className="h-4 w-4 mr-2" />
-                        Select File
+                        {I18n.t("courses.resources_manager.select_file")}
                         <input
                           type="file"
                           className="absolute inset-0 opacity-0 cursor-pointer"
@@ -190,10 +190,10 @@ export default function ResourcesManager({ courseId }: ResourcesManagerProps) {
             </div>
             <DialogFooter>
               <DialogClose asChild>
-                <Button variant="outline" onClick={() => setNewResource({ title: "", file: null })}>Cancel</Button>
+                <Button variant="outline" onClick={() => setNewResource({ title: "", file: null })}>{I18n.t("courses.resources_manager.cancel")}</Button>
               </DialogClose>
               <Button onClick={handleAddResource} disabled={!newResource.title || !newResource.file || uploading}>
-                {uploading ? "Uploading..." : "Add Resource"}
+                {uploading ? I18n.t("courses.resources_manager.uploading") : I18n.t("courses.resources_manager.add_resource")}
               </Button>
             </DialogFooter>
           </DialogContent>
@@ -201,10 +201,10 @@ export default function ResourcesManager({ courseId }: ResourcesManagerProps) {
       </CardHeader>
       <CardContent>
         {loading ? (
-          <div className="text-center py-8 text-muted-foreground">Loading resources...</div>
+          <div className="text-center py-8 text-muted-foreground">{I18n.t("courses.resources_manager.loading_resources")}</div>
         ) : documents.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
-            <p>No resources added yet. Click "Add Resource" to upload course materials.</p>
+            <p>{I18n.t("courses.resources_manager.no_resources")}</p>
           </div>
         ) : (
           <div className="space-y-3">

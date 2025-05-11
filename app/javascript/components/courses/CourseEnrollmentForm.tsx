@@ -72,19 +72,19 @@ export default function CourseEnrollmentForm({
         className="flex flex-col items-center justify-center py-8"
       >
         <CheckCircle className="h-16 w-16 text-green-500 mb-4 animate-bounce" />
-        <h2 className="text-2xl font-bold mb-2">You're enrolled!</h2>
-        <p className="text-muted-foreground mb-4">Welcome to the course. Check your dashboard to get started.</p>
+        <h2 className="text-2xl font-bold mb-2">{I18n.t("courses.enrollment_form.enrolled_title")}</h2>
+        <p className="text-muted-foreground mb-4">{I18n.t("courses.enrollment_form.enrolled_message")}</p>
       </motion.div>
     )
   }
 
   // Friendly bullet list of what you get
   const whatYouGet = [
-    "✔️ Full access to all course modules & lessons",
-    "✔️ Downloadable resources & materials",
-    //"✔️ Certificate of completion",
-    "✔️ Access on any device, anytime",
-    //"✔️ Support from the instructor & community"
+    I18n.t("courses.enrollment_form.full_access"),
+    I18n.t("courses.enrollment_form.downloadable_resources"),
+    //I18n.t("courses.enrollment_form.certificate_of_completion"),
+    I18n.t("courses.enrollment_form.access_any_device"),
+    //I18n.t("courses.enrollment_form.support"),
   ];
 
   // If course has a price, show Add to Cart
@@ -115,9 +115,13 @@ export default function CourseEnrollmentForm({
           disabled={addingToCart || addedToCart}
         >
           <Sparkles className="h-6 w-6 animate-pulse" />
-          {addingToCart ? "Adding..." : addedToCart ? "Added!" : "Add to Cart"}
+          {addingToCart
+            ? I18n.t("courses.enrollment_form.adding")
+            : addedToCart
+            ? I18n.t("courses.enrollment_form.added")
+            : I18n.t("courses.enrollment_form.add_to_cart")}
         </motion.button>
-        <p className="text-sm text-muted-foreground mt-4">Purchase to get full access to this course.</p>
+        <p className="text-sm text-muted-foreground mt-4">{I18n.t("courses.enrollment_form.purchase_full_access")}</p>
       </motion.div>
     )
   }
@@ -147,7 +151,9 @@ export default function CourseEnrollmentForm({
           disabled={enrolling}
         >
           <Sparkles className="h-6 w-6 animate-pulse" />
-          {enrolling ? "Enrolling..." : "Enroll Now"}
+          {enrolling
+            ? I18n.t("courses.enrollment_form.enrolling")
+            : I18n.t("courses.enrollment_form.enroll_now")}
         </motion.button>
       </motion.div>
     )
@@ -156,7 +162,7 @@ export default function CourseEnrollmentForm({
   // Otherwise, enrollment is closed
   return (
     <div className="text-center py-8 text-muted-foreground">
-      Enrollment is currently closed for this course.
+      {I18n.t("courses.enrollment_form.enrollment_closed")}
     </div>
   )
 }

@@ -144,14 +144,14 @@ export default function LessonPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p>Loading lesson...</p>
+        <p>{I18n.t("courses.lesson_show.loading_lesson")}</p>
       </div>
     )
   }
   if (error || !lesson || !module) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-red-500">{error || "Lesson not found."}</p>
+        <p className="text-red-500">{error || I18n.t("courses.lesson_show.lesson_not_found")}</p>
       </div>
     )
   }
@@ -166,7 +166,7 @@ export default function LessonPage() {
             <Button variant="ghost" size="sm" asChild className="mr-4">
               <Link to={`/courses/${courseId}`}>
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Back to Course
+                {I18n.t("courses.lesson_show.back_to_course")}
               </Link>
             </Button>
             <div className="flex-1">
@@ -184,7 +184,7 @@ export default function LessonPage() {
                   return (
                     <Button variant="outline" size="sm">
                       <CheckCircle className="h-4 w-4 mr-2" />
-                      Completed
+                      {I18n.t("courses.lesson_show.completed")}
                     </Button>
                   )
                 } else if (started) {
@@ -203,12 +203,12 @@ export default function LessonPage() {
                         }}
                       >
                         <CheckCircle className="h-4 w-4 mr-2" />
-                        Finish Lesson
+                        {I18n.t("courses.lesson_show.finish_lesson")}
                       </Button>
                       <Dialog open={showFinishDialog} onOpenChange={setShowFinishDialog}>
                         <DialogContent>
                           <DialogHeader>
-                            <DialogTitle>🎉 Lesson Completed!</DialogTitle>
+                            <DialogTitle>{I18n.t("courses.lesson_show.lesson_completed")}</DialogTitle>
                           </DialogHeader>
                           <motion.div
                             initial={{ scale: 0.8, opacity: 0 }}
@@ -217,11 +217,11 @@ export default function LessonPage() {
                             className="flex flex-col items-center justify-center py-4"
                           >
                             <CheckCircle className="h-16 w-16 text-green-500 mb-4 animate-bounce" />
-                            <h2 className="text-xl font-bold mb-2">Congratulations!</h2>
-                            <p className="text-muted-foreground mb-4">You've finished this lesson. Keep going!</p>
+                            <h2 className="text-xl font-bold mb-2">{I18n.t("courses.lesson_show.congratulations")}</h2>
+                            <p className="text-muted-foreground mb-4">{I18n.t("courses.lesson_show.keep_going")}</p>
                           </motion.div>
                           <DialogFooter>
-                            <Button onClick={() => setShowFinishDialog(false)}>Close</Button>
+                            <Button onClick={() => setShowFinishDialog(false)}>{I18n.t("courses.lesson_show.close")}</Button>
                           </DialogFooter>
                         </DialogContent>
                       </Dialog>
@@ -240,7 +240,7 @@ export default function LessonPage() {
                       }}
                     >
                       <Play className="h-4 w-4 mr-2" />
-                      Start Lesson
+                      {I18n.t("courses.lesson_show.start_lesson")}
                     </Button>
                   )
                 }
@@ -262,13 +262,13 @@ export default function LessonPage() {
                   }}
                 >
                   <CheckCircle className="h-4 w-4 mr-2" />
-                  Mark Complete
+                  {I18n.t("courses.lesson_show.mark_complete")}
                 </Button>
               )}
               {next && (
                 <Button size="sm" asChild>
                   <Link to={`/courses/${courseId}/lessons/${next.id}`}>
-                    Next Lesson
+                    {I18n.t("courses.lesson_show.next_lesson")}
                     <ArrowRight className="h-4 w-4 ml-2" />
                   </Link>
                 </Button>
@@ -298,14 +298,14 @@ export default function LessonPage() {
 
               <Tabs defaultValue="content" className="mb-6" onValueChange={setActiveTab}>
                 <TabsList className="grid w-full grid-cols-3">
-                  <TabsTrigger value="content">Content</TabsTrigger>
-                  <TabsTrigger value="resources">Resources</TabsTrigger>
+                  <TabsTrigger value="content">{I18n.t("courses.lesson_show.content")}</TabsTrigger>
+                  <TabsTrigger value="resources">{I18n.t("courses.lesson_show.resources")}</TabsTrigger>
                   {/*<TabsTrigger value="discussion">Discussion</TabsTrigger>*/}
                 </TabsList>
 
                 <TabsContent value="content" className="mt-4">
                   <div className="prose max-w-none">
-                    <h2 className="text-xl text-default font-semibold mb-4">About this lesson</h2>
+                    <h2 className="text-xl text-default font-semibold mb-4">{I18n.t("courses.lesson_show.about_this_lesson")}</h2>
                     <p className="text-muted">{lesson.description}</p>
                   </div>
                 </TabsContent>
@@ -354,7 +354,7 @@ export default function LessonPage() {
                     </div>
                   ) : (
                     <div className="text-center py-8 text-muted-foreground">
-                      <p>No resources available for this lesson.</p>
+                      <p>{I18n.t("courses.lesson_show.no_resources")}</p>
                     </div>
                   )}
                 </TabsContent>
@@ -379,11 +379,11 @@ export default function LessonPage() {
                 <Card>
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between mb-4">
-                      <h3 className="font-semibold">Module Lessons</h3>
+                      <h3 className="font-semibold">{I18n.t("courses.lesson_show.module_lessons")}</h3>
                       <Button variant="ghost" size="sm" asChild>
                         <Link to={`/courses/${courseId}`}>
                           <List className="h-4 w-4 mr-2" />
-                          All Modules
+                          {I18n.t("courses.lesson_show.all_modules")}
                         </Link>
                       </Button>
                     </div>
@@ -432,7 +432,7 @@ export default function LessonPage() {
                         {prev ? (
                           <Link to={`/courses/${courseId}/lessons/${prev.id}`}>
                             <ArrowLeft className="h-4 w-4 mr-2" />
-                            Previous
+                            {I18n.t("courses.lesson_show.previous")}
                           </Link>
                         ) : (
                           <>
@@ -445,12 +445,12 @@ export default function LessonPage() {
                       <Button variant="outline" size="sm" disabled={!next} asChild={!!next}>
                         {next ? (
                           <Link to={`/courses/${courseId}/lessons/${next.id}`}>
-                            Next
+                            {I18n.t("courses.lesson_show.next")}
                             <ArrowRight className="h-4 w-4 ml-2" />
                           </Link>
                         ) : (
                           <>
-                            Next
+                            {I18n.t("courses.lesson_show.next")}
                             <ArrowRight className="h-4 w-4 ml-2" />
                           </>
                         )}

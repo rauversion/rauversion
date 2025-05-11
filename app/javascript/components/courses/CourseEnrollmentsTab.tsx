@@ -89,26 +89,26 @@ export default function CourseEnrollmentsTab() {
     <div className="space-y-8">
       <Card>
         <CardHeader>
-          <CardTitle>Enrollments</CardTitle>
+          <CardTitle>{I18n.t("courses.enrollments_tab.enrollments")}</CardTitle>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>User</TableHead>
-                <TableHead>Completed Lessons</TableHead>
-                <TableHead>Remaining Lessons</TableHead>
-                <TableHead>Progress (%)</TableHead>
+                <TableHead>{I18n.t("courses.enrollments_tab.user")}</TableHead>
+                <TableHead>{I18n.t("courses.enrollments_tab.completed_lessons")}</TableHead>
+                <TableHead>{I18n.t("courses.enrollments_tab.remaining_lessons")}</TableHead>
+                <TableHead>{I18n.t("courses.enrollments_tab.progress_percent")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={4}>Loading...</TableCell>
+                  <TableCell colSpan={4}>{I18n.t("courses.enrollments_tab.loading")}</TableCell>
                 </TableRow>
               ) : enrollments.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={4}>No enrollments found.</TableCell>
+                  <TableCell colSpan={4}>{I18n.t("courses.enrollments_tab.no_enrollments")}</TableCell>
                 </TableRow>
               ) : (
                 enrollments.map((enrollment) => (
@@ -134,13 +134,13 @@ export default function CourseEnrollmentsTab() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Invite User</CardTitle>
+          <CardTitle>{I18n.t("courses.enrollments_tab.invite_user")}</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onInvite)} className="flex flex-col gap-4 sm:flex-row sm:items-end">
             <div className="flex-1 flex flex-col">
               <label htmlFor="invite-email" className="mb-1 text-sm font-medium">
-                Email
+                {I18n.t("courses.enrollments_tab.email")}
               </label>
               <Input
                 id="invite-email"
@@ -151,7 +151,7 @@ export default function CourseEnrollmentsTab() {
               />
             </div>
             <Button type="submit" className="w-full sm:w-auto">
-              Send Invitation
+              {I18n.t("courses.enrollments_tab.send_invitation")}
             </Button>
           </form>
         </CardContent>

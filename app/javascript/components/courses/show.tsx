@@ -240,7 +240,7 @@ export default function CoursePage() {
         <div className="flex h-16 items-center px-4 md:px-6">
           <Link to="/courses" className="flex items-center mr-4">
             <ArrowLeft className="h-5 w-5 mr-2" />
-            <span className="hidden sm:inline">Back to Courses</span>
+            <span className="hidden sm:inline">{I18n.t("courses.show.back_to_courses")}</span>
           </Link>
           <div className="flex-1">
             <h1 className="text-lg font-semibold truncate">{course.title}</h1>
@@ -249,7 +249,7 @@ export default function CoursePage() {
             <Button variant="outline" size="sm" asChild>
               <Link to="/courses/mine">
                 <Settings className="h-4 w-4 mr-2" />
-                Admin
+                {I18n.t("courses.show.admin")}
               </Link>
             </Button>
             {/*<Button variant="outline" size="icon" className="rounded-full">
@@ -263,7 +263,7 @@ export default function CoursePage() {
             >
               <Button variant="outline" size="icon" className="rounded-full">
                 <Share2 className="h-4 w-4" />
-                <span className="sr-only">Share</span>
+                <span className="sr-only">{I18n.t("courses.show.share")}</span>
               </Button>
             </ShareDialog>
           </div>
@@ -304,8 +304,8 @@ export default function CoursePage() {
 
               <div className="mb-6">
                 <div className="flex justify-between text-sm mb-1">
-                  <span className="font-medium">Overall Progress</span>
-                  <span>{overallProgress}% complete</span>
+                  <span className="font-medium">{I18n.t("courses.show.overall_progress")}</span>
+                  <span>{overallProgress}{I18n.t("courses.show.percent_complete")}</span>
                 </div>
                 <Progress value={overallProgress} className="h-2" />
               </div>
@@ -315,7 +315,7 @@ export default function CoursePage() {
                   <CardContent className="p-4">
                     <div className="flex justify-between items-center">
                       <div>
-                        <h3 className="text-sm font-medium text-muted-foreground mb-1">Continue where you left off</h3>
+                        <h3 className="text-sm font-medium text-muted-foreground mb-1">{I18n.t("courses.show.continue_where_left_off")}</h3>
                         <p className="font-medium">{nextLesson.title}</p>
                       </div>
                       <Button
@@ -337,7 +337,7 @@ export default function CoursePage() {
                         }}
                       >
                         <Play className="mr-2 h-4 w-4" />
-                        Continue Learning
+                        {I18n.t("courses.show.continue_learning")}
                       </Button>
                     </div>
                   </CardContent>
@@ -347,8 +347,8 @@ export default function CoursePage() {
 
             <Tabs defaultValue="content" className="mb-6" onValueChange={setActiveTab}>
               <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="content">Content</TabsTrigger>
-                <TabsTrigger value="resources">Resources</TabsTrigger>
+                <TabsTrigger value="content">{I18n.t("courses.show.content")}</TabsTrigger>
+                <TabsTrigger value="resources">{I18n.t("courses.show.resources")}</TabsTrigger>
                 {/*<TabsTrigger value="discussion">Discussion</TabsTrigger>*/}
               </TabsList>
               <TabsContent value="content" className="mt-4">
@@ -401,7 +401,7 @@ export default function CoursePage() {
                                     >
                                       <Link to={`/courses/${courseId}/lessons/${lesson.id}`} className="flex items-center gap-2">
                                         <CheckCircle className="h-5 w-5" />
-                                        Review
+                                        {I18n.t("courses.show.review")}
                                       </Link>
                                     </Button>
                                   )
@@ -422,7 +422,7 @@ export default function CoursePage() {
                                     >
                                       <span className="flex items-center gap-2">
                                         <Play className="h-5 w-5" />
-                                        Continue
+                                        {I18n.t("courses.show.continue")}
                                       </span>
                                     </Button>
                                   )
@@ -448,7 +448,7 @@ export default function CoursePage() {
                                         <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                                           <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" />
                                         </svg>
-                                        Start
+                                        {I18n.t("courses.show.start")}
                                       </span>
                                     </Button>
                                   )
@@ -471,7 +471,7 @@ export default function CoursePage() {
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" />
                                       </svg>
                                     )}
-                                    {lesson.completed ? "Review" : "Start"}
+                                    {lesson.completed ? I18n.t("courses.show.review") : I18n.t("courses.show.start")}
                                   </Link>
                                 </Button>
                               )}
@@ -521,7 +521,7 @@ export default function CoursePage() {
                               }}
                             >
                               <Download className="h-4 w-4 mr-2" />
-                              Download
+                              {I18n.t("courses.show.download")}
                             </Button>
                           ) : (
                             <Button variant="ghost" size="sm" disabled>
@@ -539,11 +539,11 @@ export default function CoursePage() {
                 <div className="flex items-center justify-center p-8 text-center">
                   <div>
                     <MessageSquare className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-                    <h3 className="font-medium text-lg mb-1">Join the discussion</h3>
+                    <h3 className="font-medium text-lg mb-1">{I18n.t("courses.show.join_discussion")}</h3>
                     <p className="text-muted-foreground mb-4">
-                      Connect with other students and ask questions about the course.
+                      {I18n.t("courses.show.connect_with_students")}
                     </p>
-                    <Button>Start a conversation</Button>
+                    <Button>{I18n.t("courses.show.start_conversation")}</Button>
                   </div>
                 </div>
               </TabsContent>
@@ -554,10 +554,10 @@ export default function CoursePage() {
             <div className="sticky top-24">
               <Card>
                 <CardContent className="p-4">
-                  <h3 className="font-semibold text-lg mb-4">Your Progress</h3>
+                  <h3 className="font-semibold text-lg mb-4">{I18n.t("courses.show.your_progress")}</h3>
                   <div className="mb-6">
                     <div className="flex justify-between text-sm mb-1">
-                      <span>Overall completion</span>
+                      <span>{I18n.t("courses.show.overall_completion")}</span>
                       <span className="font-medium">{overallProgress}%</span>
                     </div>
                     <Progress value={overallProgress} className="h-2" />
@@ -578,7 +578,7 @@ export default function CoursePage() {
                   <div className="mt-6 pt-6 border-t">
                     <div className="flex items-center justify-between mb-4">
                       <div>
-                        <p className="font-medium">Course Stats</p>
+                        <p className="font-medium">{I18n.t("courses.show.course_stats")}</p>
                       </div>
                       {!enrollment ? (
                         <Dialog>
@@ -602,13 +602,13 @@ export default function CoursePage() {
                               }}
                             >
                               <span role="img" aria-label="sparkles" className="mr-2">✨</span>
-                              Enroll Now
+                              {I18n.t("courses.show.enroll_now")}
                               <span role="img" aria-label="arrow" className="ml-2">➡️</span>
                             </Button>
                           </DialogTrigger>
                           <DialogContent>
                             <DialogHeader>
-                              <DialogTitle>Enroll in {course.title}</DialogTitle>
+                              <DialogTitle>{I18n.t("courses.show.enroll_in", { title: course.title })}</DialogTitle>
                             </DialogHeader>
                             <CourseEnrollmentForm
                               courseId={courseId}
@@ -620,18 +620,18 @@ export default function CoursePage() {
                       ) : (
                         <span className="ml-2 px-4 py-2 rounded-full bg-green-100 text-green-700 font-semibold shadow-inner border border-green-200">
                           <CheckCircle className="inline-block h-5 w-5 mr-1 text-green-500" />
-                          Already Enrolled
+                          {I18n.t("courses.show.already_enrolled")}
                         </span>
                       )}
                     </div>
                     <div className="grid grid-cols-2 gap-4">
                       <div className="text-center p-3 bg-muted/50 rounded-md">
                         <p className="text-2xl font-bold">{completedLessons}</p>
-                        <p className="text-sm text-muted-foreground">Lessons completed</p>
+                        <p className="text-sm text-muted-foreground">{I18n.t("courses.show.lessons_completed")}</p>
                       </div>
                       <div className="text-center p-3 bg-muted/50 rounded-md">
                         <p className="text-2xl font-bold">{totalLessons - completedLessons}</p>
-                        <p className="text-sm text-muted-foreground">Lessons remaining</p>
+                        <p className="text-sm text-muted-foreground">{I18n.t("courses.show.lessons_remaining")}</p>
                       </div>
                     </div>
                   </div>

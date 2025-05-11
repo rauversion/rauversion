@@ -121,7 +121,7 @@ export default function ModulesManager({
       <Dialog open={!!editingModule} onOpenChange={(open) => { if (!open) setEditingModule(null) }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Module</DialogTitle>
+            <DialogTitle>{I18n.t("courses.modules_manager.edit_module")}</DialogTitle>
           </DialogHeader>
           {editingModule && (
             <EditModuleForm
@@ -129,7 +129,7 @@ export default function ModulesManager({
               onSubmit={async (data) => {
                 await onModuleUpdate && onModuleUpdate(editingModule.id, data)
                 setEditingModule(null)
-                toast({ title: "Module updated" })
+                toast({ title: I18n.t("courses.modules_manager.module_updated") })
               }}
               onCancel={() => setEditingModule(null)}
             />
@@ -138,17 +138,17 @@ export default function ModulesManager({
       </Dialog>
       <Card>
         <CardHeader className="flex flex-row items-center">
-          <CardTitle>Course Modules</CardTitle>
+          <CardTitle>{I18n.t("courses.modules_manager.course_modules")}</CardTitle>
           <Dialog>
             <DialogTrigger asChild>
               <Button className="ml-auto">
                 <Plus className="h-4 w-4 mr-2" />
-                Add Module
+                {I18n.t("courses.modules_manager.add_module")}
               </Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Add New Module</DialogTitle>
+                <DialogTitle>{I18n.t("courses.modules_manager.add_new_module")}</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 py-4">
                 <div className="space-y-2">
@@ -188,7 +188,7 @@ export default function ModulesManager({
         <CardContent>
           {modules.length === 0 ? (
             <div className="text-center py-8 text-muted-foreground">
-              <p>No modules added yet. Click "Add Module" to create your first module.</p>
+              <p>{I18n.t("courses.modules_manager.no_modules")}</p>
             </div>
           ) : (
             <Accordion

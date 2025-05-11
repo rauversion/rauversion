@@ -32,12 +32,12 @@ export default function CourseSettings({ courseData, onDataChange, onSave }) {
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium mb-4">Course Settings</h3>
+        <h3 className="text-lg font-medium mb-4">{I18n.t("courses.settings.course_settings")}</h3>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label htmlFor="published">Published</Label>
-              <p className="text-sm text-muted-foreground">Make this course available to students</p>
+              <Label htmlFor="published">{I18n.t("courses.settings.published")}</Label>
+              <p className="text-sm text-muted-foreground">{I18n.t("courses.settings.published_desc")}</p>
             </div>
             <Switch
               id="published"
@@ -48,8 +48,8 @@ export default function CourseSettings({ courseData, onDataChange, onSave }) {
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label htmlFor="featured">Featured Course</Label>
-              <p className="text-sm text-muted-foreground">Show this course on the homepage</p>
+              <Label htmlFor="featured">{I18n.t("courses.settings.featured_course")}</Label>
+              <p className="text-sm text-muted-foreground">{I18n.t("courses.settings.featured_course_desc")}</p>
             </div>
             <Switch
               id="featured"
@@ -60,8 +60,8 @@ export default function CourseSettings({ courseData, onDataChange, onSave }) {
 
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
-              <Label htmlFor="certificate">Certificate</Label>
-              <p className="text-sm text-muted-foreground">Enable course completion certificate</p>
+              <Label htmlFor="certificate">{I18n.t("courses.settings.certificate")}</Label>
+              <p className="text-sm text-muted-foreground">{I18n.t("courses.settings.certificate_desc")}</p>
             </div>
             <Switch
               id="certificate"
@@ -75,31 +75,31 @@ export default function CourseSettings({ courseData, onDataChange, onSave }) {
       <Separator />
 
       <div>
-        <h3 className="text-lg font-medium mb-4">Enrollment Settings</h3>
+        <h3 className="text-lg font-medium mb-4">{I18n.t("courses.settings.enrollment_settings")}</h3>
         <div className="space-y-4">
           <div className="grid gap-2">
-            <Label htmlFor="enrollment-type">Enrollment Type</Label>
+            <Label htmlFor="enrollment-type">{I18n.t("courses.settings.enrollment_type")}</Label>
             <Select
               defaultValue={localSettings.enrollment_type || "open"}
               onValueChange={(value) => handleFieldChange("enrollment_type", value)}
             >
               <SelectTrigger id="enrollment-type">
-                <SelectValue placeholder="Select enrollment type" />
+                <SelectValue placeholder={I18n.t("courses.settings.select_enrollment_type")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="open">Open Enrollment</SelectItem>
-                <SelectItem value="invite">Invite Only</SelectItem>
-                {/*<SelectItem value="approval">Requires Approval</SelectItem>*/}
+                <SelectItem value="open">{I18n.t("courses.settings.open_enrollment")}</SelectItem>
+                <SelectItem value="invite">{I18n.t("courses.settings.invite_only")}</SelectItem>
+                {/*<SelectItem value="approval">{I18n.t("courses.settings.requires_approval")}</SelectItem>*/}
               </SelectContent>
             </Select>
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="max-students">Maximum Students (0 for unlimited)</Label>
+            <Label htmlFor="max-students">{I18n.t("courses.settings.max_students")}</Label>
             <Input
               id="max-students"
               type="number"
-              placeholder="0"
+              placeholder={I18n.t("courses.settings.max_students_placeholder")}
               value={localSettings.max_students || "0"}
               onChange={(e) => handleFieldChange("max_students", e.target.value)}
             />
@@ -110,33 +110,33 @@ export default function CourseSettings({ courseData, onDataChange, onSave }) {
       <Separator />
 
       <div>
-        <h3 className="text-lg font-medium mb-4">SEO Settings</h3>
+        <h3 className="text-lg font-medium mb-4">{I18n.t("courses.settings.seo_settings")}</h3>
         <div className="space-y-4">
           <div className="grid gap-2">
-            <Label htmlFor="seo-title">SEO Title</Label>
+            <Label htmlFor="seo-title">{I18n.t("courses.settings.seo_title")}</Label>
             <Input
               id="seo-title"
-              placeholder="SEO optimized title"
+              placeholder={I18n.t("courses.settings.seo_title_placeholder")}
               value={localSettings.seo_title || ""}
               onChange={(e) => handleFieldChange("seo_title", e.target.value)}
             />
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="seo-description">SEO Description</Label>
+            <Label htmlFor="seo-description">{I18n.t("courses.settings.seo_description")}</Label>
             <Textarea
               id="seo-description"
-              placeholder="Brief description for search engines"
+              placeholder={I18n.t("courses.settings.seo_description_placeholder")}
               value={localSettings.seo_description || ""}
               onChange={(e) => handleFieldChange("seo_description", e.target.value)}
             />
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="seo-keywords">SEO Keywords (comma separated)</Label>
+            <Label htmlFor="seo-keywords">{I18n.t("courses.settings.seo_keywords")}</Label>
             <Input
               id="seo-keywords"
-              placeholder="music, guitar, lessons"
+              placeholder={I18n.t("courses.settings.seo_keywords_placeholder")}
               value={localSettings.seoKeywords || ""}
               onChange={(e) => handleFieldChange("seoKeywords", e.target.value)}
             />
@@ -148,9 +148,9 @@ export default function CourseSettings({ courseData, onDataChange, onSave }) {
 
       <div className="flex justify-end">
         <Button variant="destructive" className="mr-2">
-          Delete Course
+          {I18n.t("courses.settings.delete_course")}
         </Button>
-        <Button onClick={handleSave}>Save Settings</Button>
+        <Button onClick={handleSave}>{I18n.t("courses.settings.save_settings")}</Button>
       </div>
     </div>
   )

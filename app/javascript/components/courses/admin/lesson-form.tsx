@@ -109,30 +109,30 @@ export default function LessonForm({ lesson = {}, onSubmit, documents = [], onDo
     <div className="space-y-4 py-4">
       <Tabs defaultValue="details" onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="details">Lesson Details</TabsTrigger>
-          <TabsTrigger value="video">Video</TabsTrigger>
-          <TabsTrigger value="resources">Resources</TabsTrigger>
+          <TabsTrigger value="details">{I18n.t("courses.lesson_form.lesson_details")}</TabsTrigger>
+          <TabsTrigger value="video">{I18n.t("courses.lesson_form.video")}</TabsTrigger>
+          <TabsTrigger value="resources">{I18n.t("courses.lesson_form.resources")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="details" className="space-y-4 pt-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Lesson Title</Label>
+            <Label htmlFor="title">{I18n.t("courses.lesson_form.lesson_title")}</Label>
             <Input
               id="title"
               name="title"
-              placeholder="e.g. Introduction to Guitar Chords"
+              placeholder={I18n.t("courses.lesson_form.lesson_title_placeholder")}
               value={formData.title}
               onChange={handleChange}
             />
-            {!formData.title && <p className="text-sm text-red-500">Title is required</p>}
+            {!formData.title && <p className="text-sm text-red-500">{I18n.t("courses.lesson_form.title_required")}</p>}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description (Optional)</Label>
+            <Label htmlFor="description">{I18n.t("courses.lesson_form.description_optional")}</Label>
             <Textarea
               id="description"
               name="description"
-              placeholder="Brief description of this lesson"
+              placeholder={I18n.t("courses.lesson_form.description_placeholder")}
               value={formData.description}
               onChange={handleChange}
             />
@@ -140,30 +140,30 @@ export default function LessonForm({ lesson = {}, onSubmit, documents = [], onDo
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="type">Lesson Type</Label>
+              <Label htmlFor="type">{I18n.t("courses.lesson_form.lesson_type")}</Label>
               <Select value={formData.type} onValueChange={(value) => handleSelectChange("type", value)}>
                 <SelectTrigger id="type">
-                  <SelectValue placeholder="Select type" />
+                  <SelectValue placeholder={I18n.t("courses.lesson_form.select_type")} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="video">Video</SelectItem>
-                  <SelectItem value="practice">Practice</SelectItem>
-                  <SelectItem value="quiz">Quiz</SelectItem>
-                  <SelectItem value="reading">Reading</SelectItem>
+                  <SelectItem value="video">{I18n.t("courses.lesson_form.type_video")}</SelectItem>
+                  <SelectItem value="practice">{I18n.t("courses.lesson_form.type_practice")}</SelectItem>
+                  <SelectItem value="quiz">{I18n.t("courses.lesson_form.type_quiz")}</SelectItem>
+                  <SelectItem value="reading">{I18n.t("courses.lesson_form.type_reading")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="duration">Duration</Label>
+              <Label htmlFor="duration">{I18n.t("courses.lesson_form.duration")}</Label>
               <Input
                 id="duration"
                 name="duration"
-                placeholder="e.g. 15 min"
+                placeholder={I18n.t("courses.lesson_form.duration_placeholder")}
                 value={formData.duration}
                 onChange={handleChange}
               />
-              {!formData.duration && <p className="text-sm text-red-500">Duration is required</p>}
+              {!formData.duration && <p className="text-sm text-red-500">{I18n.t("courses.lesson_form.duration_required")}</p>}
             </div>
           </div>
         </TabsContent>

@@ -30,9 +30,9 @@ export default function CourseList() {
       <div className="mx-auto p-4">
         <Tabs defaultValue="all" className="mb-6">
           <TabsList>
-            <TabsTrigger value="all">All Courses</TabsTrigger>
-            <TabsTrigger value="in-progress">In Progress</TabsTrigger>
-            <TabsTrigger value="completed">Completed</TabsTrigger>
+            <TabsTrigger value="all">{I18n.t("courses.index.all_courses")}</TabsTrigger>
+            <TabsTrigger value="in-progress">{I18n.t("courses.index.in_progress")}</TabsTrigger>
+            <TabsTrigger value="completed">{I18n.t("courses.index.completed")}</TabsTrigger>
           </TabsList>
         </Tabs>
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -77,13 +77,13 @@ export default function CourseList() {
       <Tabs defaultValue="all" className="mb-6">
         <TabsList>
           <TabsTrigger value="all" onClick={() => setActiveTab("all")}>
-            All Courses
+            {I18n.t("courses.index.all_courses")}
           </TabsTrigger>
           <TabsTrigger value="in-progress" onClick={() => setActiveTab("in-progress")}>
-            In Progress
+            {I18n.t("courses.index.in_progress")}
           </TabsTrigger>
           <TabsTrigger value="completed" onClick={() => setActiveTab("completed")}>
-            Completed
+            {I18n.t("courses.index.completed")}
           </TabsTrigger>
         </TabsList>
       </Tabs>
@@ -117,10 +117,10 @@ export default function CourseList() {
                     </div>
                   </div>
                   <h3 className="font-semibold text-lg mb-1">{course.title}</h3>
-                  <p className="text-sm text-muted-foreground mb-2">Instructor: {course.instructor}</p>
+                  <p className="text-sm text-muted-foreground mb-2">{I18n.t("courses.index.instructor")}{course.instructor}</p>
                   <div className="mt-3">
                     <div className="flex justify-between text-sm mb-1">
-                      <span>{course.progress}% complete</span>
+                      <span>{course.progress}{I18n.t("courses.index.percent_complete")}</span>
                       <span className="text-muted-foreground">{course.lastAccessed}</span>
                     </div>
                     <Progress value={course.progress} className="h-2" />
@@ -128,7 +128,9 @@ export default function CourseList() {
                 </CardContent>
                 <CardFooter className="p-4 pt-0 flex justify-between">
                   <div className="text-sm text-muted-foreground">
-                    {course.progress < 100 ? "Continue learning" : "Review course"}
+                    {course.progress < 100
+                      ? I18n.t("courses.index.continue_learning")
+                      : I18n.t("courses.index.review_course")}
                   </div>
                   {course.progress === 100 && <Award className="h-4 w-4 text-yellow-500" />}
                 </CardFooter>
@@ -137,9 +139,9 @@ export default function CourseList() {
           ))
         ) : (
           <div className="text-center py-12">
-            <h3 className="mt-2 text-sm font-medium text-default">No courses</h3>
+            <h3 className="mt-2 text-sm font-medium text-default">{I18n.t("courses.index.no_courses")}</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              Get started by creating a new course.
+              {I18n.t("courses.index.get_started")}
             </p>
           </div>
         )}
