@@ -359,7 +359,7 @@ export default function ServiceForm({ product, isEditing = false }) {
                               onChange={field.onChange}
                               scope="product"
                               aiPromptContext="This is an AI text enhancer for a music service product, this is a text for the services prerequisites"
-                              plain
+                              plain={false}
                             />
                           </FormControl>
                           <FormMessage />
@@ -381,7 +381,7 @@ export default function ServiceForm({ product, isEditing = false }) {
                               onChange={field.onChange}
                               scope="product"
                               aiPromptContext="This is an AI text enhancer for a music service product. This is the text for a what to expect for the clients"
-                              plain
+                              plain={false}
                             />
                           </FormControl>
                           <FormMessage />
