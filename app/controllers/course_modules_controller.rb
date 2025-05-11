@@ -49,9 +49,9 @@ class CourseModulesController < ApplicationController
   private
 
   def set_course
-    @course = current_user.courses.find_by(id: params[:course_id]) if current_user
+    @course = current_user.courses.friendly.find(params[:course_id]) if current_user
     if @course.nil?
-      @course = Course.find_by(id: params[:course_id])
+      @course = Course.friendly.find(params[:course_id])
     end
   end
 

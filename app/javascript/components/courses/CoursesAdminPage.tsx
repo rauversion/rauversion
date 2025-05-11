@@ -96,7 +96,7 @@ export default function CoursesAdminPage() {
               </TableHeader>
               <TableBody>
                 {filteredCourses.map((course) => (
-                  <TableRow key={course.id}>
+                  <TableRow key={course.slug}>
                     <TableCell className="font-medium">{course.title}</TableCell>
                     <TableCell>{course.category}</TableCell>
                     <TableCell>{course.level}</TableCell>
@@ -118,13 +118,13 @@ export default function CoursesAdminPage() {
                         <DropdownMenuContent align="end">
                           <DropdownMenuLabel>Actions</DropdownMenuLabel>
                           <DropdownMenuItem asChild>
-                            <Link to={`/courses/${course.id}/edit`}>
+                            <Link to={`/courses/${course.slug}/edit`}>
                               <Edit className="h-4 w-4 mr-2" />
                               Edit
                             </Link>
                           </DropdownMenuItem>
                           <DropdownMenuItem asChild>
-                            <Link to={`/courses/${course.id}`}>
+                            <Link to={`/courses/${course.slug}`}>
                               <Eye className="h-4 w-4 mr-2" />
                               Preview
                             </Link>

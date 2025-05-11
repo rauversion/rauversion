@@ -92,8 +92,8 @@ export default function CourseList() {
         {filteredCourses.length > 0 ? (
           filteredCourses.map((course, idx) => (
             <Link
-              to={`/courses/${course.id}`}
-              key={course.id}
+              to={`/courses/${course.slug}`}
+              key={course.slug}
               className="group"
               ref={idx === filteredCourses.length - 1 ? lastElementRef : null}
             >

@@ -363,9 +363,9 @@ export default function LessonPage() {
                 <TabsContent value="content" className="mt-4">
                   <div className="prose max-w-none">
                     <h2 className="text-xl text-default font-semibold mb-4">About this lesson</h2>
-                    <p className="text-muted-foreground">{lesson.description}</p>
+                    <p className="text-muted">{lesson.description}</p>
 
-                    <div className="mt-6">
+                    {/*<div className="mt-6">
                       <h3 className="text-lg text-default font-medium mb-3">What you'll learn</h3>
                       <ul className="space-y-2">
                         <li className="flex items-start">
@@ -381,7 +381,7 @@ export default function LessonPage() {
                           <span>How this connects to other lessons</span>
                         </li>
                       </ul>
-                    </div>
+                    </div>*/}
                   </div>
                 </TabsContent>
 

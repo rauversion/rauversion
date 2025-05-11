@@ -176,7 +176,7 @@ export default function NewCoursePage() {
 
       if (data.course.id) {
         // Navigate to edit page for the newly created course
-        navigate(`/courses/${data.course.id}/edit`)
+        navigate(`/courses/${data.course.slug}/edit`)
       }
       // router.push("/admin/courses")
     } catch (error) {

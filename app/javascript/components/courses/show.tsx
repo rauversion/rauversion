@@ -21,6 +21,7 @@ import {
   MessageSquare,
   Settings,
 } from "lucide-react"
+import { ShareDialog } from "@/components/ui/share-dialog"
 import { get, post } from "@rails/request.js"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog"
@@ -255,10 +256,16 @@ export default function CoursePage() {
               <Bookmark className="h-4 w-4" />
               <span className="sr-only">Bookmark</span>
             </Button>
-            <Button variant="outline" size="icon" className="rounded-full">
-              <Share2 className="h-4 w-4" />
-              <span className="sr-only">Share</span>
-            </Button>
+            <ShareDialog
+              url={typeof window !== "undefined" ? window.location.href : ""}
+              title={course?.title || ""}
+              description={course?.description || ""}
+            >
+              <Button variant="outline" size="icon" className="rounded-full">
+                <Share2 className="h-4 w-4" />
+                <span className="sr-only">Share</span>
+              </Button>
+            </ShareDialog>
           </div>
         </div>
       </header>

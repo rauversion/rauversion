@@ -51,7 +51,7 @@ class CourseDocumentsController < ApplicationController
   private
 
   def set_course
-    @course = Course.find(params[:course_id])
+    @course = Course.friendly.find(params[:course_id])
     @course_module = @course.course_modules.find(params[:course_module_id]) if params[:course_module_id]
     @lesson = @course_module.lessons.find(params[:lesson_id]) if params[:lesson_id]
   end

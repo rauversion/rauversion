@@ -22,9 +22,9 @@ class CoursesController < ApplicationController
   end
 
   def show
-    @course = current_user.courses.find_by(id: params[:id]) if current_user
+    @course = current_user.courses.friendly.find(params[:id]) if current_user
     if @course.nil?
-      @course = Course.find_by(id: params[:id])
+      @course = Course.friendly.find(params[:id])
     end
     if params[:get_enrollment] && current_user
       @course_enrollment = CourseEnrollment.find_by(
@@ -59,7 +59,7 @@ class CoursesController < ApplicationController
   end
 
   def edit
-    @course = current_user.courses.find_by(id: params[:id])
+    @course = current_user.courses.friendly.find(params[:id])
     respond_to do |format|
       format.json { render json: @course }
       format.html { render_blank }
@@ -67,7 +67,7 @@ class CoursesController < ApplicationController
   end
 
   def update
-    @course = current_user.courses.find_by(id: params[:id])
+    @course = current_user.courses.friendly.find(params[:id])
     @course.assign_attributes(course_params)
     if @course.save
       render :show, status: :ok
@@ -104,7 +104,7 @@ class CoursesController < ApplicationController
 
   # GET /courses/:id/enrollments
   def enrollments
-    @course = current_user.courses.find_by(id: params[:id])
+    @course = current_user.courses.friendly.find(params[:id])
     if @course
       @enrollments = @course.course_enrollments.includes(:user)
       respond_to do |format|
@@ -141,9 +141,9 @@ class CoursesController < ApplicationController
 
   def set_course
 
-    @course = current_user.courses.find_by(id: params[:id]) if current_user
+    @course = current_user.courses.friendly.find(params[:id]) if current_user
     if @course.nil?
-      @course = Course.find_by(id: params[:id])
+      @course = Course.friendly.find(params[:id])
     end
   end
 
