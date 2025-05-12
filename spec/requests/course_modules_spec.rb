@@ -13,7 +13,7 @@ RSpec.describe "CourseModules", type: :request do
 
   describe "GET /course_modules" do
     it "returns http success" do
-      get "/course_modules"
+      get "/courses/#{course.id}/course_modules.json"
       expect(response).to have_http_status(:success)
     end
   end
@@ -21,7 +21,7 @@ RSpec.describe "CourseModules", type: :request do
   describe "POST /course_modules" do
     it "creates a new course module" do
       expect {
-        post "/course_modules", params: { course_module: valid_attributes }
+        post "/courses/#{course.id}/course_modules.json", params: { course_module: valid_attributes }
       }.to change(CourseModule, :count).by(1)
       unless response.redirect? || response.successful?
         puts "Response status: #{response.status}"
@@ -34,7 +34,7 @@ RSpec.describe "CourseModules", type: :request do
   describe "DELETE /course_modules/:id" do
     it "destroys the requested course module" do
       expect {
-        delete "/course_modules/#{course_module.id}"
+        delete "/courses/#{course.id}/course_modules/#{course_module.id}.json"
       }.to change(CourseModule, :count).by(-1)
       expect(response).to have_http_status(:redirect).or have_http_status(:success)
     end
