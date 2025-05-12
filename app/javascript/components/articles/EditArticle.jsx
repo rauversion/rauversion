@@ -154,6 +154,7 @@ export default function EditArticle() {
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false)
   const [dragActive, setDragActive] = React.useState(false)
   const inputRef = React.useRef(null)
+  const [changeCount, setChangeCount] = React.useState(0)
 
   const handleDrag = (e) => {
     e.preventDefault()
@@ -287,32 +288,40 @@ export default function EditArticle() {
   })
 
   const handleSaveContent = React.useCallback(async (content) => {
-    try {
-      const response = await put(`/articles/${id}`, {
-        body: JSON.stringify({
-          post: {
-            body: content
-          }
-        }),
-        responseKind: 'json'
-      })
-
-      if (response.ok) {
-        const { article } = await response.json
-        // setArticle(article)
-        toast({
-          description: "Contenido guardado",
-        })
+    setChangeCount((prev) => {
+      if (prev === 0) {
+        return prev + 1 // skip first change
       }
-    } catch (error) {
-      console.error('Error saving content:', error)
-      toast({
-        title: "Error",
-        description: "No se pudo guardar el contenido",
-        variant: "destructive",
-      })
-    }
-  }, [id])
+      (async () => {
+        try {
+          const response = await put(`/articles/${id}`, {
+            body: JSON.stringify({
+              post: {
+                body: content
+              }
+            }),
+            responseKind: 'json'
+          })
+
+          if (response.ok) {
+            const { article } = await response.json
+            // setArticle(article)
+            toast({
+              description: "Contenido guardado",
+            })
+          }
+        } catch (error) {
+          console.error('Error saving content:', error)
+          toast({
+            title: "Error",
+            description: "No se pudo guardar el contenido",
+            variant: "destructive",
+          })
+        }
+      })()
+      return prev + 1
+    })
+  }, [id, toast])
 
   const editorOnChangeHandler = useDebounceCallback(handleSaveContent, 500)
 
