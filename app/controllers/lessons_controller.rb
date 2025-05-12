@@ -10,7 +10,8 @@ class LessonsController < ApplicationController
   def create
     @lesson = @course_module.lessons.build(lesson_params)
     if @lesson.save
-      render :show, status: :created
+      # render :show, status: :created
+      head :no_content
     else
       render json: { errors: @lesson.errors.full_messages }, status: :unprocessable_entity
     end
@@ -28,7 +29,8 @@ class LessonsController < ApplicationController
     @lesson = @course_module.lessons.find(params[:id])
     @lesson.assign_attributes(lesson_params)
     if @lesson.save
-      render :show, status: :ok
+      #render :show, status: :ok
+      head :no_content
     else
       render json: { errors: @lesson.errors.full_messages }, status: :unprocessable_entity
     end
