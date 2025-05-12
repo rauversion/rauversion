@@ -116,6 +116,22 @@ export function MobileNavigation({ currentUser, storeNavItems, eventsNavItems, m
           <NavSection title={I18n.t("menu.music")} items={musicNavItems} />
           <NavSection title={I18n.t("menu.events")} items={eventsNavItems} />
           <NavSection title={I18n.t("menu.store")} items={storeNavItems} />
+          {!currentUser && (
+            <div className="flex flex-col gap-2 px-4 py-4">
+              <a
+                href="/users/sign_in"
+                className="w-full rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted border border-default text-center"
+              >
+                {I18n.t("menu.log_in")}
+              </a>
+              <a
+                href="/users/sign_up"
+                className="w-full inline-flex items-center justify-center rounded-md border border-transparent bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-brand-700 text-center"
+              >
+                {I18n.t("menu.register")}
+              </a>
+            </div>
+          )}
           <MobileLanguageSelector />
         </div>
       </SheetContent>
