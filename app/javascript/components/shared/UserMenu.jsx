@@ -116,6 +116,7 @@ export function MobileNavigation({ currentUser, storeNavItems, eventsNavItems, m
           <NavSection title={I18n.t("menu.music")} items={musicNavItems} />
           <NavSection title={I18n.t("menu.events")} items={eventsNavItems} />
           <NavSection title={I18n.t("menu.store")} items={storeNavItems} />
+          <MobileLanguageSelector />
         </div>
       </SheetContent>
     </Sheet>
@@ -152,6 +153,38 @@ function NavSection({ title, items }) {
         </div>
       </CollapsibleContent>
     </Collapsible>
+  );
+}
+
+function MobileLanguageSelector() {
+  const { setLocale, currentLocale } = useLocaleStore();
+  return (
+    <div className="border-t mt-4 pt-2">
+      <div className="flex items-center px-4 py-2 text-sm font-medium">
+        <Languages className="h-4 w-4 mr-2" />
+        {I18n.t("menu.language")}
+      </div>
+      <div className="flex flex-col">
+        <button
+          className={`flex items-center px-4 py-2 text-left text-sm ${currentLocale === "en" ? "font-semibold text-primary" : ""
+            }`}
+          onClick={() => setLocale("en")}
+          type="button"
+        >
+          <span className="mr-2">🇺🇸</span> English
+          {currentLocale === "en" && <span className="ml-2">✓</span>}
+        </button>
+        <button
+          className={`flex items-center px-4 py-2 text-left text-sm ${currentLocale === "es" ? "font-semibold text-primary" : ""
+            }`}
+          onClick={() => setLocale("es")}
+          type="button"
+        >
+          <span className="mr-2">🇪🇸</span> Español
+          {currentLocale === "es" && <span className="ml-2">✓</span>}
+        </button>
+      </div>
+    </div>
   );
 }
 
@@ -473,10 +506,170 @@ export default function UserMenu() {
               )}
             </div>
 
-            {/* Mobile Menu Button */}
+            {/* Mobile Menu Button and User Menu */}
             <div className="lg:hidden mt-3 flex items-center space-x-2">
               <div className="flex items-center gap-2">
                 {isMobile && <CartIndicator isPrimary={false} />}
+                {currentUser && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="relative h-10 w-10 rounded-full"
+                      >
+                        <Avatar>
+                          <AvatarImage
+                            src={currentUser.avatar_url?.small}
+                            alt={currentUser.username}
+                          />
+                          <AvatarFallback>
+                            {currentUser.username?.charAt(0)}
+                          </AvatarFallback>
+                        </Avatar>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                      className="w-56"
+                      align="end"
+                      forceMount
+                    >
+                      <DropdownMenuLabel className="font-normal">
+                        <div className="flex flex-col space-y-1">
+                          <p className="text-sm font-medium leading-none">
+                            {currentUser.username}
+                          </p>
+                          <p className="text-xs leading-none text-muted-foreground">
+                            {currentUser.email}
+                          </p>
+                        </div>
+                      </DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuGroup>
+                        <DropdownMenuItem asChild>
+                          <Link to={`/${currentUser.username}`}>
+                            <User className="mr-2 h-4 w-4" />
+                            <span>{I18n.t("menu.profile")}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link to={`/${currentUser.username}/settings`}>
+                            <Settings className="mr-2 h-4 w-4" />
+                            <span>{I18n.t("menu.settings")}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        {renderMessagesMenuItem()}
+                      </DropdownMenuGroup>
+
+                      <DropdownMenuSeparator />
+
+                      <DropdownMenuGroup>
+                        {currentUser.is_creator && (
+                          <DropdownMenuItem asChild>
+                            <Link to={`/${currentUser.username}/tracks`}>
+                              <Music className="mr-2 h-4 w-4" />
+                              <span>{I18n.t("menu.my_music")}</span>
+                            </Link>
+                          </DropdownMenuItem>
+                        )}
+
+                        {currentUser.is_creator && (
+                          <DropdownMenuItem asChild>
+                            <Link to="/articles/mine">
+                              <FileText className="mr-2 h-4 w-4" />
+                              <span>{I18n.t("menu.my_articles")}</span>
+                            </Link>
+                          </DropdownMenuItem>
+                        )}
+
+                        {currentUser.is_creator && (
+                          <DropdownMenuItem asChild>
+                            <Link to="/events/mine">
+                              <Calendar className="mr-2 h-4 w-4" />
+                              <span>{I18n.t("menu.my_events")}</span>
+                            </Link>
+                          </DropdownMenuItem>
+                        )}
+                      </DropdownMenuGroup>
+
+                      <DropdownMenuSeparator />
+
+                      <DropdownMenuGroup>
+                        <DropdownMenuItem asChild>
+                          <Link to="/purchases">
+                            <ShoppingCart className="mr-2 h-4 w-4" />
+                            <span>{I18n.t("menu.my_purchases")}</span>
+                          </Link>
+                        </DropdownMenuItem>
+
+                        {currentUser.can_sell_products && (
+                          <>
+                            <DropdownMenuItem asChild>
+                              <Link to="/sales">
+                                <Store className="mr-2 h-4 w-4" />
+                                <span>{I18n.t("menu.my_sales")}</span>
+                              </Link>
+                            </DropdownMenuItem>
+
+                            <DropdownMenuItem asChild>
+                              <Link to={`/${currentUser.username}/products`}>
+                                <Package className="mr-2 h-4 w-4" />
+                                <span>{I18n.t("menu.my_products")}</span>
+                              </Link>
+                            </DropdownMenuItem>
+
+                            {currentUser?.is_admin &&
+                              <DropdownMenuItem asChild>
+                                <Link to={`/courses/mine`}>
+                                  <Package className="mr-2 h-4 w-4" />
+                                  <span>{I18n.t("menu.my_courses")}</span>
+                                </Link>
+                              </DropdownMenuItem>
+                            }
+                          </>
+                        )}
+
+
+                        <DropdownMenuItem asChild>
+                          <Link to="/service_bookings">
+                            <CalendarClock className="mr-2 h-4 w-4" />
+                            <span>{I18n.t('menu.service_bookings')}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                      </DropdownMenuGroup>
+
+                      <DropdownMenuSeparator />
+
+                      <DropdownMenuSub>
+                        <DropdownMenuSubTrigger>
+                          <Languages className="mr-2 h-4 w-4" />
+                          <span>{I18n.t("menu.language")}</span>
+                        </DropdownMenuSubTrigger>
+                        <DropdownMenuSubContent>
+                          <DropdownMenuItem onClick={() => setLocale("en")}>
+                            <span className="mr-2">🇺🇸</span> English
+                            {currentLocale === "en" && (
+                              <span className="ml-2">✓</span>
+                            )}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => setLocale("es")}>
+                            <span className="mr-2">🇪🇸</span> Español
+                            {currentLocale === "es" && (
+                              <span className="ml-2">✓</span>
+                            )}
+                          </DropdownMenuItem>
+                        </DropdownMenuSubContent>
+                      </DropdownMenuSub>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        onClick={handleSignOut}
+                        className="text-red-600"
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>{I18n.t("menu.log_out")}</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               </div>
               <MobileNavigation
                 storeNavItems={storeNavItems}

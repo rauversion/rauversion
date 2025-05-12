@@ -141,9 +141,11 @@ export default function ModulesManager({
           <CardTitle>{I18n.t("courses.modules_manager.course_modules")}</CardTitle>
           <Dialog>
             <DialogTrigger asChild>
-              <Button className="ml-auto">
-                <Plus className="h-4 w-4 mr-2" />
-                {I18n.t("courses.modules_manager.add_module")}
+              <Button className="ml-auto space-x-2">
+                <Plus className="h-4 w-4 mr-2-" />
+                <span className="hidden md:inline">
+                  {I18n.t("courses.modules_manager.add_module")}
+                </span>
               </Button>
             </DialogTrigger>
             <DialogContent>
