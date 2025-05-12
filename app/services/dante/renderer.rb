@@ -59,6 +59,11 @@ class Dante::Renderer
     when "EmbedBlock"
       renderer = Dante::EmbedBlockRenderer.new(block_key: node[:id], data: node[:attrs])
       renderer.render
+
+    when "PlaylistBlock", "playlist-block"
+      playlist_id = node.dig(:attrs, :playlistId)
+      # Render a wrapper div for mounting the React component later
+      "<div class=\"playlist-block\" data-playlist-id=\"#{playlist_id}\"></div>"
     else
       Rails.logger.debug { "no handler for node #{node}" }
       nil

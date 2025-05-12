@@ -157,7 +157,7 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
                   }
                 }}
                 //style={{ backgroundColor: accentColor }}
-                className={`bg-black/10 cursor-pointer text-black font-semibold rounded-full p-3 hover:scale-105 transition`}
+                className={`bg-default cursor-pointer text-default font-semibold rounded-full p-3 hover:scale-105 transition`}
               >
                 {isPlaying ? <Pause size={24} /> : <Play size={24} />}
               </a>

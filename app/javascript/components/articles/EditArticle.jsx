@@ -47,6 +47,7 @@ import Dante, {
   VideoRecorderBlockConfig,
   SpeechToTextBlockConfig,
 } from 'dante3/package/esm'
+import PlaylistBlock from "./PlaylistBlock";
 import { DirectUpload } from "@rails/activestorage"
 import { useDebounce } from '@/hooks/use_debounce'
 import { useDebounceCallback } from "@/hooks/use-debounce-callback"
@@ -72,10 +73,78 @@ const formSchema = z.object({
 
 function EditorComponent({ value, onChange, onUpload }) {
   const debouncedValue = useDebounce(value, 500)
-
   React.useEffect(() => {
     onChange?.(debouncedValue)
   }, [debouncedValue])
+
+  // PlaylistBlockConfig for Dante (ESM style)
+  function PlaylistBlockConfig(options = {}) {
+    // Maintain dialog open state per block key
+    const dialogState = {};
+
+    return {
+      icon: (props) => (
+        <svg
+          width="20"
+          height="20"
+          fill="none"
+          viewBox="0 0 24 24"
+          onClick={(e) => {
+            e.stopPropagation();
+            // Set dialog open for this block
+            if (props && props.block) {
+              dialogState[props.block.key] = true;
+              if (props.block.setShowDialog) {
+                props.block.setShowDialog(true);
+              }
+            }
+          }}
+          style={{ cursor: "pointer" }}
+        >
+          <rect x="3" y="5" width="18" height="14" rx="2" fill="#fff" stroke="#000" strokeWidth="1.5" />
+          <rect x="7" y="9" width="6" height="2" rx="1" fill="#000" />
+          <rect x="7" y="13" width="4" height="2" rx="1" fill="#000" />
+          <circle cx="17" cy="14" r="2" fill="#000" />
+        </svg>
+      ),
+      name: "PlaylistBlock",
+      tag: "playlist-block",
+      component: (props) => {
+        // Provide showDialog/setShowDialog to PlaylistBlock
+        const [showDialog, setShowDialog] = React.useState(false);
+        // If dialogState for this block is set, open dialog and reset state
+        React.useEffect(() => {
+          if (props && props.node && dialogState[props.node.key]) {
+            setShowDialog(true);
+            dialogState[props.node.key] = false;
+          }
+        }, [props && props.node && props.node.key]);
+        return (
+          <PlaylistBlock
+            {...props}
+            showDialog={showDialog}
+            setShowDialog={setShowDialog}
+          />
+        );
+      },
+      atom: false,
+      widget_options: {
+        displayOnInlineTooltip: true,
+        insertion: "placeholder",
+        insert_block: "playlist",
+      },
+      options: {
+        placeholder: "Insert a playlist",
+      },
+      attributes: {
+        playlistId: { default: null },
+      },
+      dataSerializer: function (data) {
+        return { ...data, playlistId: data.playlistId };
+      },
+      ...options,
+    };
+  }
 
   const uploadFile = (file, cb) => {
     if (!file) return
@@ -136,6 +205,7 @@ function EditorComponent({ value, onChange, onUpload }) {
           }
         }),
         SpeechToTextBlockConfig(),
+        PlaylistBlockConfig(),
       ]}
       onUpdate={(editor) => {
         onChange && onChange(editor.getJSON())
