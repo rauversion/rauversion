@@ -6,6 +6,7 @@ const useCartStore = create((set, get) => ({
   cart: null,
   loading: false,
   error: null,
+  openOnAdd: false,
 
   fetchCart: async () => {
     set({ loading: true })
@@ -40,7 +41,7 @@ const useCartStore = create((set, get) => ({
       const response = await post(`/product_cart/add/${productId}.json`)
       if (response.ok) {
         const data = await response.json
-        set({ cart: data.cart, error: null })
+        set({ cart: data.cart, error: null, openOnAdd: true })
         toast({
           title: "Added to Cart",
           description: I18n.t("products.cart.added")
@@ -127,7 +128,8 @@ const useCartStore = create((set, get) => ({
     }
   },
 
-  clearError: () => set({ error: null })
+  clearError: () => set({ error: null }),
+  clearOpenOnAdd: () => set({ openOnAdd: false })
 }))
 
 export default useCartStore

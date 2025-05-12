@@ -155,6 +155,29 @@ function NavSection({ title, items }) {
   );
 }
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = React.useState(
+    typeof window !== "undefined"
+      ? window.matchMedia("(max-width: 1023px)").matches
+      : false
+  );
+
+  React.useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 1023px)");
+    const handler = (e) => setIsMobile(e.matches);
+    mediaQuery.addEventListener
+      ? mediaQuery.addEventListener("change", handler)
+      : mediaQuery.addListener(handler);
+    return () => {
+      mediaQuery.removeEventListener
+        ? mediaQuery.removeEventListener("change", handler)
+        : mediaQuery.removeListener(handler);
+    };
+  }, []);
+
+  return isMobile;
+}
+
 export default function UserMenu() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isDarkMode, toggleDarkMode } = useThemeStore();
@@ -162,6 +185,7 @@ export default function UserMenu() {
   const { setLocale, t, currentLocale } = useLocaleStore();
   const navigate = useNavigate();
   const location = useLocation();
+  const isMobile = useIsMobile();
 
   // Hide main menu if route matches "/:username/podcasts"
   const hideMainMenu = /^\/[^/]+\/podcasts(\/|$)/.test(location.pathname);
@@ -379,72 +403,70 @@ export default function UserMenu() {
                           </ul>
                         </NavigationMenuContent>
                       </NavigationMenuItem>
-                      {(true || currentUser?.is_admin) &&
-                        <NavigationMenuItem>
-                          <NavigationMenuTrigger className="rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted">
-                            {I18n.t("menu.store")}
-                          </NavigationMenuTrigger>
-                          <NavigationMenuContent>
-                            <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-                              <li className="row-span-3">
-                                <NavigationMenuLink asChild>
-                                  <Link
-                                    to="/store"
-                                    className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-pink-800 p-6 no-underline outline-none focus:shadow-md"
-                                  >
-                                    <Store className="h-6 w-6 mb-2" />
-                                    <div className="mb-2 mt-4 text-lg font-medium">Rau Advisors</div>
-                                    <p className="text-sm leading-tight text-muted-foreground">
-                                      {
-                                        I18n.t("menu_main.store.descr")
-                                      }
-                                    </p>
-                                  </Link>
-                                </NavigationMenuLink>
-                              </li>
+                      <NavigationMenuItem>
+                        <NavigationMenuTrigger className="rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted">
+                          {I18n.t("menu.store")}
+                        </NavigationMenuTrigger>
+                        <NavigationMenuContent>
+                          <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
+                            <li className="row-span-3">
+                              <NavigationMenuLink asChild>
+                                <Link
+                                  to="/store"
+                                  className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-pink-800 p-6 no-underline outline-none focus:shadow-md"
+                                >
+                                  <Store className="h-6 w-6 mb-2" />
+                                  <div className="mb-2 mt-4 text-lg font-medium">Rau Advisors</div>
+                                  <p className="text-sm leading-tight text-muted-foreground">
+                                    {
+                                      I18n.t("menu_main.store.descr")
+                                    }
+                                  </p>
+                                </Link>
+                              </NavigationMenuLink>
+                            </li>
 
-                              <ListItem
-                                to="/store/music"
-                                title={I18n.t("menu_main.store.music.title")}
-                                icon={Music}
-                              >
-                                {
-                                  I18n.t("menu_main.store.music.description")
-                                }
-                              </ListItem>
-                              <ListItem
-                                to="/store/services"
-                                title={I18n.t("menu_main.store.services.title")}
-                                icon={CalendarClock}
-                              >
-                                {
-                                  I18n.t("menu_main.store.services.description")
-                                }
-                              </ListItem>
+                            <ListItem
+                              to="/store/music"
+                              title={I18n.t("menu_main.store.music.title")}
+                              icon={Music}
+                            >
+                              {
+                                I18n.t("menu_main.store.music.description")
+                              }
+                            </ListItem>
+                            <ListItem
+                              to="/store/services"
+                              title={I18n.t("menu_main.store.services.title")}
+                              icon={CalendarClock}
+                            >
+                              {
+                                I18n.t("menu_main.store.services.description")
+                              }
+                            </ListItem>
 
-                              {/*<ListItem
-                                to="/store/merch"
-                                title={I18n.t("menu_main.store.merch.description")}
-                                icon={Package}
-                              >
-                                {
-                                  I18n.t("menu_main.store.merch.description")
-                                }
-                              </ListItem>*/}
+                            {/*<ListItem
+                              to="/store/merch"
+                              title={I18n.t("menu_main.store.merch.description")}
+                              icon={Package}
+                            >
+                              {
+                                I18n.t("menu_main.store.merch.description")
+                              }
+                            </ListItem>*/}
 
-                              <ListItem
-                                to="/store/gear"
-                                title={I18n.t("menu_main.store.gear.description")}
-                                icon={Package}
-                              >
-                                {
-                                  I18n.t("menu_main.store.gear.description")
-                                }
-                              </ListItem>
-                            </ul>
-                          </NavigationMenuContent>
-                        </NavigationMenuItem>
-                      }
+                            <ListItem
+                              to="/store/gear"
+                              title={I18n.t("menu_main.store.gear.description")}
+                              icon={Package}
+                            >
+                              {
+                                I18n.t("menu_main.store.gear.description")
+                              }
+                            </ListItem>
+                          </ul>
+                        </NavigationMenuContent>
+                      </NavigationMenuItem>
                     </NavigationMenuList>
                   </NavigationMenu>
                 </div>
@@ -454,7 +476,7 @@ export default function UserMenu() {
             {/* Mobile Menu Button */}
             <div className="lg:hidden mt-3 flex items-center space-x-2">
               <div className="flex items-center gap-2">
-                <CartIndicator />
+                {isMobile && <CartIndicator isPrimary={false} />}
               </div>
               <MobileNavigation
                 storeNavItems={storeNavItems}
@@ -467,7 +489,7 @@ export default function UserMenu() {
 
             <div className="hidden lg:flex items-center justify-end space-x-4">
               <div className="flex items-center gap-2">
-                <CartIndicator />
+                {!isMobile && <CartIndicator isPrimary={true} />}
               </div>
 
               <Button
@@ -597,6 +619,15 @@ export default function UserMenu() {
                                 <span>{I18n.t("menu.my_products")}</span>
                               </Link>
                             </DropdownMenuItem>
+
+                            {currentUser?.is_admin &&
+                              <DropdownMenuItem asChild>
+                                <Link to={`/courses/mine`}>
+                                  <Package className="mr-2 h-4 w-4" />
+                                  <span>{I18n.t("menu.my_courses")}</span>
+                                </Link>
+                              </DropdownMenuItem>
+                            }
                           </>
                         )}
 

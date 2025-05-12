@@ -87,6 +87,27 @@ function PurchaseItem({ purchase, toast, downloadUrl }) {
                 <p className="text-sm font-medium leading-none">
                   {item.purchased_item.title}
                 </p>
+                {/* Course info if present */}
+                {item.purchased_item.course && (
+                  <div className="mt-1">
+                    <Link
+                      to={`/courses/${item.purchased_item.course.slug}`}
+                      className="text-blue-600 hover:underline text-sm font-semibold"
+                    >
+                      {item.purchased_item.course.title}
+                    </Link>
+                    {item.purchased_item.course.description && (
+                      <p className="text-xs text-muted-foreground">
+                        {item.purchased_item.course.description}
+                      </p>
+                    )}
+                    {item.purchased_item.course.price && (
+                      <p className="text-xs text-muted-foreground">
+                        Price: ${item.purchased_item.course.price}
+                      </p>
+                    )}
+                  </div>
+                )}
                 <p className="hidden text-sm text-muted-foreground">
                   Type: {item.purchased_item.type}
                 </p>
@@ -96,6 +117,8 @@ function PurchaseItem({ purchase, toast, downloadUrl }) {
                   })}
                 </p>
               </div>
+
+              {/* Course info rendered above */}
 
               {item.service_booking && (
                 <div className="flex items-center gap-2 mt-1">

@@ -38,6 +38,8 @@ class User < ApplicationRecord
   has_many :coupons
   has_many :interest_alerts
   has_many :product_purchases
+  
+  has_many :courses
 
   
   has_many :connected_accounts, foreign_key: :parent_id

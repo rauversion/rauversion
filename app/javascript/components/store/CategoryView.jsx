@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Button } from "../ui/button"
 import { Skeleton } from "../ui/skeleton"
 import { ScrollArea } from "../ui/scroll-area"
+import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerClose } from "../ui/drawer"
+import { Menu } from "lucide-react"
 
 const CATEGORY_CONFIG = {
   gear: {
@@ -121,6 +123,7 @@ const LoadingSkeleton = () => (
 const CategoryView = () => {
   const { type } = useParams()
   const [selectedSubcategory, setSelectedSubcategory] = useState("all")
+  const [drawerOpen, setDrawerOpen] = useState(false)
   const categoryConfig = CATEGORY_CONFIG[type]
 
   const {
@@ -133,9 +136,9 @@ const CategoryView = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex gap-8">
-        {/* Sidebar */}
-        <div className="w-64 flex-shrink-0">
+      <div className="flex flex-col gap-8 sm:flex-row ">
+        {/* Sidebar for desktop */}
+        <div className="w-64 flex-shrink-0 hidden md:block">
           <h2 className="text-2xl font-bold mb-6">{categoryConfig.title}</h2>
           <ScrollArea className="h-[calc(100vh-200px)]">
             <div className="pr-4 space-y-1">
@@ -153,27 +156,73 @@ const CategoryView = () => {
           </ScrollArea>
         </div>
 
+        {/* Mobile menu button */}
+        <div className="md:hidden flex flex-col w-full">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold">{categoryConfig.title}</h2>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setDrawerOpen(true)}
+              aria-label="Open menu"
+            >
+              <Menu className="w-6 h-6" />
+            </Button>
+          </div>
+          <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
+            <DrawerContent>
+              <DrawerHeader>
+                <DrawerTitle>{categoryConfig.title}</DrawerTitle>
+                <DrawerClose asChild>
+                  <Button variant="ghost" className="absolute right-2 top-2" onClick={() => setDrawerOpen(false)}>
+                    ×
+                  </Button>
+                </DrawerClose>
+              </DrawerHeader>
+              <div className="p-4">
+                <div className="space-y-1">
+                  {categoryConfig.subcategories.map(subcategory => (
+                    <Button
+                      key={subcategory.id}
+                      variant={selectedSubcategory === subcategory.id ? "default" : "ghost"}
+                      className="w-full justify-start"
+                      onClick={() => {
+                        setSelectedSubcategory(subcategory.id)
+                        setDrawerOpen(false)
+                      }}
+                    >
+                      {subcategory.name}
+                    </Button>
+                  ))}
+                </div>
+              </div>
+            </DrawerContent>
+          </Drawer>
+        </div>
+
         {/* Main Content */}
         <div className="flex-1">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 min-h-[300px]">
             {loading && products.length === 0 ? (
               Array(6).fill().map((_, i) => (
                 <LoadingSkeleton key={i} />
               ))
-            ) : (
+            ) : products.length > 0 ? (
               products.map((product, index) => (
                 <div key={product.id} ref={index === products.length - 1 ? lastElementRef : null}>
                   <ProductCard product={product} />
                 </div>
               ))
+            ) : (
+              !loading && (
+                <div className="col-span-full flex flex-col items-center justify-center min-h-[200px]">
+                  <p className="text-center text-gray-500">
+                    No products found in this category
+                  </p>
+                </div>
+              )
             )}
           </div>
-
-          {!loading && products.length === 0 && (
-            <p className="text-center text-gray-500 mt-8">
-              No products found in this category
-            </p>
-          )}
         </div>
       </div>
     </div>

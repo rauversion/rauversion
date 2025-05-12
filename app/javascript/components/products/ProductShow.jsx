@@ -32,7 +32,7 @@ export default function ProductShow() {
           if (data.photos?.length > 0) {
             setSelectedImage(data.photos[0])
           }
-          
+
           // Check if current user is the owner of the product
           if (currentUser && data.product.user && data.product.user.id === currentUser.id) {
             setIsOwner(true)
@@ -65,8 +65,12 @@ export default function ProductShow() {
     )
   }
 
+  if (product.type === "Products::CourseProduct") {
+    navigate(`/courses/${slug}`)
+  }
   // Get the component based on product type
   const ProductComponent = PRODUCT_COMPONENTS[product.type]
+
 
   if (!ProductComponent) {
     console.error(`No component found for product type: ${product.type}`)
@@ -90,9 +94,9 @@ export default function ProductShow() {
     <div>
       {isOwner && (
         <div className="flex justify-end mb-4 px-4">
-          <Button 
-            variant="outline" 
-            size="sm" 
+          <Button
+            variant="outline"
+            size="sm"
             onClick={handleEdit}
             className="flex items-center gap-2"
           >

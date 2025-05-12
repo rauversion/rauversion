@@ -93,6 +93,12 @@ import CheckoutFailure from "./checkout/CheckoutFailure"
 import ConversationsIndex from "./messaging/ConversationsIndex"
 import NewConversation from "./messaging/NewConversation"
 
+import CoursesAdminPage from "./courses/CoursesAdminPage"
+import CoursesIndex from "./courses/index"
+import CourseShow from "./courses/show"
+import CourseForm from "./courses/form"
+import LessonShow from "./courses/lessonShow"
+
 import { Footer, ScrollRestoration, LoadingSpinner } from '@/components/shared'
 
 import { useLocaleStore } from "@/stores/locales"
@@ -192,8 +198,17 @@ function AppContent() {
           <Route path="/users/invitation/accept" element={<AcceptInvitation />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
 
+
           <Route path="/" element={<Home />} />
           <Route path="/albums/:slug" element={<AlbumShow />} />
+
+          <Route path="/courses" element={<CoursesIndex />} />
+
+          <Route path="/courses/new" element={<RequireAuth> <CourseForm /> </RequireAuth>} />
+          <Route path="/courses/:id/edit" element={<RequireAuth> <CourseForm /> </RequireAuth>} />
+          <Route path="/courses/mine" element={<RequireAuth> <CoursesAdminPage /> </RequireAuth>} />
+          <Route path="/courses/:id" element={<CourseShow />} />
+          <Route path="/courses/:id/lessons/:lesson_id" element={<LessonShow />} />
 
           <Route path="/sales" element={<RequireAuth><MySales /></RequireAuth>} />
           <Route path="/purchases" element={<RequireAuth><MyPurchases /></RequireAuth>} />

@@ -61,4 +61,10 @@ class ProductPurchase < ApplicationRecord
       item.product.set_service_booking_for(item, self) if item.product.respond_to?(:set_service_booking_for)
     end
   end 
+
+  def set_course_enrollment
+    product_purchase_items.each do |item|
+      item.product.set_course_enrollment_for(item, self) if item.product.respond_to?(:set_course_enrollment_for)
+    end
+  end
 end
