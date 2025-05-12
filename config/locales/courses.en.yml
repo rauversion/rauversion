@@ -62,14 +62,17 @@ en:
       enroll_now: "Enroll Now"
       enroll_in: "Enroll in %{title}"
 
-
-
     form: 
       back_to_courses: "Back to Courses" 
       new_course: "New Course" 
       preview: "Preview" 
       save_draft: "Save Draft" 
       publish: "Publish"
+      tab_details: "Course Details"
+      tab_modules: "Modules & Lessons"
+      tab_resources: "Resources"
+      tab_enrollments: "Enrollments"
+      tab_settings: "Settings"
 
     admin_page: 
       courses: "Courses" 

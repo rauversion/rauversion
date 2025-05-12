@@ -204,9 +204,9 @@ function AppContent() {
 
           <Route path="/courses" element={<CoursesIndex />} />
 
-          <Route path="/courses/new" element={<CourseForm />} />
-          <Route path="/courses/:id/edit" element={<CourseForm />} />
-          <Route path="/courses/mine" element={<CoursesAdminPage />} />
+          <Route path="/courses/new" element={<RequireAuth> <CourseForm /> </RequireAuth>} />
+          <Route path="/courses/:id/edit" element={<RequireAuth> <CourseForm /> </RequireAuth>} />
+          <Route path="/courses/mine" element={<RequireAuth> <CoursesAdminPage /> </RequireAuth>} />
           <Route path="/courses/:id" element={<CourseShow />} />
           <Route path="/courses/:id/lessons/:lesson_id" element={<LessonShow />} />
 

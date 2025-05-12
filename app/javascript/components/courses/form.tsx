@@ -229,23 +229,23 @@ export default function NewCoursePage() {
           <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="details">
               <FileText className="h-4 w-4 mr-2" />
-              Course Details
+              {I18n.t("courses.form.tab_details")}
             </TabsTrigger>
             <TabsTrigger value="modules">
               <LayoutGrid className="h-4 w-4 mr-2" />
-              Modules & Lessons
+              {I18n.t("courses.form.tab_modules")}
             </TabsTrigger>
             <TabsTrigger value="resources">
               <Upload className="h-4 w-4 mr-2" />
-              Resources
+              {I18n.t("courses.form.tab_resources")}
             </TabsTrigger>
             <TabsTrigger value="enrollments">
               <Users className="h-4 w-4 mr-2" />
-              Enrollments
+              {I18n.t("courses.form.tab_enrollments")}
             </TabsTrigger>
             <TabsTrigger value="settings">
               <Settings className="h-4 w-4 mr-2" />
-              Settings
+              {I18n.t("courses.form.tab_settings")}
             </TabsTrigger>
           </TabsList>
 

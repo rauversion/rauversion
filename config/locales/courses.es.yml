@@ -68,6 +68,12 @@ es:
       save_draft: "Guardar borrador"
       publish: "Publicar"
 
+      tab_details: "Detalles del Curso"
+      tab_modules: "Módulos y Lecciones"
+      tab_resources: "Recursos"
+      tab_enrollments: "Inscripciones"
+      tab_settings: "Configuración"
+
     admin_page:
       courses: "Cursos"
       manage_courses: "Administra tus cursos de música"

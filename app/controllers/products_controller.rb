@@ -18,6 +18,8 @@ class ProductsController < ApplicationController
     @products = @q.result(distinct: true).order(created_at: :desc)
 
     @products = @products.by_category(params[:category]) if params[:category].present?
+    # TODO: until we release couses we show this 
+    @products = @products.where.not(type: "Products::CourseProduct")
     @available_brands = Products::GearProduct.distinct.pluck(:brand).compact
     @products = @products.page(params[:page]).per(20) # Assuming you're using Kaminari for pagination
     respond_to do |format| 
