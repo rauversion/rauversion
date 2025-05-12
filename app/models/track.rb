@@ -234,42 +234,49 @@ class Track < ApplicationRecord
   end
 
   def process_with_mp3
-
     temp_file = Tempfile.new(["audio", ".mp3"], binmode: true)
-
-    # Download the blob to the temp file in chunks
-    mp3_audio.download do |chunk|
-      temp_file.write(chunk)
+    begin
+      # Download the blob to the temp file in chunks
+      mp3_audio.download do |chunk|
+        temp_file.write(chunk)
+      end
+      temp_file.rewind
+      update_peaks
+    ensure
+      temp_file.close
+      temp_file.unlink
     end
-
-    temp_file.rewind
-
-    update_peaks
   end
 
   def update_mp3(temp_file = nil)
+    created_tempfile = false
     if temp_file.nil?
-      # Create a temp file
       temp_file = Tempfile.new(["audio", ".mp3"], binmode: true)
-
-      # Download the blob to the temp file in chunks
-      audio.download do |chunk|
-        temp_file.write(chunk)
+      created_tempfile = true
+      begin
+        audio.download do |chunk|
+          temp_file.write(chunk)
+        end
+        temp_file.rewind
+        # Use the path of the temp file in the Mp3Converter
+        mp3_path = Mp3Converter.new(temp_file.path).run
+        File.open(mp3_path, "rb") do |mp3_file|
+          mp3_audio.attach(io: mp3_file, filename: "converted_audio.mp3", content_type: "audio/mpeg")
+        end
+        FileUtils.remove_entry mp3_path
+      ensure
+        temp_file.close
+        temp_file.unlink
       end
-
-      temp_file.rewind
+    else
+      mp3_path = Mp3Converter.new(temp_file.path).run
+      File.open(mp3_path, "rb") do |mp3_file|
+        mp3_audio.attach(io: mp3_file, filename: "converted_audio.mp3", content_type: "audio/mpeg")
+      end
+      FileUtils.remove_entry mp3_path
+      temp_file.close
+      temp_file.unlink
     end
-    # Use the path of the temp file in the Mp3Converter
-    mp3_path = Mp3Converter.new(temp_file.path).run
-    mp3_file = File.open(mp3_path)
-
-    # Attach the MP3 file to the Track model
-    mp3_audio.attach(io: mp3_file, filename: "converted_audio.mp3", content_type: "audio/mpeg")
-
-    FileUtils.remove_entry mp3_path
-    # Ensure the temp file is removed after the Mp3Converter has finished
-    temp_file.close
-    temp_file.unlink
   end
 
   def process_audio_peaks(temp_file = nil)
@@ -363,26 +370,28 @@ class Track < ApplicationRecord
 
   def podcast_summarizer
     # use downloaded mp3 instead of path_for
+    return unless mp3_audio&.attached?
 
-    if mp3_audio&.attached?
-
-      file_temp = Tempfile.new
-      file_temp.binmode
-      file_temp.write(mp3_audio.download)
+    file_temp = Tempfile.new
+    file_temp.binmode
+    begin
+      # Stream download to tempfile to avoid loading into memory
+      mp3_audio.download do |chunk|
+        file_temp.write(chunk)
+      end
       file_temp.rewind
-
       file_path = file_temp.path
-    else
-      return
-    end
 
-    # file_path = ActiveStorage::Blob.service.path_for(mp3_audio.key)
-    summarizer = AudioSummarizer.new(file_path)
-    data = summarizer.summarize
-    self.update(
-      description: data[:summary],
-      transcription: data[:transcription]
-    )
+      summarizer = AudioSummarizer.new(file_path)
+      data = summarizer.summarize
+      self.update(
+        description: data[:summary],
+        transcription: data[:transcription]
+      )
+    ensure
+      file_temp.close
+      file_temp.unlink
+    end
   end
 
   def self.ransackable_attributes(auth_object = nil)
