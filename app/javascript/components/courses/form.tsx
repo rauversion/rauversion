@@ -11,6 +11,7 @@ import CourseSettings from "@/components/courses/admin/course-settings"
 import CourseEnrollmentsTab from "@/components/courses/CourseEnrollmentsTab"
 import { post, put, destroy, get } from "@rails/request.js"
 import { useToast } from '@/hooks/use-toast'
+import { ScrollArea } from "../ui/scroll-area"
 
 export default function NewCoursePage() {
   const [activeTab, setActiveTab] = useState("details")
@@ -210,12 +211,16 @@ export default function NewCoursePage() {
             <Button variant="outline" size="sm" asChild>
               <Link to={`/courses/${courseId}`} target="_blank">
                 <Eye className="h-4 w-4 mr-2" />
-                {I18n.t("courses.form.preview")}
+                <span className="hidden sm:block">
+                  {I18n.t("courses.form.preview")}
+                </span>
               </Link>
             </Button>
             <Button variant="outline" size="sm" onClick={handleSaveCourse}>
               <Save className="h-4 w-4 mr-2" />
-              {I18n.t("courses.form.save_draft")}
+              <span className="hidden sm:block">
+                {I18n.t("courses.form.save_draft")}
+              </span>
             </Button>
             <Button size="sm" onClick={handlePublishCourse}>
               {I18n.t("courses.form.publish")}
@@ -226,28 +231,36 @@ export default function NewCoursePage() {
 
       <div className="px-4 py-6 md:px-6 md:py-8">
         <Tabs defaultValue="details" className="space-y-4" onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="details">
-              <FileText className="h-4 w-4 mr-2" />
-              {I18n.t("courses.form.tab_details")}
-            </TabsTrigger>
-            <TabsTrigger value="modules">
-              <LayoutGrid className="h-4 w-4 mr-2" />
-              {I18n.t("courses.form.tab_modules")}
-            </TabsTrigger>
-            <TabsTrigger value="resources">
-              <Upload className="h-4 w-4 mr-2" />
-              {I18n.t("courses.form.tab_resources")}
-            </TabsTrigger>
-            <TabsTrigger value="enrollments">
-              <Users className="h-4 w-4 mr-2" />
-              {I18n.t("courses.form.tab_enrollments")}
-            </TabsTrigger>
-            <TabsTrigger value="settings">
-              <Settings className="h-4 w-4 mr-2" />
-              {I18n.t("courses.form.tab_settings")}
-            </TabsTrigger>
-          </TabsList>
+          
+          <ScrollArea>
+            <div className="w-full relative h-10">
+              
+              <TabsList 
+                className="justify-start sm:justify-between w-full overflow-auto flex absolute h-10"
+                classNamess="grid w-full grid-cols-5">
+                <TabsTrigger value="details">
+                  <FileText className="h-4 w-4 mr-2" />
+                  {I18n.t("courses.form.tab_details")}
+                </TabsTrigger>
+                <TabsTrigger value="modules">
+                  <LayoutGrid className="h-4 w-4 mr-2" />
+                  {I18n.t("courses.form.tab_modules")}
+                </TabsTrigger>
+                <TabsTrigger value="resources">
+                  <Upload className="h-4 w-4 mr-2" />
+                  {I18n.t("courses.form.tab_resources")}
+                </TabsTrigger>
+                <TabsTrigger value="enrollments">
+                  <Users className="h-4 w-4 mr-2" />
+                  {I18n.t("courses.form.tab_enrollments")}
+                </TabsTrigger>
+                <TabsTrigger value="settings">
+                  <Settings className="h-4 w-4 mr-2" />
+                  {I18n.t("courses.form.tab_settings")}
+                </TabsTrigger>
+              </TabsList>
+            </div>
+          </ScrollArea>
 
           <TabsContent value="details">
             <Card>
@@ -258,59 +271,61 @@ export default function NewCoursePage() {
           </TabsContent>
 
           <TabsContent value="modules">
-            <ModulesManager
-              courseId={courseId}
-              modules={courseData.modules as any[]}
-              onModuleCreate={async (module) => {
-                if (!courseId) return
-                await post(`/courses/${courseId}/course_modules.json`, {
-                  body: JSON.stringify({ course_module: module }),
-                })
-                await fetchModules()
-              }}
-              refreshModules={fetchModules}
-              onModuleUpdate={async (moduleId, updatedModule) => {
-                if (!courseId) return
-                await put(`/courses/${courseId}/course_modules/${moduleId}.json`, {
-                  body: JSON.stringify({ course_module: updatedModule }),
-                })
-                await fetchModules()
-              }}
-              onModuleDelete={async (moduleId) => {
-                if (!courseId) return
-                await destroy(`/courses/${courseId}/course_modules/${moduleId}.json`)
-                await fetchModules()
-              }}
-              onLessonCreate={async (moduleId, lesson) => {
-                await post(`/courses/${courseId}/course_modules/${moduleId}/lessons.json`, {
-                  body: JSON.stringify({ lesson }),
-                })
-                await fetchModules()
-              }}
-              onLessonUpdate={async (moduleId, lessonId, updatedLesson) => {
-                await put(`/courses/${courseId}/course_modules/${moduleId}/lessons/${lessonId}.json`, {
-                  body: JSON.stringify({ lesson: updatedLesson }),
-                })
-                await fetchModules()
-              }}
-              onLessonDelete={async (moduleId, lessonId) => {
-                await destroy(`/courses/${courseId}/course_modules/${moduleId}/lessons/${lessonId}.json`)
-                await fetchModules()
-              }}
-              onLessonDocumentCreate={async (moduleId, doc, lessonId) => {
-                // lessonId may be undefined for new lessons
-                if (!lessonId) return
-                await post(`/courses/${courseId}/course_modules/${moduleId}/lessons/${lessonId}/course_documents.json`, {
-                  body: JSON.stringify({ course_document: doc }),
-                })
-                await fetchModules()
-              }}
-              onLessonDocumentDelete={async (moduleId, docId, lessonId) => {
-                if (!lessonId || !docId) return
-                await destroy(`/courses/${courseId}/course_modules/${moduleId}/lessons/${lessonId}/course_documents/${docId}.json`)
-                await fetchModules()
-              }}
-            />
+            <ScrollArea>
+              <ModulesManager
+                courseId={courseId}
+                modules={courseData.modules as any[]}
+                onModuleCreate={async (module) => {
+                  if (!courseId) return
+                  await post(`/courses/${courseId}/course_modules.json`, {
+                    body: JSON.stringify({ course_module: module }),
+                  })
+                  await fetchModules()
+                }}
+                refreshModules={fetchModules}
+                onModuleUpdate={async (moduleId, updatedModule) => {
+                  if (!courseId) return
+                  await put(`/courses/${courseId}/course_modules/${moduleId}.json`, {
+                    body: JSON.stringify({ course_module: updatedModule }),
+                  })
+                  await fetchModules()
+                }}
+                onModuleDelete={async (moduleId) => {
+                  if (!courseId) return
+                  await destroy(`/courses/${courseId}/course_modules/${moduleId}.json`)
+                  await fetchModules()
+                }}
+                onLessonCreate={async (moduleId, lesson) => {
+                  await post(`/courses/${courseId}/course_modules/${moduleId}/lessons.json`, {
+                    body: JSON.stringify({ lesson }),
+                  })
+                  await fetchModules()
+                }}
+                onLessonUpdate={async (moduleId, lessonId, updatedLesson) => {
+                  await put(`/courses/${courseId}/course_modules/${moduleId}/lessons/${lessonId}.json`, {
+                    body: JSON.stringify({ lesson: updatedLesson }),
+                  })
+                  await fetchModules()
+                }}
+                onLessonDelete={async (moduleId, lessonId) => {
+                  await destroy(`/courses/${courseId}/course_modules/${moduleId}/lessons/${lessonId}.json`)
+                  await fetchModules()
+                }}
+                onLessonDocumentCreate={async (moduleId, doc, lessonId) => {
+                  // lessonId may be undefined for new lessons
+                  if (!lessonId) return
+                  await post(`/courses/${courseId}/course_modules/${moduleId}/lessons/${lessonId}/course_documents.json`, {
+                    body: JSON.stringify({ course_document: doc }),
+                  })
+                  await fetchModules()
+                }}
+                onLessonDocumentDelete={async (moduleId, docId, lessonId) => {
+                  if (!lessonId || !docId) return
+                  await destroy(`/courses/${courseId}/course_modules/${moduleId}/lessons/${lessonId}/course_documents/${docId}.json`)
+                  await fetchModules()
+                }}
+              />
+            </ScrollArea>
           </TabsContent>
 
 

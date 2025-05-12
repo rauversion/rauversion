@@ -130,8 +130,10 @@ export default function ResourcesManager({ courseId }: ResourcesManagerProps) {
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button className="ml-auto">
-              <Plus className="h-4 w-4 mr-2" />
-              {I18n.t("courses.resources_manager.add_resource")}
+              <Plus className="h-4 w-4 mr-2-" />
+              <span className="hidden md:inline">
+                {I18n.t("courses.resources_manager.add_resource")}
+              </span>
             </Button>
           </DialogTrigger>
           <DialogContent>

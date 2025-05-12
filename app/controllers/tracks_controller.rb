@@ -138,6 +138,7 @@ class TracksController < ApplicationController
   def destroy
     @track = current_user.tracks.friendly.find(params[:id])
     @track.destroy
+    head :no_content
   end
 
   def get_meta_tags
