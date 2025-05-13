@@ -42,17 +42,7 @@ export default function ModulesManager({
   const [addingLessonToModule, setAddingLessonToModule] = useState(null)
   const [editingLesson, setEditingLesson] = useState(null)
   // Add New Module form
-  const {
-    control: newModuleControl,
-    handleSubmit: handleNewModuleSubmit,
-    reset: resetNewModuleForm,
-    formState: { errors: newModuleErrors }
-  } = useForm({
-    defaultValues: {
-      title: "",
-      description: "",
-    }
-  })
+  const [addModuleDialogOpen, setAddModuleDialogOpen] = useState(false)
   const { toast } = useToast()
 
   const handleAddModule = (data) => {
@@ -63,7 +53,6 @@ export default function ModulesManager({
         description: data.description,
         lessons: [],
       })
-    resetNewModuleForm()
   }
 
   const handleDeleteModule = (moduleId) => {
@@ -149,9 +138,9 @@ export default function ModulesManager({
       <Card>
         <CardHeader className="flex flex-row items-center">
           <CardTitle>{I18n.t("courses.modules_manager.course_modules")}</CardTitle>
-          <Dialog>
+          <Dialog open={addModuleDialogOpen} onOpenChange={setAddModuleDialogOpen}>
             <DialogTrigger asChild>
-              <Button className="ml-auto space-x-2">
+              <Button className="ml-auto space-x-2" onClick={() => setAddModuleDialogOpen(true)}>
                 <Plus className="h-4 w-4 mr-2-" />
                 <span className="hidden md:inline">
                   {I18n.t("courses.modules_manager.add_module")}
@@ -163,51 +152,14 @@ export default function ModulesManager({
                 <DialogTitle>{I18n.t("courses.modules_manager.add_new_module")}</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 py-4">
-                <form onSubmit={handleNewModuleSubmit(handleAddModule)} className="space-y-4">
-                  <FormField
-                    control={newModuleControl}
-                    name="title"
-                    rules={{ required: "Title is required" }}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Module Title</FormLabel>
-                        <FormControl>
-                          <Input
-                            id="module-title"
-                            placeholder="e.g. Getting Started with Guitar"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={newModuleControl}
-                    name="description"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Description (Optional)</FormLabel>
-                        <FormControl>
-                          <SimpleEditor
-                            value={field.value}
-                            onChange={field.onChange}
-                            scope="product"
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <DialogFooter>
-                    <DialogClose asChild>
-                      <Button variant="outline" type="button">Cancel</Button>
-                    </DialogClose>
-                    <Button type="submit">Add Module</Button>
-                  </DialogFooter>
-                </form>
+                <AddModuleForm
+                  onSubmit={(data) => {
+                    handleAddModule(data)
+                    setAddModuleDialogOpen(false)
+                  }}
+                  onCancel={() => setAddModuleDialogOpen(false)}
+                />
               </div>
-
             </DialogContent>
           </Dialog>
         </CardHeader>
@@ -422,6 +374,7 @@ export default function ModulesManager({
   )
 }
 
+ 
 // EditModuleForm component (moved outside main component for syntax correctness)
 function EditModuleForm({ module, onSubmit, onCancel }: any) {
   const form = useForm({
@@ -479,6 +432,70 @@ function EditModuleForm({ module, onSubmit, onCancel }: any) {
           <Button type="submit" disabled={form.formState.isSubmitting}>
             Save Changes
           </Button>
+        </DialogFooter>
+      </form>
+    </Form>
+  )
+}
+
+// AddModuleForm component for Add New Module dialog
+function AddModuleForm({ onSubmit, onCancel }: { onSubmit: (data: any) => void, onCancel: () => void }) {
+  const form = useForm({
+    defaultValues: {
+      title: "",
+      description: "",
+    }
+  });
+
+  return (
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit((data) => {
+          onSubmit(data);
+          form.reset();
+        })}
+        className="space-y-4"
+      >
+        <FormField
+          control={form.control}
+          name="title"
+          rules={{ required: "Title is required" }}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Module Title</FormLabel>
+              <FormControl>
+                <Input
+                  id="module-title"
+                  placeholder="e.g. Getting Started with Guitar"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description (Optional)</FormLabel>
+              <FormControl>
+                <SimpleEditor
+                  value={field.value}
+                  onChange={field.onChange}
+                  scope="product"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="outline" type="button" onClick={onCancel}>Cancel</Button>
+          </DialogClose>
+          <Button type="submit">Add Module</Button>
         </DialogFooter>
       </form>
     </Form>
