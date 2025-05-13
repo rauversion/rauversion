@@ -32,7 +32,7 @@ export function ShowMoreText({
           className="overflow-hidden transition-all duration-300"
           style={{ maxHeight: isExpanded ? "2000px" : `${maxHeight}px` }}
         >
-          <p className="whitespace-pre-line">{text}</p>
+          <p className="whitespace-pre-line" dangerouslySetInnerHTML={{__html: text}}/>
         </div>
 
         {/* Gradient overlay - only shown when collapsed */}

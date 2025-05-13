@@ -22,6 +22,7 @@ import {
   Settings,
 } from "lucide-react"
 import { ShareDialog } from "@/components/ui/share-dialog"
+import { ShowMoreText } from "@/components/ui/show_more"
 import { get, post } from "@rails/request.js"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog"
@@ -288,9 +289,9 @@ export default function CoursePage() {
               </div>
 
               <h1 className="text-2xl font-bold mb-2 md:text-3xl">{course.title}</h1>
-              <p className="text-muted-foreground mb-4"
-                dangerouslySetInnerHTML={{ __html: course.description }} 
-              />
+
+              <ShowMoreText className="mb-4" text={course.description} maxHeight={100} />
+              
 
               <div className="flex items-center gap-3 mb-6">
                 <img
