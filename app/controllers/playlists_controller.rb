@@ -7,16 +7,21 @@ class PlaylistsController < ApplicationController
       format.html { render_blank }
       format.json {
 
-      @playlists = Playlist.published
-      .with_attached_cover
-      .includes(tracks: {cover_attachment: :blob, mp3_audio_attachment: :blob }, user: {avatar_attachment: :blob})
-      .where.not(playlist_type: [nil, "podcast"])
-      .order("id desc")
-    @playlists = @playlists.where(playlist_type: params[:type]) if params[:type].present? && params[:type] != "all"
-    @playlists = @playlists.page(params[:page]).per(24)
-    # @playlists_by_type = @playlists.group_by(&:playlist_type)
+        @playlists = Playlist.published
+        .with_attached_cover
+        .includes(tracks: {cover_attachment: :blob, mp3_audio_attachment: :blob }, user: {avatar_attachment: :blob})
+        .where.not(playlist_type: [nil, "podcast"])
+        .order("id desc")
 
-
+        @playlists = @playlists.where(playlist_type: params[:type]) if params[:type].present? && params[:type] != "all"
+        
+        if params[:term].present?
+          @q = @playlists.ransack(title_cont: params[:term])
+          @playlists = @q.result
+        end
+        
+        @playlists = @playlists.page(params[:page]).per(24)
+        # @playlists_by_type = @playlists.group_by(&:playlist_type)
       }
     end
   end

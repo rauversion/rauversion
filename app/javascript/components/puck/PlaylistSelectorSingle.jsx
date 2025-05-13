@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { get } from '@rails/request.js';
 import AsyncSelect from 'react-select/async';
+import selectTheme from "@/components/ui/selectTheme"
 
-const PlaylistSelectorSingle = ({ onChange, value = null }) => {
+const PlaylistSelectorSingle = ({ onChange, value = null, endpoint = null }) => {
   // value is a single id or null
   const [playlistId, setPlaylistId] = useState(value ? [value] : []);
   const [playlists, setPlaylists] = useState([]);
@@ -20,13 +21,16 @@ const PlaylistSelectorSingle = ({ onChange, value = null }) => {
 
   const loadOptions = async (inputValue, callback) => {
     try {
+
       const userId = document.querySelector('meta[name="current-user-id"]')?.content;
-      if (!userId) {
+      if (!endpoint && !userId) {
         console.error('No user ID found');
         return;
       }
 
-      const response = await get(`/${userId}/albums.json?`);
+      console.log('input value:', inputValue);
+      const url = endpoint || `/${userId}/albums.json`;
+      const response = await get(`${url}?term=${inputValue}`);
       if (response.ok) {
         const data = await response.json;
         const options = data.collection.map(playlist => ({
@@ -77,6 +81,7 @@ const PlaylistSelectorSingle = ({ onChange, value = null }) => {
         isMulti={false}
         cacheOptions
         defaultOptions
+        theme={selectTheme}
         value={playlists.find(playlist => playlist.value === playlistId[0]) || null}
         onChange={handleChange}
         loadOptions={(inputValue) => new Promise((resolve) => loadOptions(inputValue, resolve))}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import ReactDOM from "react-dom/client";
-import PlaylistComponent from "../puck/playlist";
+import PlaylistComponent from "../puck/Playlist";
 
 export default function ArticleShow({ preview }) {
   const { slug } = useParams()

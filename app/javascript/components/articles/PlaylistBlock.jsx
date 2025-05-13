@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { NodeViewWrapper } from "@tiptap/react";
 
 // Simple error boundary for playlist rendering
 class ErrorBoundary extends React.Component {
@@ -23,78 +24,74 @@ class ErrorBoundary extends React.Component {
     return this.props.children;
   }
 }
+
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
 import PlaylistSelectorSingle from "../puck/PlaylistSelectorSingle";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import PlaylistComponent from "../puck/playlist";
+import PlaylistComponent from "../puck/Playlist";
 
 export default function PlaylistBlock(props) {
-  // Dante block props: node, updateAttributes, extension, selected, showDialog, setShowDialog
+  // Dante block props: node, updateAttributes, extension, selected
   const playlistId = props.node?.attrs?.playlistId;
-  // Dialog open state is now controlled by props.showDialog (from config), fallback to local state for safety
-  const [localDialogOpen, setLocalDialogOpen] = useState(false);
-  const dialogOpen = props.showDialog || localDialogOpen;
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const handleSelect = (id) => {
     if (id) {
       props.updateAttributes({ playlistId: id });
-      if (props.setShowDialog) {
-        props.setShowDialog(false);
-      } else {
-        setLocalDialogOpen(false);
-      }
+      setDialogOpen(false);
     }
   };
 
-  // If dialog should be open, show it
-  if (dialogOpen) {
-    return (
-      <Dialog open={dialogOpen} onOpenChange={props.setShowDialog || setLocalDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Select a Playlist</DialogTitle>
-          </DialogHeader>
-          <PlaylistSelectorSingle onChange={handleSelect} />
-        </DialogContent>
-      </Dialog>
-    );
-  }
-
-  // If no playlist selected, show placeholder with button to open dialog
-  if (!playlistId) {
-    return (
-      <div className="rounded-lg bg-zinc-900 p-4 flex items-center gap-4 border border-dashed border-zinc-700">
-        <Plus className="w-6 h-6 text-zinc-400" />
-        <span className="text-zinc-400">No playlist selected.</span>
+  return (
+    <NodeViewWrapper
+      as="figure"
+      data-drag-handle="true"
+      className={`bg-white/5 rounded-md relative text-sm graf--figure graf--playlist-block ${props.selected ? "is-selected is-mediaFocused" : ""}`}
+      tabIndex={0}
+    >
+      <div className="flex justify-end absolute right-10 top-[40px]">
         <Button
           size="sm"
-          variant="secondary"
-          className="ml-2"
+          variant="destructive"
+          className="mb-2"
           onClick={() => {
-            if (props.setShowDialog) {
-              props.setShowDialog(true);
-            } else {
-              setLocalDialogOpen(true);
+            if (props.deleteNode) {
+              props.deleteNode();
+            } else if (props.editor && props.getPos) {
+              // Remove node at current position
+              const pos = props.getPos();
+              if (typeof pos === "number") {
+                props.editor.chain().focus().deleteRange({ from: pos, to: pos + props.node.nodeSize }).run();
+              }
             }
           }}
         >
-          Select Playlist
+          Remove
         </Button>
       </div>
-    );
-  }
-
-  // Render the main PlaylistComponent
-  return (
-    <figure
-      data-drag-handle="true"
-      className={`text-sm graf--figure graf--playlist-block ${props.selected ? "is-selected is-mediaFocused" : ""}`}
-      tabIndex={0}
-    >
       <ErrorBoundary>
-        <PlaylistComponent playlistId={playlistId} />
+        {playlistId ? (
+          <PlaylistComponent playlistId={playlistId} />
+        ) : (
+          <>
+            <Button
+              size="sm"
+              variant="secondary"
+              onClick={() => setDialogOpen(true)}
+            >
+              Select Playlist
+            </Button>
+            <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Select a Playlist</DialogTitle>
+                </DialogHeader>
+                <PlaylistSelectorSingle onChange={handleSelect} endpoint={props.endpoint} />
+              </DialogContent>
+            </Dialog>
+          </>
+        )}
       </ErrorBoundary>
-    </figure>
+    </NodeViewWrapper>
   );
 }

@@ -48,6 +48,9 @@ import Dante, {
   SpeechToTextBlockConfig,
 } from 'dante3/package/esm'
 import PlaylistBlock from "./PlaylistBlock";
+import AiEnhancerBlock from "./AiEnhancerBlock";
+import { Sparkles } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DirectUpload } from "@rails/activestorage"
 import { useDebounce } from '@/hooks/use_debounce'
 import { useDebounceCallback } from "@/hooks/use-debounce-callback"
@@ -110,28 +113,13 @@ function EditorComponent({ value, onChange, onUpload }) {
       name: "PlaylistBlock",
       tag: "playlist-block",
       component: (props) => {
-        // Provide showDialog/setShowDialog to PlaylistBlock
-        const [showDialog, setShowDialog] = React.useState(false);
-        // If dialogState for this block is set, open dialog and reset state
-        React.useEffect(() => {
-          if (props && props.node && dialogState[props.node.key]) {
-            setShowDialog(true);
-            dialogState[props.node.key] = false;
-          }
-        }, [props && props.node && props.node.key]);
-        return (
-          <PlaylistBlock
-            {...props}
-            showDialog={showDialog}
-            setShowDialog={setShowDialog}
-          />
-        );
+        return <PlaylistBlock {...props} endpoint={'/playlists.json'} />;
       },
       atom: false,
       widget_options: {
         displayOnInlineTooltip: true,
-        insertion: "placeholder",
-        insert_block: "playlist",
+        insertion: "insertion",
+        insert_block: "PlaylistBlock",
       },
       options: {
         placeholder: "Insert a playlist",
@@ -141,6 +129,38 @@ function EditorComponent({ value, onChange, onUpload }) {
       },
       dataSerializer: function (data) {
         return { ...data, playlistId: data.playlistId };
+      },
+      ...options,
+    };
+  }
+
+  function AiEnhancerBlockConfig(options = {}) {
+    return {
+      icon: () => (
+        <svg width="20" height="20" fill="none" viewBox="0 0 24 24">
+          <g>
+            <circle cx="12" cy="12" r="10" fill="#fff" stroke="#000" strokeWidth="1.5" />
+            <path d="M12 7v5l3 3" stroke="#f472b6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+          </g>
+        </svg>
+      ),
+      name: "AiEnhancerBlock",
+      tag: "ai-enhancer-block",
+      component: (props) => <AiEnhancerBlock {...props} />,
+      atom: false,
+      widget_options: {
+        displayOnInlineTooltip: true,
+        insertion: "insertion",
+        insert_block: "AiEnhancerBlock",
+      },
+      options: {
+        placeholder: "Enhance text with AI",
+      },
+      attributes: {
+        value: { default: "" },
+      },
+      dataSerializer: function (data) {
+        return { ...data, value: data.value };
       },
       ...options,
     };
@@ -206,6 +226,7 @@ function EditorComponent({ value, onChange, onUpload }) {
         }),
         SpeechToTextBlockConfig(),
         PlaylistBlockConfig(),
+        //AiEnhancerBlockConfig(), // we need to add this to the menu bar instead
       ]}
       onUpdate={(editor) => {
         onChange && onChange(editor.getJSON())
