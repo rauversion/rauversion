@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import SimpleEditor from "@/components/ui/SimpleEditor"
 import {
   Dialog,
   DialogContent,
@@ -17,8 +19,8 @@ import {
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { Plus, Trash2, GripVertical, Video, FileText, Edit, ArrowUp, ArrowDown } from "lucide-react"
 import LessonForm from "@/components/courses/admin/lesson-form"
-import { useForm } from "react-hook-form"
 import { useToast } from "@/hooks/use-toast"
+import { useForm, Controller } from "react-hook-form"
 
 import { patch } from "@rails/request.js"
 
@@ -39,21 +41,29 @@ export default function ModulesManager({
   const [editingModule, setEditingModule] = useState(null) // module object or null
   const [addingLessonToModule, setAddingLessonToModule] = useState(null)
   const [editingLesson, setEditingLesson] = useState(null)
-  const [newModule, setNewModule] = useState({
-    title: "",
-    description: "",
+  // Add New Module form
+  const {
+    control: newModuleControl,
+    handleSubmit: handleNewModuleSubmit,
+    reset: resetNewModuleForm,
+    formState: { errors: newModuleErrors }
+  } = useForm({
+    defaultValues: {
+      title: "",
+      description: "",
+    }
   })
   const { toast } = useToast()
 
-  const handleAddModule = () => {
-    if (!newModule.title.trim()) return
+  const handleAddModule = (data) => {
+    if (!data.title.trim()) return
     onModuleCreate &&
       onModuleCreate({
-        title: newModule.title,
-        description: newModule.description,
+        title: data.title,
+        description: data.description,
         lessons: [],
       })
-    setNewModule({ title: "", description: "" })
+    resetNewModuleForm()
   }
 
   const handleDeleteModule = (moduleId) => {
@@ -153,37 +163,51 @@ export default function ModulesManager({
                 <DialogTitle>{I18n.t("courses.modules_manager.add_new_module")}</DialogTitle>
               </DialogHeader>
               <div className="space-y-4 py-4">
-                <div className="space-y-2">
-                  <label htmlFor="module-title" className="text-sm font-medium">
-                    Module Title
-                  </label>
-                  <Input
-                    id="module-title"
-                    placeholder="e.g. Getting Started with Guitar"
-                    value={newModule.title}
-                    onChange={(e) => setNewModule((prev) => ({ ...prev, title: e.target.value }))}
+                <form onSubmit={handleNewModuleSubmit(handleAddModule)} className="space-y-4">
+                  <FormField
+                    control={newModuleControl}
+                    name="title"
+                    rules={{ required: "Title is required" }}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Module Title</FormLabel>
+                        <FormControl>
+                          <Input
+                            id="module-title"
+                            placeholder="e.g. Getting Started with Guitar"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
-                <div className="space-y-2">
-                  <label htmlFor="module-description" className="text-sm font-medium">
-                    Description (Optional)
-                  </label>
-                  <Textarea
-                    id="module-description"
-                    placeholder="Brief description of this module"
-                    value={newModule.description}
-                    onChange={(e) => setNewModule((prev) => ({ ...prev, description: e.target.value }))}
+                  <FormField
+                    control={newModuleControl}
+                    name="description"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Description (Optional)</FormLabel>
+                        <FormControl>
+                          <SimpleEditor
+                            value={field.value}
+                            onChange={field.onChange}
+                            scope="product"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
                   />
-                </div>
+                  <DialogFooter>
+                    <DialogClose asChild>
+                      <Button variant="outline" type="button">Cancel</Button>
+                    </DialogClose>
+                    <Button type="submit">Add Module</Button>
+                  </DialogFooter>
+                </form>
               </div>
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button variant="outline">Cancel</Button>
-                </DialogClose>
-                <DialogClose asChild>
-                  <Button onClick={handleAddModule}>Add Module</Button>
-                </DialogClose>
-              </DialogFooter>
+
             </DialogContent>
           </Dialog>
         </CardHeader>
@@ -262,7 +286,10 @@ export default function ModulesManager({
                   </div>
                   <AccordionContent className="pt-2 pb-4">
                     <div className="px-4 space-y-4">
-                      {module.description && <p className="text-sm text-muted-foreground">{module.description}</p>}
+                      {module.description && 
+                        <p className="text-sm text-muted-foreground"
+                         dangerouslySetInnerHTML={{ __html: module.description }}/>
+                      }
 
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
@@ -397,47 +424,63 @@ export default function ModulesManager({
 
 // EditModuleForm component (moved outside main component for syntax correctness)
 function EditModuleForm({ module, onSubmit, onCancel }: any) {
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm({
+  const form = useForm({
     defaultValues: {
       title: module.title || "",
       description: module.description || "",
     }
-  })
+  });
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="space-y-4 py-2"
-    >
-      <div className="space-y-2">
-        <label htmlFor="edit-module-title" className="text-sm font-medium">
-          Module Title
-        </label>
-        <Input
-          id="edit-module-title"
-          placeholder="e.g. Getting Started with Guitar"
-          {...register("title", { required: "Title is required" })}
+    <Form {...form}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="space-y-4 py-2"
+      >
+        <FormField
+          control={form.control}
+          name="title"
+          rules={{ required: "Title is required" }}
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Module Title</FormLabel>
+              <FormControl>
+                <Input
+                  id="edit-module-title"
+                  placeholder="e.g. Getting Started with Guitar"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-        {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
-      </div>
-      <div className="space-y-2">
-        <label htmlFor="edit-module-description" className="text-sm font-medium">
-          Description (Optional)
-        </label>
-        <Textarea
-          id="edit-module-description"
-          placeholder="Brief description of this module"
-          {...register("description")}
+        <FormField
+          control={form.control}
+          name="description"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Description (Optional)</FormLabel>
+              <FormControl>
+                <SimpleEditor
+                  value={field.value}
+                  onChange={field.onChange}
+                  scope="product"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
         />
-      </div>
-      <DialogFooter>
-        <Button type="button" variant="outline" onClick={onCancel}>
-          Cancel
-        </Button>
-        <Button type="submit" disabled={isSubmitting}>
-          Save Changes
-        </Button>
-      </DialogFooter>
-    </form>
+        <DialogFooter>
+          <Button type="button" variant="outline" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button type="submit" disabled={form.formState.isSubmitting}>
+            Save Changes
+          </Button>
+        </DialogFooter>
+      </form>
+    </Form>
   )
 }

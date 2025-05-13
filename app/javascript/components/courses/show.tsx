@@ -288,7 +288,9 @@ export default function CoursePage() {
               </div>
 
               <h1 className="text-2xl font-bold mb-2 md:text-3xl">{course.title}</h1>
-              <p className="text-muted-foreground mb-4">{course.description}</p>
+              <p className="text-muted-foreground mb-4"
+                dangerouslySetInnerHTML={{ __html: course.description }} 
+              />
 
               <div className="flex items-center gap-3 mb-6">
                 <img

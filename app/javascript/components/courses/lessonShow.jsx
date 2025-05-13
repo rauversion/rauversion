@@ -306,7 +306,9 @@ export default function LessonPage() {
                 <TabsContent value="content" className="mt-4">
                   <div className="prose max-w-none">
                     <h2 className="text-xl text-default font-semibold mb-4">{I18n.t("courses.lesson_show.about_this_lesson")}</h2>
-                    <p className="text-muted">{lesson.description}</p>
+                    <div className="prose-lg"
+                      dangerouslySetInnerHTML={{ __html: lesson.description }}
+                    />
                   </div>
                 </TabsContent>
 

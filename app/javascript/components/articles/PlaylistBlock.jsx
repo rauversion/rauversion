@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { NodeViewWrapper } from "@tiptap/react";
-
 // Simple error boundary for playlist rendering
 class ErrorBoundary extends React.Component {
   constructor(props) {

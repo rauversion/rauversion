@@ -1,57 +1,35 @@
 "use client"
 import React from "react"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import SimpleEditor from "@/components/ui/SimpleEditor"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Label } from "@/components/ui/label"
 import { DialogClose, DialogFooter } from "@/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Upload, X, Video, FileText } from "lucide-react"
+import { Upload, X, Video } from "lucide-react"
 import { DirectUpload } from "@rails/activestorage"
 import CourseDocumentUploader from "@/components/courses/admin/CourseDocumentUploader"
+import { useForm } from "react-hook-form"
 
 export default function LessonForm({ lesson = {}, onSubmit, documents = [], onDocumentCreate, onDocumentDelete }) {
-  // Initialize state once with lesson data or defaults
-  const [formData, setFormData] = useState({
-    title: "",
-    description: "",
-    type: "video",
-    duration: "",
-    video_url: "",
-  })
   const [videoPreview, setVideoPreview] = useState(lesson.video_url || null)
   const [videoFile, setVideoFile] = useState<File | null>(null)
   const [videoSignedId, setVideoSignedId] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
   const [documentPreview, setDocumentPreview] = useState(null)
-  // Documents are now managed by parent via props/callbacks
   const [activeTab, setActiveTab] = useState("details")
-  const [isInitialized, setIsInitialized] = useState(false)
 
-  // Update form data when lesson prop changes, but only once
-  useEffect(() => {
-    if (!isInitialized && lesson) {
-      setFormData({
-        title: lesson.title || "",
-        description: lesson.description || "",
-        type: lesson.type || "video",
-        duration: lesson.duration || "",
-      })
-      setIsInitialized(true)
+  const form = useForm({
+    defaultValues: {
+      title: lesson.title || "",
+      description: lesson.description || "",
+      type: lesson.type || "video",
+      duration: lesson.duration || "",
     }
-  }, [lesson, isInitialized])
-
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const handleSelectChange = (name, value) => {
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
+  })
 
   const handleVideoUpload = (e) => {
     const file = e.target.files[0]
@@ -63,14 +41,7 @@ export default function LessonForm({ lesson = {}, onSubmit, documents = [], onDo
     }
   }
 
-  const handleDocumentUpload = (e) => {
-    const file = e.target.files[0]
-    if (file) {
-      setDocumentPreview(file.name)
-    }
-  }
-
-  const handleSubmit = async () => {
+  const handleSubmit = async (data) => {
     if (uploading) return
     let signedId = videoSignedId
     if (videoFile && !videoSignedId) {
@@ -85,7 +56,7 @@ export default function LessonForm({ lesson = {}, onSubmit, documents = [], onDo
           setVideoSignedId(blob.signed_id)
           // After upload, submit the form
           const completeData = {
-            ...formData,
+            ...data,
             video: blob.signed_id,
             videoFile: videoPreview ? { name: "video-file.mp4" } : null,
             documentFile: documentPreview ? { name: documentPreview } : null,
@@ -97,80 +68,109 @@ export default function LessonForm({ lesson = {}, onSubmit, documents = [], onDo
     }
     // If no upload needed, submit immediately
     const completeData = {
-      ...formData,
-      //video: signedId,
-      //videoFile: videoPreview ? { name: "video-file.mp4" } : null,
+      ...data,
       documentFile: documentPreview ? { name: documentPreview } : null,
     }
     onSubmit(completeData)
   }
 
   return (
-    <div className="space-y-4 py-4">
-      <Tabs defaultValue="details" onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="details">{I18n.t("courses.lesson_form.lesson_details")}</TabsTrigger>
-          <TabsTrigger value="video">{I18n.t("courses.lesson_form.video")}</TabsTrigger>
-          <TabsTrigger value="resources">{I18n.t("courses.lesson_form.resources")}</TabsTrigger>
-        </TabsList>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4 py-4">
+        <Tabs defaultValue="details" onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="details">{I18n.t("courses.lesson_form.lesson_details")}</TabsTrigger>
+            <TabsTrigger value="video">{I18n.t("courses.lesson_form.video")}</TabsTrigger>
+            <TabsTrigger value="resources">{I18n.t("courses.lesson_form.resources")}</TabsTrigger>
+          </TabsList>
 
-        <TabsContent value="details" className="space-y-4 pt-4">
-          <div className="space-y-2">
-            <Label htmlFor="title">{I18n.t("courses.lesson_form.lesson_title")}</Label>
-            <Input
-              id="title"
+          <TabsContent value="details" className="space-y-4 pt-4">
+            <FormField
+              control={form.control}
               name="title"
-              placeholder={I18n.t("courses.lesson_form.lesson_title_placeholder")}
-              value={formData.title}
-              onChange={handleChange}
+              rules={{ required: I18n.t("courses.lesson_form.title_required") }}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{I18n.t("courses.lesson_form.lesson_title")}</FormLabel>
+                  <FormControl>
+                    <Input
+                      id="title"
+                      placeholder={I18n.t("courses.lesson_form.lesson_title_placeholder")}
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-            {!formData.title && <p className="text-sm text-red-500">{I18n.t("courses.lesson_form.title_required")}</p>}
-          </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description">{I18n.t("courses.lesson_form.description_optional")}</Label>
-            <Textarea
-              id="description"
+            <FormField
+              control={form.control}
               name="description"
-              placeholder={I18n.t("courses.lesson_form.description_placeholder")}
-              value={formData.description}
-              onChange={handleChange}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{I18n.t("courses.lesson_form.description_optional")}</FormLabel>
+                  <FormControl>
+                    <SimpleEditor
+                      value={field.value}
+                      onChange={field.onChange}
+                      scope="product"
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="type">{I18n.t("courses.lesson_form.lesson_type")}</Label>
-              <Select value={formData.type} onValueChange={(value) => handleSelectChange("type", value)}>
-                <SelectTrigger id="type">
-                  <SelectValue placeholder={I18n.t("courses.lesson_form.select_type")} />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="video">{I18n.t("courses.lesson_form.type_video")}</SelectItem>
-                  <SelectItem value="practice">{I18n.t("courses.lesson_form.type_practice")}</SelectItem>
-                  <SelectItem value="quiz">{I18n.t("courses.lesson_form.type_quiz")}</SelectItem>
-                  <SelectItem value="reading">{I18n.t("courses.lesson_form.type_reading")}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="duration">{I18n.t("courses.lesson_form.duration")}</Label>
-              <Input
-                id="duration"
-                name="duration"
-                placeholder={I18n.t("courses.lesson_form.duration_placeholder")}
-                value={formData.duration}
-                onChange={handleChange}
+            <div className="grid grid-cols-2 gap-4">
+              <FormField
+                control={form.control}
+                name="type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{I18n.t("courses.lesson_form.lesson_type")}</FormLabel>
+                    <Select value={field.value} onValueChange={field.onChange}>
+                      <FormControl>
+                        <SelectTrigger id="type">
+                          <SelectValue placeholder={I18n.t("courses.lesson_form.select_type")} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="video">{I18n.t("courses.lesson_form.type_video")}</SelectItem>
+                        <SelectItem value="practice">{I18n.t("courses.lesson_form.type_practice")}</SelectItem>
+                        <SelectItem value="quiz">{I18n.t("courses.lesson_form.type_quiz")}</SelectItem>
+                        <SelectItem value="reading">{I18n.t("courses.lesson_form.type_reading")}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-              {!formData.duration && <p className="text-sm text-red-500">{I18n.t("courses.lesson_form.duration_required")}</p>}
+
+              <FormField
+                control={form.control}
+                name="duration"
+                rules={{ required: I18n.t("courses.lesson_form.duration_required") }}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{I18n.t("courses.lesson_form.duration")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        id="duration"
+                        placeholder={I18n.t("courses.lesson_form.duration_placeholder")}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
-          </div>
-        </TabsContent>
+          </TabsContent>
 
         <TabsContent value="video" className="space-y-4 pt-4">
           <div className="space-y-2">
-            <Label>Video Upload</Label>
+            <FormLabel>Video Upload</FormLabel>
             <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6">
               {videoPreview ? (
                 <div className="space-y-4">
@@ -217,7 +217,7 @@ export default function LessonForm({ lesson = {}, onSubmit, documents = [], onDo
 
         <TabsContent value="resources" className="space-y-4 pt-4">
           <div className="space-y-2">
-            <Label>Additional Resources</Label>
+            <FormLabel>Additional Resources</FormLabel>
             <CourseDocumentUploader
               documents={documents}
               onDocumentCreate={onDocumentCreate}
@@ -227,12 +227,12 @@ export default function LessonForm({ lesson = {}, onSubmit, documents = [], onDo
         </TabsContent>
       </Tabs>
 
-      <DialogFooter>
-        <DialogClose asChild>
-          <Button variant="outline">Cancel</Button>
-        </DialogClose>
-        <DialogClose asChild>
-          <Button onClick={handleSubmit} disabled={!formData.title || !formData.duration || uploading}>
+
+        <DialogFooter>
+          <DialogClose asChild>
+            <Button variant="outline" type="button">Cancel</Button>
+          </DialogClose>
+          <Button type="submit" disabled={uploading || form.formState.isSubmitting}>
             {uploading ? (
               <>
                 <svg className="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -243,8 +243,8 @@ export default function LessonForm({ lesson = {}, onSubmit, documents = [], onDo
               </>
             ) : lesson.id ? "Update Lesson" : "Add Lesson"}
           </Button>
-        </DialogClose>
-      </DialogFooter>
-    </div>
+        </DialogFooter>
+      </form>
+    </Form>
   )
 }

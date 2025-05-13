@@ -13,6 +13,8 @@ import { useToast } from "@/hooks/use-toast"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { Label } from "@/components/ui/label"
+import SimpleEditor from "@/components/ui/SimpleEditor";
+
 
 const formSchema = z.object({
   title: z.string().min(3, { message: "Title must be at least 3 characters" }),
@@ -143,10 +145,10 @@ export default function CourseDetailsForm({ courseData, onDataChange }: CourseDe
                 <FormItem>
                   <FormLabel>{I18n.t("courses.details_form.course_description")}</FormLabel>
                   <FormControl>
-                    <Textarea
-                      placeholder={I18n.t("courses.details_form.course_description_placeholder")}
-                      className="min-h-[120px]"
-                      {...field}
+                    <SimpleEditor
+                      value={field.value}
+                      onChange={field.onChange}
+                      scope="courses"
                     />
                   </FormControl>
                   <FormMessage />
