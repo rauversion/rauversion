@@ -65,6 +65,7 @@ class FetchLinkCardService < BaseService
 
   def attempt_oembed(card, url)
     response = OEmbed::Providers.get(url)
+
     card.type = response.type
     card.title = response.respond_to?(:title) ? response.title : ""
     card.author_name = response.respond_to?(:author_name) ? response.author_name : ""
@@ -100,7 +101,24 @@ class FetchLinkCardService < BaseService
 
     page = Nokogiri::HTML(response.to_s)
 
-    card.type = :link
+    og_video = meta_property(page, "og:video")
+    og_video_secure = meta_property(page, "og:video:secure_url")
+    og_video_type = meta_property(page, "og:video:type")
+    og_video_width = meta_property(page, "og:video:width")
+    og_video_height = meta_property(page, "og:video:height")
+
+    if og_video.present?
+      card.type = :video
+      video_url = og_video_secure.presence || og_video
+      width = og_video_width.presence || "560"
+      height = og_video_height.presence || "315"
+      # video_type = og_video_type.presence || "text/html"
+      # Build iframe html
+      card.html = %Q(<iframe src="#{video_url}" width="#{width}" height="#{height}" frameborder="0" allowfullscreen></iframe>)
+    else
+      card.type = :link
+    end
+
     card.title = meta_property(page, "og:title") || page.at_xpath("//title").content
     card.description = meta_property(page, "og:description") || meta_property(page, "description")
 

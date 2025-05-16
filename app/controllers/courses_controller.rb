@@ -124,7 +124,12 @@ class CoursesController < ApplicationController
       return render json: { error: "Email is required" }, status: :unprocessable_entity
     end
 
-    user = User.find_by(email: email) || User.create(email: email, password: SecureRandom.hex(16))
+    pass = SecureRandom.hex(16)
+    username = email.split('@').first
+    user = User.find_by(email: email) || User.create(email: email, password: pass, password_confirmation: pass, username: "#{username}-#{Time.now.to_i}" )
+    
+    puts "AAAAAAA"
+    puts user.errors.full_messages if user.errors.any?
     enrollment = @course.course_enrollments.find_by(user_id: user.id)
 
     if enrollment
