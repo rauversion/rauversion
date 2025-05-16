@@ -12,6 +12,7 @@ module.exports = {
     './app/helpers/**/*.rb',
     './app/assets/stylesheets/**/*.css',
     './app/javascript/**/*.js',
+    './app/javascript/**/*.ts',
     './app/javascript/**/*.tsx',
     './app/javascript/**/*.jsx',
     "./config/locales/*.yml",

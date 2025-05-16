@@ -72,6 +72,15 @@ class ReleasesController < ApplicationController
       render :show, format: :json and return
     end
 
+    if params[:release][:theme_schema].present?
+      if @release.update(theme_schema: params[:release][:theme_schema])
+        render json: { status: 'success', message: 'Release updated successfully' }
+      else
+        render json: { status: 'error', message: @release.errors.full_messages }, status: :unprocessable_entity
+      end
+      return
+    end
+
     if permitted_params[:editor_data].present?
       if @release.update(editor_data: permitted_params[:editor_data])
         render json: { status: 'success', message: 'Release updated successfully' }
@@ -138,7 +147,8 @@ class ReleasesController < ApplicationController
       playlist_ids: [],
       release_playlists_attributes: [],
       release_sections_attributes: [],
-      editor_data: {}
+      editor_data: {},
+      theme_schema: {}
     )
   end
 

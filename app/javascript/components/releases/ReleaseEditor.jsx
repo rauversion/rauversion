@@ -4,6 +4,7 @@ import { get, put } from "@rails/request.js"
 import { useToast } from "@/hooks/use-toast"
 import { Puck } from "@measured/puck";
 
+import PageBuilder from "../page-builder/page-builder"
 import {
   Playlist,
   PlaylistConfig,
@@ -25,8 +26,8 @@ import {
   Flex,
   FlexConfig,
   ButtonBlock, ButtonBlockConfig,
-  Slider, SliderConfig, 
-  CardBlock, CardBlockConfig, 
+  Slider, SliderConfig,
+  CardBlock, CardBlockConfig,
   Section, SectionConfig,
   ImageBlock, ImageBlockConfig,
   ProductCard, ProductCardConfig,
@@ -36,7 +37,7 @@ import {
 
 
 // Render Puck editor
-function Editor({releaseId}) {
+function Editor({ releaseId }) {
   // Describe the initial data
   const initialData = {};
   const [data, setData] = React.useState(initialData);
@@ -184,12 +185,12 @@ function Editor({releaseId}) {
       },
       render: ({ background, textColor, alignment, classes, children }) => {
         return <div
-        style={{ backgroundColor: background, color: textColor, textAlign: alignment }} 
-        className={`flex flex-col min-h-screen`}>
+          style={{ backgroundColor: background, color: textColor, textAlign: alignment }}
+          className={`flex flex-col min-h-screen`}>
           <div className={`flex flex-col min-h-screen ${classes}`}>
-          {children}
+            {children}
           </div>
-          
+
         </div>;
       },
     },
@@ -310,6 +311,14 @@ export default function ReleaseEditor() {
   }
 
   if (!release) return null
+
+  if (release.editor_data && release.editor_data.theme_schema) {
+    return (
+      <div className="h-screen">
+        <PageBuilder releaseId={id} defaultBlocks={release.editor_data.theme_schema} />
+      </div>
+    )
+  }
 
   return (
     <div className="h-screen">

@@ -1,10 +1,14 @@
-import React from "react"
+import React, { createContext, useContext } from "react"
 import { useParams, Navigate } from "react-router-dom"
 import { get } from "@rails/request.js"
 import { useToast } from "@/hooks/use-toast"
 import PlaylistShow from "../playlists/Show"
 import { Render } from "@measured/puck"
+import { PagePreview } from "../page-builder/page-preview"
+import { PageBuilderContext } from "../page-builder/page-builder"
+import { BlocksProvider } from "../page-builder/block-context"
 import {
+
   Playlist,
   PlaylistConfig,
   ColorPicker,
@@ -197,6 +201,7 @@ export default function AlbumShow() {
   const [album, setAlbum] = React.useState(null)
   const [loading, setLoading] = React.useState(true)
 
+
   React.useEffect(() => {
     const fetchAlbum = async () => {
       try {
@@ -228,13 +233,31 @@ export default function AlbumShow() {
 
   if (loading) {
     return (
-      <div className="flex justify-center py-4">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      <div className="min-h-screen">
+        loading....
       </div>
     )
   }
 
+
+
   if (!album) return null
+
+  if (album.editor_data && album.editor_data.theme_schema) {
+    return (
+      <div className="min-h-screen">
+        <BlocksProvider initialBlocks={album.editor_data.blocks || album.editor_data.theme_schema || []}>
+          <PageBuilderContext.Provider value={{
+            selectedBlockId: null,
+            setSelectedBlockId: () => { },
+            pageBlockId: null
+          }}>
+            <PagePreview blocks={album.editor_data.blocks || album.editor_data.theme_schema || []} />
+          </PageBuilderContext.Provider>
+        </BlocksProvider>
+      </div>
+    )
+  }
 
   // If album has editor_data config, render Puck
   if (album.editor_data) {
