@@ -7,6 +7,7 @@ import { useThemeStore } from '@/stores/theme'
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { ImageUploader } from "@/components/ui/image-uploader"
 import Select from "react-select"
 import selectTheme from "@/components/ui/selectTheme"
 import {
@@ -41,6 +42,8 @@ export default function ReleaseForm() {
       record_color: "#000000",
       sleeve_color: "#000000",
       playlist_id: null,
+      published: false,
+      cover: "",
     },
   })
 
@@ -82,6 +85,9 @@ export default function ReleaseForm() {
               record_color: data.colors.record,
               sleeve_color: data.colors.sleeve,
               playlist_id: data.playlist_id,
+              published: !!data.published,
+              cover: "",
+              cover_url: data.cover_url || "",
             })
           }
         } catch (error) {
@@ -120,7 +126,7 @@ export default function ReleaseForm() {
         toast({
           description: `Release ${isEditing ? "updated" : "created"} successfully`,
         })
-        navigate(data.urls.editor)
+        // navigate(data.urls.editor)
       } else {
         const error = await response.json
         toast({
@@ -240,6 +246,37 @@ export default function ReleaseForm() {
                   />
                 }}
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="published">
+                <input
+                  id="published"
+                  type="checkbox"
+                  {...register("published")}
+                  className="mr-2"
+                />
+                Published
+              </Label>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="cover">Cover Image</Label>
+              <ImageUploader
+                value={getValues("cover")}
+                previewImage={getValues("cover_url") || getValues("cover")}
+                onUploadComplete={url => {
+                  setValue("cover", url)
+                  setValue("cover_url", url)
+                }}
+              />
+              {(getValues("cover_url") || getValues("cover")) && (
+                <img
+                  src={getValues("cover_url") || getValues("cover")}
+                  alt="Cover"
+                  className="mt-2 rounded w-full max-w-xs"
+                />
+              )}
             </div>
 
             <div className="flex justify-end space-x-2">
