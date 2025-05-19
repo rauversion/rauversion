@@ -26,6 +26,8 @@ class Release < ApplicationRecord
   store_attribute :config, :bandcamp, :string
   store_attribute :config, :soundcloud, :string
 
+  store_attribute :editor_data, :theme_schema, :json
+
   validates :template, inclusion: { in: TEMPLATES }
 
   def cover_url(size = :medium)

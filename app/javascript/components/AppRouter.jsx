@@ -98,6 +98,7 @@ import CoursesIndex from "./courses/index"
 import CourseShow from "./courses/show"
 import CourseForm from "./courses/form"
 import LessonShow from "./courses/lessonShow"
+import PageBuilder from "./page-builder/page-builder"
 
 import { Footer, ScrollRestoration, LoadingSpinner } from '@/components/shared'
 
@@ -199,6 +200,7 @@ function AppContent() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
 
 
+          <Route path="/page-builder" element={<PageBuilder />} />
           <Route path="/" element={<Home />} />
           <Route path="/albums/:slug" element={<AlbumShow />} />
 
@@ -238,7 +240,6 @@ function AppContent() {
           <Route path="/events/:slug/event_purchases/:purchase_id/success" element={<CheckoutSuccess />} />
           <Route path="/events/:slug/event_tickets/:id" element={<EventTicketShow />} />
 
-
           <Route path="/tracks" element={<TracksIndex />} />
           <Route path="/tracks/new" element={<NewTrack />} />
           <Route path="/tracks/:slug" element={<TrackShow />} />
@@ -248,6 +249,8 @@ function AppContent() {
           <Route path="/releases/new" element={<ReleaseForm />} />
           <Route path="/releases/:id/edit" element={<ReleaseForm />} />
           <Route path="/releases/:id/editor" key="release-editor" element={<ReleaseEditor key={"release-editor"} />} />
+          <Route path="/releases/:id/editor2" key="release-editor2" element={<PageBuilder key={"release-editor2"} />} />
+
           <Route path="/releases/:id/preview" element={<ReleasePreview />} />
           <Route path="/releases/:id" element={<ReleasePreview />} />
           <Route path="/albums" element={<AlbumsIndex />} />
@@ -317,6 +320,7 @@ function AppContent() {
         !location.pathname.includes('editor') &&
         !location.pathname.includes('preview') &&
         !location.pathname.includes('albums') &&
+        !location.pathname.includes('page-builder') &&
         !location.pathname.includes('conversations') &&
         (
           <Footer />

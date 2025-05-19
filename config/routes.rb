@@ -36,6 +36,10 @@ Rails.application.routes.draw do
     end
   end
 
+
+  get "/page-builder", to: "application#render_blank"
+
+
   # Stripe Connect routes
   resource :stripe_connect, only: [:show, :create], controller: :stripe_connect do
     get :reauth
@@ -282,6 +286,7 @@ Rails.application.routes.draw do
   resources :releases do
     member do
       get :editor
+      get :editor2, action: :editor
     end
     collection do
       get :puck
