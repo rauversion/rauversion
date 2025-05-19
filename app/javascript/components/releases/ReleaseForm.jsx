@@ -263,6 +263,7 @@ export default function ReleaseForm() {
             <div className="space-y-2">
               <Label htmlFor="cover">Cover Image</Label>
               <ImageUploader
+                aspectRatio={1}
                 value={getValues("cover")}
                 previewImage={getValues("cover_url") || getValues("cover")}
                 onUploadComplete={url => {
