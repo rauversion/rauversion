@@ -67,16 +67,24 @@ export const containerBlock: BlockDefinition = {
       <div
         className={cn(
           "flex rounded-md",
-          // Mobile (base)
-          (block.properties.mobileDirection || block.properties.direction) === "row"
+          // Mobile (base) - ONLY use mobileDirection, default to column
+          block.properties.mobileDirection === "row"
             ? "flex-row"
             : "flex-col",
-          block.properties.mobileJustify || block.properties.justify
-            ? `justify-${block.properties.mobileJustify || block.properties.justify}`
+          block.properties.mobileJustify
+            ? `justify-${block.properties.mobileJustify}`
+            : block.properties.justify
+            ? `justify-${block.properties.justify}`
             : "",
-          block.properties.mobileMargin || block.properties.margin,
-          block.properties.mobileWidth || block.properties.width
-            ? `w-${block.properties.mobileWidth || block.properties.width}`
+          block.properties.mobileMargin
+            ? block.properties.mobileMargin
+            : block.properties.margin
+            ? block.properties.margin
+            : "",
+          block.properties.mobileWidth
+            ? `w-${block.properties.mobileWidth}`
+            : block.properties.width
+            ? `w-${block.properties.width}`
             : "",
           // Tablet (md:)
           block.properties.tabletDirection

@@ -331,9 +331,11 @@ Rails.application.routes.draw do
   mount MissionControl::Jobs::Engine, at: "/jobs"
   mount Mailbin::Engine => :mailbin if Rails.env.development?
 
+
   get "/onbehalf/parent/:username", to: "label_auth#back"
   get "/onbehalf/:username", to: "label_auth#add"
   
+
   resources :account_connections do
     collection do
       get :user_search
@@ -456,5 +458,7 @@ Rails.application.routes.draw do
 
   post 'ai_enhancements/enhance', to: 'ai_enhancements#enhance'
 
+  get "turn", to: "turn#show"
+  post "turn/generate_video", to: "turn#generate_video"
   # mount Plain::Engine => "/plain"
 end

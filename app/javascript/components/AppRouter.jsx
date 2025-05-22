@@ -100,6 +100,9 @@ import CourseForm from "./courses/form"
 import LessonShow from "./courses/lessonShow"
 import PageBuilder from "./page-builder/page-builder"
 
+import SpinningVideo from "./spinning-video"
+
+
 import { Footer, ScrollRestoration, LoadingSpinner } from '@/components/shared'
 
 import { useLocaleStore } from "@/stores/locales"
@@ -240,6 +243,7 @@ function AppContent() {
           <Route path="/events/:slug/event_purchases/:purchase_id/success" element={<CheckoutSuccess />} />
           <Route path="/events/:slug/event_tickets/:id" element={<EventTicketShow />} />
 
+          <Route path="/turn" element={<SpinningVideo />} />
           <Route path="/tracks" element={<TracksIndex />} />
           <Route path="/tracks/new" element={<NewTrack />} />
           <Route path="/tracks/:slug" element={<TrackShow />} />
