@@ -4,8 +4,8 @@ import React from "react";
 function mergeClasses({ mobile, tablet, desktop }) {
   return [
     mobile,
-    tablet ? `md:${tablet}` : "",
-    desktop ? `lg:${desktop}` : "",
+    tablet ? `sm:${tablet}` : "",
+    desktop ? `md:${desktop}` : "",
   ]
     .filter(Boolean)
     .join(" ");
