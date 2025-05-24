@@ -176,22 +176,29 @@ export default function UserPlaylists({ namespace = "playlists" }) {
     lastElementRef,
   } = useInfiniteScroll(`/${username}/${namespace}.json`);
 
+
   const handlePlayTrack = (track, playlist) => {
     if (currentTrackId === track.id) {
       if (isPlaying) {
         pause();
       } else {
         play(track.id);
+        const tracks = playlist?.tracks.map(t => t.id + "") || [];
+        useAudioStore.setState({ playlist: tracks });
       }
     } else {
       setPlaylist(playlist.tracks);
       play(track.id);
+      const tracks = playlist?.tracks.map(t => t.id + "") || [];
+      useAudioStore.setState({ playlist: tracks });
     }
   };
 
   const handlePlayPlaylist = (playlist) => {
     if (playlist.tracks && playlist.tracks.length > 0) {
       setPlaylist(playlist.tracks);
+      const tracks = playlist?.tracks.map(t => t.id + "") || [];
+      useAudioStore.setState({ playlist: tracks });
       play(playlist.tracks[0].id);
     }
   };
