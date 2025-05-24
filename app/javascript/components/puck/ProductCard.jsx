@@ -268,7 +268,7 @@ const ProductCard = ({
           <h3 className={selectedVariant.title}>
             <a
               className="hover:underline"
-              href={`/products/${product?.user?.username}/${product.slug}`}
+              href={`/${product?.user?.username}/products/${product.slug}`}
               style={{ color: titleColor }}
             >
               {product.title}
