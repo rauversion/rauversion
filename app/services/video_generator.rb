@@ -52,16 +52,19 @@ class VideoGenerator
 
     # Calculate mask and cover size based on disc_size percentage
     mask_px = (1080 * (@disc_size.to_f / 100)).round
-    scale_and_pad = "scale=#{mask_px}:#{mask_px},pad=1080:1080:(ow-iw)/2:(oh-ih)/2"
+    cover_px = [(mask_px * 1.05).round, 1080].min
+    mask_scale_and_pad = "scale=#{mask_px}:#{mask_px},pad=1080:1080:(ow-iw)/2:(oh-ih)/2"
+    cover_scale_and_pad = "scale=#{cover_px}:#{cover_px},pad=1080:1080:(ow-iw)/2:(oh-ih)/2"
 
     # Build ffmpeg command as a single line to avoid shell parsing issues
-    filter_complex = %Q(
-      [1:v]#{scale_and_pad},format=rgba[scaled];
-      [scaled]rotate=2*PI*#{loop_speed}*t/60:c=none:ow=rotw(1080):oh=roth(1080),scale=1080:1080[rotated];
-      [2:v]#{scale_and_pad},format=gray[mask];
-      [rotated][mask]alphamerge[masked];
-      [0:v][masked]overlay=0:0:format=auto,format=yuv420p[vout]
-    ).gsub("\n", "").gsub(/\s+/, " ")
+    filter_complex = (
+      "[0:v]scale=1296:1296,crop=1080:1080:((in_w-out_w)/2):((in_h-out_h)/2)[bg];" \
+      "[1:v]#{cover_scale_and_pad},format=rgba[scaled];" \
+      "[scaled]rotate=2*PI*#{loop_speed}*t/60:c=none:ow=rotw(1080):oh=roth(1080),scale=1080:1080[rotated];" \
+      "[2:v]#{mask_scale_and_pad},format=gray,lut=a=\\'val>0?255:0\\'[mask];" \
+      "[rotated][mask]alphamerge[masked];" \
+      "[bg][masked]overlay=0:0:format=auto,format=yuv420p[vout]"
+    )
 
     ffmpeg_cmd = [
       "ffmpeg",

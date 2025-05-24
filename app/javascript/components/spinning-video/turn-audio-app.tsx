@@ -47,9 +47,9 @@ export function TurnAudioApp() {
 
   return (
     <div className="w-full max-w-7xl mx-auto">
-      <h1 className="text-2xl font-bold mb-6">Turn Audio Clone</h1>
+      <h1 className="text-2xl font-bold mb-6 mt-4">Record spinner video generator</h1>
       <div className="flex flex-col md:flex-row gap-8">
-        <div className="w-full md:w-1/2 flex items-center justify-center bg-gray-50 p-4 rounded-lg min-h-[400px]">
+        <div className="w-full md:w-1/2 flex items-center- justify-center bg-default p-4 rounded-lg min-h-[400px]">
           <DiscPreview properties={properties} isPlaying={isPlaying} />
         </div>
         <div className="w-full md:w-1/2">

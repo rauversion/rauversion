@@ -2,39 +2,9 @@ import React from "react"
 import { useParams } from "react-router-dom"
 import { get, put } from "@rails/request.js"
 import { useToast } from "@/hooks/use-toast"
-import { Puck } from "@measured/puck";
 
 import PageBuilder from "../page-builder/page-builder"
-import {
-  Playlist,
-  PlaylistConfig,
-  ColorPicker,
-  MultiList,
-  MultiListConfig,
-  HeroSection,
-  HeroSectionConfig,
-  Title,
-  TitleConfig,
-  Text,
-  TextConfig,
-  Carousel,
-  CarouselConfig,
-  HeadingBlock,
-  HeadingBlockConfig,
-  Grid,
-  GridConfig,
-  Flex,
-  FlexConfig,
-  ButtonBlock, ButtonBlockConfig,
-  Slider, SliderConfig,
-  CardBlock, CardBlockConfig,
-  Section, SectionConfig,
-  ImageBlock, ImageBlockConfig,
-  ProductCard, ProductCardConfig,
-  Container, ContainerConfig,
-  OembedBlock, OembedBlockConfig
-} from '../puck';
-
+import { PuckEditor } from "../puck"
 
 // Render Puck editor
 function Editor({ releaseId }) {
@@ -43,159 +13,6 @@ function Editor({ releaseId }) {
   const [data, setData] = React.useState(initialData);
   const [loading, setLoading] = React.useState(true);
   const { toast } = useToast();
-
-  // Create Puck component config
-  const config = {
-    components: {
-      MultiList: {
-        fields: MultiListConfig.fields,
-        defaultProps: MultiListConfig.defaultProps,
-        render: MultiList,
-      },
-      ProductCard: {
-        fields: ProductCardConfig.fields,
-        defaultProps: ProductCardConfig.defaultProps,
-        render: ProductCard,
-      },
-      Grid: {
-        fields: GridConfig.fields,
-        defaultProps: GridConfig.defaultProps,
-        render: Grid,
-      },
-      Flex: {
-        fields: FlexConfig.fields,
-        defaultProps: FlexConfig.defaultProps,
-        render: Flex,
-      },
-      Playlist: {
-        fields: PlaylistConfig.fields,
-        defaultProps: PlaylistConfig.defaultProps,
-        /*render: ({ playlistId, theme }) => {
-          return <Playlist playlistId={playlistId} theme={theme} />;
-        },*/
-        render: Playlist
-      },
-      HeroSection: {
-        fields: HeroSectionConfig.fields,
-        defaultProps: HeroSectionConfig.defaultProps,
-        render: HeroSection,
-      },
-      Title: {
-        fields: TitleConfig.fields,
-        defaultProps: TitleConfig.defaultProps,
-        render: Title,
-      },
-      Text: {
-        fields: TextConfig.fields,
-        defaultProps: TextConfig.defaultProps,
-        render: Text,
-      },
-      Carousel: {
-        fields: CarouselConfig.fields,
-        defaultProps: CarouselConfig.defaultProps,
-        render: Carousel,
-      },
-      HeadingBlock: {
-        fields: HeadingBlockConfig.fields,
-        defaultProps: HeadingBlockConfig.defaultProps,
-        render: HeadingBlock,
-      },
-      ButtonBlock: {
-        fields: ButtonBlockConfig.fields,
-        defaultProps: ButtonBlockConfig.defaultProps,
-        render: ButtonBlock,
-      },
-      Slider: {
-        fields: SliderConfig.fields,
-        defaultProps: SliderConfig.defaultProps,
-        render: Slider,
-      },
-      CardBlock: {
-        fields: CardBlockConfig.fields,
-        defaultProps: CardBlockConfig.defaultProps,
-        render: CardBlock,
-      },
-      Section: {
-        fields: SectionConfig.fields,
-        defaultProps: SectionConfig.defaultProps,
-        render: Section,
-      },
-      ImageBlock: {
-        fields: ImageBlockConfig.fields,
-        defaultProps: ImageBlockConfig.defaultProps,
-        render: ImageBlock,
-      },
-      Button: {
-        fields: ButtonBlockConfig.fields,
-        defaultProps: ButtonBlockConfig.defaultProps,
-        render: ButtonBlock,
-      },
-      Container: {
-        fields: ContainerConfig.fields,
-        defaultProps: ContainerConfig.defaultProps,
-        render: Container,
-      },
-      OembedBlock: {
-        fields: OembedBlockConfig.fields,
-        defaultProps: OembedBlockConfig.defaultProps,
-        render: OembedBlock,
-      },
-    },
-    categories: {
-      layout: { components: ["Container", "Grid", "Flex", "Section"] },
-      content: { components: ["Title", "Text", "HeadingBlock", "MultiList"] },
-      media: { components: ["ImageBlock", "OembedBlock", "Carousel", "Slider", "Playlist"] },
-      interactive: { components: ["Button", "ButtonBlock"] },
-      cards: { components: ["ProductCard", "CardBlock"] },
-      featured: { components: ["HeroSection"] },
-    },
-    root: {
-      fields: {
-        background: {
-          type: "custom",
-          label: "Background Color",
-          render: ColorPicker,
-        },
-        textColor: {
-          type: "custom",
-          label: "Text Color",
-          render: ColorPicker,
-        },
-        alignment: {
-          type: "select",
-          label: "Alignment",
-          options: [
-            { label: "Left", value: "text-left" },
-            { label: "Center", value: "text-center" },
-            { label: "Right", value: "text-right" },
-          ]
-        },
-        classes: {
-          type: "text",
-          label: "Root Classes",
-          defaultValue: "",
-          description: "Add custom classes to the root element"
-        },
-      },
-      defaultProps: {
-        background: "#ffffff",
-        textColor: "#000000",
-        alignment: "text-left",
-        classes: "",
-      },
-      render: ({ background, textColor, alignment, classes, children }) => {
-        return <div
-          style={{ backgroundColor: background, color: textColor, textAlign: alignment }}
-          className={`flex flex-col min-h-screen`}>
-          <div className={`flex flex-col min-h-screen ${classes}`}>
-            {children}
-          </div>
-
-        </div>;
-      },
-    },
-
-  };
 
   // Save the data to your database
   async function save(data) {
@@ -264,7 +81,7 @@ function Editor({ releaseId }) {
   }
 
   return (
-    <Puck config={config} data={data} onPublish={save} />
+    <PuckEditor data={data} onPublish={save} />
   );
 }
 
@@ -312,13 +129,13 @@ export default function ReleaseEditor() {
 
   if (!release) return null
 
-  if (release.editor_data && release.editor_data.theme_schema) {
+  /*if (release.editor_data && release.editor_data.theme_schema) {
     return (
       <div className="h-screen">
         <PageBuilder releaseId={id} defaultBlocks={release.editor_data.theme_schema} />
       </div>
     )
-  }
+  }*/
 
   return (
     <div className="h-screen">

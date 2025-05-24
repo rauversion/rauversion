@@ -1,127 +1,70 @@
-import React from 'react';
-import ColorPicker from './ColorPicker';
-import SimpleEditor from '@/components/ui/SimpleEditor';
+import React from "react";
+import Typography from "./Typography";
+import TypographyField from "./TypographyField";
+import SimpleEditor from "@/components/ui/SimpleEditor";
 
-const Text = ({ content, size, weight, letterSpacing, alignment, color, variant, backgroundColor, padding }) => {
-  const baseClasses = `${size} ${weight} ${letterSpacing} ${alignment} ${padding}`;
-  
-  if (variant === 'blockquote') {
-    return (
-      <blockquote 
-        className={`${baseClasses} border-l-4 border-gray-300 italic`}
-        style={{ color, backgroundColor }}
-      >
-        {content}
-      </blockquote>
-    );
-  }
 
+// Custom field for editing text content using SimpleEditor
+function TextContentField({ value = "", onChange }) {
   return (
-    <div 
-      className={baseClasses}
-      style={{ color, backgroundColor }}
-      dangerouslySetInnerHTML={{ __html: content }}
+    <div>
+      <label className="block text-xs font-semibold mb-1">Text</label>
+      <SimpleEditor
+        value={value}
+        onChange={onChange}
+        placeholder="Enter text"
+        rows={4}
+      />
+    </div>
+  );
+}
+
+
+const Text = ({ text, typography = {} }) => {
+  // Render the text as a div, styled with Typography (but allow multi-line)
+  return (
+    <Typography
+      {...typography}
+      text={text}
     />
   );
 };
 
 export const config = {
   fields: {
-    content: {
+    text: {
       type: "custom",
-      render: SimpleEditor,
-      label: "Content",
-      defaultValue: "Enter your text here",
+      label: "Text",
+      render: TextContentField,
+      defaultValue: "Text",
     },
-    variant: {
-      type: "select",
-      label: "Style Variant",
-      options: [
-        { label: "Regular Text", value: "text" },
-        { label: "Blockquote", value: "blockquote" },
-      ],
-      defaultValue: "text",
-    },
-    size: {
-      type: "select",
-      label: "Size",
-      options: [
-        { label: "XS", value: "text-xs" },
-        { label: "Small", value: "text-sm" },
-        { label: "Base", value: "text-base" },
-        { label: "Large", value: "md:text-lg text-base" },
-        { label: "XL", value: "md:text-xl text-large" },
-        { label: "2XL", value: "md:text-2xl text-base" },
-      ],
-      defaultValue: "text-base",
-    },
-    weight: {
-      type: "select",
-      label: "Font Weight",
-      options: [
-        { label: "Light", value: "font-light" },
-        { label: "Normal", value: "font-normal" },
-        { label: "Medium", value: "font-medium" },
-        { label: "Semi Bold", value: "font-semibold" },
-        { label: "Bold", value: "font-bold" },
-      ],
-      defaultValue: "font-normal",
-    },
-    letterSpacing: {
-      type: "select",
-      label: "Letter Spacing",
-      options: [
-        { label: "Tight", value: "tracking-tight" },
-        { label: "Normal", value: "tracking-normal" },
-        { label: "Wide", value: "tracking-wide" },
-      ],
-      defaultValue: "tracking-normal",
-    },
-    alignment: {
-      type: "select",
-      label: "Alignment",
-      options: [
-        { label: "Left", value: "text-left" },
-        { label: "Center", value: "text-center" },
-        { label: "Right", value: "text-right" },
-        { label: "Justify", value: "text-justify" },
-      ],
-      defaultValue: "text-left",
-    },
-    padding: {
-      type: "select",
-      label: "Padding",
-      options: [
-        { label: "None", value: "p-0" },
-        { label: "Small", value: "p-2" },
-        { label: "Medium", value: "p-4" },
-        { label: "Large", value: "p-6" },
-        { label: "XL", value: "p-8" },
-      ],
-      defaultValue: "p-4",
-    },
-    color: {
+    typography: {
       type: "custom",
-      label: "Text Color",
-      render: ColorPicker,
-    },
-    backgroundColor: {
-      type: "custom",
-      label: "Background Color",
-      render: ColorPicker,
+      label: "Typography",
+      render: TypographyField,
+      defaultValue: {
+        size: { mobile: "text-base", tablet: "", desktop: "" },
+        weight: { mobile: "font-normal", tablet: "", desktop: "" },
+        letterSpacing: { mobile: "tracking-normal", tablet: "", desktop: "" },
+        alignment: { mobile: "text-left", tablet: "", desktop: "" },
+        color: "#000000",
+        fontFamily: { mobile: "font-sans", tablet: "", desktop: "" },
+        fontStretch: { mobile: "normal", tablet: "", desktop: "" },
+      },
     },
   },
   defaultProps: {
-    content: "Enter your text here",
-    variant: "text",
-    size: "text-base",
-    weight: "font-normal",
-    letterSpacing: "tracking-normal",
-    alignment: "text-left",
-    padding: "p-4",
-    color: "#000000",
-    backgroundColor: "transparent",
-  }
+    text: "Text",
+    typography: {
+      size: { mobile: "text-base", tablet: "", desktop: "" },
+      weight: { mobile: "font-normal", tablet: "", desktop: "" },
+      letterSpacing: { mobile: "tracking-normal", tablet: "", desktop: "" },
+      alignment: { mobile: "text-left", tablet: "", desktop: "" },
+      color: "#000000",
+      fontFamily: { mobile: "font-sans", tablet: "", desktop: "" },
+      fontStretch: { mobile: "normal", tablet: "", desktop: "" },
+    },
+  },
 };
 
 export default Text;

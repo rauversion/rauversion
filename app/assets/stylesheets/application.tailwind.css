@@ -16,9 +16,15 @@
   .ProseMirror {
     @apply text-default focus:outline-none outline-none dark:prose-invert;
   }
+
   :root {
     /* background */
-
+    --puck-color-azure-11: #eee;
+    --puck-color-grey-09: #ddd;
+    --puck-color-grey-11: #fff;
+    --puck-color-grey-12: #fff;
+    --puck-color-black: #000;
+    --puck-color-white: #fff;
     --background: 0 0% 100%;
     --foreground: 20 14.3% 4.1%;
     --muted: 60 4.8% 95.9%;
@@ -95,9 +101,15 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+
   :root .dark {
     /* background */
-
+    --puck-color-azure-11: #333;
+    --puck-color-grey-09: #222;
+    --puck-color-grey-11: #000;
+    --puck-color-grey-12: #000;
+    --puck-color-black: #fff;
+    --puck-color-white: #000;
     --rau-bg-emphasis: #2b2b2b;
     --rau-bg: #101010;
     --rau-bg-subtle: #2b2b2b;
@@ -172,6 +184,7 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply font-sans antialiased bg-background text-foreground;
   }
@@ -193,6 +206,7 @@
     from {
       transform: translateX(100%);
     }
+
     to {
       transform: translateX(-100%);
     }
@@ -215,6 +229,7 @@
   .flash-notice-bg {
     @apply bg-green-600;
   }
+
   .flash-notice-text {
     @apply text-green-100;
   }
@@ -399,11 +414,11 @@
   }
 
   .button {
-    @apply space-x-1 inline-flex items-center px-2.5 py-1.5 border border-gray-300 dark:border-gray-900 shadow-sm text-xs font-medium rounded text-gray-700 bg-white dark:text-gray-300 dark:bg-black  hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-indigo-900;
+    @apply space-x-1 inline-flex items-center px-2.5 py-1.5 border border-gray-300 dark:border-gray-900 shadow-sm text-xs font-medium rounded text-gray-700 bg-white dark:text-gray-300 dark:bg-black hover:bg-gray-50 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-indigo-900;
   }
 
   .button-active {
-    @apply space-x-1 inline-flex items-center px-2.5 py-1.5 border border-gray-300 dark:border-gray-900 shadow-sm text-xs font-medium rounded text-gray-700 bg-white dark:text-brand-300 dark:bg-black  hover:bg-brand-50 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-brand-900;
+    @apply space-x-1 inline-flex items-center px-2.5 py-1.5 border border-gray-300 dark:border-gray-900 shadow-sm text-xs font-medium rounded text-gray-700 bg-white dark:text-brand-300 dark:bg-black hover:bg-brand-50 dark:hover:bg-gray-800 focus:outline-none focus:ring-2 focus:ring-offset-2 dark:focus:ring-brand-900;
   }
 
   .button-large-selected {
@@ -423,12 +438,7 @@
   }
 
   .player-button {
-    @apply relative inline-flex items-center px-2 py-2
-          rounded-full text-default
-          bg-default text-sm font-medium
-          smooth-grow
-          border
-          focus:z-10 focus:outline-none focus:ring-1 focus:ring-muted focus:border-subtle;
+    @apply relative inline-flex items-center px-2 py-2 rounded-full text-default bg-default text-sm font-medium smooth-grow border focus:z-10 focus:outline-none focus:ring-1 focus:ring-muted focus:border-subtle;
   }
 
   .no-scrollbar {
@@ -461,9 +471,11 @@
   .hw-combobox__main__wrapper {
     @apply sm:w-full rounded-full w-80 relative;
   }
+
   .hw-combobox__handle {
     @apply right-3;
   }
+
   .hw-combobox__listbox {
     @apply rounded-2xl bg-subtle overflow-auto h-48 absolute w-full z-[500];
   }
