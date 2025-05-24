@@ -469,7 +469,7 @@ export default function NewTrack() {
     });
   };
 
-  if (!currentUser?.is_creator) {
+  if (currentUser && !currentUser?.is_creator) {
     return (
       <div className="max-w-xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <InterestAlert type="artist" onSubmit={handleArtistInterest} />

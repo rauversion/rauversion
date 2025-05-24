@@ -68,7 +68,7 @@ const InterestAlert: React.FC<InterestAlertProps> = ({ type, onSubmit }) => {
       toast({
         title: I18n.t("interest_alert.toast.error.title"),
         description:
-          error?.message || t("interest_alert.toast.error.description"),
+          error?.message || I18n.t("interest_alert.toast.error.description"),
         variant: "destructive",
       });
     }
