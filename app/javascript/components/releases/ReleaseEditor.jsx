@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom"
 import { get, put } from "@rails/request.js"
 import { useToast } from "@/hooks/use-toast"
 
-import PageBuilder from "../page-builder/page-builder"
 import { PuckEditor } from "../puck"
 
 // Render Puck editor

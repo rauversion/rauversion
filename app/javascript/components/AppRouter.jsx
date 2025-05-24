@@ -98,7 +98,6 @@ import CoursesIndex from "./courses/index"
 import CourseShow from "./courses/show"
 import CourseForm from "./courses/form"
 import LessonShow from "./courses/lessonShow"
-import PageBuilder from "./page-builder/page-builder"
 
 import SpinningVideo from "./spinning-video"
 
@@ -203,7 +202,6 @@ function AppContent() {
           <Route path="/forgot-password" element={<ForgotPassword />} />
 
 
-          <Route path="/page-builder" element={<PageBuilder />} />
           <Route path="/" element={<Home />} />
           <Route path="/albums/:slug" element={<AlbumShow />} />
 
@@ -253,7 +251,6 @@ function AppContent() {
           <Route path="/releases/new" element={<ReleaseForm />} />
           <Route path="/releases/:id/edit" element={<ReleaseForm />} />
           <Route path="/releases/:id/editor" key="release-editor" element={<ReleaseEditor key={"release-editor"} />} />
-          <Route path="/releases/:id/editor2" key="release-editor2" element={<PageBuilder key={"release-editor2"} />} />
 
           <Route path="/releases/:id/preview" element={<ReleasePreview />} />
           <Route path="/releases/:id" element={<ReleasePreview />} />

@@ -4,9 +4,6 @@ import { get } from "@rails/request.js"
 import { useToast } from "@/hooks/use-toast"
 import PlaylistShow from "../playlists/Show"
 import { Render } from "@measured/puck"
-import { PagePreview } from "../page-builder/page-preview"
-import { PageBuilderContext } from "../page-builder/page-builder"
-import { BlocksProvider } from "../page-builder/block-context"
 import {
 
   Playlist,
@@ -242,22 +239,6 @@ export default function AlbumShow() {
 
 
   if (!album) return null
-
-  if (album.editor_data && album.editor_data.theme_schema) {
-    return (
-      <div className="min-h-screen">
-        <BlocksProvider initialBlocks={album.editor_data.blocks || album.editor_data.theme_schema || []}>
-          <PageBuilderContext.Provider value={{
-            selectedBlockId: null,
-            setSelectedBlockId: () => { },
-            pageBlockId: null
-          }}>
-            <PagePreview blocks={album.editor_data.blocks || album.editor_data.theme_schema || []} />
-          </PageBuilderContext.Provider>
-        </BlocksProvider>
-      </div>
-    )
-  }
 
   // If album has editor_data config, render Puck
   if (album.editor_data) {

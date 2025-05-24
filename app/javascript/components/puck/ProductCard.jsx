@@ -5,6 +5,7 @@ import CheckboxField from './CheckboxField';
 import Select from 'react-select';
 import useCartStore from '@/stores/cartStore'
 import I18n from '@/stores/locales'
+import { mergeVariantClasses } from "./ClassField";
 
 const ProductSelector = ({ value, onChange }) => {
   const [products, setProducts] = useState([]);
@@ -47,7 +48,7 @@ const ProductSelector = ({ value, onChange }) => {
   );
 };
 
-const ProductCard = ({ 
+const ProductCard = ({
   backgroundColor,
   borderColor,
   titleColor,
@@ -102,7 +103,7 @@ const ProductCard = ({
 
   const handleAddToCart = async () => {
     if (!product || adding) return;
-    
+
     setAdding(true);
     try {
       addToCart(product.id)
@@ -121,50 +122,55 @@ const ProductCard = ({
     return <div className="text-center text-muted">Please select a product</div>;
   }
 
-  const buttonClasses = buttonStyle === 'outline' 
-    ? 'button-large-outline transition-colors duration-200' 
+  const buttonClasses = buttonStyle === 'outline'
+    ? 'button-large-outline transition-colors duration-200'
     : 'button-large transition-colors duration-200';
 
-  const getShadowClass = () => {
-    switch(shadow) {
-      case 'none': return '';
-      case 'sm': return 'shadow-sm';
-      case 'md': return 'shadow-md';
-      case 'lg': return 'shadow-lg';
-      default: return 'shadow';
-    }
-  };
+  // mergeVariantClasses is now imported from VariantField
+  const getShadowClass = () =>
+    mergeVariantClasses(shadow, (val) => {
+      switch (val) {
+        case "none": return "";
+        case "sm": return "shadow-sm";
+        case "md": return "shadow-md";
+        case "lg": return "shadow-lg";
+        default: return "shadow";
+      }
+    });
 
-  const getHoverClass = () => {
-    switch(hoverEffect) {
-      case 'none': return '';
-      case 'lift': return 'hover:-translate-y-1';
-      case 'grow': return 'hover:scale-105';
-      case 'shadow': return 'hover:shadow-lg';
-      default: return '';
-    }
-  };
+  const getHoverClass = () =>
+    mergeVariantClasses(hoverEffect, (val) => {
+      switch (val) {
+        case "none": return "";
+        case "lift": return "hover:-translate-y-1";
+        case "grow": return "hover:scale-105";
+        case "shadow": return "hover:shadow-lg";
+        default: return "";
+      }
+    });
 
-  const getRoundedClass = () => {
-    switch(roundedCorners) {
-      case 'none': return '';
-      case 'sm': return 'rounded-sm';
-      case 'md': return 'rounded-md';
-      case 'lg': return 'rounded-lg';
-      case 'full': return 'rounded-xl';
-      default: return 'rounded';
-    }
-  };
+  const getRoundedClass = () =>
+    mergeVariantClasses(roundedCorners, (val) => {
+      switch (val) {
+        case "none": return "";
+        case "sm": return "rounded-sm";
+        case "md": return "rounded-md";
+        case "lg": return "rounded-lg";
+        case "full": return "rounded-xl";
+        default: return "rounded";
+      }
+    });
 
-  const getAspectRatioClass = () => {
-    switch(aspectRatio) {
-      case 'square': return 'aspect-square';
-      case 'video': return 'aspect-video';
-      case 'portrait': return 'aspect-[3/4]';
-      case 'wide': return 'aspect-[16/9]';
-      default: return '';
-    }
-  };
+  const getAspectRatioClass = () =>
+    mergeVariantClasses(aspectRatio, (val) => {
+      switch (val) {
+        case "square": return "aspect-square";
+        case "video": return "aspect-video";
+        case "portrait": return "aspect-[3/4]";
+        case "wide": return "aspect-[16/9]";
+        default: return "";
+      }
+    });
 
   const variants = {
     minimal: {
@@ -203,9 +209,10 @@ const ProductCard = ({
 
   const selectedVariant = variants[variant] || variants.minimal;
 
+  console.log('valuande', variants, variant)
   return (
     <div className={`${className || ''}`}>
-      <div 
+      <div
         className={`
           ${selectedVariant.wrapper}
           ${getShadowClass()}
@@ -215,14 +222,14 @@ const ProductCard = ({
           transition-all duration-300
           border
         `}
-        style={{ 
+        style={{
           backgroundColor,
           borderColor,
         }}
       >
         <div className={`${selectedVariant.imageWrapper} ${getAspectRatioClass()}`}>
-          <img 
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" 
+          <img
+            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
             src={selectedImage?.url || product.photos[0]?.url}
             alt={product.title}
           />
@@ -232,12 +239,11 @@ const ProductCard = ({
                 <button
                   key={image.id}
                   onClick={() => setSelectedImage(image)}
-                  className={`flex-shrink-0 w-12 h-12 rounded overflow-hidden border-2 transition-colors ${
-                    selectedImage?.id === image.id ? 'border-white' : 'border-transparent'
-                  }`}
+                  className={`flex-shrink-0 w-12 h-12 rounded overflow-hidden border-2 transition-colors ${selectedImage?.id === image.id ? 'border-white' : 'border-transparent'
+                    }`}
                 >
-                  <img 
-                    src={image.url} 
+                  <img
+                    src={image.url}
                     alt={`${product.title} - Image ${image.id}`}
                     className="w-full h-full object-cover"
                   />
@@ -250,7 +256,7 @@ const ProductCard = ({
         <div className={selectedVariant.contentWrapper}>
           {product.category && (
             <div className="mb-2">
-              <span 
+              <span
                 className="inline-block px-3 py-1 text-xs font-medium rounded-full bg-gray-100"
                 style={{ color: textColor }}
               >
@@ -258,18 +264,18 @@ const ProductCard = ({
               </span>
             </div>
           )}
-          
+
           <h3 className={selectedVariant.title}>
-            <a 
+            <a
               className="hover:underline"
-              href={`/products/${product.slug}`}
+              href={`/products/${product?.user?.username}/${product.slug}`}
               style={{ color: titleColor }}
             >
               {product.title}
             </a>
           </h3>
 
-          <div 
+          <div
             className="text-sm mt-2"
             style={{ color: textColor }}
           >
@@ -277,7 +283,7 @@ const ProductCard = ({
           </div>
 
           <div className={`flex ${variant === 'horizontal' ? 'items-center justify-between' : 'flex-col items-center'} mt-4`}>
-            <span 
+            <span
               className={selectedVariant.price}
               style={{ color: priceColor }}
             >
@@ -312,48 +318,81 @@ export const config = {
         { label: "Horizontal", value: "horizontal" },
         { label: "Compact", value: "compact" },
         { label: "Elegant", value: "elegant" }
-      ]
+      ],
+      defaultValue: "minimal",
     },
     shadow: {
-      type: "select",
+      type: "custom",
       label: "Shadow",
-      options: [
-        { label: "None", value: "none" },
-        { label: "Small", value: "sm" },
-        { label: "Medium", value: "md" },
-        { label: "Large", value: "lg" }
-      ]
+      render: (props) => (
+        require("./ClassField").default({
+          ...props,
+          type: "select",
+          label: "Shadow",
+          options: [
+            { label: "None", value: "none" },
+            { label: "Small", value: "sm" },
+            { label: "Medium", value: "md" },
+            { label: "Large", value: "lg" }
+          ]
+        })
+      ),
+      defaultValue: { mobile: "sm", tablet: "", desktop: "" },
     },
     hoverEffect: {
-      type: "select",
+      type: "custom",
       label: "Hover Effect",
-      options: [
-        { label: "None", value: "none" },
-        { label: "Lift", value: "lift" },
-        { label: "Grow", value: "grow" },
-        { label: "Shadow", value: "shadow" }
-      ]
+      render: (props) => (
+        require("./ClassField").default({
+          ...props,
+          type: "select",
+          label: "Hover Effect",
+          options: [
+            { label: "None", value: "none" },
+            { label: "Lift", value: "lift" },
+            { label: "Grow", value: "grow" },
+            { label: "Shadow", value: "shadow" }
+          ]
+        })
+      ),
+      defaultValue: { mobile: "lift", tablet: "", desktop: "" },
     },
     roundedCorners: {
-      type: "select",
+      type: "custom",
       label: "Rounded Corners",
-      options: [
-        { label: "None", value: "none" },
-        { label: "Small", value: "sm" },
-        { label: "Medium", value: "md" },
-        { label: "Large", value: "lg" },
-        { label: "Extra Large", value: "full" }
-      ]
+      render: (props) => (
+        require("./ClassField").default({
+          ...props,
+          type: "select",
+          label: "Rounded Corners",
+          options: [
+            { label: "None", value: "none" },
+            { label: "Small", value: "sm" },
+            { label: "Medium", value: "md" },
+            { label: "Large", value: "lg" },
+            { label: "Extra Large", value: "full" }
+          ]
+        })
+      ),
+      defaultValue: { mobile: "lg", tablet: "", desktop: "" },
     },
     aspectRatio: {
-      type: "select",
+      type: "custom",
       label: "Image Aspect Ratio",
-      options: [
-        { label: "Square (1:1)", value: "square" },
-        { label: "Video (16:9)", value: "video" },
-        { label: "Portrait (3:4)", value: "portrait" },
-        { label: "Wide (16:9)", value: "wide" }
-      ]
+      render: (props) => (
+        require("./ClassField").default({
+          ...props,
+          type: "select",
+          label: "Image Aspect Ratio",
+          options: [
+            { label: "Square (1:1)", value: "square" },
+            { label: "Video (16:9)", value: "video" },
+            { label: "Portrait (3:4)", value: "portrait" },
+            { label: "Wide (16:9)", value: "wide" }
+          ]
+        })
+      ),
+      defaultValue: { mobile: "square", tablet: "", desktop: "" },
     },
     className: {
       type: "text",
@@ -364,7 +403,15 @@ export const config = {
     backgroundColor: {
       type: "custom",
       label: "Background Color",
-      render: ColorPicker,
+      render: (props) => (
+        require("./ClassField").default({
+          ...props,
+          type: "color",
+          render: ColorPicker,
+          label: "Background Color"
+        })
+      ),
+      defaultValue: { mobile: "#FFFFFF", tablet: "", desktop: "" },
     },
     borderColor: {
       type: "custom",

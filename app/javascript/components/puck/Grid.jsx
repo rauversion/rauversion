@@ -1,22 +1,27 @@
-import React from 'react';
+import React from "react";
 import { DropZone } from "@measured/puck";
+import ClassField, { mergeVariantClasses } from "./ClassField";
 
-const Grid = ({ columns = [], gap = 'gap-4', classes = '', gridColumns }) => {
+const Grid = ({
+  gap = {},
+  gridColumns = {},
+  columns = [],
+  className = "",
+}) => {
   return (
-    <div className={`grid ${gap} ${gridColumns} ${classes}`}>
-      {columns.map((column, index) => (
-        <div
-          key={index}
-          className={`${column.colSpan}`}
-          style={{
-            minHeight: '100px'
-          }}
-        >
-          <DropZone
-            zone={`grid-${index}`}
-            className="h-full"
-          />
-        </div>
+    <div
+      className={`grid ${mergeVariantClasses(gap, v => v)} ${mergeVariantClasses(gridColumns, v => v)} ${className}`}
+      style={{
+        minHeight: "50px",
+      }}
+    >
+      {columns.map((item, idx) => (
+        <DropZone
+          key={item.id || idx}
+          zone={`grid-item-${idx}`}
+          className={`w-full h-full ${item.colSpan || ""}`}
+          {...item}
+        />
       ))}
     </div>
   );
@@ -24,6 +29,49 @@ const Grid = ({ columns = [], gap = 'gap-4', classes = '', gridColumns }) => {
 
 export const config = {
   fields: {
+    gap: {
+      type: "custom",
+      label: "Gap",
+      render: (props) =>
+        ClassField({
+          ...props,
+          type: "select",
+          label: "Gap",
+          options: [
+            { label: "None", value: "gap-0" },
+            { label: "Small", value: "gap-2" },
+            { label: "Medium", value: "gap-4" },
+            { label: "Large", value: "gap-6" },
+            { label: "Extra Large", value: "gap-8" },
+          ],
+        }),
+      defaultValue: { mobile: "gap-4", tablet: "", desktop: "" },
+    },
+    gridColumns: {
+      type: "custom",
+      label: "Grid Columns",
+      render: (props) =>
+        ClassField({
+          ...props,
+          type: "select",
+          label: "Grid Columns",
+          options: [
+            { label: "1", value: "grid-cols-1" },
+            { label: "2", value: "grid-cols-2" },
+            { label: "3", value: "grid-cols-3" },
+            { label: "4", value: "grid-cols-4" },
+            { label: "5", value: "grid-cols-5" },
+            { label: "6", value: "grid-cols-6" },
+            { label: "7", value: "grid-cols-7" },
+            { label: "8", value: "grid-cols-8" },
+            { label: "9", value: "grid-cols-9" },
+            { label: "10", value: "grid-cols-10" },
+            { label: "11", value: "grid-cols-11" },
+            { label: "12", value: "grid-cols-12" },
+          ],
+        }),
+      defaultValue: { mobile: "grid-cols-1", tablet: "", desktop: "" },
+    },
     columns: {
       type: "array",
       label: "Grid Items",
@@ -48,50 +96,17 @@ export const config = {
         },
       },
     },
-    gap: {
-      type: "select",
-      label: "Grid Gap",
-      options: [
-        { label: "None", value: "gap-0" },
-        { label: "Small", value: "gap-2" },
-        { label: "Medium", value: "gap-4" },
-        { label: "Large", value: "gap-6" },
-        { label: "Extra Large", value: "gap-8" },
-      ],
-    },
-    gridColumns: {
-      type: "select",
-      label: "Grid Columns",
-      options: [
-        { label: "1", value: "md:grid-cols-1" },
-        { label: "2", value: "md:grid-cols-2" },
-        { label: "3", value: "md:grid-cols-3" },
-        { label: "4", value: "md:grid-cols-4" },
-        { label: "5", value: "md:grid-cols-5" },
-        { label: "6", value: "md:grid-cols-6" },
-        { label: "7", value: "md:grid-cols-7" },
-        { label: "8", value: "md:grid-cols-8" },
-        { label: "9", value: "md:grid-cols-9" },
-        { label: "10", value: "md:grid-cols-10" },
-        { label: "11", value: "md:grid-cols-11" },
-        { label: "12", value: "md:grid-cols-12" },
-      ],
-    },
-    classes: {
+    className: {
       type: "text",
       label: "Additional Classes",
-    }
+    },
   },
   defaultProps: {
-    columns: [
-      { colSpan: "md:col-span-4" },
-      { colSpan: "md:col-span-4" },
-      { colSpan: "md:col-span-4" },
-    ],
-    gridColumns: "md:grid-cols-3",
-    gap: "gap-4",
-    classes: "",
-  }
+    gap: { mobile: "gap-4", tablet: "", desktop: "" },
+    gridColumns: { mobile: "grid-cols-1", tablet: "", desktop: "" },
+    columns: [],
+    className: "",
+  },
 };
 
 export default Grid;
