@@ -321,7 +321,7 @@ export default function PlaylistShow() {
         >
           {playlist.tracks.map((track, index) => (
             <PlaylistListItem
-              key={track.id}
+              key={`${track.id}-${index}`}
               track={track}
               index={index}
               currentTrackId={currentTrackId}

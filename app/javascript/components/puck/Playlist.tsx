@@ -190,6 +190,7 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
                         audioElement.pause();
                         useAudioStore.setState({ currentTrackId: track.id + "", isPlaying: false });
                       } else {
+                        setTracksToStore(0)
                         useAudioStore.setState({ currentTrackId: track.id + "", isPlaying: true });
                       }
 

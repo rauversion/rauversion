@@ -4,6 +4,8 @@ import { motion } from 'framer-motion'
 import { cn } from "@/lib/utils"
 
 export function formatDuration(seconds) {
+  if (!seconds) return ""
+  if (seconds == "xx;xx") return ""
   const minutes = Math.floor(seconds / 60)
   const remainingSeconds = seconds % 60
   return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
@@ -13,7 +15,7 @@ export default function PlaylistListItem({ track, index, currentTrackId, isPlayi
   const isCurrentTrack = currentTrackId === track.id
 
   return (
-    <motion.div 
+    <motion.div
       key={track.id}
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
@@ -35,8 +37,8 @@ export default function PlaylistListItem({ track, index, currentTrackId, isPlayi
         )}>
           {index + 1}
         </span>
-        
-        <motion.button 
+
+        <motion.button
           onClick={onPlay}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.95 }}
@@ -69,13 +71,13 @@ export default function PlaylistListItem({ track, index, currentTrackId, isPlayi
         </motion.button>
 
         <div className="flex-1 min-w-0">
-          <motion.p 
+          <motion.p
             className={cn(
               "font-medium truncate",
               isCurrentTrack ? "text-brand-500" : "text-default group-hover:text-white"
             )}
-            animate={{ 
-              color: isCurrentTrack ? "rgb(var(--brand-500))" : undefined 
+            animate={{
+              color: isCurrentTrack ? "rgb(var(--brand-500))" : undefined
             }}
             transition={{ duration: 0.3 }}
           >
@@ -89,10 +91,10 @@ export default function PlaylistListItem({ track, index, currentTrackId, isPlayi
 
       <div className="flex items-center gap-4 pl-4">
         {track.duration && (
-          <motion.span 
+          <motion.span
             className="text-zinc-400 group-hover:text-zinc-300 tabular-nums font-medium"
-            animate={{ 
-              color: isCurrentTrack ? "rgb(var(--brand-500))" : undefined 
+            animate={{
+              color: isCurrentTrack ? "rgb(var(--brand-500))" : undefined
             }}
             transition={{ duration: 0.3 }}
           >
