@@ -76,9 +76,9 @@ const ProductCard = ({
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const u = document.querySelector('meta[name="current-user-id"]')?.content;
-        setUserId(u);
-        if (!u || !productId) {
+        // const u = document.querySelector('meta[name="current-user-id"]')?.content;
+        // setUserId(u);
+        if (!productId) {
           setLoading(false);
           return;
         }
