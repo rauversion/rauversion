@@ -1,8 +1,5 @@
-"use client"
-
 import React, { type ChangeEvent, useState } from "react"
 import { useForm } from "react-hook-form"
-import { post } from "@rails/request.js"
 import { useToast } from "@/hooks/use-toast"
 import { Slider } from "@/components/ui/slider"
 import { Input } from "@/components/ui/input"
@@ -12,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch"
 import { X } from "lucide-react"
 import { AudioPlayer } from "./audio-player"
+import AudioTrimSlider from "./AudioTrimRangeSelector"
 import type { DiscProperties } from "./turn-audio-app"
 
 interface PropertiesPanelProps {
@@ -25,6 +23,7 @@ export function PropertiesPanel({ properties, updateProperty, isPlaying, setIsPl
   const [discImageName, setDiscImageName] = useState<string>("")
   const [backgroundImageName, setBackgroundImageName] = useState<string>("")
   const [discImageFile, setDiscImageFile] = useState<File | null>(null)
+  const [audioDuration, setAudioDuration] = useState<number | null>(null)
   const { toast } = useToast()
   const { register, handleSubmit, setValue, getValues } = useForm()
 
@@ -40,6 +39,7 @@ export function PropertiesPanel({ properties, updateProperty, isPlaying, setIsPl
     }
     // Audio file
     if (properties.audioFile) {
+      
       formData.append("audio_file", properties.audioFile)
     }
     // Video options
@@ -63,8 +63,28 @@ export function PropertiesPanel({ properties, updateProperty, isPlaying, setIsPl
         },
       })
       if (response.ok) {
-        const data = await response.json()
-        toast({ title: "Video generated!", description: <a href={data.url} target="_blank" rel="noopener noreferrer">Download Video</a> })
+        // Reset form state
+        setDiscImageName("")
+        setDiscImageFile(null)
+        setBackgroundImageName("")
+        updateProperty("discImage", null)
+        updateProperty("backgroundImage", null)
+        updateProperty("audioFile", null)
+        setIsPlaying(false)
+        setAudioDuration(null)
+        // Optionally reset other properties as needed
+
+        // Show cool toast
+        toast({
+          title: "Video is being processed!",
+          description: (
+            <div>
+              Your video is being generated and will be sent to your email when ready.<br />
+              <span role="img" aria-label="party" style={{ fontSize: 24 }}>🎉</span>
+            </div>
+          ),
+          variant: "default"
+        })
       } else {
         toast({ title: "Error", description: "Failed to generate video", variant: "destructive" })
       }
@@ -108,6 +128,17 @@ export function PropertiesPanel({ properties, updateProperty, isPlaying, setIsPl
       updateProperty("audioFile", file)
       // Reset play state when new audio is loaded
       setIsPlaying(false)
+
+      // Detect audio duration and set trim fields
+      const audio = document.createElement("audio")
+      audio.src = URL.createObjectURL(file)
+      audio.addEventListener("loadedmetadata", () => {
+        const duration = audio.duration
+        setAudioDuration(duration)
+        updateProperty("audioTrim", { start: 0, end: duration })
+        // Optionally revoke the object URL to free memory
+        URL.revokeObjectURL(audio.src)
+      })
     }
   }
 
@@ -164,7 +195,7 @@ export function PropertiesPanel({ properties, updateProperty, isPlaying, setIsPl
             <p className="text-xs text-muted-foreground">This image will turn in your video.</p>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 hidden">
             <Label htmlFor="disc-design">Disc design</Label>
             <Select
               value={properties.discShape}
@@ -184,7 +215,7 @@ export function PropertiesPanel({ properties, updateProperty, isPlaying, setIsPl
             </p>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 hidden">
             <Label htmlFor="disc-shape">Disc shape</Label>
             <Select value="circle" disabled>
               <SelectTrigger>
@@ -292,7 +323,7 @@ export function PropertiesPanel({ properties, updateProperty, isPlaying, setIsPl
             <p className="text-xs text-muted-foreground">This control may replace the background with an image.</p>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-2 hidden">
             <div className="flex items-center justify-between">
               <Label htmlFor="watermark">Watermark</Label>
               <Switch
@@ -334,6 +365,26 @@ export function PropertiesPanel({ properties, updateProperty, isPlaying, setIsPl
             </div>
             <p className="text-xs text-muted-foreground">Select your audio file and then trim it.</p>
           </div>
+
+          {/* Audio trim range selector */}
+          {properties.audioFile && properties.audioTrim && typeof properties.audioTrim.end === "number" && typeof audioDuration === "number" && (
+            <div>
+              <AudioTrimSlider
+                isPlaying={isPlaying}
+                setIsPlaying={setIsPlaying}
+                totalDuration={audioDuration}
+                initialStart={properties.audioTrim.start}
+                initialEnd={properties.audioTrim.end}
+                onValueChange={(start: number, end: number) => {
+                  // Clamp values to [0, audioDuration]
+                  const safeStart = Math.max(0, Math.min(start, audioDuration - 0.01))
+                  const safeEnd = Math.min(audioDuration, Math.max(end, safeStart + 0.01))
+                  updateProperty("audioTrim", { ...properties.audioTrim, start: safeStart, end: safeEnd })
+                }}
+              />
+            </div>
+          )}
+          
 
           <AudioPlayer
             properties={properties}

@@ -99,9 +99,7 @@ export function AudioPlayer({ properties, updateProperty, isPlaying, setIsPlayin
   }
 
   return (
-    <div className="space-y-2">
-      <Label>Audio trim</Label>
-
+    <div className="hidden space-y-2">
       {/* Hidden audio element */}
       <audio
         ref={audioRef}
@@ -113,7 +111,7 @@ export function AudioPlayer({ properties, updateProperty, isPlaying, setIsPlayin
         onEnded={handlePause}
       />
 
-      <div className="flex items-center gap-2">
+      <div className="items-center gap-2">
         <Input
           type="number"
           min={0}

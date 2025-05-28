@@ -30,24 +30,23 @@ class TurnController < ApplicationController
     disc_size = params[:disc_size]
     output_file = Rails.root.join("public", "output.mp4").to_s
 
-    # Call VideoGenerator
-    generator = VideoGenerator.new(
-      cover_image: cover_image_path,
-      audio_file: audio_file_path,
-      audio_start: audio_start,
-      audio_end: audio_end,
-      color: bg_color,
-      disc_size: disc_size,
-      # format: format,
-      duration: duration,
-      loop_speed: loop_speed,
-      # mask_image: mask_image_path,
-      output_file: output_file
+    # Enqueue background job for video generation
+    GenerateVideoJob.perform_later(
+      user_id: current_user.id,
+      cover_image_path: cover_image_path,
+      audio_file_path: audio_file_path,
+      options: {
+        audio_start: audio_start,
+        audio_end: audio_end,
+        bg_color: bg_color,
+        disc_size: disc_size,
+        duration: duration,
+        loop_speed: loop_speed
+      }
     )
-    generator.generate!
 
-    # Respond with the URL to the generated video
-    render json: { success: true, url: "/generated_video.#{format}" }
+    # Respond immediately
+    render json: { success: true, message: "Video generation started. You will receive an email with the download link when it's ready." }
   rescue => e
     render json: { success: false, error: e.message }, status: 422
   end
