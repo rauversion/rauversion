@@ -1,5 +1,5 @@
 class EmbedsController < ApplicationController
-  layout "embed"
+  # layout ""
 
   before_action :remove_frame_options_header
 

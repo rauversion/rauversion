@@ -10,7 +10,9 @@ export default function TrackItem({
   currentTrackId,
   isPlaying,
   onPlay,
-  elementRef
+  elementRef,
+  embed,
+  host
 }) {
   const isCurrentTrack = currentTrackId === track.id
   const isCurrentlyPlaying = isCurrentTrack && isPlaying
@@ -56,21 +58,23 @@ export default function TrackItem({
                 </button>
 
                 <Link
-                  to={`/tracks/${track.slug}`}
+                  to={`${host || ""}/tracks/${track.slug}`}
+                  target={embed ? "_blank" : "_self"}
                   className="text-lg max-w-[130px] md:max-w-none font-semibold text-default hover:text-brand-500 truncate block"
                 >
                   {track.title}
                 </Link>
               </div>
               <Link
-                to={`/${track.user.username}`}
+                to={`${host || ""}/${track.user.username}`}
+                target={embed ? "_blank" : "_self"}
                 className="text-sm text-gray-400 hover:text-default"
               >
                 {track.user.full_name}
               </Link>
             </div>
 
-            <TrackItemMenu track={track} />
+            {!embed && <TrackItemMenu track={track} />}
           </div>
 
           <div className="mt-4 hidden- sm:block">
@@ -88,7 +92,8 @@ export default function TrackItem({
               {track.tag_list.map((tag, index) => (
                 <Link
                   key={index}
-                  to={`/tracks/tags/${tag}`}
+                  to={`${host || ""}/tracks/tags/${tag}`}
+                  target={embed ? "_blank" : "_self"}
                   className="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
                 >
                   {tag}
@@ -97,7 +102,15 @@ export default function TrackItem({
             </div>
           )}
 
-          <MusicPurchase resource={track} type="Track" variant="mini" />
+          {!embed && <MusicPurchase resource={track} type="Track" variant="mini" />}
+          {embed && <p className="text-sm text-gray-500 mt-2">
+            Powered by <a
+              href={`${host}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-brand-500 hover:underline"
+            >Rauversion.com</a>
+          </p>}
         </div>
       </div>
     </div>

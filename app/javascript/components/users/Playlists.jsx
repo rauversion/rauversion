@@ -8,7 +8,7 @@ import PlaylistListItem from "./PlaylistItem";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 
-function PlaylistCard({
+export function PlaylistCard({
   playlist,
   index,
   isLast,
@@ -17,6 +17,8 @@ function PlaylistCard({
   isPlaying,
   handlePlayTrack,
   handlePlayPlaylist,
+  embed,
+  host
 }) {
   const cardRef = isLast ? lastElementRef : null;
 
@@ -56,12 +58,15 @@ function PlaylistCard({
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
           >
-            {isPlaying &&
-              playlist.tracks?.some((track) => track.id === currentTrackId) ? (
-              <Pause className="w-16 h-16 text-white" />
-            ) : (
-              <Play className="w-16 h-16 text-white" />
-            )}
+            {
+              isPlaying &&
+                playlist.tracks?.some((track) => `${track.id}` === `${currentTrackId}`) ?
+                (
+                  <Pause className="w-16 h-16 text-white" />
+                ) : (
+                  <Play className="w-16 h-16 text-white" />
+                )
+            }
           </motion.button>
         </motion.div>
 
@@ -71,8 +76,12 @@ function PlaylistCard({
               <div className="space-y-1">
                 <h3 className="text-xl font-bold tracking-tight text-default line-clamp-1">
                   <Link
-                    to={`/playlists/${playlist.slug}`}
+                    to={`${host || ""}/playlists/${playlist.slug}`}
                     className="hover:text-brand-500 transition-colors"
+                    target={embed ? "_blank" : "_self"}
+                    rel={embed ? "noopener noreferrer" : undefined}
+                    title={playlist.title}
+                    aria-label={`View playlist ${playlist.title}`}
                   >
                     {playlist.title}
                   </Link>
@@ -151,11 +160,21 @@ function PlaylistCard({
                 />
               ))}
               <div className="mt-4 flex justify-end">
-                <MusicPurchase
+                {!embed && <MusicPurchase
                   resource={playlist}
                   type="Playlist"
                   variant="mini"
-                />
+                />}
+                {embed &&
+                  <p className="text-sm text-gray-500 mt-2">
+                    Powered by <a
+                      href={`${host}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-brand-500 hover:underline"
+                    >Rauversion.com</a>
+                  </p>
+                }
               </div>
             </div>
           </div>
@@ -178,7 +197,7 @@ export default function UserPlaylists({ namespace = "playlists" }) {
 
 
   const handlePlayTrack = (track, playlist) => {
-    if (currentTrackId === track.id) {
+    if (currentTrackId === `${track.id}`) {
       if (isPlaying) {
         pause();
       } else {
@@ -195,11 +214,15 @@ export default function UserPlaylists({ namespace = "playlists" }) {
   };
 
   const handlePlayPlaylist = (playlist) => {
-    if (playlist.tracks && playlist.tracks.length > 0) {
-      setPlaylist(playlist.tracks);
-      const tracks = playlist?.tracks.map(t => t.id + "") || [];
-      useAudioStore.setState({ playlist: tracks });
-      play(playlist.tracks[0].id);
+    if (isPlaying) {
+      pause();
+    } else {
+      if (playlist.tracks && playlist.tracks.length > 0) {
+        setPlaylist(playlist.tracks);
+        const tracks = playlist?.tracks.map(t => t.id + "") || [];
+        useAudioStore.setState({ playlist: tracks });
+        play(playlist.tracks[0].id);
+      }
     }
   };
 
