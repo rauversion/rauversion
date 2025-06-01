@@ -37,9 +37,9 @@ export default function ShareForm({ item }) {
 
   const getEmbedCode = () => {
     return `<iframe width="100%" height="120" 
-      src="${window.location.origin}/embed/${item.type}/${item.slug}" 
+      src="${window.location.origin}/${item.type}s/${item.slug}/embed" 
       frameBorder="0" 
-      allowfullscreen></iframe>`    
+      allowfullscreen></iframe>`
   }
 
   return (
@@ -151,7 +151,7 @@ export default function ShareForm({ item }) {
                 )}
               </Button>
             </div>
-            
+
             <div className="rounded-lg border bg-muted p-4">
               <div className="text-sm text-muted-foreground">
                 {I18n.t('shared.forms.share.embed.preview')}
