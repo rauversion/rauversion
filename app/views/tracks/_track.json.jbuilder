@@ -13,7 +13,8 @@ if track.mp3_audio.attached?
 end
 
 json.metadata track.metadata
-json.likes_count track.likes_count
+json.likes_count track.likes.count
+json.like_id track.respond_to?(:like_id) && track&.like_id.present?
 json.reposts_count track.reposts_count
 json.state track.state
 json.genre track.genre

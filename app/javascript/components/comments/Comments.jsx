@@ -62,12 +62,13 @@ export function Comments({ resourceType, resourceId }) {
           description: "Comment posted successfully",
         })
       } else {
-        throw new Error("Failed to post comment")
+        const data = await response.json
+        throw new Error(`Failed to post comment: ${data.error || "Unknown error"}`)
       }
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to post comment",
+        description: error.message || "Failed to post comment",
         variant: "destructive",
       })
     }

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import TrackPlayer from './TrackPlayer'
-import { get } from '@rails/request.js'
+import { get, post } from '@rails/request.js'
 import { Comments } from "@/components/comments/Comments"
 import { ShareDialog } from "@/components/ui/share-dialog"
 import TrackEdit from './TrackEdit'
@@ -9,6 +9,7 @@ import TrackSkeleton from './TrackSkeleton'
 import { Settings, Share2, Heart, Repeat, Play, Pause, ShoppingCart } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import useAuthStore from '@/stores/authStore'
+import { useToast } from "@/hooks/use-toast"
 import { useAudioPlaying, } from '@/hooks/useAudioPlaying'
 import useAudioStore from '@/stores/audioStore'
 import MusicPurchase from '@/components/shared/MusicPurchase'
@@ -17,10 +18,12 @@ export default function TrackShow() {
   const { slug } = useParams()
   const [track, setTrack] = useState(null)
   const [loading, setLoading] = useState(true)
-  // const [currentTrackId, setCurrentTrackId] = useState(null)
   const [editOpen, setEditOpen] = useState(false)
-  const { currentUser } = useAuthStore()
+  const { isAuthenticated, currentUser } = useAuthStore()
   const isPlaying = useAudioPlaying()
+  const [likes, setLikes] = useState(0)
+  const [isLiked, setIsLiked] = useState(false)
+  const { toast } = useToast()
 
   const { currentTrackId } = useAudioStore()
 
@@ -30,6 +33,8 @@ export default function TrackShow() {
       if (response.ok) {
         const data = await response.json
         setTrack(data.track)
+        setLikes(data.track.likes_count || 0)
+        setIsLiked(data.track.like_id != null)
       }
     } catch (error) {
       console.error('Error fetching track:', error)
@@ -51,6 +56,46 @@ export default function TrackShow() {
     } else {
       // setTracksToStore(0);
       useAudioStore.setState({ currentTrackId: track.id + "", isPlaying: true });
+    }
+  }
+
+  const handleLike = async () => {
+    if (!currentUser) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to like tracks",
+        variant: "destructive"
+      })
+      return
+    }
+
+    try {
+      const response = await post(`/tracks/${track.slug}/likes`, {
+        responseKind: "json"
+      })
+
+      if (response.ok) {
+        const { liked, resource } = await response.json
+        setLikes(resource.likes_count)
+        setIsLiked(liked)
+        toast({
+          title: "Success",
+          description: !liked ? "Unliked track!" : "Track liked!"
+        })
+      } else {
+        const error = await response.json
+        toast({
+          title: "Error",
+          description: error.message || "Error liking track",
+          variant: "destructive"
+        })
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Error liking track",
+        variant: "destructive"
+      })
     }
   }
 
@@ -149,8 +194,14 @@ export default function TrackShow() {
           </ShareDialog>
 
           {/* Like Button */}
-          <Button variant="ghost" size="icon">
-            <Heart className="h-4 w-4" />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleLike}
+            className={`flex items-center gap-1 ${isLiked ? 'text-brand-500' : 'text-gray-400'}`}
+          >
+            <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
+            <span className="text-sm">{likes}</span>
             <span className="sr-only">Like</span>
           </Button>
 

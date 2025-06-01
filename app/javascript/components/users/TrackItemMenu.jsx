@@ -17,13 +17,13 @@ import { ShareDialog } from "@/components/ui/share-dialog"
 export default function TrackItemMenu({ track }) {
   const { isAuthenticated, currentUser } = useAuthStore()
   const [likes, setLikes] = useState(track.likes_count || 0)
-  const [isLiked, setIsLiked] = useState(track.like_id != null)
+  const [isLiked, setIsLiked] = useState(!!track.like_id)
   const { toast } = useToast()
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [addToPlaylistOpen, setAddToPlaylistOpen] = useState(false)
 
   const handleLike = async () => {
-    if (!isAuthenticated) {
+    if (!currentUser) {
       toast({
         title: "Authentication required",
         description: "Please sign in to like tracks",
@@ -36,7 +36,7 @@ export default function TrackItemMenu({ track }) {
       const response = await post(`/tracks/${track.slug}/likes`, {
         responseKind: "json"
       })
-      
+
       if (response.ok) {
         const { liked, resource } = await response.json
         setLikes(resource.likes_count)
@@ -86,7 +86,7 @@ export default function TrackItemMenu({ track }) {
         const response = await destroy(`/tracks/${track.id}`, {
           responseKind: "json"
         })
-        
+
         if (response.ok) {
           toast({
             title: "Success",
@@ -116,17 +116,16 @@ export default function TrackItemMenu({ track }) {
   return (
     <>
       <div className="flex items-center sm:gap-3 gap-1">
-        <button 
+        <button
           onClick={handleLike}
-          className={`p-2 hover:text-white flex items-center gap-1 ${
-            isLiked || track.liked_by_current_user ? 'text-brand-500' : 'text-gray-400'
-          }`}
+          className={`p-2 hover:text-white flex items-center gap-1 ${isLiked || track.liked_by_current_user ? 'text-brand-500' : 'text-gray-400'
+            }`}
         >
           <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
           <span className="text-sm">{likes}</span>
         </button>
 
-        <ShareDialog 
+        <ShareDialog
           url={`${window.location.origin}/${track.user.username}/tracks/${track.slug}`}
           title={track.title}
           description={`Listen to ${track.title} by ${track.user.username} on Rauversion`}
@@ -163,7 +162,7 @@ export default function TrackItemMenu({ track }) {
                     <Pencil className="w-4 h-4" />
                     Edit
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleDelete} 
+                  <DropdownMenuItem onClick={handleDelete}
                     className="flex items-center gap-2 text-destructive">
                     <Trash2 className="w-4 h-4" />
                     Delete

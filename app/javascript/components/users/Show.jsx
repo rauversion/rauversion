@@ -123,7 +123,7 @@ export default function UserShow() {
   ) {
     return (
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-        <InterestAlert type="artist" onSubmit={() => {}} />
+        <InterestAlert type="artist" onSubmit={() => { }} />
       </div>
     );
   }
@@ -187,7 +187,7 @@ export default function UserShow() {
                       {user.stats.followers_count}
                     </span>
                     <span className="text-gray-400 ml-1">
-                      {I18n.t("profile.followers").toLowerCase()}
+                      {I18n.t("profile.followings").toLowerCase()}
                     </span>
                   </div>
                   <div>
@@ -195,7 +195,7 @@ export default function UserShow() {
                       {user.stats.following_count}
                     </span>
                     <span className="text-gray-400 ml-1">
-                      {I18n.t("profile.followings").toLowerCase()}
+                      {I18n.t("profile.followers").toLowerCase()}
                     </span>
                   </div>
                 </div>
@@ -222,11 +222,10 @@ export default function UserShow() {
                         console.error("Error following user:", error);
                       }
                     }}
-                    className={`px-4 py-2 rounded-full font-medium transition-colors ${
-                      user.is_following
-                        ? "bg-default/10 text-default hover:bg-default/20"
-                        : "bg-default text-default hover:bg-default/90"
-                    }`}
+                    className={`px-4 py-2 rounded-full font-medium transition-colors ${user.is_following
+                      ? "bg-default/10 text-default hover:bg-default/20"
+                      : "bg-default text-default hover:bg-default/90"
+                      }`}
                   >
                     {user.is_following
                       ? I18n.t("profile.following")

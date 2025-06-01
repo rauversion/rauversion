@@ -9,7 +9,6 @@ class TurnController < ApplicationController
 
   # POST /turn/generate_video
   def generate_video
-    raise "can't operate this in production yet" if Rails.env.production?
     # Handle file uploads
     cover_image_file = params[:cover_image]
     audio_file = params[:audio_file]

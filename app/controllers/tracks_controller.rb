@@ -126,7 +126,15 @@ class TracksController < ApplicationController
   end
 
   def show
-    @track = Track.friendly.find(params[:id])
+    track = Track.friendly.find(params[:id])
+    @user = track.user
+    
+    
+    @track = User.track_preloaded_by_user(
+      current_user_id: current_user&.id, 
+      user: @user
+    ).friendly.find(params[:id])
+
     get_meta_tags
 
     respond_to do |format|

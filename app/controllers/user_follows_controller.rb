@@ -26,7 +26,7 @@ class UserFollowsController < ApplicationController
       format.json do
         render json: {
           is_following: @is_following,
-          followers_count: @user.followers(User).count
+          following_count: @user.followers(User).count
         }
       end
     end

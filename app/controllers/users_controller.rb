@@ -35,7 +35,12 @@ class UsersController < ApplicationController
 
   def tracks
     @title = "Tracks"
-    query = @user.tracks.with_attached_cover.includes(user: {avatar_attachment: :blob})
+    query = User.track_preloaded_by_user(
+      current_user_id: current_user&.id, 
+      user: @user
+    )
+    
+    # @user.tracks.with_attached_cover.includes(user: {avatar_attachment: :blob})
     query = query.published if current_user.blank? || current_user != @user
     @q = query.ransack(params[:q])
     

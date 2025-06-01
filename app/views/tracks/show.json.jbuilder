@@ -16,6 +16,8 @@ json.track do
   json.created_at @track.created_at
   json.updated_at @track.updated_at
   json.processed  @track.processed?
+  json.likes_count @track.likes.count
+  json.like_id @track.respond_to?(:like_id) && @track&.like_id.present?
 
   json.buy_link @track.buy_link
   json.price @track.price
