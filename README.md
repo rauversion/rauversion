@@ -95,6 +95,20 @@ Now you can visit [`localhost:3000`](http://localhost:3000) from your browser.
 + audiowaveform
 + vips
 
+
+## Docker for development
+
+- docker-compose up
+- docker compose up --build  # will rebuild    
+
+### bash console
+- docker compose run --rm rails bash
+
+
+## remove containers
+docker compose down -v  # elimina contenedores y volúmenes
+
+
 ## Credits
 
 ### Flag rendering API:
@@ -121,6 +135,7 @@ Photo by <a href="https://unsplash.com/@saiharishk?utm_source=unsplash&utm_mediu
 Foto de <a href="https://unsplash.com/@denitdao?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Denys Churchyn</a> en <a href="https://unsplash.com/es/s/fotos/black-background-gradient?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>
   
   
+
   
 
 
