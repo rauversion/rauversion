@@ -57,8 +57,8 @@ export default function UserArtists() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: index * 0.1 }}
           >
-            <UserCard 
-              artist={artist} 
+            <UserCard
+              artist={artist}
               username={username}
               variant={"rounded"}
               actions={isAdmin ? [
@@ -69,7 +69,7 @@ export default function UserArtists() {
                 {
                   label: I18n.t('artists.disconnect'),
                   onClick: () => {
-                    if(window.confirm(I18n.t('artists.disconnect_confirm'))) {
+                    if (window.confirm(I18n.t('artists.disconnect_confirm'))) {
                       fetch(`/account_connections/${artist.id}`, {
                         method: 'DELETE',
                         headers: {

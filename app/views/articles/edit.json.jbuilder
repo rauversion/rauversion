@@ -5,6 +5,7 @@ json.article do
       json.extract! @article.category, :id, :name
     end
   end
+  json.signed_id @article.signed_id
   json.cover_url @article.cover_url(:medium) if @article.cover.attached?
 end
 

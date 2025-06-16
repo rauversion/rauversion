@@ -8,45 +8,41 @@ import { Link } from 'react-router-dom'
 export default function UserCard({ artist, username, variant = 'default' }) {
   if (variant === 'rounded') {
     return (
-      <Link to={`/${artist.username}`}>
-        <Card className="group relative overflow-hidden border-0 bg-transparent hover:bg-black/5 transition-colors p-4">
-          <div className="flex flex-col items-center space-y-4">
-            <div className="relative w-40 h-40 rounded-full overflow-hidden">
-              {artist.avatar_url ? (
-                <img
-                  src={artist.avatar_url.medium}
-                  alt=""
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <div className="h-full w-full bg-gradient-to-br from-gray-800 to-gray-900" />
-              )}
-            </div>
+      <Card className="group relative overflow-hidden border-0 bg-transparent hover:bg-black/5 transition-colors p-4">
+        <div className="flex flex-col items-center space-y-4">
+          <Link to={`/${artist.username}`} className="relative w-40 h-40 rounded-full overflow-hidden block">
+            {artist.avatar_url ? (
+              <img
+                src={artist.avatar_url.medium}
+                alt=""
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <div className="h-full w-full bg-gradient-to-br from-gray-800 to-gray-900" />
+            )}
+          </Link>
 
-            <div className="text-center">
-              <h3 className="font-bold text-base text-foreground">
-                {artist.full_name}
-              </h3>
-              {/*<p className="text-sm text-muted-foreground">
-                {I18n.t('users.artist_page.artist')}
-              </p>*/}
+          <div className="text-center">
+            <h3 className="font-bold text-base text-foreground">
+              {artist.full_name}
+            </h3>
+            {/*<p className="text-sm text-muted-foreground">
+              {I18n.t('users.artist_page.artist')}
+            </p>*/}
 
-
-              {username && useAuthStore.getState().currentUser?.username === username && (
-                <a
-                  href={`/account_connections/impersonate?username=${artist.username}`}
-                  className="text-link"
-                  target="_blank"
-                >
-                  {I18n.t('users.artist_page.impersonate')}
-                </a>
-              )}
-
-
-            </div>
+            {username && useAuthStore.getState().currentUser?.username === username && (
+              <a
+                href={`/account_connections/impersonate?username=${artist.username}`}
+                className="text-link"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {I18n.t('users.artist_page.impersonate')}
+              </a>
+            )}
           </div>
-        </Card>
-      </Link>
+        </div>
+      </Card>
     );
   }
 
@@ -107,6 +103,7 @@ export default function UserCard({ artist, username, variant = 'default' }) {
             {username && useAuthStore.getState().currentUser?.username === username && (
               <a
                 href={`/account_connections/impersonate?username=${artist.username}`}
+                target="_blank"
                 className="block w-full bg-primary text-white py-4 text-center text-lg font-bold uppercase hover:bg-primary/90 transition-colors"
               >
                 {I18n.t('users.artist_page.impersonate')}

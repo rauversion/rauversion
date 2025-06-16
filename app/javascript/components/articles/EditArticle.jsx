@@ -65,9 +65,7 @@ const formSchema = z.object({
   }),
   excerpt: z.string().optional(),
   // body: z.any(),
-  category_id: z.string().refine((val) => val === "null" || /^\d+$/.test(val), {
-    message: "Please select a valid category",
-  }),
+  category_id: z.string().regex(/^\d+$/, { message: "Please select a category" }),
   private: z.boolean().default(false),
   state: z.enum(["draft", "published"]),
   tags: z.string().optional(),
@@ -450,6 +448,7 @@ export default function EditArticle() {
   }, [id])
 
   const onSubmit = async (data) => {
+    debugger
     try {
       const response = await put(`/articles/${id}`, {
         body: JSON.stringify({
@@ -533,8 +532,13 @@ export default function EditArticle() {
             </SheetHeader>
 
             <div className="flex-1 overflow-y-auto px-6">
-              <Form {...form}>
+              <Form {...form} key={article.id}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 py-6">
+                  {form.formState.errors.root?.message && (
+                    <div className="mb-4 p-3 rounded bg-red-900/60 text-red-200 border border-red-700 text-sm">
+                      {form.formState.errors.root.message}
+                    </div>
+                  )}
                   <ImageUploader
                     onUploadComplete={handleImageUpload}
                     aspectRatio={16 / 9}
@@ -548,12 +552,11 @@ export default function EditArticle() {
                     name="title"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-zinc-300">Title</FormLabel>
+                        <FormLabel>Title</FormLabel>
                         <FormControl>
                           <Input
                             placeholder="Article title"
                             {...field}
-                            className="bg-zinc-800 border-zinc-700"
                           />
                         </FormControl>
                         <FormMessage />
@@ -566,12 +569,11 @@ export default function EditArticle() {
                     name="excerpt"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-zinc-300">Excerpt</FormLabel>
+                        <FormLabel>Excerpt</FormLabel>
                         <FormControl>
                           <Textarea
                             placeholder="Brief description of your article"
                             {...field}
-                            className="bg-zinc-800 border-zinc-700"
                           />
                         </FormControl>
                         <FormMessage />
@@ -585,14 +587,14 @@ export default function EditArticle() {
                     render={({ field }) => (
                       <FormItem className="flex flex-row items-center justify-between rounded-lg border border-zinc-700 p-4">
                         <div className="space-y-0.5">
-                          <FormLabel className="text-zinc-300">
+                          <FormLabel>
                             Private
                           </FormLabel>
                         </div>
                         <FormControl>
                           <Switch
-                            checked={field.value}
-                            onCheckedChange={field.onChange}
+                            checked={!!field.value}
+                            onCheckedChange={val => field.onChange(!!val)}
                           />
                         </FormControl>
                       </FormItem>
@@ -601,7 +603,7 @@ export default function EditArticle() {
 
                   <div className="space-y-8">
                     <div className="space-y-2">
-                      <h4 className="text-sm font-medium text-zinc-300">
+                      <h4 className="text-sm font-medium">
                         Publicado en la plataforma
                       </h4>
                       <FormField
@@ -613,7 +615,7 @@ export default function EditArticle() {
                             defaultValue={field.value}
                           >
                             <FormControl>
-                              <SelectTrigger className="w-full bg-zinc-800 border-zinc-700">
+                              <SelectTrigger className="w-full">
                                 <SelectValue placeholder="Seleccionar estado" />
                               </SelectTrigger>
                             </FormControl>
@@ -627,7 +629,7 @@ export default function EditArticle() {
                           </Select>
                         )}
                       />
-                      <p className="text-sm text-zinc-500">
+                      <p className="text-sm text-muted">
                         El artículo será publicado en la lista de artículos.
                       </p>
                     </div>
@@ -638,7 +640,7 @@ export default function EditArticle() {
                         name="visibility"
                         render={({ field }) => (
                           <FormItem className="space-y-1">
-                            <FormLabel className="text-sm font-medium text-zinc-300">
+                            <FormLabel className="text-sm font-medium">
                               Acceso al artículo
                             </FormLabel>
                             <FormControl>
@@ -651,10 +653,10 @@ export default function EditArticle() {
                                   <FormControl>
                                     <RadioGroupItem value="public" />
                                   </FormControl>
-                                  <FormLabel className="font-normal text-zinc-300">
+                                  <FormLabel className="font-normal">
                                     Acceso público
                                   </FormLabel>
-                                  <span className="text-sm text-zinc-500">
+                                  <span className="text-sm text-muted">
                                     Todo el mundo con el enlace verá este artículo.
                                   </span>
                                 </FormItem>
@@ -662,10 +664,10 @@ export default function EditArticle() {
                                   <FormControl>
                                     <RadioGroupItem value="private" />
                                   </FormControl>
-                                  <FormLabel className="font-normal text-zinc-300">
+                                  <FormLabel className="font-normal">
                                     Miembros privados al artículo
                                   </FormLabel>
-                                  <span className="text-sm text-zinc-500">
+                                  <span className="text-sm text-muted">
                                     Sólo los miembros de este artículo podrían acceder.
                                   </span>
                                 </FormItem>
@@ -677,7 +679,7 @@ export default function EditArticle() {
                     </div>
 
                     <div className="space-y-2">
-                      <h4 className="text-sm font-medium text-zinc-300">
+                      <h4 className="text-sm font-medium">
                         Category
                       </h4>
                       <FormField
@@ -689,7 +691,10 @@ export default function EditArticle() {
                             defaultValue={field.value}
                           >
                             <FormControl>
-                              <SelectTrigger className="w-full bg-zinc-800 border-zinc-700">
+                              <SelectTrigger
+                                className="w-full"
+                                onBlur={field.onBlur}
+                              >
                                 <SelectValue placeholder="Seleccionar categoría" />
                               </SelectTrigger>
                             </FormControl>
@@ -708,7 +713,7 @@ export default function EditArticle() {
 
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-medium text-zinc-300">
+                        <h4 className="text-sm font-medium">
                           Compartir
                         </h4>
                         <Button
@@ -716,48 +721,48 @@ export default function EditArticle() {
                           size="sm"
                           className="text-zinc-500 hover:text-zinc-400"
                           onClick={() => {
-                            navigator.clipboard.writeText(window.location.href)
+                            const previewUrl = `${window.location.origin}/articles/${article.signed_id}/preview`
+                            navigator.clipboard.writeText(previewUrl)
                             toast({
                               title: "Enlace copiado",
-                              description: "El enlace ha sido copiado al portapapeles.",
+                              description: "El enlace de previsualización ha sido copiado al portapapeles.",
                             })
                           }}
                         >
                           Copiar enlace
                         </Button>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-zinc-500 hover:text-zinc-400 w-full justify-start"
-                        onClick={() => {
-                          // Open sharing info modal or tooltip
-                        }}
-                      >
-                        Más información sobre compartir
-                      </Button>
                     </div>
+                  </div>
+                  {Object.values(form.formState.errors)
+                    .filter(e => e?.message && e !== form.formState.errors.root)
+                    .length > 0 && (
+                      <div className="mb-4 p-3 rounded bg-red-900/60 text-red-200 border border-red-700 text-sm">
+                        <ul className="list-disc pl-5">
+                          {Object.values(form.formState.errors)
+                            .filter(e => e?.message && e !== form.formState.errors.root)
+                            .map((e, i) => (
+                              <li key={i}>{e.message}</li>
+                            ))}
+                        </ul>
+                      </div>
+                    )}
+                  <div className="border-t border-zinc-800 mt-auto pt-6 flex justify-end gap-4">
+                    <SheetClose asChild>
+                      <Button variant="secondary" type="button">
+                        Cancelar
+                      </Button>
+                    </SheetClose>
+                    <Button
+                      type="submit"
+                      className="bg-pink-600 hover:bg-pink-500"
+                      disabled={form.formState.isSubmitting}
+                    >
+                      {form.formState.isSubmitting ? "Guardando..." : "Guardar"}
+                    </Button>
                   </div>
                 </form>
               </Form>
-            </div>
-
-            <div className="border-t border-zinc-800 mt-auto p-6">
-              <div className="flex justify-end gap-4">
-                <SheetClose asChild>
-                  <Button variant="outline" className="bg-zinc-800 border-zinc-700 hover:bg-zinc-700">
-                    Cancelar
-                  </Button>
-                </SheetClose>
-                <Button
-                  type="submit"
-                  className="bg-pink-600 hover:bg-pink-500"
-                  onClick={form.handleSubmit(onSubmit)}
-                  disabled={!form.formState.isDirty || form.formState.isSubmitting}
-                >
-                  {form.formState.isSubmitting ? "Guardando..." : "Guardar"}
-                </Button>
-              </div>
             </div>
           </SheetContent>
         </Sheet>

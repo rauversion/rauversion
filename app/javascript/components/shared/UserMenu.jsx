@@ -365,6 +365,8 @@ export default function UserMenu() {
               <a
                 href="/account_connections/impersonate"
                 className="text-default"
+                target="_blank"
+                rel="noopener noreferrer"
               >
                 {I18n.t("menu.back_to_label", { username: labelUser.username })}
               </a>
