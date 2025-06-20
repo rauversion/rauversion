@@ -17,6 +17,7 @@ import { useThemeStore } from "@/stores/theme";
 import { ImageUploader } from "@/components/ui/image-uploader";
 import { Share2, X } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import selectTheme from "@/components/ui/selectTheme";
@@ -366,7 +367,7 @@ export default function NewTrack() {
                     <div className="relative w-32 h-32">
                       {track.cover_url ? (
                         <img
-                          src={track.cover_url}
+                          src={track.cover_url.medium}
                           alt={track.title}
                           className="w-full h-full object-cover rounded-md"
                         />
