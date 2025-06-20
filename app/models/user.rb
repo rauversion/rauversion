@@ -12,6 +12,8 @@ class User < ApplicationRecord
   has_many :participants
   has_many :conversations, through: :participants
   has_many :tracks
+  has_many :track_artists, dependent: :destroy
+  has_many :featured_tracks, through: :track_artists, source: :track
   has_many :playlists
   has_many :releases
   has_many :reposts

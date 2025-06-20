@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_05_11_024032) do
+ActiveRecord::Schema[8.0].define(version: 2025_06_20_200952) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -802,6 +802,16 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_11_024032) do
     t.index ["event_id"], name: "index_tickets_on_event_id"
   end
 
+  create_table "track_artists", force: :cascade do |t|
+    t.bigint "track_id", null: false
+    t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["track_id", "user_id"], name: "index_track_artists_on_track_id_and_user_id", unique: true
+    t.index ["track_id"], name: "index_track_artists_on_track_id"
+    t.index ["user_id"], name: "index_track_artists_on_user_id"
+  end
+
   create_table "track_comments", force: :cascade do |t|
     t.bigint "track_id", null: false
     t.string "body"
@@ -993,6 +1003,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_05_11_024032) do
   add_foreign_key "service_bookings", "users", column: "provider_id"
   add_foreign_key "spotlights", "users"
   add_foreign_key "tickets", "events"
+  add_foreign_key "track_artists", "tracks"
+  add_foreign_key "track_artists", "users"
   add_foreign_key "track_comments", "tracks"
   add_foreign_key "track_comments", "users"
   add_foreign_key "track_peaks", "tracks"

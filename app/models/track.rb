@@ -6,6 +6,9 @@ class Track < ApplicationRecord
   friendly_id :title, use: :slugged
 
   belongs_to :user
+  has_many :track_artists, dependent: :destroy
+  has_many :artists, through: :track_artists, source: :user
+
   has_many :track_comments
   has_many :track_playlists
   has_many :playlists, through: :track_playlists

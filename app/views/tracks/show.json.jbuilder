@@ -80,4 +80,9 @@ json.track do
       json.partial! 'users/user', user: playlist.user, show_full_name: true
     end
   end
+
+
+  json.artists @track.artists do |artist|
+    json.partial! 'users/user', user: artist
+  end
 end

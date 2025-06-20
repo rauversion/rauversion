@@ -41,6 +41,7 @@ import MetadataForm from "@/components/shared/forms/MetadataForm"
 import PermissionsForm from "@/components/shared/forms/PermissionsForm"
 import ShareForm from "@/components/shared/forms/ShareForm"
 import PricingForm from "@/components/shared/forms/PricingForm"
+import ArtistSelector from "@/components/shared/forms/ArtistSelector"
 import I18n from 'stores/locales'
 
 export default function TrackEdit({ track: initialTrack, open, onOpenChange, onOk }) {
@@ -83,6 +84,7 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
       name_your_price: track.name_your_price || false,
       tags: track.tags || [],
       cover: track.cover || "",
+      artist_ids: track.artists || [],
     }
   })
 
@@ -137,6 +139,10 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
       const payload = { ...data }
       if (!payload.cover) {
         delete payload.cover
+      }
+      // Convert artist_ids from array of objects to array of IDs
+      if (payload.artist_ids && Array.isArray(payload.artist_ids)) {
+        payload.artist_ids = payload.artist_ids.map(a => a.id)
       }
 
       const response = await put(`/tracks/${track.slug}`, {
@@ -271,6 +277,8 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
                           )}
                         />
                       </div>
+
+                      <ArtistSelector control={control} setValue={setValue} watch={watch} name="artist_ids" />
 
                       <div>
                         <Label htmlFor="tags">{I18n.t('tracks.edit.form.tags')}</Label>

@@ -104,6 +104,9 @@ class TracksController < ApplicationController
     @track = current_user.tracks.friendly.find(params[:id])
     @tab = params[:track][:tab] || "basic-info-tab"
     @track.assign_attributes(track_params)
+    if params[:track][:artist_ids]
+      @track.artist_ids = params[:track][:artist_ids].reject(&:blank?)
+    end
 
     if params[:nonpersist]
       @track.valid?
@@ -195,7 +198,8 @@ class TracksController < ApplicationController
       :podcast,
       :copyright, :attribution, :noncommercial, :copies,
       crop_data: [:x, :y, :width, :height],
-      tags: []
+      tags: [],
+      artist_ids: []
     )
   end
 

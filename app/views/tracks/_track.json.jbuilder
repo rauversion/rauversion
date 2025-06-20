@@ -47,3 +47,7 @@ end
 json.user do
   json.partial! 'users/user', user: track.user
 end
+
+json.artists track.artists do |artist|
+  json.partial! 'users/user', user: artist
+end
