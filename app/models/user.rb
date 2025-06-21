@@ -160,8 +160,10 @@ class User < ApplicationRecord
 
     if !user.label
       result = Track.includes(:audio_blob, :cover_blob, user: :avatar_attachment)
+        .left_outer_joins(:track_artists)
         .joins(reposts_join, likes_join)
-        .where(tracks[:user_id].eq(user.id))
+        .where("tracks.user_id = :id OR track_artists.user_id = :id", id: user.id)
+        .distinct
         .select("tracks.*, r.id as repost_id, l.id as like_id")
         .references(:r, :l)
       return result

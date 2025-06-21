@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Play, Pause, MoreHorizontal } from 'lucide-react';
+import { Link } from "react-router-dom";
 import useAudioStore from '../../stores/audioStore';
 import ColorPicker from './ColorPicker';
 import PlaylistSelector from './PlaylistSelectorSingle';
@@ -210,7 +211,23 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
                     }`}>
                       {track.title}
                     </p>
-                    <p className="text-default text-sm">{track.user.full_name}</p>
+                    <p className="text-default text-sm space-x-2">
+                    
+                      <Link to={`/${track.user.username}`} className="hover:underline">
+                        {track.user.full_name}
+                      </Link>
+
+                      {track.artists && track.artists.length > 0 && (
+                        <>
+                          {track.artists.map((artist) =>
+                            <Link to={`/${artist.username}`} className="hover:underline">
+                              {artist.full_name || artist.username}
+                            </Link>
+                          )}
+                        </>
+                      )}
+
+                    </p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">

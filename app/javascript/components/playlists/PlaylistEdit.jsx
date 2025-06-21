@@ -210,7 +210,7 @@ export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenCh
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex-1 overflow-hidden flex flex-col">
           <Tabs defaultValue="basic" className="flex-1 overflow-hidden flex flex-col">
-            <div className="px-6 border-b">
+            <div className="px-6 border-b pb-2">
               <TabsList>
                 <TabsTrigger value="basic">{I18n.t('playlists.edit.tabs.basic_info')}</TabsTrigger>
                 <TabsTrigger value="tracks">{I18n.t('playlists.edit.tabs.tracks')}</TabsTrigger>

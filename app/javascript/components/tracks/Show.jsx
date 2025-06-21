@@ -129,12 +129,12 @@ export default function TrackShow() {
                   />
                 </div>
                 <div>
-                  <Link
+                  {/*<Link
                     to={`/${track.user.username}`}
                     className="text-sm font-medium text-muted-foreground hover:text-primary"
                   >
                     {track.user.username}
-                  </Link>
+                  </Link>*/}
                   <h1 className="text-xl font-bold text-foreground">
                     {track.title}
                   </h1>
@@ -172,6 +172,54 @@ export default function TrackShow() {
                   )}
                 </button>
               </div>
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <div className="flex items-center space-x-4">
+
+
+              {/* Artists Section */}
+              <div className="mt-8">
+                <h2 className="text-lg font-bold text-foreground mb-4">
+                  {I18n.t('profile.artists')}
+                </h2>
+                <ul className="flex flex-col gap-4">
+
+                  <li key={track.user.id} className="flex items-center gap-4">
+                    <Link
+                      className="flex items-center gap-4"
+                      to={`/${track.user.username}`}>
+                      <img
+                        src={track.user.avatar_url?.medium || track.user.avatar_url?.default}
+                        alt={track.user.name}
+                        className="h-12 w-12 rounded-full object-cover shadow"
+                      />
+                      <div>
+                        <div className="text-base font-medium text-foreground">{track.user.full_name || artist.username}</div>
+                      </div>
+                    </Link>
+                  </li>
+
+                  {track.artists && track.artists.length > 0 && track.artists.map((artist) => (
+                    <li key={artist.id}>
+                      <Link
+                        className="flex items-center gap-4"
+                        to={`/${artist.username}`}>
+                        <img
+                          src={artist.avatar_url?.medium || artist.avatar_url?.default}
+                          alt={artist.name}
+                          className="h-12 w-12 rounded-full object-cover shadow"
+                        />
+                        <div>
+                          <div className="text-base font-medium text-foreground">{artist.full_name || artist.username}</div>
+                        </div>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
             </div>
           </div>
         </div>

@@ -2,6 +2,7 @@ import React from 'react'
 import { Play, Pause } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { cn } from "@/lib/utils"
+import { Link } from "react-router"
 
 export function formatDuration(seconds) {
   if (!seconds) return ""
@@ -83,8 +84,19 @@ export default function PlaylistListItem({ track, index, currentTrackId, isPlayi
           >
             {track.title}
           </motion.p>
-          <p className="text-zinc-400 text-sm truncate group-hover:text-zinc-300">
-            {track.user.full_name}
+          <p className="text-zinc-400 text-sm truncate-- group-hover:text-zinc-300 space-x-2">
+            <Link to={`/${track.user.username}`} className="hover:underline">
+              {track.user.full_name}
+            </Link>
+            {track.artists && track.artists.length > 0 && (
+              <>
+                {track.artists.map((artist) =>
+                  <Link to={`/${artist.username}`} className="hover:underline">
+                    {artist.full_name || artist.username}
+                  </Link>
+                )}
+              </>
+            )}
           </p>
         </div>
       </div>

@@ -65,13 +65,28 @@ export default function TrackItem({
                   {track.title}
                 </Link>
               </div>
-              <Link
-                to={`${host || ""}/${track.user.username}`}
-                target={embed ? "_blank" : "_self"}
-                className="text-sm text-gray-400 hover:text-default"
-              >
-                {track.user.full_name}
-              </Link>
+
+              <div class="space-x-2">
+                <Link
+                  to={`${host || ""}/${track.user.username}`}
+                  target={embed ? "_blank" : "_self"}
+                  className="text-sm text-gray-400 hover:text-default"
+                >
+                  {track.user.full_name}
+                </Link>
+
+                {track.artists && track.artists.length > 0 && (
+                  <>
+                    {track.artists.map((artist) =>
+                      <Link to={`/${artist.username}`}
+                        className="text-sm text-gray-400 hover:text-default">
+                        {artist.full_name || artist.username}
+                      </Link>
+                    )}
+                  </>
+                )}
+              </div>
+
             </div>
 
             {!embed && <TrackItemMenu track={track} />}
