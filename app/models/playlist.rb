@@ -108,6 +108,10 @@ class Playlist < ApplicationRecord
     name_your_price.present?
   end
 
+  def self.ransackable_associations(auth_object = nil)
+    ["comments", "cover_attachment", "cover_blob", "label", "likes", "listening_events", "products", "releases", "track_playlists", "tracks", "user"]
+  end
+
   # Example method to call cropped_image with specific attributes
   def cropped_image(fallback: :large)
     cropped_image_setup(attached_attribute: :cover, crop_data_attribute: :crop_data, fallback: fallback)

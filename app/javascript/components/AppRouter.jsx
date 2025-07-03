@@ -55,6 +55,7 @@ import { useToast } from '@/hooks/use-toast'
 import MySales from "./sales/MySales"
 import MyPurchases from "./purchases/MyPurchases"
 import MySettings from "./users/MySettings"
+import SearchView from "./search/SearchView"
 
 import ProfileForm from "./users/settings/ProfileForm"
 import EmailSettings from "./users/settings/EmailSettings"
@@ -293,6 +294,7 @@ function AppContent() {
           <Route path="/conversations/new" element={<RequireAuth><NewConversation /></RequireAuth>} />
           <Route path="/conversations/:conversationId" element={<RequireAuth><ConversationsIndex /></RequireAuth>} />
 
+          <Route path="/search" element={<SearchView />} />
           <Route path="/service_bookings" element={<RequireAuth><ServiceBookings /></RequireAuth>} />
           <Route path="/service_bookings/:id" element={<RequireAuth><ServiceBookingDetail /></RequireAuth>} />
           <Route path="/account_connections/new" element={<RequireAuth><AccountConnectionForm /></RequireAuth>} />

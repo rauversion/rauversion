@@ -154,6 +154,7 @@ group :development, :test do
 end
 
 gem 'ransack'
+gem "pg_search"
 gem "paranoia"
 
 gem "rails_autolink", "~> 1.1"
