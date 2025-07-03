@@ -1,82 +1,75 @@
-#ARG RUBY_VERSION
 FROM ruby:3.3.5
 
 ARG APP_ENV=development
-
 ARG PG_MAJOR
 ARG NODE_MAJOR=21
-ARG BUNDLER_VERSION=2.2.15
+ARG BUNDLER_VERSION=2.3.26
 ARG YARN_VERSION=1.22.19
 
-# Copy Installers
+# Copy custom installer scripts
 RUN mkdir -p /docker-files
 COPY .docker-files/ /docker-files
 RUN chmod +x /docker-files/*.sh
-# Set environment variables
-# Install Dependencies
+
+# Install dependencies
 RUN /docker-files/deps.sh
-
-# Install PostgreSQL
 RUN /docker-files/pg.sh
-
-# Install NodeJS, Yarn
 RUN /docker-files/node.sh
 
+# System-level env
+ENV LANG=C.UTF-8 \
+  BUNDLE_JOBS=4 \
+  BUNDLE_RETRY=3 \
+  BUNDLE_PATH=/usr/local/bundle
 
-# Configure bundler
-ENV LANG=C.UTF-8 BUNDLE_JOBS=4 BUNDLE_RETRY=3
-
-# Uncomment this line if you want to run binstubs without prefixing with `bin/` or `bundle exec`
-# ENV PATH=/app/bin:$BUNDLE_BIN:$PATH
-
-# Upgrade RubyGems and install required Bundler version
-RUN gem update --system && \
-  gem install bundler:$BUNDLER_VERSION
-
-# Change permissions for GEM_HOME
-RUN chmod -R 777 $GEM_HOME
-
-# Add docker user
+# Add unprivileged user BEFORE chown
 RUN adduser --disabled-password --gecos "" docker && adduser docker staff
 
-# Create and change app directory permissions
-RUN mkdir /usr/src/app
-RUN chown -R docker:docker /usr/src/app
+# Create bundler path and assign to user
+RUN mkdir -p /usr/local/bundle && chown -R docker:docker /usr/local/bundle
 
+# Create app directory
+RUN mkdir -p /usr/src/app && chown -R docker:docker /usr/src/app
 
-# Bundler install gems
-WORKDIR /tmp
-COPY Gemfile Gemfile.lock /tmp/
+# Switch to unprivileged user
+USER docker
+WORKDIR /usr/src/app
 
-COPY ./backstage /tmp/backstage
-# RUN bundle config set force_ruby_platform true
-RUN bundle install -j ${BUNDLE_JOBS} --retry ${BUNDLE_RETRY}
+# Install bundler as docker user
+RUN gem update --system && \
+  gem install bundler:$BUNDLER_VERSION && \
+  bundle config set path '/usr/local/bundle'
 
+# Copy Gemfiles and install gems
+COPY --chown=docker:docker Gemfile Gemfile.lock ./
+COPY --chown=docker:docker ./backstage ./backstage
+RUN bundle install
+
+# JS deps
+COPY --chown=docker:docker package.json yarn.lock ./
+RUN yarn install
+
+RUN mkdir -p tmp/cache/assets log && \
+  chown -R docker:docker tmp log
+# Rest of app
+COPY --chown=docker:docker . .
+RUN chown -R docker:docker tmp log
+
+# Install ffmpeg & waveform as root
+USER root
 COPY --from=mwader/static-ffmpeg:4.1.4-2 /ffmpeg /ffprobe /usr/local/bin/
-
-
 RUN apt-get update && \
   wget https://github.com/bbc/audiowaveform/releases/download/1.8.1/audiowaveform_1.8.1-1-12_amd64.deb && \
   dpkg -i audiowaveform_1.8.1-1-12_amd64.deb || true && \
   apt-get -f install -y
 
-
-# Clean up APT when done
+# Cleanup
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
   truncate -s 0 /var/log/*log
 
-# Ensure setuid and setgid permissions are removed
+# Remove suid/sgid for security
 RUN find / -perm /6000 -type f -exec chmod a-s {} \; || true
 
-# Change user and set workdir
+# Back to docker user
 USER docker
 WORKDIR /usr/src/app
-
-# Copy app source into container
-COPY --chown=docker:docker . /usr/src/app/
-
-RUN yarn --version
-
-RUN yarn install
-
-WORKDIR /app
