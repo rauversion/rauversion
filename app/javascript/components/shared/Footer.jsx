@@ -8,7 +8,7 @@ const Footer = () => {
         <div className="xl:grid xl:grid-cols-3 xl:gap-8">
           <div className="space-y-8">
             <img src="/logo.png" alt="logo" className="h-7" />
-            <p className="text-sm leading-6 text-gray-300">Rauversion: Self hosted music industries.</p>
+            <p className="text-sm leading-6 text-gray-300">Rauversion: Self hosted music multiverses.</p>
             <div className="flex space-x-6">
               <a href="https://instagram.com/rauversion" className="text-gray-500 hover:text-gray-400">
                 <span className="sr-only">Instagram</span>

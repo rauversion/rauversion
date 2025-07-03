@@ -44,6 +44,8 @@ export function CartIndicator() {
 
   if (loading || !cart) return null
 
+  if (cart.total_items === 0) return null
+
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>

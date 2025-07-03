@@ -43,6 +43,7 @@ import {
   Moon,
   Bell,
   Store,
+  Search,
   CreditCard,
   Languages,
   CalendarClock,
@@ -527,6 +528,13 @@ export default function UserMenu() {
             {/* Mobile Menu Button and User Menu */}
             <div className="lg:hidden mt-3 flex items-center space-x-2">
               <div className="flex items-center gap-2">
+                <Link
+                  to="/search"
+                  className="rounded-full p-2 hover:bg-muted transition-colors"
+                  aria-label="Search"
+                >
+                  <Search className="h-5 w-5" />
+                </Link>
                 {isMobile && <CartIndicator isPrimary={false} />}
                 {currentUser && (
                   <DropdownMenu>
@@ -699,7 +707,18 @@ export default function UserMenu() {
             </div>
 
             <div className="hidden lg:flex items-center justify-end space-x-4">
+
+
               <div className="flex items-center gap-2">
+
+                <Link
+                  to="/search"
+                  className="rounded-full p-2 hover:bg-muted transition-colors"
+                  aria-label="Search"
+                >
+                  <Search className="h-5 w-5" />
+                </Link>
+
                 {!isMobile && <CartIndicator isPrimary={true} />}
               </div>
 
