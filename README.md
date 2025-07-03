@@ -96,23 +96,65 @@ Now you can visit [`localhost:3000`](http://localhost:3000) from your browser.
 + vips
 
 
+## Local development
+
+First you will need to copy the `.env.example` and rename it to .env you can set & tweak as many vars you want. when you are ready you will need to setup database:
+
+First install dependences:
+
+```bash
+bundle install
+yarn install
+```
+
+Prepare Database:
+
+```bash
+bundle exec rails db:prepare
+```
+
+### Start the server
+
+There are some ways to start the server, the most straigforward is
+
+`./bin/dev` 
+
+That will start all the process using what is declared in `Procfile.dev` including the server, the background workers and the assets precompilation with watchers. This is good for frontend development as change in the assets will trigger a rebuild.
+
+#### Start only the server:
+
+`rails s`
+
+This will only run server only. No assets precompilation.
+
+
 ## Docker for development
 
-The development image expects that you have a running instance of postgres
+### requirements
 
+The development image expects that youhave a local postgres installation running on localhost with the defaults. you can set some envs to set non default pg:
+
+```bash
+POSTGRES_USERNAME
+POSTGRES_PASSWORD
+POSTGRES_HOST
+```
+
+
+### Start app
 - docker-compose up
-- docker compose up --build  # will rebuild    
+- docker compose up --build  # will rebuild  
+- docker-compose build --no-cache # refreshed build  
 
-## Run Rails app only
+### Run Rails app only
 
 docker compose run --rm rails bin/rails s
 
-### bash console
+### Bash console
 - docker compose run --rm rails bash
 
-
-## remove containers
-docker compose down -v  # elimina contenedores y volúmenes
+## Remove containers
+docker compose down -v  # remove containers and volumes
 
 
 ## Credits
@@ -121,40 +163,4 @@ docker compose down -v  # elimina contenedores y volúmenes
 
 + https://flagpedia.net/download/api
 
-### image credits
 
-
-Photo by <a href="https://unsplash.com/@schluditsch?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Daniel Schludi</a> on <a href="https://unsplash.com/?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>
-
-Photo by <a href="https://unsplash.com/@helloimnik?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Hello I'm Nik</a> on <a href="https://unsplash.com/s/photos/music-studio?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>
-
-Photo by <a href="https://unsplash.com/@etiennegirardet?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Etienne Girardet</a> on <a href="https://unsplash.com/s/photos/music-studio?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>
-
-Photo by <a href="https://unsplash.com/@schluditsch?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Daniel Schludi</a> on <a href="https://unsplash.com/s/photos/music-studio?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>
-  
-Photo by <a href="https://unsplash.com/@dancristianpaduret?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Dan-Cristian Pădureț</a> on <a href="https://unsplash.com/s/photos/music-studio?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>
-  
-Photo by <a href="https://unsplash.com/@grittzheng?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Gritt Zheng</a> on <a href="https://unsplash.com/s/photos/music-studio?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>
-
-Photo by <a href="https://unsplash.com/@saiharishk?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Sai Harish</a> on <a href="https://unsplash.com/?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>
-
-Foto de <a href="https://unsplash.com/@denitdao?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Denys Churchyn</a> en <a href="https://unsplash.com/es/s/fotos/black-background-gradient?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText">Unsplash</a>
-  
-  
-
-  
-
-
-# test
-test mailers
-
-http://localhost:3000/rails/mailers/purchases/event_ticket_confirmation
-
-
-mercado pago test cards:
-https://www.mercadopago.cl/developers/panel/app/8566160701393530/test-cards
-mercadopago categories
-https://api.mercadopago.com/item_categories
-
-
-card 5416 7526 0258 2580 11/30 123 APRO (otro)123456789
