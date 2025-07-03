@@ -3,9 +3,14 @@ import { useForm } from "react-hook-form";
 import { post } from "@rails/request.js";
 import { useToast } from "@/hooks/use-toast";
 import { Card, CardContent } from "@/components/ui/card";
+import UserCard from "../users/UserCard";
+import { MinimalTrackCell } from "../tracks/TrackCell";
+import PlaylistCard from '../playlists/PlaylistCard'
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+
 
 export default function SearchView() {
   const { register, handleSubmit, formState } = useForm();
@@ -41,7 +46,7 @@ export default function SearchView() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto py-8 px-4">
+    <div className="container mx-auto py-8 px-4">
       <form onSubmit={handleSubmit(onSubmit)} className="flex gap-2 mb-8">
         <Input
           {...register("q", { required: true })}
@@ -60,50 +65,37 @@ export default function SearchView() {
           transition={{ duration: 0.3 }}
         >
           {/* Top Result */}
-          <div className="mb-8">
-            <h2 className="text-xl font-bold mb-2">Top result</h2>
-            {/* Show first user, playlist, or track as top result */}
-            {results.users && results.users.length > 0 ? (
-              <Card className="mb-2">
-                <CardContent>
-                  <div className="font-semibold">{results.users[0].username}</div>
-                  <div className="text-sm text-muted-foreground">{results.users[0].bio}</div>
-                </CardContent>
-              </Card>
-            ) : results.playlists && results.playlists.length > 0 ? (
-              <Card className="mb-2">
-                <CardContent>
-                  <div className="font-semibold">{results.playlists[0].title}</div>
-                  <div className="text-sm text-muted-foreground">{results.playlists[0].description}</div>
-                </CardContent>
-              </Card>
-            ) : results.tracks && results.tracks.length > 0 ? (
-              <Card className="mb-2">
-                <CardContent>
-                  <div className="font-semibold">{results.tracks[0].title}</div>
-                  <div className="text-sm text-muted-foreground">{results.tracks[0].description}</div>
-                </CardContent>
-              </Card>
-            ) : (
-              <div className="text-muted-foreground">No results found.</div>
-            )}
-          </div>
+
+          {/*
+            Show first user, playlist, or track as top result
+            <div className="mb-8">
+              <h2 className="text-xl font-bold mb-2">Top result</h2>
+            
+              {results.users && results.users.length > 0 ? (
+                <UserCard user={results.users[0]} />
+              ) : results.playlists && results.playlists.length > 0 ? (
+                <PlaylistCard
+                  playlist={results.playlists[0]}
+                />
+              ) : results.tracks && results.tracks.length > 0 ? (
+                <MinimalTrackCell track={results.tracks[0]} />
+              ) : (
+                <div className="text-muted-foreground">No results found.</div>
+              )}
+            </div>
+          */}
+
 
           {/* Songs */}
           <div className="mb-8">
             <h2 className="text-lg font-semibold mb-2">Songs</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            <div className="grid grid-cols-1 md:grid-cols-5 gap-2">
               {results.tracks && results.tracks.length > 0 ? (
                 results.tracks.map((track) => (
-                  <Card key={track.id}>
-                    <CardContent>
-                      <div className="font-semibold">{track.title}</div>
-                      <div className="text-sm text-muted-foreground">{track.description}</div>
-                    </CardContent>
-                  </Card>
+                  <MinimalTrackCell key={track.id} track={track} />
                 ))
               ) : (
-                <div className="text-muted-foreground">No songs found.</div>
+                <div className="text-muted-foreground col-span-full">No songs found.</div>
               )}
             </div>
           </div>
@@ -111,18 +103,13 @@ export default function SearchView() {
           {/* Artists */}
           <div className="mb-8">
             <h2 className="text-lg font-semibold mb-2">Artists</h2>
-            <div className="flex flex-wrap gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               {results.users && results.users.length > 0 ? (
                 results.users.map((user) => (
-                  <Card key={user.id} className="w-48">
-                    <CardContent>
-                      <div className="font-semibold">{user.username}</div>
-                      <div className="text-sm text-muted-foreground">{user.bio}</div>
-                    </CardContent>
-                  </Card>
+                  <UserCard key={user.id} user={user} />
                 ))
               ) : (
-                <div className="text-muted-foreground">No artists found.</div>
+                <div className="text-muted-foreground col-span-full">No artists found.</div>
               )}
             </div>
           </div>
@@ -130,18 +117,16 @@ export default function SearchView() {
           {/* Playlists */}
           <div className="mb-8">
             <h2 className="text-lg font-semibold mb-2">Playlists</h2>
-            <div className="flex flex-wrap gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
               {results.playlists && results.playlists.length > 0 ? (
                 results.playlists.map((playlist) => (
-                  <Card key={playlist.id} className="w-48">
-                    <CardContent>
-                      <div className="font-semibold">{playlist.title}</div>
-                      <div className="text-sm text-muted-foreground">{playlist.description}</div>
-                    </CardContent>
-                  </Card>
+                  <PlaylistCard
+                    playlist={playlist}
+                    key={playlist.id}
+                  />
                 ))
               ) : (
-                <div className="text-muted-foreground">No playlists found.</div>
+                <div className="text-muted-foreground col-span-full">No playlists found.</div>
               )}
             </div>
           </div>

@@ -1,11 +1,11 @@
 json.users users do |user|
-  json.extract! user, :id, :username, :first_name, :last_name, :bio, :city, :country
+  json.partial! 'users/user', user: user, show_full_name: true
 end
 
 json.playlists playlists do |playlist|
-  json.extract! playlist, :id, :title, :description, :genre, :tags, :user_id
+  json.partial! 'playlists/playlist', playlist: playlist, show_cover: true
 end
 
 json.tracks tracks do |track|
-  json.extract! track, :id, :title, :description, :genre, :tags, :user_id
+  json.partial! 'tracks/track', track: track
 end

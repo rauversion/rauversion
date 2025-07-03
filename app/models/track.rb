@@ -398,7 +398,7 @@ class Track < ApplicationRecord
   end
 
   def self.ransackable_attributes(auth_object = nil)
-    ["title", "description", "created_at"]
+    ["title", "description", "created_at", "genre"]
   end
 
   def self.ransackable_associations(auth_object = nil)
