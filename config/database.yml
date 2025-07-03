@@ -32,12 +32,13 @@ development:
     min_messages: warning
     pool: 15
     timeout: 5000
+    host: <%= ENV.fetch('POSTGRES_HOST', "localhost") %>
     host_names:
       ### Don't include the port number here. Change the "port" site setting instead, at /admin/site_settings.
       ### If you change this setting you will need to
       ###   - restart sidekiq if you change this setting
       ###   - rebake all to posts using: `RAILS_ENV=production bundle exec rake posts:rebake`
-      - "localhost"
+      - <%= ENV.fetch('POSTGRES_HOST', "localhost") %>
   queue:
     <<: *primary_development
     database: <%= ENV.fetch('POSTGRES_DATABASE_QUEUE', 'rauversion_ror_development_queue') %>
@@ -64,7 +65,7 @@ test:
     ### If you change this setting you will need to
     ###   - restart sidekiq if you change this setting
     ###   - rebake all to posts using: `RAILS_ENV=production bundle exec rake posts:rebake`
-    - "localhost"
+    - <%= ENV.fetch('POSTGRES_HOST', "localhost") %>
 
   # The specified database role being used to connect to postgres.
   # To create additional roles in postgres see `$ createuser --help`.
@@ -78,7 +79,7 @@ test:
   # Connect on a TCP socket. Omitted by default since the client uses a
   # domain socket that doesn't need configuration. Windows does not have
   # domain sockets, so uncomment these lines.
-  #host: localhost
+  host: <%= ENV.fetch('POSTGRES_HOST', "localhost") %>
 
   # The TCP port the server listens on. Defaults to 5432.
   # If your server runs on a different port number, change accordingly.

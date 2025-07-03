@@ -98,8 +98,14 @@ Now you can visit [`localhost:3000`](http://localhost:3000) from your browser.
 
 ## Docker for development
 
+The development image expects that you have a running instance of postgres
+
 - docker-compose up
 - docker compose up --build  # will rebuild    
+
+## Run Rails app only
+
+docker compose run --rm rails bin/rails s
 
 ### bash console
 - docker compose run --rm rails bash
