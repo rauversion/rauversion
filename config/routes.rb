@@ -38,6 +38,7 @@ Rails.application.routes.draw do
 
 
   get "/page-builder", to: "application#render_blank"
+  get "/search", to: "application#render_blank"
 
 
   # Stripe Connect routes
@@ -141,6 +142,7 @@ Rails.application.routes.draw do
 
   get "/searchables", to: "users#index", as: :searchable_users
   # resource :oembed, controller: 'oembed', only: :show
+  post "/search", to: "search#create"
   get "/oembed/", to: "oembed#show", as: :oembed
   get "/become/:id", to: "application#become"
   get "/artists", to: "users#index"
