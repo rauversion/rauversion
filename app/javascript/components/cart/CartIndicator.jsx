@@ -44,16 +44,16 @@ export function CartIndicator() {
 
   if (loading || !cart) return null
 
-  if (cart.total_items === 0) return null
+  if (cart?.items?.length === 0) return null
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" size="icon" className="relative">
           <ShoppingCart className="h-5 w-5" />
-          {cart.total_items > 0 && (
+          {cart.items > 0 && (
             <span className="absolute -top-1 -right-1 h-5 w-5 rounded-full bg-primary flex items-center justify-center text-xs text-primary-foreground">
-              {cart.total_items}
+              {cart.items}
             </span>
           )}
           <span className="sr-only">{I18n.t('products.cart.sr_label')}</span>
