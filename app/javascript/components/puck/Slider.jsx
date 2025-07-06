@@ -19,7 +19,7 @@ const itemSizeVariants = {
   'half': 'basis-1/2'
 };
 
-const Slider = ({ 
+const Slider = ({
   playlistIds = [],
   autoPlay = false,
   interval = 5000,
@@ -27,6 +27,7 @@ const Slider = ({
   orientation = "horizontal",
   itemSize = "responsive",
   accentColor = "#1DB954",
+  color = "#444",
   openAsComponent = false
 }) => {
   const [playlists, setPlaylists] = useState([]);
@@ -37,7 +38,7 @@ const Slider = ({
   useEffect(() => {
     const fetchPlaylists = async () => {
       if (playlistIds.length === 0) return;
-      
+
       try {
         // const response = await fetch(`/releases/${releaseId}.json`);
         const response = await get(`/playlists/albums.json?ids=${playlistIds.join(",")}`);
@@ -85,7 +86,7 @@ const Slider = ({
 
   return (
     <div className="w-full space-y-8">
-      <Carousel 
+      <Carousel
         orientation={orientation}
         setApi={setApi}
         className="w-full"
@@ -98,7 +99,7 @@ const Slider = ({
           {playlists.map((playlist) => (
             <CarouselItem key={playlist.id} className={`pl-2 md:pl-4 ${itemSizeVariants[itemSize]}`}>
               <div className="p-1">
-                <div 
+                <div
                   className={`relative group aspect-square overflow-hidden bg-zinc-100 rounded-md cursor-pointer
                     ${selectedPlaylist === playlist.id ? `ring-2 ring-[${accentColor}]` : ''}`}
                   onClick={() => handlePlaylistClick(playlist.id)}
@@ -108,7 +109,7 @@ const Slider = ({
                     alt={playlist.title}
                     className="object-cover w-full h-full transition-all hover:scale-105"
                   />
-                  
+
                   <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 to-transparent p-4">
                     <div className="text-white">
                       <h3 className="font-semibold">{playlist.title}</h3>
@@ -126,9 +127,10 @@ const Slider = ({
 
       {selectedPlaylist && (
         <div className="mt-8">
-          <PlaylistComponent 
-            playlistId={selectedPlaylist} 
+          <PlaylistComponent
+            playlistId={selectedPlaylist}
             accentColor={accentColor}
+            color={color}
           />
         </div>
       )}
@@ -173,6 +175,11 @@ export const config = {
     },
     accentColor: {
       type: "custom",
+      label: "Accent Color",
+      render: ColorPicker,
+    },
+    color: {
+      type: "custom",
       label: "Text Color",
       render: ColorPicker,
     },
@@ -190,6 +197,7 @@ export const config = {
     orientation: "horizontal",
     itemSize: "responsive",
     accentColor: "#1DB954",
+    color: "#1DB954",
     openAsComponent: false
   }
 };
