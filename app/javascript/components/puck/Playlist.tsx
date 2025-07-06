@@ -56,9 +56,10 @@ interface Playlist {
 interface PlaylistProps {
   playlistId: string | number;
   accentColor?: string;
+  color?: string;
 }
 
-export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" }: PlaylistProps) {
+export default function PlaylistComponent({ playlistId, accentColor = "#1DB954", color = "#1DB954" }: PlaylistProps) {
   const [playlist, setPlaylist] = useState<Playlist | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -129,20 +130,38 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
   return (
     <>{
       playlist && (
-        <div className="rounded-lg p-4">
+        <div
+          className="rounded-lg p-4"
+          style={{ 
+            '--accent-color': accentColor, 
+            '--player-color': color, 
+            color: 'var(--player-color)' 
+          } as React.CSSProperties}
+        >
      
         <div className="flex items-start gap-6">
           {playlist.cover_url && (
             <img 
-              src={playlist.cover_url.medium} 
+              src={playlist?.cover_url?.medium} 
               alt={playlist.title}
               className="w-[160px] h-[160px] rounded-md shadow-lg"
             />
           )}
           
-          <div className="flex-1">
-            <h2 className="text-default font-bold text-3xl mb-2">{playlist.title}</h2>
-            <p className="text-default/80 mb-4">{playlist.user.full_name}</p>
+          <div className="flex-1 text-[color:var(--player-color)]">
+
+            <h2 className="font-bold text-3xl mb-2">
+              <Link to={`/playlists/${playlist.slug}`}>
+                {playlist.title}
+              </Link>
+            </h2>
+
+            <p className="text-[color:var(--player-color)]/80 mb-4">
+              <Link to={`/${playlist.user.username}`} className="hover:underline">
+                {playlist.user.full_name}
+              </Link>
+            </p>
+
             <div className="flex items-center gap-4">
               <a 
                 // href={playlist.tracks[0] ? `/player?id=${playlist.tracks[0].slug}&t=true` : ''}
@@ -158,7 +177,15 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
                   }
                 }}
                 //style={{ backgroundColor: accentColor }}
-                className={`bg-default cursor-pointer text-default font-semibold rounded-full p-3 hover:scale-105 transition`}
+                className={`
+                  bg-[color:var(--accent-color)]
+                  bg-default- 
+                  cursor-pointer
+                  font-semibold 
+                  rounded-full 
+                  p-3 
+                  hover:scale-105 
+                  transition`}
               >
                 {isPlaying ? <Pause size={24} /> : <Play size={24} />}
               </a>
@@ -170,16 +197,21 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
         </div>
   
         <div className="mt-8">
-          <div className="space-y-1 bg-black/30 p-4 rounded-lg">
+          <div className="space-y-1 bg-black/10 p-4 rounded-lg">
             {playlist.tracks && playlist.tracks.map((track, index) => (
               <div 
                 key={`${track.id}-${index}`}
-                className={`flex items-center justify-between p-2 rounded hover:bg-white hover:bg-opacity-10 group ${
-                  currentTrackId === track.id ? 'bg-white bg-opacity-20' : ''
+                className={`flex items-center 
+                  justify-between p-2 
+                  rounded hover:bg-white 
+                  hover:bg-opacity-10 
+                  group ${
+                    audioPlaying() && currentTrackId === track.id + "" ? 
+                    'bg-white bg-opacity-20 text-[color:var(--accent-color)]' : 'text-[color:var(--player-color)]'
                 }`}
               >
                 <div className="flex items-center gap-4">
-                  <span className={`w-6 ${currentTrackId === track.id ? `text-[${accentColor}]` : 'text-white'}`}>
+                  <span className={"w-6"}>
                     {index + 1}
                   </span>
                   
@@ -199,19 +231,19 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954" 
                     }}
                     className="cursor-pointer"
                   >
-                    {currentTrackId === track.id + "" && isPlaying ? 
+                    {currentTrackId === track.id+ ""  + "" && isPlaying ? 
                       <Pause size={20} /> : 
                       <Play size={20} />
                     }
                   </a>
   
                   <div>
-                    <p className={`font-medium ${
-                      currentTrackId === track.id ? `text-[${accentColor}]` : 'text-white'
-                    }`}>
+                    
+                    <p className={`font-medium`}>
                       {track.title}
                     </p>
-                    <p className="text-default text-sm space-x-2">
+
+                    <p className="text-sm space-x-2">
                     
                       <Link to={`/${track.user.username}`} className="hover:underline">
                         {track.user.full_name}
@@ -274,10 +306,16 @@ export const config = {
       type: "custom",
       label: "Accent Color",
       render: ColorPicker,
+    },
+    color: {
+      type: "custom",
+      label: "Text Color",
+      render: ColorPicker,
     }
   },
   defaultProps: {
     playlistId: "",
-    accentColor: "#1DB954"
+    accentColor: "#1DB954",
+    color: "#444444"
   },
 }
