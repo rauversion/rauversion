@@ -3,32 +3,35 @@ import ImageUploadField from './ImageUploadField';
 import Button from './Button';
 import SimpleEditor from '@/components/ui/SimpleEditor';
 
-const HeroSection = ({ 
-  backgroundImage, 
-  overlayColor, 
+const HeroSection = ({
+  backgroundImage,
+  overlayColor,
   height,
   title,
   description,
-  buttons = [],
-  align = 'left',
-  image = {},
-  puck = { isEditing: false }
+  buttons,
+  align,
+  image,
+  puck
 }) => {
+  // Ensure image is always an object to prevent TypeError
+  image = image || {};
   const getClassName = (element) => {
     const baseClasses = {
       content: "relative z-10 container mx-auto px-4 py-12 flex flex-col",
       subtitle: "mt-4 text-lg text-gray-600 max-w-2xl",
       actions: "mt-8 flex gap-4"
     };
-    
+
     if (align === "center") {
       baseClasses.content += " items-center text-center";
       baseClasses.subtitle += " text-center";
       baseClasses.actions += " justify-center";
     }
-    
+
     return baseClasses[element];
   };
+
 
   return (
     <div

@@ -87,11 +87,11 @@ export const config = {
       },*/
       render: Playlist
     },
-    HeroSection: {
+    /*HeroSection: {
       fields: HeroSectionConfig.fields,
       defaultProps: HeroSectionConfig.defaultProps,
       render: HeroSection,
-    },
+    },*/
     Title: {
       fields: TitleConfig.fields,
       defaultProps: TitleConfig.defaultProps,
