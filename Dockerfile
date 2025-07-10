@@ -60,6 +60,11 @@ RUN apt-get update && \
   dpkg -i audiowaveform_1.8.1-1-12_amd64.deb || true && \
   apt-get -f install -y
 
+RUN apt-get install --no-install-recommends -y libjemalloc2
+
+ENV LD_PRELOAD="libjemalloc.so.2" \
+  MALLOC_CONF="dirty_decay_ms:1000,narenas:2,background_thread:true,stats_print:false"  \
+  RUBY_YJIT_ENABLE="1"
 
 # Clean up APT when done
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \

@@ -4,6 +4,7 @@ json.title @release.title
 json.subtitle @release.subtitle
 json.editor_data @release.editor_data
 json.playlist_id @release.playlist_id
+json.published @release.published
 
 if @release.cover.attached?
   json.cover_url rails_blob_url(@release.cover.variant(resize_to_fill: [1200, 1200]))

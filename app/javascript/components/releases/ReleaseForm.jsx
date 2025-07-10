@@ -106,18 +106,46 @@ export default function ReleaseForm() {
   const onSubmit = async (data) => {
     setLoading(true)
     try {
-      const formData = {
-        ...data,
-        playlist_id: data.playlist_id || null
-      }
+      // Only send fields that are actually present in the form UI
+      const allowedFields = [
+        "title",
+        "subtitle",
+        "spotify",
+        "bandcamp",
+        "soundcloud",
+        "cover_color",
+        "record_color",
+        "sleeve_color",
+        "playlist_id",
+        "published",
+        "cover"
+      ]
+      const payload = allowedFields.reduce((acc, key) => {
+        const value = data[key]
+        if (
+          typeof value === "boolean" ||
+          typeof value === "number"
+        ) {
+          acc[key] = value
+        } else if (
+          value !== undefined &&
+          value !== null &&
+          value !== ""
+        ) {
+          acc[key] = value
+        }
+        return acc
+      }, {})
+
+      console.log("Submitting payload:", payload)
 
       const response = isEditing
         ? await put(`/releases/${id}`, {
-          body: JSON.stringify({ release: formData }),
+          body: JSON.stringify({ release: payload }),
           responseKind: "json",
         })
         : await post("/releases", {
-          body: JSON.stringify({ release: formData }),
+          body: JSON.stringify({ release: payload }),
           responseKind: "json",
         })
 
@@ -173,51 +201,58 @@ export default function ReleaseForm() {
               <Input id="subtitle" {...register("subtitle")} />
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="spotify">Spotify URL</Label>
-                <Input id="spotify" {...register("spotify")} />
-              </div>
+            {
+              /*
 
-              <div className="space-y-2">
-                <Label htmlFor="bandcamp">Bandcamp URL</Label>
-                <Input id="bandcamp" {...register("bandcamp")} />
-              </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="spotify">Spotify URL</Label>
+                    <Input id="spotify" {...register("spotify")} />
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="soundcloud">Soundcloud URL</Label>
-                <Input id="soundcloud" {...register("soundcloud")} />
-              </div>
-            </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="bandcamp">Bandcamp URL</Label>
+                    <Input id="bandcamp" {...register("bandcamp")} />
+                  </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="cover_color">Cover Color</Label>
-                <Input
-                  id="cover_color"
-                  type="color"
-                  {...register("cover_color")}
-                />
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="soundcloud">Soundcloud URL</Label>
+                    <Input id="soundcloud" {...register("soundcloud")} />
+                  </div>
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="record_color">Record Color</Label>
-                <Input
-                  id="record_color"
-                  type="color"
-                  {...register("record_color")}
-                />
-              </div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="cover_color">Cover Color</Label>
+                    <Input
+                      id="cover_color"
+                      type="color"
+                      {...register("cover_color")}
+                    />
+                  </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="sleeve_color">Sleeve Color</Label>
-                <Input
-                  id="sleeve_color"
-                  type="color"
-                  {...register("sleeve_color")}
-                />
-              </div>
-            </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="record_color">Record Color</Label>
+                    <Input
+                      id="record_color"
+                      type="color"
+                      {...register("record_color")}
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="sleeve_color">Sleeve Color</Label>
+                    <Input
+                      id="sleeve_color"
+                      type="color"
+                      {...register("sleeve_color")}
+                    />
+                  </div>
+                </div>
+              
+              */
+            }
+
 
             <div className="space-y-2">
               <Label htmlFor="playlist_id">Playlists</Label>
@@ -249,15 +284,22 @@ export default function ReleaseForm() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="published">
-                <input
-                  id="published"
-                  type="checkbox"
-                  {...register("published")}
-                  className="mr-2"
-                />
-                Published
-              </Label>
+              <Controller
+                name="published"
+                control={control}
+                render={({ field }) => (
+                  <Label htmlFor="published">
+                    <input
+                      id="published"
+                      type="checkbox"
+                      checked={!!field.value}
+                      onChange={e => field.onChange(e.target.checked)}
+                      className="mr-2"
+                    />
+                    Published
+                  </Label>
+                )}
+              />
             </div>
 
             <div className="space-y-2">
@@ -266,9 +308,17 @@ export default function ReleaseForm() {
                 aspectRatio={1}
                 value={getValues("cover")}
                 previewImage={getValues("cover_url") || getValues("cover")}
-                onUploadComplete={url => {
-                  setValue("cover", url)
-                  setValue("cover_url", url)
+
+                onUploadComplete={async (signedBlobId, cropData, serviceUrl) => {
+                  if (signedBlobId) {
+                    setValue("cover", signedBlobId)
+                    //form.setValue("thumbnail", signedBlobId)
+                  }
+                  if (serviceUrl) {
+                    // setThumbnailPreview(serviceUrl)
+                    setValue("cover_url", serviceUrl)
+                  }
+                  toast({ description: "image uploaded" })
                 }}
               />
               {(getValues("cover_url") || getValues("cover")) && (

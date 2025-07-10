@@ -120,20 +120,21 @@ class Playlist < ApplicationRecord
   def cover_url(size = nil)
     url = case size
     when :medium
-      cover.variant(resize_to_limit: [200, 200])&.processed&.url
+      cover.variant(resize_to_limit: [200, 200])&.processed
 
     when :large
-      cover.variant(resize_to_limit: [500, 500])&.processed&.url
+      cover.variant(resize_to_limit: [500, 500])&.processed
 
     when :small
-      cover.variant(resize_to_limit: [50, 50])&.processed&.url
+      cover.variant(resize_to_limit: [50, 50])&.processed
     
     when :original
       cover.url
-
     else
-      cover.variant(resize_to_limit: [200, 200])&.processed&.url
+      cover.variant(resize_to_limit: [200, 200])&.processed
     end
+
+    return Rails.application.routes.url_helpers.rails_storage_proxy_url(url) if url.present?
 
     url || AlbumsHelper.default_image_sqr
   end

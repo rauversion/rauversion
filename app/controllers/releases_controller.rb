@@ -140,6 +140,7 @@ class ReleasesController < ApplicationController
       :spotify, :bandcamp, :soundcloud, 
       :product_id, :template, 
       :title, :description, :release_date, :private,
+      :published,
       :price, :currency, :minimum_price, :show_credits,
       :show_more_button, :credits, :about, :purchase_message,
       :purchase_description, :upsell_enabled, :upsell_message,
