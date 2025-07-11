@@ -129,7 +129,8 @@ class Playlist < ApplicationRecord
       cover.variant(resize_to_limit: [50, 50])&.processed
     
     when :original
-      cover.url
+      cover
+
     else
       cover.variant(resize_to_limit: [200, 200])&.processed
     end
