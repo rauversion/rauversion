@@ -170,7 +170,7 @@ export default function ArticleShow({ preview }) {
 
         <div
           id={`article-${article.id}`}
-          className="post-wrapper mt-6 prose lg:prose-2xl dark:prose-invert prose-indigo- prose-lg- text-gray-500 dark:text-gray-300 mx-auto"
+          className="post-wrapper mt-6 prose lg:prose-lg dark:prose-invert prose-indigo- prose-lg- text-gray-500 dark:text-gray-300 mx-auto"
           data-controller="medium-zoom"
         // dangerouslySetInnerHTML={{ __html: article.body }}
         >

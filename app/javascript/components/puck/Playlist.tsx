@@ -59,7 +59,7 @@ interface PlaylistProps {
   color?: string;
 }
 
-export default function PlaylistComponent({ playlistId, accentColor = "#1DB954", color = "#1DB954" }: PlaylistProps) {
+export default function PlaylistComponent({ playlistId, accentColor = "#1DB954", color = "var(--rau-text)" }: PlaylistProps) {
   const [playlist, setPlaylist] = useState<Playlist | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -150,17 +150,17 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954",
           
           <div className="flex-1 text-[color:var(--player-color)]">
 
-            <h2 className="font-bold text-3xl mb-2">
+            <h2 className="font-bold !text-3xl !mt-4 !mb-2">
               <Link to={`/playlists/${playlist.slug}`}>
                 {playlist.title}
               </Link>
             </h2>
 
-            <p className="text-[color:var(--player-color)]/80 mb-4">
+            <span className="text-[color:var(--player-color)]/80 mb-4 block">
               <Link to={`/${playlist.user.username}`} className="hover:underline">
                 {playlist.user.full_name}
               </Link>
-            </p>
+            </span>
 
             <div className="flex items-center gap-4">
               <a 
@@ -179,7 +179,6 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954",
                 //style={{ backgroundColor: accentColor }}
                 className={`
                   bg-[color:var(--accent-color)]
-                  bg-default
                   cursor-pointer
                   font-semibold 
                   rounded-full 
@@ -196,7 +195,7 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954",
           </div>
         </div>
   
-        <div className="mt-8">
+        <div className="mt-4">
           <div className="space-y-1 bg-black/10 p-4 rounded-lg">
             {playlist.tracks && playlist.tracks.map((track, index) => (
               <div 
@@ -237,13 +236,13 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954",
                     }
                   </a>
   
-                  <div>
+                  <div className="flex flex-col">
                     
-                    <p className={`font-medium  my-1`}>
+                    <span className={`font-medium  my-1`}>
                       {track.title}
-                    </p>
+                    </span>
 
-                    <p className="text-sm space-x-2 my-1">
+                    <span className="text-sm space-x-2 my-1">
                     
                       {track?.user?.username && 
                         <Link to={`/${track.user?.username}`} className="hover:underline">
@@ -261,7 +260,7 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954",
                         </>
                       )}
 
-                    </p>
+                    </span>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
