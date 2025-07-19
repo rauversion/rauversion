@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import ReactDOM from "react-dom/client";
-import PlaylistComponent from "../puck/Playlist";
+import { Skeleton } from '../ui/skeleton'
 
 
 import { EditorComponent } from './EditArticle'
@@ -30,7 +29,33 @@ export default function ArticleShow({ preview }) {
   }, [slug])
 
   if (loading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-default">
+        <div className="w-full max-w-3xl px-4 sm:px-6 lg:px-8">
+          <div className="text-lg max-w-prose mx-auto">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <Skeleton className="w-8 h-8 rounded-full" />
+              <Skeleton className="h-4 w-32 rounded" />
+            </div>
+            <Skeleton className="h-10 w-full max-w-xl mx-auto rounded mb-4" />
+            <Skeleton className="h-10 w-2/3 max-w-lg mx-auto rounded mb-8" />
+            <div className="mt-8 aspect-w-16 aspect-h-9 rounded-lg overflow-hidden mb-8">
+              <Skeleton className="w-full h-full" />
+            </div>
+            <Skeleton className="h-6 w-3/4 mx-auto rounded mb-2" />
+            <Skeleton className="h-6 w-2/3 mx-auto rounded mb-2" />
+            <Skeleton className="h-6 w-1/2 mx-auto rounded mb-8" />
+          </div>
+          <div className="mt-6 space-y-4">
+            <Skeleton className="h-4 w-full rounded" />
+            <Skeleton className="h-4 w-5/6 rounded" />
+            <Skeleton className="h-4 w-2/3 rounded" />
+            <Skeleton className="h-4 w-1/2 rounded" />
+            <Skeleton className="h-4 w-3/4 rounded" />
+          </div>
+        </div>
+      </div>
+    )
   }
 
   if (!article) {
