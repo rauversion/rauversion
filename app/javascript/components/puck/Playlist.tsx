@@ -179,7 +179,7 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954",
                 //style={{ backgroundColor: accentColor }}
                 className={`
                   bg-[color:var(--accent-color)]
-                  bg-default- 
+                  bg-default
                   cursor-pointer
                   font-semibold 
                   rounded-full 
@@ -239,15 +239,17 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954",
   
                   <div>
                     
-                    <p className={`font-medium`}>
+                    <p className={`font-medium  my-1`}>
                       {track.title}
                     </p>
 
-                    <p className="text-sm space-x-2">
+                    <p className="text-sm space-x-2 my-1">
                     
-                      <Link to={`/${track.user.username}`} className="hover:underline">
-                        {track.user.full_name}
+                      {track?.user?.username && 
+                        <Link to={`/${track.user?.username}`} className="hover:underline">
+                        {track.user?.full_name}
                       </Link>
+                      }
 
                       {track.artists && track.artists.length > 0 && (
                         <>

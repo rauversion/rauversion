@@ -3,11 +3,13 @@ import { useParams, Link } from 'react-router-dom'
 import ReactDOM from "react-dom/client";
 import PlaylistComponent from "../puck/Playlist";
 
+
+import { EditorComponent } from './EditArticle'
+
 export default function ArticleShow({ preview }) {
   const { slug } = useParams()
   const [article, setArticle] = useState(null)
   const [loading, setLoading] = useState(true)
-  const playlistRootsRef = useRef([])
 
   const url = preview ? `/articles/${slug}/preview.json` : `/articles/${slug}.json`
 
@@ -26,33 +28,6 @@ export default function ArticleShow({ preview }) {
 
     fetchArticle()
   }, [slug])
-
-  // Mount PlaylistComponent into each .playlist-block after article is loaded
-  useEffect(() => {
-    // Cleanup previous roots
-    playlistRootsRef.current.forEach(root => root.unmount && root.unmount())
-    playlistRootsRef.current = []
-
-    if (!article || !article.id) return
-    const container = document.getElementById(`article-${article.id}`)
-    if (!container) return
-
-    const blocks = container.querySelectorAll('.playlist-block[data-playlist-id]')
-    blocks.forEach(block => {
-      const playlistId = block.getAttribute('data-playlist-id')
-      if (playlistId) {
-        const root = ReactDOM.createRoot(block)
-        root.render(<PlaylistComponent playlistId={playlistId} />)
-        playlistRootsRef.current.push(root)
-      }
-    })
-
-    // Cleanup on unmount
-    return () => {
-      playlistRootsRef.current.forEach(root => root.unmount && root.unmount())
-      playlistRootsRef.current = []
-    }
-  }, [article])
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>
@@ -195,10 +170,13 @@ export default function ArticleShow({ preview }) {
 
         <div
           id={`article-${article.id}`}
-          className="post-wrapper mt-6 prose dark:prose-invert prose-indigo prose-lg text-gray-500 dark:text-gray-300 mx-auto"
+          className="post-wrapper mt-6 prose lg:prose-2xl dark:prose-invert prose-indigo- prose-lg- text-gray-500 dark:text-gray-300 mx-auto"
           data-controller="medium-zoom"
-          dangerouslySetInnerHTML={{ __html: article.body }}
-        />
+        // dangerouslySetInnerHTML={{ __html: article.body }}
+        >
+          <EditorComponent value={article.body} readOnly={true} />
+        </div>
+
       </div>
     </div>
   )

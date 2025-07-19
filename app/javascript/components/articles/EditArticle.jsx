@@ -72,65 +72,67 @@ const formSchema = z.object({
   visibility: z.enum(["public", "private"]),
 })
 
-function EditorComponent({ value, onChange, onUpload }) {
+// PlaylistBlockConfig for Dante (ESM style)
+export function PlaylistBlockConfig(options = {}) {
+  // Maintain dialog open state per block key
+  const dialogState = {};
+
+  return {
+    icon: (props) => (
+      <svg
+        width="20"
+        height="20"
+        fill="none"
+        viewBox="0 0 24 24"
+        onClick={(e) => {
+          e.stopPropagation();
+          // Set dialog open for this block
+          if (props && props.block) {
+            dialogState[props.block.key] = true;
+            if (props.block.setShowDialog) {
+              props.block.setShowDialog(true);
+            }
+          }
+        }}
+        style={{ cursor: "pointer" }}
+      >
+        <rect x="3" y="5" width="18" height="14" rx="2" fill="#fff" stroke="#000" strokeWidth="1.5" />
+        <rect x="7" y="9" width="6" height="2" rx="1" fill="#000" />
+        <rect x="7" y="13" width="4" height="2" rx="1" fill="#000" />
+        <circle cx="17" cy="14" r="2" fill="#000" />
+      </svg>
+    ),
+    name: "PlaylistBlock",
+    tag: "playlist-block",
+    component: (props) => {
+      return <PlaylistBlock {...props} endpoint={'/playlists.json'} />;
+    },
+    atom: false,
+    widget_options: {
+      displayOnInlineTooltip: true,
+      insertion: "insertion",
+      insert_block: "PlaylistBlock",
+    },
+    options: {
+      placeholder: "Insert a playlist",
+    },
+    attributes: {
+      playlistId: { default: null },
+    },
+    dataSerializer: function (data) {
+      return { ...data, playlistId: data.playlistId };
+    },
+    ...options,
+  };
+}
+
+export function EditorComponent({ value, onChange, onUpload, readOnly = false }) {
   const debouncedValue = useDebounce(value, 500)
   React.useEffect(() => {
     onChange?.(debouncedValue)
   }, [debouncedValue])
 
-  // PlaylistBlockConfig for Dante (ESM style)
-  function PlaylistBlockConfig(options = {}) {
-    // Maintain dialog open state per block key
-    const dialogState = {};
 
-    return {
-      icon: (props) => (
-        <svg
-          width="20"
-          height="20"
-          fill="none"
-          viewBox="0 0 24 24"
-          onClick={(e) => {
-            e.stopPropagation();
-            // Set dialog open for this block
-            if (props && props.block) {
-              dialogState[props.block.key] = true;
-              if (props.block.setShowDialog) {
-                props.block.setShowDialog(true);
-              }
-            }
-          }}
-          style={{ cursor: "pointer" }}
-        >
-          <rect x="3" y="5" width="18" height="14" rx="2" fill="#fff" stroke="#000" strokeWidth="1.5" />
-          <rect x="7" y="9" width="6" height="2" rx="1" fill="#000" />
-          <rect x="7" y="13" width="4" height="2" rx="1" fill="#000" />
-          <circle cx="17" cy="14" r="2" fill="#000" />
-        </svg>
-      ),
-      name: "PlaylistBlock",
-      tag: "playlist-block",
-      component: (props) => {
-        return <PlaylistBlock {...props} endpoint={'/playlists.json'} />;
-      },
-      atom: false,
-      widget_options: {
-        displayOnInlineTooltip: true,
-        insertion: "insertion",
-        insert_block: "PlaylistBlock",
-      },
-      options: {
-        placeholder: "Insert a playlist",
-      },
-      attributes: {
-        playlistId: { default: null },
-      },
-      dataSerializer: function (data) {
-        return { ...data, playlistId: data.playlistId };
-      },
-      ...options,
-    };
-  }
 
   function AiEnhancerBlockConfig(options = {}) {
     return {
@@ -182,6 +184,7 @@ function EditorComponent({ value, onChange, onUpload }) {
     <Dante
       theme={darkTheme}
       content={value}
+      readOnly={readOnly}
       widgets={[
         ImageBlockConfig({
           options: {
@@ -448,7 +451,6 @@ export default function EditArticle() {
   }, [id])
 
   const onSubmit = async (data) => {
-    debugger
     try {
       const response = await put(`/articles/${id}`, {
         body: JSON.stringify({
