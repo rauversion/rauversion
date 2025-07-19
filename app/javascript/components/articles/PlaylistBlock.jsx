@@ -41,6 +41,7 @@ export default function PlaylistBlock(props) {
     }
   };
 
+
   return (
     <NodeViewWrapper
       as="figure"
@@ -48,26 +49,29 @@ export default function PlaylistBlock(props) {
       className={`bg-white/5 rounded-md relative text-sm graf--figure graf--playlist-block ${props.selected ? "is-selected is-mediaFocused" : ""}`}
       tabIndex={0}
     >
-      <div className="flex justify-end absolute right-10 top-[40px]">
-        <Button
-          size="sm"
-          variant="destructive"
-          className="mb-2"
-          onClick={() => {
-            if (props.deleteNode) {
-              props.deleteNode();
-            } else if (props.editor && props.getPos) {
-              // Remove node at current position
-              const pos = props.getPos();
-              if (typeof pos === "number") {
-                props.editor.chain().focus().deleteRange({ from: pos, to: pos + props.node.nodeSize }).run();
+      {
+        props.editor.options.editable &&
+        <div className="flex justify-end absolute right-10 top-[40px]">
+          <Button
+            size="sm"
+            variant="destructive"
+            className="mb-2"
+            onClick={() => {
+              if (props.deleteNode) {
+                props.deleteNode();
+              } else if (props.editor && props.getPos) {
+                // Remove node at current position
+                const pos = props.getPos();
+                if (typeof pos === "number") {
+                  props.editor.chain().focus().deleteRange({ from: pos, to: pos + props.node.nodeSize }).run();
+                }
               }
-            }
-          }}
-        >
-          Remove
-        </Button>
-      </div>
+            }}
+          >
+            Remove
+          </Button>
+        </div>
+      }
       <ErrorBoundary>
         {playlistId ? (
           <PlaylistComponent playlistId={playlistId} />
