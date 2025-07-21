@@ -1,9 +1,42 @@
-<h1>Thank you for your purchase, <%= @user.username %>!</h1>
-
-<p>Your order details:</p>
-
-<% @purchase.product_purchase_items.each do |item| %>
-  <p><%= item.product.title %> - Quantity: <%= item.quantity %> - Price: <%= number_to_currency(item.price) %></p>
-<% end %>
-
-<p>Total: <%= number_to_currency(@purchase.total_amount) %></p>
+<!-- Cool Purchase Confirmation Email -->
+<div style="max-width:520px;margin:32px auto;padding:0 16px;">
+  <div style="background:linear-gradient(90deg,#4f46e5,#06b6d4);border-radius:18px 18px 0 0;padding:32px 0 16px 0;text-align:center;">
+    <span style="font-size:48px;display:block;">🎉</span>
+    <h1 style="color:#fff;font-size:2rem;font-family:sans-serif;margin:8px 0 0 0;letter-spacing:-1px;">
+      Thank you for your purchase, <%= @user.username %>!
+    </h1>
+    <p style="color:#e0e7ef;font-size:1.1rem;margin:8px 0 0 0;">Your order is confirmed and on its way.</p>
+  </div>
+  <div style="background:#fff;border-radius:0 0 18px 18px;box-shadow:0 4px 24px rgba(80,80,120,0.10);padding:24px;">
+    <h2 style="font-size:1.2rem;color:#4f46e5;font-family:sans-serif;margin-bottom:12px;">Order Details</h2>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
+      <thead>
+        <tr>
+          <th style="text-align:left;padding:8px 0;color:#64748b;font-size:0.95rem;">Product</th>
+          <th style="text-align:center;padding:8px 0;color:#64748b;font-size:0.95rem;">Qty</th>
+          <th style="text-align:right;padding:8px 0;color:#64748b;font-size:0.95rem;">Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @purchase.product_purchase_items.each do |item| %>
+          <tr>
+            <td style="padding:8px 0;border-top:1px solid #e5e7eb;"><%= item.product.title %></td>
+            <td style="padding:8px 0;text-align:center;border-top:1px solid #e5e7eb;"><%= item.quantity %></td>
+            <td style="padding:8px 0;text-align:right;border-top:1px solid #e5e7eb;"><%= number_to_currency(item.price) %></td>
+          </tr>
+        <% end %>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="2" style="padding:12px 0;text-align:right;font-weight:bold;color:#334155;">Total:</td>
+          <td style="padding:12px 0;text-align:right;font-weight:bold;color:#334155;"><%= number_to_currency(@purchase.total_amount) %></td>
+        </tr>
+      </tfoot>
+    </table>
+    <div style="text-align:center;margin-top:24px;">
+      <span style="display:inline-block;background:#4f46e5;color:#fff;padding:10px 28px;border-radius:999px;font-size:1.1rem;font-weight:600;letter-spacing:0.5px;">
+        We appreciate your business!
+      </span>
+    </div>
+  </div>
+</div>

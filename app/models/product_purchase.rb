@@ -67,4 +67,14 @@ class ProductPurchase < ApplicationRecord
       item.product.set_course_enrollment_for(item, self) if item.product.respond_to?(:set_course_enrollment_for)
     end
   end
+
+  def notify_sellers
+    self.products.map(&:user).uniq.each do |seller|
+      ProductPurchaseMailer.sell_confirmation(self, seller).deliver_later
+    end
+  end
+
+  def notify_buyers
+    ProductPurchaseMailer.purchase_confirmation(self).deliver_later
+  end
 end

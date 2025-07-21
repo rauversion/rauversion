@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Outlet, Navigate, useLocation } from 'react-router-dom'
+import SalesProductShow from './sales/ProductShow'
 import useAuthStore from '@/stores/authStore'
 import { useActionCable } from '../hooks/useActionCable'
 import ArticlesIndex from './articles/Index'
@@ -215,6 +216,7 @@ function AppContent() {
           <Route path="/courses/:id/lessons/:lesson_id" element={<LessonShow />} />
 
           <Route path="/sales" element={<RequireAuth><MySales /></RequireAuth>} />
+          <Route path="/sales/:id/product_show" element={<RequireAuth><SalesProductShow /></RequireAuth>} />
           <Route path="/purchases" element={<RequireAuth><MyPurchases /></RequireAuth>} />
           <Route path="/articles" element={<ArticlesIndex />} />
           <Route path="/articles/c/:categorySlug" element={<ArticlesIndex />} />

@@ -32,7 +32,12 @@ function SaleItem({ sale }) {
                 {sale.items.map((item) => (
                   <div key={item.id} className="flex flex-col gap-1">
                     <span>
-                      {item.quantity}x {item.product.title} - ${item.price}
+                      <Link
+                        to={`/sales/${sale.id}/product_show`}
+                        className="text-blue-600 hover:underline"
+                      >
+                        {item.quantity}x {item.product.title} - ${item.price}
+                      </Link>
                     </span>
 
                     {item.service_booking && (

@@ -207,7 +207,18 @@ Rails.application.routes.draw do
     end
   end
 
-  resources :sales, only: [:index]
+  resources :sales do
+    collection do
+      get :index
+      get :product_show
+      get :update
+    end
+
+    member do
+      get :product_show
+      post :refund
+    end
+  end
   
   resources :purchases do
     collection do

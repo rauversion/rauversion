@@ -6,7 +6,10 @@ class WebhookWorkerJob < ApplicationJob
     return unless product_purchase
 
     # 1. Send purchase confirmation mail
-    ProductPurchaseMailer.purchase_confirmation(product_purchase).deliver_later
+    product_purchase.notify_buyers
+    
+    # 1b. Send sell confirmation mail to each unique seller
+    product_purchase.notify_sellers
 
     # 2. Set service booking
     product_purchase.set_service_booking

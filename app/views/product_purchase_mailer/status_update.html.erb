@@ -1,12 +1,32 @@
-<!-- app/views/product_purchase_mailer/status_update.html.erb -->
-<h1>Your Order Status Has Been Updated</h1>
-
-<p>Dear <%= @user.full_name %>,</p>
-
-<p>The status of your order #<%= @purchase.id %> has been updated to: <%= @purchase.status.titleize %></p>
-
-<% if @purchase.tracking_code.present? %>
-  <p>Tracking Code: <%= @purchase.tracking_code %></p>
-<% end %>
-
-<p>Thank you for your purchase!</p>
+<!-- Cool Order Status Update Email -->
+<div style="max-width:520px;margin:32px auto;padding:0 16px;">
+  <div style="background:linear-gradient(90deg,#f59e42,#06b6d4);border-radius:18px 18px 0 0;padding:32px 0 16px 0;text-align:center;">
+    <span style="font-size:48px;display:block;">🔄</span>
+    <h1 style="color:#fff;font-size:2rem;font-family:sans-serif;margin:8px 0 0 0;letter-spacing:-1px;">
+      Your Order Status Has Been Updated
+    </h1>
+    <p style="color:#e0e7ef;font-size:1.1rem;margin:8px 0 0 0;">Hi <%= @user.full_name %>, see your latest order update below.</p>
+  </div>
+  <div style="background:#fff;border-radius:0 0 18px 18px;box-shadow:0 4px 24px rgba(80,80,120,0.10);padding:24px;">
+    <h2 style="font-size:1.2rem;color:#f59e42;font-family:sans-serif;margin-bottom:12px;">Order #<%= @purchase.id %></h2>
+    <div style="font-size:1.1rem;color:#334155;margin-bottom:16px;">
+      <strong>Status:</strong>
+      <span style="display:inline-block;background:#f59e42;color:#fff;padding:6px 18px;border-radius:999px;font-size:1rem;font-weight:600;margin-left:8px;">
+        <%= @purchase.status.titleize %>
+      </span>
+    </div>
+    <% if @purchase.tracking_code.present? %>
+      <div style="font-size:1rem;color:#334155;margin-bottom:16px;">
+        <strong>Tracking Code:</strong>
+        <span style="background:#06b6d4;color:#fff;padding:6px 14px;border-radius:8px;font-size:1rem;margin-left:8px;">
+          <%= @purchase.tracking_code %>
+        </span>
+      </div>
+    <% end %>
+    <div style="text-align:center;margin-top:24px;">
+      <span style="display:inline-block;background:#f59e42;color:#fff;padding:10px 28px;border-radius:999px;font-size:1.1rem;font-weight:600;letter-spacing:0.5px;">
+        Thank you for your purchase!
+      </span>
+    </div>
+  </div>
+</div>

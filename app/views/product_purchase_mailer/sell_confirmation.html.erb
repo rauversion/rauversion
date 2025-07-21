@@ -1,0 +1,40 @@
+<!-- Cool Sell Confirmation Email -->
+<div style="max-width:520px;margin:32px auto;padding:0 16px;">
+  <div style="background:linear-gradient(90deg,#16a34a,#06b6d4);border-radius:18px 18px 0 0;padding:32px 0 16px 0;text-align:center;">
+    <span style="font-size:48px;display:block;">💸</span>
+    <h1 style="color:#fff;font-size:2rem;font-family:sans-serif;margin:8px 0 0 0;letter-spacing:-1px;">
+      Product Sold Confirmation
+    </h1>
+    <p style="color:#e0e7ef;font-size:1.1rem;margin:8px 0 0 0;">Congrats <%= @seller.email %>, your product(s) have been sold!</p>
+  </div>
+  <div style="background:#fff;border-radius:0 0 18px 18px;box-shadow:0 4px 24px rgba(80,80,120,0.10);padding:24px;">
+    <h2 style="font-size:1.2rem;color:#16a34a;font-family:sans-serif;margin-bottom:12px;">Sold Product(s)</h2>
+    <table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
+      <thead>
+        <tr>
+          <th style="text-align:left;padding:8px 0;color:#64748b;font-size:0.95rem;">Product</th>
+          <th style="text-align:left;padding:8px 0;color:#64748b;font-size:0.95rem;">Buyer</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% @seller_products.each do |product| %>
+          <tr>
+            <td style="padding:8px 0;border-top:1px solid #e5e7eb;"><%= product.title %></td>
+            <td style="padding:8px 0;border-top:1px solid #e5e7eb;"><%= @purchase.user.email %></td>
+          </tr>
+        <% end %>
+      </tbody>
+    </table>
+    <div style="margin-bottom:16px;">
+      <div style="font-size:1rem;color:#334155;margin-bottom:4px;"><strong>Purchase ID:</strong> <%= @purchase.id %></div>
+      <div style="font-size:1rem;color:#334155;margin-bottom:4px;"><strong>Shipping address:</strong> <%= @purchase.shipping_address %></div>
+      <div style="font-size:1rem;color:#334155;margin-bottom:4px;"><strong>Phone:</strong> <%= @purchase.phone %></div>
+      <div style="font-size:1rem;color:#334155;margin-bottom:4px;"><strong>Amount:</strong> <%= number_to_currency(@purchase.total_amount) %></div>
+    </div>
+    <div style="text-align:center;margin-top:24px;">
+      <span style="display:inline-block;background:#16a34a;color:#fff;padding:10px 28px;border-radius:999px;font-size:1.1rem;font-weight:600;letter-spacing:0.5px;">
+        Thank you for selling with us!
+      </span>
+    </div>
+  </div>
+</div>
