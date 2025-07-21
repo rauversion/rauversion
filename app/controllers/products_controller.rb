@@ -114,7 +114,7 @@ class ProductsController < ApplicationController
     )
 
     respond_to do |format|  
-      format.html { }
+      format.html { render_blank }
       format.json { render view_path and return } 
     end
     
