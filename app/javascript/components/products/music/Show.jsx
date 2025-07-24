@@ -2,6 +2,9 @@ import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ChevronLeft, Disc, Clock, Music, Truck, Download, Star } from 'lucide-react'
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils";
+import useAudioStore from "@/stores/audioStore";
+
 import {
   Card,
   CardContent,
@@ -16,6 +19,8 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel"
+import PlaylistListItem from "@/components/users/PlaylistItem";
+
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Separator } from "@/components/ui/separator"
@@ -35,6 +40,7 @@ import PlaylistCard from "@/components/playlists/PlaylistCard"
 import { FORMAT_ICONS, FORMAT_LABELS, CONDITIONS } from '../shared/constants'
 import PublicPhotosSection from "../shared/public/PublicPhotosSection"
 import ShippingOptions from "../shared/ShippingOptions"
+import PlaylistTracks from "../../playlists/PlaylistTracks"
 
 
 export default function MusicShow({ product }) {
@@ -47,6 +53,15 @@ export default function MusicShow({ product }) {
     const remainingSeconds = seconds % 60
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
   }
+
+  const {
+    currentTrackId,
+    isPlaying,
+    play,
+    pause,
+    setPlaylist: setAudioPlaylist,
+  } = useAudioStore();
+
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -114,9 +129,38 @@ export default function MusicShow({ product }) {
                 )}
               </CardHeader>
               <CardContent>
-                <PlaylistCard
+
+                {product.album && <PlaylistCard
                   skipCover={true}
-                  playlist={product.album}></PlaylistCard>
+                  playlist={product.album}>
+
+                  <div
+                    className={cn(
+                      "bg-white/5 backdrop-blur-sm",
+                      "rounded-xl p-4 space-y-1",
+                      "shadow-lg shadow-black/5"
+                    )}
+                  >
+                    {product.album.tracks.map((track, index) => (
+                      <PlaylistListItem
+                        key={`${track.id}-${index}`}
+                        track={track}
+                        index={index}
+                        currentTrackId={currentTrackId}
+                        isPlaying={isPlaying}
+                        onPlay={() => {
+                          if (currentTrackId === track.id && isPlaying) {
+                            pause();
+                          } else {
+                            pause();
+                            play(track.id);
+                          }
+                        }}
+                      />
+                    ))}
+                  </div>
+
+                </PlaylistCard>}
 
               </CardContent>
             </Card>

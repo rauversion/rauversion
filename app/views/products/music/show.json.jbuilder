@@ -24,7 +24,7 @@ json.product do
   # Associated album details
   if @product.album.present?
     json.album do
-      json.partial! 'playlists/playlist', playlist: @product.album
+      json.partial! "playlists/playlist", playlist: @product.album, show_tracks: true
     end
   end
 

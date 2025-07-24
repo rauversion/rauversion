@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { ShareDialog } from "@/components/ui/share-dialog";
 import { cn } from "@/lib/utils";
 
-export default function PlaylistCard({ playlist, skipCover }) {
+export default function PlaylistCard({ playlist, skipCover, children }) {
   const shareUrl = `${window.location.origin}/playlists/${playlist.slug}`;
 
   return (
@@ -16,6 +16,8 @@ export default function PlaylistCard({ playlist, skipCover }) {
             className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
           />
         </Link>}
+
+        {children}
 
         <div className="absolute bottom-3 right-3 flex items-center gap-2">
           <ShareDialog
