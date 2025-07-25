@@ -3,6 +3,17 @@ import { get } from "@rails/request.js";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
+import PagesCreateDialog from "./PagesCreateDialog";
+import {
+  Table,
+  TableHeader,
+  TableBody,
+  TableFooter,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableCaption,
+} from "@/components/ui/table";
 
 type Page = {
   id: number;
@@ -17,63 +28,68 @@ type Page = {
 };
 
 
+
 export default function PagesTable() {
   const [pages, setPages] = useState<Page[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
 
-  useEffect(() => {
-    async function fetchPages() {
-      setLoading(true);
-      const response = await get("/pages", { responseKind: "json" });
-      if (response.ok) {
-        // @ts-ignore
-        const result = await response.json
-        setPages(result);
-      } else {
-        toast({
-          title: "Error loading pages",
-          description: "Could not fetch pages.",
-          variant: "destructive",
-        });
-      }
-      setLoading(false);
+  const fetchPages = React.useCallback(async () => {
+    setLoading(true);
+    const response = await get("/pages", { responseKind: "json" });
+    if (response.ok) {
+      // @ts-ignore
+      const result = await response.json
+      setPages(result);
+    } else {
+      toast({
+        title: "Error loading pages",
+        description: "Could not fetch pages.",
+        variant: "destructive",
+      });
     }
-    fetchPages();
+    setLoading(false);
   }, [toast]);
+
+  useEffect(() => {
+    fetchPages();
+  }, [fetchPages]);
 
   return (
     <Card>
       <CardContent>
-        <h2 className="text-xl font-bold mb-4">Pages</h2>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold">Pages</h2>
+          <PagesCreateDialog onCreated={fetchPages} />
+        </div>
         {loading ? (
           <div>Loading...</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead>
-                <tr>
-                  <th className="px-4 py-2 text-left">ID</th>
-                  <th className="px-4 py-2 text-left">Title</th>
-                  <th className="px-4 py-2 text-left">Slug</th>
-                  <th className="px-4 py-2 text-left">Published</th>
-                  <th className="px-4 py-2 text-left">Menu</th>
-                  <th className="px-4 py-2 text-left">Updated</th>
-                </tr>
-              </thead>
-              <tbody>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>ID</TableHead>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Slug</TableHead>
+                  <TableHead>Published</TableHead>
+                  <TableHead>Menu</TableHead>
+                  <TableHead>Updated</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
                 {pages.map((page) => (
-                  <tr key={page.id} className="hover:bg-muted">
-                    <td className="px-4 py-2">{page.id}</td>
-                    <td className="px-4 py-2">{page.title}</td>
-                    <td className="px-4 py-2">{page.slug}</td>
-                    <td className="px-4 py-2">{page.published ? "Yes" : "No"}</td>
-                    <td className="px-4 py-2">{page.menu}</td>
-                    <td className="px-4 py-2">{new Date(page.updated_at).toLocaleString()}</td>
-                  </tr>
+                  <TableRow key={page.id}>
+                    <TableCell>{page.id}</TableCell>
+                    <TableCell>{page.title}</TableCell>
+                    <TableCell>{page.slug}</TableCell>
+                    <TableCell>{page.published ? "Yes" : "No"}</TableCell>
+                    <TableCell>{page.menu}</TableCell>
+                    <TableCell>{new Date(page.updated_at).toLocaleString()}</TableCell>
+                  </TableRow>
                 ))}
-              </tbody>
-            </table>
+              </TableBody>
+            </Table>
             {pages.length === 0 && (
               <div className="text-center text-muted-foreground py-4">No pages found.</div>
             )}
