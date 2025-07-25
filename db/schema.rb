@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_06_20_200952) do
+ActiveRecord::Schema[8.0].define(version: 2025_07_25_230031) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -391,6 +391,18 @@ ActiveRecord::Schema[8.0].define(version: 2025_06_20_200952) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_oauth_credentials_on_user_id"
+  end
+
+  create_table "pages", force: :cascade do |t|
+    t.jsonb "body"
+    t.string "title"
+    t.string "slug"
+    t.boolean "published"
+    t.string "menu"
+    t.jsonb "settings"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["slug"], name: "index_pages_on_slug"
   end
 
   create_table "participants", force: :cascade do |t|

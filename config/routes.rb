@@ -1,6 +1,7 @@
 require_relative "../lib/constraints/username_route_contrainer"
 
 Rails.application.routes.draw do
+  resources :pages
   resources :course_enrollments, only: [:create, :show] do
     member do
       post :start_lesson
