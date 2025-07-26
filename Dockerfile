@@ -62,9 +62,9 @@ RUN apt-get update && \
 
 RUN apt-get install --no-install-recommends -y libjemalloc2
 
-ENV LD_PRELOAD="libjemalloc.so.2" \
-  MALLOC_CONF="dirty_decay_ms:1000,narenas:2,background_thread:true,stats_print:false"  \
-  RUBY_YJIT_ENABLE="1"
+#ENV LD_PRELOAD="libjemalloc.so.2" \
+#  MALLOC_CONF="dirty_decay_ms:1000,narenas:2,background_thread:true,stats_print:false"  \
+#  RUBY_YJIT_ENABLE="1"
 
 # Clean up APT when done
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
