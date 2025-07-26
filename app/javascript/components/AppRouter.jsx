@@ -2,6 +2,8 @@ import React, { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Outlet, Navigate, useLocation } from 'react-router-dom'
 import SalesProductShow from './sales/ProductShow'
 import PagesTable from './pages/PagesTable'
+import PagesEditor from './pages/PagesEditor'
+import PagesShow from './pages/PagesShow'
 import useAuthStore from '@/stores/authStore'
 import { useActionCable } from '../hooks/useActionCable'
 import ArticlesIndex from './articles/Index'
@@ -199,7 +201,10 @@ function AppContent() {
       <UserMenu />
       <div className="pb-24">
         <Routes>
-          <Route path="/pages" element={<PagesTable />} />
+          <Route path="/pages" element={<RequireAuth> <PagesTable /></RequireAuth>} />
+          <Route path="/pages/:id/edit" element={<RequireAuth> <PagesEditor /></RequireAuth>} />
+          <Route path="/pages/:slug" element={<PagesShow />} />
+
           <Route path="/users/sign_in" element={<Login />} />
           <Route path="/users/sign_up" element={<Register />} />
           <Route path="/users/invitation/accept" element={<AcceptInvitation />} />

@@ -1,5 +1,5 @@
 class PagesController < ApplicationController
-  before_action :set_page, only: [:show, :update, :destroy]
+  before_action :set_page, only: [:update, :destroy]
   before_action :require_admin!, only: [:create, :update, :destroy]
 
   # GET /pages
@@ -13,6 +13,16 @@ class PagesController < ApplicationController
 
   # GET /pages/:id
   def show
+    @page = Page.friendly.find(params[:id])
+    respond_to do |format|
+      format.json { render :show }
+      format.html { render_blank }
+    end
+  end
+
+
+  # GET /pages/:id/edit
+  def edit
     respond_to do |format|
       format.json { render :show }
       format.html { render_blank }
@@ -58,11 +68,11 @@ class PagesController < ApplicationController
   private
 
   def set_page
-    @page = Page.find(params[:id])
+    @page = Page.friendly.find(params[:id])
   end
 
   def page_params
-    params.require(:page).permit(:title, :slug, :published, :menu, :body, :settings)
+    params.require(:page).permit(:title, :slug, :published, :menu, :settings, body: {})
   end
 
   def require_admin!

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import PagesCreateDialog from "./PagesCreateDialog";
+import { Link } from "react-router-dom";
 import {
   Table,
   TableHeader,
@@ -14,6 +15,7 @@ import {
   TableCell,
   TableCaption,
 } from "@/components/ui/table";
+import PagesEditTitleDialog from "./PagesEditTitleDialog";
 
 type Page = {
   id: number;
@@ -27,8 +29,6 @@ type Page = {
   updated_at: string;
 };
 
-
-
 export default function PagesTable() {
   const [pages, setPages] = useState<Page[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,7 +38,6 @@ export default function PagesTable() {
     setLoading(true);
     const response = await get("/pages", { responseKind: "json" });
     if (response.ok) {
-      // @ts-ignore
       const result = await response.json
       setPages(result);
     } else {
@@ -56,7 +55,7 @@ export default function PagesTable() {
   }, [fetchPages]);
 
   return (
-    <Card>
+    <Card className="container mx-auto my-8">
       <CardContent>
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold">Pages</h2>
@@ -75,6 +74,9 @@ export default function PagesTable() {
                   <TableHead>Published</TableHead>
                   <TableHead>Menu</TableHead>
                   <TableHead>Updated</TableHead>
+                  <TableHead>Edit</TableHead>
+                  <TableHead>Edit Title</TableHead>
+                  <TableHead>View</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -86,6 +88,26 @@ export default function PagesTable() {
                     <TableCell>{page.published ? "Yes" : "No"}</TableCell>
                     <TableCell>{page.menu}</TableCell>
                     <TableCell>{new Date(page.updated_at).toLocaleString()}</TableCell>
+                    <TableCell>
+                      <Link to={`/pages/${page.slug}/edit`}>
+                        <Button size="sm" variant="outline">Edit</Button>
+                      </Link>
+                    </TableCell>
+                    <TableCell>
+                      <PagesEditTitleDialog
+                        pageId={page.id}
+                        currentTitle={page.title}
+                        currentSlug={page.slug}
+                        currentPublished={page.published}
+                        currentMenu={page.menu}
+                        onUpdated={fetchPages}
+                      />
+                    </TableCell>
+                    <TableCell>
+                      <Link to={`/pages/${page.slug}`}>
+                        <Button size="sm" variant="secondary">View</Button>
+                      </Link>
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>
