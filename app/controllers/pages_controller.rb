@@ -65,6 +65,14 @@ class PagesController < ApplicationController
     end
   end
 
+  def menus
+    @pages = Page.where(menu: params[:menu], published: true)
+    respond_to do |format|
+      format.json { render json: @pages.as_json(only: [:id, :title, :slug]) }
+      format.html { render_blank }
+    end
+  end
+
   private
 
   def set_page
