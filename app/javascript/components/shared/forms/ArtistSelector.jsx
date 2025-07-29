@@ -17,7 +17,6 @@ export default function ArtistSelector({ control, setValue, watch, name = "artis
   const selectedArtists = watch(name) || [];
   const debouncedQuery = useDebounce(query, 500);
 
-
   useEffect(() => {
     const fetchResults = async () => {
       if (debouncedQuery && debouncedQuery.length > 2) {
@@ -79,7 +78,7 @@ export default function ArtistSelector({ control, setValue, watch, name = "artis
               <div className="flex items-center gap-2">
                 {artist.avatar_url?.medium && (
                   <img
-                    src={artist.avatar_url.medium}
+                    src={new URL(artist.avatar_url.medium, window.location.origin).toString()}
                     alt={artist.username}
                     className="h-8 w-8 rounded-full object-cover"
                   />
@@ -103,7 +102,7 @@ export default function ArtistSelector({ control, setValue, watch, name = "artis
           <div key={artist.id} className="flex items-center bg-muted px-2 py-1 rounded">
             {artist.avatar_url?.small && (
               <img
-                src={artist.avatar_url.small}
+                src={new URL(artist.avatar_url.small, window.location.origin).toString()}
                 alt={artist.username}
                 className="h-5 w-5 rounded-full object-cover mr-1"
               />

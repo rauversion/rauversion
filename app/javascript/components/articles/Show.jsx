@@ -165,7 +165,7 @@ export default function ArticleShow({ preview }) {
           <h1>
             <Link to={`/${article.author.username}`} className="flex items-center justify-center gap-2">
               <img
-                src={article.author.avatar_url.small}
+                src={new URL(article.author.avatar_url.small, window.location.origin).toString()}
                 alt={article.author.name}
                 className="w-8 h-8 rounded-full"
               />
@@ -181,7 +181,7 @@ export default function ArticleShow({ preview }) {
           {article.cover_url && (
             <div className="mt-8 aspect-w-16 aspect-h-9 rounded-lg overflow-hidden">
               <img
-                src={article.cover_url.large}
+                src={new URL(article.cover_url.large, window.location.origin).toString()}
                 alt={article.title}
                 className="w-full h-full object-cover"
               />
