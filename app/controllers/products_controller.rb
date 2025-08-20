@@ -56,6 +56,12 @@ class ProductsController < ApplicationController
     #@profile = User.find_by(username: params[:user_id])
     #@product = @profile.products.friendly.find(params[:id])
     @product = Product.friendly.find(params[:id])
+
+    if @product.inactive? && current_user&.id != @product.user_id
+      head :not_found
+      return  
+    end
+
     @product_variants = @product.product_variants
 
     view_path = case @product.type
