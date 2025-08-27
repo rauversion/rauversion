@@ -202,32 +202,56 @@ module PaymentProviders
     end
 
     def generate_shipping_options
-      shipping_options = []
-      
-      cart.product_cart_items.map(&:product).each do |product|
+      # Aggregate shipping costs per country
+      country_shipping_totals = {}
+
+      cart.product_cart_items.each do |item|
+        product = item.product
+        quantity = item.quantity
+
         product.product_shippings.each do |shipping|
-          option = {
-            shipping_rate_data: {
-              type: 'fixed_amount',
-              fixed_amount: {
-                amount: (shipping.base_cost * 100).to_i,
-                currency: 'usd',
-              },
-              display_name: "Shipping to #{shipping.country}",
+          country = shipping.country
+          base_cost = shipping.base_cost.to_f
+          additional_cost = shipping.additional_cost.to_f
+
+          # Calculate shipping for this product/quantity
+          total_cost = if quantity > 1
+            base_cost + (quantity - 1) * additional_cost
+          else
+            base_cost
+          end
+
+          # Convert to cents for Stripe
+          total_cost_cents = (total_cost * 100).to_i
+
+          # Aggregate per country
+          if country_shipping_totals[country]
+            country_shipping_totals[country][:amount] += total_cost_cents
+          else
+            country_shipping_totals[country] = {
+              amount: total_cost_cents,
               delivery_estimate: {
-                minimum: {
-                  unit: 'business_day',
-                  value: 5,
-                },
-                maximum: {
-                  unit: 'business_day',
-                  value: 10,
-                },
-              },
-            },
-          }
-          shipping_options << option unless shipping_options.any? { |o| o[:shipping_rate_data][:display_name] == option[:shipping_rate_data][:display_name] }
+                minimum: { unit: 'business_day', value: 5 },
+                maximum: { unit: 'business_day', value: 10 }
+              }
+            }
+          end
         end
+      end
+
+      # Build Stripe shipping options
+      shipping_options = country_shipping_totals.map do |country, data|
+        {
+          shipping_rate_data: {
+            type: 'fixed_amount',
+            fixed_amount: {
+              amount: data[:amount],
+              currency: 'usd'
+            },
+            display_name: "Shipping to #{country}",
+            delivery_estimate: data[:delivery_estimate]
+          }
+        }
       end
 
       shipping_options

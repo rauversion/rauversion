@@ -56,7 +56,7 @@ RSpec.describe FetchLinkCardService do
       card = service.call(url)
       expect(card).to be_a(PreviewCard)
       expect(card).to be_persisted
-      expect(card.title).to be == "How to Deploy Rails 8 with Kamal to Digitalocean"
+      expect(card.title).to be == "Deploy Ruby on Rails 8 App to DigitalOcean Using Kamal — Easy Setup"
       expect(card.html).to include("100%")
       # expect(card.type).to eq("video")
     end
