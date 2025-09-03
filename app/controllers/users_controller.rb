@@ -81,8 +81,21 @@ class UsersController < ApplicationController
       .where(user_id: @user.id).or(Playlist.where(label_id: @user.id))
       .where(private: false)
       .with_attached_cover
-      .includes(user: {avatar_attachment: :blob})
-      .includes(tracks: {cover_attachment: :blob})
+        .includes(
+          user: { avatar_attachment: :blob },
+          track_playlists: {
+            track: [
+              { user: { avatar_attachment: :blob } },
+              { artists: { avatar_attachment: :blob } },
+              { cover_attachment: :blob },
+              { mp3_audio_attachment: :blob }
+            ]
+          }
+        )
+
+      #.with_attached_cover
+      #.includes(user: {avatar_attachment: :blob})
+      #.includes(tracks: {cover_attachment: :blob})
 
     if current_user.blank? || current_user != @user
       @playlists = @playlists.where(private: false)
@@ -105,9 +118,17 @@ class UsersController < ApplicationController
     .where(user_id: @user.id).or(Playlist.where(label_id: @user.id))
     .where.not(playlist_type: ["album", "ep"])
     .with_attached_cover
-    .includes(user: {avatar_attachment: :blob})
-    .includes(tracks: {cover_attachment: :blob})
-
+        .includes(
+          user: { avatar_attachment: :blob },
+          track_playlists: {
+            track: [
+              { user: { avatar_attachment: :blob } },
+              { artists: { avatar_attachment: :blob } },
+              { cover_attachment: :blob },
+              { mp3_audio_attachment: :blob }
+            ]
+          }
+        )
     if current_user.blank? || current_user != @user
       @collection = @collection.where(private: false)
     end
@@ -134,8 +155,17 @@ class UsersController < ApplicationController
       .or(Playlist.where(label_id: @user.id))
       .where(playlist_type: ["album", "ep"])
       .with_attached_cover
-      .includes(user: {avatar_attachment: :blob})
-      .includes(tracks: {cover_attachment: :blob})
+        .includes(
+          user: { avatar_attachment: :blob },
+          track_playlists: {
+            track: [
+              { user: { avatar_attachment: :blob } },
+              { artists: { avatar_attachment: :blob } },
+              { cover_attachment: :blob },
+              { mp3_audio_attachment: :blob }
+            ]
+          }
+        )
       .order(created_at: :desc)
 
     if current_user.blank? || current_user != @user
@@ -163,8 +193,17 @@ class UsersController < ApplicationController
       .where(user_id: @user.id)
       .or(Playlist.where(label_id: @user.id))
       .with_attached_cover
-      .includes(user: {avatar_attachment: :blob})
-      .includes(tracks: {cover_attachment: :blob})
+      .includes(
+          user: { avatar_attachment: :blob },
+          track_playlists: {
+            track: [
+              { user: { avatar_attachment: :blob } },
+              { artists: { avatar_attachment: :blob } },
+              { cover_attachment: :blob },
+              { mp3_audio_attachment: :blob }
+            ]
+          }
+        )
       .order(created_at: :desc)
 
     if current_user.blank? || current_user != @user
