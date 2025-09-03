@@ -66,7 +66,7 @@ const formSchema = z.object({
   excerpt: z.string().optional(),
   // body: z.any(),
   category_id: z.string().regex(/^\d+$/, { message: "Please select a category" }),
-  private: z.boolean().default(false),
+  private: z.preprocess((v) => v ?? false, z.boolean()),
   state: z.enum(["draft", "published"]),
   tags: z.string().optional(),
   visibility: z.enum(["public", "private"]),
@@ -227,7 +227,7 @@ export function EditorComponent({ value, onChange, onUpload, readOnly = false })
         }),
         SpeechToTextBlockConfig(),
         PlaylistBlockConfig(),
-        //AiEnhancerBlockConfig(), // we need to add this to the menu bar instead
+        // AiEnhancerBlockConfig(), // we need to add this to the menu bar instead
       ]}
       onUpdate={(editor) => {
         onChange && onChange(editor.getJSON())
@@ -305,7 +305,7 @@ export default function EditArticle() {
                 excerpt: article.excerpt || "",
                 // body: article.body,
                 category_id: article.category?.id?.toString() || "null",
-                private: article.private,
+                private: !!article.private,
                 state: article.state,
                 tags: article.tags?.join(", ") || "",
                 visibility: article.private ? "private" : "public"
@@ -348,7 +348,7 @@ export default function EditArticle() {
           excerpt: article.excerpt || "",
           // body: article.body,
           category_id: article.category?.id?.toString() || "null",
-          private: article.private,
+          private: !!article.private,
           state: article.state,
           tags: article.tags?.join(", ") || "",
           visibility: article.private ? "private" : "public"
@@ -432,7 +432,7 @@ export default function EditArticle() {
             excerpt: article.excerpt || "",
             // body: article.body,
             category_id: article.category?.id?.toString() || "null",
-            private: article.private,
+            private: !!article.private,
             state: article.state,
             tags: article.tags?.join(", ") || "",
             visibility: article.private ? "private" : "public"
@@ -452,11 +452,12 @@ export default function EditArticle() {
 
   const onSubmit = async (data) => {
     try {
+      const { visibility, ...rest } = data
       const response = await put(`/articles/${id}`, {
         body: JSON.stringify({
           post: {
-            ...data,
-            private: data.visibility === 'private'
+            ...rest,
+            private: !!data.private
           }
         }),
         responseKind: 'json'
@@ -596,7 +597,10 @@ export default function EditArticle() {
                         <FormControl>
                           <Switch
                             checked={!!field.value}
-                            onCheckedChange={val => field.onChange(!!val)}
+                            onCheckedChange={(val) => {
+                              field.onChange(!!val)
+                              form.setValue('visibility', val ? 'private' : 'public', { shouldValidate: true })
+                            }}
                           />
                         </FormControl>
                       </FormItem>
@@ -647,8 +651,11 @@ export default function EditArticle() {
                             </FormLabel>
                             <FormControl>
                               <RadioGroup
-                                onValueChange={field.onChange}
-                                defaultValue={field.value}
+                                onValueChange={(val) => {
+                                  field.onChange(val)
+                                  form.setValue('private', val === 'private', { shouldValidate: true })
+                                }}
+                                value={field.value}
                                 className="flex flex-col space-y-1"
                               >
                                 <FormItem className="flex items-center space-x-3 space-y-0">
