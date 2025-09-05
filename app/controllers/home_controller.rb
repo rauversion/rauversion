@@ -119,7 +119,11 @@ class HomeController < ApplicationController
     Track.published
       .latests
       .with_attached_cover
-      .includes(user: { avatar_attachment: :blob })
+      .with_attached_mp3_audio
+      .includes(
+        user: { avatar_attachment: :blob },
+        artists: { avatar_attachment: :blob }
+      )
       .where.not(podcast: "podcast")
       .page(params[:page])
       .per(10)

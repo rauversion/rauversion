@@ -12,7 +12,19 @@ json.artists @artists do |user|
 end unless @artists.nil?
 
 json.featured_albums Playlist.published.latests
-  .includes(:releases, :user)
+  .with_attached_cover
+  .includes(
+    :releases,
+    user: { avatar_attachment: :blob },
+    track_playlists: {
+      track: [
+        { user: { avatar_attachment: :blob } },
+        { artists: { avatar_attachment: :blob } },
+        { cover_attachment: :blob },
+        { mp3_audio_attachment: :blob }
+      ]
+    }
+  )
   .where(playlist_type: ["ep", "album"])
   .order("editor_choice_position asc, release_date desc, id desc")
   .limit(3) do |playlist|
@@ -20,7 +32,19 @@ json.featured_albums Playlist.published.latests
 end
 
 json.curated_playlists Playlist.published.latests
-  .includes(:releases, :user)
+  .with_attached_cover
+  .includes(
+    :releases,
+    user: { avatar_attachment: :blob },
+    track_playlists: {
+      track: [
+        { user: { avatar_attachment: :blob } },
+        { artists: { avatar_attachment: :blob } },
+        { cover_attachment: :blob },
+        { mp3_audio_attachment: :blob }
+      ]
+    }
+  )
   .where(playlist_type: "playlist")
   .order("editor_choice_position asc, release_date desc, id desc")
   .limit(3) do |playlist|

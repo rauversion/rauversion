@@ -159,7 +159,9 @@ class User < ApplicationRecord
       .join_sources
 
     if !user.label
-      result = Track.includes(:audio_blob, :cover_blob, user: :avatar_attachment)
+      result = Track
+        .includes(:audio_blob, :cover_blob, :track_peak, artists: { avatar_attachment: :blob }, user: { avatar_attachment: :blob })
+        .with_attached_mp3_audio
         .left_outer_joins(:track_artists)
         .joins(reposts_join, likes_join)
         .where("tracks.user_id = :id OR track_artists.user_id = :id", id: user.id)
@@ -173,7 +175,9 @@ class User < ApplicationRecord
       # child_ids = User.find(id).child_accounts.pluck(:id)
 
       # Adjust where clause to include tracks from child accounts
-      result = Track.includes(:audio_blob, :cover_blob, user: :avatar_attachment)
+      result = Track
+                    .includes(:audio_blob, :cover_blob, :track_peak, artists: { avatar_attachment: :blob }, user: { avatar_attachment: :blob })
+                    .with_attached_mp3_audio
                     .joins(reposts_join, likes_join)
                     .where(tracks[:user_id].eq(user.id).or(tracks[:label_id].in(user.id)))
                     .select("tracks.*, r.id as repost_id, l.id as like_id")
@@ -187,14 +191,18 @@ class User < ApplicationRecord
     users = User.arel_table
 
     if !user.label
-      result = Track.includes(:audio_blob, :cover_blob, user: :avatar_attachment)
-      .where(tracks[:user_id].in(user.id))
+      result = Track
+        .includes(:audio_blob, :cover_blob, :track_peak, artists: { avatar_attachment: :blob }, user: { avatar_attachment: :blob })
+        .with_attached_mp3_audio
+        .where(tracks[:user_id].in(user.id))
       return result
     else
       # Gather child account IDs
       # Adjust where clause to include tracks from child accounts
-      result = Track.includes(:audio_blob, :cover_blob, user: :avatar_attachment)
-      .where(tracks[:user_id].in(user.id).or(tracks[:label_id].in(user.id)))
+      result = Track
+        .includes(:audio_blob, :cover_blob, :track_peak, artists: { avatar_attachment: :blob }, user: { avatar_attachment: :blob })
+        .with_attached_mp3_audio
+        .where(tracks[:user_id].in(user.id).or(tracks[:label_id].in(user.id)))
     end
 
   end
