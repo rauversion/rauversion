@@ -86,8 +86,20 @@ class HomeController < ApplicationController
   def fetch_albums
     Playlist.published
       .latests
-      .includes(:releases)
       .where(playlist_type: ["ep", "album"])
+      .with_attached_cover
+        .includes(
+          :releases,
+          user: { avatar_attachment: :blob },
+          track_playlists: {
+            track: [
+              { user: { avatar_attachment: :blob } },
+              { artists: { avatar_attachment: :blob } },
+              { cover_attachment: :blob },
+              { mp3_audio_attachment: :blob }
+            ]
+          }
+        )
       .where("editor_choice_position is not null")
       .order("editor_choice_position asc, release_date desc, id desc")
       .page(params[:page])
@@ -97,7 +109,19 @@ class HomeController < ApplicationController
   def fetch_playlists
     Playlist.published
       .latests
-      .includes(:releases)
+      .with_attached_cover
+      .includes(
+          :releases,
+          user: { avatar_attachment: :blob },
+          track_playlists: {
+            track: [
+              { user: { avatar_attachment: :blob } },
+              { artists: { avatar_attachment: :blob } },
+              { cover_attachment: :blob },
+              { mp3_audio_attachment: :blob }
+            ]
+          }
+      )
       .where(playlist_type: ["playlist"])
       .where.not(editor_choice_position: nil)
       .order("editor_choice_position asc, release_date desc, id desc")
