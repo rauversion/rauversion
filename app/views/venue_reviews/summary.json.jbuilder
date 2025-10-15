@@ -14,3 +14,10 @@ json.aspects @aspects do |a|
   json.avg a[:avg]
   json.count a[:count]
 end
+
+# Star histogram 1..5
+json.star_counts do
+  (1..5).each do |s|
+    json.set! s, @star_counts[s]
+  end
+end

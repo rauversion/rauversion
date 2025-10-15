@@ -52,6 +52,30 @@ module VenueRatings
           count_delta: 0
         )
 
+        # Star bucket change
+        before_bucket = star_bucket(before[:overall_rating])
+        after_bucket  = star_bucket(after[:overall_rating])
+        if before_bucket != after_bucket
+          # remove from previous
+          upsert_increment!(
+            venue_id: after[:venue_id],
+            bucket_on: after[:bucket_on],
+            reviewer_role: after[:reviewer_role],
+            metric: "star_#{before_bucket}",
+            sum_delta: 0,
+            count_delta: -1
+          )
+          # add to new
+          upsert_increment!(
+            venue_id: after[:venue_id],
+            bucket_on: after[:bucket_on],
+            reviewer_role: after[:reviewer_role],
+            metric: "star_#{after_bucket}",
+            sum_delta: 0,
+            count_delta: +1
+          )
+        end
+
         # Aspects: calcular delta por key y delta de count según presencia
         before_aspects = (before[:aspects] || {}).transform_keys(&:to_s)
         after_aspects  = (after[:aspects] || {}).transform_keys(&:to_s)
@@ -110,6 +134,17 @@ module VenueRatings
           count_delta: count_delta
         )
 
+        # Star bucket
+        bucket = star_bucket(snap[:overall_rating])
+        upsert_increment!(
+          venue_id: vid,
+          bucket_on: day,
+          reviewer_role: role,
+          metric: "star_#{bucket}",
+          sum_delta: 0,
+          count_delta: count_delta
+        )
+
         # Aspects
         (snap[:aspects] || {}).each do |k, v|
           next if v.nil?
@@ -131,6 +166,15 @@ module VenueRatings
       def to_num(v)
         return nil if v.nil?
         Float(v) rescue nil
+      end
+
+      def star_bucket(rating)
+        r = rating.to_f
+        # bucket to nearest integer 1..5 (avoid 0)
+        b = r.round
+        b = 1 if b < 1
+        b = 5 if b > 5
+        b
       end
 
       # Realiza UPSERT con incrementos en sum y count.

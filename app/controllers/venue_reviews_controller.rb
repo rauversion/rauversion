@@ -87,7 +87,7 @@ class VenueReviewsController < ApplicationController
     @role_counts = stats.overall.group(:reviewer_role).sum(:count)
 
     # Aspect averages
-    aspect_rows = stats.where.not(metric: "overall")
+    aspect_rows = stats.where.not(metric: "overall").where("metric NOT LIKE 'star_%'")
                        .group(:metric)
                        .select("metric, SUM(sum) AS s, SUM(count) AS c")
     @aspects = aspect_rows.map do |r|
@@ -95,6 +95,15 @@ class VenueReviewsController < ApplicationController
       avg = c > 0 ? (r.s.to_f / c.to_f).round(2) : nil
       { name: r.metric, avg: avg, count: c }
     end.sort_by { |a| - (a[:avg] || 0) }
+
+    # Star histogram (1..5)
+    star_rows = stats.where("metric LIKE 'star_%'")
+                     .group(:metric)
+                     .sum(:count)
+    @star_counts = {}
+    (1..5).each do |s|
+      @star_counts[s] = star_rows["star_#{s}"]&.to_i || 0
+    end
 
     respond_to do |format|
       format.json

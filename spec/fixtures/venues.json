@@ -1,0 +1,325 @@
+[
+  {
+    "name": "Club La Feria",
+    "city": "Santiago",
+    "country": "Chile",
+    "rating": 4.75,
+    "review_count": 1287,
+    "genres": [
+      "house",
+      "techno",
+      "tech-house"
+    ],
+    "capacity": 400,
+    "price_range": "$$",
+    "description": "Club icónico de música electrónica con programación semanal y sonido de alta fidelidad.",
+    "address": "Av. Constitución 275, Providencia"
+  },
+  {
+    "name": "Club Room (Ex Fábrica)",
+    "city": "Santiago",
+    "country": "Chile",
+    "rating": 4.42,
+    "review_count": 865,
+    "genres": [
+      "techno",
+      "tech-house",
+      "melodic house"
+    ],
+    "capacity": 1500,
+    "price_range": "$$",
+    "description": "Espacio industrial multi-ambiente con noches dedicadas a distintos subgéneros.",
+    "address": "Asunción 426, Recoleta"
+  },
+  {
+    "name": "Club Ámbar",
+    "city": "Santiago",
+    "country": "Chile",
+    "rating": 4.31,
+    "review_count": 1023,
+    "genres": [
+      "tech-house",
+      "techno",
+      "electrónica latina"
+    ],
+    "capacity": 600,
+    "price_range": "$$",
+    "description": "Club de espíritu underground; sede del ciclo Microclub los lunes.",
+    "address": "Ernesto Pinto Lagarrigue 154, Bellavista"
+  },
+  {
+    "name": "Club Amanda",
+    "city": "Santiago",
+    "country": "Chile",
+    "rating": 4.18,
+    "review_count": 740,
+    "genres": [
+      "house",
+      "techno melódico",
+      "electro-pop"
+    ],
+    "capacity": 900,
+    "price_range": "$$",
+    "description": "Venue grande y versátil con tres salas y programación mixta.",
+    "address": "Luis Pasteur 5421, Vitacura"
+  },
+  {
+    "name": "Club Subterráneo",
+    "city": "Santiago",
+    "country": "Chile",
+    "rating": 4.07,
+    "review_count": 658,
+    "genres": [
+      "tech-house",
+      "electro",
+      "nu-disco"
+    ],
+    "capacity": 450,
+    "price_range": "$$",
+    "description": "Club céntrico con pista subterránea y ciclos electrónicos semanales.",
+    "address": "Paseo Orrego Luco 46, Providencia"
+  },
+  {
+    "name": "Blondie",
+    "city": "Santiago",
+    "country": "Chile",
+    "rating": 4.26,
+    "review_count": 2105,
+    "genres": [
+      "synthwave",
+      "EBM",
+      "electro",
+      "techno"
+    ],
+    "capacity": 1800,
+    "price_range": "$$",
+    "description": "Discoteca histórica alternativa con eventos electrónicos y retro.",
+    "address": "Av. Libertador Bernardo O'Higgins 2879, Santiago Centro"
+  },
+  {
+    "name": "Sala Metrónomo",
+    "city": "Santiago",
+    "country": "Chile",
+    "rating": 4.19,
+    "review_count": 490,
+    "genres": [
+      "techno",
+      "trance",
+      "live electronics"
+    ],
+    "capacity": 700,
+    "price_range": "$$",
+    "description": "Sala de conciertos moderna que acoge noches electrónicas y lives.",
+    "address": "Barrio Bellavista, Santiago"
+  },
+  {
+    "name": "Bar El Clan",
+    "city": "Santiago",
+    "country": "Chile",
+    "rating": 4.15,
+    "review_count": 1120,
+    "genres": [
+      "house",
+      "electro-funk",
+      "downtempo"
+    ],
+    "capacity": 350,
+    "price_range": "$$",
+    "description": "Bar icónico con ciclos electrónicos entre semana.",
+    "address": "Bombero Núñez 363, Bellavista"
+  },
+  {
+    "name": "Espacio Riesco",
+    "city": "Santiago",
+    "country": "Chile",
+    "rating": 4.52,
+    "review_count": 3890,
+    "genres": [
+      "EDM",
+      "techno",
+      "house",
+      "trance",
+      "hardstyle"
+    ],
+    "capacity": 25000,
+    "price_range": "$$$",
+    "description": "Centro de eventos masivo usado para festivales y raves multi-escenario.",
+    "address": "Av. El Salto 5000, Huechuraba"
+  },
+  {
+    "name": "Club Hípico de Santiago",
+    "city": "Santiago",
+    "country": "Chile",
+    "rating": 4.33,
+    "review_count": 5270,
+    "genres": [
+      "EDM",
+      "house",
+      "techno",
+      "trance"
+    ],
+    "capacity": 30000,
+    "price_range": "$$$",
+    "description": "Hipódromo que se transforma en parque festivalero para grandes jornadas.",
+    "address": "Av. Blanco Encalada 2540, Santiago"
+  },
+  {
+    "name": "Parque Padre Hurtado",
+    "city": "La Reina (Santiago)",
+    "country": "Chile",
+    "rating": 4.40,
+    "review_count": 9200,
+    "genres": [
+      "house",
+      "melodic techno",
+      "downtempo"
+    ],
+    "capacity": 20000,
+    "price_range": "$$",
+    "description": "Parque urbano utilizado para festivales diurnos tipo picnic electrónico.",
+    "address": "Av. Francisco Bilbao 8750, La Reina"
+  },
+  {
+    "name": "Parque Titanium (Costanera Sur)",
+    "city": "Santiago",
+    "country": "Chile",
+    "rating": 4.22,
+    "review_count": 1780,
+    "genres": [
+      "techno",
+      "house",
+      "electrónica experimental"
+    ],
+    "capacity": 12000,
+    "price_range": "$$",
+    "description": "Explanada urbana para festivales boutique y eventos de vanguardia.",
+    "address": "Parque Titanium, Las Condes"
+  },
+  {
+    "name": "Espacio Sporting",
+    "city": "Viña del Mar",
+    "country": "Chile",
+    "rating": 4.29,
+    "review_count": 2640,
+    "genres": [
+      "house",
+      "techno",
+      "EDM"
+    ],
+    "capacity": 15000,
+    "price_range": "$$",
+    "description": "Recinto abierto de gran escala usado para festivales y shows electrónicos.",
+    "address": "Av. Los Castaños 404, Viña del Mar"
+  },
+  {
+    "name": "Club O",
+    "city": "Viña del Mar",
+    "country": "Chile",
+    "rating": 4.03,
+    "review_count": 380,
+    "genres": [
+      "tech-house",
+      "house"
+    ],
+    "capacity": 450,
+    "price_range": "$$",
+    "description": "Club costero con fechas electrónicas regulares.",
+    "address": "Centro de Viña del Mar"
+  },
+  {
+    "name": "Casa de Salud",
+    "city": "Concepción",
+    "country": "Chile",
+    "rating": 4.36,
+    "review_count": 5120,
+    "genres": [
+      "techno",
+      "house",
+      "electrónica experimental"
+    ],
+    "capacity": 1200,
+    "price_range": "$$",
+    "description": "Centro cultural nocturno con múltiples ambientes y pista electrónica.",
+    "address": "Brasil 574, Concepción"
+  },
+  {
+    "name": "Trotamundos Terraza",
+    "city": "Quilpué",
+    "country": "Chile",
+    "rating": 4.24,
+    "review_count": 1890,
+    "genres": [
+      "house",
+      "techno",
+      "live electronics"
+    ],
+    "capacity": 900,
+    "price_range": "$$",
+    "description": "Venue con terraza que programa ciclos electrónicos y lives.",
+    "address": "Aníbal Pinto 851, Quilpué"
+  },
+  {
+    "name": "Teatro Caupolicán",
+    "city": "Santiago",
+    "country": "Chile",
+    "rating": 4.34,
+    "review_count": 14200,
+    "genres": [
+      "techno",
+      "trance",
+      "EDM"
+    ],
+    "capacity": 5000,
+    "price_range": "$$",
+    "description": "Teatro histórico para shows electrónicos de gran convocatoria.",
+    "address": "San Diego 850, Santiago"
+  },
+  {
+    "name": "Paine Open Air (Monte Mapu / Montemapu)",
+    "city": "Paine",
+    "country": "Chile",
+    "rating": 4.48,
+    "review_count": 1125,
+    "genres": [
+      "psytrance",
+      "progressive",
+      "techno"
+    ],
+    "capacity": 8000,
+    "price_range": "$$",
+    "description": "Locación natural para festivales de 2-3 días con camping y arte visual.",
+    "address": "Sector rural, Paine (sur de RM)"
+  },
+  {
+    "name": "Centro Cultural Matucana 100 (M100)",
+    "city": "Santiago",
+    "country": "Chile",
+    "rating": 4.45,
+    "review_count": 8700,
+    "genres": [
+      "electrónica experimental",
+      "ambient",
+      "techno"
+    ],
+    "capacity": 1000,
+    "price_range": "$$",
+    "description": "Centro cultural con salas y explanada para ciclos de electrónica avanzada.",
+    "address": "Matucana 100, Estación Central"
+  },
+  {
+    "name": "Club El Huevo",
+    "city": "Valparaíso",
+    "country": "Chile",
+    "rating": 4.05,
+    "review_count": 5200,
+    "genres": [
+      "house",
+      "tech-house",
+      "bass"
+    ],
+    "capacity": 1400,
+    "price_range": "$$",
+    "description": "Multiespacio porteño con noches electrónicas en distintos pisos.",
+    "address": "Blanco 1386, Valparaíso"
+  }
+]

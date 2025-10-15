@@ -11,6 +11,7 @@ import ReviewList from "./ReviewList";
 import ReviewForm from "./ReviewForm";
 import useAuthStore from "@/stores/authStore";
 import RatingsSummary from "./RatingsSummary";
+import RatingsBreakdown from "./RatingsBreakdown";
 
 function Loading() {
   return (
@@ -162,11 +163,11 @@ export default function VenueShow() {
         </div>
       </section>
 
-      <div className="px-4 sm:px-8 py-6">
+      {/*<div className="px-4 sm:px-8 py-6">
         <div className="max-w-6xl mx-auto">
           <RatingsSummary venueSlug={slug} />
         </div>
-      </div>
+      </div>*/}
 
       <div className="px-4 sm:px-8 py-10">
         <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -183,6 +184,11 @@ export default function VenueShow() {
 
           <Card className="p-6 space-y-4">
             <h2 className="text-xl font-semibold">Información</h2>
+            <RatingsBreakdown venueSlug={slug} />
+
+            <h2 className="text-xl font-semibold">Información</h2>
+
+
             <Separator />
             <div className="space-y-2 text-sm">
               {address && (
@@ -204,6 +210,10 @@ export default function VenueShow() {
               </a>
             )}
           </Card>
+
+          <div className="md:col-span-1">
+
+          </div>
         </div>
       </div>
 

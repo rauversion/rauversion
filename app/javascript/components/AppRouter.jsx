@@ -108,6 +108,7 @@ import SpinningVideo from "./spinning-video"
 import VenuesIndex from "./venues/Index"
 import VenuesNew from "./venues/New"
 import VenueShow from "./venues/Show"
+import VenuesEdit from "./venues/Edit"
 
 
 import { Footer, ScrollRestoration, LoadingSpinner } from '@/components/shared'
@@ -270,6 +271,7 @@ function AppContent() {
           <Route path="/albums" element={<AlbumsIndex />} />
           <Route path="/artists" element={<ArtistsIndex />} />
           <Route path="/venues/new" element={<RequireAuth><VenuesNew /></RequireAuth>} />
+          <Route path="/venues/:slug/edit" element={<RequireAuth><VenuesEdit /></RequireAuth>} />
           <Route path="/venues/:slug" element={<VenueShow />} />
           <Route path="/venues" element={<VenuesIndex />} />
           <Route path="/store" element={<StoreIndex />} />
