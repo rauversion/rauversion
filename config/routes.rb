@@ -1,6 +1,14 @@
 require_relative "../lib/constraints/username_route_contrainer"
 
 Rails.application.routes.draw do
+  resources :venues do
+    resources :venue_reviews, only: [:index, :create] do
+      collection do
+        get :summary
+      end
+    end
+  end
+  resources :venue_reviews, only: [:show, :update, :destroy]
   resources :pages do
     collection do
       get :menus

@@ -105,6 +105,9 @@ import CourseForm from "./courses/form"
 import LessonShow from "./courses/lessonShow"
 
 import SpinningVideo from "./spinning-video"
+import VenuesIndex from "./venues/Index"
+import VenuesNew from "./venues/New"
+import VenueShow from "./venues/Show"
 
 
 import { Footer, ScrollRestoration, LoadingSpinner } from '@/components/shared'
@@ -266,6 +269,9 @@ function AppContent() {
           <Route path="/releases/:id" element={<ReleasePreview />} />
           <Route path="/albums" element={<AlbumsIndex />} />
           <Route path="/artists" element={<ArtistsIndex />} />
+          <Route path="/venues/new" element={<RequireAuth><VenuesNew /></RequireAuth>} />
+          <Route path="/venues/:slug" element={<VenueShow />} />
+          <Route path="/venues" element={<VenuesIndex />} />
           <Route path="/store" element={<StoreIndex />} />
           <Route path="/store/:type" element={<CategoryView />} />
           <Route path="/demo/alerts" element={<InterestAlertDemo />} />

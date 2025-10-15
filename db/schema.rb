@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_25_230031) do
+ActiveRecord::Schema[8.0].define(version: 2025_10_15_005400) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -949,6 +949,59 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_25_230031) do
     t.index ["unlock_token"], name: "index_users_on_unlock_token", unique: true
   end
 
+  create_table "venue_rating_stats", force: :cascade do |t|
+    t.bigint "venue_id", null: false
+    t.date "bucket_on", null: false
+    t.string "reviewer_role", null: false
+    t.string "metric", null: false
+    t.decimal "sum", precision: 10, scale: 2, default: "0.0", null: false
+    t.integer "count", default: 0, null: false
+    t.datetime "last_review_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["venue_id", "bucket_on", "reviewer_role", "metric"], name: "idx_venue_rating_stats_unique_bucket", unique: true
+    t.index ["venue_id", "metric", "bucket_on"], name: "idx_venue_rating_stats_lookup"
+    t.index ["venue_id"], name: "index_venue_rating_stats_on_venue_id"
+  end
+
+  create_table "venue_reviews", force: :cascade do |t|
+    t.bigint "venue_id", null: false
+    t.bigint "user_id", null: false
+    t.string "reviewer_role", null: false
+    t.decimal "overall_rating", precision: 2, scale: 1, null: false
+    t.jsonb "aspects", default: {}, null: false
+    t.text "comment"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["aspects"], name: "index_venue_reviews_on_aspects", using: :gin
+    t.index ["reviewer_role"], name: "index_venue_reviews_on_reviewer_role"
+    t.index ["user_id"], name: "index_venue_reviews_on_user_id"
+    t.index ["venue_id"], name: "index_venue_reviews_on_venue_id"
+  end
+
+  create_table "venues", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "city"
+    t.string "country"
+    t.decimal "rating", precision: 3, scale: 2, default: "0.0", null: false
+    t.integer "review_count", default: 0, null: false
+    t.string "genres", array: true
+    t.integer "capacity"
+    t.string "price_range"
+    t.text "description"
+    t.string "address"
+    t.decimal "lat", precision: 10, scale: 6
+    t.decimal "lng", precision: 10, scale: 6
+    t.string "slug"
+    t.text "image_url"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["city"], name: "index_venues_on_city"
+    t.index ["country"], name: "index_venues_on_country"
+    t.index ["genres"], name: "index_venues_on_genres", using: :gin
+    t.index ["slug"], name: "index_venues_on_slug", unique: true
+  end
+
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "comments", "users"
@@ -1024,4 +1077,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_25_230031) do
   add_foreign_key "track_playlists", "tracks"
   add_foreign_key "tracks", "users"
   add_foreign_key "user_links", "users"
+  add_foreign_key "venue_rating_stats", "venues"
+  add_foreign_key "venue_reviews", "users"
+  add_foreign_key "venue_reviews", "venues"
 end
