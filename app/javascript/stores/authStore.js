@@ -5,6 +5,7 @@ const useAuthStore = create((set, get) => ({
   currentUser: null,
   labelUser: null,
   cartItemCount: 0,
+  unreadMessagesCount: 0,
   i18n: { locale: 'en' },
   env: {},
   loading: true,
@@ -25,6 +26,7 @@ const useAuthStore = create((set, get) => ({
           currentUser: data.current_user,
           labelUser: data.label_user,
           cartItemCount: data.cart_item_count,
+          unreadMessagesCount: data.current_user?.unread_messages_count || 0,
           i18n: data.i18n,
           env: data.env,
           loading: false,
@@ -35,6 +37,7 @@ const useAuthStore = create((set, get) => ({
           currentUser: null,
           labelUser: null,
           cartItemCount: 0,
+          unreadMessagesCount: 0,
           loading: false,
           error: 'Failed to load user data'
         })
@@ -44,6 +47,7 @@ const useAuthStore = create((set, get) => ({
         currentUser: null,
         labelUser: null,
         cartItemCount: 0,
+        unreadMessagesCount: 0,
         loading: false,
         error: error.message
       })
@@ -61,6 +65,7 @@ const useAuthStore = create((set, get) => ({
           currentUser: null,
           labelUser: null,
           cartItemCount: 0,
+          unreadMessagesCount: 0,
           loading: false,
           error: null
         })
@@ -78,6 +83,23 @@ const useAuthStore = create((set, get) => ({
   // Update cart item count
   updateCartItemCount: (count) => {
     set({ cartItemCount: count })
+  },
+
+  // Update unread messages count
+  updateUnreadMessagesCount: (count) => {
+    set({ unreadMessagesCount: count })
+  },
+
+  // Increment unread messages count
+  incrementUnreadMessagesCount: () => {
+    set((state) => ({ unreadMessagesCount: state.unreadMessagesCount + 1 }))
+  },
+
+  // Decrement unread messages count
+  decrementUnreadMessagesCount: () => {
+    set((state) => ({ 
+      unreadMessagesCount: Math.max(0, state.unreadMessagesCount - 1) 
+    }))
   },
 
   setCurrentUser: (user) => {

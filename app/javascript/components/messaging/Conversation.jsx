@@ -25,7 +25,7 @@ const Conversation = ({ conversationId, currentUserId }) => {
   const scrollAreaRef = useRef(null)
   const { register, handleSubmit, reset } = useForm()
   const { subscribe, unsubscribe } = useActionCable()
-  
+
   const {
     currentConversation,
     loading: conversationLoading,
@@ -53,9 +53,9 @@ const Conversation = ({ conversationId, currentUserId }) => {
     perPage: 20
   })
 
-  useEffect(()=>{
-    if(!paginatedMessages.length > 0) return
-    if(messagesLoading) return
+  useEffect(() => {
+    if (!paginatedMessages.length > 0) return
+    if (messagesLoading) return
     //if(conversationLoading) return
     setMessages(paginatedMessages)
   }, [paginatedMessages, conversationId])
@@ -114,7 +114,7 @@ const Conversation = ({ conversationId, currentUserId }) => {
 
   const handleScroll = useCallback((event) => {
     const { scrollTop } = event.target
-    
+
     // Load more when scrolled near the top
     if (scrollTop < 100 && hasMore && !messagesLoading) {
       loadMore()
@@ -198,11 +198,11 @@ const Conversation = ({ conversationId, currentUserId }) => {
                 <Badge variant="outline" className="text-xs">
                   {currentConversation.messageable_type}
                 </Badge>
-                <Badge 
+                <Badge
                   variant={
                     currentConversation.status === 'active' ? 'default' :
-                    currentConversation.status === 'archived' ? 'secondary' :
-                    'outline'
+                      currentConversation.status === 'archived' ? 'secondary' :
+                        'outline'
                   }
                   className="text-xs"
                 >
@@ -213,8 +213,8 @@ const Conversation = ({ conversationId, currentUserId }) => {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="icon"
               onClick={() => handleStatusUpdate('archived')}
               disabled={currentConversation.status !== 'active'}
@@ -222,8 +222,8 @@ const Conversation = ({ conversationId, currentUserId }) => {
             >
               <Archive className="h-4 w-4" />
             </Button>
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="icon"
               onClick={() => handleStatusUpdate('closed')}
               disabled={currentConversation.status === 'closed'}
@@ -253,7 +253,7 @@ const Conversation = ({ conversationId, currentUserId }) => {
                       Media
                     </TabsTrigger>
                   </TabsList>
-                  
+
                   <TabsContent value="participants" className="flex-1">
                     <ScrollArea className="h-[calc(100vh-8rem)] p-4">
                       <div className="space-y-4">
@@ -279,7 +279,7 @@ const Conversation = ({ conversationId, currentUserId }) => {
                         <div>
                           <h3 className="font-medium mb-2">Conversation Status</h3>
                           <div className="flex gap-2">
-                            <Button 
+                            <Button
                               variant={currentConversation.status === 'active' ? 'default' : 'outline'}
                               size="sm"
                               onClick={() => handleStatusUpdate('active')}
@@ -287,7 +287,7 @@ const Conversation = ({ conversationId, currentUserId }) => {
                             >
                               Active
                             </Button>
-                            <Button 
+                            <Button
                               variant={currentConversation.status === 'archived' ? 'default' : 'outline'}
                               size="sm"
                               onClick={() => handleStatusUpdate('archived')}
@@ -295,7 +295,7 @@ const Conversation = ({ conversationId, currentUserId }) => {
                             >
                               Archive
                             </Button>
-                            <Button 
+                            <Button
                               variant={currentConversation.status === 'closed' ? 'default' : 'outline'}
                               size="sm"
                               onClick={() => handleStatusUpdate('closed')}
@@ -305,7 +305,7 @@ const Conversation = ({ conversationId, currentUserId }) => {
                             </Button>
                           </div>
                         </div>
-                        
+
                         <div>
                           <h3 className="font-medium mb-2">Conversation Type</h3>
                           <Badge variant="outline">
@@ -332,7 +332,7 @@ const Conversation = ({ conversationId, currentUserId }) => {
       </div>
 
       {/* Messages */}
-      <ScrollArea 
+      <ScrollArea
         ref={scrollAreaRef}
         className="flex-1-- px-6 pt-6 h-[calc(100vh-27rem)]"
         onScroll={handleScroll}
@@ -343,16 +343,22 @@ const Conversation = ({ conversationId, currentUserId }) => {
             <p className="text-sm text-muted-foreground mt-2">{I18n.t('messages.loading')}</p>
           </div>
         )}
-        
-        <AnimatePresence>
-          {messages.map((message) => (
-            <Message
-              key={message.id}
-              message={message}
-              currentUserId={currentUserId}
-            />
-          ))}
-        </AnimatePresence>
+
+        {
+          messagesLoading
+        }
+
+        {!messagesLoading &&
+          <AnimatePresence>
+            {messages.map((message) => (
+              <Message
+                key={message.id}
+                message={message}
+                currentUserId={currentUserId}
+              />
+            ))}
+          </AnimatePresence>
+        }
         <div ref={messagesEndRef} />
       </ScrollArea>
 
@@ -378,7 +384,7 @@ const Conversation = ({ conversationId, currentUserId }) => {
           <Alert variant={"info"} className="bg-muted">
             <AlertTitle>Conversation Archived</AlertTitle>
             <AlertDescription>
-              This conversation 
+              This conversation
             </AlertDescription>
           </Alert>
         )
