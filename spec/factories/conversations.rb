@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :conversation do
-    subject { "MyString" }
-    messageable { nil }
-    status { "MyString" }
+    subject { "Test Conversation" }
+    association :messageable, factory: :user
+    status { "active" }
   end
 end

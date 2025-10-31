@@ -356,4 +356,21 @@ class User < ApplicationRecord
       ['21+ Content', '21']
     ]
   end
+
+  def unread_messages_count
+    # Get all messages from conversations this user is part of
+    # that are not sent by this user and haven't been read by this user's participant
+    participant_ids = participants.pluck(:id)
+    
+    Message
+      .joins(:conversation)
+      .joins("INNER JOIN participants ON participants.conversation_id = conversations.id")
+      .where(participants: { user_id: id })
+      .where.not(user_id: id)
+      .where.not(
+        id: MessageRead.where(participant_id: participant_ids).select(:message_id)
+      )
+      .distinct
+      .count
+  end
 end
