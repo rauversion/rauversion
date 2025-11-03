@@ -468,6 +468,13 @@ Rails.application.routes.draw do
       get "/label_artists", to: "users#artists", as: :label_artists
 
       get "/articles", to: "users#articles"
+      
+      # Press kit routes
+      get "/presskit", to: "press_kits#show", as: :press_kit
+      get "/presskit/edit", to: "press_kits#edit", as: :edit_press_kit
+      patch "/presskit", to: "press_kits#update"
+      put "/presskit", to: "press_kits#update"
+      
       member do
         get :playlists, format: :json, to: 'users#playlists_api'
       end
