@@ -551,6 +551,7 @@ module ApplicationHelper
       {to: user_articles_path(@user.username), name: t("profile.articles"), hidden: !@user.is_admin?, key: "articles" },
       {to: user_products_path(@user.username), name: t("menu.store"), hidden: !@user.can_sell_products?, key: "products" },
       {to: user_artists_path(@user.username), name: t("profile.artists"), hidden: !@user.label?, key: "artists" },
+      {to: user_press_kit_path(@user.username), name: "Press Kit", key: "presskit" },
     ].compact
 
   end
