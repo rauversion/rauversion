@@ -1904,3 +1904,5 @@ en:
       error:
         title: "Error"
         description: "An unexpected error occurred"
+  press_kits:
+    not_found: "Press kit not found or not available"

@@ -1964,3 +1964,6 @@ es:
       error:
         title: "Error"
         description: "Ocurrió un error inesperado"
+
+  press_kits:
+    not_found: "Kit de prensa no encontrado o no disponible"
