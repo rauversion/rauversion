@@ -7,7 +7,10 @@ class PressKitsController < ApplicationController
   def show
     if @press_kit.new_record? || (!@press_kit.published? && !authorized_to_edit?)
       respond_to do |format|
-        format.html { render inline: "", layout: "react", notice: I18n.t("press_kits.not_found") }
+        format.html do
+          flash[:notice] = I18n.t("press_kits.not_found")
+          render inline: "", layout: "react"
+        end
         format.json { render json: { error: I18n.t("press_kits.not_found") }, status: :not_found }
       end
       return
@@ -46,7 +49,10 @@ class PressKitsController < ApplicationController
     @user = User.find_by(username: params[:username])
     unless @user
       respond_to do |format|
-        format.html { render inline: "", layout: "react", notice: I18n.t("users.not_found") }
+        format.html do
+          flash[:notice] = I18n.t("users.not_found")
+          render inline: "", layout: "react"
+        end
         format.json { render json: { error: I18n.t("users.not_found") }, status: :not_found }
       end
     end
@@ -77,7 +83,7 @@ class PressKitsController < ApplicationController
       :stage_plot,
       :booking_info,
       :published,
-      settings: [:video_urls, :featured_track_ids, :featured_playlist_ids],
+      settings: { video_urls: [], featured_track_ids: [], featured_playlist_ids: [] },
       photos: [],
       documents: []
     )
