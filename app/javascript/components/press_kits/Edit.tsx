@@ -7,10 +7,10 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { ArrowLeft, Save, Loader2 } from 'lucide-react'
 import { LoadingSpinner } from '@/components/shared'
+import SimpleEditor from '@/components/ui/SimpleEditor'
 
 interface PressKitFormData {
   bio: string
@@ -176,12 +176,11 @@ export default function PressKitEdit() {
             <CardDescription>Your artist biography for press and promotional use</CardDescription>
           </CardHeader>
           <CardContent>
-            <Textarea
+            <SimpleEditor
               value={formData.bio}
-              onChange={(e) => handleChange('bio', e.target.value)}
-              placeholder="Write your biography here..."
-              rows={6}
-              className="w-full"
+              onChange={(value) => handleChange('bio', value)}
+              scope="press_kit"
+              aiPromptContext="Write a professional biography for an artist or DJ"
             />
           </CardContent>
         </Card>
@@ -193,12 +192,11 @@ export default function PressKitEdit() {
             <CardDescription>Latest press release or official announcement</CardDescription>
           </CardHeader>
           <CardContent>
-            <Textarea
+            <SimpleEditor
               value={formData.press_release}
-              onChange={(e) => handleChange('press_release', e.target.value)}
-              placeholder="Write your press release here..."
-              rows={6}
-              className="w-full"
+              onChange={(value) => handleChange('press_release', value)}
+              scope="press_kit"
+              aiPromptContext="Write a professional press release for an artist announcement"
             />
           </CardContent>
         </Card>
@@ -252,12 +250,11 @@ export default function PressKitEdit() {
               <CardDescription>Technical requirements for performances</CardDescription>
             </CardHeader>
             <CardContent>
-              <Textarea
+              <SimpleEditor
                 value={formData.technical_rider}
-                onChange={(e) => handleChange('technical_rider', e.target.value)}
-                placeholder="Equipment, setup requirements, etc..."
-                rows={6}
-                className="w-full"
+                onChange={(value) => handleChange('technical_rider', value)}
+                scope="press_kit"
+                aiPromptContext="List technical requirements for a DJ or artist performance"
               />
             </CardContent>
           </Card>
@@ -268,12 +265,11 @@ export default function PressKitEdit() {
               <CardDescription>Stage setup and layout information</CardDescription>
             </CardHeader>
             <CardContent>
-              <Textarea
+              <SimpleEditor
                 value={formData.stage_plot}
-                onChange={(e) => handleChange('stage_plot', e.target.value)}
-                placeholder="Stage layout, positions, etc..."
-                rows={6}
-                className="w-full"
+                onChange={(value) => handleChange('stage_plot', value)}
+                scope="press_kit"
+                aiPromptContext="Describe the stage setup and layout for a performance"
               />
             </CardContent>
           </Card>
@@ -286,12 +282,11 @@ export default function PressKitEdit() {
             <CardDescription>Contact information for bookings and inquiries</CardDescription>
           </CardHeader>
           <CardContent>
-            <Textarea
+            <SimpleEditor
               value={formData.booking_info}
-              onChange={(e) => handleChange('booking_info', e.target.value)}
-              placeholder="Email, phone, agent information, etc..."
-              rows={4}
-              className="w-full"
+              onChange={(value) => handleChange('booking_info', value)}
+              scope="press_kit"
+              aiPromptContext="Write professional booking contact information"
             />
           </CardContent>
         </Card>

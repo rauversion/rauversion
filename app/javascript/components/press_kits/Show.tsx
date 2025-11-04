@@ -141,7 +141,10 @@ export default function PressKitShow() {
             <CardTitle>Biography</CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="whitespace-pre-wrap">{pressKit.bio}</p>
+            <div 
+              className="prose dark:prose-invert max-w-none"
+              dangerouslySetInnerHTML={{ __html: pressKit.bio }}
+            />
           </CardContent>
         </Card>
       )}
@@ -186,7 +189,10 @@ export default function PressKitShow() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="whitespace-pre-wrap">{pressKit.press_release}</p>
+            <div 
+              className="prose dark:prose-invert max-w-none"
+              dangerouslySetInnerHTML={{ __html: pressKit.press_release }}
+            />
           </CardContent>
         </Card>
       )}
@@ -226,7 +232,10 @@ export default function PressKitShow() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="whitespace-pre-wrap">{pressKit.technical_rider}</p>
+              <div 
+                className="prose dark:prose-invert max-w-none"
+                dangerouslySetInnerHTML={{ __html: pressKit.technical_rider }}
+              />
             </CardContent>
           </Card>
         )}
@@ -240,7 +249,10 @@ export default function PressKitShow() {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="whitespace-pre-wrap">{pressKit.stage_plot}</p>
+              <div 
+                className="prose dark:prose-invert max-w-none"
+                dangerouslySetInnerHTML={{ __html: pressKit.stage_plot }}
+              />
             </CardContent>
           </Card>
         )}
@@ -256,7 +268,10 @@ export default function PressKitShow() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="whitespace-pre-wrap">{pressKit.booking_info}</p>
+            <div 
+              className="prose dark:prose-invert max-w-none"
+              dangerouslySetInnerHTML={{ __html: pressKit.booking_info }}
+            />
           </CardContent>
         </Card>
       )}
