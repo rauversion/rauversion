@@ -8,9 +8,9 @@ class PressKit < ApplicationRecord
   validates :user_id, uniqueness: true
   
   # Store attributes for settings
-  store_attribute :settings, :video_urls, :array, default: []
-  store_attribute :settings, :featured_track_ids, :array, default: []
-  store_attribute :settings, :featured_playlist_ids, :array, default: []
+  store_attribute :settings, :video_urls, :json, default: []
+  store_attribute :settings, :featured_track_ids, :json, default: []
+  store_attribute :settings, :featured_playlist_ids, :json, default: []
   
   # Scopes
   scope :published, -> { where(published: true) }
