@@ -96,6 +96,14 @@ class UserSettingsController < ApplicationController
       :new_message_email,
       :new_message_app,
       :like_and_plays_on_your_post_email,
+      :email_sign_up,
+      :google_analytics_id,
+      :facebook_pixel_id,
+      :social_title,
+      :social_description,
+      :sensitive_content,
+      :age_restriction,
+
       podcaster_info_attributes: [
         :id,
         :title, :about, :description, :avatar, :active,
