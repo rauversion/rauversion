@@ -8,6 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator'
 import { Download, Edit, Music, FileText, MapPin, Mail } from 'lucide-react'
 import { LoadingSpinner } from '@/components/shared'
+import { Render } from '@measured/puck'
+import { config } from '@/components/puck'
 
 interface PressKit {
   id: number
@@ -17,6 +19,8 @@ interface PressKit {
   stage_plot: string
   booking_info: string
   published: boolean
+  use_builder?: boolean
+  editor_data?: any
   settings: {
     video_urls?: string[]
     featured_track_ids?: number[]
@@ -112,6 +116,30 @@ export default function PressKitShow() {
     )
   }
 
+  // If using builder, render with Puck
+  if (pressKit.use_builder && pressKit.editor_data) {
+    return (
+      <div>
+        {canEdit && (
+          <div className="border-b bg-background">
+            <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+              <h1 className="text-2xl font-bold">{pressKit.user.username} - Press Kit</h1>
+              <div className="flex gap-2">
+                <Link to={`/${username}/presskit/builder`}>
+                  <Button variant="outline" size="sm">
+                    <Edit className="mr-2 h-4 w-4" />
+                    Edit
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          </div>
+        )}
+        <Render config={config} data={pressKit.editor_data} />
+      </div>
+    )
+  }
+
   return (
     <div className="container mx-auto px-4 py-8">
       {/* Header */}
@@ -124,12 +152,19 @@ export default function PressKitShow() {
             </p>
           </div>
           {canEdit && (
-            <Link to={`/${username}/presskit/edit`}>
-              <Button variant="outline">
-                <Edit className="mr-2 h-4 w-4" />
-                Edit
-              </Button>
-            </Link>
+            <div className="flex gap-2">
+              <Link to={`/${username}/presskit/builder`}>
+                <Button variant="outline">
+                  Use Builder
+                </Button>
+              </Link>
+              <Link to={`/${username}/presskit/edit`}>
+                <Button variant="outline">
+                  <Edit className="mr-2 h-4 w-4" />
+                  Edit
+                </Button>
+              </Link>
+            </div>
           )}
         </div>
       </div>

@@ -156,15 +156,22 @@ export default function PressKitEdit() {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="mb-8">
-        <Link to={`/${username}/presskit`}>
-          <Button variant="ghost" size="sm">
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Back to Press Kit
-          </Button>
-        </Link>
+        <div className="flex items-center justify-between">
+          <Link to={`/${username}/presskit`}>
+            <Button variant="ghost" size="sm">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Press Kit
+            </Button>
+          </Link>
+          <Link to={`/${username}/presskit/builder`}>
+            <Button variant="outline" size="sm">
+              Use Page Builder
+            </Button>
+          </Link>
+        </div>
         <h1 className="text-4xl font-bold mt-4 mb-2">Edit Press Kit</h1>
         <p className="text-muted-foreground">
-          Manage your professional press kit
+          Manage your professional press kit with the form editor
         </p>
       </div>
 

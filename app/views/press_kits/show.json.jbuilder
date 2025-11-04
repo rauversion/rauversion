@@ -1,4 +1,4 @@
-json.extract! @press_kit, :id, :bio, :press_release, :technical_rider, :stage_plot, :booking_info, :published, :settings, :created_at, :updated_at
+json.extract! @press_kit, :id, :bio, :press_release, :technical_rider, :stage_plot, :booking_info, :published, :settings, :use_builder, :editor_data, :created_at, :updated_at
 
 json.user do
   json.partial! 'users/user', user: @user

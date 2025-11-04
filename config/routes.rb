@@ -472,6 +472,7 @@ Rails.application.routes.draw do
       # Press kit routes
       get "/presskit", to: "press_kits#show", as: :press_kit
       get "/presskit/edit", to: "press_kits#edit", as: :edit_press_kit
+      get "/presskit/builder", to: "press_kits#builder", as: :press_kit_builder
       patch "/presskit", to: "press_kits#update"
       put "/presskit", to: "press_kits#update"
       

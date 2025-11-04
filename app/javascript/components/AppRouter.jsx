@@ -108,6 +108,7 @@ import SpinningVideo from "./spinning-video"
 
 import PressKitShow from "./press_kits/Show"
 import PressKitEdit from "./press_kits/Edit"
+import PressKitBuilder from "./press_kits/Builder"
 
 import { Footer, ScrollRestoration, LoadingSpinner } from '@/components/shared'
 
@@ -286,6 +287,7 @@ function AppContent() {
           <Route path="/:username/links" element={<UserLinks />} />
           <Route path="/:username/presskit" element={<PressKitShow />} />
           <Route path="/:username/presskit/edit" element={<RequireAuth><PressKitEdit /></RequireAuth>} />
+          <Route path="/:username/presskit/builder" element={<RequireAuth><PressKitBuilder /></RequireAuth>} />
           <Route path="/:username/settings" element={<MySettings />}>
             <Route index element={<ProfileForm />} />
             <Route path="profile" element={<ProfileForm />} />

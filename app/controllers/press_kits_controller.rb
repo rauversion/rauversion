@@ -29,6 +29,13 @@ class PressKitsController < ApplicationController
     end
   end
 
+  def builder
+    respond_to do |format|
+      format.html
+      format.json
+    end
+  end
+
   def update
     if @press_kit.update(press_kit_params)
       respond_to do |format|
@@ -83,6 +90,8 @@ class PressKitsController < ApplicationController
       :stage_plot,
       :booking_info,
       :published,
+      :use_builder,
+      :editor_data,
       settings: { video_urls: [], featured_track_ids: [], featured_playlist_ids: [] },
       photos: [],
       documents: []
