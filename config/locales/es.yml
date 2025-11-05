@@ -856,6 +856,8 @@ es:
       validation:
         quantity_negative: "La cantidad no puede ser negativa"
         max_tickets: "Máximo %{count} entradas disponibles"
+        min_tickets_per_order: "Mínimo %{count} entradas por pedido"
+        max_tickets_per_order: "Máximo %{count} entradas por pedido"
       toast:
         error:
           title: "Error"

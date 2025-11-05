@@ -26,14 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
+
 import {
   Card,
   CardContent,
@@ -112,7 +105,8 @@ export default function Tickets() {
         const data = await response.json
 
         setEvent(data)
-        
+
+        console.log('Fetched tickets data:', data)
         // Reset form with current tickets
         form.reset({
           tickets: data.tickets?.map(ticket => ({
@@ -123,15 +117,15 @@ export default function Tickets() {
             qty: ticket.qty,
             selling_start: formatDateSafely(ticket.selling_start),
             selling_end: formatDateSafely(ticket.selling_end),
-            min_tickets_per_order: ticket.min_tickets_per_order,
-            max_tickets_per_order: ticket.max_tickets_per_order,
+            min_tickets_per_order: ticket.settings.min_tickets_per_order,
+            max_tickets_per_order: ticket.settings.max_tickets_per_order,
             requires_shipping: ticket.requires_shipping,
             show_remaining_count: ticket.show_remaining_count,
-            show_sell_until: ticket.show_sell_until,
-            show_after_sold_out: ticket.show_after_sold_out,
-            hidden: ticket.hidden,
-            after_purchase_message: ticket.after_purchase_message,
-            sales_channel: ticket.sales_channel,
+            show_sell_until: ticket.settings.show_sell_until,
+            show_after_sold_out: ticket.settings.show_after_sold_out,
+            hidden: ticket.settings.hidden,
+            after_purchase_message: ticket.settings.after_purchase_message,
+            sales_channel: ticket.settings.sales_channel,
           })) || []
         })
       } catch (error) {
@@ -365,7 +359,7 @@ export default function Tickets() {
                               <FormItem>
                                 <FormLabel>Sale Start</FormLabel>
                                 <FormControl>
-                                  <Input 
+                                  <Input
                                     type="datetime-local"
                                     {...field}
                                     value={field.value ? format(field.value, "yyyy-MM-dd'T'HH:mm") : ""}
@@ -387,7 +381,7 @@ export default function Tickets() {
                               <FormItem>
                                 <FormLabel>Sale End</FormLabel>
                                 <FormControl>
-                                  <Input 
+                                  <Input
                                     type="datetime-local"
                                     {...field}
                                     value={field.value ? format(field.value, "yyyy-MM-dd'T'HH:mm") : ""}
@@ -525,8 +519,8 @@ export default function Tickets() {
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel>Sales Channel</FormLabel>
-                                  <Select 
-                                    onValueChange={field.onChange} 
+                                  <Select
+                                    onValueChange={field.onChange}
                                     defaultValue={field.value}
                                   >
                                     <FormControl>
@@ -536,8 +530,8 @@ export default function Tickets() {
                                     </FormControl>
                                     <SelectContent>
                                       {salesChannelOptions.map((option) => (
-                                        <SelectItem 
-                                          key={option.value} 
+                                        <SelectItem
+                                          key={option.value}
                                           value={option.value}
                                         >
                                           {option.label}

@@ -789,6 +789,8 @@ en:
       validation:
         quantity_negative: "Quantity cannot be negative"
         max_tickets: "Maximum %{count} tickets available"
+        min_tickets_per_order: "Minimum %{count} tickets per order"
+        max_tickets_per_order: "Maximum %{count} tickets per order"
       toast:
         error:
           title: "Error"
