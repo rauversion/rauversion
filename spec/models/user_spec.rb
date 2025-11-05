@@ -68,4 +68,54 @@ RSpec.describe User, type: :model do
       expect(user.is_creator?).to be false
     end
   end
+
+  describe "#unread_messages_count" do
+    it "returns 0 when user has no conversations" do
+      user = FactoryBot.create(:user)
+      expect(user.unread_messages_count).to eq(0)
+    end
+
+    it "returns the count of unread messages for the user" do
+      user1 = FactoryBot.create(:user)
+      user2 = FactoryBot.create(:user)
+      
+      # Create a conversation with both users
+      conversation = FactoryBot.create(:conversation)
+      participant1 = FactoryBot.create(:participant, user: user1, conversation: conversation)
+      participant2 = FactoryBot.create(:participant, user: user2, conversation: conversation)
+      
+      # User2 sends 3 messages to the conversation
+      3.times do
+        FactoryBot.create(:message, conversation: conversation, user: user2)
+      end
+      
+      # User1 should have 3 unread messages
+      expect(user1.unread_messages_count).to eq(3)
+      
+      # User2 should have 0 unread messages (they sent them)
+      expect(user2.unread_messages_count).to eq(0)
+    end
+
+    it "does not count messages that have been read" do
+      user1 = FactoryBot.create(:user)
+      user2 = FactoryBot.create(:user)
+      
+      conversation = FactoryBot.create(:conversation)
+      participant1 = FactoryBot.create(:participant, user: user1, conversation: conversation)
+      participant2 = FactoryBot.create(:participant, user: user2, conversation: conversation)
+      
+      # User2 sends 2 messages
+      message1 = FactoryBot.create(:message, conversation: conversation, user: user2)
+      message2 = FactoryBot.create(:message, conversation: conversation, user: user2)
+      
+      # User1 should have 2 unread messages
+      expect(user1.unread_messages_count).to eq(2)
+      
+      # Mark first message as read by user1
+      FactoryBot.create(:message_read, message: message1, participant: participant1)
+      
+      # User1 should now have 1 unread message
+      expect(user1.unread_messages_count).to eq(1)
+    end
+  end
 end

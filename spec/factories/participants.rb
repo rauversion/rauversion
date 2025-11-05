@@ -1,7 +1,7 @@
 FactoryBot.define do
   factory :participant do
-    user { nil }
-    conversation { nil }
-    role { "MyString" }
+    association :user
+    association :conversation
+    role { "member" }
   end
 end

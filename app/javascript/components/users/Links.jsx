@@ -15,6 +15,7 @@ import {
 import { useForm } from 'react-hook-form'
 import { get, post, destroy, put } from '@rails/request.js'
 import { useToast } from '../../hooks/use-toast'
+import useAuthStore from '@/stores/authStore'
 
 export default function UserLinks() {
   const { username } = useParams()
@@ -25,11 +26,12 @@ export default function UserLinks() {
   const [isNewLinkDialogOpen, setIsNewLinkDialogOpen] = React.useState(false)
   const [isEditDialogOpen, setIsEditDialogOpen] = React.useState(false)
   const [editingLink, setEditingLink] = React.useState(null)
-  
-  const { 
-    data, 
+
+
+  const {
+    data,
     items: links,
-    isLoading, 
+    isLoading,
     error,
     page,
     fetchItems
@@ -39,6 +41,7 @@ export default function UserLinks() {
   const [isLoadingTypes, setIsLoadingTypes] = useState(false)
   const [wizardStep, setWizardStep] = useState('choose') // 'choose' or 'configure'
   const [selectedServices, setSelectedServices] = useState([])
+  const { currentUser } = useAuthStore()
 
   useEffect(() => {
     // Reset and initialize form values when linkTypes change
@@ -76,7 +79,7 @@ export default function UserLinks() {
     try {
       if (wizardStep === 'choose') {
         console.log('Raw form data:', formData)
-       
+
         const response = await post(`/${username}/links/wizard/configure.json`, {
           body: formData
         })
@@ -151,24 +154,24 @@ export default function UserLinks() {
     const baseClasses = "w-full"
     const fieldName = type === 'website' ? 'custom_url' : 'username'
     const label = type === 'website' ? 'URL' :
-                 type === 'whatsapp' ? 'Phone Number' :
-                 type === 'amazon' ? 'Amazon Shop Name' :
-                 'Username'
+      type === 'whatsapp' ? 'Phone Number' :
+        type === 'amazon' ? 'Amazon Shop Name' :
+          'Username'
 
     const placeholder = type === 'website' ? 'Enter the full URL' :
-                       type === 'whatsapp' ? '+1234567890' :
-                       type === 'amazon' ? 'your-shop-name' :
-                       type === 'thread' ? 'username' :
-                       type === 'snapchat' ? 'snapchat_username' :
-                       type === 'soundcloud' ? 'artist-name' :
-                       'Enter your username'
+      type === 'whatsapp' ? '+1234567890' :
+        type === 'amazon' ? 'your-shop-name' :
+          type === 'thread' ? 'username' :
+            type === 'snapchat' ? 'snapchat_username' :
+              type === 'soundcloud' ? 'artist-name' :
+                'Enter your username'
 
     const helper = type === 'whatsapp' ? 'Include country code (e.g., +1 for US)' :
-                  type === 'amazon' ? 'Enter your Amazon shop name (found in your store URL)' :
-                  type === 'thread' ? 'Enter without @ symbol (e.g., \'username\' not \'@username\')' :
-                  type === 'snapchat' ? 'Your Snapchat username without snapchat.com/add/' :
-                  type === 'soundcloud' ? 'Your SoundCloud profile name (found in your profile URL)' :
-                  null
+      type === 'amazon' ? 'Enter your Amazon shop name (found in your store URL)' :
+        type === 'thread' ? 'Enter without @ symbol (e.g., \'username\' not \'@username\')' :
+          type === 'snapchat' ? 'Your Snapchat username without snapchat.com/add/' :
+            type === 'soundcloud' ? 'Your SoundCloud profile name (found in your profile URL)' :
+              null
 
     return (
       <div key={type} className="bg-muted p-4 rounded-lg">
@@ -211,96 +214,182 @@ export default function UserLinks() {
     <div className="max-w-4xl mx-auto px-4 py-8">
       <div className="bg-default shadow rounded-lg p-6">
         <div className="flex flex-col items-center justify-between mb-6">
-            <div className="relative aspect-square overflow-hidden rounded-full mb-4">
-              <img 
-                src={user.avatar_url.medium} 
-                alt={user.username}
-                className="object-cover w-40 h-40 group-hover:scale-105 transition-transform duration-500"
-              />
-            </div>
+          <div className="relative aspect-square overflow-hidden rounded-full mb-4">
+            <img
+              src={user.avatar_url.medium}
+              alt={user.username}
+              className="object-cover w-40 h-40 group-hover:scale-105 transition-transform duration-500"
+            />
+          </div>
 
-            <h1 className="text-2xl font-bold text-default py-3">
-              {user.social_title}
-            </h1>
+          <h1 className="text-2xl font-bold text-default py-3">
+            {user.social_title}
+          </h1>
 
-            <p className="text-sm text-muted pb-4">
-              {user.social_description}
-            </p>
+          <p className="text-sm text-muted pb-4">
+            {user.social_description}
+          </p>
 
-            {links && links[0]?.can_edit && (
-              <div className="space-x-4">
-                <Dialog open={isNewLinkDialogOpen} onOpenChange={setIsNewLinkDialogOpen}>
-                  <DialogTrigger asChild>
-                    <Button variant="default">
-                      Add New Link
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="max-w-2xl">
-                    <DialogHeader>
-                      <DialogTitle>Add New Link</DialogTitle>
-                      <DialogDescription>
-                        Add a custom link to share with your audience.
-                      </DialogDescription>
-                    </DialogHeader>
+          {currentUser?.id === user?.id && (
+            <div className="space-x-4">
+              <Dialog open={isNewLinkDialogOpen} onOpenChange={setIsNewLinkDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="default">
+                    Add New Link
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>Add New Link</DialogTitle>
+                    <DialogDescription>
+                      Add a custom link to share with your audience.
+                    </DialogDescription>
+                  </DialogHeader>
 
-                    <form onSubmit={handleSubmitNew(async (data) => {
-                      setIsNewLinkDialogOpen(false)
-                      try {
-                        const response = await post(`/${username}/links.json`, {
-                          body: {
-                            user_links_website_link: {
-                              title: data.title,
-                              custom_url: data.url
-                            }
+                  <form onSubmit={handleSubmitNew(async (data) => {
+                    setIsNewLinkDialogOpen(false)
+                    try {
+                      const response = await post(`/${username}/links.json`, {
+                        body: {
+                          user_links_website_link: {
+                            title: data.title,
+                            custom_url: data.url
                           }
-                        })
-
-                        if (response.ok) {
-                          toast({
-                            title: "Success",
-                            description: "Link was successfully added.",
-                          })
-                          resetNew()
-                          fetchItems(page)
-                        } else {
-                          const errorData = await response.json
-                          toast({
-                            variant: "destructive",
-                            title: "Error",
-                            description: errorData.error || "Failed to add link",
-                          })
                         }
-                      } catch (error) {
-                        console.log(error)
+                      })
+
+                      if (response.ok) {
+                        toast({
+                          title: "Success",
+                          description: "Link was successfully added.",
+                        })
+                        resetNew()
+                        fetchItems(page)
+                      } else {
+                        const errorData = await response.json
                         toast({
                           variant: "destructive",
                           title: "Error",
-                          description: "An unexpected error occurred",
+                          description: errorData.error || "Failed to add link",
                         })
                       }
-                    })} className="space-y-4 mt-4">
-                      <div>
-                        <Label htmlFor="url">URL</Label>
-                        <Input
-                          id="url"
-                          {...registerNew("url", { required: "URL is required" })}
-                          placeholder="https://example.com"
-                        />
-                        {newErrors.url && (
-                          <p className="text-sm text-red-500 mt-1">{newErrors.url.message}</p>
-                        )}
-                      </div>
+                    } catch (error) {
+                      console.log(error)
+                      toast({
+                        variant: "destructive",
+                        title: "Error",
+                        description: "An unexpected error occurred",
+                      })
+                    }
+                  })} className="space-y-4 mt-4">
+                    <div>
+                      <Label htmlFor="url">URL</Label>
+                      <Input
+                        id="url"
+                        {...registerNew("url", { required: "URL is required" })}
+                        placeholder="https://example.com"
+                      />
+                      {newErrors.url && (
+                        <p className="text-sm text-red-500 mt-1">{newErrors.url.message}</p>
+                      )}
+                    </div>
 
-                      <div>
-                        <Label htmlFor="title">Display Title</Label>
-                        <Input
-                          id="title"
-                          {...registerNew("title", { required: "Title is required" })}
-                          placeholder="My Website"
-                        />
-                        {newErrors.title && (
-                          <p className="text-sm text-red-500 mt-1">{newErrors.title.message}</p>
-                        )}
+                    <div>
+                      <Label htmlFor="title">Display Title</Label>
+                      <Input
+                        id="title"
+                        {...registerNew("title", { required: "Title is required" })}
+                        placeholder="My Website"
+                      />
+                      {newErrors.title && (
+                        <p className="text-sm text-red-500 mt-1">{newErrors.title.message}</p>
+                      )}
+                    </div>
+
+                    <div className="flex justify-end space-x-3">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          setIsNewLinkDialogOpen(false)
+                          resetNew()
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                      <Button type="submit">
+                        Add Link
+                      </Button>
+                    </div>
+                  </form>
+                </DialogContent>
+              </Dialog>
+
+              <Dialog
+                open={isSocialDialogOpen}
+                onOpenChange={(open) => {
+                  setIsSocialDialogOpen(open)
+                  if (!open) {
+                    setWizardStep('choose')
+                    resetSocial()
+                    // Reset all checkbox values
+                    Object.keys(linkTypes).forEach(type => {
+                      setValueSocial(`services[${type}]`, false)
+                    })
+                  }
+                }}
+              >
+                <DialogTrigger asChild>
+                  <Button variant="outline">
+                    Configure Social Media
+                  </Button>
+                </DialogTrigger>
+
+                <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>
+                      {wizardStep === 'choose' ? 'Choose Social Media Services' : 'Configure Your Social Media Links'}
+                    </DialogTitle>
+                    <DialogDescription>
+                      {wizardStep === 'choose'
+                        ? 'Select which social media services you want to configure.'
+                        : 'Add your social media profiles to share with your audience.'}
+                    </DialogDescription>
+                  </DialogHeader>
+
+                  {isLoadingTypes ? (
+                    <div className="flex justify-center py-8">
+                      Loading...
+                    </div>
+                  ) : (
+                    <form onSubmit={handleSubmitSocial(onSubmitSocial)} className="space-y-8 mt-4">
+                      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        {wizardStep === 'choose'
+                          ? Object.entries(linkTypes).map(([type, data]) => (
+                            <div key={type} className="bg-muted p-4 rounded-lg">
+                              <div className="flex items-center space-x-3">
+                                <input
+                                  type="checkbox"
+                                  id={`services[${type}]`}
+                                  {...registerSocial(`services[${type}]`, {
+                                    onChange: (e) => {
+                                      setValueSocial(`services[${type}]`, e.target.checked)
+                                    }
+                                  })}
+                                  className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                                />
+                                <div className="flex items-center space-x-3">
+                                  <div className="bg-white rounded-lg p-1">
+                                    <img src={data.icon_url} alt={`${data.name} logo`} className="h-8 w-8" />
+                                  </div>
+                                  <Label htmlFor={`services[${type}]`} className="text-lg font-medium text-default">
+                                    {data.name}
+                                  </Label>
+                                </div>
+                              </div>
+                            </div>
+                          ))
+                          : selectedServices.map((service) => renderLinkInput(service.type, service))}
                       </div>
 
                       <div className="flex justify-end space-x-3">
@@ -308,290 +397,204 @@ export default function UserLinks() {
                           type="button"
                           variant="outline"
                           onClick={() => {
-                            setIsNewLinkDialogOpen(false)
-                            resetNew()
+                            setIsSocialDialogOpen(false)
+                            setWizardStep('choose')
+                            resetSocial()
                           }}
                         >
                           Cancel
                         </Button>
                         <Button type="submit">
-                          Add Link
+                          {wizardStep === 'choose' ? 'Next' : 'Save Links'}
                         </Button>
                       </div>
                     </form>
-                  </DialogContent>
-                </Dialog>
+                  )}
+                </DialogContent>
+              </Dialog>
+            </div>
+          )}
+        </div>
 
-                <Dialog 
-                  open={isSocialDialogOpen} 
-                  onOpenChange={(open) => {
-                    setIsSocialDialogOpen(open)
-                    if (!open) {
-                      setWizardStep('choose')
-                      resetSocial()
-                      // Reset all checkbox values
-                      Object.keys(linkTypes).forEach(type => {
-                        setValueSocial(`services[${type}]`, false)
-                      })
-                    }
+        <div className="space-y-4">
+          {links.map((link) => (
+            <div key={link.id} className="block p-4 bg-default rounded-lg border border-muted">
+              <div className="flex items-center justify-between">
+                <a
+                  href={link.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center space-x-3 flex-1 hover:opacity-75 transition-opacity duration-200"
+                  onClick={() => {
+                    // Track click if needed
+                    console.log('Link clicked:', link.title, link.url)
                   }}
                 >
-                  <DialogTrigger asChild>
-                    <Button variant="outline">
-                      Configure Social Media
-                    </Button>
-                  </DialogTrigger>
-               
-                  <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle>
-                        {wizardStep === 'choose' ? 'Choose Social Media Services' : 'Configure Your Social Media Links'}
-                      </DialogTitle>
-                      <DialogDescription>
-                        {wizardStep === 'choose' 
-                          ? 'Select which social media services you want to configure.'
-                          : 'Add your social media profiles to share with your audience.'}
-                      </DialogDescription>
-                    </DialogHeader>
+                  <div className="bg-white rounded-lg p-1">
+                    <img src={link.icon_url} alt={`${link.title} logo`} className="h-8 w-8" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="font-medium text-default">{link.title}</span>
+                    <p className="text-sm text-muted mt-1">{link.url}</p>
+                  </div>
+                </a>
 
-                    {isLoadingTypes ? (
-                      <div className="flex justify-center py-8">
-                        Loading...
-                      </div>
-                    ) : (
-                      <form onSubmit={handleSubmitSocial(onSubmitSocial)} className="space-y-8 mt-4">
-                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-                          {wizardStep === 'choose' 
-                            ? Object.entries(linkTypes).map(([type, data]) => (
-                                <div key={type} className="bg-muted p-4 rounded-lg">
-                                  <div className="flex items-center space-x-3">
-                                    <input
-                                      type="checkbox"
-                                      id={`services[${type}]`}
-                                      {...registerSocial(`services[${type}]`, {
-                                        onChange: (e) => {
-                                          setValueSocial(`services[${type}]`, e.target.checked)
-                                        }
-                                      })}
-                                      className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
-                                    />
-                                    <div className="flex items-center space-x-3">
-                                      <div className="bg-white rounded-lg p-1">
-                                        <img src={data.icon_url} alt={`${data.name} logo`} className="h-8 w-8" />
-                                      </div>
-                                      <Label htmlFor={`services[${type}]`} className="text-lg font-medium text-default">
-                                        {data.name}
-                                      </Label>
-                                    </div>
-                                  </div>
-                                </div>
-                              ))
-                            : selectedServices.map((service) => renderLinkInput(service.type, service))}
-                        </div>
+                {link.can_edit && (
+                  <div className="flex space-x-2 text-xs">
+                    <button
+                      onClick={() => {
+                        setEditingLink(link)
+                        setValueNew('url', link.custom_url || link.url)
+                        setValueNew('title', link.title)
+                        setIsEditDialogOpen(true)
+                      }}
+                      className="text-muted hover:text-default"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={async () => {
+                        if (window.confirm('Are you sure you want to delete this link?')) {
+                          try {
+                            const response = await destroy(`/${username}/links/${link.id}.json`)
 
-                        <div className="flex justify-end space-x-3">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => {
-                              setIsSocialDialogOpen(false)
-                              setWizardStep('choose')
-                              resetSocial()
-                            }}
-                          >
-                            Cancel
-                          </Button>
-                          <Button type="submit">
-                            {wizardStep === 'choose' ? 'Next' : 'Save Links'}
-                          </Button>
-                        </div>
-                      </form>
-                    )}
-                  </DialogContent>
-                </Dialog>
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-4">
-            {links.map((link) => (
-              <div key={link.id} className="block p-4 bg-default rounded-lg border border-muted">
-                <div className="flex items-center justify-between">
-                  <a
-                    href={link.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center space-x-3 flex-1 hover:opacity-75 transition-opacity duration-200"
-                    onClick={() => {
-                      // Track click if needed
-                      console.log('Link clicked:', link.title, link.url)
-                    }}
-                  >
-                    <div className="bg-white rounded-lg p-1">
-                      <img src={link.icon_url} alt={`${link.title} logo`} className="h-8 w-8" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="font-medium text-default">{link.title}</span>
-                      <p className="text-sm text-muted mt-1">{link.url}</p>
-                    </div>
-                  </a>
-
-                  {link.can_edit && (
-                    <div className="flex space-x-2 text-xs">
-                      <button
-                        onClick={() => {
-                          setEditingLink(link)
-                          setValueNew('url', link.custom_url || link.url)
-                          setValueNew('title', link.title)
-                          setIsEditDialogOpen(true)
-                        }}
-                        className="text-muted hover:text-default"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        onClick={async () => {
-                          if (window.confirm('Are you sure you want to delete this link?')) {
-                            try {
-                              const response = await destroy(`/${username}/links/${link.id}.json`)
-                              
-                              if (response.ok) {
-                                toast({
-                                  title: "Success",
-                                  description: "Link was successfully deleted.",
-                                })
-                                fetchItems(page)
-                              } else {
-                                const data = await response.json
-                                toast({
-                                  variant: "destructive",
-                                  title: "Error",
-                                  description: data.error || "Failed to delete link",
-                                })
-                              }
-
-                            } catch (error) {
-                              console.log(error)
+                            if (response.ok) {
+                              toast({
+                                title: "Success",
+                                description: "Link was successfully deleted.",
+                              })
+                              fetchItems(page)
+                            } else {
+                              const data = await response.json
                               toast({
                                 variant: "destructive",
                                 title: "Error",
-                                description: "An unexpected error occurred",
+                                description: data.error || "Failed to delete link",
                               })
                             }
+
+                          } catch (error) {
+                            console.log(error)
+                            toast({
+                              variant: "destructive",
+                              title: "Error",
+                              description: "An unexpected error occurred",
+                            })
                           }
-                        }}
-                        className="text-muted hover:text-default"
-                      >
-                        Delete
-                      </button>
-                    </div>
-                  )}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <Dialog open={isEditDialogOpen} onOpenChange={(open) => {
-            setIsEditDialogOpen(open)
-            if (!open) {
-              setEditingLink(null)
-              resetNew()
-            }
-          }}>
-            <DialogContent className="max-w-2xl">
-              <DialogHeader>
-                <DialogTitle>Edit Link</DialogTitle>
-                <DialogDescription>
-                  Update your custom link details.
-                </DialogDescription>
-              </DialogHeader>
-
-              {editingLink && (
-                <form onSubmit={handleSubmitNew(async (data) => {
-                  try {
-                    const response = await put(`/${username}/links/${editingLink.id}.json`, {
-                      body: {
-                        user_links_website_link: {
-                          title: data.title,
-                          custom_url: data.url
                         }
-                      }
-                    })
+                      }}
+                      className="text-muted hover:text-default"
+                    >
+                      Delete
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
 
-                    if (response.ok) {
-                      toast({
-                        title: "Success",
-                        description: "Link was successfully updated.",
-                      })
-                      resetNew()
-                      fetchItems(page)
-                    } else {
-                      const errorData = await response.json
-                      toast({
-                        variant: "destructive",
-                        title: "Error",
-                        description: errorData.error || "Failed to update link",
-                      })
+        <Dialog open={isEditDialogOpen} onOpenChange={(open) => {
+          setIsEditDialogOpen(open)
+          if (!open) {
+            setEditingLink(null)
+            resetNew()
+          }
+        }}>
+          <DialogContent className="max-w-2xl">
+            <DialogHeader>
+              <DialogTitle>Edit Link</DialogTitle>
+              <DialogDescription>
+                Update your custom link details.
+              </DialogDescription>
+            </DialogHeader>
+
+            {editingLink && (
+              <form onSubmit={handleSubmitNew(async (data) => {
+                try {
+                  const response = await put(`/${username}/links/${editingLink.id}.json`, {
+                    body: {
+                      user_links_website_link: {
+                        title: data.title,
+                        custom_url: data.url
+                      }
                     }
-                  } catch (error) {
-                    console.log(error)
+                  })
+
+                  if (response.ok) {
+                    toast({
+                      title: "Success",
+                      description: "Link was successfully updated.",
+                    })
+                    resetNew()
+                    fetchItems(page)
+                  } else {
+                    const errorData = await response.json
                     toast({
                       variant: "destructive",
                       title: "Error",
-                      description: "An unexpected error occurred",
+                      description: errorData.error || "Failed to update link",
                     })
-                  } finally {
-                    setIsEditDialogOpen(false)
                   }
-                })} className="space-y-4 mt-4">
-                  <div>
-                    <Label htmlFor="edit-url">URL</Label>
-                    <Input
-                      id="edit-url"
-                      {...registerNew("url", { 
-                        required: "URL is required",
-                      })}
-                      placeholder="https://example.com"
-                    />
-                    {newErrors.url && (
-                      <p className="text-sm text-red-500 mt-1">{newErrors.url.message}</p>
-                    )}
-                  </div>
+                } catch (error) {
+                  console.log(error)
+                  toast({
+                    variant: "destructive",
+                    title: "Error",
+                    description: "An unexpected error occurred",
+                  })
+                } finally {
+                  setIsEditDialogOpen(false)
+                }
+              })} className="space-y-4 mt-4">
+                <div>
+                  <Label htmlFor="edit-url">URL</Label>
+                  <Input
+                    id="edit-url"
+                    {...registerNew("url", {
+                      required: "URL is required",
+                    })}
+                    placeholder="https://example.com"
+                  />
+                  {newErrors.url && (
+                    <p className="text-sm text-red-500 mt-1">{newErrors.url.message}</p>
+                  )}
+                </div>
 
-                  <div>
-                    <Label htmlFor="edit-title">Display Title</Label>
-                    <Input
-                      id="edit-title"
-                      {...registerNew("title", { 
-                        required: "Title is required",
-                      })}
-                      placeholder="My Website"
-                    />
-                    {newErrors.title && (
-                      <p className="text-sm text-red-500 mt-1">{newErrors.title.message}</p>
-                    )}
-                  </div>
+                <div>
+                  <Label htmlFor="edit-title">Display Title</Label>
+                  <Input
+                    id="edit-title"
+                    {...registerNew("title", {
+                      required: "Title is required",
+                    })}
+                    placeholder="My Website"
+                  />
+                  {newErrors.title && (
+                    <p className="text-sm text-red-500 mt-1">{newErrors.title.message}</p>
+                  )}
+                </div>
 
-                  <div className="flex justify-end space-x-3">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={() => {
-                        setIsEditDialogOpen(false)
-                        setEditingLink(null)
-                        resetNew()
-                      }}
-                    >
-                      Cancel
-                    </Button>
-                    <Button type="submit">
-                      Update Link
-                    </Button>
-                  </div>
-                </form>
-              )}
-            </DialogContent>
-          </Dialog>
+                <div className="flex justify-end space-x-3">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => {
+                      setIsEditDialogOpen(false)
+                      setEditingLink(null)
+                      resetNew()
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                  <Button type="submit">
+                    Update Link
+                  </Button>
+                </div>
+              </form>
+            )}
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   )

@@ -10,6 +10,7 @@ if current_user
     json.is_creator current_user.is_creator?
     json.can_sell_products current_user.can_sell_products?
     json.editor current_user.is_publisher?
+    json.unread_messages_count current_user.unread_messages_count
   end
 else
   json.current_user nil

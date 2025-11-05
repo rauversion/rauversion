@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useActionCable } from "@/hooks/useActionCable";
 import {
   Sheet,
   SheetContent,
@@ -17,6 +18,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useThemeStore } from "../../stores/theme";
 import useAuthStore from "../../stores/authStore";
 import { CartIndicator } from "@/components/cart/CartIndicator";
+import { NotificationBadge } from "@/components/shared/NotificationBadge";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -231,14 +233,44 @@ function useIsMobile() {
 export default function UserMenu() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isDarkMode, toggleDarkMode } = useThemeStore();
-  const { currentUser, labelUser, cartItemCount, signOut } = useAuthStore();
+  const { 
+    currentUser, 
+    labelUser, 
+    cartItemCount, 
+    unreadMessagesCount, 
+    signOut,
+    incrementUnreadMessagesCount 
+  } = useAuthStore();
   const { setLocale, t, currentLocale } = useLocaleStore();
   const navigate = useNavigate();
   const location = useLocation();
   const isMobile = useIsMobile();
+  const { subscribe, unsubscribe } = useActionCable();
 
   // Hide main menu if route matches "/:username/podcasts"
   const hideMainMenu = /^\/[^/]+\/podcasts(\/|$)/.test(location.pathname);
+
+  // Subscribe to NotificationsChannel for real-time updates
+  useEffect(() => {
+    if (!currentUser) return;
+
+    const channel = subscribe(
+      'NotificationsChannel',
+      {},
+      {
+        received: (data) => {
+          if (data.type === 'new_message') {
+            // Increment unread count when a new message arrives
+            incrementUnreadMessagesCount();
+          }
+        }
+      }
+    );
+
+    return () => {
+      unsubscribe('NotificationsChannel');
+    };
+  }, [currentUser, subscribe, unsubscribe, incrementUnreadMessagesCount]);
 
   const handleSignOut = async () => {
     await signOut();
@@ -552,6 +584,7 @@ export default function UserMenu() {
                             {currentUser.username?.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
+                        <NotificationBadge count={unreadMessagesCount} />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
@@ -759,6 +792,7 @@ export default function UserMenu() {
                             {currentUser.username?.charAt(0)}
                           </AvatarFallback>
                         </Avatar>
+                        <NotificationBadge count={unreadMessagesCount} />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent
