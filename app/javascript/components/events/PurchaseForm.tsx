@@ -33,7 +33,7 @@ interface PurchaseFormProps {
   eventId: string
 }
 
-type TicketFormValues = Record<string, number | { quantity: number; customPrice?: number }>
+type TicketFormValues = Record<string, number>
 
 export default function PurchaseForm({ eventId }: PurchaseFormProps) {
   const [tickets, setTickets] = React.useState<Ticket[]>([])
@@ -97,6 +97,14 @@ export default function PurchaseForm({ eventId }: PurchaseFormProps) {
     })
   }, [tickets, setValue])
 
+  const parseQuantity = (value: any): number => {
+    return typeof value === "number" ? value : parseInt(value as string, 10)
+  }
+
+  const parsePrice = (value: any): number => {
+    return typeof value === "number" ? value : parseFloat(value as string)
+  }
+
   const onSubmit = async (data: any) => {
     setLoading(true)
     try {
@@ -106,14 +114,14 @@ export default function PurchaseForm({ eventId }: PurchaseFormProps) {
           const customPrice = data[`${ticket.id}_custom_price`]
           return {
             id: ticket.id,
-            quantity: typeof quantity === "number" ? quantity : parseInt(quantity as string, 10),
-            custom_price: typeof customPrice === "number" ? customPrice : parseFloat(customPrice as string),
+            quantity: parseQuantity(quantity),
+            custom_price: parsePrice(customPrice),
           }
         } else {
           const quantity = data[ticket.id]
           return {
             id: ticket.id,
-            quantity: typeof quantity === "number" ? quantity : parseInt(quantity as string, 10),
+            quantity: parseQuantity(quantity),
           }
         }
       }).filter(ticket => ticket.quantity > 0)
