@@ -19,6 +19,8 @@ interface Ticket {
   quantity: number
   min_tickets_per_order?: number
   max_tickets_per_order?: number
+  pay_what_you_want?: boolean
+  minimum_price?: number
 }
 
 interface Event {
@@ -31,7 +33,7 @@ interface PurchaseFormProps {
   eventId: string
 }
 
-type TicketFormValues = Record<string, number>
+type TicketFormValues = Record<string, number | { quantity: number; customPrice?: number }>
 
 export default function PurchaseForm({ eventId }: PurchaseFormProps) {
   const [tickets, setTickets] = React.useState<Ticket[]>([])
@@ -86,19 +88,39 @@ export default function PurchaseForm({ eventId }: PurchaseFormProps) {
   React.useEffect(() => {
     tickets.forEach((ticket) => {
       const fieldName = ticket.id.toString()
-      setValue(fieldName, 0)
+      if (ticket.pay_what_you_want) {
+        setValue(`${fieldName}_quantity`, 0)
+        setValue(`${fieldName}_custom_price`, ticket.minimum_price || 0)
+      } else {
+        setValue(fieldName, 0)
+      }
     })
   }, [tickets, setValue])
 
   const onSubmit = async (data: any) => {
     setLoading(true)
     try {
+      const ticketsData = tickets.map(ticket => {
+        if (ticket.pay_what_you_want) {
+          const quantity = data[`${ticket.id}_quantity`]
+          const customPrice = data[`${ticket.id}_custom_price`]
+          return {
+            id: ticket.id,
+            quantity: typeof quantity === "number" ? quantity : parseInt(quantity as string, 10),
+            custom_price: typeof customPrice === "number" ? customPrice : parseFloat(customPrice as string),
+          }
+        } else {
+          const quantity = data[ticket.id]
+          return {
+            id: ticket.id,
+            quantity: typeof quantity === "number" ? quantity : parseInt(quantity as string, 10),
+          }
+        }
+      }).filter(ticket => ticket.quantity > 0)
+
       const response = await post(`/events/${eventId}/event_purchases.json`, {
         body: JSON.stringify({
-          tickets: Object.entries(data).map(([id, quantity]) => ({
-            id,
-            quantity: typeof quantity === "number" ? quantity : parseInt(quantity as string, 10),
-          })),
+          tickets: ticketsData,
         }),
       })
       
@@ -159,8 +181,11 @@ export default function PurchaseForm({ eventId }: PurchaseFormProps) {
           <CardContent className="space-y-6 overflow-auto max-h-96">
             <AnimatePresence>
               {tickets.map((ticket, index) => {
-                const fieldName = ticket.id.toString()
-                const quantity = watch(fieldName) ?? 0
+                const isPWYW = ticket.pay_what_you_want === true
+                const quantityFieldName = isPWYW ? `${ticket.id}_quantity` : ticket.id.toString()
+                const priceFieldName = `${ticket.id}_custom_price`
+                
+                const quantity = watch(quantityFieldName) ?? 0
                 const numericQuantity = Number(quantity)
                 const parsedQuantity = Number.isNaN(numericQuantity) ? 0 : numericQuantity
                 const minPerOrder = ticket.min_tickets_per_order ?? 0
@@ -172,6 +197,8 @@ export default function PurchaseForm({ eventId }: PurchaseFormProps) {
                   hasMaxPerOrder && maxPerOrder < ticket.quantity
                     ? "events.purchase_form.validation.max_tickets_per_order"
                     : "events.purchase_form.validation.max_tickets"
+
+                const customPrice = isPWYW ? (watch(priceFieldName) ?? ticket.minimum_price ?? 0) : null
 
                 return (
                   <motion.div
@@ -189,20 +216,61 @@ export default function PurchaseForm({ eventId }: PurchaseFormProps) {
                         <p className="text-sm text-muted-foreground">
                           {ticket.short_description}
                         </p>
+                        {isPWYW && (
+                          <p className="text-xs text-primary font-medium">
+                            Pay What You Want (Min: {event?.ticket_currency?.toUpperCase()} {ticket.minimum_price || 0})
+                          </p>
+                        )}
                       </div>
                       <div className="text-right">
                         <div className="text-xl font-bold text-primary">
-                          {
+                          {isPWYW ? (
+                            <span className="text-sm">Pay What You Want</span>
+                          ) : (
                             I18n.t("events.purchase_form.price", { 
                               price: `${event?.ticket_currency?.toUpperCase()} ${ticket.price}` 
                             })
-                          }
+                          )}
                         </div>
                         <div className="text-sm text-muted-foreground">
                           {I18n.t("events.purchase_form.available_tickets", { count: ticket.quantity })}
                         </div>
                       </div>
                     </div>
+
+                    {/* Custom Price Input for PWYW */}
+                    {isPWYW && (
+                      <div className="space-y-2">
+                        <Label className="text-sm text-muted-foreground">
+                          Your Price ({event?.ticket_currency?.toUpperCase()})
+                        </Label>
+                        <Input
+                          type="number"
+                          step="0.01"
+                          min={ticket.minimum_price || 0}
+                          className="text-center font-medium text-lg"
+                          {...register(priceFieldName, {
+                            valueAsNumber: true,
+                            min: {
+                              value: ticket.minimum_price || 0,
+                              message: `Minimum price is ${event?.ticket_currency?.toUpperCase()} ${ticket.minimum_price || 0}`,
+                            },
+                          })}
+                          defaultValue={ticket.minimum_price || 0}
+                        />
+                        {errors[priceFieldName] && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="flex items-center gap-2 text-sm text-destructive"
+                          >
+                            <AlertCircle className="w-4 h-4" />
+                            <span>{errors[priceFieldName]?.message as string}</span>
+                          </motion.div>
+                        )}
+                      </div>
+                    )}
+
                     <div className="space-y-2">
                       <Label className="text-sm text-muted-foreground">
                         {I18n.t("events.purchase_form.quantity_label")}
@@ -219,7 +287,7 @@ export default function PurchaseForm({ eventId }: PurchaseFormProps) {
                               updatedValue = 0
                             }
 
-                            setValue(fieldName, updatedValue, {
+                            setValue(quantityFieldName, updatedValue, {
                               shouldDirty: true,
                               shouldTouch: true,
                               shouldValidate: true,
@@ -240,7 +308,7 @@ export default function PurchaseForm({ eventId }: PurchaseFormProps) {
                             type="number"
                             id={ticket.id}
                             className="text-center font-medium text-lg !px-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                            {...register(fieldName, {
+                            {...register(quantityFieldName, {
                               valueAsNumber: true,
                               min: {
                                 value: 0,
@@ -291,7 +359,7 @@ export default function PurchaseForm({ eventId }: PurchaseFormProps) {
                               updatedValue = 0
                             }
 
-                            setValue(fieldName, updatedValue, {
+                            setValue(quantityFieldName, updatedValue, {
                               shouldDirty: true,
                               shouldTouch: true,
                               shouldValidate: true,
@@ -308,14 +376,14 @@ export default function PurchaseForm({ eventId }: PurchaseFormProps) {
                         </motion.button>
                       </div>
 
-                      {errors[fieldName] && (
+                      {errors[quantityFieldName] && (
                         <motion.div
                           initial={{ opacity: 0, y: -10 }}
                           animate={{ opacity: 1, y: 0 }}
                           className="flex items-center gap-2 text-sm text-destructive"
                         >
                           <AlertCircle className="w-4 h-4" />
-                          <span>{errors[fieldName]?.message as string}</span>
+                          <span>{errors[quantityFieldName]?.message as string}</span>
                         </motion.div>
                       )}
                     </div>
