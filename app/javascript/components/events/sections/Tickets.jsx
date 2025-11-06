@@ -72,7 +72,8 @@ const ticketSchema = z.object({
 })
 
 const formSchema = z.object({
-  tickets: z.array(ticketSchema)
+  ticket_currency: z.string().min(1),
+  tickets: z.array(ticketSchema),
 })
 
 const salesChannelOptions = [
@@ -80,6 +81,35 @@ const salesChannelOptions = [
   { value: "event_page", label: "Event page only" },
   { value: "box_office", label: "Box office only" },
 ]
+
+const currencyLabels = {
+  clp: "Chilean Peso (CLP)",
+  usd: "US Dollar (USD)",
+  eur: "Euro (EUR)",
+  gbp: "Pound Sterling (GBP)",
+  cad: "Canadian Dollar (CAD)",
+  aud: "Australian Dollar (AUD)",
+  mxn: "Mexican Peso (MXN)",
+  brl: "Brazilian Real (BRL)",
+  jpy: "Japanese Yen (JPY)",
+  nzd: "New Zealand Dollar (NZD)",
+}
+
+const DEFAULT_CURRENCY_CODES = ["clp", "usd", "eur"]
+const STRIPE_CURRENCY_CODES = Array.from(
+  new Set([
+    ...DEFAULT_CURRENCY_CODES,
+    "gbp",
+    "cad",
+    "aud",
+    "mxn",
+    "brl",
+    "jpy",
+    "nzd",
+  ]),
+)
+
+const DEFAULT_TICKET_CURRENCY = "usd"
 
 export default function Tickets() {
   const { slug } = useParams()
@@ -89,6 +119,7 @@ export default function Tickets() {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      ticket_currency: DEFAULT_TICKET_CURRENCY,
       tickets: []
     }
   })
@@ -97,6 +128,26 @@ export default function Tickets() {
     control: form.control,
     name: "tickets"
   })
+
+  const paymentGateway = React.useMemo(() => {
+    if (!event) return null
+    return event.payment_gateway || event.event_settings?.payment_gateway || null
+  }, [event])
+
+  const selectedCurrency = (form.watch("ticket_currency") || "").toLowerCase()
+
+  const currencyOptions = React.useMemo(() => {
+    const baseCodes = paymentGateway === "stripe" ? STRIPE_CURRENCY_CODES : DEFAULT_CURRENCY_CODES
+    const codes = new Set(baseCodes)
+    if (selectedCurrency) {
+      codes.add(selectedCurrency)
+    }
+
+    return Array.from(codes).map((code) => ({
+      value: code,
+      label: currencyLabels[code] || code.toUpperCase(),
+    }))
+  }, [paymentGateway, selectedCurrency])
 
   React.useEffect(() => {
     const fetchTickets = async () => {
@@ -109,6 +160,7 @@ export default function Tickets() {
         console.log('Fetched tickets data:', data)
         // Reset form with current tickets
         form.reset({
+          ticket_currency: (data.ticket_currency || DEFAULT_TICKET_CURRENCY).toLowerCase(),
           tickets: data.tickets?.map(ticket => ({
             id: ticket.id,
             title: ticket.title,
@@ -176,8 +228,11 @@ export default function Tickets() {
 
   const onSubmit = async (data) => {
     try {
+      const ticketCurrency = (data.ticket_currency || DEFAULT_TICKET_CURRENCY).toLowerCase()
+
       const formattedData = {
         ...data,
+        ticket_currency: ticketCurrency,
         tickets: data.tickets.map(ticket => ({
           ...ticket,
           selling_start: ticket.selling_start ? ticket.selling_start.toISOString() : null,
@@ -188,6 +243,7 @@ export default function Tickets() {
       const response = await put(`/events/${slug}.json`, {
         body: JSON.stringify({
           event: {
+            ticket_currency: formattedData.ticket_currency,
             event_tickets_attributes: formattedData.tickets
           }
         }),
@@ -260,6 +316,37 @@ export default function Tickets() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="ticket_currency"
+                render={({ field }) => (
+                  <FormItem className="max-w-xs">
+                    <FormLabel>Ticket Currency</FormLabel>
+                    <Select
+                      onValueChange={(value) => field.onChange(value.toLowerCase())}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select currency" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {currencyOptions.map((currency) => (
+                          <SelectItem key={currency.value} value={currency.value}>
+                            {currency.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      Choose the currency attendees will use to purchase tickets.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               {fields.map((field, index) => {
                 // Skip rendering tickets marked for destruction
                 if (form.getValues(`tickets.${index}.hidden_in_form`)) {

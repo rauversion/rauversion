@@ -21,6 +21,12 @@ interface Ticket {
   max_tickets_per_order?: number
 }
 
+interface Event {
+  id: string
+  title: string
+  ticket_currency: string
+}
+
 interface PurchaseFormProps {
   eventId: string
 }
@@ -30,6 +36,7 @@ type TicketFormValues = Record<string, number>
 export default function PurchaseForm({ eventId }: PurchaseFormProps) {
   const [tickets, setTickets] = React.useState<Ticket[]>([])
   const [loading, setLoading] = React.useState(false)
+  const [event, setEvent] = React.useState<Event | null>(null)
   const { toast } = useToast()
   const navigate = useNavigate()
 
@@ -46,6 +53,7 @@ export default function PurchaseForm({ eventId }: PurchaseFormProps) {
       try {
         const response = await get(`/events/${eventId}/event_purchases/new.json`)
         const data = await response.json
+        setEvent(data.event)
         const parseOrderLimit = (value: unknown) => {
           const numericValue = Number(value)
           return Number.isFinite(numericValue) && numericValue > 0 ? numericValue : undefined
@@ -96,6 +104,15 @@ export default function PurchaseForm({ eventId }: PurchaseFormProps) {
       
       const result = await response.json
       
+      if (Array.isArray(result.errors) && result.errors.length > 0) {
+        toast({
+          variant: "destructive",
+          title: I18n.t("events.purchase_form.toast.error.title"),
+          description: result.errors.join("\n"),
+        })
+        return
+      }
+      
       // Redirect to payment URL if provided
       if (result.payment_url) {
         window.location.href = result.payment_url
@@ -139,7 +156,7 @@ export default function PurchaseForm({ eventId }: PurchaseFormProps) {
           </motion.div>
         </CardHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-6 overflow-auto max-h-96">
             <AnimatePresence>
               {tickets.map((ticket, index) => {
                 const fieldName = ticket.id.toString()
@@ -175,7 +192,11 @@ export default function PurchaseForm({ eventId }: PurchaseFormProps) {
                       </div>
                       <div className="text-right">
                         <div className="text-xl font-bold text-primary">
-                          {I18n.t("events.purchase_form.price", { price: ticket.price })}
+                          {
+                            I18n.t("events.purchase_form.price", { 
+                              price: `${event?.ticket_currency?.toUpperCase()} ${ticket.price}` 
+                            })
+                          }
                         </div>
                         <div className="text-sm text-muted-foreground">
                           {I18n.t("events.purchase_form.available_tickets", { count: ticket.quantity })}

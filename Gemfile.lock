@@ -394,6 +394,8 @@ GEM
       railties (>= 7.1)
       stimulus-rails
       turbo-rails
+    money (6.19.0)
+      i18n (>= 0.6.4, <= 2)
     mrsk (0.15.1)
       activesupport (>= 7.0)
       bcrypt_pbkdf (~> 1.0)
@@ -749,6 +751,7 @@ DEPENDENCIES
   mercadopago-sdk (~> 2.3)
   meta-tags!
   mission_control-jobs
+  money
   mrsk (~> 0.15.1)
   nondisposable
   omniauth (~> 2.0)
