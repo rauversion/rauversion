@@ -30,7 +30,7 @@ json.events @events do |event|
     json.large event.cover_url(:large)
   end
   
-  json.author event.user do
+  json.author do
     json.partial! 'users/user', user: event.user, show_full_name: true
   end
 end
