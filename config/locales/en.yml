@@ -321,6 +321,12 @@ en:
               all: All channels
               event_page: Event page only
               box_office: Box office only
+          pay_what_you_want:
+            label: Pay What You Want
+            description: Allow buyers to choose their own price
+          minimum_price:
+            label: Minimum Price
+            description: Minimum amount buyers must pay
         validation:
           title_min: Name must be at least 2 characters.
         messages:
@@ -892,6 +898,10 @@ en:
       purchase_button: "Purchase Tickets"
       processing: "Processing..."
       quantity_label: "Ticket Quantity"
+      pay_what_you_want_label: "Pay What You Want"
+      pay_what_you_want_min: "Pay What You Want (Min: %{currency} %{min_price})"
+      your_price_label: "Your Price (%{currency})"
+      minimum_price_error: "Minimum price is %{currency} %{min_price}"
 
       validation:
         quantity_negative: "Quantity cannot be negative"

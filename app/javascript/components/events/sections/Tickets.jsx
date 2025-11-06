@@ -452,9 +452,9 @@ export default function Tickets() {
                             render={({ field }) => (
                               <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                                 <div className="space-y-0.5">
-                                  <FormLabel>Pay What You Want</FormLabel>
+                                  <FormLabel>{I18n.t('events.edit.tickets.form.pay_what_you_want.label')}</FormLabel>
                                   <FormDescription>
-                                    Allow buyers to choose their own price
+                                    {I18n.t('events.edit.tickets.form.pay_what_you_want.description')}
                                   </FormDescription>
                                 </div>
                                 <FormControl>
@@ -473,12 +473,12 @@ export default function Tickets() {
                               name={`tickets.${index}.minimum_price`}
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Minimum Price</FormLabel>
+                                  <FormLabel>{I18n.t('events.edit.tickets.form.minimum_price.label')}</FormLabel>
                                   <FormControl>
                                     <Input type="number" min="0" step="0.01" {...field} />
                                   </FormControl>
                                   <FormDescription>
-                                    Minimum amount buyers must pay
+                                    {I18n.t('events.edit.tickets.form.minimum_price.description')}
                                   </FormDescription>
                                   <FormMessage />
                                 </FormItem>

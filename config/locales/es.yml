@@ -352,6 +352,12 @@ es:
               all: Todos los canales
               event_page: Solo página del evento
               box_office: Solo taquilla
+          pay_what_you_want:
+            label: Paga lo que Quieras
+            description: Permitir a los compradores elegir su propio precio
+          minimum_price:
+            label: Precio Mínimo
+            description: Monto mínimo que los compradores deben pagar
         validation:
           title_min: El nombre debe tener al menos 2 caracteres.
         messages:
@@ -960,6 +966,10 @@ es:
       purchase_button: "Comprar Entradas"
       processing: "Procesando..."
       quantity_label: "Cantidad de entradas"
+      pay_what_you_want_label: "Paga lo que Quieras"
+      pay_what_you_want_min: "Paga lo que Quieras (Mín: %{currency} %{min_price})"
+      your_price_label: "Tu Precio (%{currency})"
+      minimum_price_error: "El precio mínimo es %{currency} %{min_price}"
       validation:
         quantity_negative: "La cantidad no puede ser negativa"
         max_tickets: "Máximo %{count} entradas disponibles"

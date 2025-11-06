@@ -226,14 +226,17 @@ export default function PurchaseForm({ eventId }: PurchaseFormProps) {
                         </p>
                         {isPWYW && (
                           <p className="text-xs text-primary font-medium">
-                            Pay What You Want (Min: {event?.ticket_currency?.toUpperCase()} {ticket.minimum_price || 0})
+                            {I18n.t("events.purchase_form.pay_what_you_want_min", { 
+                              currency: event?.ticket_currency?.toUpperCase(), 
+                              min_price: ticket.minimum_price || 0 
+                            })}
                           </p>
                         )}
                       </div>
                       <div className="text-right">
                         <div className="text-xl font-bold text-primary">
                           {isPWYW ? (
-                            <span className="text-sm">Pay What You Want</span>
+                            <span className="text-sm">{I18n.t("events.purchase_form.pay_what_you_want_label")}</span>
                           ) : (
                             I18n.t("events.purchase_form.price", { 
                               price: `${event?.ticket_currency?.toUpperCase()} ${ticket.price}` 
@@ -250,7 +253,9 @@ export default function PurchaseForm({ eventId }: PurchaseFormProps) {
                     {isPWYW && (
                       <div className="space-y-2">
                         <Label className="text-sm text-muted-foreground">
-                          Your Price ({event?.ticket_currency?.toUpperCase()})
+                          {I18n.t("events.purchase_form.your_price_label", { 
+                            currency: event?.ticket_currency?.toUpperCase() 
+                          })}
                         </Label>
                         <Input
                           type="number"
@@ -261,7 +266,10 @@ export default function PurchaseForm({ eventId }: PurchaseFormProps) {
                             valueAsNumber: true,
                             min: {
                               value: ticket.minimum_price || 0,
-                              message: `Minimum price is ${event?.ticket_currency?.toUpperCase()} ${ticket.minimum_price || 0}`,
+                              message: I18n.t("events.purchase_form.minimum_price_error", { 
+                                currency: event?.ticket_currency?.toUpperCase(), 
+                                min_price: ticket.minimum_price || 0 
+                              }),
                             },
                           })}
                           defaultValue={ticket.minimum_price || 0}
