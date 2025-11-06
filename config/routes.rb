@@ -251,6 +251,7 @@ Rails.application.routes.draw do
   resources :event_webhooks
 
   get "/events/:id/livestream", to: "event_streaming_services#show", as: :event_livestream
+  get "/events/:id/edit/:section", to: "application#render_blank"
 
   resources :events do
     collection do

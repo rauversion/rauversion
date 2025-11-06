@@ -10,9 +10,9 @@
   <div style="background:#fff;border-radius:0 0 18px 18px;box-shadow:0 4px 24px rgba(80,80,120,0.10);padding:24px;">
     <h2 style="font-size:1.2rem;color:#f59e42;font-family:sans-serif;margin-bottom:12px;">Order #<%= @purchase.id %></h2>
     <div style="font-size:1.1rem;color:#334155;margin-bottom:16px;">
-      <strong>Status:</strong>
+      <strong>Shipping Status:</strong>
       <span style="display:inline-block;background:#f59e42;color:#fff;padding:6px 18px;border-radius:999px;font-size:1rem;font-weight:600;margin-left:8px;">
-        <%= @purchase.status.titleize %>
+        <%= @purchase.shipping_status.titleize %>
       </span>
     </div>
     <% if @purchase.tracking_code.present? %>

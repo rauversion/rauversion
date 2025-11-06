@@ -36,12 +36,21 @@ class EventPurchasesController < ApplicationController
 
     @tickets = @event.available_tickets(Time.zone.now)
     @purchase = current_user.purchases.new(purchasable: @event)
-    @purchase.virtual_purchased = @tickets.map do |aa|
-      VirtualPurchasedItem.new({resource: aa, quantity: 1})
+    available_tickets_by_id = @tickets.index_by(&:id)
+    selected_items = ticket_request_params.each_with_object([]) do |ticket_param, items|
+      quantity = ticket_param[:quantity].to_i
+      next if quantity <= 0
+
+      ticket = available_tickets_by_id[ticket_param[:id].to_i]
+      next unless ticket
+
+      items << VirtualPurchasedItem.new(resource: ticket, quantity: quantity)
     end
 
+    @purchase.virtual_purchased = selected_items
+
     case @event.payment_gateway 
-    when "stripe", "none" then handle_stripe_session
+    when "stripe", "none", nil then handle_stripe_session
     when "transbank" then handle_tbk_session
     else
       raise "No payment gateway available for this event"
@@ -142,6 +151,14 @@ class EventPurchasesController < ApplicationController
         @payment_url = "#{@resp["url"]}?token_ws=#{@resp["token"]}"
 
       end
+    end
+  end
+
+  private
+
+  def ticket_request_params
+    params.require(:tickets).map do |ticket_param|
+      ticket_param.permit(:id, :quantity)
     end
   end
 end

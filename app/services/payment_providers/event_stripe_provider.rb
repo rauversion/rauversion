@@ -56,13 +56,19 @@ module PaymentProviders
       }
     end
 
+    def stripe_amount(amount, currency)
+      exponent = Money::Currency.new(currency).exponent # USD=2, CLP=0, KWD=3, etc.
+      (BigDecimal(amount.to_s) * (10 ** exponent)).to_i
+    end
+
     def build_line_items
       purchase.purchased_items.group(:purchased_item_id).count.map do |k, v|
         ticket = EventTicket.find(k)
+
         {
           "quantity" => v,
           "price_data" => {
-            "unit_amount" => ((ticket.price * v) * 100).to_i,
+            "unit_amount" => stripe_amount(ticket.price, ticket.event.ticket_currency),
             "currency" => ticket.event.ticket_currency,
             "product_data" => {
               "name" => ticket.title,

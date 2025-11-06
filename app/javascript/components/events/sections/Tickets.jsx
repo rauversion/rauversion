@@ -26,14 +26,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
+
 import {
   Card,
   CardContent,
@@ -79,7 +72,8 @@ const ticketSchema = z.object({
 })
 
 const formSchema = z.object({
-  tickets: z.array(ticketSchema)
+  ticket_currency: z.string().min(1),
+  tickets: z.array(ticketSchema),
 })
 
 const salesChannelOptions = [
@@ -87,6 +81,35 @@ const salesChannelOptions = [
   { value: "event_page", label: "Event page only" },
   { value: "box_office", label: "Box office only" },
 ]
+
+const currencyLabels = {
+  clp: "Chilean Peso (CLP)",
+  usd: "US Dollar (USD)",
+  eur: "Euro (EUR)",
+  gbp: "Pound Sterling (GBP)",
+  cad: "Canadian Dollar (CAD)",
+  aud: "Australian Dollar (AUD)",
+  mxn: "Mexican Peso (MXN)",
+  brl: "Brazilian Real (BRL)",
+  jpy: "Japanese Yen (JPY)",
+  nzd: "New Zealand Dollar (NZD)",
+}
+
+const DEFAULT_CURRENCY_CODES = ["clp", "usd", "eur"]
+const STRIPE_CURRENCY_CODES = Array.from(
+  new Set([
+    ...DEFAULT_CURRENCY_CODES,
+    "gbp",
+    "cad",
+    "aud",
+    "mxn",
+    "brl",
+    "jpy",
+    "nzd",
+  ]),
+)
+
+const DEFAULT_TICKET_CURRENCY = "usd"
 
 export default function Tickets() {
   const { slug } = useParams()
@@ -96,6 +119,7 @@ export default function Tickets() {
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      ticket_currency: DEFAULT_TICKET_CURRENCY,
       tickets: []
     }
   })
@@ -105,6 +129,26 @@ export default function Tickets() {
     name: "tickets"
   })
 
+  const paymentGateway = React.useMemo(() => {
+    if (!event) return null
+    return event.payment_gateway || event.event_settings?.payment_gateway || null
+  }, [event])
+
+  const selectedCurrency = (form.watch("ticket_currency") || "").toLowerCase()
+
+  const currencyOptions = React.useMemo(() => {
+    const baseCodes = paymentGateway === "stripe" ? STRIPE_CURRENCY_CODES : DEFAULT_CURRENCY_CODES
+    const codes = new Set(baseCodes)
+    if (selectedCurrency) {
+      codes.add(selectedCurrency)
+    }
+
+    return Array.from(codes).map((code) => ({
+      value: code,
+      label: currencyLabels[code] || code.toUpperCase(),
+    }))
+  }, [paymentGateway, selectedCurrency])
+
   React.useEffect(() => {
     const fetchTickets = async () => {
       try {
@@ -112,9 +156,11 @@ export default function Tickets() {
         const data = await response.json
 
         setEvent(data)
-        
+
+        console.log('Fetched tickets data:', data)
         // Reset form with current tickets
         form.reset({
+          ticket_currency: (data.ticket_currency || DEFAULT_TICKET_CURRENCY).toLowerCase(),
           tickets: data.tickets?.map(ticket => ({
             id: ticket.id,
             title: ticket.title,
@@ -123,15 +169,15 @@ export default function Tickets() {
             qty: ticket.qty,
             selling_start: formatDateSafely(ticket.selling_start),
             selling_end: formatDateSafely(ticket.selling_end),
-            min_tickets_per_order: ticket.min_tickets_per_order,
-            max_tickets_per_order: ticket.max_tickets_per_order,
+            min_tickets_per_order: ticket.settings.min_tickets_per_order,
+            max_tickets_per_order: ticket.settings.max_tickets_per_order,
             requires_shipping: ticket.requires_shipping,
             show_remaining_count: ticket.show_remaining_count,
-            show_sell_until: ticket.show_sell_until,
-            show_after_sold_out: ticket.show_after_sold_out,
-            hidden: ticket.hidden,
-            after_purchase_message: ticket.after_purchase_message,
-            sales_channel: ticket.sales_channel,
+            show_sell_until: ticket.settings.show_sell_until,
+            show_after_sold_out: ticket.settings.show_after_sold_out,
+            hidden: ticket.settings.hidden,
+            after_purchase_message: ticket.settings.after_purchase_message,
+            sales_channel: ticket.settings.sales_channel,
           })) || []
         })
       } catch (error) {
@@ -182,8 +228,11 @@ export default function Tickets() {
 
   const onSubmit = async (data) => {
     try {
+      const ticketCurrency = (data.ticket_currency || DEFAULT_TICKET_CURRENCY).toLowerCase()
+
       const formattedData = {
         ...data,
+        ticket_currency: ticketCurrency,
         tickets: data.tickets.map(ticket => ({
           ...ticket,
           selling_start: ticket.selling_start ? ticket.selling_start.toISOString() : null,
@@ -194,6 +243,7 @@ export default function Tickets() {
       const response = await put(`/events/${slug}.json`, {
         body: JSON.stringify({
           event: {
+            ticket_currency: formattedData.ticket_currency,
             event_tickets_attributes: formattedData.tickets
           }
         }),
@@ -266,6 +316,37 @@ export default function Tickets() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="ticket_currency"
+                render={({ field }) => (
+                  <FormItem className="max-w-xs">
+                    <FormLabel>Ticket Currency</FormLabel>
+                    <Select
+                      onValueChange={(value) => field.onChange(value.toLowerCase())}
+                      value={field.value}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select currency" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {currencyOptions.map((currency) => (
+                          <SelectItem key={currency.value} value={currency.value}>
+                            {currency.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      Choose the currency attendees will use to purchase tickets.
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
               {fields.map((field, index) => {
                 // Skip rendering tickets marked for destruction
                 if (form.getValues(`tickets.${index}.hidden_in_form`)) {
@@ -365,7 +446,7 @@ export default function Tickets() {
                               <FormItem>
                                 <FormLabel>Sale Start</FormLabel>
                                 <FormControl>
-                                  <Input 
+                                  <Input
                                     type="datetime-local"
                                     {...field}
                                     value={field.value ? format(field.value, "yyyy-MM-dd'T'HH:mm") : ""}
@@ -387,7 +468,7 @@ export default function Tickets() {
                               <FormItem>
                                 <FormLabel>Sale End</FormLabel>
                                 <FormControl>
-                                  <Input 
+                                  <Input
                                     type="datetime-local"
                                     {...field}
                                     value={field.value ? format(field.value, "yyyy-MM-dd'T'HH:mm") : ""}
@@ -525,8 +606,8 @@ export default function Tickets() {
                               render={({ field }) => (
                                 <FormItem>
                                   <FormLabel>Sales Channel</FormLabel>
-                                  <Select 
-                                    onValueChange={field.onChange} 
+                                  <Select
+                                    onValueChange={field.onChange}
                                     defaultValue={field.value}
                                   >
                                     <FormControl>
@@ -536,8 +617,8 @@ export default function Tickets() {
                                     </FormControl>
                                     <SelectContent>
                                       {salesChannelOptions.map((option) => (
-                                        <SelectItem 
-                                          key={option.value} 
+                                        <SelectItem
+                                          key={option.value}
                                           value={option.value}
                                         >
                                           {option.label}

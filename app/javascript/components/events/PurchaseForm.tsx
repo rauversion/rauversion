@@ -17,15 +17,26 @@ interface Ticket {
   price: number
   short_description: string
   quantity: number
+  min_tickets_per_order?: number
+  max_tickets_per_order?: number
+}
+
+interface Event {
+  id: string
+  title: string
+  ticket_currency: string
 }
 
 interface PurchaseFormProps {
   eventId: string
 }
 
+type TicketFormValues = Record<string, number>
+
 export default function PurchaseForm({ eventId }: PurchaseFormProps) {
   const [tickets, setTickets] = React.useState<Ticket[]>([])
   const [loading, setLoading] = React.useState(false)
+  const [event, setEvent] = React.useState<Event | null>(null)
   const { toast } = useToast()
   const navigate = useNavigate()
 
@@ -33,14 +44,33 @@ export default function PurchaseForm({ eventId }: PurchaseFormProps) {
     register,
     handleSubmit,
     formState: { errors },
-  } = useForm()
+    setValue,
+    watch,
+  } = useForm<TicketFormValues>()
 
   React.useEffect(() => {
     const fetchTickets = async () => {
       try {
         const response = await get(`/events/${eventId}/event_purchases/new.json`)
         const data = await response.json
-        setTickets(data.tickets)
+        setEvent(data.event)
+        const parseOrderLimit = (value: unknown) => {
+          const numericValue = Number(value)
+          return Number.isFinite(numericValue) && numericValue > 0 ? numericValue : undefined
+        }
+        const normalizedTickets: Ticket[] = data.tickets.map((ticket: Ticket) => {
+
+          const min_tickets_per_order = parseOrderLimit(ticket.min_tickets_per_order)
+          const max_tickets_per_order = parseOrderLimit(ticket.max_tickets_per_order)
+
+          return {
+            ...ticket,
+            min_tickets_per_order,
+            max_tickets_per_order,
+          }
+        })
+
+        setTickets(normalizedTickets)
       } catch (error) {
         toast({
           variant: "destructive",
@@ -53,6 +83,13 @@ export default function PurchaseForm({ eventId }: PurchaseFormProps) {
     fetchTickets()
   }, [eventId])
 
+  React.useEffect(() => {
+    tickets.forEach((ticket) => {
+      const fieldName = ticket.id.toString()
+      setValue(fieldName, 0)
+    })
+  }, [tickets, setValue])
+
   const onSubmit = async (data: any) => {
     setLoading(true)
     try {
@@ -60,12 +97,21 @@ export default function PurchaseForm({ eventId }: PurchaseFormProps) {
         body: JSON.stringify({
           tickets: Object.entries(data).map(([id, quantity]) => ({
             id,
-            quantity: parseInt(quantity as string, 10),
+            quantity: typeof quantity === "number" ? quantity : parseInt(quantity as string, 10),
           })),
         }),
       })
       
       const result = await response.json
+      
+      if (Array.isArray(result.errors) && result.errors.length > 0) {
+        toast({
+          variant: "destructive",
+          title: I18n.t("events.purchase_form.toast.error.title"),
+          description: result.errors.join("\n"),
+        })
+        return
+      }
       
       // Redirect to payment URL if provided
       if (result.payment_url) {
@@ -110,122 +156,172 @@ export default function PurchaseForm({ eventId }: PurchaseFormProps) {
           </motion.div>
         </CardHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-6 overflow-auto max-h-96">
             <AnimatePresence>
-              {tickets.map((ticket, index) => (
-                <motion.div
-                  key={ticket.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.2 + index * 0.1 }}
-                  className="bg-muted/30 rounded-lg p-4 space-y-3 hover:bg-muted/50 transition-colors"
-                >
-                  <div className="flex justify-between items-start">
-                    <div className="space-y-1">
-                      <Label htmlFor={ticket.id} className="text-lg font-semibold">
-                        {ticket.title}
+              {tickets.map((ticket, index) => {
+                const fieldName = ticket.id.toString()
+                const quantity = watch(fieldName) ?? 0
+                const numericQuantity = Number(quantity)
+                const parsedQuantity = Number.isNaN(numericQuantity) ? 0 : numericQuantity
+                const minPerOrder = ticket.min_tickets_per_order ?? 0
+                const maxPerOrder = ticket.max_tickets_per_order
+                const hasMaxPerOrder = typeof maxPerOrder === "number"
+                const rawMaxAllowed = hasMaxPerOrder ? Math.min(ticket.quantity, maxPerOrder) : ticket.quantity
+                const effectiveMax = rawMaxAllowed
+                const maxValidationKey =
+                  hasMaxPerOrder && maxPerOrder < ticket.quantity
+                    ? "events.purchase_form.validation.max_tickets_per_order"
+                    : "events.purchase_form.validation.max_tickets"
+
+                return (
+                  <motion.div
+                    key={ticket.id}
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.2 + index * 0.1 }}
+                    className="bg-muted/30 rounded-lg p-4 space-y-3 hover:bg-muted/50 transition-colors"
+                  >
+                    <div className="flex justify-between items-start">
+                      <div className="space-y-1">
+                        <Label htmlFor={ticket.id} className="text-lg font-semibold">
+                          {ticket.title}
+                        </Label>
+                        <p className="text-sm text-muted-foreground">
+                          {ticket.short_description}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xl font-bold text-primary">
+                          {
+                            I18n.t("events.purchase_form.price", { 
+                              price: `${event?.ticket_currency?.toUpperCase()} ${ticket.price}` 
+                            })
+                          }
+                        </div>
+                        <div className="text-sm text-muted-foreground">
+                          {I18n.t("events.purchase_form.available_tickets", { count: ticket.quantity })}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <Label className="text-sm text-muted-foreground">
+                        {I18n.t("events.purchase_form.quantity_label")}
                       </Label>
-                      <p className="text-sm text-muted-foreground">
-                        {ticket.short_description}
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <div className="text-xl font-bold text-primary">
-                        {I18n.t("events.purchase_form.price", { price: ticket.price })}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {I18n.t("events.purchase_form.available_tickets", { count: ticket.quantity })}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label className="text-sm text-muted-foreground">
-                      {I18n.t("events.purchase_form.quantity_label")}
-                    </Label>
-                    <div className="flex items-center justify-center gap-3 bg-background/50 rounded-lg p-2">
-                      <motion.button
-                        type="button"
-                        whileTap={{ scale: 0.95 }}
-                        className="w-8 h-8 flex items-center justify-center rounded-md bg-muted/50 hover:bg-muted transition-colors"
-                        onClick={() => {
-                          const currentValue = parseInt(ticket.id.toString()) || 0;
-                          if (currentValue > 0) {
-                            const input = document.getElementById(ticket.id) as HTMLInputElement;
-                            if (input) {
-                              input.value = (currentValue - 1).toString();
-                              input.dispatchEvent(new Event('input', { bubbles: true }));
-                            }
-                          }
-                        }}
-                      >
-                        <motion.div
-                          initial={{ opacity: 0.5 }}
-                          whileHover={{ opacity: 1 }}
-                          className="text-lg font-bold"
-                        >
-                          -
-                        </motion.div>
-                      </motion.button>
+                      <div className="flex items-center justify-center gap-3 bg-background/50 rounded-lg p-2">
+                        <motion.button
+                          type="button"
+                          whileTap={{ scale: 0.95 }}
+                          className="w-8 h-8 flex items-center justify-center rounded-md bg-muted/50 hover:bg-muted transition-colors"
+                          onClick={() => {
+                            let updatedValue = Math.max(0, parsedQuantity - 1)
 
-                      <div className="relative w-20">
-                        <Input
-                          type="number"
-                          id={ticket.id}
-                          className="text-center font-medium text-lg !px-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                          {...register(ticket.id.toString(), {
-                            min: { 
-                              value: 0, 
-                              message: I18n.t("events.purchase_form.validation.quantity_negative") 
-                            },
-                            max: {
-                              value: ticket.quantity,
-                              message: I18n.t("events.purchase_form.validation.max_tickets", { count: ticket.quantity }),
-                            },
-                          })}
-                          defaultValue={0}
-                          min={0}
-                          max={ticket.quantity}
-                        />
+                            if (minPerOrder > 0 && updatedValue > 0 && updatedValue < minPerOrder) {
+                              updatedValue = 0
+                            }
+
+                            setValue(fieldName, updatedValue, {
+                              shouldDirty: true,
+                              shouldTouch: true,
+                              shouldValidate: true,
+                            })
+                          }}
+                        >
+                          <motion.div
+                            initial={{ opacity: 0.5 }}
+                            whileHover={{ opacity: 1 }}
+                            className="text-lg font-bold"
+                          >
+                            -
+                          </motion.div>
+                        </motion.button>
+
+                        <div className="relative w-20">
+                          <Input
+                            type="number"
+                            id={ticket.id}
+                            className="text-center font-medium text-lg !px-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                            {...register(fieldName, {
+                              valueAsNumber: true,
+                              min: {
+                                value: 0,
+                                message: I18n.t("events.purchase_form.validation.quantity_negative"),
+                              },
+                              max: {
+                                value: effectiveMax,
+                                message: I18n.t(maxValidationKey, { count: effectiveMax }),
+                              },
+                              validate: (value) => {
+                                if (Number.isNaN(value) || value === 0) {
+                                  return true
+                                }
+
+                                if (minPerOrder > 0 && value < minPerOrder) {
+                                  return I18n.t("events.purchase_form.validation.min_tickets_per_order", {
+                                    count: minPerOrder,
+                                  })
+                                }
+
+                                return true
+                              },
+                            })}
+                            defaultValue={0}
+                            min={0}
+                            max={effectiveMax}
+                          />
+                        </div>
+
+                        <motion.button
+                          type="button"
+                          whileTap={{ scale: 0.95 }}
+                          className="w-8 h-8 flex items-center justify-center rounded-md bg-muted/50 hover:bg-muted transition-colors"
+                          onClick={() => {
+                            let updatedValue = parsedQuantity + 1
+
+                            if (parsedQuantity === 0 && minPerOrder > 0 && updatedValue < minPerOrder) {
+                              updatedValue = minPerOrder
+                            }
+
+                            if (minPerOrder > 0 && updatedValue > 0 && updatedValue < minPerOrder) {
+                              updatedValue = minPerOrder
+                            }
+
+                            updatedValue = Math.min(effectiveMax, updatedValue)
+
+                            if (minPerOrder > 0 && updatedValue > 0 && updatedValue < minPerOrder) {
+                              updatedValue = 0
+                            }
+
+                            setValue(fieldName, updatedValue, {
+                              shouldDirty: true,
+                              shouldTouch: true,
+                              shouldValidate: true,
+                            })
+                          }}
+                        >
+                          <motion.div
+                            initial={{ opacity: 0.5 }}
+                            whileHover={{ opacity: 1 }}
+                            className="text-lg font-bold"
+                          >
+                            +
+                          </motion.div>
+                        </motion.button>
                       </div>
 
-                      <motion.button
-                        type="button"
-                        whileTap={{ scale: 0.95 }}
-                        className="w-8 h-8 flex items-center justify-center rounded-md bg-muted/50 hover:bg-muted transition-colors"
-                        onClick={() => {
-                          const currentValue = parseInt(ticket.id.toString()) || 0;
-                          if (currentValue < ticket.quantity) {
-                            const input = document.getElementById(ticket.id) as HTMLInputElement;
-                            if (input) {
-                              input.value = (currentValue + 1).toString();
-                              input.dispatchEvent(new Event('input', { bubbles: true }));
-                            }
-                          }
-                        }}
-                      >
+                      {errors[fieldName] && (
                         <motion.div
-                          initial={{ opacity: 0.5 }}
-                          whileHover={{ opacity: 1 }}
-                          className="text-lg font-bold"
+                          initial={{ opacity: 0, y: -10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="flex items-center gap-2 text-sm text-destructive"
                         >
-                          +
+                          <AlertCircle className="w-4 h-4" />
+                          <span>{errors[fieldName]?.message as string}</span>
                         </motion.div>
-                      </motion.button>
+                      )}
                     </div>
-                    
-                    {errors[ticket.id.toString()] && (
-                      <motion.div
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="flex items-center gap-2 text-sm text-destructive"
-                      >
-                        <AlertCircle className="w-4 h-4" />
-                        <span>{errors[ticket.id.toString()]?.message as string}</span>
-                      </motion.div>
-                    )}
-                  </div>
-                </motion.div>
-              ))}
+                  </motion.div>
+                )
+              })}
             </AnimatePresence>
           </CardContent>
           <CardFooter>

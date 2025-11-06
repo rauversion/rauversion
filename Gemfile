@@ -161,6 +161,7 @@ gem "rails_autolink", "~> 1.1"
 
 gem "transbank-sdk", "~> 3.0"
 gem "stripe", "~> 8.6"
+gem "money"
 gem "mercadopago", "~> 2.3"
 gem "redcarpet"
 

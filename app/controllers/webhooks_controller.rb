@@ -103,8 +103,10 @@ class WebhooksController < ApplicationController
       handle_playlist_purchase(event_object&.metadata)
     elsif event_object&.metadata&.source_type == "event"
       purchase = Purchase.find_by(checkout_type: "stripe", checkout_id: event_object.id)
+
       if purchase.present?
-        purchase.price = amount_total
+        purchase.price = event_object.amount_total
+        purchase.currency = event_object.currency
         purchase.complete_purchase!
       end
     else
@@ -141,8 +143,10 @@ class WebhooksController < ApplicationController
           phone: stripe_session&.customer_details&.phone,
           shipping_cost: shipping_cost,
           total_amount: total_amount,
+          currency: stripe_session.currency,
           payment_intent_id: payment_intent["id"]
         )
+
         
         cart = ProductCart.find(stripe_session.metadata.cart_id)
         
@@ -160,6 +164,7 @@ class WebhooksController < ApplicationController
             product: product,
             quantity: item.quantity,
             price: product.price,
+            currency: stripe_session.currency,
             shipping_cost: (shipping&.base_cost || 0) + additional_shipping_cost
           }
         })

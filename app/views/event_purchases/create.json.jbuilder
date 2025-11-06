@@ -3,6 +3,8 @@ json.payment_url @payment_url if @payment_url.present?
 json.checkout_type @purchase.checkout_type
 json.checkout_id @purchase.checkout_id
 
+json.errors @purchase.errors.full_messages
+
 json.purchased_items @purchase.purchased_items do |item|
   json.id item.id
   # json.quantity item.quantity
