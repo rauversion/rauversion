@@ -41,7 +41,7 @@ import { ImageUploader } from "@/components/ui/image-uploader"
 
 const formSchema = z.object({
   title: z.string().min(2, {
-    message: "Title must be at least 2 characters.",
+    message: I18n.t('events.edit.form.validation.title_min'),
   }),
   timezone: z.string().optional(),
   event_start_date: z.date().optional(),
@@ -81,14 +81,14 @@ export default function Overview() {
         const data = await response.json
         setEvent(data.event)
         toast({
-          title: "Success",
+          title: I18n.t('events.edit.form.messages.success'),
           description: I18n.t('events.edit.form.cover_success'),
         })
       }
     } catch (error) {
       console.error('Error updating event cover:', error)
       toast({
-        title: "Error",
+        title: I18n.t('events.edit.form.messages.error'),
         description: I18n.t('events.edit.form.cover_error'),
         variant: "destructive",
       })
@@ -203,7 +203,7 @@ export default function Overview() {
         setEvent(responseData.event)
         setErrors(null)
         toast({
-          title: "Success",
+          title: I18n.t('events.edit.form.messages.success'),
           description: I18n.t('events.edit.form.success'),
         })
       } else {
@@ -217,9 +217,9 @@ export default function Overview() {
       }
     } catch (error) {
       console.error('Error updating event:', error)
-      setErrors("An unexpected error occurred while saving the event")
+      setErrors(I18n.t('events.edit.form.error_saving'))
       toast({
-        title: "Error",
+        title: I18n.t('events.edit.form.messages.error'),
         description: I18n.t('events.edit.form.error'),
         variant: "destructive",
       })
@@ -522,7 +522,7 @@ export default function Overview() {
                 await onSubmit(values)
               } catch (error) {
                 console.error("Error during submission:", error)
-                setErrors("An unexpected error occurred")
+                setErrors(I18n.t('events.edit.form.error'))
               } finally {
                 setIsSubmitting(false)
               }
