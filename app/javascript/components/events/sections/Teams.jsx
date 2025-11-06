@@ -128,7 +128,7 @@ export default function Teams() {
     } catch (error) {
       console.error('Error fetching team data:', error)
       toast({
-        title: "Error",
+        title: I18n.t("events.edit.teams.messages.error_title"),
         description: I18n.t('events.edit.teams.messages.load_error'),
         variant: "destructive",
       })
@@ -153,7 +153,7 @@ export default function Teams() {
         fetchTeamData()
         form.reset({ team_members: [] })
         toast({
-          title: "Success",
+          title: I18n.t("events.edit.teams.messages.success_title"),
           description: I18n.t('events.edit.teams.messages.invites_success'),
         })
       } else {
@@ -168,7 +168,7 @@ export default function Teams() {
     } catch (error) {
       console.error('Error updating team:', error)
       toast({
-        title: "Error",
+        title: I18n.t("events.edit.teams.messages.error_title"),
         description: I18n.t('events.edit.teams.messages.invites_error'),
         variant: "destructive",
       })
@@ -191,13 +191,13 @@ export default function Teams() {
       if (response.ok) {
         setCurrentTeam(team => team.filter(member => member.id !== hostToDelete.id))
         toast({
-          title: "Success",
+          title: I18n.t("events.edit.teams.messages.success_title"),
           description: I18n.t('events.edit.teams.messages.remove_success'),
         })
       } else {
         const data = await response.json()
         toast({
-          title: "Error",
+          title: I18n.t("events.edit.teams.messages.error_title"),
           description: data.message || I18n.t('events.edit.teams.messages.remove_error'),
           variant: "destructive",
         })
@@ -205,7 +205,7 @@ export default function Teams() {
     } catch (error) {
       console.error('Error removing team member:', error)
       toast({
-        title: "Error",
+        title: I18n.t("events.edit.teams.messages.error_title"),
         description: I18n.t('events.edit.teams.messages.remove_error'),
         variant: "destructive",
       })
@@ -240,7 +240,7 @@ export default function Teams() {
           )
         )
         toast({
-          title: "Success",
+          title: I18n.t("events.edit.teams.messages.success_title"),
           description: I18n.t('events.edit.teams.messages.update_success'),
         })
         setHostToEdit(null)
@@ -255,7 +255,7 @@ export default function Teams() {
         }
         
         toast({
-          title: "Error",
+          title: I18n.t("events.edit.teams.messages.error_title"),
           description: responseData.message || I18n.t('events.edit.teams.messages.update_error'),
           variant: "destructive",
         })
@@ -263,7 +263,7 @@ export default function Teams() {
     } catch (error) {
       console.error('Error updating team member:', error)
       toast({
-        title: "Error",
+        title: I18n.t("events.edit.teams.messages.error_title"),
         description: I18n.t('events.edit.teams.messages.update_error'),
         variant: "destructive",
       })

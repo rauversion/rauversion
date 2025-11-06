@@ -102,7 +102,7 @@ export default function Recordings() {
           })
         } else {
           toast({
-            title: "Success",
+            title: I18n.t("events.edit.recordings.messages.success_title"),
             description: I18n.t(editMode ? 'events.edit.recordings.messages.update_success' : 'events.edit.recordings.messages.create_success'),
           })
           setOpen(false)
@@ -113,7 +113,7 @@ export default function Recordings() {
         }
       } else {
         toast({
-          title: "Error",
+          title: I18n.t("events.edit.recordings.messages.error_title"),
           description: I18n.t(editMode ? 'events.edit.recordings.messages.update_error' : 'events.edit.recordings.messages.create_error'),
           variant: "destructive",
         })
@@ -121,7 +121,7 @@ export default function Recordings() {
     } catch (error) {
       console.error(`Error ${editMode ? 'updating' : 'creating'} recording:`, error)
       toast({
-        title: "Error",
+        title: I18n.t("events.edit.recordings.messages.error_title"),
         description: I18n.t('events.edit.recordings.messages.general_error'),
         variant: "destructive",
       })
@@ -158,14 +158,14 @@ export default function Recordings() {
       if (response.ok) {
         setItems(recordings.filter(r => r.id !== recordingId))
         toast({
-          title: "Success",
+          title: I18n.t("events.edit.recordings.messages.success_title"),
           description: I18n.t('events.edit.recordings.messages.delete_success'),
         })
       }
     } catch (error) {
       console.error('Error deleting recording:', error)
       toast({
-        title: "Error",
+        title: I18n.t("events.edit.recordings.messages.error_title"),
         description: I18n.t('events.edit.recordings.messages.delete_error'),
         variant: "destructive",
       })

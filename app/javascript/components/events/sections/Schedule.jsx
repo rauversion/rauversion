@@ -241,21 +241,21 @@ export default function Schedule() {
         })
 
         toast({
-          title: "Error",
+          title: I18n.t('events.edit.schedule.messages.error_title'),
           description: I18n.t('events.edit.schedule.messages.form_error'),
           variant: "destructive",
         })
       } else {
         setEvent(data.event)
         toast({
-          title: "Success",
+          title: I18n.t('events.edit.schedule.messages.success_title'),
           description: I18n.t('events.edit.schedule.messages.form_success'),
         })
       }
     } catch (error) {
       console.error('Error updating schedule:', error)
       toast({
-        title: "Error",
+        title: I18n.t('events.edit.schedule.messages.error_title'),
         description: I18n.t('events.edit.schedule.messages.form_error'),
         variant: "destructive",
       })
