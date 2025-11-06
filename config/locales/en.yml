@@ -264,13 +264,91 @@ en:
         cover:
           label: Cover Image
           help: "Recommended: 1200x630px for social media"
+        validation:
+          title_min: Title must be at least 2 characters.
+        error: An unexpected error occurred
+        error_saving: An unexpected error occurred while saving the event
+        cover_success: Cover image updated successfully
+        cover_error: Failed to update cover image
+        messages:
+          success: Success
+          error: Error
       tickets:
-        title: Tickets
+        title: Event Tickets
+        description: Create and manage tickets for your event
+        add_ticket: Add Ticket
+        save_tickets: Save Tickets
+        new_ticket: New Ticket
+        ticket_currency:
+          label: Ticket Currency
+          placeholder: Select currency
+          description: Choose the currency attendees will use to purchase tickets.
+        form:
+          title:
+            label: Title
+            placeholder: VIP Pass
+          description:
+            label: Description
+            placeholder: VIP access with meet & greet
+          price:
+            label: Price
+          qty:
+            label: Total Quantity
+          sale_start:
+            label: Sale Start
+          sale_end:
+            label: Sale End
+          min_tickets_per_order:
+            label: Min Tickets per Order
+          max_tickets_per_order:
+            label: Max Tickets per Order
+          show_sell_until:
+            label: Show sell until
+            description: Show the Sell Until date on the event page
+          show_after_sold_out:
+            label: Show after sold out
+            description: Display with a "Sold out" message after ticket quantity runs out
+          hidden:
+            label: Hide ticket?
+            description: Check to hide this ticket on your Event page and make it available via a direct link only
+          after_purchase_message:
+            label: After purchase message
+            description: Additional message to include on the purchased ticket
+          sales_channel:
+            label: Sales Channel
+            placeholder: Select sales channel
+            options:
+              all: All channels
+              event_page: Event page only
+              box_office: Box office only
+        validation:
+          title_min: Name must be at least 2 characters.
+        messages:
+          error: Error
+          success: Success
+          load_error: Could not load tickets
+          update_success: Tickets updated successfully
+          update_error: Failed to update tickets
+          update_error_check_form: Failed to update tickets. Please check the form for errors.
+        currency:
+          clp: Chilean Peso (CLP)
+          usd: US Dollar (USD)
+          eur: Euro (EUR)
+          gbp: Pound Sterling (GBP)
+          cad: Canadian Dollar (CAD)
+          aud: Australian Dollar (AUD)
+          mxn: Mexican Peso (MXN)
+          brl: Brazilian Real (BRL)
+          jpy: Japanese Yen (JPY)
+          nzd: New Zealand Dollar (NZD)
       breadcrumb:
         events: Events
       settings:
         title: Configuration
         save: Save Changes
+        messages:
+          success_title: Success
+          error_title: Error
         general:
           title: General Configuration
           description: Set up basic event settings
@@ -353,14 +431,32 @@ en:
           pending: Pending
           checked_in: Registrado a las %{time}
         messages:
+          success_title: Success
+          error_title: Error
           update_success: State of the assistant successfully updated
           update_error: The assistant's status could not be updated.
           remove_confirm: Are you sure you want to delete this assistant?
           remove_success: Assistant successfully deleted
           remove_error: The assistant could not be deleted
       streaming:
-        title: Live Broadcast
-        description: Configure live streaming settings
+        title: Live Streaming
+        description: Configure live streaming services for your event
+        select_service: Select a streaming service
+        services:
+          twitch:
+            description: Twitch is a streaming service
+          mux:
+            description: Mux is a streaming service
+          whereby:
+            description: Whereby is a streaming service
+          stream_yard:
+            description: Live Streaming to 15 services at once, including youtube, twitch, zoom etc...
+          zoom:
+            description: Zoom is a streaming service
+          jitsi:
+            description: Live Streaming on jitsi open source platform
+          restream:
+            description: Live Streaming to 15 services at once, including youtube, twitch, zoom etc...
         platform:
           label: Transmission Platform
           description: Select your streaming platform
@@ -380,6 +476,11 @@ en:
           live: In Live
           offline: Out of Line
         messages:
+          error: Error
+          success: Success
+          load_error: Could not load streaming service form
+          save_success: Streaming service configured successfully
+          save_error: Could not configure streaming service
           update_success: Transmission settings updated successfully
           update_error: The transmission settings could not be updated
       schedule:
@@ -408,6 +509,8 @@ en:
           break: Rest
           activity: Activity
         messages:
+          success_title: Success
+          error_title: Error
           add_success: Element successfully added
           add_error: It was not possible to add the item
           update_success: Schedule updated successfully
@@ -452,6 +555,8 @@ en:
           edit: Edit
           delete: Eliminate
         messages:
+          success_title: Success
+          error_title: Error
           create_success: Recording created successfully
           update_success: Recording successfully updated
           delete_success: Recording successfully deleted
@@ -481,6 +586,8 @@ en:
           listed: Listed on Page
           manager: Event Manager
         messages:
+          success_title: Success
+          error_title: Error
           invites_success: Invitations sent successfully
           invites_error: The invitations could not be sent
           update_success: Team member successfully updated

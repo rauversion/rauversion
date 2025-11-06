@@ -7,6 +7,7 @@ import { format } from "date-fns"
 import { get, put } from '@rails/request.js'
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
+import I18n from '@/stores/locales'
 import {
   Form,
   FormControl,
@@ -43,7 +44,7 @@ import { formatDateSafely } from "@/hooks/safeDate"
 const ticketSchema = z.object({
   id: z.number().optional(),
   title: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
+    message: I18n.t('events.edit.tickets.validation.title_min'),
   }),
   short_description: z.string().optional(),
   price: z.coerce.number().min(0),
@@ -77,22 +78,22 @@ const formSchema = z.object({
 })
 
 const salesChannelOptions = [
-  { value: "all", label: "All channels" },
-  { value: "event_page", label: "Event page only" },
-  { value: "box_office", label: "Box office only" },
+  { value: "all", label: I18n.t('events.edit.tickets.form.sales_channel.options.all') },
+  { value: "event_page", label: I18n.t('events.edit.tickets.form.sales_channel.options.event_page') },
+  { value: "box_office", label: I18n.t('events.edit.tickets.form.sales_channel.options.box_office') },
 ]
 
 const currencyLabels = {
-  clp: "Chilean Peso (CLP)",
-  usd: "US Dollar (USD)",
-  eur: "Euro (EUR)",
-  gbp: "Pound Sterling (GBP)",
-  cad: "Canadian Dollar (CAD)",
-  aud: "Australian Dollar (AUD)",
-  mxn: "Mexican Peso (MXN)",
-  brl: "Brazilian Real (BRL)",
-  jpy: "Japanese Yen (JPY)",
-  nzd: "New Zealand Dollar (NZD)",
+  clp: I18n.t('events.edit.tickets.currency.clp'),
+  usd: I18n.t('events.edit.tickets.currency.usd'),
+  eur: I18n.t('events.edit.tickets.currency.eur'),
+  gbp: I18n.t('events.edit.tickets.currency.gbp'),
+  cad: I18n.t('events.edit.tickets.currency.cad'),
+  aud: I18n.t('events.edit.tickets.currency.aud'),
+  mxn: I18n.t('events.edit.tickets.currency.mxn'),
+  brl: I18n.t('events.edit.tickets.currency.brl'),
+  jpy: I18n.t('events.edit.tickets.currency.jpy'),
+  nzd: I18n.t('events.edit.tickets.currency.nzd'),
 }
 
 const DEFAULT_CURRENCY_CODES = ["clp", "usd", "eur"]
@@ -183,8 +184,8 @@ export default function Tickets() {
       } catch (error) {
         console.error('Error fetching tickets:', error)
         toast({
-          title: "Error",
-          description: "Could not load tickets",
+          title: I18n.t('events.edit.tickets.messages.error'),
+          description: I18n.t('events.edit.tickets.messages.load_error'),
           variant: "destructive",
         })
       }
@@ -254,8 +255,8 @@ export default function Tickets() {
 
       if (response.ok && !responseData.errors) {
         toast({
-          title: "Success",
-          description: "Tickets updated successfully",
+          title: I18n.t('events.edit.tickets.messages.success'),
+          description: I18n.t('events.edit.tickets.messages.update_success'),
         })
       } else {
         // Handle nested errors
@@ -277,16 +278,16 @@ export default function Tickets() {
         })
 
         toast({
-          title: "Error",
-          description: "Failed to update tickets. Please check the form for errors.",
+          title: I18n.t('events.edit.tickets.messages.error'),
+          description: I18n.t('events.edit.tickets.messages.update_error_check_form'),
           variant: "destructive",
         })
       }
     } catch (error) {
       console.error('Error updating tickets:', error)
       toast({
-        title: "Error",
-        description: "Failed to update tickets",
+        title: I18n.t('events.edit.tickets.messages.error'),
+        description: I18n.t('events.edit.tickets.messages.update_error'),
         variant: "destructive",
       })
     }
@@ -298,9 +299,9 @@ export default function Tickets() {
         <CardHeader>
           <div className="flex justify-between items-center">
             <div>
-              <CardTitle>Event Tickets</CardTitle>
+              <CardTitle>{I18n.t('events.edit.tickets.title')}</CardTitle>
               <CardDescription>
-                Create and manage tickets for your event
+                {I18n.t('events.edit.tickets.description')}
               </CardDescription>
             </div>
             <Button
@@ -309,7 +310,7 @@ export default function Tickets() {
               onClick={addTicket}
             >
               <Plus className="h-4 w-4 mr-2" />
-              Add Ticket
+              {I18n.t('events.edit.tickets.add_ticket')}
             </Button>
           </div>
         </CardHeader>
@@ -321,14 +322,14 @@ export default function Tickets() {
                 name="ticket_currency"
                 render={({ field }) => (
                   <FormItem className="max-w-xs">
-                    <FormLabel>Ticket Currency</FormLabel>
+                    <FormLabel>{I18n.t('events.edit.tickets.ticket_currency.label')}</FormLabel>
                     <Select
                       onValueChange={(value) => field.onChange(value.toLowerCase())}
                       value={field.value}
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select currency" />
+                          <SelectValue placeholder={I18n.t('events.edit.tickets.ticket_currency.placeholder')} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
@@ -340,7 +341,7 @@ export default function Tickets() {
                       </SelectContent>
                     </Select>
                     <FormDescription>
-                      Choose the currency attendees will use to purchase tickets.
+                      {I18n.t('events.edit.tickets.ticket_currency.description')}
                     </FormDescription>
                     <FormMessage />
                   </FormItem>
@@ -360,7 +361,7 @@ export default function Tickets() {
                         <div className="flex items-center gap-2">
                           <Ticket className="h-5 w-5" />
                           <CardTitle className="text-lg">
-                            {field.title || "New Ticket"}
+                            {field.title || I18n.t('events.edit.tickets.new_ticket')}
                           </CardTitle>
                         </div>
                         <Button
@@ -382,9 +383,9 @@ export default function Tickets() {
                             name={`tickets.${index}.title`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Title</FormLabel>
+                                <FormLabel>{I18n.t('events.edit.tickets.form.title.label')}</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="VIP Pass" {...field} />
+                                  <Input placeholder={I18n.t('events.edit.tickets.form.title.placeholder')} {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -396,9 +397,9 @@ export default function Tickets() {
                             name={`tickets.${index}.short_description`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Description</FormLabel>
+                                <FormLabel>{I18n.t('events.edit.tickets.form.description.label')}</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="VIP access with meet & greet" {...field} />
+                                  <Input placeholder={I18n.t('events.edit.tickets.form.description.placeholder')} {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -413,7 +414,7 @@ export default function Tickets() {
                             name={`tickets.${index}.price`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Price</FormLabel>
+                                <FormLabel>{I18n.t('events.edit.tickets.form.price.label')}</FormLabel>
                                 <FormControl>
                                   <Input type="number" min="0" step="0.01" {...field} />
                                 </FormControl>
@@ -427,7 +428,7 @@ export default function Tickets() {
                             name={`tickets.${index}.qty`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Total Quantity</FormLabel>
+                                <FormLabel>{I18n.t('events.edit.tickets.form.qty.label')}</FormLabel>
                                 <FormControl>
                                   <Input type="number" min="1" {...field} />
                                 </FormControl>
@@ -444,7 +445,7 @@ export default function Tickets() {
                             name={`tickets.${index}.selling_start`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Sale Start</FormLabel>
+                                <FormLabel>{I18n.t('events.edit.tickets.form.sale_start.label')}</FormLabel>
                                 <FormControl>
                                   <Input
                                     type="datetime-local"
@@ -466,7 +467,7 @@ export default function Tickets() {
                             name={`tickets.${index}.selling_end`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Sale End</FormLabel>
+                                <FormLabel>{I18n.t('events.edit.tickets.form.sale_end.label')}</FormLabel>
                                 <FormControl>
                                   <Input
                                     type="datetime-local"
@@ -491,7 +492,7 @@ export default function Tickets() {
                             name={`tickets.${index}.min_tickets_per_order`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Min Tickets per Order</FormLabel>
+                                <FormLabel>{I18n.t('events.edit.tickets.form.min_tickets_per_order.label')}</FormLabel>
                                 <FormControl>
                                   <Input type="number" min="1" {...field} />
                                 </FormControl>
@@ -505,7 +506,7 @@ export default function Tickets() {
                             name={`tickets.${index}.max_tickets_per_order`}
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Max Tickets per Order</FormLabel>
+                                <FormLabel>{I18n.t('events.edit.tickets.form.max_tickets_per_order.label')}</FormLabel>
                                 <FormControl>
                                   <Input type="number" min="1" {...field} />
                                 </FormControl>
@@ -524,9 +525,9 @@ export default function Tickets() {
                               render={({ field }) => (
                                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                                   <div className="space-y-0.5">
-                                    <FormLabel>Show sell until</FormLabel>
+                                    <FormLabel>{I18n.t('events.edit.tickets.form.show_sell_until.label')}</FormLabel>
                                     <FormDescription>
-                                      Show the Sell Until date on the event page
+                                      {I18n.t('events.edit.tickets.form.show_sell_until.description')}
                                     </FormDescription>
                                   </div>
                                   <FormControl>
@@ -545,9 +546,9 @@ export default function Tickets() {
                               render={({ field }) => (
                                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                                   <div className="space-y-0.5">
-                                    <FormLabel>Show after sold out</FormLabel>
+                                    <FormLabel>{I18n.t('events.edit.tickets.form.show_after_sold_out.label')}</FormLabel>
                                     <FormDescription>
-                                      Display with a "Sold out" message after ticket quantity runs out
+                                      {I18n.t('events.edit.tickets.form.show_after_sold_out.description')}
                                     </FormDescription>
                                   </div>
                                   <FormControl>
@@ -566,9 +567,9 @@ export default function Tickets() {
                               render={({ field }) => (
                                 <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                                   <div className="space-y-0.5">
-                                    <FormLabel>Hide ticket?</FormLabel>
+                                    <FormLabel>{I18n.t('events.edit.tickets.form.hidden.label')}</FormLabel>
                                     <FormDescription>
-                                      Check to hide this ticket on your Event page and make it available via a direct link only
+                                      {I18n.t('events.edit.tickets.form.hidden.description')}
                                     </FormDescription>
                                   </div>
                                   <FormControl>
@@ -588,9 +589,9 @@ export default function Tickets() {
                               name={`tickets.${index}.after_purchase_message`}
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>After purchase message</FormLabel>
+                                  <FormLabel>{I18n.t('events.edit.tickets.form.after_purchase_message.label')}</FormLabel>
                                   <FormDescription>
-                                    Additional message to include on the purchased ticket
+                                    {I18n.t('events.edit.tickets.form.after_purchase_message.description')}
                                   </FormDescription>
                                   <FormControl>
                                     <Textarea {...field} className="h-[120px]" />
@@ -605,14 +606,14 @@ export default function Tickets() {
                               name={`tickets.${index}.sales_channel`}
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Sales Channel</FormLabel>
+                                  <FormLabel>{I18n.t('events.edit.tickets.form.sales_channel.label')}</FormLabel>
                                   <Select
                                     onValueChange={field.onChange}
                                     defaultValue={field.value}
                                   >
                                     <FormControl>
                                       <SelectTrigger>
-                                        <SelectValue placeholder="Select sales channel" />
+                                        <SelectValue placeholder={I18n.t('events.edit.tickets.form.sales_channel.placeholder')} />
                                       </SelectTrigger>
                                     </FormControl>
                                     <SelectContent>
@@ -639,7 +640,7 @@ export default function Tickets() {
               })}
 
               {fields.length > 0 && (
-                <Button type="submit">Save Tickets</Button>
+                <Button type="submit">{I18n.t('events.edit.tickets.save_tickets')}</Button>
               )}
             </form>
           </Form>

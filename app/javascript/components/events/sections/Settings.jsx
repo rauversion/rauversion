@@ -145,7 +145,7 @@ export default function Settings() {
         }
 
         toast({
-          title: "Success",
+          title: I18n.t("events.edit.settings.messages.success_title"),
           description: I18n.t('events.edit.settings.messages.success'),
         })
       } else {
@@ -160,7 +160,7 @@ export default function Settings() {
     } catch (error) {
       console.error('Error updating settings:', error)
       toast({
-        title: "Error",
+        title: I18n.t("events.edit.settings.messages.error_title"),
         description: I18n.t('events.edit.settings.messages.error'),
         variant: "destructive",
       })
@@ -176,14 +176,14 @@ export default function Settings() {
       if (response.ok) {
         navigate('/events', { replace: true })
         toast({
-          title: "Success",
+          title: I18n.t("events.edit.settings.messages.success_title"),
           description: I18n.t('events.edit.settings.messages.delete_success'),
         })
       }
     } catch (error) {
       console.error('Error deleting event:', error)
       toast({
-        title: "Error",
+        title: I18n.t("events.edit.settings.messages.error_title"),
         description: I18n.t('events.edit.settings.messages.delete_error'),
         variant: "destructive",
       })

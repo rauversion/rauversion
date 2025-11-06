@@ -295,8 +295,83 @@ es:
         cover:
           label: Imagen de Portada
           description: La imagen de portada del evento
+        validation:
+          title_min: El título debe tener al menos 2 caracteres.
+        error: Ocurrió un error inesperado
+        error_saving: Ocurrió un error inesperado al guardar el evento
+        cover_success: Imagen de portada actualizada exitosamente
+        cover_error: Error al actualizar la imagen de portada
+        messages:
+          success: Éxito
+          error: Error
       tickets:
-        title: Entradas
+        title: Entradas del Evento
+        description: Crea y gestiona las entradas de tu evento
+        add_ticket: Agregar Entrada
+        save_tickets: Guardar Entradas
+        new_ticket: Nueva Entrada
+        ticket_currency:
+          label: Moneda de las Entradas
+          placeholder: Seleccionar moneda
+          description: Elige la moneda que los asistentes utilizarán para comprar las entradas.
+        form:
+          title:
+            label: Título
+            placeholder: Pase VIP
+          description:
+            label: Descripción
+            placeholder: Acceso VIP con meet & greet
+          price:
+            label: Precio
+          qty:
+            label: Cantidad Total
+          sale_start:
+            label: Inicio de Venta
+          sale_end:
+            label: Fin de Venta
+          min_tickets_per_order:
+            label: Mín. Entradas por Orden
+          max_tickets_per_order:
+            label: Máx. Entradas por Orden
+          show_sell_until:
+            label: Mostrar venta hasta
+            description: Mostrar la fecha de venta hasta en la página del evento
+          show_after_sold_out:
+            label: Mostrar después de agotadas
+            description: Mostrar con un mensaje de "Agotado" después de que se agoten las entradas
+          hidden:
+            label: ¿Ocultar entrada?
+            description: Marca para ocultar esta entrada en la página del evento y hacerla disponible solo mediante un enlace directo
+          after_purchase_message:
+            label: Mensaje después de la compra
+            description: Mensaje adicional para incluir en la entrada comprada
+          sales_channel:
+            label: Canal de Ventas
+            placeholder: Seleccionar canal de ventas
+            options:
+              all: Todos los canales
+              event_page: Solo página del evento
+              box_office: Solo taquilla
+        validation:
+          title_min: El nombre debe tener al menos 2 caracteres.
+        messages:
+          error: Error
+          success: Éxito
+          load_error: No se pudieron cargar las entradas
+          update_success: Entradas actualizadas exitosamente
+          update_error: Error al actualizar las entradas
+          update_error_check_form: Error al actualizar las entradas. Por favor revisa el formulario para ver los errores.
+        currency:
+          clp: Peso Chileno (CLP)
+          usd: Dólar Estadounidense (USD)
+          eur: Euro (EUR)
+          gbp: Libra Esterlina (GBP)
+          cad: Dólar Canadiense (CAD)
+          aud: Dólar Australiano (AUD)
+          mxn: Peso Mexicano (MXN)
+          brl: Real Brasileño (BRL)
+          jpy: Yen Japonés (JPY)
+          nzd: Dólar Neozelandés (NZD)
       breadcrumb:
         events: Eventos
 
@@ -348,6 +423,8 @@ es:
           pending: Pendiente
           checked_in: Registrado a las %{time}
         messages:
+          success_title: Éxito
+          error_title: Error
           update_success: Estado del asistente actualizado exitosamente
           update_error: No se pudo actualizar el estado del asistente
           remove_confirm: ¿Estás seguro de que deseas eliminar este asistente?
@@ -356,6 +433,9 @@ es:
 
       settings:
         title: "Configuracion"
+        messages:
+          success_title: Éxito
+          error_title: Error
         save: Guardar
         tabs:
           general: General
@@ -420,6 +500,22 @@ es:
       streaming:
         title: Transmisión en Vivo
         description: Configurar ajustes de transmisión en vivo
+        select_service: Selecciona un servicio de transmisión
+        services:
+          twitch:
+            description: Twitch es un servicio de transmisión
+          mux:
+            description: Mux es un servicio de transmisión
+          whereby:
+            description: Whereby es un servicio de transmisión
+          stream_yard:
+            description: Transmisión en vivo a 15 servicios a la vez, incluyendo youtube, twitch, zoom etc...
+          zoom:
+            description: Zoom es un servicio de transmisión
+          jitsi:
+            description: Transmisión en vivo en la plataforma de código abierto jitsi
+          restream:
+            description: Transmisión en vivo a 15 servicios a la vez, incluyendo youtube, twitch, zoom etc...
         platform:
           label: Plataforma de Transmisión
           description: Selecciona tu plataforma de transmisión
@@ -437,6 +533,11 @@ es:
           live: En Vivo
           offline: Fuera de Línea
         messages:
+          error: Error
+          success: Éxito
+          load_error: No se pudo cargar el formulario del servicio de transmisión
+          save_success: Servicio de transmisión configurado exitosamente
+          save_error: No se pudo configurar el servicio de transmisión
           update_success: Configuración de transmisión actualizada exitosamente
           update_error: No se pudo actualizar la configuración de transmisión
       schedule:
@@ -467,6 +568,8 @@ es:
           break: Descanso
           activity: Actividad
         messages:
+          success_title: Éxito
+          error_title: Error
           add_success: Elemento agregado exitosamente
           add_error: No se pudo agregar el elemento
           update_success: Horario actualizado exitosamente
@@ -511,6 +614,8 @@ es:
           edit: Editar
           delete: Eliminar
         messages:
+          success_title: Éxito
+          error_title: Error
           create_success: Grabación creada exitosamente
           update_success: Grabación actualizada exitosamente
           delete_success: Grabación eliminada exitosamente
@@ -540,6 +645,8 @@ es:
           listed: Listado en Página
           manager: Gestor del Evento
         messages:
+          success_title: Éxito
+          error_title: Error
           add_success: Miembro agregado exitosamente
           add_error: No se pudo agregar el miembro
           update_success: Miembro actualizado exitosamente

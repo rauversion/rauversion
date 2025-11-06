@@ -91,14 +91,14 @@ export default function Attendees() {
       if (response.ok) {
         resetList()
         toast({
-          title: "Success",
+          title: I18n.t("events.edit.attendees.messages.success_title"),
           description: I18n.t('events.edit.attendees.messages.update_success'),
         })
       }
     } catch (error) {
       console.error('Error updating attendee:', error)
       toast({
-        title: "Error",
+        title: I18n.t("events.edit.attendees.messages.error_title"),
         description: I18n.t('events.edit.attendees.messages.update_error'),
         variant: "destructive",
       })
@@ -116,14 +116,14 @@ export default function Attendees() {
       if (response.ok) {
         resetList()
         toast({
-          title: "Success",
+          title: I18n.t("events.edit.attendees.messages.success_title"),
           description: I18n.t('events.edit.attendees.messages.remove_success'),
         })
       }
     } catch (error) {
       console.error('Error removing attendee:', error)
       toast({
-        title: "Error",
+        title: I18n.t("events.edit.attendees.messages.error_title"),
         description: I18n.t('events.edit.attendees.messages.remove_error'),
         variant: "destructive",
       })
