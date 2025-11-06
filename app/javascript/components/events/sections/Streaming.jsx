@@ -6,6 +6,7 @@ import * as z from "zod"
 import { put, get } from '@rails/request.js'
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
+import I18n from '@/stores/locales'
 import {
   Form,
   FormControl,
@@ -33,37 +34,37 @@ const streamingServices = [
   {
     name: "twitch",
     active: true,
-    description: "Twitch is a streaming service"
+    description: I18n.t('events.edit.streaming.services.twitch.description')
   },
   {
     name: "mux",
     active: true,
-    description: "Mux is a streaming service"
+    description: I18n.t('events.edit.streaming.services.mux.description')
   },
   {
     name: "whereby",
     active: true,
-    description: "Whereby is a streaming service"
+    description: I18n.t('events.edit.streaming.services.whereby.description')
   },
   {
     name: "stream_yard",
     active: true,
-    description: "Live Streaming to 15 services at once, including youtube, twitch, zoom etc..."
+    description: I18n.t('events.edit.streaming.services.stream_yard.description')
   },
   {
     name: "zoom",
     active: true,
-    description: "Zoom is a streaming service"
+    description: I18n.t('events.edit.streaming.services.zoom.description')
   },
   {
     name: "jitsi",
     active: false,
-    description: "Live Streaming on jitsi open source platform"
+    description: I18n.t('events.edit.streaming.services.jitsi.description')
   },
   {
     name: "restream",
     active: true,
-    description: "Live Streaming to 15 services at once, including youtube, twitch, zoom etc..."
+    description: I18n.t('events.edit.streaming.services.restream.description')
   }
 ]
 
@@ -86,8 +87,8 @@ function StreamingServiceDialog({ fetchEvent, service, isOpen, onOpenChange }) {
       } catch (error) {
         console.error('Error loading form:', error)
         toast({
-          title: "Error",
-          description: "Could not load streaming service form",
+          title: I18n.t('events.edit.streaming.messages.error'),
+          description: I18n.t('events.edit.streaming.messages.load_error'),
           variant: "destructive",
         })
         setLoading(false)
@@ -107,8 +108,8 @@ function StreamingServiceDialog({ fetchEvent, service, isOpen, onOpenChange }) {
 
       if (response.ok) {
         toast({
-          title: "Success",
-          description: "Streaming service configured successfully",
+          title: I18n.t('events.edit.streaming.messages.success'),
+          description: I18n.t('events.edit.streaming.messages.save_success'),
         })
         onOpenChange(false)
         fetchEvent()
@@ -124,8 +125,8 @@ function StreamingServiceDialog({ fetchEvent, service, isOpen, onOpenChange }) {
     } catch (error) {
       console.error('Error configuring streaming service:', error)
       toast({
-        title: "Error",
-        description: "Could not configure streaming service",
+        title: I18n.t('events.edit.streaming.messages.error'),
+        description: I18n.t('events.edit.streaming.messages.save_error'),
         variant: "destructive",
       })
     }
