@@ -4,6 +4,8 @@ json.tickets @tickets do |ticket|
   json.price ticket.price
   json.short_description ticket.short_description
   json.quantity ticket.qty.to_i
+  json.pay_what_you_want ticket.pay_what_you_want?
+  json.minimum_price ticket.minimum_price
   json.min_tickets_per_order ticket.min_tickets_per_order
   json.max_tickets_per_order ticket.max_tickets_per_order
 end
