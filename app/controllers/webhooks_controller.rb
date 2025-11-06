@@ -146,6 +146,7 @@ class WebhooksController < ApplicationController
           currency: stripe_session.currency,
           payment_intent_id: payment_intent["id"]
         )
+
         
         cart = ProductCart.find(stripe_session.metadata.cart_id)
         

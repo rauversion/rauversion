@@ -119,6 +119,7 @@ RSpec.describe "Webhooks", type: :request do
             payment_status: "paid",
             shipping_cost: OpenStruct.new(amount_total: 500),
             amount_total: 20000,
+            currency: "usd",
             shipping_details: OpenStruct.new(
               address: OpenStruct.new(country: "US", to_h: { "country" => "US" }),
               name: "John Doe"
@@ -141,6 +142,7 @@ RSpec.describe "Webhooks", type: :request do
               data: {
                 object: {
                   id: "sess_123",
+                  currency: "usd",
                   metadata: { source_type: "product", purchase_id: purchase.id }
                 }
               }
