@@ -129,7 +129,7 @@ class EventsController < ApplicationController
       :participant_label, :participant_description, :scheduling_label,
       :scheduling_description, :cover,
       :requires_shipping, :show_remaining_count,
-      :ticket_currency,
+      :ticket_currency, :hide_location_until_purchase,
       event_schedules_attributes: [
         :id, :name, :_destroy, :start_date, :end_date, :schedule_type, :description,
         schedule_schedulings_attributes: [:id, :_destroy, :name, :start_date, :end_date, :short_description]

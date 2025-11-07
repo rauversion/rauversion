@@ -11,16 +11,21 @@ event_ends_formatted = @event.event_ends.present? ? @event.event_ends.in_time_zo
 json.event_dates_formatted [event_start_formatted, event_ends_formatted].compact.to_sentence(two_words_connector: " - ", last_word_connector: " o ")
 json.private @event.private
 json.online @event.online
-json.location @event.location
-json.street @event.street
-json.street_number @event.street_number
-json.lat @event.lat
-json.lng @event.lng
+
+# Only show location details if hide_location_until_purchase is not enabled
+unless @event.hide_location_until_purchase
+  json.location @event.location
+  json.street @event.street
+  json.street_number @event.street_number
+  json.lat @event.lat
+  json.lng @event.lng
+  json.country @event.country
+  json.city @event.city
+  json.province @event.province
+  json.postal @event.postal
+end
+
 json.venue @event.venue
-json.country @event.country
-json.city @event.city
-json.province @event.province
-json.postal @event.postal
 json.age_requirement @event.age_requirement
 json.event_capacity @event.event_capacity
 json.event_capacity_limit @event.event_capacity_limit
