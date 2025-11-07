@@ -57,4 +57,24 @@ RSpec.describe Event, type: :model do
       end
     end
   end
+
+  describe "hide_location_until_purchase setting" do
+    let(:event) { FactoryBot.create(:event, user: user) }
+
+    it "allows setting hide_location_until_purchase to true" do
+      event.hide_location_until_purchase = true
+      event.save
+      expect(event.reload.hide_location_until_purchase).to eq(true)
+    end
+
+    it "allows setting hide_location_until_purchase to false" do
+      event.hide_location_until_purchase = false
+      event.save
+      expect(event.reload.hide_location_until_purchase).to eq(false)
+    end
+
+    it "defaults to nil when not set" do
+      expect(event.hide_location_until_purchase).to be_nil
+    end
+  end
 end
