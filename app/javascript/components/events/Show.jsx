@@ -170,14 +170,16 @@ export default function EventShow() {
                   </dd>
                 </div>*/}
 
-                <div>
-                  <dt className="font-mono text-sm text-brand-600">
-                    {I18n.t('events.show.venue')}
-                  </dt>
-                  <dd className="mt-0.5 text-xl sm:text-2xl font-semibold tracking-tight text-brand-100">
-                    {event.venue}
-                  </dd>
-                </div>
+                {event.venue && (
+                  <div>
+                    <dt className="font-mono text-sm text-brand-600">
+                      {I18n.t('events.show.venue')}
+                    </dt>
+                    <dd className="mt-0.5 text-xl sm:text-2xl font-semibold tracking-tight text-brand-100">
+                      {event.venue}
+                    </dd>
+                  </div>
+                )}
 
                 {event.location && (
                   <div>
