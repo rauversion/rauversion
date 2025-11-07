@@ -6,6 +6,40 @@ import PurchaseDialog from './PurchaseDialog'
 import { Button } from "@/components/ui/button"
 import { Link } from 'react-router-dom'
 
+import EventSchedule from './EventSchedule'
+import { ArtistCard } from './ArtistCard'
+
+import { ArrowRight } from "lucide-react"
+
+
+function TicketButton({ onClick }) {
+  return (
+    <button onClick={onClick} className="group relative overflow-hidden
+     bg-white text-black px-8 py-4 rounded-lg 
+     transition-all duration-300 hover:scale-105 
+     hover:shadow-2xl hover:shadow-white/20 font-mono 
+     font-bold text-sm md:text-base flex items-center gap-3">
+      {/* Perforated edge effect - left side */}
+      <div className="absolute left-0 top-0 bottom-0 w-4 flex flex-col justify-around py-1">
+        {Array.from({ length: 8 }).map((_, i) => (
+          <div key={i} className="w-2 h-2 rounded-full bg-black/60 -translate-x-1" />
+        ))}
+      </div>
+
+      {/* Content */}
+      <div className="flex items-center gap-3 ml-4">
+        <span className="tracking-wide">
+          {I18n.t('events.show.get_tickets')}
+        </span>
+        <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
+      </div>
+
+      {/* Hover gradient effect */}
+      <div className="absolute inset-0 bg-gradient-to-r from-white via-gray-100 to-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10" />
+    </button>
+  )
+}
+
 export default function EventShow() {
   const { slug } = useParams()
   const [event, setEvent] = useState(null)
@@ -47,25 +81,31 @@ export default function EventShow() {
     <div>
       <header className="relative z-10 pb-11 lg:pt-11">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-wrap items-center justify-center sm:justify-between lg:flex-nowrap">
-          <div className="order-first -mx-4 flex flex-auto basis-full overflow-x-auto whitespace-nowrap border-b border-brand-600/10 py-4 font-mono text-sm text-brand-600 sm:-mx-6 lg:order-none lg:mx-0 lg:basis-auto lg:border-0 lg:py-0">
+          <div className="order-first -mx-4 flex flex-auto basis-full overflow-x-auto whitespace-nowrap border-b border-brand-600/10 py-4 
+          font-mono text-brand-600 sm:-mx-6 lg:order-none lg:mx-0 lg:basis-auto lg:border-0 lg:py-0">
             <div className="mx-auto flex items-center gap-4 px-4">
-              <p>
-                {formatDateRange(event.event_start, event.event_ends)} {event.timezone}
+              <p className="text-2xl font-semibold">
+                {event.event_dates_formatted}
+                {/*formatDateRange(event.event_start, event.event_ends)*/}
+                <br />
+                <span className="text-lg font-normal">
+                  {event.timezone}
+                </span>
               </p>
             </div>
           </div>
 
-          <div className="hidden sm:mt-10 sm:flex lg:mt-0 lg:grow lg:basis-0 lg:justify-end">
-            <Button
+          <div className="sm:mt-10 sm:flex lg:mt-0 lg:grow lg:basis-0 lg:justify-end">
+            <TicketButton
               onClick={() => setDialogOpen(true)}
               className="inline-flex justify-center rounded-2xl bg-brand-600 p-4 text-base font-semibold text-white hover:bg-brand-500 focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 active:text-white/70"
             >
               {I18n.t('events.show.get_tickets')}
-            </Button>
-            <PurchaseDialog 
-              open={dialogOpen} 
-              onOpenChange={setDialogOpen} 
-              eventId={event.slug} 
+            </TicketButton>
+            <PurchaseDialog
+              open={dialogOpen}
+              onOpenChange={setDialogOpen}
+              eventId={event.slug}
             />
           </div>
         </div>
@@ -109,14 +149,14 @@ export default function EventShow() {
                   </dd>
                 </div>
 
-                <div>
+                {/*<div>
                   <dt className="font-mono text-sm text-brand-600">
                     {I18n.t('events.show.people_attending')}
                   </dt>
                   <dd className="mt-0.5 text-xl sm:text-2xl font-semibold tracking-tight text-brand-100">
                     {event.attendees_count}
                   </dd>
-                </div>
+                </div>*/}
 
                 <div>
                   <dt className="font-mono text-sm text-brand-600">
@@ -132,7 +172,7 @@ export default function EventShow() {
                     {I18n.t('events.show.location')}
                   </dt>
                   <dd className="mt-0.5 text-xl sm:text-2xl font-semibold tracking-tight text-brand-100">
-                    {event.city}
+                    {event.location}
                   </dd>
                 </div>
               </dl>
@@ -141,73 +181,29 @@ export default function EventShow() {
         </div>
 
         {event.event_hosts?.length > 0 && (
-          <section id="speakers" aria-labelledby="speakers-title" className="py-20 sm:py-32 bg-black">
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-              <div className="mx-auto max-w-2xl lg:mx-0">
-                <h2
-                  id="speakers-title"
-                  className="font-display text-4xl font-medium tracking-tighter text-brand-600 sm:text-5xl"
-                >
-                  {event.participant_label}
+          <section className="w-full py-16">
+            <div className="container mx-auto px-4">
+              {/* Header */}
+              <div className="mb-12 text-center mt-10">
+                <h2 className="mb-3 font-serif text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+                  {I18n.t('events.show.speakers')}
                 </h2>
-                <p className="mt-4 font-display text-2xl tracking-tight text-brand-100">
-                  {event.participant_description}
-                </p>
+                {false && <p className="mx-auto max-w-2xl text-lg text-muted-foreground">{"subtitle"}</p>}
               </div>
 
-              <div className="mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-10">
+              {/* Grid */}
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {event.event_hosts.map((host, index) => (
-                  <div key={index} className="group relative">
-                    <div className="aspect-h-3 aspect-w-3 overflow-hidden rounded-lg bg-gray-100">
-                      <img
-                        src={host.avatar}
-                        alt={host.name}
-                        className="object-cover object-center"
-                      />
-                    </div>
-                    <h3 className="mt-4 text-lg font-semibold leading-8 tracking-tight text-brand-100">
-                      {host.name}
-                    </h3>
-                    {host.event_manager && (
-                      <p className="text-base leading-7 text-brand-600">{I18n.t('events.show.event_manager')}</p>
-                    )}
-                    <p className="mt-4 text-sm leading-6 text-brand-100">{host.description}</p>
-                  </div>
+                  host.listed_on_page && (
+                    <ArtistCard key={host.id} artist={host} />
+                  )
                 ))}
               </div>
             </div>
           </section>
         )}
 
-        {event.event_schedules?.length > 0 && (
-          <section aria-label="Schedule" className="py-20 sm:py-32 bg-black">
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
-              <div className="mx-auto max-w-2xl lg:mx-0 lg:max-w-4xl lg:pr-24">
-                <h2 className="font-display text-4xl font-medium tracking-tighter text-brand-600 sm:text-5xl">
-                  {event.scheduling_label}
-                </h2>
-              </div>
-
-              <div className="mt-14 gap-x-8 gap-y-10 lg:grid lg:grid-cols-3">
-                {event.event_schedules.map((schedule, index) => (
-                  <div key={index} className="relative lg:pl-8 mb-10 lg:mb-0">
-                    <div className="flex flex-col gap-2">
-                      <h3 className="text-2xl font-semibold tracking-tight text-brand-100">
-                        {schedule.name}
-                      </h3>
-                      <p className="mt-2 text-base leading-7 text-brand-100">
-                        {schedule.description}
-                      </p>
-                      <time className="text-sm text-brand-600">
-                        {new Date(schedule.starts_at).toLocaleTimeString()} - {new Date(schedule.ends_at).toLocaleTimeString()}
-                      </time>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
+        <EventSchedule schedulings={event.event_schedules} />
       </main>
 
       <footer className="py-16">
