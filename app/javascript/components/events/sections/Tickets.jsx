@@ -48,7 +48,7 @@ const ticketSchema = z.object({
   }),
   short_description: z.string().optional(),
   price: z.coerce.number().min(0),
-  qty: z.coerce.number().min(1),
+  qty: z.coerce.number().min(0),
   selling_start: z.preprocess((arg) => {
     if (typeof arg === 'string') return new Date(arg)
     if (arg instanceof Date) return arg
@@ -436,7 +436,7 @@ export default function Tickets() {
                               <FormItem>
                                 <FormLabel>{I18n.t('events.edit.tickets.form.qty.label')}</FormLabel>
                                 <FormControl>
-                                  <Input type="number" min="1" {...field} />
+                                  <Input type="number" min="0" {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>

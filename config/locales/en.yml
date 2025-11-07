@@ -902,7 +902,7 @@ en:
       pay_what_you_want_min: "Pay What You Want (Min: %{currency} %{min_price})"
       your_price_label: "Your Price (%{currency})"
       minimum_price_error: "Minimum price is %{currency} %{min_price}"
-
+      sold_out_badge: "Sold Out"
       validation:
         quantity_negative: "Quantity cannot be negative"
         max_tickets: "Maximum %{count} tickets available"

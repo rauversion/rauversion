@@ -10,6 +10,7 @@ import { get, post } from "@rails/request.js"
 import { motion, AnimatePresence } from "framer-motion"
 import { Ticket, ShoppingCart, AlertCircle } from "lucide-react"
 import I18n from "@/stores/locales"
+import { Badge } from "../ui/badge"
 
 interface Ticket {
   id: string
@@ -21,6 +22,7 @@ interface Ticket {
   max_tickets_per_order?: number
   pay_what_you_want?: boolean
   minimum_price?: number
+  sold_out?: boolean
 }
 
 interface Event {
@@ -65,10 +67,14 @@ export default function PurchaseForm({ eventId }: PurchaseFormProps) {
           const min_tickets_per_order = parseOrderLimit(ticket.min_tickets_per_order)
           const max_tickets_per_order = parseOrderLimit(ticket.max_tickets_per_order)
 
+          // Normalize Rails `sold_out?` boolean into `sold_out`
+          const sold_out = !!((ticket as any)["sold_out?"] || (ticket as any).sold_out)
+
           return {
             ...ticket,
             min_tickets_per_order,
             max_tickets_per_order,
+            sold_out,
           }
         })
 
@@ -166,7 +172,7 @@ export default function PurchaseForm({ eventId }: PurchaseFormProps) {
       animate={{ opacity: 1, y: 0 }}
       className="w-full max-w-2xl mx-auto"
     >
-      <Card className="bg-card/95 backdrop-blur-lg shadow-xl">
+      <Card className="bg-card/95 backdrop-blur-lg shadow-xl border-none">
         <CardHeader className="space-y-2">
           <motion.div
             initial={{ opacity: 0 }}
@@ -287,122 +293,137 @@ export default function PurchaseForm({ eventId }: PurchaseFormProps) {
                       </div>
                     )}
 
-                    <div className="space-y-2">
-                      <Label className="text-sm text-muted-foreground">
-                        {I18n.t("events.purchase_form.quantity_label")}
-                      </Label>
-                      <div className="flex items-center justify-center gap-3 bg-background/50 rounded-lg p-2">
-                        <motion.button
-                          type="button"
-                          whileTap={{ scale: 0.95 }}
-                          className="w-8 h-8 flex items-center justify-center rounded-md bg-muted/50 hover:bg-muted transition-colors"
-                          onClick={() => {
-                            let updatedValue = Math.max(0, parsedQuantity - 1)
+                    {ticket.sold_out ? (
+                      <div className="space-y-2">
+                        <Label className="text-sm text-muted-foreground">
+                          {I18n.t("events.purchase_form.quantity_label")}
+                        </Label>
+                        <div className="flex items-center gap-2">
+                          <AlertCircle className="w-5 h-5 text-destructive" />
+                          
+                          <Badge variant="destructive">
+                            {I18n.t("events.purchase_form.sold_out_badge")}
+                          </Badge>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="space-y-2">
+                        <Label className="text-sm text-muted-foreground">
+                          {I18n.t("events.purchase_form.quantity_label")}
+                        </Label>
+                        <div className="flex items-center justify-center gap-3 bg-background/50 rounded-lg p-2">
+                          <motion.button
+                            type="button"
+                            whileTap={{ scale: 0.95 }}
+                            className="w-8 h-8 flex items-center justify-center rounded-md bg-muted/50 hover:bg-muted transition-colors"
+                            onClick={() => {
+                              let updatedValue = Math.max(0, parsedQuantity - 1)
 
-                            if (minPerOrder > 0 && updatedValue > 0 && updatedValue < minPerOrder) {
-                              updatedValue = 0
-                            }
+                              if (minPerOrder > 0 && updatedValue > 0 && updatedValue < minPerOrder) {
+                                updatedValue = 0
+                              }
 
-                            setValue(quantityFieldName, updatedValue, {
-                              shouldDirty: true,
-                              shouldTouch: true,
-                              shouldValidate: true,
-                            })
-                          }}
-                        >
-                          <motion.div
-                            initial={{ opacity: 0.5 }}
-                            whileHover={{ opacity: 1 }}
-                            className="text-lg font-bold"
+                              setValue(quantityFieldName, updatedValue, {
+                                shouldDirty: true,
+                                shouldTouch: true,
+                                shouldValidate: true,
+                              })
+                            }}
                           >
-                            -
-                          </motion.div>
-                        </motion.button>
+                            <motion.div
+                              initial={{ opacity: 0.5 }}
+                              whileHover={{ opacity: 1 }}
+                              className="text-lg font-bold"
+                            >
+                              -
+                            </motion.div>
+                          </motion.button>
 
-                        <div className="relative w-20">
-                          <Input
-                            type="number"
-                            id={ticket.id}
-                            className="text-center font-medium text-lg !px-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                            {...register(quantityFieldName, {
-                              valueAsNumber: true,
-                              min: {
-                                value: 0,
-                                message: I18n.t("events.purchase_form.validation.quantity_negative"),
-                              },
-                              max: {
-                                value: effectiveMax,
-                                message: I18n.t(maxValidationKey, { count: effectiveMax }),
-                              },
-                              validate: (value) => {
-                                if (Number.isNaN(value) || value === 0) {
+                          <div className="relative w-20">
+                            <Input
+                              type="number"
+                              id={ticket.id}
+                              className="text-center font-medium text-lg !px-0 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                              {...register(quantityFieldName, {
+                                valueAsNumber: true,
+                                min: {
+                                  value: 0,
+                                  message: I18n.t("events.purchase_form.validation.quantity_negative"),
+                                },
+                                max: {
+                                  value: effectiveMax,
+                                  message: I18n.t(maxValidationKey, { count: effectiveMax }),
+                                },
+                                validate: (value) => {
+                                  if (Number.isNaN(value) || value === 0) {
+                                    return true
+                                  }
+
+                                  if (minPerOrder > 0 && value < minPerOrder) {
+                                    return I18n.t("events.purchase_form.validation.min_tickets_per_order", {
+                                      count: minPerOrder,
+                                    })
+                                  }
+
                                   return true
-                                }
+                                },
+                              })}
+                              defaultValue={0}
+                              min={0}
+                              max={effectiveMax}
+                            />
+                          </div>
 
-                                if (minPerOrder > 0 && value < minPerOrder) {
-                                  return I18n.t("events.purchase_form.validation.min_tickets_per_order", {
-                                    count: minPerOrder,
-                                  })
-                                }
+                          <motion.button
+                            type="button"
+                            whileTap={{ scale: 0.95 }}
+                            className="w-8 h-8 flex items-center justify-center rounded-md bg-muted/50 hover:bg-muted transition-colors"
+                            onClick={() => {
+                              let updatedValue = parsedQuantity + 1
 
-                                return true
-                              },
-                            })}
-                            defaultValue={0}
-                            min={0}
-                            max={effectiveMax}
-                          />
+                              if (parsedQuantity === 0 && minPerOrder > 0 && updatedValue < minPerOrder) {
+                                updatedValue = minPerOrder
+                              }
+
+                              if (minPerOrder > 0 && updatedValue > 0 && updatedValue < minPerOrder) {
+                                updatedValue = minPerOrder
+                              }
+
+                              updatedValue = Math.min(effectiveMax, updatedValue)
+
+                              if (minPerOrder > 0 && updatedValue > 0 && updatedValue < minPerOrder) {
+                                updatedValue = 0
+                              }
+
+                              setValue(quantityFieldName, updatedValue, {
+                                shouldDirty: true,
+                                shouldTouch: true,
+                                shouldValidate: true,
+                              })
+                            }}
+                          >
+                            <motion.div
+                              initial={{ opacity: 0.5 }}
+                              whileHover={{ opacity: 1 }}
+                              className="text-lg font-bold"
+                            >
+                              +
+                            </motion.div>
+                          </motion.button>
                         </div>
 
-                        <motion.button
-                          type="button"
-                          whileTap={{ scale: 0.95 }}
-                          className="w-8 h-8 flex items-center justify-center rounded-md bg-muted/50 hover:bg-muted transition-colors"
-                          onClick={() => {
-                            let updatedValue = parsedQuantity + 1
-
-                            if (parsedQuantity === 0 && minPerOrder > 0 && updatedValue < minPerOrder) {
-                              updatedValue = minPerOrder
-                            }
-
-                            if (minPerOrder > 0 && updatedValue > 0 && updatedValue < minPerOrder) {
-                              updatedValue = minPerOrder
-                            }
-
-                            updatedValue = Math.min(effectiveMax, updatedValue)
-
-                            if (minPerOrder > 0 && updatedValue > 0 && updatedValue < minPerOrder) {
-                              updatedValue = 0
-                            }
-
-                            setValue(quantityFieldName, updatedValue, {
-                              shouldDirty: true,
-                              shouldTouch: true,
-                              shouldValidate: true,
-                            })
-                          }}
-                        >
+                        {errors[quantityFieldName] && (
                           <motion.div
-                            initial={{ opacity: 0.5 }}
-                            whileHover={{ opacity: 1 }}
-                            className="text-lg font-bold"
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            className="flex items-center gap-2 text-sm text-destructive"
                           >
-                            +
+                            <AlertCircle className="w-4 h-4" />
+                            <span>{errors[quantityFieldName]?.message as string}</span>
                           </motion.div>
-                        </motion.button>
+                        )}
                       </div>
-
-                      {errors[quantityFieldName] && (
-                        <motion.div
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          className="flex items-center gap-2 text-sm text-destructive"
-                        >
-                          <AlertCircle className="w-4 h-4" />
-                          <span>{errors[quantityFieldName]?.message as string}</span>
-                        </motion.div>
-                      )}
-                    </div>
+                    )}
                   </motion.div>
                 )
               })}
