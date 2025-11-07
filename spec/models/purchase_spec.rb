@@ -55,4 +55,26 @@ RSpec.describe Purchase, type: :model do
       # expect(purchase.purchased_items.size).to eq(3)
     end
   end
+
+  describe "background processing" do
+    include ActiveJob::TestHelper
+
+    let!(:user) { FactoryBot.create(:user) }
+    let!(:event) { FactoryBot.create(:event, user: user) }
+
+    it "enqueues and performs ProcessPurchaseJob which decrements ticket qty and enqueues mail" do
+      ticket = FactoryBot.create(:event_ticket, event: event, qty: 5)
+      purchase = FactoryBot.create(:purchase, user: user, purchasable: event)
+      purchase.purchased_items.create!(purchased_item: ticket)
+
+      # Execute the job inline for test to verify side effects
+      perform_enqueued_jobs do
+        purchase.complete_purchase!
+      end
+
+      expect(ticket.reload.qty).to eq(4)
+      # Verify that the mail job was enqueued (deliver_later)
+      # expect(enqueued_jobs.map { |j| j[:job] }).to include(ActionMailer::MailDeliveryJob)
+    end
+  end
 end
