@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { formatDateRange } from '../utils/dateHelpers'
 import I18n from 'stores/locales'
 import PurchaseDialog from './PurchaseDialog'
@@ -10,11 +10,23 @@ import EventSchedule from './EventSchedule'
 import { ArtistCard } from './ArtistCard'
 
 import { ArrowRight } from "lucide-react"
+import useAuthStore from "@/stores/authStore"
 
 
 function TicketButton({ onClick }) {
+  const { currentUser } = useAuthStore()
+  const navigate = useNavigate()
+
+  function handleClick() {
+    if (currentUser) {
+      onClick()
+    } else {
+      navigate('/users/sign_in')
+    }
+  }
+
   return (
-    <button onClick={onClick} className="group relative overflow-hidden
+    <button onClick={handleClick} className="group relative overflow-hidden
      bg-white text-black px-8 py-4 rounded-lg 
      transition-all duration-300 hover:scale-105 
      hover:shadow-2xl hover:shadow-white/20 font-mono 
