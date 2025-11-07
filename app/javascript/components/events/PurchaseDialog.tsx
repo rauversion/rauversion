@@ -12,9 +12,6 @@ export default function PurchaseDialog({ open, onOpenChange, eventId }: Purchase
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
-        <DialogHeader>
-          <DialogTitle>Purchase Tickets</DialogTitle>
-        </DialogHeader>
         <PurchaseForm eventId={eventId} />
       </DialogContent>
     </Dialog>

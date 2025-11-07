@@ -83,6 +83,22 @@ class Purchase < ApplicationRecord
     self.state = "paid"
     self.save
     purchased_items.update_all(state: "paid")
+    # Enqueue background job to handle ticket decrements and post-purchase tasks.
+    # This prevents blocking the request and allows DB row-locking inside the job.
+    ProcessPurchaseJob.perform_later(self.id)
+  end
+
+  # todo: put this on a background job and queue with concurrency 1 per EventTicket
+  def handle_event_ticket_purchase
+    purchased_items.map do |item|
+      next unless item.purchased_item_type == "EventTicket"
+
+      ticket = EventTicket.find_by(id: item.purchased_item_id)
+      next unless ticket
+
+      ticket.qty -= 1
+      ticket.update_column(:qty, ticket.qty)
+    end
   end
 
   def notify_purchase

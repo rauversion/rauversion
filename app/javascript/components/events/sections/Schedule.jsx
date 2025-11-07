@@ -61,13 +61,13 @@ export default function Schedule() {
     defaultValues: async () => {
       const response = await get(`/events/${slug}/edit.json`)
       const data = await response.json
-      
+
       setEvent(data)
-      
+
       const schedules = data.event_schedules?.map(schedule => {
         const start_date = formatDateSafely(schedule.start_date)
         const end_date = formatDateSafely(schedule.end_date)
-        
+
         const schedule_schedulings_attributes = schedule.schedulings?.map(scheduling => ({
           id: scheduling.id,
           name: scheduling.name || "",
@@ -76,7 +76,7 @@ export default function Schedule() {
           end_date: formatDateSafely(scheduling.end_date),
           _destroy: false
         })) || []
-        
+
         return {
           id: schedule.id,
           name: schedule.name || "",
@@ -88,7 +88,7 @@ export default function Schedule() {
           schedule_schedulings_attributes
         }
       }) || []
-      
+
       return {
         event_schedules_attributes: schedules
       }
@@ -145,7 +145,7 @@ export default function Schedule() {
   const onSubmit = async (values) => {
     try {
       const formData = new FormData()
-      
+
       values.event_schedules_attributes.forEach((item, index) => {
         if (item.id) {
           formData.append(`event[event_schedules_attributes][${index}][id]`, item.id)
@@ -169,14 +169,14 @@ export default function Schedule() {
           item.schedule_schedulings_attributes.forEach((scheduling, schedulingIndex) => {
             if (scheduling.id) {
               formData.append(
-                `event[event_schedules_attributes][${index}][schedule_schedulings_attributes][${schedulingIndex}][id]`, 
+                `event[event_schedules_attributes][${index}][schedule_schedulings_attributes][${schedulingIndex}][id]`,
                 scheduling.id
               )
             }
 
             if (scheduling._destroy) {
               formData.append(
-                `event[event_schedules_attributes][${index}][schedule_schedulings_attributes][${schedulingIndex}][_destroy]`, 
+                `event[event_schedules_attributes][${index}][schedule_schedulings_attributes][${schedulingIndex}][_destroy]`,
                 '1'
               )
               return
@@ -210,32 +210,108 @@ export default function Schedule() {
       })
 
       const data = await response.json
-      
+
       if (data.errors) {
         form.clearErrors()
-        
+
         Object.entries(data.errors).forEach(([key, messages]) => {
-          if (key.includes('schedule_schedulings.')) {
-            const [_, scheduleIndex, __, field] = key.split('.')
-            const schedulingPath = `event_schedules_attributes.${scheduleIndex}.schedule_schedulings_attributes`
-            
-            const schedulings = form.getValues(schedulingPath) || []
-            schedulings.forEach((_, schedulingIndex) => {
-              form.setError(`${schedulingPath}.${schedulingIndex}.${field}`, {
-                type: 'server',
-                message: Array.isArray(messages) ? messages[0] : messages
+          const message = Array.isArray(messages) ? messages[0] : messages
+          const parts = key.split('.')
+
+          // Helper: apply error to a scheduling field
+          const setSchedulingError = (scheduleIndex, schedulingIndex, field) => {
+            form.setError(
+              `event_schedules_attributes.${scheduleIndex}.schedule_schedulings_attributes.${schedulingIndex}.${field}`,
+              { type: 'server', message }
+            )
+          }
+
+          // If key refers to event schedules (with or without "_attributes")
+          if (parts[0].startsWith('event_schedules')) {
+            // Format: "event_schedules.start_date" -> apply to all schedules
+            if (parts.length === 2) {
+              const field = parts[1]
+              const schedules = form.getValues('event_schedules_attributes') || []
+              schedules.forEach((_, si) => {
+                form.setError(`event_schedules_attributes.${si}.${field}`, {
+                  type: 'server',
+                  message
+                })
+              })
+            } else if (/^\d+$/.test(parts[1])) {
+              // Format: "event_schedules_attributes.3.start_date" or
+              // "event_schedules_attributes.3.schedule_schedulings.start_date" etc.
+              const scheduleIndex = parts[1]
+              // schedule field directly
+              if (parts.length === 3) {
+                const field = parts[2]
+                form.setError(`event_schedules_attributes.${scheduleIndex}.${field}`, {
+                  type: 'server',
+                  message
+                })
+              } else {
+                // Could be scheduling-related
+                // parts example: [ 'event_schedules_attributes', '3', 'schedule_schedulings', '1', 'start_date' ]
+                const maybeSchedulings = parts[2]
+                if (maybeSchedulings && maybeSchedulings.includes('schedule_schedulings')) {
+                  // If there's a numeric scheduling index
+                  const schedulingIndex = parts.find(p => /^\d+$/.test(p))
+                  const field = parts[parts.length - 1]
+                  if (schedulingIndex) {
+                    setSchedulingError(scheduleIndex, schedulingIndex, field)
+                  } else {
+                    // No scheduling index provided -> apply to all schedulings under that schedule
+                    const schedulings = form.getValues(`event_schedules_attributes.${scheduleIndex}.schedule_schedulings_attributes`) || []
+                    schedulings.forEach((_, sIdx) => {
+                      setSchedulingError(scheduleIndex, sIdx, field)
+                    })
+                  }
+                } else {
+                  // Fallback: try to set the last part as field on schedule
+                  const field = parts[parts.length - 1]
+                  form.setError(`event_schedules_attributes.${scheduleIndex}.${field}`, {
+                    type: 'server',
+                    message
+                  })
+                }
+              }
+            } else {
+              // Unrecognized but related to event_schedules: apply to all schedules fields that match last part
+              const field = parts[parts.length - 1]
+              const schedules = form.getValues('event_schedules_attributes') || []
+              schedules.forEach((_, si) => {
+                form.setError(`event_schedules_attributes.${si}.${field}`, {
+                  type: 'server',
+                  message
+                })
+              })
+            }
+          } else if (parts[0].includes('schedule_schedulings')) {
+            // Generic scheduling error (no schedule context) -> apply to all schedulings of all schedules
+            const field = parts[parts.length - 1]
+            const schedules = form.getValues('event_schedules_attributes') || []
+            schedules.forEach((_, si) => {
+              const schedulings = form.getValues(`event_schedules_attributes.${si}.schedule_schedulings_attributes`) || []
+              schedulings.forEach((_, sIdx) => {
+                setSchedulingError(si, sIdx, field)
               })
             })
           } else if (key.startsWith('event_schedules_attributes.')) {
+            // Preserve previous behavior for exact matches
             const [_, index, field] = key.split('.')
-            form.setError(`event_schedules_attributes.${index}.${field}`, {
-              type: 'server',
-              message: Array.isArray(messages) ? messages[0] : messages
-            })
+            if (index && field) {
+              form.setError(`event_schedules_attributes.${index}.${field}`, {
+                type: 'server',
+                message
+              })
+            } else {
+              form.setError(key, { type: 'server', message })
+            }
           } else {
+            // Fallback: set raw key error
             form.setError(key, {
               type: 'server',
-              message: Array.isArray(messages) ? messages[0] : messages
+              message
             })
           }
         })
@@ -270,7 +346,7 @@ export default function Schedule() {
             <h2 className="text-lg font-semibold">{I18n.t('events.edit.schedule.title')}</h2>
             <Button
               type="button"
-              variant="outline"
+              variant="secondary"
               size="sm"
               onClick={() => {
                 append({
@@ -300,7 +376,7 @@ export default function Schedule() {
                       <Input type="hidden" {...field} />
                     )}
                   />
-                  
+
                   <FormField
                     control={form.control}
                     name={`event_schedules_attributes.${index}._destroy`}
@@ -316,8 +392,8 @@ export default function Schedule() {
                       <FormItem>
                         <FormLabel>{I18n.t('events.edit.schedule.name')}</FormLabel>
                         <FormControl>
-                          <Input 
-                            {...field} 
+                          <Input
+                            {...field}
                             className={cn(
                               fieldState.error && "border-red-500",
                               form.formState.errors?.event_schedules_attributes?.[index]?.name && "border-red-500"
@@ -325,8 +401,8 @@ export default function Schedule() {
                           />
                         </FormControl>
                         <FormMessage>
-                          {fieldState.error?.message || 
-                           form.formState.errors?.event_schedules_attributes?.[index]?.name?.message}
+                          {fieldState.error?.message ||
+                            form.formState.errors?.event_schedules_attributes?.[index]?.name?.message}
                         </FormMessage>
                       </FormItem>
                     )}
@@ -339,7 +415,7 @@ export default function Schedule() {
                       <FormItem>
                         <FormLabel>{I18n.t('events.edit.schedule.description')}</FormLabel>
                         <FormControl>
-                          <Textarea 
+                          <Textarea
                             {...field}
                             className={cn(
                               fieldState.error && "border-red-500",
@@ -348,8 +424,8 @@ export default function Schedule() {
                           />
                         </FormControl>
                         <FormMessage>
-                          {fieldState.error?.message || 
-                           form.formState.errors?.event_schedules_attributes?.[index]?.description?.message}
+                          {fieldState.error?.message ||
+                            form.formState.errors?.event_schedules_attributes?.[index]?.description?.message}
                         </FormMessage>
                       </FormItem>
                     )}
@@ -361,7 +437,7 @@ export default function Schedule() {
                       startDate={form.watch(`event_schedules_attributes.${index}.start_date`)}
                       endDate={form.watch(`event_schedules_attributes.${index}.end_date`)}
                       onStartDateChange={(date) => {
-                        form.setValue(`event_schedules_attributes.${index}.start_date`, date, { 
+                        form.setValue(`event_schedules_attributes.${index}.start_date`, date, {
                           shouldDirty: true,
                           shouldTouch: true,
                           shouldValidate: true
@@ -375,7 +451,7 @@ export default function Schedule() {
                         })
                       }}
                       error={
-                        form.formState.errors?.event_schedules_attributes?.[index]?.start_date || 
+                        form.formState.errors?.event_schedules_attributes?.[index]?.start_date ||
                         form.formState.errors?.event_schedules_attributes?.[index]?.end_date
                       }
                     />
@@ -394,7 +470,7 @@ export default function Schedule() {
                       </h3>
                       <Button
                         type="button"
-                        variant="outline"
+                        variant="secondary"
                         size="sm"
                         onClick={() => {
                           const currentSchedulings = form.getValues(`event_schedules_attributes.${index}.schedule_schedulings_attributes`) || []
@@ -417,7 +493,7 @@ export default function Schedule() {
 
                     {form.watch(`event_schedules_attributes.${index}.schedule_schedulings_attributes`)?.map((scheduling, schedulingIndex) => (
                       isSchedulingVisible(index, schedulingIndex) && (
-                        <div key={schedulingIndex} className="space-y-4 p-3 bg-muted rounded-md">
+                        <div key={schedulingIndex} className="space-y-4 p-3 bg-muted/20 rounded-md">
                           <FormField
                             control={form.control}
                             name={`event_schedules_attributes.${index}.schedule_schedulings_attributes.${schedulingIndex}.id`}
@@ -425,7 +501,7 @@ export default function Schedule() {
                               <Input type="hidden" {...field} />
                             )}
                           />
-                          
+
                           <FormField
                             control={form.control}
                             name={`event_schedules_attributes.${index}.schedule_schedulings_attributes.${schedulingIndex}._destroy`}
@@ -441,8 +517,8 @@ export default function Schedule() {
                               <FormItem>
                                 <FormLabel>{I18n.t('events.edit.schedule.schedulings.name')}</FormLabel>
                                 <FormControl>
-                                  <Input 
-                                    {...field} 
+                                  <Input
+                                    {...field}
                                     className={cn(
                                       "text-sm",
                                       fieldState.error && "border-red-500",
@@ -452,9 +528,9 @@ export default function Schedule() {
                                   />
                                 </FormControl>
                                 <FormMessage>
-                                  {fieldState.error?.message || 
-                                   form.formState.errors?.event_schedules_attributes?.[index]
-                                     ?.schedule_schedulings_attributes?.[schedulingIndex]?.name?.message}
+                                  {fieldState.error?.message ||
+                                    form.formState.errors?.event_schedules_attributes?.[index]
+                                      ?.schedule_schedulings_attributes?.[schedulingIndex]?.name?.message}
                                 </FormMessage>
                               </FormItem>
                             )}
@@ -467,8 +543,8 @@ export default function Schedule() {
                               <FormItem>
                                 <FormLabel>{I18n.t('events.edit.schedule.schedulings.short_description')}</FormLabel>
                                 <FormControl>
-                                  <Textarea 
-                                    {...field} 
+                                  <Textarea
+                                    {...field}
                                     className={cn(
                                       "text-sm",
                                       fieldState.error && "border-red-500",
@@ -478,9 +554,9 @@ export default function Schedule() {
                                   />
                                 </FormControl>
                                 <FormMessage>
-                                  {fieldState.error?.message || 
-                                   form.formState.errors?.event_schedules_attributes?.[index]
-                                     ?.schedule_schedulings_attributes?.[schedulingIndex]?.short_description?.message}
+                                  {fieldState.error?.message ||
+                                    form.formState.errors?.event_schedules_attributes?.[index]
+                                      ?.schedule_schedulings_attributes?.[schedulingIndex]?.short_description?.message}
                                 </FormMessage>
                               </FormItem>
                             )}
@@ -517,11 +593,11 @@ export default function Schedule() {
                                 ?.schedule_schedulings_attributes?.[schedulingIndex]?.start_date?.message}
                               {form.formState.errors?.event_schedules_attributes?.[index]
                                 ?.schedule_schedulings_attributes?.[schedulingIndex]?.end_date?.message && (
-                                <div>
-                                  {form.formState.errors?.event_schedules_attributes?.[index]
-                                    ?.schedule_schedulings_attributes?.[schedulingIndex]?.end_date?.message}
-                                </div>
-                              )}
+                                  <div>
+                                    {form.formState.errors?.event_schedules_attributes?.[index]
+                                      ?.schedule_schedulings_attributes?.[schedulingIndex]?.end_date?.message}
+                                  </div>
+                                )}
                             </div>
                           </div>
 

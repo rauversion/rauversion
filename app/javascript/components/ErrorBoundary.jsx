@@ -50,7 +50,7 @@ class ErrorBoundary extends React.Component {
                   />
                 </svg>
               </motion.div>
-              
+
               <motion.h1
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
@@ -59,13 +59,16 @@ class ErrorBoundary extends React.Component {
               >
                 Oops! Something went wrong
               </motion.h1>
-              
+
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
                 className="bg-red-50 dark:bg-gray-700 rounded-lg p-4 mb-4"
               >
+                <img src={"https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExcDM4enNqN3VpMTdna3I2eGpwc2xya2ZnOHphd3Z4emM3aHpqNWxnbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7TKLilnYW859xGyQ/giphy.webp"}
+                  alt="Error" className="w-full h-auto mb-2 rounded-md"
+                />
                 <p className="text-sm text-red-600 dark:text-red-400 font-mono">
                   {this.state.error && this.state.error.toString()}
                 </p>

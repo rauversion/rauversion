@@ -48,7 +48,7 @@ const ticketSchema = z.object({
   }),
   short_description: z.string().optional(),
   price: z.coerce.number().min(0),
-  qty: z.coerce.number().min(1),
+  qty: z.coerce.number().min(0),
   selling_start: z.preprocess((arg) => {
     if (typeof arg === 'string') return new Date(arg)
     if (arg instanceof Date) return arg
@@ -68,6 +68,8 @@ const ticketSchema = z.object({
   hidden: z.boolean().default(false),
   after_purchase_message: z.string().optional(),
   sales_channel: z.enum(["all", "event_page", "box_office"]).default("all"),
+  pay_what_you_want: z.boolean().default(false),
+  minimum_price: z.coerce.number().min(0).optional(),
   _destroy: z.boolean().optional(),
   hidden_in_form: z.boolean().optional(),
 })
@@ -179,6 +181,8 @@ export default function Tickets() {
             hidden: ticket.settings.hidden,
             after_purchase_message: ticket.settings.after_purchase_message,
             sales_channel: ticket.settings.sales_channel,
+            pay_what_you_want: ticket.settings.pay_what_you_want || false,
+            minimum_price: ticket.settings.minimum_price || 0,
           })) || []
         })
       } catch (error) {
@@ -211,6 +215,8 @@ export default function Tickets() {
       hidden: false,
       after_purchase_message: "",
       sales_channel: "all",
+      pay_what_you_want: false,
+      minimum_price: 0,
     })
   }
 
@@ -430,12 +436,55 @@ export default function Tickets() {
                               <FormItem>
                                 <FormLabel>{I18n.t('events.edit.tickets.form.qty.label')}</FormLabel>
                                 <FormControl>
-                                  <Input type="number" min="1" {...field} />
+                                  <Input type="number" min="0" {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
                             )}
                           />
+                        </div>
+
+                        {/* Pay What You Want */}
+                        <div className="grid grid-cols-2 gap-4">
+                          <FormField
+                            control={form.control}
+                            name={`tickets.${index}.pay_what_you_want`}
+                            render={({ field }) => (
+                              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                                <div className="space-y-0.5">
+                                  <FormLabel>{I18n.t('events.edit.tickets.form.pay_what_you_want.label')}</FormLabel>
+                                  <FormDescription>
+                                    {I18n.t('events.edit.tickets.form.pay_what_you_want.description')}
+                                  </FormDescription>
+                                </div>
+                                <FormControl>
+                                  <Switch
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                  />
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
+
+                          {form.watch(`tickets.${index}.pay_what_you_want`) && (
+                            <FormField
+                              control={form.control}
+                              name={`tickets.${index}.minimum_price`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>{I18n.t('events.edit.tickets.form.minimum_price.label')}</FormLabel>
+                                  <FormControl>
+                                    <Input type="number" min="0" step="0.01" {...field} />
+                                  </FormControl>
+                                  <FormDescription>
+                                    {I18n.t('events.edit.tickets.form.minimum_price.description')}
+                                  </FormDescription>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          )}
                         </div>
 
                         {/* Sales Period */}

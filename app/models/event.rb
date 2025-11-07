@@ -83,11 +83,35 @@ class Event < ApplicationRecord
     self[:streaming_service] || {}
   end
 
-  def available_tickets(argument)
-    event_tickets
-      .where("selling_start <= ?", argument)
-      .where("selling_end >= ?", argument)
-      .where("qty > ?", 0)
+  def available_tickets(argument = nil)
+    # Filter available tickets honoring per-ticket "show_*" settings stored on EventTicket#settings:
+    #  - hidden               (don't show when true)
+    #  - show_after_sold_out  (if true, include even when qty <= 0)
+    #  - show_sell_until      (if false, ignore selling_end and show even after selling_end)
+    #
+    # `argument` is the reference time (usually Time.current). If nil, use Time.current.
+    at_time = argument || Time.current
+
+    # Start with tickets whose selling has started
+    tickets = event_tickets.where("selling_start <= ?", at_time)
+
+    # Filter in Ruby because settings are stored via store_accessor (may be nil/boolean)
+    tickets.to_a.select do |t|
+      # Skip explicitly hidden tickets
+      next false if t.respond_to?(:hidden) && t.hidden == true
+
+      # selling_end handling: if show_sell_until == false, ignore selling_end
+      selling_ok = if t.respond_to?(:show_sell_until) && t.show_sell_until == false
+        true
+      else
+        t.selling_end.nil? || t.selling_end >= at_time
+      end
+
+      # Quantity handling: include if qty > 0 OR show_after_sold_out enabled
+      qty_ok = t.qty.to_i > 0 || (t.respond_to?(:show_after_sold_out) && t.show_after_sold_out == true)
+
+      selling_ok && qty_ok
+    end
   end
 
   def self.format_date_range(start_date, end_date)

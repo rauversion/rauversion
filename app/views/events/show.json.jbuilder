@@ -6,6 +6,9 @@ json.state @event.state
 json.timezone @event.timezone
 json.event_start @event.event_start
 json.event_ends @event.event_ends
+event_start_formatted =  @event.event_start.present? ? @event.event_start.in_time_zone(@event.timezone).strftime("%B %d, %Y") : nil
+event_ends_formatted = @event.event_ends.present? ? @event.event_ends.in_time_zone(@event.timezone).strftime("%B %d, %Y") : nil
+json.event_dates_formatted [event_start_formatted, event_ends_formatted].compact.to_sentence(two_words_connector: " - ", last_word_connector: " o ")
 json.private @event.private
 json.online @event.online
 json.location @event.location
@@ -56,6 +59,8 @@ json.event_schedules @event.event_schedules do |schedule|
   json.description schedule.description
   json.start_date schedule.start_date
   json.end_date schedule.end_date
+  json.start_date_formatted schedule.start_date.in_time_zone(@event.timezone).strftime("%B %d, %Y %I:%M %p %Z") if schedule.start_date.present?
+  json.end_date_formatted schedule.end_date.in_time_zone(@event.timezone).strftime("%B %d, %Y %I:%M %p %Z") if schedule.end_date.present?
   json.schedule_type schedule.schedule_type
   json.id schedule.id
   json.schedulings schedule.schedule_schedulings do |scheduling|
@@ -63,6 +68,8 @@ json.event_schedules @event.event_schedules do |schedule|
     json.name scheduling.name
     json.start_date scheduling.start_date
     json.end_date scheduling.end_date
+    json.start_date_formatted scheduling.start_date.in_time_zone(@event.timezone).strftime("%B %d, %Y %I:%M %p %Z") if scheduling.start_date.present?
+    json.end_date_formatted scheduling.end_date.in_time_zone(@event.timezone).strftime("%B %d, %Y %I:%M %p %Z") if scheduling.end_date.present?
     json.short_description scheduling.short_description
   end
 end
