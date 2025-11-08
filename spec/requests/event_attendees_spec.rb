@@ -6,6 +6,7 @@ RSpec.describe "EventAttendees", type: :request do
   let(:ticket) { create(:event_ticket, event: event) }
   
   before do
+    user.confirm
     sign_in user
   end
 
@@ -104,7 +105,7 @@ RSpec.describe "EventAttendees", type: :request do
       existing_user = create(:user, email: 'existing@example.com')
       
       expect {
-        post create_invitation_event_event_attendees_path(event),
+        post create_invitation_event_event_attendees_path(event, format: :json),
              params: { email: existing_user.email, ticket_id: ticket.id },
              as: :json
       }.to change(User, :count).by(0)
@@ -117,15 +118,16 @@ RSpec.describe "EventAttendees", type: :request do
       other_user = create(:user)
       sign_in other_user
       
-      post create_invitation_event_event_attendees_path(event),
+      post create_invitation_event_event_attendees_path(event, format: :json),
            params: { email: 'test@example.com', ticket_id: ticket.id },
            as: :json
+           
       expect(response).to have_http_status(:unauthorized)
     end
 
     it "returns error when email is missing" do
-      post create_invitation_event_event_attendees_path(event),
-           params: { ticket_id: ticket.id },
+      post create_invitation_event_event_attendees_path(event, format: :json),
+           params: { email: 'test@example.com', ticket_id: ticket.id },
            as: :json
       expect(response).to have_http_status(:unprocessable_entity)
       json = JSON.parse(response.body)
@@ -133,7 +135,7 @@ RSpec.describe "EventAttendees", type: :request do
     end
 
     it "returns error when ticket_id is invalid" do
-      post create_invitation_event_event_attendees_path(event),
+      post create_invitation_event_event_attendees_path(event, format: :json),
            params: { email: 'test@example.com', ticket_id: 99999 },
            as: :json
       expect(response).to have_http_status(:not_found)
