@@ -225,6 +225,7 @@ function AppContent() {
           <Route path="/sales" element={<RequireAuth><MySales /></RequireAuth>} />
           <Route path="/sales/:id/product_show" element={<RequireAuth><SalesProductShow /></RequireAuth>} />
           <Route path="/purchases" element={<RequireAuth><MyPurchases /></RequireAuth>} />
+          <Route path="/purchases/:tab" element={<RequireAuth><MyPurchases /></RequireAuth>} />
           <Route path="/articles" element={<ArticlesIndex />} />
           <Route path="/articles/c/:categorySlug" element={<ArticlesIndex />} />
 
