@@ -5,6 +5,35 @@ RSpec.describe Purchase, type: :model do
   it { have_many(:purchased_items) }
   it { belong_to(:purchasable) }
 
+  describe "free ticket purchase" do
+    let!(:user) { FactoryBot.create(:user) }
+    let!(:event) { FactoryBot.create(:event, user: user) }
+    let!(:free_ticket) { FactoryBot.create(:event_ticket, event: event, qty: 10, price: 0) }
+
+    it "creates a purchase with zero amount for free tickets" do
+      purchase = user.purchases.new(purchasable: event)
+      purchase.virtual_purchased = [VirtualPurchasedItem.new(resource: free_ticket, quantity: 2)]
+      purchase.store_items
+      purchase.save!
+      
+      expect(purchase).to be_persisted
+      expect(purchase.purchased_items.count).to eq(2)
+      expect(purchase.purchased_items.all? { |item| item.purchased_item == free_ticket }).to be true
+    end
+
+    it "completes purchase for free tickets without payment processing" do
+      purchase = user.purchases.create!(purchasable: event, price: 0, currency: 'usd')
+      purchase.purchased_items.create!(purchased_item: free_ticket)
+      
+      expect(purchase.state).to eq('pending')
+      
+      purchase.complete_purchase!
+      
+      expect(purchase.reload.state).to eq('paid')
+      expect(purchase.purchased_items.reload.all?(&:paid?)).to be true
+    end
+  end
+
   describe "purchasing tickets" do
     let!(:user) { FactoryBot.create(:user) }
     let!(:event) { FactoryBot.create(:event, user: user) }

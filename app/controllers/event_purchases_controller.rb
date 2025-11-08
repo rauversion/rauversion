@@ -64,11 +64,18 @@ class EventPurchasesController < ApplicationController
 
     @purchase.virtual_purchased = selected_items
 
-    case @event.payment_gateway 
-    when "stripe", "none", nil then handle_stripe_session
-    when "transbank" then handle_tbk_session
+    # Check if all tickets are free (total = 0)
+    total_amount = calculate_purchase_total(@purchase)
+    
+    if total_amount == 0
+      handle_free_purchase
     else
-      raise "No payment gateway available for this event"
+      case @event.payment_gateway 
+      when "stripe", "none", nil then handle_stripe_session
+      when "transbank" then handle_tbk_session
+      else
+        raise "No payment gateway available for this event"
+      end
     end
 
     #########
@@ -170,6 +177,27 @@ class EventPurchasesController < ApplicationController
   end
 
   private
+
+  def calculate_purchase_total(purchase)
+    purchase.virtual_purchased.sum do |virtual_item|
+      virtual_item.resource.price.to_f * virtual_item.quantity
+    end
+  end
+
+  def handle_free_purchase
+    ActiveRecord::Base.transaction do
+      @purchase.store_items
+      if @purchase.save
+        @purchase.price = 0
+        @purchase.currency = @event.ticket_currency || "usd"
+        @purchase.complete_purchase!
+        
+        redirect_to success_event_event_purchase_path(@event, @purchase)
+      else
+        render :new, status: :unprocessable_entity
+      end
+    end
+  end
 
   def ticket_request_params
     params.require(:tickets).map do |ticket_param|
