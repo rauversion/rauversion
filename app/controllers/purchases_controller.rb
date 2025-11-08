@@ -35,7 +35,7 @@ class PurchasesController < ApplicationController
     @collection = current_user.purchases.includes(:purchased_items).where(purchasable_type: ["Track", "Album"]).order(created_at: :desc).page(params[:page]).per(20)
 
     respond_to do |format|
-      format.html
+      format.html{ render_blank }
       format.json
     end
   end
@@ -44,7 +44,7 @@ class PurchasesController < ApplicationController
     @collection = current_user.purchases.includes(:purchased_items).where(purchasable_type: "Event", state: "paid").order(created_at: :desc).page(params[:page]).per(20)
 
     respond_to do |format|
-      format.html
+      format.html{ render_blank }
       format.json
     end
   end
@@ -53,7 +53,7 @@ class PurchasesController < ApplicationController
     @collection = current_user.purchases.includes(:purchased_items).where(purchasable_type: "Product").order(created_at: :desc).page(params[:page]).per(20)
 
     respond_to do |format|
-      format.html
+      format.html{ render_blank }
       format.json
     end
   end

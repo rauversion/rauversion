@@ -60,7 +60,9 @@ class EventAttendeesController < ApplicationController
     purchase = Purchase.new(
       user: user,
       purchasable: @event,
-      state: 'pending'
+      state: 'pending',
+      price: ticket.price,
+      currency: @event.ticket_currency
     )
 
     # Create purchased item
@@ -70,6 +72,7 @@ class EventAttendeesController < ApplicationController
     )
 
     if purchase.save
+      purchase.complete_purchase!
       render json: { 
         message: 'Invitation created successfully',
         purchase: purchase
