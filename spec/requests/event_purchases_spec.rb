@@ -25,7 +25,21 @@ RSpec.describe "EventPurchases", type: :request do
       expect(purchase.state).to eq('paid')
       expect(purchase.price).to eq(0)
       expect(purchase.purchased_items.count).to eq(2)
-      expect(response).to redirect_to(success_event_event_purchase_path(event, purchase))
+      expect(response).to have_http_status(:success)
+    end
+
+    it "returns JSON without payment_url for frontend to handle" do
+      post event_event_purchases_path(event, format: :json), params: {
+        tickets: [
+          { id: free_ticket.id, quantity: 1 }
+        ]
+      }
+      
+      json = JSON.parse(response.body)
+      expect(json['payment_url']).to be_nil
+      expect(json['id']).to be_present
+      expect(json['purchased_items']).to be_an(Array)
+      expect(json['purchased_items'].length).to eq(1)
     end
 
     it "decrements ticket quantity after free purchase" do
