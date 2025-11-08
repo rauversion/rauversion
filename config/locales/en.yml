@@ -240,6 +240,7 @@ en:
         configuration: "Configuration"
 
       overview: Summary of the Event
+
       form:
         title:
           label: Title
@@ -279,6 +280,9 @@ en:
         add_ticket: Add Ticket
         save_tickets: Save Tickets
         new_ticket: New Ticket
+        hide_location_until_purchase:
+          label: Hide location until ticket purchase
+          description: When enabled, the event location will only be shown to attendees after they purchase a ticket. This is useful for secret venue events.
         ticket_currency:
           label: Ticket Currency
           placeholder: Select currency

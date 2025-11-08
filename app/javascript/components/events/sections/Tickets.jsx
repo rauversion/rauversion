@@ -364,9 +364,11 @@ export default function Tickets() {
                 render={({ field }) => (
                   <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm max-w-2xl">
                     <div className="space-y-0.5">
-                      <FormLabel>Hide location until ticket purchase</FormLabel>
+                      <FormLabel>
+                        {I18n.t('events.edit.tickets.hide_location_until_purchase.label')}
+                      </FormLabel>
                       <FormDescription>
-                        When enabled, the event location will only be shown to attendees after they purchase a ticket. This is useful for secret venue events.
+                        {I18n.t('events.edit.tickets.hide_location_until_purchase.description')}
                       </FormDescription>
                     </div>
                     <FormControl>
