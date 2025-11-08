@@ -1,6 +1,6 @@
 class EventPurchasesController < ApplicationController
   before_action :authenticate_user!
-
+  
   def new
     @event = Event.friendly.find(params[:event_id])
 
@@ -66,7 +66,6 @@ class EventPurchasesController < ApplicationController
 
     # Check if all tickets are free (total = 0)
     total_amount = calculate_purchase_total(@purchase)
-    
     if total_amount == 0
       handle_free_purchase
     else
@@ -76,6 +75,11 @@ class EventPurchasesController < ApplicationController
       else
         raise "No payment gateway available for this event"
       end
+    end
+
+    respond_to do |format|
+      format.html {render_blank}
+      format.json
     end
 
     #########
@@ -187,6 +191,7 @@ class EventPurchasesController < ApplicationController
   def handle_free_purchase
     ActiveRecord::Base.transaction do
       @purchase.store_items
+      
       if @purchase.save
         @purchase.price = 0
         @purchase.currency = @event.ticket_currency || "usd"

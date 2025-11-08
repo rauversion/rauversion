@@ -5,15 +5,18 @@ RSpec.describe "EventPurchases", type: :request do
   let(:event) { FactoryBot.create(:event, user: user, state: "published") }
 
   before do
+    user.confirm
     sign_in user
   end
 
   describe "POST /create with free tickets" do
-    let!(:free_ticket) { FactoryBot.create(:event_ticket, event: event, qty: 10, price: 0) }
+    let!(:free_ticket) { FactoryBot.create(:event_ticket, event: event, qty: 10, price: 0, selling_start: 1.day.ago) }
 
     it "completes the purchase automatically without Stripe" do
+      perform_enqueued_jobs
       expect {
         post event_event_purchases_path(event), params: {
+          format: :json,
           tickets: [
             { id: free_ticket.id, quantity: 2 }
           ]
@@ -29,7 +32,9 @@ RSpec.describe "EventPurchases", type: :request do
     end
 
     it "returns JSON without payment_url for frontend to handle" do
+      perform_enqueued_jobs
       post event_event_purchases_path(event, format: :json), params: {
+        format: :json,
         tickets: [
           { id: free_ticket.id, quantity: 1 }
         ]
@@ -43,18 +48,29 @@ RSpec.describe "EventPurchases", type: :request do
     end
 
     it "decrements ticket quantity after free purchase" do
+      
       expect {
-        post event_event_purchases_path(event), params: {
-          tickets: [
-            { id: free_ticket.id, quantity: 2 }
-          ]
-        }
+        perform_enqueued_jobs do
+          post event_event_purchases_path(event), params: {
+            format: :json,
+            tickets: [
+              { id: free_ticket.id, quantity: 2 }
+            ]
+          }
+        end
       }.to change { free_ticket.reload.qty }.from(10).to(8)
     end
   end
 
   describe "POST /create with paid tickets" do
-    let!(:paid_ticket) { FactoryBot.create(:event_ticket, event: event, qty: 10, price: 10) }
+    let!(:paid_ticket) { FactoryBot.create(
+      :event_ticket, 
+      event: event, 
+      qty: 10, 
+      price: 10,
+      selling_start: 1.day.ago
+      ) 
+    }
 
     it "creates purchase but does not complete it (waits for Stripe)" do
       allow_any_instance_of(PaymentProviders::EventStripeProvider).to receive(:create_checkout_session).and_return(
@@ -62,11 +78,14 @@ RSpec.describe "EventPurchases", type: :request do
       )
 
       expect {
-        post event_event_purchases_path(event), params: {
-          tickets: [
-            { id: paid_ticket.id, quantity: 1 }
-          ]
-        }
+        perform_enqueued_jobs  do
+          post event_event_purchases_path(event), params: {
+            format: :json,
+            tickets: [
+              { id: paid_ticket.id, quantity: 1 }
+            ]
+          }
+        end
       }.to change(Purchase, :count).by(1)
         .and change(PurchasedItem, :count).by(1)
 
@@ -86,14 +105,18 @@ RSpec.describe "EventPurchases", type: :request do
       )
 
       expect {
-        post event_event_purchases_path(event), params: {
-          tickets: [
-            { id: free_ticket.id, quantity: 1 },
+        perform_enqueued_jobs do
+          post event_event_purchases_path(event), params: {
+            format: :json,
+            tickets: [
+              { id: free_ticket.id, quantity: 1 },
             { id: paid_ticket.id, quantity: 1 }
           ]
         }
+      end
       }.to change(Purchase, :count).by(1)
 
+      binding.pry
       purchase = Purchase.last
       expect(purchase.state).to eq('pending')
     end

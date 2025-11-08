@@ -1,8 +1,8 @@
 class PurchasesMailer < ApplicationMailer
   require "rqrcode"
 
-  def event_ticket_confirmation
-    @purchase = params[:purchase]
+  def event_ticket_confirmation(purchase: )
+    @purchase = purchase
     @event = @purchase.purchasable
 
     # @purchase.purchased_items.each do |purchased_item|
