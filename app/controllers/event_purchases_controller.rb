@@ -64,6 +64,19 @@ class EventPurchasesController < ApplicationController
 
     @purchase.virtual_purchased = selected_items
 
+    # Check if mixing free and paid tickets
+    has_free_tickets = @purchase.virtual_purchased.any? { |item| item.resource.price.to_f == 0 }
+    has_paid_tickets = @purchase.virtual_purchased.any? { |item| item.resource.price.to_f > 0 }
+    
+    if has_free_tickets && has_paid_tickets
+      @purchase.errors.add(:base, "No se pueden comprar tickets gratuitos junto con tickets de pago. Por favor, realiza compras separadas.")
+      respond_to do |format|
+        format.html { render_blank }
+        format.json { render :create, status: :unprocessable_entity }
+      end
+      return
+    end
+
     # Check if all tickets are free (total = 0)
     total_amount = calculate_purchase_total(@purchase)
     if total_amount == 0

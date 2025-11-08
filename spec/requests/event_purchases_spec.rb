@@ -96,28 +96,23 @@ RSpec.describe "EventPurchases", type: :request do
   end
 
   describe "POST /create with mixed free and paid tickets" do
-    let!(:free_ticket) { FactoryBot.create(:event_ticket, event: event, qty: 10, price: 0) }
-    let!(:paid_ticket) { FactoryBot.create(:event_ticket, event: event, qty: 10, price: 10) }
+    let!(:free_ticket) { FactoryBot.create(:event_ticket, event: event, qty: 10, price: 0, selling_start: 1.day.ago) }
+    let!(:paid_ticket) { FactoryBot.create(:event_ticket, event: event, qty: 10, price: 10, selling_start: 1.day.ago) }
 
-    it "goes through Stripe when there are any paid tickets" do
-      allow_any_instance_of(PaymentProviders::EventStripeProvider).to receive(:create_checkout_session).and_return(
-        { checkout_url: "https://stripe.com/checkout/session" }
-      )
-
+    it "returns an error when mixing free and paid tickets" do
       expect {
-        perform_enqueued_jobs do
-          post event_event_purchases_path(event), params: {
-            format: :json,
-            tickets: [
-              { id: free_ticket.id, quantity: 1 },
+        post event_event_purchases_path(event), params: {
+          format: :json,
+          tickets: [
+            { id: free_ticket.id, quantity: 1 },
             { id: paid_ticket.id, quantity: 1 }
           ]
         }
-      end
-      }.to change(Purchase, :count).by(1)
+      }.not_to change(Purchase, :count)
 
-      purchase = Purchase.last
-      expect(purchase.state).to eq('pending')
+      expect(response).to have_http_status(:unprocessable_entity)
+      json = JSON.parse(response.body)
+      expect(json['errors']).to include(match(/No se pueden comprar tickets gratuitos junto con tickets de pago/))
     end
   end
 end
