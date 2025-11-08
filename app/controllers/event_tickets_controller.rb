@@ -22,4 +22,17 @@ class EventTicketsController < ApplicationController
       format.json { render "show" }
     end
   end
+
+  def secret_link
+    @event = Event.friendly.find(params[:event_id])
+    @ticket = @event.event_tickets.find(params[:id])
+    
+    # Verify user is the event owner
+    unless @event.user_id == current_user.id
+      render json: { error: "Unauthorized" }, status: :unauthorized
+      return
+    end
+
+    render json: { secret_url: @event.secret_ticket_url(@ticket) }
+  end
 end

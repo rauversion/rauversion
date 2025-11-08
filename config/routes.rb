@@ -269,7 +269,11 @@ Rails.application.routes.draw do
 
     resources :event_hosts
     resources :event_recordings
-    resources :event_tickets
+    resources :event_tickets do
+      member do
+        get :secret_link
+      end
+    end
     resources :event_streaming_services, only: [:new, :update]
     resources :event_attendees, only: [:index]
     resources :event_purchases do
