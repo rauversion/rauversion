@@ -176,7 +176,7 @@ class Event < ApplicationRecord
 
   def secret_ticket_url(ticket)
     # Generate a secret URL for a hidden ticket
-    Rails.application.routes.url_helpers.new_event_event_purchase_url(
+    Rails.application.routes.url_helpers.event_url(
       self,
       ticket_token: ticket.signed_id(expires_in: 30.days, purpose: :secret_purchase)
     )
