@@ -1,6 +1,7 @@
 class EventAttendeesController < ApplicationController
   before_action :authenticate_user!
   before_action :set_event
+  before_action :authorize_event_owner!, only: [:export_csv, :create_invitation]
 
   def index
     @purchased_items = @event.purchased_items
@@ -38,23 +39,50 @@ class EventAttendeesController < ApplicationController
     email = params[:email]
     ticket_id = params[:ticket_id]
 
+    # Validate parameters
+    if email.blank? || ticket_id.blank?
+      return render json: { 
+        errors: ['Email and ticket are required'] 
+      }, status: :unprocessable_entity
+    end
+
     # Find or create user
     user = User.find_by(email: email)
     if user.nil?
       # Create new user with temporary password
       password = SecureRandom.hex(16)
+      # Generate unique username from email
+      base_username = email.split('@').first.parameterize
+      username = base_username
+      counter = 1
+      while User.exists?(username: username)
+        username = "#{base_username}#{counter}"
+        counter += 1
+      end
+      
       user = User.new(
         email: email,
-        username: email.split('@').first,
+        username: username,
         password: password,
         password_confirmation: password
       )
       user.skip_confirmation!
-      user.save!
+      
+      unless user.save
+        return render json: { 
+          errors: user.errors.full_messages 
+        }, status: :unprocessable_entity
+      end
     end
 
     # Find the ticket
-    ticket = @event.event_tickets.find(ticket_id)
+    begin
+      ticket = @event.event_tickets.find(ticket_id)
+    rescue ActiveRecord::RecordNotFound
+      return render json: { 
+        errors: ['Ticket not found'] 
+      }, status: :not_found
+    end
 
     # Create purchase
     purchase = Purchase.new(
@@ -79,11 +107,22 @@ class EventAttendeesController < ApplicationController
         errors: purchase.errors.full_messages 
       }, status: :unprocessable_entity
     end
+  rescue StandardError => e
+    Rails.logger.error("Error creating invitation: #{e.message}")
+    render json: { 
+      errors: ['An error occurred while creating the invitation'] 
+    }, status: :internal_server_error
   end
 
   private
 
   def set_event
     @event = Event.find_by!(slug: params[:event_id])
+  end
+
+  def authorize_event_owner!
+    unless @event.user_id == current_user.id
+      render json: { error: 'Unauthorized' }, status: :unauthorized
+    end
   end
 end

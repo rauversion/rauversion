@@ -45,7 +45,7 @@ RSpec.describe "EventAttendees", type: :request do
   end
 
   describe "GET /events/:event_id/event_attendees/export_csv" do
-    it "enqueues a CSV export job" do
+    it "enqueues a CSV export job for event owner" do
       expect {
         get export_csv_event_event_attendees_path(event), as: :json
       }.to have_enqueued_job(EventAttendeesCsvExportJob)
@@ -53,6 +53,14 @@ RSpec.describe "EventAttendees", type: :request do
       expect(response).to have_http_status(:success)
       json = JSON.parse(response.body)
       expect(json['message']).to include('CSV export')
+    end
+
+    it "denies access to non-owner" do
+      other_user = create(:user)
+      sign_in other_user
+      
+      get export_csv_event_event_attendees_path(event), as: :json
+      expect(response).to have_http_status(:unauthorized)
     end
   end
 
@@ -103,6 +111,34 @@ RSpec.describe "EventAttendees", type: :request do
          .and change(Purchase, :count).by(1)
       
       expect(response).to have_http_status(:created)
+    end
+
+    it "denies access to non-owner" do
+      other_user = create(:user)
+      sign_in other_user
+      
+      post create_invitation_event_event_attendees_path(event),
+           params: { email: 'test@example.com', ticket_id: ticket.id },
+           as: :json
+      expect(response).to have_http_status(:unauthorized)
+    end
+
+    it "returns error when email is missing" do
+      post create_invitation_event_event_attendees_path(event),
+           params: { ticket_id: ticket.id },
+           as: :json
+      expect(response).to have_http_status(:unprocessable_entity)
+      json = JSON.parse(response.body)
+      expect(json['errors']).to include('Email and ticket are required')
+    end
+
+    it "returns error when ticket_id is invalid" do
+      post create_invitation_event_event_attendees_path(event),
+           params: { email: 'test@example.com', ticket_id: 99999 },
+           as: :json
+      expect(response).to have_http_status(:not_found)
+      json = JSON.parse(response.body)
+      expect(json['errors']).to include('Ticket not found')
     end
   end
 end
