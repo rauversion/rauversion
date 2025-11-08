@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe "EventPurchases", type: :request do
   let(:user) { FactoryBot.create(:user) }
-  let(:event) { FactoryBot.create(:event, user: user, private: false) }
+  let(:event) { FactoryBot.create(:event, user: user, state: "published") }
 
   before do
     sign_in user
