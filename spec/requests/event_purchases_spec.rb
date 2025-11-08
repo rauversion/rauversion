@@ -116,7 +116,6 @@ RSpec.describe "EventPurchases", type: :request do
       end
       }.to change(Purchase, :count).by(1)
 
-      binding.pry
       purchase = Purchase.last
       expect(purchase.state).to eq('pending')
     end
