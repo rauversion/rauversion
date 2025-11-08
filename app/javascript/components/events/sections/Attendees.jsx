@@ -7,6 +7,7 @@ import { format } from "date-fns"
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
+import { get, post } from "@rails/request.js"
 import I18n from 'stores/locales'
 import {
   Form,
@@ -25,6 +26,15 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
+import {
   Table,
   TableBody,
   TableCell,
@@ -32,18 +42,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Loader2, Download, Search } from "lucide-react"
+import { Loader2, Download, Search, UserPlus } from "lucide-react"
 import {Badge} from "@/components/ui/badge"
 
 const searchSchema = z.object({
   query: z.string(),
-  status: z.enum(["all", "attending", "cancelled", "pending", 'paid']).default("all"),
+  status: z.enum(["all", "pending", "paid"]).default("all"),
+})
+
+const invitationSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  ticket_id: z.string().min(1, "Please select a ticket"),
 })
 
 const attendeeStatuses = {
   paid: { label: I18n.t('events.edit.attendees.status.attending'), color: "bg-green-500" },
-  attending: { label: I18n.t('events.edit.attendees.status.attending'), color: "bg-green-500" },
-  cancelled: { label: I18n.t('events.edit.attendees.status.cancelled'), color: "bg-red-500" },
   pending: { label: I18n.t('events.edit.attendees.status.pending'), color: "bg-yellow-500" },
 }
 
@@ -51,6 +64,9 @@ export default function Attendees() {
   const { slug } = useParams()
   const { toast } = useToast()
   const [searchParams, setSearchParams] = React.useState("")
+  const [isInviteDialogOpen, setIsInviteDialogOpen] = React.useState(false)
+  const [tickets, setTickets] = React.useState([])
+  const [isSubmittingInvite, setIsSubmittingInvite] = React.useState(false)
 
   const {
     items: attendees,
@@ -67,6 +83,30 @@ export default function Attendees() {
     }
   })
 
+  const inviteForm = useForm({
+    resolver: zodResolver(invitationSchema),
+    defaultValues: {
+      email: "",
+      ticket_id: ""
+    }
+  })
+
+  // Load tickets for the invitation dialog
+  React.useEffect(() => {
+    const loadTickets = async () => {
+      try {
+        const response = await get(`/events/${slug}/event_attendees/tickets.json`)
+        if (response.ok) {
+          const data = await response.json
+          setTickets(data.collection || [])
+        }
+      } catch (error) {
+        console.error('Error loading tickets:', error)
+      }
+    }
+    loadTickets()
+  }, [slug])
+
   const onSubmit = (data) => {
     const params = new URLSearchParams()
     if (data.query) params.append("query", data.query)
@@ -76,57 +116,61 @@ export default function Attendees() {
     resetList()
   }
 
-  const updateAttendeeStatus = async (attendeeId, status) => {
+  const handleExportCSV = async () => {
     try {
-      const response = await fetch(`/events/${slug}/event_attendees/${attendeeId}.json`, {
-        method: 'PUT',
-        body: JSON.stringify({
-          status
-        }),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
-
+      const response = await get(`/events/${slug}/event_attendees/export_csv.json`)
       if (response.ok) {
-        resetList()
         toast({
-          title: I18n.t("events.edit.attendees.messages.success_title"),
-          description: I18n.t('events.edit.attendees.messages.update_success'),
+          title: "Export Requested",
+          description: "The attendees list will be sent to your email shortly.",
         })
       }
     } catch (error) {
-      console.error('Error updating attendee:', error)
+      console.error('Error exporting CSV:', error)
       toast({
-        title: I18n.t("events.edit.attendees.messages.error_title"),
-        description: I18n.t('events.edit.attendees.messages.update_error'),
+        title: "Error",
+        description: "Failed to export attendees list.",
         variant: "destructive",
       })
     }
   }
 
-  const removeAttendee = async (attendeeId) => {
-    if (!confirm(I18n.t('events.edit.attendees.messages.remove_confirm'))) return
-
+  const onSubmitInvite = async (data) => {
+    setIsSubmittingInvite(true)
     try {
-      const response = await fetch(`/events/${slug}/event_attendees/${attendeeId}.json`, {
-        method: 'DELETE'
+      const response = await post(`/events/${slug}/event_attendees/create_invitation.json`, {
+        body: JSON.stringify({
+          email: data.email,
+          ticket_id: data.ticket_id
+        }),
+        contentType: 'application/json'
       })
 
       if (response.ok) {
-        resetList()
         toast({
-          title: I18n.t("events.edit.attendees.messages.success_title"),
-          description: I18n.t('events.edit.attendees.messages.remove_success'),
+          title: "Invitation Sent",
+          description: "The invitation has been created successfully.",
+        })
+        setIsInviteDialogOpen(false)
+        inviteForm.reset()
+        resetList()
+      } else {
+        const errorData = await response.json
+        toast({
+          title: "Error",
+          description: errorData.errors?.join(', ') || "Failed to send invitation.",
+          variant: "destructive",
         })
       }
     } catch (error) {
-      console.error('Error removing attendee:', error)
+      console.error('Error sending invitation:', error)
       toast({
-        title: I18n.t("events.edit.attendees.messages.error_title"),
-        description: I18n.t('events.edit.attendees.messages.remove_error'),
+        title: "Error",
+        description: "Failed to send invitation.",
         variant: "destructive",
       })
+    } finally {
+      setIsSubmittingInvite(false)
     }
   }
 
@@ -139,13 +183,87 @@ export default function Attendees() {
             {I18n.t('events.edit.attendees.subtitle')}
           </p>
         </div>
-        <Button
-          variant="outline"
-          onClick={() => window.location.href = `/events/${slug}/attendees/export.csv`}
-        >
-          <Download className="h-4 w-4 mr-2" />
-          {I18n.t('events.edit.attendees.export_csv')}
-        </Button>
+        <div className="flex gap-2">
+          <Dialog open={isInviteDialogOpen} onOpenChange={setIsInviteDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="default">
+                <UserPlus className="h-4 w-4 mr-2" />
+                Send Invitation
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Send Event Invitation</DialogTitle>
+                <DialogDescription>
+                  Invite someone to this event by email. If they don't have an account, one will be created for them.
+                </DialogDescription>
+              </DialogHeader>
+              <Form {...inviteForm}>
+                <form onSubmit={inviteForm.handleSubmit(onSubmitInvite)} className="space-y-4">
+                  <FormField
+                    control={inviteForm.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email Address</FormLabel>
+                        <FormControl>
+                          <Input placeholder="contact@example.com" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={inviteForm.control}
+                    name="ticket_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Select Ticket</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Choose a ticket" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            {tickets.map((ticket) => (
+                              <SelectItem key={ticket.id} value={String(ticket.id)}>
+                                {ticket.title} - ${ticket.price}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <DialogFooter>
+                    <Button type="button" variant="outline" onClick={() => setIsInviteDialogOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button type="submit" disabled={isSubmittingInvite}>
+                      {isSubmittingInvite ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Sending...
+                        </>
+                      ) : (
+                        'Send Invitation'
+                      )}
+                    </Button>
+                  </DialogFooter>
+                </form>
+              </Form>
+            </DialogContent>
+          </Dialog>
+          <Button
+            variant="outline"
+            onClick={handleExportCSV}
+          >
+            <Download className="h-4 w-4 mr-2" />
+            {I18n.t('events.edit.attendees.export_csv')}
+          </Button>
+        </div>
       </div>
 
       <Form {...form}>
@@ -185,8 +303,7 @@ export default function Attendees() {
                   </FormControl>
                   <SelectContent>
                     <SelectItem value="all">{I18n.t('events.edit.attendees.search.all_statuses')}</SelectItem>
-                    <SelectItem value="attending">{I18n.t('events.edit.attendees.status.attending')}</SelectItem>
-                    <SelectItem value="cancelled">{I18n.t('events.edit.attendees.status.cancelled')}</SelectItem>
+                    <SelectItem value="paid">{I18n.t('events.edit.attendees.status.attending')}</SelectItem>
                     <SelectItem value="pending">{I18n.t('events.edit.attendees.status.pending')}</SelectItem>
                   </SelectContent>
                 </Select>
