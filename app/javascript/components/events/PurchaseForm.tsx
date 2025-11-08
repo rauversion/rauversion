@@ -157,7 +157,8 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
       if (result.payment_url) {
         window.location.href = result.payment_url
       } else {
-        navigate(`/events/${eventId}/event_purchases/${result.id}`)
+        // navigate(`/events/${eventId}/event_purchases/${result.id}`)
+        navigate("/purchases/tickets")
       }
     } catch (error) {
       toast({

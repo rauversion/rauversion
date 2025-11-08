@@ -14,5 +14,9 @@ class ProductPurchasesController < ApplicationController
 
   def show
     @purchase = current_user.product_purchases.find(params[:id])
+    respond_to do |format|
+      format.html{ render_blank }
+      format.json
+    end
   end
 end
