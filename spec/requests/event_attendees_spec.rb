@@ -48,7 +48,7 @@ RSpec.describe "EventAttendees", type: :request do
   describe "GET /events/:event_id/event_attendees/export_csv" do
     it "enqueues a CSV export job for event owner" do
       expect {
-        get export_csv_event_event_attendees_path(event), as: :json
+        get export_csv_event_event_attendees_path(event, format: :json), as: :json
       }.to have_enqueued_job(EventAttendeesCsvExportJob)
       
       expect(response).to have_http_status(:success)
@@ -58,9 +58,10 @@ RSpec.describe "EventAttendees", type: :request do
 
     it "denies access to non-owner" do
       other_user = create(:user)
+      other_user.confirm
       sign_in other_user
       
-      get export_csv_event_event_attendees_path(event), as: :json
+      get export_csv_event_event_attendees_path(event, format: :json), as: :json
       expect(response).to have_http_status(:unauthorized)
     end
   end
@@ -70,6 +71,7 @@ RSpec.describe "EventAttendees", type: :request do
     let!(:ticket2) { create(:event_ticket, event: event, title: "General") }
 
     it "returns all tickets for the event" do
+      ticket
       get tickets_event_event_attendees_path(event), as: :json
       expect(response).to have_http_status(:success)
       json = JSON.parse(response.body)
@@ -82,9 +84,11 @@ RSpec.describe "EventAttendees", type: :request do
     
     it "creates a new user and purchase with pending status" do
       expect {
-        post create_invitation_event_event_attendees_path(event), 
-             params: { email: new_email, ticket_id: ticket.id },
-             as: :json
+        perform_enqueued_jobs do
+          post create_invitation_event_event_attendees_path(event), 
+               params: { email: new_email, ticket_id: ticket.id },
+               as: :json
+        end
       }.to change(User, :count).by(1)
          .and change(Purchase, :count).by(1)
          .and change(PurchasedItem, :count).by(1)
