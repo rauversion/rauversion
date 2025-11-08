@@ -57,6 +57,10 @@ export default function EventShow() {
   const [event, setEvent] = useState(null)
   const [loading, setLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
+  
+  // Get ticket_token from URL params
+  const searchParams = new URLSearchParams(window.location.search)
+  const ticketToken = searchParams.get('ticket_token')
 
   useEffect(() => {
     const fetchEvent = async () => {
@@ -64,6 +68,11 @@ export default function EventShow() {
         const response = await fetch(`/events/${slug}.json`)
         const data = await response.json()
         setEvent(data)
+        
+        // If there's a ticket_token in the URL, automatically open the purchase dialog
+        if (ticketToken) {
+          setDialogOpen(true)
+        }
       } catch (error) {
         console.error('Error fetching event:', error)
       } finally {
@@ -72,7 +81,7 @@ export default function EventShow() {
     }
 
     fetchEvent()
-  }, [slug])
+  }, [slug, ticketToken])
 
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">{I18n.t('events.loading')}</div>
@@ -118,6 +127,7 @@ export default function EventShow() {
               open={dialogOpen}
               onOpenChange={setDialogOpen}
               eventId={event.slug}
+              ticketToken={ticketToken}
             />
           </div>
         </div>

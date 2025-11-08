@@ -33,11 +33,12 @@ interface Event {
 
 interface PurchaseFormProps {
   eventId: string
+  ticketToken?: string
 }
 
 type TicketFormValues = Record<string, number>
 
-export default function PurchaseForm({ eventId }: PurchaseFormProps) {
+export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps) {
   const [tickets, setTickets] = React.useState<Ticket[]>([])
   const [loading, setLoading] = React.useState(false)
   const [event, setEvent] = React.useState<Event | null>(null)
@@ -55,7 +56,10 @@ export default function PurchaseForm({ eventId }: PurchaseFormProps) {
   React.useEffect(() => {
     const fetchTickets = async () => {
       try {
-        const response = await get(`/events/${eventId}/event_purchases/new.json`)
+        const url = ticketToken 
+          ? `/events/${eventId}/event_purchases/new.json?ticket_token=${encodeURIComponent(ticketToken)}`
+          : `/events/${eventId}/event_purchases/new.json`
+        const response = await get(url)
         const data = await response.json
         setEvent(data.event)
         const parseOrderLimit = (value: unknown) => {
@@ -89,7 +93,7 @@ export default function PurchaseForm({ eventId }: PurchaseFormProps) {
     }
 
     fetchTickets()
-  }, [eventId])
+  }, [eventId, ticketToken])
 
   React.useEffect(() => {
     tickets.forEach((ticket) => {
