@@ -6,13 +6,14 @@ interface PurchaseDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
   eventId: string
+  ticketToken?: string
 }
 
-export default function PurchaseDialog({ open, onOpenChange, eventId }: PurchaseDialogProps) {
+export default function PurchaseDialog({ open, onOpenChange, eventId, ticketToken }: PurchaseDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
-        <PurchaseForm eventId={eventId} />
+        <PurchaseForm eventId={eventId} ticketToken={ticketToken} />
       </DialogContent>
     </Dialog>
   )

@@ -36,7 +36,7 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 
-import { Plus, Ticket, Trash2 } from "lucide-react"
+import { Plus, Ticket, Trash2, Link2, Copy, CheckCircle2 } from "lucide-react"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { cn } from "classnames"
 import { formatDateSafely } from "@/hooks/safeDate"
@@ -119,6 +119,7 @@ export default function Tickets() {
   const { slug } = useParams()
   const { toast } = useToast()
   const [event, setEvent] = React.useState(null)
+  const [copiedTicketId, setCopiedTicketId] = React.useState(null)
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -233,6 +234,33 @@ export default function Tickets() {
     } else {
       // If it's a new ticket (no ID), just remove it from the form
       remove(index)
+    }
+  }
+
+  const generateSecretLink = async (ticketId) => {
+    try {
+      const response = await get(`/events/${slug}/event_tickets/${ticketId}/secret_link.json`)
+      const data = await response.json
+      
+      if (data.secret_url) {
+        // Copy to clipboard
+        await navigator.clipboard.writeText(data.secret_url)
+        
+        setCopiedTicketId(ticketId)
+        setTimeout(() => setCopiedTicketId(null), 2000)
+        
+        toast({
+          title: I18n.t('events.edit.tickets.messages.link_copied', { defaultValue: 'Link Copied!' }),
+          description: I18n.t('events.edit.tickets.messages.link_copied_description', { defaultValue: 'The secret link has been copied to your clipboard. Share it with the people you want to have access to this ticket.' }),
+        })
+      }
+    } catch (error) {
+      console.error('Error generating secret link:', error)
+      toast({
+        title: I18n.t('events.edit.tickets.messages.error', { defaultValue: 'Error' }),
+        description: I18n.t('events.edit.tickets.messages.link_generation_error', { defaultValue: 'There was an error generating the secret link. Please make sure the ticket is saved first.' }),
+        variant: "destructive",
+      })
     }
   }
 
@@ -657,6 +685,39 @@ export default function Tickets() {
                                 </FormItem>
                               )}
                             />
+
+                            {form.watch(`tickets.${index}.hidden`) && form.getValues(`tickets.${index}.id`) && (
+                              <div className="rounded-lg border p-3 shadow-sm space-y-2">
+                                <div className="space-y-0.5">
+                                  <FormLabel className="flex items-center gap-2">
+                                    <Link2 className="h-4 w-4" />
+                                    {I18n.t('events.edit.tickets.form.secret_link.label', { defaultValue: 'Secret Link' })}
+                                  </FormLabel>
+                                  <FormDescription>
+                                    {I18n.t('events.edit.tickets.form.secret_link.description', { defaultValue: 'Generate a secret link to share this hidden ticket with specific people' })}
+                                  </FormDescription>
+                                </div>
+                                <Button
+                                  type="button"
+                                  variant="outline"
+                                  size="sm"
+                                  className="w-full"
+                                  onClick={() => generateSecretLink(form.getValues(`tickets.${index}.id`))}
+                                >
+                                  {copiedTicketId === form.getValues(`tickets.${index}.id`) ? (
+                                    <>
+                                      <CheckCircle2 className="h-4 w-4 mr-2" />
+                                      {I18n.t('events.edit.tickets.form.secret_link.copied', { defaultValue: 'Copied!' })}
+                                    </>
+                                  ) : (
+                                    <>
+                                      <Copy className="h-4 w-4 mr-2" />
+                                      {I18n.t('events.edit.tickets.form.secret_link.button', { defaultValue: 'Generate & Copy Link' })}
+                                    </>
+                                  )}
+                                </Button>
+                              </div>
+                            )}
                           </div>
 
                           <div className="space-y-4">

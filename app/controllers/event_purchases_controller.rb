@@ -8,7 +8,22 @@ class EventPurchasesController < ApplicationController
     customer = current_user
     # ticket = EventTicket.find_by(id: ticket_id)
 
-    @tickets = @event.available_tickets(Time.zone.now)
+    # If ticket_token is provided, only show that specific hidden ticket
+    if params[:ticket_token].present?
+      begin
+        ticket = EventTicket.find_signed(params[:ticket_token], purpose: :secret_purchase)
+        # Verify the ticket belongs to this event
+        if ticket && ticket.event_id == @event.id
+          @tickets = [ticket]
+        else
+          @tickets = []
+        end
+      rescue ActiveSupport::MessageVerifier::InvalidSignature
+        @tickets = []
+      end
+    else
+      @tickets = @event.available_tickets(Time.zone.now)
+    end
 
     @purchase = current_user.purchases.new
     @purchase.virtual_purchased = @tickets.map do |aa|
