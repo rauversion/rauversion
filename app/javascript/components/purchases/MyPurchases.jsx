@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useActionCable } from "@/hooks/useActionCable";
 import useAuthStore from "@/stores/authStore";
 import { get } from "@rails/request.js";
-import { Link } from "react-router";
+import { Link, useParams, useNavigate } from "react-router";
 
 function PurchaseItem({ purchase, toast, downloadUrl }) {
   const [downloadStatus, setDownloadStatus] = useState(
@@ -195,7 +195,9 @@ function PurchaseItem({ purchase, toast, downloadUrl }) {
 }
 
 export default function MyPurchases() {
-  const [tab, setTab] = React.useState("music");
+  const { tab: urlTab } = useParams();
+  const navigate = useNavigate();
+  const [tab, setTab] = React.useState(urlTab || "music");
   const { toast } = useToast();
   const [downloadUrls, setDownloadUrls] = useState({});
   const {
@@ -209,6 +211,16 @@ export default function MyPurchases() {
 
   const { currentUser } = useAuthStore();
   const { subscribe, unsubscribe } = useActionCable();
+
+  // Sync tab state with URL param
+  React.useEffect(() => {
+    if (urlTab && urlTab !== tab) {
+      setTab(urlTab);
+    } else if (!urlTab) {
+      // Default to music tab if no URL param
+      navigate("/purchases/music", { replace: true });
+    }
+  }, [urlTab]);
 
   React.useEffect(() => {
     resetList();
@@ -270,7 +282,10 @@ export default function MyPurchases() {
         <h1 className="text-2xl font-bold">My Purchases</h1>
       </div>
 
-      <Tabs defaultValue="music" value={tab} onValueChange={setTab}>
+      <Tabs defaultValue="music" value={tab} onValueChange={(newTab) => {
+        setTab(newTab);
+        navigate(`/purchases/${newTab}`);
+      }}>
         <TabsList>
           <TabsTrigger value="music">Music</TabsTrigger>
           <TabsTrigger value="tickets">Tickets</TabsTrigger>
