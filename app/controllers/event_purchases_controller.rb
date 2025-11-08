@@ -191,10 +191,9 @@ class EventPurchasesController < ApplicationController
         @purchase.price = 0
         @purchase.currency = @event.ticket_currency || "usd"
         @purchase.complete_purchase!
-        
-        redirect_to success_event_event_purchase_path(@event, @purchase)
+        # Don't set @payment_url - frontend will navigate to purchase page
       else
-        render :new, status: :unprocessable_entity
+        raise ActiveRecord::Rollback
       end
     end
   end
