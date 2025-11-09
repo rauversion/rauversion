@@ -153,8 +153,18 @@ class EventAttendeesController < ApplicationController
         
         if payment_intent_id.present?
           # Calculate refund amount (price per ticket)
+          # Consider the event's ticket_currency for proper amount calculation
           ticket_price = purchased_item.purchased_item.price
-          refund_amount = (ticket_price * 100).to_i # Convert to cents
+          currency = purchase.currency || @event.ticket_currency || "usd"
+          
+          # For CLP and zero-decimal currencies, use the amount as-is
+          # For other currencies like USD, convert to cents (smallest unit)
+          refund_amount = case currency.downcase
+          when "clp", "jpy", "krw"  # Zero-decimal currencies
+            ticket_price.to_i
+          else
+            (ticket_price * 100).to_i
+          end
           
           stripe_refund = Stripe::Refund.create({
             payment_intent: payment_intent_id,

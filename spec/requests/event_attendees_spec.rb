@@ -228,5 +228,51 @@ RSpec.describe "EventAttendees", type: :request do
       json = JSON.parse(response.body)
       expect(json['errors'].first).to include('Refund failed')
     end
+
+    it "processes refund with CLP currency correctly (zero-decimal)" do
+      # Create event with CLP currency
+      clp_event = create(:event, user: user, ticket_currency: "clp")
+      clp_ticket = create(:event_ticket, event: clp_event, price: 50000)
+      clp_purchase = create(:purchase, user: user, purchasable: clp_event, state: 'paid', 
+                            checkout_type: 'stripe', checkout_id: 'cs_test_clp', currency: 'clp')
+      clp_paid_item = create(:purchased_item, purchase: clp_purchase, 
+                             purchased_item: clp_ticket, state: 'paid')
+
+      # Mock Stripe calls
+      allow(Stripe::Checkout::Session).to receive(:retrieve).and_return(
+        double(payment_intent: 'pi_test_clp')
+      )
+      
+      # Verify that Stripe::Refund.create is called with the correct amount (no * 100 for CLP)
+      expect(Stripe::Refund).to receive(:create).with(
+        hash_including(amount: 50000)  # Should be 50000, not 5000000
+      ).and_return(double(id: 'ref_test_clp'))
+      
+      post refund_event_event_attendee_path(clp_event, clp_paid_item), as: :json
+      
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "processes refund with USD currency correctly (with cents)" do
+      # Purchase already has usd currency by default
+      usd_ticket_with_price = create(:event_ticket, event: event, price: 50.00)
+      usd_purchase = create(:purchase, user: user, purchasable: event, state: 'paid',
+                            checkout_type: 'stripe', checkout_id: 'cs_test_usd', currency: 'usd')
+      usd_paid_item = create(:purchased_item, purchase: usd_purchase,
+                             purchased_item: usd_ticket_with_price, state: 'paid')
+
+      allow(Stripe::Checkout::Session).to receive(:retrieve).and_return(
+        double(payment_intent: 'pi_test_usd')
+      )
+      
+      # Verify that Stripe::Refund.create is called with amount in cents for USD
+      expect(Stripe::Refund).to receive(:create).with(
+        hash_including(amount: 5000)  # Should be 5000 cents = $50.00
+      ).and_return(double(id: 'ref_test_usd'))
+      
+      post refund_event_event_attendee_path(event, usd_paid_item), as: :json
+      
+      expect(response).to have_http_status(:ok)
+    end
   end
 end
