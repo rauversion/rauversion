@@ -1,0 +1,56 @@
+✓ CONFIRMACIÓN DE TICKET
+================================================================================
+
+<%= @event.title %>
+
+--------------------------------------------------------------------------------
+
+IMPORTANTE: Para ingresar al evento deberás mostrar tu e-ticket impreso o desde 
+tu móvil.
+
+CÓMO ACCEDER A TUS TICKETS
+--------------------------------------------------------------------------------
+
+1. Ingresa a Mi cuenta
+2. Ve a la pestaña Mis Compras  
+3. Toca en Ver ticket/s electrónico/s para verlos y descargarlos
+
+<% if @inviter %>
+
+INVITACIÓN
+--------------------------------------------------------------------------------
+<%= @inviter.first_name %> <%= @inviter.last_name %> <%= gettext("Has invited you to the event") %>
+
+<% end %>
+<% if @message %>
+
+MENSAJE
+--------------------------------------------------------------------------------
+<%= @message %>
+
+<% end %>
+
+TUS TICKETS
+================================================================================
+
+<% @purchase.purchased_items.each_with_index do |item, index| %>
+TICKET #<%= index + 1 %>: <%= item.purchased_item.title %>
+--------------------------------------------------------------------------------
+
+<% if item.purchased_item.after_purchase_message.present? %>
+<%= item.purchased_item.after_purchase_message %>
+
+<% end %>
+📅 Fecha: <%= item.purchased_item.event.event_start %>
+🌍 Zona horaria: <%= item.purchased_item.event.timezone %>
+📍 Ubicación: <%= item.purchased_item.event.location %>
+
+Código QR disponible en la versión HTML del email o en la web.
+
+<% end %>
+
+VER TICKETS EN LA WEB
+--------------------------------------------------------------------------------
+<%= @url %>
+
+¿Tienes problemas para acceder? Contáctanos en <%= ENV['EMAIL_ACCOUNT'] || 'support@rauversion.com' %>
