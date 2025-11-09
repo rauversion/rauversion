@@ -42,12 +42,22 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Loader2, Download, Search, UserPlus } from "lucide-react"
+import { Loader2, Download, Search, UserPlus, RefundIcon } from "lucide-react"
 import {Badge} from "@/components/ui/badge"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 
 const searchSchema = z.object({
   query: z.string(),
-  status: z.enum(["all", "pending", "paid"]).default("all"),
+  status: z.enum(["all", "pending", "paid", "refunded"]).default("all"),
 })
 
 const invitationSchema = z.object({
@@ -58,6 +68,7 @@ const invitationSchema = z.object({
 const attendeeStatuses = {
   paid: { label: I18n.t('events.edit.attendees.status.attending'), color: "bg-green-500" },
   pending: { label: I18n.t('events.edit.attendees.status.pending'), color: "bg-yellow-500" },
+  refunded: { label: "Refunded", color: "bg-red-500" },
 }
 
 export default function Attendees() {
@@ -67,6 +78,8 @@ export default function Attendees() {
   const [isInviteDialogOpen, setIsInviteDialogOpen] = React.useState(false)
   const [tickets, setTickets] = React.useState([])
   const [isSubmittingInvite, setIsSubmittingInvite] = React.useState(false)
+  const [refundingItemId, setRefundingItemId] = React.useState(null)
+  const [refundConfirmItem, setRefundConfirmItem] = React.useState(null)
 
   const {
     items: attendees,
@@ -171,6 +184,40 @@ export default function Attendees() {
       })
     } finally {
       setIsSubmittingInvite(false)
+    }
+  }
+
+  const handleRefund = async (item) => {
+    setRefundingItemId(item.id)
+    try {
+      const response = await post(`/events/${slug}/event_attendees/${item.id}/refund.json`, {
+        contentType: 'application/json'
+      })
+
+      if (response.ok) {
+        toast({
+          title: "Refund Processed",
+          description: "The ticket has been refunded successfully.",
+        })
+        setRefundConfirmItem(null)
+        resetList()
+      } else {
+        const errorData = await response.json
+        toast({
+          title: "Error",
+          description: errorData.errors?.join(', ') || "Failed to process refund.",
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error('Error processing refund:', error)
+      toast({
+        title: "Error",
+        description: "Failed to process refund.",
+        variant: "destructive",
+      })
+    } finally {
+      setRefundingItemId(null)
     }
   }
 
@@ -305,6 +352,7 @@ export default function Attendees() {
                     <SelectItem value="all">{I18n.t('events.edit.attendees.search.all_statuses')}</SelectItem>
                     <SelectItem value="paid">{I18n.t('events.edit.attendees.status.attending')}</SelectItem>
                     <SelectItem value="pending">{I18n.t('events.edit.attendees.status.pending')}</SelectItem>
+                    <SelectItem value="refunded">Refunded</SelectItem>
                   </SelectContent>
                 </Select>
               </FormItem>
@@ -324,6 +372,7 @@ export default function Attendees() {
               <TableHead>{I18n.t('events.edit.attendees.table.status')}</TableHead>
               <TableHead>{I18n.t('events.edit.attendees.table.purchase_date')}</TableHead>
               <TableHead className="w-[50px]"></TableHead>
+              <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -364,6 +413,28 @@ export default function Attendees() {
                     </Badge>
                   )}
                 </TableCell>
+                <TableCell>
+                  {item.state === 'paid' && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setRefundConfirmItem(item)}
+                      disabled={refundingItemId === item.id}
+                    >
+                      {refundingItemId === item.id ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <>
+                          <RefundIcon className="h-4 w-4 mr-1" />
+                          Refund
+                        </>
+                      )}
+                    </Button>
+                  )}
+                  {item.state === 'refunded' && (
+                    <span className="text-sm text-muted-foreground">Refunded</span>
+                  )}
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -376,6 +447,30 @@ export default function Attendees() {
           <Loader2 className="h-6 w-6 animate-spin" />
         </div>
       )}
+
+      {/* Refund Confirmation Dialog */}
+      <AlertDialog open={!!refundConfirmItem} onOpenChange={(open) => !open && setRefundConfirmItem(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Refund</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to refund this ticket? This action will:
+              <ul className="list-disc list-inside mt-2">
+                <li>Process a refund for {refundConfirmItem?.event_ticket?.currency} {refundConfirmItem?.event_ticket?.price}</li>
+                <li>Return the ticket to available inventory</li>
+                <li>Mark the purchase as refunded</li>
+              </ul>
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={() => handleRefund(refundConfirmItem)}>
+              Confirm Refund
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

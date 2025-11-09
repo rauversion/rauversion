@@ -42,6 +42,8 @@ class WebhooksController < ApplicationController
       puts "PaymentIntent was successful!"
     when "checkout.session.completed"
       confirm_stripe_purchase(event.data.object)
+    when "charge.refunded"
+      handle_stripe_refund(event.data.object)
     when "payment_method.attached"
       payment_method = event.data.object # contains a Stripe::PaymentMethod
       puts "PaymentMethod was attached to a Customer!"
@@ -180,6 +182,59 @@ class WebhooksController < ApplicationController
       else
         @purchase.update(status: :failed)
       end
+    end
+  end
+
+  def handle_stripe_refund(charge_object)
+    # Find the refund object
+    refund = charge_object.refunds.data.first
+    return unless refund.present?
+
+    # Try to find purchased item by refund_id (in case of manual refund marking)
+    purchased_item = PurchasedItem.find_by(refund_id: refund.id)
+    
+    # If not found by refund_id, find by payment_intent
+    unless purchased_item
+      payment_intent_id = charge_object.payment_intent
+      return unless payment_intent_id.present?
+
+      # Find purchase by payment intent through checkout session
+      purchase = Purchase.where(checkout_type: 'stripe')
+                        .find_each
+                        .find do |p|
+        begin
+          session = Stripe::Checkout::Session.retrieve(p.checkout_id)
+          session.payment_intent == payment_intent_id
+        rescue
+          false
+        end
+      end
+
+      return unless purchase.present?
+
+      # Find the purchased item that matches
+      # For event tickets, mark first paid item as refunded if not already marked
+      purchased_item = purchase.purchased_items
+                              .where(purchased_item_type: 'EventTicket')
+                              .where(state: 'paid')
+                              .where(refund_id: nil)
+                              .first
+    end
+
+    if purchased_item.present? && purchased_item.paid?
+      purchased_item.refund!
+      purchased_item.update(
+        refunded_at: Time.current,
+        refund_id: refund.id
+      )
+      
+      # Increment ticket quantity back
+      if purchased_item.purchased_item_type == 'EventTicket'
+        ticket = purchased_item.purchased_item
+        ticket.increment!(:qty)
+      end
+      
+      Rails.logger.info("Successfully processed refund for purchased_item #{purchased_item.id}")
     end
   end
 

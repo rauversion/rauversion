@@ -7,9 +7,14 @@ class PurchasedItem < ApplicationRecord
   aasm column: :state do
     state :pending, initial: true
     state :paid
+    state :refunded
 
     event :confirm do
       transitions from: :pending, to: :paid
+    end
+
+    event :refund do
+      transitions from: :paid, to: :refunded
     end
   end
 

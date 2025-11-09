@@ -281,6 +281,9 @@ Rails.application.routes.draw do
         get :tickets
         post :create_invitation
       end
+      member do
+        post :refund
+      end
     end
     resources :event_purchases do
       member do
