@@ -1,0 +1,125 @@
+<h1 style="margin: 0 0 20px 0; font-size: 28px; font-weight: 700; color: #1a1a1a; line-height: 1.3;">
+  ✓ Confirmación de Ticket
+</h1>
+
+<h2 style="margin: 0 0 30px 0; font-size: 24px; font-weight: 600; color: #333333; line-height: 1.4;">
+  <%= @event.title %>
+</h2>
+
+<div style="background-color: #f8f9fa; border-left: 4px solid #4caf50; padding: 15px 20px; margin-bottom: 30px; border-radius: 4px;">
+  <p style="margin: 0; font-size: 15px; color: #333333;">
+    Para ingresar al evento deberás mostrar tu e-ticket impreso o desde tu móvil.
+  </p>
+</div>
+
+<div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 25px; margin-bottom: 30px;">
+  <h3 style="margin: 0 0 15px 0; font-size: 16px; font-weight: 600; color: #1a1a1a; text-transform: uppercase; letter-spacing: 0.5px;">
+    Cómo acceder a tus tickets
+  </h3>
+  <ol style="margin: 0; padding-left: 20px; font-size: 15px; color: #555555; line-height: 1.8;">
+    <li style="margin-bottom: 8px;">Ingresa a Mi cuenta</li>
+    <li style="margin-bottom: 8px;">Ve a la pestaña Mis Compras</li>
+    <li style="margin-bottom: 0;">Toca en Ver ticket/s electrónico/s para verlos y descargarlos</li>
+  </ol>
+</div>
+
+<% if @inviter %>
+  <div style="background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 6px; padding: 15px 20px; margin-bottom: 25px;">
+    <p style="margin: 0; font-size: 15px; color: #856404;">
+      <strong><%= @inviter.first_name %> <%= @inviter.last_name %></strong> <%= gettext("Has invited you to the event") %>
+    </p>
+  </div>
+<% end %>
+
+<% if @message %>
+  <div style="background-color: #e3f2fd; border: 1px solid #2196f3; border-radius: 6px; padding: 15px 20px; margin-bottom: 25px;">
+    <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #1565c0;">
+      Mensaje:
+    </p>
+    <p style="margin: 0; font-size: 15px; color: #424242;">
+      <%= @message %>
+    </p>
+  </div>
+<% end %>
+
+<% @purchase.purchased_items.each_with_index do |item, index| %>
+  <div style="background-color: #fafafa; border: 2px solid #e0e0e0; border-radius: 8px; padding: 30px; margin-bottom: 30px;">
+    <table role="presentation" style="width: 100%; border-collapse: collapse;">
+      <tr>
+        <td style="padding-bottom: 20px; border-bottom: 2px solid #e0e0e0;">
+          <h3 style="margin: 0 0 10px 0; font-size: 18px; font-weight: 600; color: #1a1a1a;">
+            <%= item.purchased_item.title %>
+          </h3>
+          <p style="margin: 0; font-size: 14px; color: #757575;">
+            Ticket #<%= index + 1 %>
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding-top: 20px; padding-bottom: 20px;">
+          <% if item.purchased_item.after_purchase_message.present? %>
+            <div style="background-color: #fff; border-left: 3px solid #2196f3; padding: 12px 15px; margin-bottom: 20px; border-radius: 3px;">
+              <p style="margin: 0; font-size: 14px; color: #333333; font-weight: 500;">
+                <%= item.purchased_item.after_purchase_message %>
+              </p>
+            </div>
+          <% end %>
+          
+          <table role="presentation" style="margin-bottom: 20px;">
+            <tr>
+              <td style="padding-bottom: 10px;">
+                <p style="margin: 0; font-size: 15px; color: #555555;">
+                  <strong style="color: #1a1a1a;">📅 Fecha:</strong> <%= item.purchased_item.event.event_start %>
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding-bottom: 10px;">
+                <p style="margin: 0; font-size: 15px; color: #555555;">
+                  <strong style="color: #1a1a1a;">🌍 Zona horaria:</strong> <%= item.purchased_item.event.timezone %>
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td>
+                <p style="margin: 0; font-size: 15px; color: #555555;">
+                  <strong style="color: #1a1a1a;">📍 Ubicación:</strong> <%= item.purchased_item.event.location %>
+                </p>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+      <tr>
+        <td style="text-align: center; padding-top: 20px; border-top: 2px solid #e0e0e0;">
+          <p style="margin: 0 0 15px 0; font-size: 14px; font-weight: 600; color: #1a1a1a; text-transform: uppercase; letter-spacing: 0.5px;">
+            Tu código QR
+          </p>
+          <div style="background-color: #ffffff; display: inline-block; padding: 15px; border-radius: 8px; border: 2px solid #e0e0e0;">
+            <%= image_tag(item.qr, alt: "QR Code", style: "display: block; max-width: 200px; height: auto;") %>
+          </div>
+          <p style="margin: 15px 0 0 0; font-size: 13px; color: #757575;">
+            Presenta este código al ingresar al evento
+          </p>
+        </td>
+      </tr>
+    </table>
+  </div>
+<% end %>
+
+<table role="presentation" style="width: 100%; margin-top: 30px;">
+  <tr>
+    <td style="text-align: center;">
+      <a href="<%= @url %>" style="display: inline-block; background-color: #2196f3; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 16px; font-weight: 600; text-align: center;">
+        Ver mis tickets en la web
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td style="padding-top: 20px; text-align: center;">
+      <p style="margin: 0; font-size: 13px; color: #757575;">
+        ¿Tienes problemas para acceder? Contáctanos en <%= mail_to ENV['EMAIL_ACCOUNT'] || 'support@rauversion.com', nil, style: 'color: #2196f3; text-decoration: none;' %>
+      </p>
+    </td>
+  </tr>
+</table>

@@ -1,9 +1,11 @@
 class PurchasesMailer < ApplicationMailer
   require "rqrcode"
 
-  def event_ticket_confirmation(purchase: )
+  def event_ticket_confirmation(purchase:, inviter: nil, message: nil)
     @purchase = purchase
     @event = @purchase.purchasable
+    @inviter = inviter
+    @message = message
 
     # @purchase.purchased_items.each do |purchased_item|
     #  qr_code = generate_qr_code(purchased_item)

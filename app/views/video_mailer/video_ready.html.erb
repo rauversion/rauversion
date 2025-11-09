@@ -1,9 +1,57 @@
-<p>Hello <%= @user.full_name || @user.email %>,</p>
 
-<p>Your video has been generated and is ready to download.</p>
 
-<p>
-  <a href="<%= @video_url %>">Download your video</a>
-</p>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f5f6f8;padding:24px 0;">
+    <tr>
+      <td align="center">
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:640px;background:#ffffff;border-radius:12px;overflow:hidden;box-shadow:0 2px 6px rgba(0,0,0,.06);" class="card">
+          <tr>
+            <td style="padding:24px 28px 0 28px;">
+              <!-- Optional logo: replace src if you have one -->
+              <!-- <img src="https://example.com/logo.png" alt="Your Brand" width="140" style="display:block;border:0;max-width:100%;"> -->
+            </td>
+          </tr>
 
-<p>Thank you for using our service!</p>
+          <tr>
+            <td style="padding:20px 28px 8px 28px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,'Helvetica Neue',Helvetica,sans-serif;color:#111827;line-height:1.6;" class="text">
+              <p style="margin:0 0 16px 0;font-size:16px;">
+                Hello <strong><%= @user.full_name || @user.email %></strong>,
+              </p>
+
+              <p style="margin:0 0 16px 0;font-size:16px;">
+                Your video has been generated and is ready to download.
+              </p>
+
+              <!-- Primary button -->
+              <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 20px 0;">
+                <tr>
+                  <td bgcolor="#111827" style="border-radius:8px;" class="btn">
+                    <a href="<%= @video_url %>"
+                       style="display:inline-block;padding:12px 18px;font-size:15px;font-weight:600;color:#ffffff;background:#111827;border-radius:8px;">
+                      Download your video
+                    </a>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Fallback link -->
+              <p style="margin:0 0 16px 0;font-size:13px;color:#6b7280;" class="muted">
+                If the button doesn’t work, copy and paste this URL into your browser:<br>
+                <a href="<%= @video_url %>" style="color:#2563eb;text-decoration:underline;"><%= @video_url %></a>
+              </p>
+
+              <p style="margin:20px 0 0 0;font-size:16px;">
+                Thank you for using our service!
+              </p>
+            </td>
+          </tr>
+
+          <tr>
+            <td style="padding:20px 28px 28px 28px;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,'Helvetica Neue',Helvetica,sans-serif;color:#6b7280;font-size:12px;line-height:1.5;" class="text">
+              <hr style="border:none;border-top:1px solid #e5e7eb;margin:0 0 12px 0;">
+              <p style="margin:0;">© <%= Time.current.year %> Your Company. All rights reserved.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>

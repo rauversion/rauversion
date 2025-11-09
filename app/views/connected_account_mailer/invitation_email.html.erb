@@ -1,0 +1,59 @@
+
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="max-width:620px; background:#ffffff; border-radius:12px; overflow:hidden; box-shadow:0 2px 6px rgba(0,0,0,.06);" class="card">
+  <!-- Header / Logo (optional) -->
+  <tr>
+    <td align="left" style="padding:24px 28px 0 28px;">
+    </td>
+  </tr>
+
+  <!-- Body -->
+  <tr>
+    <td style="padding:24px 28px 8px 28px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, 'Helvetica Neue', Helvetica, sans-serif; color:#111827; line-height:1.6;" class="text">
+      <p style="margin:0 0 16px 0; font-size:16px;">Dear <strong><%= @artist.full_name %></strong>,</p>
+
+      <p style="margin:0 0 16px 0; font-size:16px;">
+        We are delighted to extend an exclusive invitation for you to join
+        <strong>Label <%= @label.username %></strong> on the Rauversion platform.
+      </p>
+
+      <p style="margin:0 0 20px 0; font-size:16px;">
+        Please confirm your interest by clicking the button below:
+      </p>
+
+      <!-- Button -->
+      <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin:0 0 20px 0;">
+        <tr>
+          <td class="btn" bgcolor="#111827" style="border-radius:8px;">
+            <a href="<%= approve_account_connection_url(@connected_account.signed_id) %>"
+                style="display:inline-block; padding:12px 18px; font-size:15px; font-weight:600; color:#ffffff; background:#111827; border-radius:8px;">
+              Approve Account Connection
+            </a>
+          </td>
+        </tr>
+      </table>
+
+      <p style="margin:0 0 16px 0; font-size:16px;">
+        As a member of Label <strong><%= @label.username %></strong>, you will gain access to unique collaborative opportunities, promotional support, and a network of talented artists and industry professionals.
+      </p>
+
+      <p style="margin:0 0 16px 0; font-size:16px;">
+        If you have any questions or would like to discuss this opportunity further, please don’t hesitate to contact us.
+      </p>
+
+      <p style="margin:0 0 0 0; font-size:16px;">
+        Warm regards,<br>
+        The Rauversion Team
+      </p>
+    </td>
+  </tr>
+
+  <!-- Footer -->
+  <tr>
+    <td style="padding:20px 28px 28px 28px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, 'Helvetica Neue', Helvetica, sans-serif; color:#6b7280; font-size:12px; line-height:1.5;" class="text">
+      <hr style="border:none; border-top:1px solid #e5e7eb; margin:0 0 12px 0;">
+      <p style="margin:0 0 6px 0;">You’re receiving this because a label on Rauversion invited you to connect your artist account.</p>
+      <p style="margin:0;">© <%= Time.current.year %> Rauversion. All rights reserved.</p>
+    </td>
+  </tr>
+</table>
+
