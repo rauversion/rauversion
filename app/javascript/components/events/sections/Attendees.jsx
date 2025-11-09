@@ -42,7 +42,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Loader2, Download, Search, UserPlus, RefundIcon } from "lucide-react"
+import { Loader2, Download, Search, UserPlus, RotateCcw } from "lucide-react"
 import {Badge} from "@/components/ui/badge"
 import {
   AlertDialog,
@@ -425,7 +425,7 @@ export default function Attendees() {
                         <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
                         <>
-                          <RefundIcon className="h-4 w-4 mr-1" />
+                          <RotateCcw className="h-4 w-4 mr-1" />
                           Refund
                         </>
                       )}
