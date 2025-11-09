@@ -14,6 +14,16 @@ RSpec.describe EventAttendeesMailer, type: :mailer do
       )
     end
 
+    around do |example|
+      original_email_account = ENV['EMAIL_ACCOUNT']
+      ENV['EMAIL_ACCOUNT'] = "test@example.com"
+      begin
+        example.run
+      ensure
+        ENV['EMAIL_ACCOUNT'] = original_email_account
+      end
+    end
+
     it 'renders the headers' do
       expect(mail.subject).to eq("Event Attendees Export - #{event_title}")
       expect(mail.to).to eq([user_email])
