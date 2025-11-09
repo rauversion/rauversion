@@ -11,14 +11,8 @@ RSpec.describe EventAttendeesCsvExportJob, type: :job do
     purchase
   end
 
-  around do |example|
-    original_email_account = ENV['EMAIL_ACCOUNT']
-    ENV['EMAIL_ACCOUNT'] = "test@example.com"
-    begin
-      example.run
-    ensure
-      ENV['EMAIL_ACCOUNT'] = original_email_account
-    end
+  before :each do
+    allow_any_instance_of(EventAttendeesMailer).to receive(:default_email_account).and_return('test@example.com')
   end
 
   describe '#perform' do

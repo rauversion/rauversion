@@ -37,8 +37,6 @@ Shoulda::Matchers.configure do |config|
   end
 end
 
-ENV['EMAIL_ACCOUNT'] = "test@example.com"
-
 Dir[Rails.root.join("spec", "support", "**", "*.rb")].each { |f| require f }
 
 RSpec.configure do |config|
