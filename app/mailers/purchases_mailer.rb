@@ -9,6 +9,9 @@ class PurchasesMailer < ApplicationMailer
     #  qr_code = generate_qr_code(purchased_item)
     #  attachments["purchase_item_#{purchased_item.id}_qr_code.png"] = qr_code
     # end
+    # 
+    @url = tickets_purchases_url 
+
 
     mail(to: @purchase.user.email, subject: "Purchase Confirmation")
   end

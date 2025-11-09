@@ -275,7 +275,13 @@ Rails.application.routes.draw do
       end
     end
     resources :event_streaming_services, only: [:new, :update]
-    resources :event_attendees, only: [:index]
+    resources :event_attendees, only: [:index] do
+      collection do
+        get :export_csv
+        get :tickets
+        post :create_invitation
+      end
+    end
     resources :event_purchases do
       member do
         get :success
