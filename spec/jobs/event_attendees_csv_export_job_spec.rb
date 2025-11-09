@@ -11,10 +11,6 @@ RSpec.describe EventAttendeesCsvExportJob, type: :job do
     purchase
   end
 
-  before do
-    ENV['EMAIL_ACCOUNT'] = 'test@example.com'
-  end
-
   describe '#perform' do
     it 'sends an email with CSV attachment' do
       expect {
