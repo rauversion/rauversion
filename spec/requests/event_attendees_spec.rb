@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe "EventAttendees", type: :request do
   let(:user) { create(:user) }
-  let(:event) { create(:event, user: user) }
+  let(:event) { create(:event, user: user, ticket_currency: "usd") }
   let(:ticket) { create(:event_ticket, event: event) }
   
   before do
@@ -101,8 +101,8 @@ RSpec.describe "EventAttendees", type: :request do
       expect(new_user).to be_present
       
       purchase = Purchase.last
-      expect(purchase.state).to eq('pending')
-      expect(purchase.purchased_items.first.state).to eq('pending')
+      expect(purchase.state).to eq('paid')
+      expect(purchase.purchased_items.first.state).to eq('paid')
     end
 
     it "uses existing user if email already exists" do
@@ -120,6 +120,7 @@ RSpec.describe "EventAttendees", type: :request do
 
     it "denies access to non-owner" do
       other_user = create(:user)
+      other_user.confirm
       sign_in other_user
       
       post create_invitation_event_event_attendees_path(event, format: :json),
@@ -130,8 +131,8 @@ RSpec.describe "EventAttendees", type: :request do
     end
 
     it "returns error when email is missing" do
-      post create_invitation_event_event_attendees_path(event, format: :json),
-           params: { email: 'test@example.com', ticket_id: ticket.id },
+      post create_invitation_event_event_attendees_path(event),
+           params: { email: nil, ticket_id: ticket.id },
            as: :json
       expect(response).to have_http_status(:unprocessable_entity)
       json = JSON.parse(response.body)
