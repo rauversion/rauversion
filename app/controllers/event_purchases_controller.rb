@@ -1,6 +1,6 @@
 class EventPurchasesController < ApplicationController
   before_action :authenticate_user!
-
+  
   def new
     @event = Event.friendly.find(params[:event_id])
 
@@ -64,11 +64,35 @@ class EventPurchasesController < ApplicationController
 
     @purchase.virtual_purchased = selected_items
 
-    case @event.payment_gateway 
-    when "stripe", "none", nil then handle_stripe_session
-    when "transbank" then handle_tbk_session
+    # Check if mixing free and paid tickets
+    has_free_tickets = @purchase.virtual_purchased.any? { |item| item.resource.price.to_f == 0 }
+    has_paid_tickets = @purchase.virtual_purchased.any? { |item| item.resource.price.to_f > 0 }
+    
+    if has_free_tickets && has_paid_tickets
+      @purchase.errors.add(:base, "No se pueden comprar tickets gratuitos junto con tickets de pago. Por favor, realiza compras separadas.")
+      respond_to do |format|
+        format.html { render_blank }
+        format.json { render :create, status: :unprocessable_entity }
+      end
+      return
+    end
+
+    # Check if all tickets are free (total = 0)
+    total_amount = calculate_purchase_total(@purchase)
+    if total_amount == 0
+      handle_free_purchase
     else
-      raise "No payment gateway available for this event"
+      case @event.payment_gateway 
+      when "stripe", "none", nil then handle_stripe_session
+      when "transbank" then handle_tbk_session
+      else
+        raise "No payment gateway available for this event"
+      end
+    end
+
+    respond_to do |format|
+      format.html {render_blank}
+      format.json
     end
 
     #########
@@ -170,6 +194,27 @@ class EventPurchasesController < ApplicationController
   end
 
   private
+
+  def calculate_purchase_total(purchase)
+    purchase.virtual_purchased.sum do |virtual_item|
+      virtual_item.resource.price.to_f * virtual_item.quantity
+    end
+  end
+
+  def handle_free_purchase
+    ActiveRecord::Base.transaction do
+      @purchase.store_items
+      
+      if @purchase.save
+        @purchase.price = 0
+        @purchase.currency = @event.ticket_currency || "usd"
+        @purchase.complete_purchase!
+        # Don't set @payment_url - frontend will navigate to purchase page
+      else
+        raise ActiveRecord::Rollback
+      end
+    end
+  end
 
   def ticket_request_params
     params.require(:tickets).map do |ticket_param|

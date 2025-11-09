@@ -1,14 +1,17 @@
 class PurchasesMailer < ApplicationMailer
   require "rqrcode"
 
-  def event_ticket_confirmation
-    @purchase = params[:purchase]
+  def event_ticket_confirmation(purchase: )
+    @purchase = purchase
     @event = @purchase.purchasable
 
     # @purchase.purchased_items.each do |purchased_item|
     #  qr_code = generate_qr_code(purchased_item)
     #  attachments["purchase_item_#{purchased_item.id}_qr_code.png"] = qr_code
     # end
+    # 
+    @url = tickets_purchases_url 
+
 
     mail(to: @purchase.user.email, subject: "Purchase Confirmation")
   end

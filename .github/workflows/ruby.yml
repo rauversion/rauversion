@@ -52,4 +52,4 @@ jobs:
           bundle exec rake assets:precompile
       - name: Build and run tests
         run: |
-          bundle exec rspec ./spec
+          bundle exec rspec ./spec -fd
