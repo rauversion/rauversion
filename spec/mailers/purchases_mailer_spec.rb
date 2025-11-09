@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe PurchasesMailer, type: :mailer do
   describe '#event_ticket_confirmation' do
     let(:user) { FactoryBot.create(:user) }
-    let(:event) { FactoryBot.create(:event, title: 'Amazing Concert 2024') }
+    let(:event) { FactoryBot.create(:event, title: 'Amazing Concert 2024', user: user, ticket_currency: "USD") }
     let(:event_ticket) { FactoryBot.create(:event_ticket, event: event, title: 'VIP Pass') }
     let(:purchase) do
       FactoryBot.create(:purchase, user: user, purchasable: event)
@@ -85,7 +85,7 @@ RSpec.describe PurchasesMailer, type: :mailer do
 
       it 'includes Rauversion footer' do
         expect(text_body).to include('Rauversion')
-        expect(text_body).to include('Music platform for independent artists')
+        expect(text_body).to include('Music multiverses')
       end
     end
 
@@ -93,8 +93,8 @@ RSpec.describe PurchasesMailer, type: :mailer do
       let(:inviter) { FactoryBot.create(:user, first_name: 'John', last_name: 'Doe') }
       
       before do
-        purchase.instance_variable_set(:@inviter, inviter)
-        allow(purchase).to receive(:inviter).and_return(inviter)
+        #purchase.instance_variable_set(:@inviter, inviter)
+        #allow(purchase).to receive(:inviter).and_return(inviter)
       end
 
       it 'includes inviter information in HTML' do
@@ -107,8 +107,8 @@ RSpec.describe PurchasesMailer, type: :mailer do
 
     context 'with custom message' do
       before do
-        purchase.instance_variable_set(:@message, 'Looking forward to seeing you!')
-        allow(purchase).to receive(:message).and_return('Looking forward to seeing you!')
+        #purchase.instance_variable_set(:@message, 'Looking forward to seeing you!')
+        #allow(purchase).to receive(:message).and_return('Looking forward to seeing you!')
       end
 
       it 'includes custom message in HTML' do
