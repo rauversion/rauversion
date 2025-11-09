@@ -57,7 +57,7 @@ export default function EventShow() {
   const [event, setEvent] = useState(null)
   const [loading, setLoading] = useState(true)
   const [dialogOpen, setDialogOpen] = useState(false)
-  
+
   // Get ticket_token from URL params
   const searchParams = new URLSearchParams(window.location.search)
   const ticketToken = searchParams.get('ticket_token')
@@ -68,7 +68,7 @@ export default function EventShow() {
         const response = await fetch(`/events/${slug}.json`)
         const data = await response.json()
         setEvent(data)
-        
+
         // If there's a ticket_token in the URL, automatically open the purchase dialog
         if (ticketToken) {
           setDialogOpen(true)
