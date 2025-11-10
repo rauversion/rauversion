@@ -112,7 +112,7 @@ export default function EventEdit() {
         </Alert>
       )}
 
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex items-center justify-between px-2 md:px-0">
         <Breadcrumb className="flex items-center">
           <BreadcrumbItem>
             <BreadcrumbLink href="/events/mine">
