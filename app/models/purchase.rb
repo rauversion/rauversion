@@ -78,7 +78,8 @@ class Purchase < ApplicationRecord
         
         # Store price and currency at purchase time
         if a.resource.respond_to?(:price)
-          item_attrs[:price] = a.resource.price
+          # Use custom_price if available (for pay_what_you_want tickets), otherwise use resource price
+          item_attrs[:price] = a.custom_price.present? ? a.custom_price : a.resource.price
           
           # Determine currency based on resource type
           case a.resource

@@ -59,7 +59,17 @@ class EventPurchasesController < ApplicationController
       ticket = available_tickets_by_id[ticket_param[:id].to_i]
       next unless ticket
 
-      items << VirtualPurchasedItem.new(resource: ticket, quantity: quantity)
+      virtual_item_attrs = { resource: ticket, quantity: quantity }
+      
+      # For pay_what_you_want tickets, capture the custom price
+      if ticket.pay_what_you_want? && ticket_param[:custom_price].present?
+        custom_price = ticket_param[:custom_price].to_f
+        # Validate minimum price
+        minimum = ticket.minimum_price.to_f
+        virtual_item_attrs[:custom_price] = [custom_price, minimum].max
+      end
+      
+      items << VirtualPurchasedItem.new(virtual_item_attrs)
     end
 
     @purchase.virtual_purchased = selected_items
@@ -197,7 +207,9 @@ class EventPurchasesController < ApplicationController
 
   def calculate_purchase_total(purchase)
     purchase.virtual_purchased.sum do |virtual_item|
-      virtual_item.resource.price.to_f * virtual_item.quantity
+      # Use custom_price if available (for PWYW tickets), otherwise use resource price
+      price = virtual_item.custom_price.present? ? virtual_item.custom_price : virtual_item.resource.price.to_f
+      price * virtual_item.quantity
     end
   end
 
