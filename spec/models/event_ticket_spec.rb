@@ -13,10 +13,12 @@ RSpec.describe EventTicket, type: :model do
 
     context "when ticket has no purchased_items" do
       it "soft deletes the ticket" do
-        expect {
+        event_ticket
+        expect(EventTicket.count).to eq(1)
+        #expect {
           event_ticket.destroy
-        }.to change { EventTicket.count }.by(-1)
-        
+        #}.to change { EventTicket.count }.by(-1)
+        expect(EventTicket.count).to eq(0)
         expect(event_ticket.deleted?).to be true
         expect(EventTicket.with_deleted.find_by(id: event_ticket.id)).to eq(event_ticket)
       end
@@ -98,12 +100,11 @@ RSpec.describe EventTicket, type: :model do
       it "can restore a soft deleted ticket" do
         event_ticket.destroy
         expect(EventTicket.find_by(id: event_ticket.id)).to be_nil
-        
         ticket_with_deleted = EventTicket.with_deleted.find(event_ticket.id)
         ticket_with_deleted.restore
         
         expect(EventTicket.find(event_ticket.id)).to eq(event_ticket)
-        expect(event_ticket.deleted?).to be false
+        expect(event_ticket.reload.deleted?).to be false
       end
     end
   end
