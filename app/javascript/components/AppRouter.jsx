@@ -52,6 +52,7 @@ import Tickets from "./events/sections/Tickets"
 import Streaming from "./events/sections/Streaming"
 import Attendees from "./events/sections/Attendees"
 import Recordings from "./events/sections/Recordings"
+import Reports from "./events/sections/Reports"
 import Settings from "./events/sections/Settings"
 import { Toaster } from "@/components/ui/toaster"
 import { useToast } from '@/hooks/use-toast'
@@ -245,6 +246,7 @@ function AppContent() {
             <Route path="streaming" element={<Streaming />} />
             <Route path="attendees" element={<Attendees />} />
             <Route path="recordings" element={<Recordings />} />
+            <Route path="reports" element={<Reports />} />
             <Route path="settings" element={<Settings />} />
           </Route>
 

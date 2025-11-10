@@ -634,6 +634,33 @@ es:
           delete_error: No se pudo eliminar la grabación
           delete_confirm: ¿Estás seguro de que deseas eliminar esta grabación?
           general_error: Algo salió mal
+      reports:
+        title: Reportes
+        description: Ver estadísticas de ventas e ingresos de tu evento
+        loading: Cargando reportes...
+        total_revenue: Ingresos Totales
+        total_revenue_description: Ingresos pagados y pendientes combinados
+        total_orders: Órdenes Totales
+        total_orders_description: Todas las órdenes de tickets
+        orders: órdenes
+        event_status:
+          title: Estado del Evento
+          upcoming: Próximo
+          in_progress: En Progreso
+          ended: Finalizado
+        payout_date:
+          title: Próximo Pago
+          pending: Pendiente
+          description: Después de la finalización del evento
+        status:
+          paid: Pagado
+          pending: Pendiente
+          refunded: Reembolsado
+        charts:
+          revenue_by_status: Ingresos por Estado
+          revenue_description: Monto total por estado de pago
+          orders_distribution: Distribución de Órdenes
+          orders_description: Número de órdenes por estado
       teams:
 
         title: Equipos y Gestores

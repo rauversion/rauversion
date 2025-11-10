@@ -18,6 +18,7 @@ import {
   Users2,
   Mic2,
   LayoutDashboard,
+  BarChart3,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -76,6 +77,12 @@ export default function EventEdit() {
       icon: Mic2,
       path: "recordings",
       description: i18n.t("events.edit.recordings.description"),
+    },
+    {
+      title: i18n.t("events.edit.reports.title"),
+      icon: BarChart3,
+      path: "reports",
+      description: i18n.t("events.edit.reports.description"),
     },
     {
       title: i18n.t("events.edit.settings.title"),
