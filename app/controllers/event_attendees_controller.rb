@@ -96,7 +96,9 @@ class EventAttendeesController < ApplicationController
     # Create purchased item
     purchase.purchased_items.build(
       purchased_item: ticket,
-      state: 'pending'
+      state: 'pending',
+      price: ticket.price,
+      currency: @event.ticket_currency || 'usd'
     )
 
     if purchase.save

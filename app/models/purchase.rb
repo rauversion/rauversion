@@ -74,7 +74,15 @@ class Purchase < ApplicationRecord
   def store_items
     virtual_purchased.each do |a|
       a.quantity.times.each do
-        purchased_items << PurchasedItem.new(purchased_item: a.resource)
+        item_attrs = { purchased_item: a.resource }
+        
+        # Store price and currency at purchase time for EventTickets
+        if a.resource.is_a?(EventTicket)
+          item_attrs[:price] = a.resource.price
+          item_attrs[:currency] = a.resource.event.ticket_currency || 'usd'
+        end
+        
+        purchased_items << PurchasedItem.new(item_attrs)
       end
     end
   end
