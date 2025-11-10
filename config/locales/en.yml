@@ -425,6 +425,7 @@ en:
           ticket: Entry
           status: State
           purchase_date: Date of Purchase
+          amount: Amount
           actions: Actions
         title: Attendees to the Event
         description: View and manage event attendees

@@ -425,6 +425,7 @@ es:
           status: Estado
           attendee: Asistente
           purchase_date: Fecha de Compra
+          amount: Monto
           actions: Acciones
         status:
           attending: Asistiendo

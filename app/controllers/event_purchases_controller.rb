@@ -218,7 +218,7 @@ class EventPurchasesController < ApplicationController
 
   def ticket_request_params
     params.require(:tickets).map do |ticket_param|
-      ticket_param.permit(:id, :quantity)
+      ticket_param.permit(:id, :quantity, :custom_price)
     end
   end
 end
