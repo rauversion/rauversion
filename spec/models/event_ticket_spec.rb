@@ -6,6 +6,108 @@ RSpec.describe EventTicket, type: :model do
   xit { should have_many(:purchased_tickets) }
   xit { should have_many(:paid_tickets) }
 
+  describe "soft delete with paranoia" do
+    let(:user) { FactoryBot.create(:user) }
+    let(:event) { FactoryBot.create(:event, user: user) }
+    let(:event_ticket) { FactoryBot.create(:event_ticket, event: event) }
+
+    context "when ticket has no purchased_items" do
+      it "soft deletes the ticket" do
+        expect {
+          event_ticket.destroy
+        }.to change { EventTicket.count }.by(-1)
+        
+        expect(event_ticket.deleted?).to be true
+        expect(EventTicket.with_deleted.find_by(id: event_ticket.id)).to eq(event_ticket)
+      end
+    end
+
+    context "when ticket has purchased_items" do
+      let(:purchase) { FactoryBot.create(:purchase, user: user, purchasable: event) }
+      let!(:purchased_item) do
+        FactoryBot.create(:purchased_item,
+          purchase: purchase,
+          purchased_item: event_ticket,
+          price: event_ticket.price,
+          currency: 'usd'
+        )
+      end
+
+      it "soft deletes the ticket instead of hard deleting" do
+        expect {
+          event_ticket.destroy
+        }.to change { EventTicket.count }.by(-1)
+        
+        expect(event_ticket.deleted?).to be true
+        expect(EventTicket.with_deleted.find_by(id: event_ticket.id)).to eq(event_ticket)
+      end
+
+      it "preserves purchased_items associations after soft delete" do
+        event_ticket.destroy
+        
+        # Should be able to access purchased_items through with_deleted scope
+        ticket_with_deleted = EventTicket.with_deleted.find(event_ticket.id)
+        expect(ticket_with_deleted.purchased_items).to include(purchased_item)
+      end
+
+      it "does not return soft deleted tickets in default scope" do
+        ticket_id = event_ticket.id
+        event_ticket.destroy
+        
+        expect(EventTicket.find_by(id: ticket_id)).to be_nil
+        expect(EventTicket.with_deleted.find_by(id: ticket_id)).not_to be_nil
+      end
+    end
+
+    context "when deleting through nested attributes" do
+      let(:purchase) { FactoryBot.create(:purchase, user: user, purchasable: event) }
+      let!(:purchased_item) do
+        FactoryBot.create(:purchased_item,
+          purchase: purchase,
+          purchased_item: event_ticket,
+          price: event_ticket.price,
+          currency: 'usd'
+        )
+      end
+
+      it "soft deletes ticket when using nested attributes with _destroy flag" do
+        expect {
+          event.update(
+            event_tickets_attributes: [
+              { id: event_ticket.id, _destroy: '1' }
+            ]
+          )
+        }.to change { EventTicket.count }.by(-1)
+        
+        ticket_with_deleted = EventTicket.with_deleted.find(event_ticket.id)
+        expect(ticket_with_deleted.deleted?).to be true
+      end
+    end
+
+    context "restoration" do
+      let(:purchase) { FactoryBot.create(:purchase, user: user, purchasable: event) }
+      let!(:purchased_item) do
+        FactoryBot.create(:purchased_item,
+          purchase: purchase,
+          purchased_item: event_ticket,
+          price: event_ticket.price,
+          currency: 'usd'
+        )
+      end
+
+      it "can restore a soft deleted ticket" do
+        event_ticket.destroy
+        expect(EventTicket.find_by(id: event_ticket.id)).to be_nil
+        
+        ticket_with_deleted = EventTicket.with_deleted.find(event_ticket.id)
+        ticket_with_deleted.restore
+        
+        expect(EventTicket.find(event_ticket.id)).to eq(event_ticket)
+        expect(event_ticket.deleted?).to be false
+      end
+    end
+  end
+
   describe "validations" do
     let(:user) { FactoryBot.create(:user) }
     let(:event) { FactoryBot.create(:event, user: user) }

@@ -55,6 +55,23 @@ RSpec.describe Event, type: :model do
         expect(event.available_tickets(2.day.from_now)).to be_any
         expect(event.available_tickets(Time.now)).to be_empty
       end
+
+      it "does not include soft-deleted tickets in available_tickets" do
+        ticket1 = FactoryBot.create(:event_ticket, event: event, selling_start: 1.day.ago, selling_end: 3.days.from_now)
+        ticket2 = FactoryBot.create(:event_ticket, event: event, selling_start: 1.day.ago, selling_end: 3.days.from_now)
+        
+        expect(event.available_tickets).to include(ticket1, ticket2)
+        
+        # Soft delete ticket1
+        ticket1.destroy
+        
+        # Reload to get fresh association
+        event.reload
+        available = event.available_tickets
+        
+        expect(available).to include(ticket2)
+        expect(available).not_to include(ticket1)
+      end
     end
   end
 
