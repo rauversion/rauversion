@@ -43,7 +43,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { Loader2, Download, Search, UserPlus, RotateCcw } from "lucide-react"
-import {Badge} from "@/components/ui/badge"
+import { Badge } from "@/components/ui/badge"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -85,9 +85,11 @@ export default function Attendees() {
     items: attendees,
     loading,
     lastElementRef,
-    resetList
+    resetList,
+    fetchItems
   } = useInfiniteScroll(`/events/${slug}/event_attendees.json${searchParams}`)
 
+  window.resetList = resetList // For debugging purposes
   const form = useForm({
     resolver: zodResolver(searchSchema),
     defaultValues: {
@@ -126,7 +128,7 @@ export default function Attendees() {
     if (data.status !== "all") params.append("status", data.status)
     const queryString = params.toString()
     setSearchParams(queryString ? `?${queryString}` : "")
-    resetList()
+    fetchItems()
   }
 
   const handleExportCSV = async () => {
@@ -166,7 +168,7 @@ export default function Attendees() {
         })
         setIsInviteDialogOpen(false)
         inviteForm.reset()
-        resetList()
+        fetchItems()
       } else {
         const errorData = await response.json
         toast({
@@ -200,7 +202,7 @@ export default function Attendees() {
           description: "The ticket has been refunded successfully.",
         })
         setRefundConfirmItem(null)
-        resetList()
+        fetchItems()
       } else {
         const errorData = await response.json
         toast({
@@ -377,8 +379,8 @@ export default function Attendees() {
           </TableHeader>
           <TableBody>
             {attendees.map((item, index) => (
-              <TableRow 
-                key={item.id} 
+              <TableRow
+                key={item.id}
                 ref={index === attendees.length - 1 ? lastElementRef : null}
               >
                 <TableCell>
@@ -396,7 +398,7 @@ export default function Attendees() {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge 
+                  <Badge
                     variant="secondary"
                     className={attendeeStatuses[item.state]?.color || 'bg-gray-500'}
                   >
