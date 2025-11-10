@@ -9,8 +9,8 @@ json.collection @purchased_items do |item|
   json.event_ticket do
     json.id purchased_item.id
     json.title purchased_item.title
-    json.price purchased_item.price
-    # json.currency purchase.event_ticket.currency
+    json.price item.price || purchased_item.price
+    json.currency item.currency
   end
 
   json.user do
