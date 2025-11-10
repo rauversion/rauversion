@@ -47,25 +47,18 @@ export default function Reports() {
     try {
       setLoading(true)
       
-      // For now, we'll use mock data since the backend endpoint doesn't exist yet
-      // TODO: Replace with actual API call when backend is ready
-      // const response = await get(`/events/${slug}/reports`)
-      // const data = await response.json
+      const response = await get(`/events/${slug}/event_reports/general_stats`)
+      const data = await response.json
       
-      // Mock data for demonstration
-      setTimeout(() => {
+      if (response.ok) {
         setStats({
-          paid: { count: 45, total: 4500 },
-          pending: { count: 12, total: 1200 },
-          refunded: { count: 3, total: 300 },
+          paid: data.paid,
+          pending: data.pending,
+          refunded: data.refunded,
         })
-        setEvent({
-          title: "Demo Event",
-          event_start: new Date().toISOString(),
-          event_ends: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-        })
-        setLoading(false)
-      }, 500)
+        setEvent(data.event)
+      }
+      setLoading(false)
     } catch (error) {
       console.error("Error fetching reports data:", error)
       setLoading(false)
