@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe "EventPurchases", type: :request do
   let(:user) { FactoryBot.create(:user) }
-  let(:event) { FactoryBot.create(:event, user: user, state: "published") }
+  let(:event) { FactoryBot.create(:event, user: user, state: "published", ticket_currency: "USD") }
 
   before do
     user.confirm
@@ -136,12 +136,14 @@ RSpec.describe "EventPurchases", type: :request do
       )
 
       expect {
-        post event_event_purchases_path(event), params: {
-          format: :json,
-          tickets: [
-            { id: pwyw_ticket.id, quantity: 2, custom_price: 15.0 }
-          ]
-        }
+        perform_enqueued_jobs do
+          post event_event_purchases_path(event), params: {
+            format: :json,
+            tickets: [
+              { id: pwyw_ticket.id, quantity: 2, custom_price: 15.0 }
+            ]
+          }
+        end 
       }.to change(Purchase, :count).by(1)
         .and change(PurchasedItem, :count).by(2)
 
