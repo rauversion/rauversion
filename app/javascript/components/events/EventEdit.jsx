@@ -105,8 +105,8 @@ export default function EventEdit() {
             {typeof errors === "string"
               ? errors
               : Object.entries(errors).map(([key, value]) => (
-                  <div key={key}>{`${key}: ${value}`}</div>
-                ))}
+                <div key={key}>{`${key}: ${value}`}</div>
+              ))}
           </AlertDescription>
         </Alert>
       )}
@@ -133,7 +133,7 @@ export default function EventEdit() {
               const isSelected =
                 item.path === ""
                   ? location.pathname === `/events/${slug}` ||
-                    location.pathname === `/events/${slug}/edit`
+                  location.pathname === `/events/${slug}/edit`
                   : location.pathname.endsWith(`/${item.path}`);
 
               return (

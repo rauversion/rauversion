@@ -46,10 +46,10 @@ export default function Reports() {
   const fetchReportsData = async () => {
     try {
       setLoading(true)
-      
+
       const response = await get(`/events/${slug}/event_reports/general_stats`)
       const data = await response.json
-      
+
       if (response.ok) {
         setStats({
           paid: data.paid,
@@ -233,7 +233,7 @@ export default function Reports() {
       </Card>
 
       {/* Charts */}
-      <div className="grid gap-4 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-1">
         {/* Bar Chart - Revenue by Status */}
         <Card>
           <CardHeader>
