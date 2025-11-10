@@ -241,14 +241,14 @@ export default function Tickets() {
     try {
       const response = await get(`/events/${slug}/event_tickets/${ticketId}/secret_link.json`)
       const data = await response.json
-      
+
       if (data.secret_url) {
         // Copy to clipboard
         await navigator.clipboard.writeText(data.secret_url)
-        
+
         setCopiedTicketId(ticketId)
         setTimeout(() => setCopiedTicketId(null), 2000)
-        
+
         toast({
           title: I18n.t('events.edit.tickets.messages.link_copied', { defaultValue: 'Link Copied!' }),
           description: I18n.t('events.edit.tickets.messages.link_copied_description', { defaultValue: 'The secret link has been copied to your clipboard. Share it with the people you want to have access to this ticket.' }),

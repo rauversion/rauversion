@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_06_020212) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_09_221908) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -693,9 +693,12 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_06_020212) do
     t.string "state"
     t.boolean "checked_in"
     t.datetime "checked_in_at"
+    t.datetime "refunded_at"
+    t.string "refund_id"
     t.index ["checked_in"], name: "index_purchased_items_on_checked_in"
     t.index ["purchase_id"], name: "index_purchased_items_on_purchase_id"
     t.index ["purchased_item_type", "purchased_item_id"], name: "index_purchased_items_on_purchased_item"
+    t.index ["refund_id"], name: "index_purchased_items_on_refund_id"
     t.index ["state"], name: "index_purchased_items_on_state"
   end
 
