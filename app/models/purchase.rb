@@ -74,7 +74,25 @@ class Purchase < ApplicationRecord
   def store_items
     virtual_purchased.each do |a|
       a.quantity.times.each do
-        purchased_items << PurchasedItem.new(purchased_item: a.resource)
+        item_attrs = { purchased_item: a.resource }
+        
+        # Store price and currency at purchase time
+        if a.resource.respond_to?(:price)
+          item_attrs[:price] = a.resource.price
+          
+          # Determine currency based on resource type
+          case a.resource
+          when EventTicket
+            item_attrs[:currency] = a.resource.event.ticket_currency || 'usd'
+          when Track, Product
+            # Tracks and Products typically use USD or could have their own currency field
+            item_attrs[:currency] = self.currency || 'usd'
+          else
+            item_attrs[:currency] = 'usd'
+          end
+        end
+        
+        purchased_items << PurchasedItem.new(item_attrs)
       end
     end
   end

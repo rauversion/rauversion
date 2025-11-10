@@ -373,7 +373,8 @@ export default function Attendees() {
               <TableHead>{I18n.t('events.edit.attendees.table.ticket')}</TableHead>
               <TableHead>{I18n.t('events.edit.attendees.table.status')}</TableHead>
               <TableHead>{I18n.t('events.edit.attendees.table.purchase_date')}</TableHead>
-              <TableHead className="w-[50px]"></TableHead>
+              <TableHead>{I18n.t('events.edit.attendees.table.amount')}</TableHead>
+
               <TableHead className="w-[100px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
@@ -436,6 +437,9 @@ export default function Attendees() {
                   {item.state === 'refunded' && (
                     <span className="text-sm text-muted-foreground">Refunded</span>
                   )}
+                </TableCell>
+                <TableCell>
+                  {item.price} {item.currency}
                 </TableCell>
               </TableRow>
             ))}

@@ -37,6 +37,8 @@ module PaymentProviders
       line_items = build_line_items
       total = calculate_total(line_items)
 
+      Rails.logger.info("Stripe Checkout Line Items: #{line_items.inspect}")
+
       {
         payment_method_types: ["card"],
         line_items: line_items,

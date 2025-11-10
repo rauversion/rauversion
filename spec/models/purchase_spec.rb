@@ -19,11 +19,21 @@ RSpec.describe Purchase, type: :model do
       expect(purchase).to be_persisted
       expect(purchase.purchased_items.count).to eq(2)
       expect(purchase.purchased_items.all? { |item| item.purchased_item == free_ticket }).to be true
+      
+      # Verify price and currency are stored
+      purchase.purchased_items.each do |item|
+        expect(item.price).to eq(free_ticket.price)
+        expect(item.currency).to eq(event.ticket_currency || 'usd')
+      end
     end
 
     it "completes purchase for free tickets without payment processing" do
       purchase = user.purchases.create!(purchasable: event, price: 0, currency: 'usd')
-      purchase.purchased_items.create!(purchased_item: free_ticket)
+      purchase.purchased_items.create!(
+        purchased_item: free_ticket,
+        price: free_ticket.price,
+        currency: event.ticket_currency || 'usd'
+      )
       
       expect(purchase.state).to eq('pending')
       
@@ -83,6 +93,23 @@ RSpec.describe Purchase, type: :model do
       expect(purchase).to_not be_persisted
       # expect(purchase.purchased_items.size).to eq(3)
     end
+
+    it "stores price and currency when creating purchased items for paid tickets" do
+      ticket = FactoryBot.create(:event_ticket, event: event, qty: 5, price: 50.0)
+      purchase = user.purchases.new(purchasable: event)
+      purchase.virtual_purchased = [VirtualPurchasedItem.new(resource: ticket, quantity: 2)]
+      purchase.store_items
+      purchase.save!
+
+      expect(purchase).to be_persisted
+      expect(purchase.purchased_items.count).to eq(2)
+      
+      # Verify that each purchased item has the correct price and currency stored
+      purchase.purchased_items.each do |item|
+        expect(item.price).to eq(50.0)
+        expect(item.currency).to eq(event.ticket_currency || 'usd')
+      end
+    end
   end
 
   describe "background processing" do
@@ -94,7 +121,11 @@ RSpec.describe Purchase, type: :model do
     it "enqueues and performs ProcessPurchaseJob which decrements ticket qty and enqueues mail" do
       ticket = FactoryBot.create(:event_ticket, event: event, qty: 5)
       purchase = FactoryBot.create(:purchase, user: user, purchasable: event)
-      purchase.purchased_items.create!(purchased_item: ticket)
+      purchase.purchased_items.create!(
+        purchased_item: ticket,
+        price: ticket.price,
+        currency: event.ticket_currency || 'usd'
+      )
 
       # Execute the job inline for test to verify side effects
       perform_enqueued_jobs do

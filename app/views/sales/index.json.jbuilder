@@ -50,6 +50,9 @@ json.collection @collection do |sale|
       json.description sale.purchased_item.description
       json.cover_url sale.purchased_item.cover_url(:small)
     end
+    
+    json.price sale.price
+    json.currency sale.currency
 
     json.purchase do
       json.id sale.purchase.id
