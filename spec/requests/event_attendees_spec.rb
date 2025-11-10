@@ -148,4 +148,131 @@ RSpec.describe "EventAttendees", type: :request do
       expect(json['errors']).to include('Ticket not found')
     end
   end
+
+  describe "POST /events/:event_id/event_attendees/:id/refund" do
+    let!(:paid_item) do
+      purchase = create(:purchase, user: user, purchasable: event, state: 'paid', checkout_type: 'stripe', checkout_id: 'cs_test_123')
+      create(:purchased_item, purchase: purchase, purchased_item: ticket, state: 'paid')
+    end
+
+    before do
+      # Mock Stripe calls
+      allow(Stripe::Checkout::Session).to receive(:retrieve).and_return(
+        double(payment_intent: 'pi_test_123')
+      )
+      allow(Stripe::Refund).to receive(:create).and_return(
+        double(id: 'ref_test_123')
+      )
+    end
+
+    it "processes refund for a paid ticket" do
+      initial_qty = ticket.qty
+      
+      post refund_event_event_attendee_path(event, paid_item), as: :json
+      
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+      expect(json['message']).to include('Refund processed')
+      
+      paid_item.reload
+      expect(paid_item.state).to eq('refunded')
+      expect(paid_item.refunded_at).to be_present
+      expect(paid_item.refund_id).to eq('ref_test_123')
+      
+      ticket.reload
+      expect(ticket.qty).to eq(initial_qty + 1)
+    end
+
+    it "denies refund for already refunded ticket" do
+      paid_item.refund!
+      paid_item.update(refunded_at: Time.current)
+      
+      post refund_event_event_attendee_path(event, paid_item), as: :json
+      
+      expect(response).to have_http_status(:unprocessable_entity)
+      json = JSON.parse(response.body)
+      expect(json['errors']).to include('This ticket has already been refunded')
+    end
+
+    it "denies refund for pending ticket" do
+      pending_item = create(:purchased_item, 
+                           purchase: create(:purchase, user: user, purchasable: event, state: 'pending'),
+                           purchased_item: ticket, 
+                           state: 'pending')
+      
+      post refund_event_event_attendee_path(event, pending_item), as: :json
+      
+      expect(response).to have_http_status(:unprocessable_entity)
+      json = JSON.parse(response.body)
+      expect(json['errors']).to include('Only paid tickets can be refunded')
+    end
+
+    it "denies access to non-owner" do
+      other_user = create(:user)
+      other_user.confirm
+      sign_in other_user
+      
+      post refund_event_event_attendee_path(event, paid_item), as: :json
+      
+      expect(response).to have_http_status(:unauthorized)
+    end
+
+    it "handles Stripe errors gracefully" do
+      allow(Stripe::Refund).to receive(:create).and_raise(
+        Stripe::StripeError.new("Test error")
+      )
+      
+      post refund_event_event_attendee_path(event, paid_item), as: :json
+      
+      expect(response).to have_http_status(:unprocessable_entity)
+      json = JSON.parse(response.body)
+      expect(json['errors'].first).to include('Refund failed')
+    end
+
+    it "processes refund with CLP currency correctly (zero-decimal)" do
+      # Create event with CLP currency
+      clp_event = create(:event, user: user, ticket_currency: "clp")
+      clp_ticket = create(:event_ticket, event: clp_event, price: 50000)
+      clp_purchase = create(:purchase, user: user, purchasable: clp_event, state: 'paid', 
+                            checkout_type: 'stripe', checkout_id: 'cs_test_clp', currency: 'clp')
+      clp_paid_item = create(:purchased_item, purchase: clp_purchase, 
+                             purchased_item: clp_ticket, state: 'paid')
+
+      # Mock Stripe calls
+      allow(Stripe::Checkout::Session).to receive(:retrieve).and_return(
+        double(payment_intent: 'pi_test_clp')
+      )
+      
+      # Verify that Stripe::Refund.create is called with the correct amount (no * 100 for CLP)
+      expect(Stripe::Refund).to receive(:create).with(
+        hash_including(amount: 50000)  # Should be 50000, not 5000000
+      ).and_return(double(id: 'ref_test_clp'))
+      
+      post refund_event_event_attendee_path(clp_event, clp_paid_item), as: :json
+      
+      expect(response).to have_http_status(:ok)
+    end
+
+    it "processes refund with USD currency correctly (with cents)" do
+      # Purchase already has usd currency by default
+      usd_ticket_with_price = create(:event_ticket, event: event, price: 50.00)
+      usd_purchase = create(:purchase, user: user, purchasable: event, state: 'paid',
+                            checkout_type: 'stripe', checkout_id: 'cs_test_usd', currency: 'usd')
+      usd_paid_item = create(:purchased_item, purchase: usd_purchase,
+                             purchased_item: usd_ticket_with_price, state: 'paid')
+
+      allow(Stripe::Checkout::Session).to receive(:retrieve).and_return(
+        double(payment_intent: 'pi_test_usd')
+      )
+      
+      # Verify that Stripe::Refund.create is called with amount in cents for USD
+      expect(Stripe::Refund).to receive(:create).with(
+        hash_including(amount: 5000)  # Should be 5000 cents = $50.00
+      ).and_return(double(id: 'ref_test_usd'))
+      
+      post refund_event_event_attendee_path(event, usd_paid_item), as: :json
+      
+      expect(response).to have_http_status(:ok)
+    end
+  end
 end
