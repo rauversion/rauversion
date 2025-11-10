@@ -76,10 +76,20 @@ class Purchase < ApplicationRecord
       a.quantity.times.each do
         item_attrs = { purchased_item: a.resource }
         
-        # Store price and currency at purchase time for EventTickets
-        if a.resource.is_a?(EventTicket)
+        # Store price and currency at purchase time
+        if a.resource.respond_to?(:price)
           item_attrs[:price] = a.resource.price
-          item_attrs[:currency] = a.resource.event.ticket_currency || 'usd'
+          
+          # Determine currency based on resource type
+          case a.resource
+          when EventTicket
+            item_attrs[:currency] = a.resource.event.ticket_currency || 'usd'
+          when Track, Product
+            # Tracks and Products typically use USD or could have their own currency field
+            item_attrs[:currency] = self.currency || 'usd'
+          else
+            item_attrs[:currency] = 'usd'
+          end
         end
         
         purchased_items << PurchasedItem.new(item_attrs)
