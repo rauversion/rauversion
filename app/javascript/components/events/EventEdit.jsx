@@ -18,6 +18,7 @@ import {
   Users2,
   Mic2,
   LayoutDashboard,
+  BarChart3,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -78,6 +79,12 @@ export default function EventEdit() {
       description: i18n.t("events.edit.recordings.description"),
     },
     {
+      title: i18n.t("events.edit.reports.title"),
+      icon: BarChart3,
+      path: "reports",
+      description: i18n.t("events.edit.reports.description"),
+    },
+    {
       title: i18n.t("events.edit.settings.title"),
       icon: Settings,
       path: "settings",
@@ -98,8 +105,8 @@ export default function EventEdit() {
             {typeof errors === "string"
               ? errors
               : Object.entries(errors).map(([key, value]) => (
-                  <div key={key}>{`${key}: ${value}`}</div>
-                ))}
+                <div key={key}>{`${key}: ${value}`}</div>
+              ))}
           </AlertDescription>
         </Alert>
       )}
@@ -126,7 +133,7 @@ export default function EventEdit() {
               const isSelected =
                 item.path === ""
                   ? location.pathname === `/events/${slug}` ||
-                    location.pathname === `/events/${slug}/edit`
+                  location.pathname === `/events/${slug}/edit`
                   : location.pathname.endsWith(`/${item.path}`);
 
               return (

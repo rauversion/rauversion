@@ -285,6 +285,7 @@ Rails.application.routes.draw do
         post :refund
       end
     end
+    resources :event_reports, only: [:show]
     resources :event_purchases do
       member do
         get :success

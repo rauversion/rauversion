@@ -576,6 +576,33 @@ en:
           delete_error: It was not possible to delete the recording
           delete_confirm: Are you sure you want to delete this recording?
           general_error: Something went wrong
+      reports:
+        title: Reports
+        description: View sales and revenue statistics for your event
+        loading: Loading reports...
+        total_revenue: Total Revenue
+        total_revenue_description: Combined paid and pending revenue
+        total_orders: Total Orders
+        total_orders_description: All ticket orders
+        orders: orders
+        event_status:
+          title: Event Status
+          upcoming: Upcoming
+          in_progress: In Progress
+          ended: Ended
+        payout_date:
+          title: Next Payout
+          pending: Pending
+          description: After event completion
+        status:
+          paid: Paid
+          pending: Pending
+          refunded: Refunded
+        charts:
+          revenue_by_status: Revenue by Status
+          revenue_description: Total amount by payment status
+          orders_distribution: Orders Distribution
+          orders_description: Number of orders by status
       teams:
         title: Teams and Managers
         description: Manage team members and roles
