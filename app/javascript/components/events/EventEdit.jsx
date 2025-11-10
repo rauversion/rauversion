@@ -29,6 +29,7 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import MobileSheetMenu from "@/components/shared/MobileSheetMenu";
 
 export default function EventEdit() {
   const { slug } = useParams();
@@ -111,21 +112,37 @@ export default function EventEdit() {
         </Alert>
       )}
 
-      <Breadcrumb className="mb-6 flex items-center">
-        <BreadcrumbItem>
-          <BreadcrumbLink href="/events/mine">
-            {i18n.t("events.edit.breadcrumb.events")}
-          </BreadcrumbLink>
-        </BreadcrumbItem>
-        <BreadcrumbSeparator className="flex items-center" />
-        <BreadcrumbItem>
-          <BreadcrumbPage>{event?.title}</BreadcrumbPage>
-        </BreadcrumbItem>
-      </Breadcrumb>
+      <div className="mb-6 flex items-center justify-between">
+        <Breadcrumb className="flex items-center">
+          <BreadcrumbItem>
+            <BreadcrumbLink href="/events/mine">
+              {i18n.t("events.edit.breadcrumb.events")}
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator className="flex items-center" />
+          <BreadcrumbItem>
+            <BreadcrumbPage>{event?.title}</BreadcrumbPage>
+          </BreadcrumbItem>
+        </Breadcrumb>
+
+        {/* Mobile Menu Button */}
+        <MobileSheetMenu
+          menuItems={menuItems}
+          basePath={`/events/${slug}`}
+          menuTitle={i18n.t("events.edit.breadcrumb.events")}
+          isSelectedFn={(item, location) => {
+            if (item.path === "") {
+              return location.pathname === `/events/${slug}` ||
+                location.pathname === `/events/${slug}/edit`;
+            }
+            return location.pathname.endsWith(`/${item.path}`);
+          }}
+        />
+      </div>
 
       <div className="flex gap-6">
-        {/* Sidebar */}
-        <div className="w-64 shrink-0">
+        {/* Sidebar - Hidden on mobile */}
+        <div className="hidden md:block w-64 shrink-0">
           <nav className="space-y-1">
             {menuItems.map((item) => {
               const Icon = item.icon;
