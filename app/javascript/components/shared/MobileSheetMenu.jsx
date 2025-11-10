@@ -14,12 +14,38 @@ import {
 /**
  * MobileSheetMenu - A reusable mobile navigation menu component
  * 
+ * Displays a hamburger menu button on mobile (hidden on md+ screens) that opens
+ * a Sheet (slide-in panel) from the left containing navigation menu items.
+ * 
  * @param {Array} menuItems - Array of menu items with structure:
  *   { title: string, icon: Component, path: string, description?: string }
  * @param {string} basePath - Base path for menu items (e.g., "/events/:slug")
  * @param {string} menuTitle - Title displayed in the sheet header
  * @param {function} isSelectedFn - Optional function to determine if item is selected
+ *   Signature: (item, location) => boolean
  * @param {function} onItemClick - Optional callback when menu item is clicked
+ * 
+ * @example
+ * // Basic usage in an edit page:
+ * <MobileSheetMenu
+ *   menuItems={menuItems}
+ *   basePath={`/events/${slug}`}
+ *   menuTitle="Event Settings"
+ * />
+ * 
+ * @example
+ * // With custom selection logic:
+ * <MobileSheetMenu
+ *   menuItems={menuItems}
+ *   basePath={`/events/${slug}`}
+ *   menuTitle="Event Settings"
+ *   isSelectedFn={(item, location) => {
+ *     if (item.path === "") {
+ *       return location.pathname === `/events/${slug}`;
+ *     }
+ *     return location.pathname.endsWith(`/${item.path}`);
+ *   }}
+ * />
  */
 export default function MobileSheetMenu({
   menuItems,
