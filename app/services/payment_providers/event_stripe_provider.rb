@@ -64,13 +64,15 @@ module PaymentProviders
     end
 
     def build_line_items
-      purchase.purchased_items.group(:purchased_item_id).count.map do |k, v|
-        ticket = EventTicket.find(k)
-
+      purchase.purchased_items.group_by(&:purchased_item_id).map do |ticket_id, items|
+        ticket = EventTicket.find(ticket_id)
+        # Use the price stored in purchased_items (which respects custom_price for PWYW tickets)
+        item_price = items.first.price || ticket.price
+        
         {
-          "quantity" => v,
+          "quantity" => items.count,
           "price_data" => {
-            "unit_amount" => stripe_amount(ticket.price, ticket.event.ticket_currency),
+            "unit_amount" => stripe_amount(item_price, ticket.event.ticket_currency),
             "currency" => ticket.event.ticket_currency,
             "product_data" => {
               "name" => ticket.title,

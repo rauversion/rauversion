@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe "EventPurchases", type: :request do
   let(:user) { FactoryBot.create(:user) }
-  let(:event) { FactoryBot.create(:event, user: user, state: "published") }
+  let(:event) { FactoryBot.create(:event, user: user, state: "published", ticket_currency: "USD") }
 
   before do
     user.confirm
@@ -113,6 +113,107 @@ RSpec.describe "EventPurchases", type: :request do
       expect(response).to have_http_status(:unprocessable_entity)
       json = JSON.parse(response.body)
       expect(json['errors']).to include(match(/No se pueden comprar tickets gratuitos junto con tickets de pago/))
+    end
+  end
+
+  describe "POST /create with pay_what_you_want tickets" do
+    let!(:pwyw_ticket) do 
+      ticket = FactoryBot.create(
+        :event_ticket, 
+        event: event, 
+        qty: 10, 
+        price: 5,
+        selling_start: 1.day.ago
+      )
+      ticket.settings = { pay_what_you_want: true, minimum_price: 5.0 }
+      ticket.save
+      ticket
+    end
+
+    it "stores custom_price in purchased_items when provided" do
+      allow_any_instance_of(PaymentProviders::EventStripeProvider).to receive(:create_checkout_session).and_return(
+        { checkout_url: "https://stripe.com/checkout/session" }
+      )
+
+      expect {
+        perform_enqueued_jobs do
+          post event_event_purchases_path(event), params: {
+            format: :json,
+            tickets: [
+              { id: pwyw_ticket.id, quantity: 2, custom_price: 15.0 }
+            ]
+          }
+        end 
+      }.to change(Purchase, :count).by(1)
+        .and change(PurchasedItem, :count).by(2)
+
+      purchase = Purchase.last
+      purchased_items = purchase.purchased_items
+      
+      # Each purchased item should have the custom price
+      expect(purchased_items.all? { |item| item.price == 15.0 }).to be true
+      expect(purchased_items.all? { |item| item.currency == event.ticket_currency }).to be true
+    end
+
+    it "enforces minimum_price when custom_price is below minimum" do
+      allow_any_instance_of(PaymentProviders::EventStripeProvider).to receive(:create_checkout_session).and_return(
+        { checkout_url: "https://stripe.com/checkout/session" }
+      )
+
+      expect {
+        post event_event_purchases_path(event), params: {
+          format: :json,
+          tickets: [
+            { id: pwyw_ticket.id, quantity: 1, custom_price: 2.0 }
+          ]
+        }
+      }.to change(Purchase, :count).by(1)
+        .and change(PurchasedItem, :count).by(1)
+
+      purchase = Purchase.last
+      purchased_item = purchase.purchased_items.first
+      
+      # Price should be enforced to minimum_price
+      expect(purchased_item.price).to eq(5.0)
+    end
+
+    it "passes custom price to Stripe checkout session" do
+      mock_provider = instance_double(PaymentProviders::EventStripeProvider)
+      allow(PaymentProviders::EventStripeProvider).to receive(:new).and_return(mock_provider)
+      allow(mock_provider).to receive(:create_checkout_session) do
+        # Get the purchase instance to verify the line items
+        purchase = Purchase.last
+        line_items = purchase.purchased_items.group_by(&:purchased_item_id).map do |ticket_id, items|
+          ticket = EventTicket.find(ticket_id)
+          item_price = items.first.price || ticket.price
+          
+          {
+            "quantity" => items.count,
+            "price_data" => {
+              "unit_amount" => (BigDecimal(item_price.to_s) * 100).to_i,
+              "currency" => ticket.event.ticket_currency,
+              "product_data" => {
+                "name" => ticket.title,
+                "description" => "#{ticket.short_description} \r for event: #{ticket.event.title}"
+              }
+            }
+          }
+        end
+        
+        # Verify that the custom price is used in line items
+        expect(line_items.first["price_data"]["unit_amount"]).to eq(2000) # 20.0 * 100
+        
+        { checkout_url: "https://stripe.com/checkout/session" }
+      end
+
+      post event_event_purchases_path(event), params: {
+        format: :json,
+        tickets: [
+          { id: pwyw_ticket.id, quantity: 1, custom_price: 20.0 }
+        ]
+      }
+
+      expect(response).to have_http_status(:success)
     end
   end
 end
