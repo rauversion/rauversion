@@ -94,7 +94,7 @@ const ProductCard = ({ product }) => {
                 alt={product.user.username}
                 className="w-8 h-8 rounded-full"
               />
-              <span className="text-sm text-gray-500">{product.user.username}</span>
+              <span className="text-sm text-muted-foreground">{product.user.username}</span>
             </div>
           </div>
         </CardContent>
@@ -216,7 +216,7 @@ const CategoryView = () => {
             ) : (
               !loading && (
                 <div className="col-span-full flex flex-col items-center justify-center min-h-[200px]">
-                  <p className="text-center text-gray-500">
+                  <p className="text-center text-muted-foreground">
                     No products found in this category
                   </p>
                 </div>

@@ -25,7 +25,7 @@ export default function ArtistsIndex() {
         <h1 className="text-4xl font-extrabold tracking-tight text-white">
           {I18n.t('artists.title')}
         </h1>
-        <p className="mt-2 text-lg text-gray-400">
+        <p className="mt-2 text-lg text-muted-foreground">
           {I18n.t('artists.description')}
         </p>
       </div>
@@ -52,7 +52,7 @@ export default function ArtistsIndex() {
 
       {artists.length === 0 && !loading && (
         <div className="text-center py-12">
-          <p className="text-gray-400">{I18n.t('artists.no_artists')}</p>
+          <p className="text-muted-foreground">{I18n.t('artists.no_artists')}</p>
         </div>
       )}
     </div>

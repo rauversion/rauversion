@@ -64,7 +64,7 @@ export default function ArticleSide({ articles }) {
                             <img 
                               src={article.user.avatar_url.small} 
                               alt={`${article.user.first_name} ${article.user.last_name}`}
-                              className="h-6 w-6 flex-none rounded-full bg-gray-50" 
+                              className="h-6 w-6 flex-none rounded-full bg-muted" 
                             />
                             {article.user.first_name} {article.user.last_name}
                           </Link>

@@ -1,4 +1,6 @@
 class EventTicket < ApplicationRecord
+  acts_as_paranoid
+
   belongs_to :event
 
   has_many :purchased_items, as: :purchased_item

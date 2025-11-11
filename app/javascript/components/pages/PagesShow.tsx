@@ -232,7 +232,7 @@ export default function PagesShow() {
     );
   }
 
-  if (!page) return <p className="text-center text-gray-500">Page not found</p>;
+  if (!page) return <p className="text-center text-muted-foreground">Page not found</p>;
 
   debugger
   if (page.body) {

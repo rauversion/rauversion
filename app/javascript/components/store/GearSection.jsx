@@ -47,7 +47,7 @@ const GearSection = () => {
           <h2 className="text-4xl font-medium mb-4">
             Instrumentos musicales Nuevos y usados
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl">
+          <p className="text-lg text-muted-foreground max-w-2xl">
             Encuentra los mejores instrumentos musicales para tu banda o
             proyecto musical
           </p>

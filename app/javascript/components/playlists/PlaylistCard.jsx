@@ -8,7 +8,7 @@ export default function PlaylistCard({ playlist, skipCover, children }) {
 
   return (
     <div className="group">
-      <div className="relative aspect-square overflow-hidden rounded-lg mb-4 bg-neutral-900">
+      <div className="relative aspect-square overflow-hidden rounded-lg mb-4 bg-card">
         {!skipCover && playlist.cover_url?.cropped_image && <Link to={`/playlists/${playlist.slug}`}>
           <img
             src={playlist.cover_url.cropped_image}
@@ -32,7 +32,7 @@ export default function PlaylistCard({ playlist, skipCover, children }) {
         <h3 className="font-bold mb-1 hover:text-primary transition-colors">
           {playlist.title}
         </h3>
-        <p className="text-sm text-gray-400">
+        <p className="text-sm text-muted-foreground">
           By {playlist.user.username} • {playlist.tracks_count} tracks
         </p>
       </Link>

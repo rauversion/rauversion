@@ -305,7 +305,7 @@ export default function Teams() {
                   <div>
                     <p className="font-medium">{member.name}</p>
                     {member.description && (
-                      <p className="text-sm text-gray-600 mt-1">{member.description}</p>
+                      <p className="text-sm text-muted-foreground mt-1">{member.description}</p>
                     )}
                   </div>
                   <div className="flex gap-2">

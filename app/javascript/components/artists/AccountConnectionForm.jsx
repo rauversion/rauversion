@@ -229,8 +229,8 @@ export default function AccountConnectionForm() {
                 {searchResults.map((artist) => (
                   <div
                     key={artist.id}
-                    className={`p-4 flex items-center justify-between cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800 ${
-                      selectedArtist?.id === artist.id ? 'bg-gray-50 dark:bg-gray-800' : ''
+                    className={`p-4 flex items-center justify-between cursor-pointer hover:bg-muted dark:hover:bg-secondary ${
+                      selectedArtist?.id === artist.id ? 'bg-muted dark:bg-secondary' : ''
                     }`}
                     onClick={() => setSelectedArtist(artist)}
                   >
@@ -242,7 +242,7 @@ export default function AccountConnectionForm() {
                       />
                       <div>
                         <p className="font-medium">{artist.username}</p>
-                        <p className="text-sm text-gray-500">
+                        <p className="text-sm text-muted-foreground">
                           {artist.full_name}
                         </p>
                       </div>
@@ -259,7 +259,7 @@ export default function AccountConnectionForm() {
             )}
 
             {searchQuery?.length > 2 && searchResults.length === 0 && (
-              <p className="text-gray-500 text-center py-4">
+              <p className="text-muted-foreground text-center py-4">
                 {I18n.t('artists.no_results')}
               </p>
             )}

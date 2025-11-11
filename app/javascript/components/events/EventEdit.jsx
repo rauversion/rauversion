@@ -159,8 +159,8 @@ export default function EventEdit() {
                   variant={isSelected ? "secondary" : "ghost"}
                   className={cn(
                     "w-full justify-start gap-2",
-                    "hover:bg-zinc-100 dark:hover:bg-zinc-800",
-                    isSelected && "bg-zinc-100 dark:bg-zinc-800"
+                    "hover:bg-muted dark:hover:bg-secondary",
+                    isSelected && "bg-muted dark:bg-secondary"
                   )}
                   asChild
                 >
@@ -179,7 +179,7 @@ export default function EventEdit() {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1 rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-zinc-950">
+        <div className="flex-1 rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-card">
           <EventEditContext.Provider value={{ errors, setErrors }}>
             <Outlet />
           </EventEditContext.Provider>

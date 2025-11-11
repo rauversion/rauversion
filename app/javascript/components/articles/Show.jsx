@@ -94,7 +94,7 @@ export default function ArticleShow({ preview }) {
                   y="0"
                   width="4"
                   height="4"
-                  className="text-gray-200 dark:text-gray-800"
+                  className="text-muted dark:text-foreground"
                   fill="currentColor"
                 />
               </pattern>
@@ -122,7 +122,7 @@ export default function ArticleShow({ preview }) {
                   y="0"
                   width="4"
                   height="4"
-                  className="text-gray-200 dark:text-gray-800"
+                  className="text-muted dark:text-foreground"
                   fill="currentColor"
                 />
               </pattern>
@@ -150,7 +150,7 @@ export default function ArticleShow({ preview }) {
                   y="0"
                   width="4"
                   height="4"
-                  className="text-gray-200 dark:text-gray-800"
+                  className="text-muted dark:text-foreground"
                   fill="currentColor"
                 />
               </pattern>
@@ -173,7 +173,7 @@ export default function ArticleShow({ preview }) {
                 By {article.author.name}
               </span>
             </Link>
-            <span className="mt-2 block text-3xl text-center leading-8 font-extrabold tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl">
+            <span className="mt-2 block text-3xl text-center leading-8 font-extrabold tracking-tight text-foreground dark:text-muted sm:text-4xl">
               {article.title}
             </span>
           </h1>
@@ -188,14 +188,14 @@ export default function ArticleShow({ preview }) {
             </div>
           )}
 
-          <p className="mt-8 text-xl text-gray-500 dark:text-gray-300 leading-8">
+          <p className="mt-8 text-xl text-muted-foreground dark:text-muted-foreground leading-8">
             {article.excerpt}
           </p>
         </div>
 
         <div
           id={`article-${article.id}`}
-          className="post-wrapper mt-6 prose lg:prose-lg dark:prose-invert prose-indigo- prose-lg- text-gray-500 dark:text-gray-300 mx-auto"
+          className="post-wrapper mt-6 prose lg:prose-lg dark:prose-invert prose-indigo- prose-lg- text-muted-foreground dark:text-muted-foreground mx-auto"
           data-controller="medium-zoom"
         // dangerouslySetInnerHTML={{ __html: article.body }}
         >

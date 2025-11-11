@@ -124,11 +124,11 @@ export default function AudioTrimSlider({
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto p-6 bg-gray-900 rounded-lg text-white">
-      <h2 className="text-lg font-semibold mb-4 text-gray-200">Audio trim</h2>
+    <div className="w-full max-w-2xl mx-auto p-6 bg-card rounded-lg text-white">
+      <h2 className="text-lg font-semibold mb-4 text-muted">Audio trim</h2>
 
       {/* Slider Track */}
-      <div ref={sliderRef} className="relative mb-6 h-12 bg-gray-700 rounded cursor-pointer">
+      <div ref={sliderRef} className="relative mb-6 h-12 bg-secondary rounded cursor-pointer">
         <div ref={trackRef} className="absolute inset-0 rounded">
           {/* Selection Area */}
           <div
@@ -144,10 +144,10 @@ export default function AudioTrimSlider({
               onMouseDown={(e) => handleMouseDown("center", e)}
             >
               <div className="grid grid-cols-2 gap-0.5">
-                <div className="w-1 h-1 bg-gray-300 rounded-full"></div>
-                <div className="w-1 h-1 bg-gray-300 rounded-full"></div>
-                <div className="w-1 h-1 bg-gray-300 rounded-full"></div>
-                <div className="w-1 h-1 bg-gray-300 rounded-full"></div>
+                <div className="w-1 h-1 bg-secondary rounded-full"></div>
+                <div className="w-1 h-1 bg-secondary rounded-full"></div>
+                <div className="w-1 h-1 bg-secondary rounded-full"></div>
+                <div className="w-1 h-1 bg-secondary rounded-full"></div>
               </div>
             </div>
           </div>
@@ -180,7 +180,7 @@ export default function AudioTrimSlider({
               setStartTime(newStart)
               onValueChange?.(newStart, endTime)
             }}
-            className="bg-gray-800 border-gray-600 text-white text-center"
+            className="bg-secondary border-gray-600 text-white text-center"
             step="0.1"
           />
         </div>
@@ -194,7 +194,7 @@ export default function AudioTrimSlider({
               setEndTime(newEnd)
               onValueChange?.(startTime, newEnd)
             }}
-            className="bg-gray-800 border-gray-600 text-white text-center"
+            className="bg-secondary border-gray-600 text-white text-center"
             step="0.1"
           />
         </div>
@@ -205,7 +205,7 @@ export default function AudioTrimSlider({
         <Button
           size="sm"
           variant="outline"
-          className="bg-gray-800 border-gray-600 hover:bg-gray-700"
+          className="bg-secondary border-gray-600 hover:bg-secondary"
           onClick={() => setIsPlaying?.(!isPlaying)}
         >
           {isPlaying ? (
@@ -217,19 +217,19 @@ export default function AudioTrimSlider({
             <Play className="w-4 h-4" />
           )}
         </Button>
-        <Button size="sm" variant="outline" className="bg-gray-800 border-gray-600 hover:bg-gray-700">
+        <Button size="sm" variant="outline" className="bg-secondary border-gray-600 hover:bg-secondary">
           <RotateCcw className="w-4 h-4" />
         </Button>
-        <Button size="sm" variant="outline" className="bg-gray-800 border-gray-600 hover:bg-gray-700">
+        <Button size="sm" variant="outline" className="bg-secondary border-gray-600 hover:bg-secondary">
           <RotateCw className="w-4 h-4" />
         </Button>
-        <Button size="sm" variant="outline" className="bg-gray-800 border-gray-600 hover:bg-gray-700">
+        <Button size="sm" variant="outline" className="bg-secondary border-gray-600 hover:bg-secondary">
           <Timer className="w-4 h-4" />
         </Button>
         <Button
           size="sm"
           variant="outline"
-          className="bg-gray-800 border-gray-600 hover:bg-gray-700"
+          className="bg-secondary border-gray-600 hover:bg-secondary"
           onClick={resetToMaximum}
         >
           <X className="w-4 h-4" />

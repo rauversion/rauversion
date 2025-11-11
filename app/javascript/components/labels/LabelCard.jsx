@@ -20,7 +20,7 @@ export default function LabelCard({ label }) {
           {label.full_name}
         </Link>
       </h3>
-      <p className="text-sm text-gray-400">{label.playlists_count} releases</p>
+      <p className="text-sm text-muted-foreground">{label.playlists_count} releases</p>
     </div>
   )
 }

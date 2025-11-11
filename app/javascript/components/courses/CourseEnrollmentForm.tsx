@@ -96,7 +96,7 @@ export default function CourseEnrollmentForm({
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
         className="flex flex-col items-center justify-center py-8"
       >
-        <ul className="mb-6 text-left text-base text-gray-700 space-y-2 max-w-xs">
+        <ul className="mb-6 text-left text-base text-foreground space-y-2 max-w-xs">
           {whatYouGet.map((item, i) => (
             <li key={i} className="flex items-start gap-2">
               <span className="text-green-600 text-lg">•</span>
@@ -135,7 +135,7 @@ export default function CourseEnrollmentForm({
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
         className="flex flex-col items-center justify-center py-8"
       >
-        <ul className="mb-6 text-left text-base text-gray-700 space-y-2 max-w-xs">
+        <ul className="mb-6 text-left text-base text-foreground space-y-2 max-w-xs">
           {whatYouGet.map((item, i) => (
             <li key={i} className="flex items-start gap-2">
               <span className="text-green-600 text-lg">•</span>

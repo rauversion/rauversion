@@ -19,7 +19,7 @@ const HeroSection = ({
   const getClassName = (element) => {
     const baseClasses = {
       content: "relative z-10 container mx-auto px-4 py-12 flex flex-col",
-      subtitle: "mt-4 text-lg text-gray-600 max-w-2xl",
+      subtitle: "mt-4 text-lg text-muted-foreground max-w-2xl",
       actions: "mt-8 flex gap-4"
     };
 

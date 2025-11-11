@@ -26,7 +26,7 @@ class ErrorBoundary extends React.Component {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
-            className="max-w-md w-full bg-white dark:bg-gray-800 rounded-lg shadow-2xl overflow-hidden"
+            className="max-w-md w-full bg-white dark:bg-secondary rounded-lg shadow-2xl overflow-hidden"
           >
             <div className="p-6">
               <motion.div
@@ -55,7 +55,7 @@ class ErrorBoundary extends React.Component {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.3 }}
-                className="text-2xl font-bold text-center mb-4 text-gray-800 dark:text-white"
+                className="text-2xl font-bold text-center mb-4 text-foreground dark:text-white"
               >
                 Oops! Something went wrong
               </motion.h1>
@@ -64,7 +64,7 @@ class ErrorBoundary extends React.Component {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.4 }}
-                className="bg-red-50 dark:bg-gray-700 rounded-lg p-4 mb-4"
+                className="bg-red-50 dark:bg-secondary rounded-lg p-4 mb-4"
               >
                 <img src={"https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExcDM4enNqN3VpMTdna3I2eGpwc2xya2ZnOHphd3Z4emM3aHpqNWxnbiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3o7TKLilnYW859xGyQ/giphy.webp"}
                   alt="Error" className="w-full h-auto mb-2 rounded-md"

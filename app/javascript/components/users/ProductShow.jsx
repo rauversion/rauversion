@@ -43,7 +43,7 @@ export default function ProductShow() {
   if (!product) {
     return (
       <div className="text-center py-12">
-        <p className="text-gray-400">Product not found</p>
+        <p className="text-muted-foreground">Product not found</p>
       </div>
     )
   }

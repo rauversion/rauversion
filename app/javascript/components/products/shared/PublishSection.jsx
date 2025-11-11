@@ -25,7 +25,7 @@ const PublishSection = ({ control, setValue, watch }) => {
         onChange={handleCheckboxChange}
         className="mr-2"
       />
-      <label className="text-sm font-medium text-gray-700">
+      <label className="text-sm font-medium text-foreground">
         {status === "active" ? "Active" : "Inactive"}
       </label>
     </div>

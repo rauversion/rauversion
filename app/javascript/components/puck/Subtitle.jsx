@@ -19,7 +19,7 @@ export const config = {
   },
   defaultProps: {
     text: "Subtitle",
-    color: "text-gray-600"
+    color: "text-muted-foreground"
   }
 };
 
