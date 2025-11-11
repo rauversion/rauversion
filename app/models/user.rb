@@ -42,6 +42,7 @@ class User < ApplicationRecord
   has_many :product_purchases
   
   has_many :courses
+  has_one :press_kit, dependent: :destroy
 
   
   has_many :connected_accounts, foreign_key: :parent_id

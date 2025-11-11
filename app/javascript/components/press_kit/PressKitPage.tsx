@@ -1,0 +1,491 @@
+import React, { useEffect, useRef, useState } from "react"
+import { Link } from "react-router-dom"
+import { Button } from "@/components/ui/button"
+import { AdminPanel, type PressKitData } from "./AdminPanel"
+import { get, patch } from "@rails/request.js"
+import { useToast } from "@/hooks/use-toast"
+import useAuthStore from "@/stores/authStore"
+import { useParams } from "react-router-dom"
+
+export default function PressKitPage() {
+  const { username } = useParams()
+  const { currentUser } = useAuthStore()
+  const { toast } = useToast()
+  const [isDark, setIsDark] = useState(true)
+  const [activeSection, setActiveSection] = useState("")
+  const sectionsRef = useRef<(HTMLElement | null)[]>([])
+  const [isAdminOpen, setIsAdminOpen] = useState(false)
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [pressKitData, setPressKitData] = useState<PressKitData>({
+    artistName: "",
+    tagline: "",
+    location: "",
+    listeners: "",
+    bio: {
+      intro: "",
+      career: "",
+      sound: ""
+    },
+    achievements: [],
+    genres: [],
+    socialLinks: [],
+    contacts: [],
+    tourDates: [],
+    pressPhotos: [],
+  })
+
+  const isOwner = currentUser && currentUser.username === username
+
+  useEffect(() => {
+    loadPressKit()
+  }, [username])
+
+  const loadPressKit = async () => {
+    try {
+      const response = await get(`/${username}/press-kit`, {
+        contentType: 'application/json',
+      })
+      
+      if (response.ok) {
+        const data = await response.json
+        if (data.press_kit && data.press_kit.data) {
+          setPressKitData(data.press_kit.data)
+        }
+      }
+    } catch (error) {
+      console.error('Error loading press kit:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleSaveData = async (newData: PressKitData) => {
+    try {
+      const response = await patch(`/${username}/press-kit`, {
+        body: JSON.stringify({
+          press_kit: {
+            data: JSON.stringify(newData)
+          }
+        }),
+        contentType: 'application/json',
+      })
+
+      if (response.ok) {
+        const data = await response.json
+        setPressKitData(newData)
+        toast({
+          title: "Success",
+          description: data.message || "Press kit updated successfully"
+        })
+      } else {
+        toast({
+          title: "Error",
+          description: "Failed to update press kit",
+          variant: "destructive"
+        })
+      }
+    } catch (error) {
+      console.error('Error saving press kit:', error)
+      toast({
+        title: "Error",
+        description: "Failed to update press kit",
+        variant: "destructive"
+      })
+    }
+  }
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", isDark)
+  }, [isDark])
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("animate-fade-in-up")
+            setActiveSection(entry.target.id)
+          }
+        })
+      },
+      { threshold: 0.3, rootMargin: "0px 0px -20% 0px" },
+    )
+
+    sectionsRef.current.forEach((section) => {
+      if (section) observer.observe(section)
+    })
+
+    return () => observer.disconnect()
+  }, [])
+
+  const toggleTheme = () => {
+    setIsDark(!isDark)
+  }
+
+  const generatePDF = async () => {
+    setIsGeneratingPDF(true)
+    toast({
+      title: "PDF Generation",
+      description: "This feature will be implemented soon"
+    })
+    setIsGeneratingPDF(false)
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-lg">Loading press kit...</div>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-background text-foreground relative">
+      {isOwner && (
+        <button
+          onClick={() => setIsAdminOpen(true)}
+          className="fixed top-6 right-6 z-40 p-3 rounded-full bg-primary/10 border border-primary/20 hover:bg-primary/20 hover:border-primary/40 transition-all duration-300 group"
+          aria-label="Open admin panel"
+        >
+          <svg
+            className="w-5 h-5 text-primary group-hover:rotate-12 transition-transform duration-300"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+            />
+          </svg>
+        </button>
+      )}
+
+      <AdminPanel
+        isOpen={isAdminOpen}
+        onClose={() => setIsAdminOpen(false)}
+        data={pressKitData}
+        onSave={handleSaveData}
+      />
+
+      <nav className="fixed left-8 top-1/2 -translate-y-1/2 z-10 hidden lg:block">
+        <div className="flex flex-col gap-4">
+          {["intro", "bio", "music", "photos", "press", "contact"].map((section) => (
+            <button
+              key={section}
+              onClick={() => document.getElementById(section)?.scrollIntoView({ behavior: "smooth" })}
+              className={`w-2 h-8 rounded-full transition-all duration-500 ${
+                activeSection === section ? "bg-primary" : "bg-muted-foreground/30 hover:bg-primary/60"
+              }`}
+              aria-label={`Navigate to ${section}`}
+            />
+          ))}
+        </div>
+      </nav>
+
+      <main className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-16">
+        <header
+          id="intro"
+          ref={(el) => (sectionsRef.current[0] = el)}
+          className="min-h-screen flex items-center opacity-0"
+        >
+          <div className="w-full">
+            <div className="space-y-8">
+              <div className="space-y-4">
+                <div className="text-xs sm:text-sm text-muted-foreground font-mono tracking-widest uppercase">
+                  {pressKitData.tagline}
+                </div>
+                <h1 className="text-6xl sm:text-7xl lg:text-8xl font-bold tracking-tight text-balance">
+                  {pressKitData.artistName.split(" ")[0]}
+                  <br />
+                  <span className="text-primary">{pressKitData.artistName.split(" ").slice(1).join(" ")}</span>
+                </h1>
+              </div>
+
+              <div className="max-w-2xl space-y-6">
+                <p className="text-xl sm:text-2xl text-muted-foreground leading-relaxed">
+                  {pressKitData.bio.intro}
+                </p>
+
+                <div className="flex flex-wrap items-center gap-4 text-sm">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+                    <span className="text-muted-foreground">Available for Bookings</span>
+                  </div>
+                  <div className="text-muted-foreground">{pressKitData.location}</div>
+                  <div className="text-muted-foreground">{pressKitData.listeners}</div>
+                </div>
+
+                <div className="flex flex-wrap gap-3 pt-4">
+                  <Button
+                    onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
+                    className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                  >
+                    Book Now
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => document.getElementById("music")?.scrollIntoView({ behavior: "smooth" })}
+                  >
+                    Listen
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+
+        <section id="bio" ref={(el) => (sectionsRef.current[1] = el)} className="min-h-screen py-20 sm:py-32 opacity-0">
+          <div className="space-y-12">
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
+              <h2 className="text-4xl sm:text-5xl font-bold">Biography</h2>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-12">
+              <div className="space-y-6 text-lg leading-relaxed text-muted-foreground">
+                <p>{pressKitData.bio.intro}</p>
+                <p>{pressKitData.bio.career}</p>
+                <p className="text-foreground">{pressKitData.bio.sound}</p>
+              </div>
+
+              <div className="space-y-8">
+                {pressKitData.achievements.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="text-sm text-muted-foreground font-mono tracking-wider uppercase">Achievements</h3>
+                    <ul className="space-y-3">
+                      {pressKitData.achievements.map((achievement, index) => (
+                        <li key={index} className="flex items-start gap-3">
+                          <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0"></div>
+                          <span className="text-foreground">{achievement}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {pressKitData.genres.length > 0 && (
+                  <div className="space-y-4">
+                    <h3 className="text-sm text-muted-foreground font-mono tracking-wider uppercase">Genre</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {pressKitData.genres.map((genre) => (
+                        <span
+                          key={genre}
+                          className="px-4 py-2 text-sm bg-secondary/50 border border-border rounded-full hover:border-primary/50 transition-colors duration-300"
+                        >
+                          {genre}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section
+          id="music"
+          ref={(el) => (sectionsRef.current[2] = el)}
+          className="min-h-screen py-20 sm:py-32 opacity-0"
+        >
+          <div className="space-y-12">
+            <h2 className="text-4xl sm:text-5xl font-bold">Recent Releases</h2>
+            <p className="text-muted-foreground">Music releases will be displayed here</p>
+          </div>
+        </section>
+
+        <section
+          id="photos"
+          ref={(el) => (sectionsRef.current[3] = el)}
+          className="min-h-screen py-20 sm:py-32 opacity-0"
+        >
+          <div className="space-y-12">
+            <div className="space-y-4">
+              <h2 className="text-4xl sm:text-5xl font-bold">Press Photos</h2>
+              <p className="text-lg text-muted-foreground">High-resolution images available for download</p>
+            </div>
+
+            {pressKitData.pressPhotos.length > 0 && (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {pressKitData.pressPhotos.map((photo, index) => (
+                  <div
+                    key={index}
+                    className="group relative overflow-hidden rounded-lg border border-border hover:border-primary/50 transition-all duration-500 cursor-pointer"
+                  >
+                    <div className="aspect-[4/3] relative overflow-hidden bg-secondary">
+                      <img
+                        src={photo.image || "/placeholder.svg"}
+                        alt={photo.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-6">
+                        <div className="space-y-2 w-full">
+                          <div className="text-lg font-semibold">{photo.title}</div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm text-muted-foreground">{photo.resolution}</span>
+                            <span className="text-sm text-primary">Download ↓</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </section>
+
+        <section
+          id="press"
+          ref={(el) => (sectionsRef.current[4] = el)}
+          className="min-h-screen py-20 sm:py-32 opacity-0"
+        >
+          <div className="space-y-12">
+            <h2 className="text-4xl sm:text-5xl font-bold">Press & Reviews</h2>
+            <p className="text-muted-foreground">Press reviews and features will be displayed here</p>
+          </div>
+        </section>
+
+        <section id="contact" ref={(el) => (sectionsRef.current[5] = el)} className="py-20 sm:py-32 opacity-0">
+          <div className="grid lg:grid-cols-2 gap-12 sm:gap-16">
+            <div className="space-y-8">
+              <h2 className="text-4xl sm:text-5xl font-bold">Get in Touch</h2>
+
+              <div className="space-y-8">
+                {pressKitData.contacts.map((contact, index) => (
+                  <div key={index} className="space-y-4">
+                    <h3 className="text-sm text-muted-foreground font-mono tracking-wider uppercase">{contact.type}</h3>
+                    <div className="space-y-3">
+                      <a
+                        href={`mailto:${contact.email}`}
+                        className="group flex items-center gap-3 text-lg text-foreground hover:text-primary transition-colors duration-300"
+                      >
+                        <span>{contact.email}</span>
+                        <svg
+                          className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M17 8l4 4m0 0l-4 4m4-4H3"
+                          />
+                        </svg>
+                      </a>
+                      {contact.agent && <div className="text-muted-foreground">Agent: {contact.agent}</div>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-8">
+              {pressKitData.socialLinks.length > 0 && (
+                <div className="space-y-4">
+                  <h3 className="text-sm text-muted-foreground font-mono tracking-wider uppercase">Social & Streaming</h3>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    {pressKitData.socialLinks.map((social) => (
+                      <a
+                        key={social.name}
+                        href={social.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group p-4 border border-border rounded-lg hover:border-primary/50 transition-all duration-300"
+                      >
+                        <div className="space-y-1">
+                          <div className="text-foreground group-hover:text-primary transition-colors duration-300 font-semibold">
+                            {social.name}
+                          </div>
+                          <div className="text-sm text-muted-foreground">{social.handle}</div>
+                        </div>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {pressKitData.tourDates.length > 0 && (
+                <div className="space-y-4 pt-4">
+                  <h3 className="text-sm text-muted-foreground font-mono tracking-wider uppercase">Tour Dates</h3>
+                  <div className="space-y-3">
+                    {pressKitData.tourDates.map((show, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between py-3 border-b border-border hover:border-primary/50 transition-colors duration-300"
+                      >
+                        <div className="space-y-1">
+                          <div className="font-semibold">{show.venue}</div>
+                          <div className="text-sm text-muted-foreground">{show.city}</div>
+                        </div>
+                        <div className="text-sm text-muted-foreground">{show.date}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </section>
+
+        <footer className="py-12 sm:py-16 border-t border-border">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 sm:gap-8">
+            <div className="space-y-2">
+              <div className="text-sm text-muted-foreground">
+                © 2025 {pressKitData.artistName}. All rights reserved.
+              </div>
+              <div className="text-xs text-muted-foreground">Press Kit v2.0 — Last updated January 2025</div>
+            </div>
+
+            <div className="flex items-center gap-4">
+              <button
+                onClick={toggleTheme}
+                className="group p-3 rounded-lg border border-border hover:border-primary/50 transition-all duration-300"
+                aria-label="Toggle theme"
+              >
+                {isDark ? (
+                  <svg
+                    className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors duration-300"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors duration-300"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z" />
+                  </svg>
+                )}
+              </button>
+
+              <Button
+                onClick={generatePDF}
+                disabled={isGeneratingPDF}
+                variant="outline"
+                className="border-border hover:border-primary/50 bg-transparent"
+              >
+                {isGeneratingPDF ? "Generating..." : "Download PDF"}
+              </Button>
+            </div>
+          </div>
+        </footer>
+      </main>
+    </div>
+  )
+}

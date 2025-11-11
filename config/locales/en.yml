@@ -2055,3 +2055,112 @@ en:
       error:
         title: "Error"
         description: "An unexpected error occurred"
+  press_kit:
+    updated_successfully: Press kit updated successfully
+    title: Press Kit
+    admin_panel: Admin Panel
+    save_changes: Save Changes
+    cancel: Cancel
+    download_pdf: Download PDF
+    generating: Generating...
+    sections:
+      bio_info: Bio & Info
+      social: Social Links
+      photos: Press Photos
+      contacts: Contact Info
+      tours: Tour Dates
+    artist_info:
+      title: Artist Information
+      artist_name: Artist Name
+      tagline: Tagline
+      location: Location
+      listeners: Monthly Listeners
+    biography:
+      title: Biography
+      intro: Intro Paragraph
+      career: Career Highlights
+      sound: Sound Description
+      intro_placeholder: First paragraph of your bio...
+      career_placeholder: Career achievements and milestones...
+      sound_placeholder: Describe your sound and artistic vision...
+    achievements:
+      title: Achievements
+      add: Add Achievement
+      placeholder: Achievement...
+    genres:
+      title: Genres
+      add: Add Genre
+      placeholder: Genre...
+    social_links:
+      title: Social & Streaming Platforms
+      add: Add Platform
+      platform_name: Platform Name
+      handle: Handle/Username
+      url: URL
+      platform_placeholder: Instagram, Spotify, etc.
+      handle_placeholder: "@username or artist name"
+      url_placeholder: https://...
+      remove: Remove Platform
+    press_photos:
+      title: Press Photos
+      add: Add Photo
+      photo_title: Photo Title
+      resolution: Resolution
+      image_url: Image URL
+      title_placeholder: Live at Berghain, Studio Session, etc.
+      resolution_placeholder: 4000x6000, 6000x4000, etc.
+      url_placeholder: "/path/to/image.jpg or https://..."
+      remove: Remove Photo
+      download_all: Download All Press Photos (ZIP)
+      high_res_available: High-resolution images available for download
+    contacts:
+      title: Contact Information
+      add: Add Contact
+      contact_type: Contact Type
+      email: Email
+      agent: Agent Name (Optional)
+      type_placeholder: Bookings, Press Inquiries, Management, etc.
+      email_placeholder: contact@example.com
+      agent_placeholder: Agent or manager name
+      remove: Remove Contact
+    tour_dates:
+      title: Tour Dates
+      add: Add Date
+      date: Date
+      venue: Venue
+      city: City
+      date_placeholder: Feb 15, 2025
+      venue_placeholder: Berghain, Fabric, etc.
+      city_placeholder: Berlin, London, etc.
+      remove: Remove Date
+      upcoming: Upcoming Tour Dates
+    playlists:
+      title: Music & Playlists
+      add: Add Playlist/Album
+      select_playlist: Select Playlist
+      external_link: External Platform Link
+      platform: Platform
+      link: Link
+      spotify: Spotify
+      bandcamp: Bandcamp
+      soundcloud: SoundCloud
+      remove: Remove
+    navigation:
+      intro: Intro
+      bio: Biography
+      music: Recent Releases
+      photos: Press Photos
+      press: Press & Reviews
+      contact: Get in Touch
+    footer:
+      all_rights: All rights reserved
+      press_kit_version: Press Kit v2.0
+      last_updated: Last updated
+    buttons:
+      book_now: Book Now
+      listen: Listen
+      toggle_theme: Toggle theme
+    display:
+      available_for_bookings: Available for Bookings
+      stream_on_platforms: Stream on platforms
+      featured_in: Featured in

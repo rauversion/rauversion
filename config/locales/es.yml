@@ -2116,3 +2116,112 @@ es:
       error:
         title: "Error"
         description: "Ocurrió un error inesperado"
+  press_kit:
+    updated_successfully: Kit de prensa actualizado exitosamente
+    title: Kit de Prensa
+    admin_panel: Panel de Administración
+    save_changes: Guardar Cambios
+    cancel: Cancelar
+    download_pdf: Descargar PDF
+    generating: Generando...
+    sections:
+      bio_info: Bio e Info
+      social: Enlaces Sociales
+      photos: Fotos de Prensa
+      contacts: Información de Contacto
+      tours: Fechas de Gira
+    artist_info:
+      title: Información del Artista
+      artist_name: Nombre del Artista
+      tagline: Eslogan
+      location: Ubicación
+      listeners: Oyentes Mensuales
+    biography:
+      title: Biografía
+      intro: Párrafo de Introducción
+      career: Destacados de Carrera
+      sound: Descripción del Sonido
+      intro_placeholder: Primer párrafo de tu biografía...
+      career_placeholder: Logros y hitos de carrera...
+      sound_placeholder: Describe tu sonido y visión artística...
+    achievements:
+      title: Logros
+      add: Agregar Logro
+      placeholder: Logro...
+    genres:
+      title: Géneros
+      add: Agregar Género
+      placeholder: Género...
+    social_links:
+      title: Plataformas Sociales y Streaming
+      add: Agregar Plataforma
+      platform_name: Nombre de Plataforma
+      handle: Usuario/Handle
+      url: URL
+      platform_placeholder: Instagram, Spotify, etc.
+      handle_placeholder: "@usuario o nombre de artista"
+      url_placeholder: https://...
+      remove: Eliminar Plataforma
+    press_photos:
+      title: Fotos de Prensa
+      add: Agregar Foto
+      photo_title: Título de Foto
+      resolution: Resolución
+      image_url: URL de Imagen
+      title_placeholder: En vivo en Berghain, Sesión de Estudio, etc.
+      resolution_placeholder: 4000x6000, 6000x4000, etc.
+      url_placeholder: "/ruta/a/imagen.jpg o https://..."
+      remove: Eliminar Foto
+      download_all: Descargar Todas las Fotos de Prensa (ZIP)
+      high_res_available: Imágenes de alta resolución disponibles para descargar
+    contacts:
+      title: Información de Contacto
+      add: Agregar Contacto
+      contact_type: Tipo de Contacto
+      email: Email
+      agent: Nombre del Agente (Opcional)
+      type_placeholder: Reservas, Consultas de Prensa, Gestión, etc.
+      email_placeholder: contacto@ejemplo.com
+      agent_placeholder: Nombre del agente o manager
+      remove: Eliminar Contacto
+    tour_dates:
+      title: Fechas de Gira
+      add: Agregar Fecha
+      date: Fecha
+      venue: Lugar
+      city: Ciudad
+      date_placeholder: 15 Feb, 2025
+      venue_placeholder: Berghain, Fabric, etc.
+      city_placeholder: Berlín, Londres, etc.
+      remove: Eliminar Fecha
+      upcoming: Próximas Fechas de Gira
+    playlists:
+      title: Música y Listas de Reproducción
+      add: Agregar Playlist/Álbum
+      select_playlist: Seleccionar Playlist
+      external_link: Enlace de Plataforma Externa
+      platform: Plataforma
+      link: Enlace
+      spotify: Spotify
+      bandcamp: Bandcamp
+      soundcloud: SoundCloud
+      remove: Eliminar
+    navigation:
+      intro: Intro
+      bio: Biografía
+      music: Lanzamientos Recientes
+      photos: Fotos de Prensa
+      press: Prensa y Reseñas
+      contact: Ponte en Contacto
+    footer:
+      all_rights: Todos los derechos reservados
+      press_kit_version: Kit de Prensa v2.0
+      last_updated: Última actualización
+    buttons:
+      book_now: Reservar Ahora
+      listen: Escuchar
+      toggle_theme: Cambiar tema
+    display:
+      available_for_bookings: Disponible para Reservas
+      stream_on_platforms: Escucha en plataformas
+      featured_in: Destacado en
