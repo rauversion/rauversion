@@ -680,6 +680,10 @@ GEM
       activerecord (>= 6.1)
     stringio (3.1.7)
     stripe (8.7.0)
+    tailwindcss-rails (4.4.0)
+      railties (>= 7.0.0)
+      tailwindcss-ruby (~> 4.0)
+    tailwindcss-ruby (4.1.16)
     thor (1.4.0)
     timeout (0.4.4)
     transbank-sdk (3.0.2)
@@ -799,6 +803,8 @@ DEPENDENCIES
   stimulus-rails
   store_attribute (~> 1.0)
   stripe (~> 8.6)
+  tailwindcss-rails (~> 4.0)
+  tailwindcss-ruby (~> 4.0)
   transbank-sdk (~> 3.0)
   turbo-rails!
   tzinfo-data

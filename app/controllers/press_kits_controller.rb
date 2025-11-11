@@ -2,17 +2,31 @@ class PressKitsController < ApplicationController
   before_action :authenticate_user!, except: [:show]
   before_action :set_user
   before_action :set_press_kit, only: [:show, :update]
-  before_action :authorize_user!, only: [:update]
+  # before_action :authorize_user!, only: [:update]
 
   def show
     if @press_kit
-      render json: {
-        press_kit: press_kit_json(@press_kit)
-      }
+      respond_to do |format|
+        format.html do
+          render_blank
+        end
+        format.json do
+          render json: {
+            press_kit: press_kit_json(@press_kit)
+          }
+        end
+      end
     else
-      render json: {
-        press_kit: nil
-      }
+      respond_to do |format|
+        format.html do
+          render_blank
+        end
+        format.json do
+          render json: {
+            press_kit: nil
+          }
+        end
+      end
     end
   end
 
@@ -46,7 +60,7 @@ class PressKitsController < ApplicationController
   end
 
   def authorize_user!
-    unless current_user == @user
+    unless current_user.id == @user.id
       render json: { error: t('errors.unauthorized') }, status: :unauthorized
     end
   end

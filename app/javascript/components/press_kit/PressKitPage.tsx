@@ -36,6 +36,7 @@ export default function PressKitPage() {
     externalMusicLinks: [],
   })
   const [playlists, setPlaylists] = useState<any[]>([])
+  const [animatedSections, setAnimatedSections] = useState<string[]>([])
 
   const isOwner = currentUser && currentUser.username === username
 
@@ -45,9 +46,7 @@ export default function PressKitPage() {
 
   const loadPressKit = async () => {
     try {
-      const response = await get(`/${username}/press-kit`, {
-        contentType: 'application/json',
-      })
+      const response = await get(`/${username}/press-kit.json`)
       
       if (response.ok) {
         const data = await response.json
@@ -67,16 +66,15 @@ export default function PressKitPage() {
 
   const handleSaveData = async (newData: PressKitData) => {
     try {
-      const response = await patch(`/${username}/press-kit`, {
+      const response = await patch(`/${username}/press-kit.json`, {
         body: JSON.stringify({
           press_kit: {
-            data: JSON.stringify(newData)
+            data: newData
           }
-        }),
-        contentType: 'application/json',
+        })
       })
 
-      if (response.ok) {
+      if ((response as any).ok) {
         const data = await response.json
         setPressKitData(newData)
         toast({
@@ -105,24 +103,58 @@ export default function PressKitPage() {
   }, [isDark])
 
   useEffect(() => {
+    // Defer until content loaded so refs are attached
+    if (loading) return
+
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add("animate-fade-in-up")
-            setActiveSection(entry.target.id)
+            try {
+              const el = entry.target as HTMLElement
+              console.log(`PressKit: Section ${el.id} is in view`)
+              // Record animated section in state so React preserves classes
+              setAnimatedSections((prev) => (prev.includes(el.id) ? prev : [...prev, el.id]))
+              setActiveSection(el.id)
+            } catch (e) {
+              console.error("PressKit observer error:", e)
+            }
           }
         })
       },
       { threshold: 0.3, rootMargin: "0px 0px -20% 0px" },
     )
 
-    sectionsRef.current.forEach((section) => {
-      if (section) observer.observe(section)
-    })
+    // Prefer refs, fallback to querying DOM by known ids if refs not attached
+    const sections = sectionsRef.current.filter(Boolean) as HTMLElement[]
+    if (sections.length > 0) {
+      sections.forEach((section) => {
+        console.log("PressKit: observing section ->", section.id)
+        observer.observe(section)
+      })
+    } else {
+      const ids = ["intro", "bio", "music", "photos", "press", "contact"]
+      ids.forEach((id) => {
+        const el = document.getElementById(id)
+        if (el) {
+          console.log("PressKit: fallback observing ->", id)
+          observer.observe(el)
+        }
+      })
+    }
 
-    return () => observer.disconnect()
-  }, [])
+    return () => {
+      try {
+        const observed = sectionsRef.current.filter(Boolean) as HTMLElement[]
+        observed.forEach((section) => {
+          observer.unobserve(section)
+        })
+      } catch (e) {
+        // ignore
+      }
+      observer.disconnect()
+    }
+  }, [loading])
 
   const toggleTheme = () => {
     setIsDark(!isDark)
@@ -197,7 +229,7 @@ export default function PressKitPage() {
         <header
           id="intro"
           ref={(el) => (sectionsRef.current[0] = el)}
-          className="min-h-screen flex items-center opacity-0"
+          className={`min-h-screen flex items-center ${animatedSections.includes("intro") ? "animate-fade-in-up opacity-100" : "opacity-0"}`}
         >
           <div className="w-full">
             <div className="space-y-8">
@@ -245,7 +277,7 @@ export default function PressKitPage() {
           </div>
         </header>
 
-        <section id="bio" ref={(el) => (sectionsRef.current[1] = el)} className="min-h-screen py-20 sm:py-32 opacity-0">
+        <section id="bio" ref={(el) => (sectionsRef.current[1] = el)} className={`min-h-screen py-20 sm:py-32 ${animatedSections.includes("bio") ? "animate-fade-in-up opacity-100" : "opacity-0"}`}>
           <div className="space-y-12">
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
               <h2 className="text-4xl sm:text-5xl font-bold">Biography</h2>
@@ -296,7 +328,7 @@ export default function PressKitPage() {
         <section
           id="music"
           ref={(el) => (sectionsRef.current[2] = el)}
-          className="min-h-screen py-20 sm:py-32 opacity-0"
+          className={`min-h-screen py-20 sm:py-32 ${animatedSections.includes("music") ? "animate-fade-in-up opacity-100" : "opacity-0"}`}
         >
           <div className="space-y-12">
             <h2 className="text-4xl sm:text-5xl font-bold">Music</h2>
@@ -393,7 +425,7 @@ export default function PressKitPage() {
         <section
           id="photos"
           ref={(el) => (sectionsRef.current[3] = el)}
-          className="min-h-screen py-20 sm:py-32 opacity-0"
+          className={`min-h-screen py-20 sm:py-32 ${animatedSections.includes("photos") ? "animate-fade-in-up opacity-100" : "opacity-0"}`}
         >
           <div className="space-y-12">
             <div className="space-y-4">
@@ -434,7 +466,7 @@ export default function PressKitPage() {
         <section
           id="press"
           ref={(el) => (sectionsRef.current[4] = el)}
-          className="min-h-screen py-20 sm:py-32 opacity-0"
+          className={`min-h-screen py-20 sm:py-32 ${animatedSections.includes("press") ? "animate-fade-in-up opacity-100" : "opacity-0"}`}
         >
           <div className="space-y-12">
             <h2 className="text-4xl sm:text-5xl font-bold">Press & Reviews</h2>
@@ -442,7 +474,7 @@ export default function PressKitPage() {
           </div>
         </section>
 
-        <section id="contact" ref={(el) => (sectionsRef.current[5] = el)} className="py-20 sm:py-32 opacity-0">
+        <section id="contact" ref={(el) => (sectionsRef.current[5] = el)} className={`py-20 sm:py-32 ${animatedSections.includes("contact") ? "animate-fade-in-up opacity-100" : "opacity-0"}`}>
           <div className="grid lg:grid-cols-2 gap-12 sm:gap-16">
             <div className="space-y-8">
               <h2 className="text-4xl sm:text-5xl font-bold">Get in Touch</h2>
