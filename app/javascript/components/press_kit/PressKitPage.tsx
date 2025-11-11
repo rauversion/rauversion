@@ -160,13 +160,287 @@ export default function PressKitPage() {
     setIsDark(!isDark)
   }
 
-  const generatePDF = async () => {
+  const generatePDFOld = async () => {
     setIsGeneratingPDF(true)
     toast({
       title: "PDF Generation",
       description: "This feature will be implemented soon"
     })
     setIsGeneratingPDF(false)
+  }
+
+  const generatePDF = async () => {
+    setIsGeneratingPDF(true)
+    console.log("[v0] Starting PDF generation...")
+    try {
+      const [html2canvas, jsPDF] = await Promise.all([import("html2canvas"), import("jspdf")])
+
+      const canvas = html2canvas.default
+      const { jsPDF: PDF } = jsPDF
+
+      // Create PDF in A4 format
+      const pdf = new PDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      })
+
+      const pageWidth = pdf.internal.pageSize.getWidth()
+      const pageHeight = pdf.internal.pageSize.getHeight()
+      const margin = 20
+
+      // Helper to add a new page
+      let isFirstPage = true
+      const addNewPage = () => {
+        if (!isFirstPage) {
+          pdf.addPage()
+        }
+        isFirstPage = false
+      }
+
+      // Page 1: Cover Page
+      pdf.setFillColor(10, 10, 10)
+      pdf.rect(0, 0, pageWidth, pageHeight, "F")
+
+      pdf.setTextColor(136, 136, 136)
+      pdf.setFontSize(8)
+      pdf.text("ELECTRONIC PRESS KIT", pageWidth / 2, 60, { align: "center" })
+
+      pdf.setTextColor(255, 255, 255)
+      pdf.setFontSize(48)
+      pdf.setFont(undefined, "bold")
+      const artistNameParts = pressKitData.artistName.split(" ")
+      pdf.text(artistNameParts[0], pageWidth / 2, 100, { align: "center" })
+
+      pdf.setTextColor(168, 85, 247)
+      pdf.text(artistNameParts.slice(1).join(" "), pageWidth / 2, 120, { align: "center" })
+
+      pdf.setTextColor(136, 136, 136)
+      pdf.setFontSize(14)
+      pdf.setFont(undefined, "normal")
+      pdf.text(pressKitData.tagline, pageWidth / 2, 140, { align: "center" })
+
+      pdf.setFontSize(11)
+      pdf.text(`${pressKitData.location} • ${pressKitData.listeners}`, pageWidth / 2, 150, { align: "center" })
+
+      pdf.setFontSize(8)
+      pdf.text(`Press Kit v2.0 • ${new Date().getFullYear()}`, pageWidth / 2, pageHeight - 20, { align: "center" })
+
+      // Page 2: Biography
+      addNewPage()
+      pdf.setFillColor(10, 10, 10)
+      pdf.rect(0, 0, pageWidth, pageHeight, "F")
+
+      let yPos = margin
+      pdf.setTextColor(255, 255, 255)
+      pdf.setFontSize(32)
+      pdf.setFont(undefined, "bold")
+      pdf.text("Biography", margin, yPos)
+
+      pdf.setDrawColor(168, 85, 247)
+      pdf.setLineWidth(0.5)
+      pdf.line(margin, yPos + 3, pageWidth - margin, yPos + 3)
+
+      yPos += 15
+      pdf.setTextColor(204, 204, 204)
+      pdf.setFontSize(11)
+      pdf.setFont(undefined, "normal")
+
+      const splitIntro = pdf.splitTextToSize(pressKitData.bio.intro, pageWidth - 2 * margin)
+      pdf.text(splitIntro, margin, yPos)
+      yPos += splitIntro.length * 6 + 5
+
+      const splitCareer = pdf.splitTextToSize(pressKitData.bio.career, pageWidth - 2 * margin)
+      pdf.text(splitCareer, margin, yPos)
+      yPos += splitCareer.length * 6 + 5
+
+      pdf.setTextColor(255, 255, 255)
+      const splitSound = pdf.splitTextToSize(pressKitData.bio.sound, pageWidth - 2 * margin)
+      pdf.text(splitSound, margin, yPos)
+      yPos += splitSound.length * 6 + 10
+
+      // Achievements
+      pdf.setTextColor(136, 136, 136)
+      pdf.setFontSize(9)
+      pdf.text("ACHIEVEMENTS", margin, yPos)
+      yPos += 7
+
+      pdf.setTextColor(255, 255, 255)
+      pdf.setFontSize(10)
+      pressKitData.achievements.forEach((achievement) => {
+        pdf.setTextColor(168, 85, 247)
+        pdf.circle(margin + 2, yPos - 1.5, 0.8, "F")
+        pdf.setTextColor(255, 255, 255)
+        const splitAchievement = pdf.splitTextToSize(achievement, pageWidth - 2 * margin - 10)
+        pdf.text(splitAchievement, margin + 6, yPos)
+        yPos += splitAchievement.length * 5 + 2
+      })
+
+      yPos += 5
+      pdf.setTextColor(136, 136, 136)
+      pdf.setFontSize(9)
+      pdf.text("GENRES", margin, yPos)
+      yPos += 7
+
+      pdf.setTextColor(255, 255, 255)
+      pdf.setFontSize(10)
+      pdf.text(pressKitData.genres.join(" • "), margin, yPos)
+
+      // Page 3: Press Photos
+      addNewPage()
+      pdf.setFillColor(10, 10, 10)
+      pdf.rect(0, 0, pageWidth, pageHeight, "F")
+
+      yPos = margin
+      pdf.setTextColor(255, 255, 255)
+      pdf.setFontSize(32)
+      pdf.setFont(undefined, "bold")
+      pdf.text("Press Photos", margin, yPos)
+
+      pdf.setDrawColor(168, 85, 247)
+      pdf.setLineWidth(0.5)
+      pdf.line(margin, yPos + 3, pageWidth - margin, yPos + 3)
+
+      yPos += 10
+      pdf.setTextColor(136, 136, 136)
+      pdf.setFontSize(11)
+      pdf.setFont(undefined, "normal")
+      pdf.text("High-resolution images available for download", margin, yPos)
+
+      yPos += 15
+      const photoWidth = (pageWidth - 3 * margin) / 2
+      const photoHeight = photoWidth * 0.75
+
+      for (let i = 0; i < Math.min(4, pressKitData.pressPhotos.length); i++) {
+        const photo = pressKitData.pressPhotos[i]
+        const col = i % 2
+        const row = Math.floor(i / 2)
+        const x = margin + col * (photoWidth + margin)
+        const y = yPos + row * (photoHeight + 15)
+
+        try {
+          const img = document.createElement("img")
+          img.crossOrigin = "anonymous"
+          img.src = photo.image
+          await new Promise((resolve) => {
+            img.onload = resolve
+            img.onerror = resolve
+          })
+
+          const imgCanvas = await canvas(img, {
+            backgroundColor: "#1a1a1a",
+            scale: 1,
+          })
+          const imgData = imgCanvas.toDataURL("image/jpeg", 0.8)
+
+          pdf.setDrawColor(51, 51, 51)
+          pdf.setLineWidth(0.3)
+          pdf.rect(x, y, photoWidth, photoHeight)
+          pdf.addImage(imgData, "JPEG", x, y, photoWidth, photoHeight)
+
+          pdf.setTextColor(255, 255, 255)
+          pdf.setFontSize(9)
+          pdf.setFont(undefined, "bold")
+          pdf.text(photo.title, x, y + photoHeight + 5)
+
+          pdf.setTextColor(136, 136, 136)
+          pdf.setFontSize(8)
+          pdf.setFont(undefined, "normal")
+          pdf.text(photo.resolution, x, y + photoHeight + 10)
+        } catch (error) {
+          console.log("[v0] Error loading photo:", error)
+          pdf.setFillColor(26, 26, 26)
+          pdf.rect(x, y, photoWidth, photoHeight, "F")
+        }
+      }
+
+      // Page 4: Contact Information
+      addNewPage()
+      pdf.setFillColor(10, 10, 10)
+      pdf.rect(0, 0, pageWidth, pageHeight, "F")
+
+      yPos = margin
+      pdf.setTextColor(255, 255, 255)
+      pdf.setFontSize(32)
+      pdf.setFont(undefined, "bold")
+      pdf.text("Contact", margin, yPos)
+
+      pdf.setDrawColor(168, 85, 247)
+      pdf.setLineWidth(0.5)
+      pdf.line(margin, yPos + 3, pageWidth - margin, yPos + 3)
+
+      yPos += 15
+
+      // Contact details
+      pressKitData.contacts.forEach((contact) => {
+        pdf.setTextColor(136, 136, 136)
+        pdf.setFontSize(9)
+        pdf.text(contact.type.toUpperCase(), margin, yPos)
+        yPos += 6
+
+        pdf.setTextColor(168, 85, 247)
+        pdf.setFontSize(12)
+        pdf.text(contact.email, margin, yPos)
+        yPos += 5
+
+        if (contact.agent) {
+          pdf.setTextColor(136, 136, 136)
+          pdf.setFontSize(9)
+          pdf.text(`Agent: ${contact.agent}`, margin, yPos)
+          yPos += 5
+        }
+        yPos += 8
+      })
+
+      yPos += 5
+      pdf.setTextColor(136, 136, 136)
+      pdf.setFontSize(9)
+      pdf.text("SOCIAL & STREAMING PLATFORMS", margin, yPos)
+      yPos += 8
+
+      pdf.setTextColor(255, 255, 255)
+      pdf.setFontSize(10)
+      pressKitData.socialLinks.forEach((social) => {
+        pdf.setFont(undefined, "bold")
+        pdf.text(social.name, margin, yPos)
+        pdf.setFont(undefined, "normal")
+        pdf.setTextColor(136, 136, 136)
+        pdf.text(social.handle, margin + 40, yPos)
+        pdf.setTextColor(255, 255, 255)
+        yPos += 6
+      })
+
+      yPos += 10
+      pdf.setTextColor(136, 136, 136)
+      pdf.setFontSize(9)
+      pdf.text("UPCOMING TOUR DATES", margin, yPos)
+      yPos += 8
+
+      pdf.setTextColor(255, 255, 255)
+      pdf.setFontSize(10)
+      pressKitData.tourDates.forEach((tour) => {
+        pdf.setFont(undefined, "bold")
+        pdf.text(tour.venue, margin, yPos)
+        pdf.setFont(undefined, "normal")
+        pdf.setTextColor(136, 136, 136)
+        pdf.text(tour.city, margin, yPos + 5)
+        pdf.text(tour.date, pageWidth - margin, yPos, { align: "right" })
+        pdf.setTextColor(255, 255, 255)
+
+        pdf.setDrawColor(51, 51, 51)
+        pdf.setLineWidth(0.1)
+        pdf.line(margin, yPos + 8, pageWidth - margin, yPos + 8)
+        yPos += 12
+      })
+
+      console.log("[v0] PDF generated successfully")
+      pdf.save(`${pressKitData.artistName.replace(/\s+/g, "_")}_Press_Kit.pdf`)
+    } catch (error) {
+      console.error("[v0] Error generating PDF:", error)
+      alert("Error generating PDF. Please try again.")
+    } finally {
+      setIsGeneratingPDF(false)
+    }
   }
 
   if (loading) {

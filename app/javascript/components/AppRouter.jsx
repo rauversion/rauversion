@@ -313,7 +313,7 @@ function AppContent() {
           <Route path="/account_connections/new" element={<RequireAuth><AccountConnectionForm /></RequireAuth>} />
 
           <Route path="/:username/press-kit" element={<PressKitPage />} />
-          
+
           <Route path="/:username/*" element={<UserShow />}>
             <Route index element={<UserHome />} />
             <Route path="tracks" element={<UserTracks />} />
@@ -340,6 +340,7 @@ function AppContent() {
         !location.pathname.includes('albums') &&
         !location.pathname.includes('page-builder') &&
         !location.pathname.includes('conversations') &&
+        !location.pathname.includes('press-kit') &&
         (
           <Footer />
         )
