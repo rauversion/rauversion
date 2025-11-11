@@ -202,7 +202,7 @@ export default function UserShow() {
 
                 {currentUser && currentUser.id !== user.id && (
                   <Button
-                    variant="outline"
+                    variant={user.is_following ? "outline" : "secondary"}
                     onClick={async () => {
                       try {
                         const response = await post(
@@ -222,10 +222,6 @@ export default function UserShow() {
                         console.error("Error following user:", error);
                       }
                     }}
-                    className={`px-4 py-2 rounded-full font-medium transition-colors ${user.is_following
-                      ? "bg-default/10 text-default hover:bg-default/20"
-                      : "bg-default text-default hover:bg-default/90"
-                      }`}
                   >
                     {user.is_following
                       ? I18n.t("profile.following")

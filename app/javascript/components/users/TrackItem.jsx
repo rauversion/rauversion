@@ -20,7 +20,7 @@ export default function TrackItem({
   return (
     <div
       ref={elementRef}
-      className="bg-muted rounded-lg p-4 space-y-4 w-full"
+      className="rounded-lg p-4 space-y-4 w-full"
     >
       <div className="flex items-center gap-4">
         <div className="hidden sm:block relative w-20 h-20 flex-shrink-0">
