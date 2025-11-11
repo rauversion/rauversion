@@ -257,7 +257,7 @@ const ProductCard = ({
           {product.category && (
             <div className="mb-2">
               <span
-                className="inline-block px-3 py-1 text-xs font-medium rounded-full bg-gray-100"
+                className="inline-block px-3 py-1 text-xs font-medium rounded-full bg-muted"
                 style={{ color: textColor }}
               >
                 {product.category}

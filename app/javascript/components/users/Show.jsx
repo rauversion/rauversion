@@ -159,13 +159,13 @@ export default function UserShow() {
               </h1>
 
               {!user.hide_username_from_profile && (
-                <p className="text-lg text-gray-300">
+                <p className="text-lg text-muted-foreground">
                   {user.first_name} {user.last_name}
                 </p>
               )}
 
               {(user.city || user.country) && (
-                <p className="text-gray-400">
+                <p className="text-muted-foreground">
                   {[user.city, user.country]
                     .filter(Boolean)
                     .join(I18n.t("users.show.location.separator"))}
@@ -178,7 +178,7 @@ export default function UserShow() {
                     <span className="font-medium text-white">
                       {user.stats.tracks_count}
                     </span>
-                    <span className="text-gray-400 ml-1">
+                    <span className="text-muted-foreground ml-1">
                       {I18n.t("profile.tracks").toLowerCase()}
                     </span>
                   </div>
@@ -186,7 +186,7 @@ export default function UserShow() {
                     <span className="font-medium text-white">
                       {user.stats.followers_count}
                     </span>
-                    <span className="text-gray-400 ml-1">
+                    <span className="text-muted-foreground ml-1">
                       {I18n.t("profile.followings").toLowerCase()}
                     </span>
                   </div>
@@ -194,7 +194,7 @@ export default function UserShow() {
                     <span className="font-medium text-white">
                       {user.stats.following_count}
                     </span>
-                    <span className="text-gray-400 ml-1">
+                    <span className="text-muted-foreground ml-1">
                       {I18n.t("profile.followers").toLowerCase()}
                     </span>
                   </div>
@@ -253,7 +253,7 @@ export default function UserShow() {
                         "inline-flex items-center py-4 px-1 border-b-2 text-sm font-medium",
                         location.pathname === item.to
                           ? "border-primary-500 text-primary-500"
-                          : "border-transparent text-gray-400 hover:text-gray-300 hover:border-gray-300"
+                          : "border-transparent text-muted-foreground hover:text-muted-foreground hover:border-gray-300"
                       )}
                     >
                       {item.name}
@@ -267,7 +267,7 @@ export default function UserShow() {
           <div className="md:hidden">
             <Sheet>
               <SheetTrigger asChild>
-                <button className="p-2 text-gray-400 hover:text-gray-300">
+                <button className="p-2 text-muted-foreground hover:text-muted-foreground">
                   <Menu className="h-6 w-6" />
                 </button>
               </SheetTrigger>
@@ -284,7 +284,7 @@ export default function UserShow() {
                                 "block py-2 px-4 text-base font-medium rounded-lg",
                                 location.pathname === item.to
                                   ? "bg-primary-500 text-white"
-                                  : "text-gray-400 hover:bg-gray-700 hover:text-gray-300"
+                                  : "text-muted-foreground hover:bg-secondary hover:text-muted-foreground"
                               )}
                             >
                               {item.name}

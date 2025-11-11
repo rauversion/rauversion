@@ -71,7 +71,7 @@ export default function UserAlbums() {
       {albums.length > 0 && (
         <>
           <div className="flex items-center justify-between mb-6">
-            <h2 className="text-md font-medium text-gray-500">Albums</h2>
+            <h2 className="text-md font-medium text-muted-foreground">Albums</h2>
             <div className="flex gap-2 flex-wrap">
               {CATEGORIES.map((category) => (
                 <Button
@@ -105,11 +105,11 @@ export default function UserAlbums() {
                   <div className="flex-1 truncate px-4 py-2 text-sm">
                     <Link
                       to={`/playlists/${album.slug}`}
-                      className="font-medium text-gray-300 hover:text-white"
+                      className="font-medium text-muted-foreground hover:text-white"
                     >
                       {album.title}
                     </Link>
-                    <p className="text-gray-500">
+                    <p className="text-muted-foreground">
                       {album.release_date && new Date(album.release_date).getFullYear()} ·{' '}
                       {album.tracks_count} Tracks
                     </p>
@@ -118,7 +118,7 @@ export default function UserAlbums() {
                     <button
                       type="button"
                       onClick={() => console.log('Play album:', album.title)}
-                      className="hidden inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent text-gray-400 hover:text-white hover:bg-brand-700"
+                      className="hidden inline-flex h-8 w-8 items-center justify-center rounded-full bg-transparent text-muted-foreground hover:text-white hover:bg-brand-700"
                     >
                       <span className="sr-only">Play album</span>
                       <svg
@@ -145,7 +145,7 @@ export default function UserAlbums() {
 
       {/*albums.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-gray-400">No albums found</p>
+          <p className="text-muted-foreground">No albums found</p>
         </div>
       )*/}
     </div>

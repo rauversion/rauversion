@@ -92,7 +92,7 @@ export default function PermissionsForm({ control, watch }) {
                     <RadioGroupItem value="non_derivative_works" id="non_derivative_works" />
                     <div className="space-y-1">
                       <Label htmlFor="non_derivative_works">{I18n.t('shared.forms.permissions.usage_rights.non_derivative.label')}</Label>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-muted-foreground">
                         {I18n.t('shared.forms.permissions.usage_rights.non_derivative.description')}
                       </p>
                     </div>
@@ -101,7 +101,7 @@ export default function PermissionsForm({ control, watch }) {
                     <RadioGroupItem value="share_alike" id="share_alike" />
                     <div className="space-y-1">
                       <Label htmlFor="share_alike">{I18n.t('shared.forms.permissions.usage_rights.share_alike.label')}</Label>
-                      <p className="text-sm text-gray-500">
+                      <p className="text-sm text-muted-foreground">
                         {I18n.t('shared.forms.permissions.usage_rights.share_alike.description')}
                       </p>
                     </div>

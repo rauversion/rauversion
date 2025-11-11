@@ -104,8 +104,8 @@ export default function MobileSheetMenu({
                   variant={selected ? "secondary" : "ghost"}
                   className={cn(
                     "w-full justify-start gap-2",
-                    "hover:bg-zinc-100 dark:hover:bg-zinc-800",
-                    selected && "bg-zinc-100 dark:bg-zinc-800"
+                    "hover:bg-muted dark:hover:bg-secondary",
+                    selected && "bg-muted dark:bg-secondary"
                   )}
                   asChild
                   onClick={() => handleItemClick(item)}

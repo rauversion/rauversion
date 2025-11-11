@@ -50,7 +50,7 @@ export default function UserReposts() {
         if (repostable.type === 'track') {
           return (
             <div key={repost.id} className="space-y-2">
-              <div className="text-sm text-gray-400">
+              <div className="text-sm text-muted-foreground">
                 Reposted on {new Date(repost.created_at).toLocaleDateString()}
               </div>
               <ModernTrackCell
@@ -66,12 +66,12 @@ export default function UserReposts() {
         if (repostable.type === 'playlist') {
           return (
             <div key={repost.id} className="space-y-2">
-              <div className="text-sm text-gray-400">
+              <div className="text-sm text-muted-foreground">
                 Reposted on {new Date(repost.created_at).toLocaleDateString()}
               </div>
               <Link
                 to={`/playlists/${repostable.slug}`}
-                className="block group bg-gray-900 rounded-lg overflow-hidden"
+                className="block group bg-card rounded-lg overflow-hidden"
               >
                 <div className="flex items-center p-4">
                   <div className="w-24 h-24 flex-shrink-0">
@@ -85,10 +85,10 @@ export default function UserReposts() {
                     <h3 className="font-medium group-hover:text-primary-500 transition-colors duration-200">
                       {repostable.title}
                     </h3>
-                    <p className="text-sm text-gray-400 mt-1">
+                    <p className="text-sm text-muted-foreground mt-1">
                       {repostable.tracks_count} tracks
                     </p>
-                    <p className="text-sm text-gray-400 mt-1">
+                    <p className="text-sm text-muted-foreground mt-1">
                       By {repostable.author.username}
                     </p>
                   </div>
@@ -103,7 +103,7 @@ export default function UserReposts() {
       
       {reposts.length === 0 && (
         <div className="text-center py-12">
-          <p className="text-gray-400">No reposts found</p>
+          <p className="text-muted-foreground">No reposts found</p>
         </div>
       )}
     </div>

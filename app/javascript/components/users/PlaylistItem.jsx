@@ -34,7 +34,7 @@ export default function PlaylistListItem({ track, index, currentTrackId, isPlayi
       <div className="flex items-center gap-4 flex-1 min-w-0">
         <span className={cn(
           "w-6 font-medium transition-colors duration-300",
-          isCurrentTrack ? "text-brand-500" : "text-zinc-400 group-hover:text-zinc-300"
+          isCurrentTrack ? "text-brand-500" : "text-muted-foreground group-hover:text-muted-foreground"
         )}>
           {index + 1}
         </span>
@@ -84,7 +84,7 @@ export default function PlaylistListItem({ track, index, currentTrackId, isPlayi
           >
             {track.title}
           </motion.p>
-          <p className="text-zinc-400 text-sm truncate-- group-hover:text-zinc-300 space-x-2">
+          <p className="text-muted-foreground text-sm truncate-- group-hover:text-muted-foreground space-x-2">
             <Link to={`/${track.user.username}`} className="hover:underline">
               {track.user.full_name}
             </Link>
@@ -104,7 +104,7 @@ export default function PlaylistListItem({ track, index, currentTrackId, isPlayi
       <div className="flex items-center gap-4 pl-4">
         {track.duration && (
           <motion.span
-            className="text-zinc-400 group-hover:text-zinc-300 tabular-nums font-medium"
+            className="text-muted-foreground group-hover:text-muted-foreground tabular-nums font-medium"
             animate={{
               color: isCurrentTrack ? "rgb(var(--brand-500))" : undefined
             }}

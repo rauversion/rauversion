@@ -37,7 +37,7 @@ export default function UserProducts() {
 
         {products.length === 0 && !loading && (
           <div className="text-center py-12">
-            <p className="text-gray-400">No products found</p>
+            <p className="text-muted-foreground">No products found</p>
           </div>
         )}
       </div>

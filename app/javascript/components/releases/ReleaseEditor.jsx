@@ -75,7 +75,7 @@ function Editor({ releaseId }) {
 
   if (loading) {
     return <div className="flex items-center justify-center h-screen">
-      <div className="text-lg text-gray-600">Loading editor...</div>
+      <div className="text-lg text-muted-foreground">Loading editor...</div>
     </div>;
   }
 

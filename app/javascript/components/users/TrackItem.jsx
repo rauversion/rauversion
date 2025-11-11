@@ -70,7 +70,7 @@ export default function TrackItem({
                 <Link
                   to={`${host || ""}/${track.user.username}`}
                   target={embed ? "_blank" : "_self"}
-                  className="text-sm text-gray-400 hover:text-default"
+                  className="text-sm text-muted-foreground hover:text-default"
                 >
                   {track.user.full_name}
                 </Link>
@@ -79,7 +79,7 @@ export default function TrackItem({
                   <>
                     {track.artists.map((artist) =>
                       <Link to={`/${artist.username}`}
-                        className="text-sm text-gray-400 hover:text-default">
+                        className="text-sm text-muted-foreground hover:text-default">
                         {artist.full_name || artist.username}
                       </Link>
                     )}
@@ -109,7 +109,7 @@ export default function TrackItem({
                   key={index}
                   to={`${host || ""}/tracks/tags/${tag}`}
                   target={embed ? "_blank" : "_self"}
-                  className="inline-flex items-center rounded-full bg-gray-100 dark:bg-gray-800 px-2.5 py-0.5 text-xs font-medium text-gray-800 dark:text-gray-200 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                  className="inline-flex items-center rounded-full bg-muted dark:bg-secondary px-2.5 py-0.5 text-xs font-medium text-foreground dark:text-muted hover:bg-secondary dark:hover:bg-secondary transition-colors"
                 >
                   {tag}
                 </Link>
@@ -118,7 +118,7 @@ export default function TrackItem({
           )}
 
           {!embed && <MusicPurchase resource={track} type="Track" variant="mini" />}
-          {embed && <p className="text-sm text-gray-500 mt-2">
+          {embed && <p className="text-sm text-muted-foreground mt-2">
             Powered by <a
               href={`${host}`}
               target="_blank"

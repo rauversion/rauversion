@@ -157,7 +157,7 @@ export default function PlaylistShow() {
                   {/* Label info */}
                   {playlist.label && (
                     <>
-                      <span className="hidden sm:block text-zinc-600">•</span>
+                      <span className="hidden sm:block text-muted-foreground">•</span>
                       <Link
                         to={`/${playlist.label.username}`}
                         className="hover:text-foreground transition-colors flex items-center gap-2 group"
@@ -165,14 +165,14 @@ export default function PlaylistShow() {
                         <span className="font-semibold group-hover:text-brand-500 transition-colors">
                           {playlist.label.name}
                         </span>
-                        <span className="text-xs text-zinc-500 group-hover:text-brand-400">
+                        <span className="text-xs text-muted-foreground group-hover:text-brand-400">
                           @{playlist.label.username}
 
                         </span>
                       </Link>
                     </>
                   )}
-                  <span className="hidden sm:block text-zinc-600">•</span>
+                  <span className="hidden sm:block text-muted-foreground">•</span>
                   <span>
                     {format(
                       new Date(playlist.release_date || new Date()),

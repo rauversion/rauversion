@@ -182,7 +182,7 @@ export default function AddToPlaylist({ track, open, onOpenChange }) {
                     <div key={playlist.id} className="flex items-center justify-between p-4 border rounded-lg">
                       <div>
                         <h3 className="font-medium">{playlist.title}</h3>
-                        <p className="text-sm text-gray-500">{playlist.track_count} tracks</p>
+                        <p className="text-sm text-muted-foreground">{playlist.track_count} tracks</p>
                       </div>
                       <Button 
                         onClick={() => handlePlaylistAction(playlist)}

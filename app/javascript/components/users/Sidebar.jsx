@@ -8,30 +8,30 @@ export default function Sidebar({ user }) {
         {/*<div className="p-4 border-l-1 border-l-gray-50 dark:border-l-gray-800">
           <div className="grid grid-cols-3 divide-x dark:divide-gray-700">
             <div className="p-4">
-              <p className="text-base font-medium text-gray-900 dark:text-gray-100">
+              <p className="text-base font-medium text-foreground dark:text-muted">
                 Siguiendo
               </p>
-              <span className="text-base font-normal text-gray-500 dark:text-gray-200 text-xl">
+              <span className="text-base font-normal text-muted-foreground dark:text-muted text-xl">
                 <Link to={`/${user?.username}/followees`}>
                   {user?.followees_count || 0}
                 </Link>
               </span>
             </div>
             <div className="p-4">
-              <p className="text-base font-medium text-gray-900 dark:text-gray-100">
+              <p className="text-base font-medium text-foreground dark:text-muted">
                 Seguidores
               </p>
-              <span className="text-base font-normal text-gray-500 dark:text-gray-200 text-xl">
+              <span className="text-base font-normal text-muted-foreground dark:text-muted text-xl">
                 <Link to={`/${user?.username}/followers`}>
                   {user?.followers_count || 0}
                 </Link>
               </span>
             </div>
             <div className="p-4">
-              <p className="text-base font-medium text-gray-900 dark:text-gray-100">
+              <p className="text-base font-medium text-foreground dark:text-muted">
                 Pistas
               </p>
-              <span className="text-base font-normal text-gray-500 dark:text-gray-200 text-xl">
+              <span className="text-base font-normal text-muted-foreground dark:text-muted text-xl">
                 {user?.tracks_count || 0}
               </span>
             </div>
@@ -61,7 +61,7 @@ export default function Sidebar({ user }) {
                   to={`/photos/${photo.id}?user_id=${user.id}`}
                 >
                   <div
-                    className="card bg-gray-100 m-auto w-full h-32 mt-5 rounded-md"
+                    className="card bg-muted m-auto w-full h-32 mt-5 rounded-md"
                     style={{
                       backgroundImage: `url(${photo.url})`,
                       backgroundPosition: 'center',

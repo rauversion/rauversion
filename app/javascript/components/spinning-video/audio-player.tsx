@@ -120,9 +120,9 @@ export function AudioPlayer({ properties, updateProperty, isPlaying, setIsPlayin
           onChange={(e) => updateProperty("audioTrim", { ...properties.audioTrim, start: Number(e.target.value) })}
           className="w-24"
         />
-        <div className="flex-1 h-2 bg-gray-200 rounded-full relative">
+        <div className="flex-1 h-2 bg-secondary rounded-full relative">
           <div
-            className="absolute inset-y-0 bg-gray-400 rounded-full"
+            className="absolute inset-y-0 bg-secondary rounded-full"
             style={{
               left: `${duration ? (properties.audioTrim.start / duration) * 100 : 0}%`,
               right: `${duration ? 100 - (properties.audioTrim.end / duration) * 100 : 0}%`,

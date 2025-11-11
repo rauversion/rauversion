@@ -87,11 +87,11 @@ const ProductHeader = () => {
             <div>
               <h1 className="text-5xl font-bold mb-2">
                 Mercado Rauversion, conecta{" "}
-                <span className="text-gray-400">
+                <span className="text-muted-foreground">
                   con nuestro marketplace musical
                 </span>
               </h1>
-              <p className="text-xl text-gray-400">
+              <p className="text-xl text-muted-foreground">
                 El punto de encuentro para músicos, coleccionistas y amantes de
                 la música
               </p>

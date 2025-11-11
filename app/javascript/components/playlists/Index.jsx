@@ -36,7 +36,7 @@ export default function PlaylistsIndex() {
         <h1 className="text-4xl font-extrabold tracking-tight text-white">
           {I18n.t('playlists.title')}
         </h1>
-        <p className="mt-2 text-lg text-gray-400">
+        <p className="mt-2 text-lg text-muted-foreground">
           {I18n.t('playlists.description')}
         </p>
       </div>
@@ -49,7 +49,7 @@ export default function PlaylistsIndex() {
             className={`px-4 py-2 rounded-full text-sm font-medium transition-colors ${
               selectedType === type.id
                 ? 'bg-brand-600 text-white'
-                : 'bg-black/20 text-gray-300 hover:bg-black/30'
+                : 'bg-black/20 text-muted-foreground hover:bg-black/30'
             }`}
           >
             {type.label}
@@ -79,7 +79,7 @@ export default function PlaylistsIndex() {
 
       {playlists.length === 0 && !loading && (
         <div className="text-center py-12">
-          <p className="text-gray-400">{I18n.t('playlists.no_playlists')}</p>
+          <p className="text-muted-foreground">{I18n.t('playlists.no_playlists')}</p>
         </div>
       )}
     </div>

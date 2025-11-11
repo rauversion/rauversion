@@ -61,7 +61,7 @@ export default function EmbedPlaylist() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <span className="text-gray-500">Loading...</span>
+        <span className="text-muted-foreground">Loading...</span>
       </div>
     );
   }
