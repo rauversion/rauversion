@@ -68,6 +68,16 @@ class PressKitsController < ApplicationController
           tags: photo.tags
         }
       end,
+      playlists: press_kit.user_playlists.map do |playlist|
+        {
+          id: playlist.id,
+          title: playlist.title,
+          slug: playlist.slug,
+          description: playlist.description,
+          playlist_type: playlist.playlist_type,
+          cover_url: playlist.cover.attached? ? url_for(playlist.cover) : nil
+        }
+      end,
       created_at: press_kit.created_at,
       updated_at: press_kit.updated_at
     }

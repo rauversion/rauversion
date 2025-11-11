@@ -33,7 +33,9 @@ export default function PressKitPage() {
     contacts: [],
     tourDates: [],
     pressPhotos: [],
+    externalMusicLinks: [],
   })
+  const [playlists, setPlaylists] = useState<any[]>([])
 
   const isOwner = currentUser && currentUser.username === username
 
@@ -51,6 +53,9 @@ export default function PressKitPage() {
         const data = await response.json
         if (data.press_kit && data.press_kit.data) {
           setPressKitData(data.press_kit.data)
+        }
+        if (data.press_kit && data.press_kit.playlists) {
+          setPlaylists(data.press_kit.playlists)
         }
       }
     } catch (error) {
@@ -294,8 +299,94 @@ export default function PressKitPage() {
           className="min-h-screen py-20 sm:py-32 opacity-0"
         >
           <div className="space-y-12">
-            <h2 className="text-4xl sm:text-5xl font-bold">Recent Releases</h2>
-            <p className="text-muted-foreground">Music releases will be displayed here</p>
+            <h2 className="text-4xl sm:text-5xl font-bold">Music</h2>
+
+            {playlists.length > 0 && (
+              <div className="space-y-6">
+                <h3 className="text-2xl font-semibold">Playlists & Albums</h3>
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {playlists.map((playlist) => (
+                    <Link
+                      key={playlist.id}
+                      to={`/playlists/${playlist.slug}`}
+                      className="group relative overflow-hidden rounded-lg border border-border hover:border-primary/50 transition-all duration-500"
+                    >
+                      <div className="aspect-square relative overflow-hidden bg-secondary">
+                        {playlist.cover_url ? (
+                          <img
+                            src={playlist.cover_url}
+                            alt={playlist.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-muted-foreground">
+                            No Cover
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-4 space-y-2">
+                        <h4 className="text-lg font-semibold group-hover:text-primary transition-colors duration-300">
+                          {playlist.title}
+                        </h4>
+                        {playlist.description && (
+                          <p className="text-sm text-muted-foreground line-clamp-2">{playlist.description}</p>
+                        )}
+                        {playlist.playlist_type && (
+                          <span className="inline-block px-2 py-1 text-xs bg-secondary rounded">
+                            {playlist.playlist_type}
+                          </span>
+                        )}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {(pressKitData.externalMusicLinks || []).length > 0 && (
+              <div className="space-y-6">
+                <h3 className="text-2xl font-semibold">Available On</h3>
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {(pressKitData.externalMusicLinks || []).map((link, index) => (
+                    <a
+                      key={index}
+                      href={link.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group p-6 border border-border rounded-lg hover:border-primary/50 transition-all duration-300"
+                    >
+                      <div className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm text-muted-foreground uppercase tracking-wider">
+                            {link.platform.replace('_', ' ')}
+                          </span>
+                          <svg
+                            className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                            />
+                          </svg>
+                        </div>
+                        <div className="text-lg font-semibold group-hover:text-primary transition-colors">
+                          {link.title}
+                        </div>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {playlists.length === 0 && (pressKitData.externalMusicLinks || []).length === 0 && (
+              <p className="text-muted-foreground">No music releases added yet</p>
+            )}
           </div>
         </section>
 

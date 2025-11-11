@@ -44,6 +44,11 @@ export interface PressKitData {
     resolution: string
     image: string
   }[]
+  externalMusicLinks?: {
+    platform: string
+    url: string
+    title: string
+  }[]
 }
 
 export function AdminPanel({ isOpen, onClose, data, onSave }: AdminPanelProps) {
@@ -82,6 +87,11 @@ export function AdminPanel({ isOpen, onClose, data, onSave }: AdminPanelProps) {
         ...formData,
         pressPhotos: [...formData.pressPhotos, { title: "", resolution: "", image: "" }],
       })
+    } else if (field === "externalMusicLinks") {
+      setFormData({
+        ...formData,
+        externalMusicLinks: [...(formData.externalMusicLinks || []), { platform: "spotify", url: "", title: "" }],
+      })
     }
   }
 
@@ -111,6 +121,11 @@ export function AdminPanel({ isOpen, onClose, data, onSave }: AdminPanelProps) {
         ...formData,
         pressPhotos: formData.pressPhotos.filter((_, i) => i !== index),
       })
+    } else if (field === "externalMusicLinks") {
+      setFormData({
+        ...formData,
+        externalMusicLinks: (formData.externalMusicLinks || []).filter((_, i) => i !== index),
+      })
     }
   }
 
@@ -137,6 +152,12 @@ export function AdminPanel({ isOpen, onClose, data, onSave }: AdminPanelProps) {
                 className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
               >
                 Bio & Info
+              </TabsTrigger>
+              <TabsTrigger
+                value="music"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
+              >
+                Music
               </TabsTrigger>
               <TabsTrigger
                 value="social"
@@ -289,6 +310,83 @@ export function AdminPanel({ isOpen, onClose, data, onSave }: AdminPanelProps) {
                       />
                       <Button onClick={() => removeItem("genres", index)} size="sm" variant="destructive">
                         Remove
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="music" className="space-y-6 mt-0">
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold">External Music Links</h3>
+                    <Button onClick={() => addItem("externalMusicLinks")} size="sm" variant="outline">
+                      Add Link
+                    </Button>
+                  </div>
+
+                  <div className="p-4 bg-secondary/50 rounded-lg mb-4">
+                    <p className="text-sm text-muted-foreground">
+                      Add links to your music on external platforms like Spotify, Bandcamp, or SoundCloud. 
+                      Your Rauversion playlists will be automatically included in the press kit.
+                    </p>
+                  </div>
+
+                  {(formData.externalMusicLinks || []).map((link, index) => (
+                    <div key={index} className="space-y-3 p-4 border border-border rounded-lg">
+                      <div className="space-y-2">
+                        <Label>Platform</Label>
+                        <select
+                          value={link.platform}
+                          onChange={(e) => {
+                            const newLinks = [...(formData.externalMusicLinks || [])]
+                            newLinks[index].platform = e.target.value
+                            setFormData({ ...formData, externalMusicLinks: newLinks })
+                          }}
+                          className="w-full"
+                        >
+                          <option value="spotify">Spotify</option>
+                          <option value="bandcamp">Bandcamp</option>
+                          <option value="soundcloud">SoundCloud</option>
+                          <option value="apple_music">Apple Music</option>
+                          <option value="youtube">YouTube</option>
+                          <option value="other">Other</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>Album/Release Title</Label>
+                        <Input
+                          value={link.title}
+                          onChange={(e) => {
+                            const newLinks = [...(formData.externalMusicLinks || [])]
+                            newLinks[index].title = e.target.value
+                            setFormData({ ...formData, externalMusicLinks: newLinks })
+                          }}
+                          placeholder="Album or release name"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label>URL</Label>
+                        <Input
+                          value={link.url}
+                          onChange={(e) => {
+                            const newLinks = [...(formData.externalMusicLinks || [])]
+                            newLinks[index].url = e.target.value
+                            setFormData({ ...formData, externalMusicLinks: newLinks })
+                          }}
+                          placeholder="https://..."
+                        />
+                      </div>
+
+                      <Button
+                        onClick={() => removeItem("externalMusicLinks", index)}
+                        size="sm"
+                        variant="destructive"
+                        className="w-full"
+                      >
+                        Remove Link
                       </Button>
                     </div>
                   ))}

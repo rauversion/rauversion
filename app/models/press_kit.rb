@@ -22,8 +22,15 @@ class PressKit < ApplicationRecord
       contacts: [],
       tourDates: [],
       playlists: [],
-      externalMusicLinks: []
+      externalMusicLinks: [
+        # Example: { platform: 'spotify', url: 'https://...', title: 'Album Name' }
+      ]
     }
+  end
+  
+  # Get user's playlists for display
+  def user_playlists
+    user.playlists.where(private: false).order(created_at: :desc)
   end
   
   # Initialize with default data if empty
