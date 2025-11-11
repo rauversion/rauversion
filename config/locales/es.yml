@@ -1632,6 +1632,7 @@ es:
         generic: "Algo salió mal"
 
   errors:
+    unauthorized: No estás autorizado para realizar esta acción
     404:
       title: Página no encontrada
       desc: Por favor, revisa la URL y prueba de nuevo

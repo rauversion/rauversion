@@ -1568,6 +1568,7 @@ en:
         invalid_credentials: Email or password invalid
         generic: Something went wrong
   errors:
+    unauthorized: You are not authorized to perform this action
     404:
       title: Page not found
       desc: Please, check the URL and try again

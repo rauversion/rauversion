@@ -18,8 +18,12 @@ class PressKitsController < ApplicationController
 
   def update
     @press_kit ||= @user.build_press_kit
+    
+    # Parse data if it's a JSON string
+    data_param = params.dig(:press_kit, :data)
+    parsed_data = data_param.is_a?(String) ? JSON.parse(data_param) : data_param
 
-    if @press_kit.update(press_kit_params)
+    if @press_kit.update(data: parsed_data)
       render json: {
         press_kit: press_kit_json(@press_kit),
         message: t('press_kit.updated_successfully')
@@ -48,7 +52,8 @@ class PressKitsController < ApplicationController
   end
 
   def press_kit_params
-    params.require(:press_kit).permit(:data)
+    # Data is handled separately in the update action
+    params.require(:press_kit)
   end
 
   def press_kit_json(press_kit)
