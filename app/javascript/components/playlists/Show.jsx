@@ -80,7 +80,7 @@ export default function PlaylistShow() {
     <div className="bg-background text-foreground min-h-screen">
       {/* Header Section */}
       <motion.div
-        className="relative bg-gradient-to-b from-muted to-background p-8"
+        className="relative bg-gradient-to-b from-secondary to-background p-8"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6 }}
