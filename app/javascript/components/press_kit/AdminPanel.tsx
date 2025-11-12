@@ -4,12 +4,15 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ImageUploader } from "@/components/ui/image-uploader"
+import { useToast } from "@/hooks/use-toast"
 
 interface AdminPanelProps {
   isOpen: boolean
   onClose: () => void
   data: PressKitData
-  onSave: (data: PressKitData) => void
+  // onSave receives the full press kit data (including published flag inside)
+  onSave: (data: PressKitData) => Promise<any>
 }
 
 export interface PressKitData {
@@ -43,6 +46,9 @@ export interface PressKitData {
     title: string
     resolution: string
     image: string
+    signed_id?: string
+    cropData?: any
+    imageCropped?: string
   }[]
   externalMusicLinks?: {
     platform: string
@@ -53,12 +59,41 @@ export interface PressKitData {
 
 export function AdminPanel({ isOpen, onClose, data, onSave }: AdminPanelProps) {
   const [formData, setFormData] = useState<PressKitData>(data)
+  const [published, setPublished] = useState<boolean>(!!(data && (data as any).published))
+
+  // Sync local state when opening panel or when data prop changes
+  React.useEffect(() => {
+    setFormData(data)
+    setPublished(!!(data && (data as any).published))
+  }, [isOpen, data])
 
   if (!isOpen) return null
 
-  const handleSave = () => {
-    onSave(formData)
-    onClose()
+  const [saving, setSaving] = useState(false)
+  const { toast } = useToast()
+
+  const handleSave = async () => {
+    setSaving(true)
+    try {
+      // Ensure published flag is included inside data
+      const dataWithPublished = { ...formData, published }
+      // Await onSave so we can show toast on completion
+      await onSave(dataWithPublished)
+      toast({
+        title: "Saved",
+        description: "Press kit saved successfully"
+      })
+      // Do NOT close the dialog — keep it open for further edits
+    } catch (e: any) {
+      console.error("Error saving press kit from AdminPanel:", e)
+      toast({
+        title: "Error",
+        description: e?.message || "Failed to save press kit",
+        variant: "destructive"
+      })
+    } finally {
+      setSaving(false)
+    }
   }
 
   const addItem = (field: keyof PressKitData) => {
@@ -134,13 +169,27 @@ export function AdminPanel({ isOpen, onClose, data, onSave }: AdminPanelProps) {
       <div className="bg-background border border-border rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
         <div className="flex items-center justify-between p-6 border-b border-border">
           <h2 className="text-2xl font-bold">Admin Panel</h2>
-          <div className="flex gap-3">
-            <Button onClick={handleSave} className="bg-primary hover:bg-primary/90">
-              Save Changes
-            </Button>
-            <Button onClick={onClose} variant="outline">
-              Cancel
-            </Button>
+
+          <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 mr-4">
+                <Label className="text-sm">Published</Label>
+                <input
+                  type="checkbox"
+                  checked={published}
+                  onChange={(e) => setPublished(e.target.checked)}
+                  className="w-4 h-4"
+                  aria-label="Published"
+                />
+              </div>
+
+            <div className="flex gap-3">
+              <Button onClick={handleSave} className="bg-primary hover:bg-primary/90" disabled={saving}>
+                {saving ? "Saving..." : "Save Changes"}
+              </Button>
+              <Button onClick={onClose} variant="outline">
+                Cancel
+              </Button>
+            </div>
           </div>
         </div>
 
@@ -473,56 +522,64 @@ export function AdminPanel({ isOpen, onClose, data, onSave }: AdminPanelProps) {
                   </div>
 
                   {formData.pressPhotos.map((photo, index) => (
-                    <div key={index} className="space-y-3 p-4 border border-border rounded-lg">
-                      <div className="space-y-2">
-                        <Label>Photo Title</Label>
-                        <Input
-                          value={photo.title}
-                          onChange={(e) => {
-                            const newPhotos = [...formData.pressPhotos]
-                            newPhotos[index].title = e.target.value
-                            setFormData({ ...formData, pressPhotos: newPhotos })
-                          }}
-                          placeholder="Live at Berghain, Studio Session, etc."
-                        />
-                      </div>
+                <div key={index} className="space-y-3 p-4 border border-border rounded-lg">
+                  <div className="space-y-2">
+                    <Label>Photo Title</Label>
+                    <Input
+                      value={photo.title}
+                      onChange={(e) => {
+                        const newPhotos = [...formData.pressPhotos]
+                        newPhotos[index].title = e.target.value
+                        setFormData({ ...formData, pressPhotos: newPhotos })
+                      }}
+                      placeholder="Live at Berghain, Studio Session, etc."
+                    />
+                  </div>
 
-                      <div className="space-y-2">
-                        <Label>Resolution</Label>
-                        <Input
-                          value={photo.resolution}
-                          onChange={(e) => {
-                            const newPhotos = [...formData.pressPhotos]
-                            newPhotos[index].resolution = e.target.value
-                            setFormData({ ...formData, pressPhotos: newPhotos })
-                          }}
-                          placeholder="4000x6000, 6000x4000, etc."
-                        />
-                      </div>
+                  <div className="space-y-2">
+                    <Label>Resolution</Label>
+                    <Input
+                      value={photo.resolution}
+                      onChange={(e) => {
+                        const newPhotos = [...formData.pressPhotos]
+                        newPhotos[index].resolution = e.target.value
+                        setFormData({ ...formData, pressPhotos: newPhotos })
+                      }}
+                      placeholder="4000x6000, 6000x4000, etc."
+                    />
+                  </div>
 
-                      <div className="space-y-2">
-                        <Label>Image URL</Label>
-                        <Input
-                          value={photo.image}
-                          onChange={(e) => {
-                            const newPhotos = [...formData.pressPhotos]
-                            newPhotos[index].image = e.target.value
-                            setFormData({ ...formData, pressPhotos: newPhotos })
-                          }}
-                          placeholder="/path/to/image.jpg or https://..."
-                        />
-                      </div>
+                  <div className="space-y-2">
+                    <Label>Image</Label>
+                      <ImageUploader
+                      preview={true}
+                      enableCropper={true}
+                      imageUrl={photo.image || null}
+                      imageCropped={photo.imageCropped || null}
+                      onUploadComplete={(signed_id: any, cropData: any, serviceUrl: any) => {
+                        // store the signed_id and serviceUrl in the pressPhotos entry
+                        const newPhotos = [...formData.pressPhotos]
+                        newPhotos[index] = {
+                          ...newPhotos[index],
+                          signed_id: signed_id,
+                          image: serviceUrl || newPhotos[index].image,
+                          cropData: cropData || newPhotos[index].cropData
+                        }
+                        setFormData({ ...formData, pressPhotos: newPhotos })
+                      }}
+                    />
+                  </div>
 
-                      <Button
-                        onClick={() => removeItem("pressPhotos", index)}
-                        size="sm"
-                        variant="destructive"
-                        className="w-full"
-                      >
-                        Remove Photo
-                      </Button>
-                    </div>
-                  ))}
+                  <Button
+                    onClick={() => removeItem("pressPhotos", index)}
+                    size="sm"
+                    variant="destructive"
+                    className="w-full"
+                  >
+                    Remove Photo
+                  </Button>
+                </div>
+              ))}
                 </div>
               </TabsContent>
 
