@@ -92,5 +92,88 @@ RSpec.describe "PressKits", type: :request do
         expect(response).to have_http_status(:unauthorized)
       end
     end
+
+    context "when uploading photos with Active Storage" do
+      before do
+        sign_in user
+      end
+
+      it "creates Photo records associated with PressKit via photoable" do
+        # Create a blob to simulate a direct upload
+        blob = ActiveStorage::Blob.create_before_direct_upload!(
+          filename: "test_photo.jpg",
+          byte_size: 1024,
+          checksum: "abc123",
+          content_type: "image/jpeg"
+        )
+
+        patch "/#{user.username}/press-kit", params: {
+          press_kit: {
+            data: JSON.generate({
+              artistName: "Test Artist",
+              pressPhotos: [
+                {
+                  title: "Press Photo 1",
+                  resolution: "1920x1080",
+                  image: "",
+                  signed_id: blob.signed_id
+                }
+              ]
+            })
+          }
+        }
+
+        expect(response).to have_http_status(:success)
+        
+        user.reload
+        press_kit = user.press_kit
+        
+        # Verify the Photo record was created and associated with PressKit
+        expect(press_kit.photos.count).to eq(1)
+        photo = press_kit.photos.first
+        expect(photo.photoable).to eq(press_kit)
+        expect(photo.photoable_type).to eq("PressKit")
+        expect(photo.user).to eq(user)
+      end
+
+      it "returns photos array in the API response" do
+        press_kit = user.create_press_kit!(data: { artistName: "Test" })
+        photo = press_kit.photos.create!(user: user, description: "Test photo")
+        
+        # Create a test file for Active Storage
+        photo.image.attach(
+          io: StringIO.new("fake image data"),
+          filename: "test.jpg",
+          content_type: "image/jpeg"
+        )
+
+        get "/#{user.username}/press-kit.json"
+        
+        expect(response).to have_http_status(:success)
+        json_response = JSON.parse(response.body)
+        
+        # Verify the photos array is present in the response
+        expect(json_response['press_kit']['photos']).to be_present
+        expect(json_response['press_kit']['photos'].length).to eq(1)
+        expect(json_response['press_kit']['photos'][0]['id']).to eq(photo.id)
+        expect(json_response['press_kit']['photos'][0]['description']).to eq("Test photo")
+        expect(json_response['press_kit']['photos'][0]['url']).to be_present
+      end
+
+      it "allows querying photos through the press_kit.photos association" do
+        press_kit = user.create_press_kit!(data: { artistName: "Test" })
+        photo1 = press_kit.photos.create!(user: user, description: "Photo 1")
+        photo2 = press_kit.photos.create!(user: user, description: "Photo 2")
+
+        get "/#{user.username}/press-kit.json"
+        
+        expect(response).to have_http_status(:success)
+        json_response = JSON.parse(response.body)
+        
+        # Verify all photos are queryable through the association
+        photo_ids = json_response['press_kit']['photos'].map { |p| p['id'] }
+        expect(photo_ids).to match_array([photo1.id, photo2.id])
+      end
+    end
   end
 end
