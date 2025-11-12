@@ -36,6 +36,7 @@ export default function PressKitPage() {
     externalMusicLinks: [],
   })
   const [playlists, setPlaylists] = useState<any[]>([])
+  const [photos, setPhotos] = useState<any[]>([])
   const [animatedSections, setAnimatedSections] = useState<string[]>([])
 
   const isOwner = currentUser && currentUser.username === username
@@ -55,6 +56,10 @@ export default function PressKitPage() {
         }
         if (data.press_kit && data.press_kit.playlists) {
           setPlaylists(data.press_kit.playlists)
+        }
+        // Load photos from the queryable association
+        if (data.press_kit && data.press_kit.photos) {
+          setPhotos(data.press_kit.photos)
         }
       }
     } catch (error) {
@@ -707,6 +712,12 @@ export default function PressKitPage() {
               <p className="text-lg text-muted-foreground">High-resolution images available for download</p>
             </div>
 
+            {/* 
+              Display photos from pressKitData.pressPhotos (from JSON data field).
+              These photos are also stored as Photo records with Active Storage and 
+              are queryable through the press_kit.photos association.
+              The photos state variable contains the full Photo records for potential future use.
+            */}
             {pressKitData.pressPhotos.length > 0 && (
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {pressKitData.pressPhotos.map((photo, index) => (
