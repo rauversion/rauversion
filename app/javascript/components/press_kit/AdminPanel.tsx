@@ -13,6 +13,7 @@ interface AdminPanelProps {
   isOpen: boolean
   onClose: () => void
   data: PressKitData
+  photos?: { id: number | string; url: string; description?: string; tags?: any }[]
   // onSave receives the full press kit data (including published flag inside)
   onSave: (data: PressKitData) => Promise<any>
 }
@@ -61,7 +62,7 @@ export interface PressKitData {
   }[]
 }
 
-export function AdminPanel({ isOpen, onClose, data, onSave }: AdminPanelProps) {
+export function AdminPanel({ isOpen, onClose, data, photos = [], onSave }: AdminPanelProps) {
   const [formData, setFormData] = useState<PressKitData>(data)
   const [published, setPublished] = useState<boolean>(!!(data && (data as any).published))
   const [saving, setSaving] = useState(false)
@@ -529,70 +530,50 @@ export function AdminPanel({ isOpen, onClose, data, onSave }: AdminPanelProps) {
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-semibold">Press Photos</h3>
-                    <Button onClick={() => addItem("pressPhotos")} size="sm" variant="outline">
-                      Add Photo
-                    </Button>
                   </div>
 
-                  {formData.pressPhotos.map((photo, index) => (
-                <div key={index} className="space-y-3 p-4 border border-border rounded-lg">
-                  <div className="space-y-2">
-                    <Label>Photo Title</Label>
-                    <Input
-                      value={photo.title}
-                      onChange={(e) => {
-                        const newPhotos = [...formData.pressPhotos]
-                        newPhotos[index].title = e.target.value
-                        setFormData({ ...formData, pressPhotos: newPhotos })
-                      }}
-                      placeholder="Live at Berghain, Studio Session, etc."
-                    />
-                  </div>
+                  {/* Existing photos from server (ActiveStorage) */}
+                  {photos.length > 0 && (
+                    <div className="space-y-2">
+                      <Label className="text-sm text-muted-foreground">Current Photos</Label>
+                      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                        {photos.map((p) => (
+                          <div key={p.id} className="relative border border-border rounded-lg overflow-hidden">
+                            <div className="aspect-[4/3] bg-secondary">
+                              <img
+                                src={p.url}
+                                alt={p.description || "Press photo"}
+                                className="w-full h-full object-cover"
+                              />
+                            </div>
+                            {p.description && (
+                              <div className="p-2 text-xs text-muted-foreground border-t border-border">
+                                {p.description}
+                              </div>
+                            )}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   <div className="space-y-2">
-                    <Label>Resolution</Label>
-                    <Input
-                      value={photo.resolution}
-                      onChange={(e) => {
-                        const newPhotos = [...formData.pressPhotos]
-                        newPhotos[index].resolution = e.target.value
-                        setFormData({ ...formData, pressPhotos: newPhotos })
-                      }}
-                      placeholder="4000x6000, 6000x4000, etc."
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Image</Label>
-                      <ImageUploader
+                    <Label className="text-sm">Upload New Photo</Label>
+                    <ImageUploader
                       preview={true}
                       enableCropper={true}
-                      imageUrl={photo.image || null}
-                      imageCropped={photo.imageCropped || null}
-                      onUploadComplete={(signed_id: any, cropData: any, serviceUrl: any) => {
-                        // store the signed_id and serviceUrl in the pressPhotos entry
-                        const newPhotos = [...formData.pressPhotos]
-                        newPhotos[index] = {
-                          ...newPhotos[index],
-                          signed_id: signed_id,
-                          image: serviceUrl || newPhotos[index].image,
-                          cropData: cropData || newPhotos[index].cropData
+                      imageUrl={null}
+                      onUploadComplete={async (signed_id: any, cropData: any) => {
+                        try {
+                          await onSave({ ...formData, pressPhotos: [{ signed_id, cropData }] } as any)
+                          toast({ title: "Photo added", description: "Image uploaded and attached" })
+                        } catch (e: any) {
+                          console.error("Photo upload save error:", e)
+                          toast({ title: "Error", description: e?.message || "Failed to attach photo", variant: "destructive" })
                         }
-                        setFormData({ ...formData, pressPhotos: newPhotos })
                       }}
                     />
                   </div>
-
-                  <Button
-                    onClick={() => removeItem("pressPhotos", index)}
-                    size="sm"
-                    variant="destructive"
-                    className="w-full"
-                  >
-                    Remove Photo
-                  </Button>
-                </div>
-              ))}
                 </div>
               </TabsContent>
 
