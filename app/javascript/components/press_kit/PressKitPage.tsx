@@ -81,7 +81,14 @@ export default function PressKitPage() {
 
       if ((response as any).ok) {
         const data = await response.json
-        setPressKitData(newData)
+        // Update press kit data from the response (includes cleaned up photo URLs)
+        if (data.press_kit && data.press_kit.data) {
+          setPressKitData(data.press_kit.data)
+        }
+        // Update photos from the queryable association
+        if (data.press_kit && data.press_kit.photos) {
+          setPhotos(data.press_kit.photos)
+        }
         toast({
           title: "Success",
           description: data.message || "Press kit updated successfully"
@@ -316,8 +323,8 @@ export default function PressKitPage() {
       const photoWidth = (pageWidth - 3 * margin) / 2
       const photoHeight = photoWidth * 0.75
 
-      for (let i = 0; i < Math.min(4, pressKitData.pressPhotos.length); i++) {
-        const photo = pressKitData.pressPhotos[i]
+      for (let i = 0; i < Math.min(4, photos.length); i++) {
+        const photo = photos[i]
         const col = i % 2
         const row = Math.floor(i / 2)
         const x = margin + col * (photoWidth + margin)
@@ -326,7 +333,7 @@ export default function PressKitPage() {
         try {
           const img = document.createElement("img")
           img.crossOrigin = "anonymous"
-          img.src = photo.image
+          img.src = photo.url
           await new Promise((resolve) => {
             img.onload = resolve
             img.onerror = resolve
@@ -346,12 +353,12 @@ export default function PressKitPage() {
           pdf.setTextColor(255, 255, 255)
           pdf.setFontSize(9)
           pdf.setFont(undefined, "bold")
-          pdf.text(photo.title, x, y + photoHeight + 5)
+          pdf.text((photo.description || ""), x, y + photoHeight + 5)
 
           pdf.setTextColor(136, 136, 136)
           pdf.setFontSize(8)
           pdf.setFont(undefined, "normal")
-          pdf.text(photo.resolution, x, y + photoHeight + 10)
+          pdf.text("", x, y + photoHeight + 10)
         } catch (error) {
           console.log("[v0] Error loading photo:", error)
           pdf.setFillColor(26, 26, 26)
@@ -486,6 +493,7 @@ export default function PressKitPage() {
         isOpen={isAdminOpen}
         onClose={() => setIsAdminOpen(false)}
         data={pressKitData}
+        photos={photos}
         onSave={handleSaveData}
       />
 
@@ -718,24 +726,24 @@ export default function PressKitPage() {
               are queryable through the press_kit.photos association.
               The photos state variable contains the full Photo records for potential future use.
             */}
-            {pressKitData.pressPhotos.length > 0 && (
+            {photos.length > 0 && (
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {pressKitData.pressPhotos.map((photo, index) => (
+                {photos.map((photo, index) => (
                   <div
                     key={index}
                     className="group relative overflow-hidden rounded-lg border border-border hover:border-primary/50 transition-all duration-500 cursor-pointer"
                   >
                     <div className="aspect-[4/3] relative overflow-hidden bg-secondary">
                       <img
-                        src={photo.image || "/placeholder.svg"}
-                        alt={photo.title}
+                        src={photo.url || "/placeholder.svg"}
+                        alt={photo.description || "Press photo"}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-6">
                         <div className="space-y-2 w-full">
                           <div className="text-lg font-semibold">{photo.title}</div>
                           <div className="flex items-center justify-between">
-                            <span className="text-sm text-muted-foreground">{photo.resolution}</span>
+                            {photo.description && <span className="text-sm text-muted-foreground">{photo.description}</span>}
                             <span className="text-sm text-primary">Download ↓</span>
                           </div>
                         </div>

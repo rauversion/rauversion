@@ -36,6 +36,8 @@ class PressKitsController < ApplicationController
     # Parse data if it's a JSON string
     data_param = params.dig(:press_kit, :data)
     parsed_data = data_param.is_a?(String) ? JSON.parse(data_param) : data_param
+    # Normalize ActionController::Parameters to plain Hash for consistent processing
+    parsed_data = parsed_data.to_unsafe_h if parsed_data.respond_to?(:to_unsafe_h)
 
     if parsed_data.nil?
       render json: { errors: [t('press_kit.nothing_to_update')] }, status: :unprocessable_entity
@@ -51,41 +53,20 @@ class PressKitsController < ApplicationController
     #  - remove the signed_id / cropData keys from stored data
     begin
       PressKit.transaction do
-        # First update data (we will modify it below for images)
-        @press_kit.update!(data: parsed_data)
-
+        # Process photos first, creating ActiveStorage-backed Photo records.
         if parsed_data["pressPhotos"].is_a?(Array)
-          parsed_data["pressPhotos"].each_with_index do |entry, idx|
+          entries = parsed_data["pressPhotos"].map { |e| e.respond_to?(:to_unsafe_h) ? e.to_unsafe_h : e }
+          entries.each do |entry|
             next unless entry.is_a?(Hash) && entry["signed_id"].present?
-
-            signed_id = entry["signed_id"]
-            crop_data = entry["cropData"] # optional, currently not persisted to Photo model
-
-            # Find the signed blob and attach to a new Photo record
-            blob = ActiveStorage::Blob.find_signed(signed_id) rescue nil
-            if blob
-              photo = @press_kit.photos.create!(user: current_user)
-              # attach the blob to the photo's image attachment
-              photo.image.attach(blob)
-              # update the entry image to the public URL
-              entry["image"] = photo.image.attached? ? url_for(photo.image) : entry["image"]
-              # remove temporary fields we don't want persisted
-              entry.delete("signed_id")
-              entry.delete("cropData")
-            else
-              Rails.logger.warn("[PressKitsController] signed blob not found for signed_id=#{signed_id}")
-              # If blob not found, just remove signed_id to avoid storing it
-              entry.delete("signed_id")
-              entry.delete("cropData")
-            end
-
-            # persist modified entry back to parsed_data (already mutated)
-            parsed_data["pressPhotos"][idx] = entry
+            # Create Photo via model hook (before_validation attaches signed_id)
+            @press_kit.photos.create!(user: current_user, attach_signed_id: entry["signed_id"])
           end
-
-          # Save the cleaned up data back to press_kit
-          @press_kit.update!(data: parsed_data)
+          # Do not persist pressPhotos in the data JSON
+          parsed_data.delete("pressPhotos")
         end
+
+        # Persist the remaining data cleanly (without pressPhotos)
+        @press_kit.update!(data: parsed_data)
       end
 
       render json: {
