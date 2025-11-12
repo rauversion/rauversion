@@ -185,7 +185,6 @@
     color: hsl(var(--accent));
     text-decoration: underline;
   }
-
 }
 
 @import "../stylesheets/puck_copy.css";
@@ -257,4 +256,44 @@
 
 .animate-fade-in-up {
   animation: fade-in-up 0.6s ease-out forwards;
+}
+
+
+
+
+
+.select-container .select__control {
+  @apply bg-primary border-2 border-primary hover:border-muted;
+}
+
+.select-container .select__control--is-focused {
+  @apply border-primary hover:border-primary shadow-none;
+}
+
+.select-container .select__menu {
+  @apply bg-neutral-100 dark:bg-neutral-700 border-2 border-neutral-300 dark:border-neutral-600;
+}
+
+.select-container .select__option {
+  @apply text-neutral-600 dark:text-neutral-200 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-700 dark:hover:bg-neutral-800;
+}
+
+/* .select-container .select__option--is-focused {
+    @apply bg-neutral-200 dark:bg-neutral-800;
+  } */
+
+.select-container .select__indicator-separator {
+  @apply bg-neutral-400;
+}
+
+.select-container .select__input-container,
+.select-container .select__placeholder,
+.select-container .select__single-value {
+  @apply text-neutral-600 dark:text-neutral-200;
+}
+
+.select__menu {
+  background-color: red;
+  z-index: 50;
+  @apply bg-card border border-border shadow-md rounded-md;
 }

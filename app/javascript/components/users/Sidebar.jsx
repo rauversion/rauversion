@@ -49,6 +49,13 @@ export default function Sidebar({ user }) {
           >
             more
           </Link>
+
+          <Link
+            className="mr-2 btn-xs outline rounded-sm p-1"
+            to={`/${user?.username}/press-kit`}
+          >
+            Press Kit
+          </Link>
         </div>
 
         <div className="overflow-auto no-scrollbar relative" data-scroll-target="scrollContainer">

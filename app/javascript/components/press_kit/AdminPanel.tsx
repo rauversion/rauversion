@@ -6,6 +6,8 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ImageUploader } from "@/components/ui/image-uploader"
 import { useToast } from "@/hooks/use-toast"
+import MusicSelector from "./MusicSelector"
+import { useParams } from "react-router-dom"
 
 interface AdminPanelProps {
   isOpen: boolean
@@ -50,6 +52,8 @@ export interface PressKitData {
     cropData?: any
     imageCropped?: string
   }[]
+  selectedTracks?: { id: number | string; title: string; cover_url?: any }[]
+  selectedPlaylists?: { id: number | string; title: string; slug?: string; cover_url?: any }[]
   externalMusicLinks?: {
     platform: string
     url: string
@@ -60,6 +64,9 @@ export interface PressKitData {
 export function AdminPanel({ isOpen, onClose, data, onSave }: AdminPanelProps) {
   const [formData, setFormData] = useState<PressKitData>(data)
   const [published, setPublished] = useState<boolean>(!!(data && (data as any).published))
+  const [saving, setSaving] = useState(false)
+  const { toast } = useToast()
+  const { username } = useParams()
 
   // Sync local state when opening panel or when data prop changes
   React.useEffect(() => {
@@ -68,9 +75,6 @@ export function AdminPanel({ isOpen, onClose, data, onSave }: AdminPanelProps) {
   }, [isOpen, data])
 
   if (!isOpen) return null
-
-  const [saving, setSaving] = useState(false)
-  const { toast } = useToast()
 
   const handleSave = async () => {
     setSaving(true)
@@ -367,6 +371,15 @@ export function AdminPanel({ isOpen, onClose, data, onSave }: AdminPanelProps) {
 
               <TabsContent value="music" className="space-y-6 mt-0">
                 <div className="space-y-4">
+                  <div className="mb-4">
+                    <MusicSelector
+                      username={username || ""}
+                      selectedTracks={formData.selectedTracks || []}
+                      setSelectedTracks={(t) => setFormData({ ...formData, selectedTracks: t })}
+                      selectedPlaylists={formData.selectedPlaylists || []}
+                      setSelectedPlaylists={(p) => setFormData({ ...formData, selectedPlaylists: p })}
+                    />
+                  </div>
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-semibold">External Music Links</h3>
                     <Button onClick={() => addItem("externalMusicLinks")} size="sm" variant="outline">
