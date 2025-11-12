@@ -81,7 +81,14 @@ export default function PressKitPage() {
 
       if ((response as any).ok) {
         const data = await response.json
-        setPressKitData(newData)
+        // Update press kit data from the response (includes cleaned up photo URLs)
+        if (data.press_kit && data.press_kit.data) {
+          setPressKitData(data.press_kit.data)
+        }
+        // Update photos from the queryable association
+        if (data.press_kit && data.press_kit.photos) {
+          setPhotos(data.press_kit.photos)
+        }
         toast({
           title: "Success",
           description: data.message || "Press kit updated successfully"
