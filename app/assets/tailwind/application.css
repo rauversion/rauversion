@@ -185,6 +185,16 @@
     color: hsl(var(--accent));
     text-decoration: underline;
   }
+
+
+
+  .select__menu,
+  .react-select__menu {
+    background-color: var(--background) !important;
+    background-color: red;
+    z-index: 50;
+    @apply bg-card border border-border shadow-md rounded-md;
+  }
 }
 
 @import "../stylesheets/puck_copy.css";
@@ -292,7 +302,10 @@
   @apply text-neutral-600 dark:text-neutral-200;
 }
 
-.select__menu {
+
+.select__menu,
+.react-select__menu {
+  background: var(--popover);
   background-color: red;
   z-index: 50;
   @apply bg-card border border-border shadow-md rounded-md;
