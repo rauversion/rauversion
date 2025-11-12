@@ -72,11 +72,12 @@ export default function PressKitPage() {
   const handleSaveData = async (newData: PressKitData) => {
     try {
       const response = await patch(`/${username}/press-kit.json`, {
-        body: JSON.stringify({
+        body: {
           press_kit: {
-            data: newData
+            data: JSON.stringify(newData)
           }
-        })
+        },
+        responseKind: "json"
       })
 
       if ((response as any).ok) {
