@@ -202,11 +202,10 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954",
                 key={`${track.id}-${index}`}
                 className={`flex items-center 
                   justify-between p-2 
-                  rounded hover:bg-white 
-                  hover:bg-opacity-10 
+                  rounded hover:bg-secondary/10 
                   group ${
                     audioPlaying() && currentTrackId === track.id + "" ? 
-                    'bg-white bg-opacity-20 text-[color:var(--accent-color)]' : 'text-[color:var(--player-color)]'
+                    'bg-secondary/20 text-[color:var(--accent-color)]' : 'text-[color:var(--player-color)]'
                 }`}
               >
                 <div className="flex items-center gap-4">

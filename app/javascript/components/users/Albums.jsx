@@ -101,7 +101,7 @@ export default function UserAlbums() {
                     className="object-center object-cover group-hover:opacity-75"
                   />
                 </div>
-                <div className="flex flex-1 items-center justify-between truncate rounded-r-md border-b border-r border-t border-muted bg-card">
+                <div className="flex flex-1 items-center justify-between truncate rounded-r-md border-b border-r border-t border-card bg-card">
                   <div className="flex-1 truncate px-4 py-2 text-sm">
                     <Link
                       to={`/playlists/${album.slug}`}
@@ -140,7 +140,7 @@ export default function UserAlbums() {
             ))}
           </ul>
         </>
-        )
+      )
       }
 
       {/*albums.length === 0 && (

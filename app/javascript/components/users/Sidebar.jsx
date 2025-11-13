@@ -1,5 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+import { Button } from '../ui/button'
+import { Newspaper } from 'lucide-react'
 
 export default function Sidebar({ user }) {
   return (
@@ -44,19 +46,24 @@ export default function Sidebar({ user }) {
 
         <div className="flex justify-end">
           <Link
-            className="mr-2 btn-xs outline rounded-sm p-1"
             to={`/${user?.username}/about`}
           >
-            more
+            <Button variant="outline" size="sm" className="mr-2">
+              About
+            </Button>
           </Link>
 
           <Link
-            className="mr-2 btn-xs outline rounded-sm p-1"
             to={`/${user?.username}/press-kit`}
           >
-            Press Kit
+            <Button variant="outline" size="sm">
+              <Newspaper className="mr-2 h-4 w-4" aria-hidden="true" />
+              <span>Press Kit</span>
+            </Button>
           </Link>
         </div>
+
+
 
         <div className="overflow-auto no-scrollbar relative" data-scroll-target="scrollContainer">
           <div className="grid grid-cols-1- grid-flow-col grid-rows-1- sm:gap-x-1 md:grid-cols-4- md:gap-y-0- lg:gap-x-2">
@@ -84,6 +91,6 @@ export default function Sidebar({ user }) {
           </div>
         </div>
       </div>
-    </div>
+    </div >
   )
 }

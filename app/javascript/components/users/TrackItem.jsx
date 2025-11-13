@@ -31,7 +31,7 @@ export default function TrackItem({
           />
           <button
             onClick={() => onPlay(track.id)}
-            className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-40 transition-opacity hover:bg-opacity-50"
+            className="absolute inset-0 flex items-center justify-center bg-black/40 transition-opacity hover:bg-black/50"
           >
             {isCurrentlyPlaying ? (
               <Pause className="w-8 h-8 text-default" />
@@ -48,7 +48,7 @@ export default function TrackItem({
 
                 <button
                   onClick={() => onPlay(track.id)}
-                  className="flex sm:hidden mr-2 p-3 items-center justify-center bg-black bg-opacity-40 transition-opacity hover:bg-opacity-50"
+                  className="flex sm:hidden mr-2 p-3 items-center justify-center bg-black/40 transition-opacity hover:bg-black/50"
                 >
                   {isCurrentlyPlaying ? (
                     <Pause className="w-4 h-4 text-default" />
