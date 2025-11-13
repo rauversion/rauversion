@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react"
 import { Link } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { AdminPanel, type PressKitData } from "./AdminPanel"
+import TrackCell from "@/components/tracks/TrackCell"
 import { get, patch } from "@rails/request.js"
 import { useToast } from "@/hooks/use-toast"
 import useAuthStore from "@/stores/authStore"
@@ -39,6 +40,7 @@ export default function PressKitPage() {
   const [tracks, setTracks] = useState<any[]>([])
   const [photos, setPhotos] = useState<any[]>([])
   const [animatedSections, setAnimatedSections] = useState<string[]>([])
+  const [hasPressKit, setHasPressKit] = useState<boolean | null>(null)
   const S = (v: any) => (v ?? "").toString()
 
   const isOwner = currentUser && currentUser.username === username
@@ -55,11 +57,16 @@ export default function PressKitPage() {
         const data = await response.json
         if (data.press_kit && data.press_kit.data) {
           setPressKitData(data.press_kit.data)
+          setHasPressKit(true)
+        } else {
+          setHasPressKit(false)
         }
         // Load photos from the queryable association
         if (data.press_kit && data.press_kit.photos) {
           setPhotos(data.press_kit.photos)
         }
+      } else {
+        setHasPressKit(false)
       }
     } catch (error) {
       console.error('Error loading press kit:', error)
@@ -512,6 +519,64 @@ export default function PressKitPage() {
     )
   }
 
+  // Empty state when there is no press kit yet
+  if (hasPressKit === false) {
+    return (
+      <div className="min-h-screen bg-background text-foreground relative">
+        <main className="max-w-3xl mx-auto px-6 sm:px-8 lg:px-16 py-24">
+          <div className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-b from-secondary/40 to-background p-10 sm:p-12">
+            <div className="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-primary/10 blur-2xl" />
+            <div className="absolute -bottom-10 -left-10 h-40 w-40 rounded-full bg-primary/10 blur-2xl" />
+
+            <div className="relative space-y-6 text-center">
+              <div className="inline-flex h-12 w-12 items-center justify-center rounded-full border border-border bg-secondary/60 mx-auto">
+                <svg
+                  className="h-5 w-5 text-muted-foreground"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M12 8v4l3 3" />
+                  <circle cx="12" cy="12" r="10" />
+                </svg>
+              </div>
+
+              <h1 className="text-2xl sm:text-3xl font-bold">No Press Kit yet</h1>
+              <p className="text-muted-foreground">
+                This artist hasn’t created a press kit yet. When it’s ready, you’ll find their bio, releases, photos and contact details here.
+              </p>
+
+              {isOwner && (
+                <div className="pt-2">
+                  <Button
+                    onClick={() => setIsAdminOpen(true)}
+                    className="bg-primary hover:bg-primary/90"
+                  >
+                    Create your Press Kit
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+        </main>
+
+        {/* Admin launcher for owners */}
+        {isOwner && (
+          <AdminPanel
+            isOpen={isAdminOpen}
+            onClose={() => setIsAdminOpen(false)}
+            data={pressKitData}
+            photos={photos}
+            onSave={handleSaveData}
+          />
+        )}
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground relative">
       {isOwner && (
@@ -714,24 +779,7 @@ export default function PressKitPage() {
                 <h3 className="text-2xl font-semibold">Tracks</h3>
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {tracks.map((track) => (
-                    <Link
-                      key={track.id}
-                      to={`/tracks/${track.slug || track.id}`}
-                      className="group relative overflow-hidden rounded-lg border border-border hover:border-primary/50 transition-all duration-500"
-                    >
-                      <div className="aspect-square relative overflow-hidden bg-secondary">
-                        <img
-                          src={track.cover_url?.small || track.cover_url?.medium || "/placeholder.svg"}
-                          alt={String(track.title || "Track")}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        />
-                      </div>
-                      <div className="p-4 space-y-2">
-                        <h4 className="text-lg font-semibold group-hover:text-primary transition-colors duration-300">
-                          {track.title}
-                        </h4>
-                      </div>
-                    </Link>
+                    <TrackCell key={track.id} track={track} />
                   ))}
                 </div>
               </div>

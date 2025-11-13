@@ -3,6 +3,10 @@ json.collection @tracks do |track|
   json.title track.title
   json.slug track.slug
 
+  json.user do
+    json.username track.user.username
+  end
+
   json.cover_url do
     if track.cover.attached?
       json.small track.cover_url(:small)

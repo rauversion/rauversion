@@ -84,7 +84,7 @@ class PressKitsController < ApplicationController
   private
 
   def set_user
-    @user = User.find_by!(username: params[:username])
+    @user = User.find_by!(username: params[:user_id])
   end
 
   def set_press_kit
