@@ -2064,8 +2064,15 @@ en:
     cancel: Cancel
     download_pdf: Download PDF
     generating: Generating...
+    published: Published
+    saving: Saving...
+    saved: Saved
+    error: Error
+    failed_to_save: Failed to save press kit
+    loading: Loading press kit...
     sections:
       bio_info: Bio & Info
+      music: Music
       social: Social Links
       photos: Press Photos
       contacts: Contact Info
@@ -2102,6 +2109,7 @@ en:
       handle_placeholder: "@username or artist name"
       url_placeholder: https://...
       remove: Remove Platform
+      suggested_platforms: "Suggested platforms: Instagram, SoundCloud, Spotify, Apple Music, Beatport, YouTube, Resident Advisor, Facebook, Twitter/X, TikTok, Mixcloud, Bandcamp"
     press_photos:
       title: Press Photos
       add: Add Photo
@@ -2114,6 +2122,12 @@ en:
       remove: Remove Photo
       download_all: Download All Press Photos (ZIP)
       high_res_available: High-resolution images available for download
+      current_photos: Current Photos
+      upload_new: Upload New Photo
+      photo_added: Photo added
+      image_uploaded: Image uploaded and attached
+      failed_to_attach: Failed to attach photo
+      press_photo_alt: Press photo
     contacts:
       title: Contact Information
       add: Add Contact
@@ -2124,6 +2138,7 @@ en:
       email_placeholder: contact@example.com
       agent_placeholder: Agent or manager name
       remove: Remove Contact
+      suggested_types: "Suggested contact types: Bookings, Press Inquiries, Management & General, Label Contact, Collaborations, Technical Rider"
     tour_dates:
       title: Tour Dates
       add: Add Date
@@ -2135,17 +2150,30 @@ en:
       city_placeholder: Berlin, London, etc.
       remove: Remove Date
       upcoming: Upcoming Tour Dates
-    playlists:
-      title: Music & Playlists
-      add: Add Playlist/Album
-      select_playlist: Select Playlist
-      external_link: External Platform Link
+    music:
+      title: Music
+      external_links_title: External Music Links
+      add_link: Add Link
       platform: Platform
-      link: Link
-      spotify: Spotify
-      bandcamp: Bandcamp
-      soundcloud: SoundCloud
-      remove: Remove
+      album_title: Album/Release Title
+      url: URL
+      album_placeholder: Album or release name
+      url_placeholder: https://...
+      remove_link: Remove Link
+      description: Add links to your music on external platforms like Spotify, Bandcamp, or SoundCloud.
+      rauversion_note: Your Rauversion playlists will be automatically included in the press kit.
+      platforms:
+        spotify: Spotify
+        bandcamp: Bandcamp
+        soundcloud: SoundCloud
+        apple_music: Apple Music
+        youtube: YouTube
+        other: Other
+      playlists_albums: Playlists & Albums
+      tracks: Tracks
+      available_on: Available On
+      no_releases: No music releases added yet
+      no_cover: No Cover
     navigation:
       intro: Intro
       bio: Biography
@@ -2165,3 +2193,13 @@ en:
       available_for_bookings: Available for Bookings
       stream_on_platforms: Stream on platforms
       featured_in: Featured in
+    empty_state:
+      title: No Press Kit yet
+      description: This artist hasn't created a press kit yet. When it's ready, you'll find their bio, releases, photos and contact details here.
+      create_button: Create your Press Kit
+    press_reviews:
+      title: Press & Reviews
+      empty: Press reviews and features will be displayed here
+    common:
+      remove: Remove
+    agent: Agent

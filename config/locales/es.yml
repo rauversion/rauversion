@@ -2125,8 +2125,15 @@ es:
     cancel: Cancelar
     download_pdf: Descargar PDF
     generating: Generando...
+    published: Publicado
+    saving: Guardando...
+    saved: Guardado
+    error: Error
+    failed_to_save: Error al guardar el kit de prensa
+    loading: Cargando kit de prensa...
     sections:
       bio_info: Bio e Info
+      music: Música
       social: Enlaces Sociales
       photos: Fotos de Prensa
       contacts: Información de Contacto
@@ -2163,6 +2170,7 @@ es:
       handle_placeholder: "@usuario o nombre de artista"
       url_placeholder: https://...
       remove: Eliminar Plataforma
+      suggested_platforms: "Plataformas sugeridas: Instagram, SoundCloud, Spotify, Apple Music, Beatport, YouTube, Resident Advisor, Facebook, Twitter/X, TikTok, Mixcloud, Bandcamp"
     press_photos:
       title: Fotos de Prensa
       add: Agregar Foto
@@ -2175,6 +2183,12 @@ es:
       remove: Eliminar Foto
       download_all: Descargar Todas las Fotos de Prensa (ZIP)
       high_res_available: Imágenes de alta resolución disponibles para descargar
+      current_photos: Fotos Actuales
+      upload_new: Subir Nueva Foto
+      photo_added: Foto agregada
+      image_uploaded: Imagen subida y adjuntada
+      failed_to_attach: Error al adjuntar foto
+      press_photo_alt: Foto de prensa
     contacts:
       title: Información de Contacto
       add: Agregar Contacto
@@ -2185,6 +2199,7 @@ es:
       email_placeholder: contacto@ejemplo.com
       agent_placeholder: Nombre del agente o manager
       remove: Eliminar Contacto
+      suggested_types: "Tipos de contacto sugeridos: Reservas, Consultas de Prensa, Gestión y General, Contacto de Sello, Colaboraciones, Rider Técnico"
     tour_dates:
       title: Fechas de Gira
       add: Agregar Fecha
@@ -2196,17 +2211,30 @@ es:
       city_placeholder: Berlín, Londres, etc.
       remove: Eliminar Fecha
       upcoming: Próximas Fechas de Gira
-    playlists:
-      title: Música y Listas de Reproducción
-      add: Agregar Playlist/Álbum
-      select_playlist: Seleccionar Playlist
-      external_link: Enlace de Plataforma Externa
+    music:
+      title: Música
+      external_links_title: Enlaces de Música Externa
+      add_link: Agregar Enlace
       platform: Plataforma
-      link: Enlace
-      spotify: Spotify
-      bandcamp: Bandcamp
-      soundcloud: SoundCloud
-      remove: Eliminar
+      album_title: Título de Álbum/Lanzamiento
+      url: URL
+      album_placeholder: Nombre del álbum o lanzamiento
+      url_placeholder: https://...
+      remove_link: Eliminar Enlace
+      description: Agrega enlaces a tu música en plataformas externas como Spotify, Bandcamp o SoundCloud.
+      rauversion_note: Tus listas de reproducción de Rauversion se incluirán automáticamente en el kit de prensa.
+      platforms:
+        spotify: Spotify
+        bandcamp: Bandcamp
+        soundcloud: SoundCloud
+        apple_music: Apple Music
+        youtube: YouTube
+        other: Otro
+      playlists_albums: Listas de Reproducción y Álbumes
+      tracks: Pistas
+      available_on: Disponible En
+      no_releases: No se han agregado lanzamientos musicales aún
+      no_cover: Sin Portada
     navigation:
       intro: Intro
       bio: Biografía
@@ -2226,3 +2254,13 @@ es:
       available_for_bookings: Disponible para Reservas
       stream_on_platforms: Escucha en plataformas
       featured_in: Destacado en
+    empty_state:
+      title: Aún no hay Kit de Prensa
+      description: Este artista aún no ha creado un kit de prensa. Cuando esté listo, encontrarás su biografía, lanzamientos, fotos y detalles de contacto aquí.
+      create_button: Crear tu Kit de Prensa
+    press_reviews:
+      title: Prensa y Reseñas
+      empty: Las reseñas de prensa y apariciones se mostrarán aquí
+    common:
+      remove: Eliminar
+    agent: Agente
