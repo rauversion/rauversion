@@ -935,6 +935,10 @@ en:
       your_price_label: "Your Price (%{currency})"
       minimum_price_error: "Minimum price is %{currency} %{min_price}"
       sold_out_badge: "Sold Out"
+      disclaimers:
+        title: "Important Information"
+        refund_policy: "Refund policy: Returns are only allowed up to one day before the event."
+        platform_role: "Rauversion acts as an intermediary between the event organizer and the ticket buyer."
       validation:
         quantity_negative: "Quantity cannot be negative"
         max_tickets: "Maximum %{count} tickets available"

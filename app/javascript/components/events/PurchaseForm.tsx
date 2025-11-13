@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label"
 import { useNavigate } from "react-router-dom"
 import { get, post } from "@rails/request.js"
 import { motion, AnimatePresence } from "framer-motion"
-import { Ticket, ShoppingCart, AlertCircle } from "lucide-react"
+import { Ticket, ShoppingCart, AlertCircle, Info } from "lucide-react"
 import I18n from "@/stores/locales"
 import { Badge } from "../ui/badge"
 
@@ -434,6 +434,36 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
               })}
             </AnimatePresence>
           </CardContent>
+
+          {/* Disclaimers Section */}
+          <div className="px-6 pb-4">
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4 }}
+              className="bg-muted/30 rounded-lg p-4 space-y-3 border border-muted"
+            >
+              <div className="flex items-start gap-2">
+                <Info className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                <div className="space-y-2">
+                  <h4 className="font-semibold text-sm">
+                    {I18n.t("events.purchase_form.disclaimers.title")}
+                  </h4>
+                  <ul className="text-xs text-muted-foreground space-y-1.5">
+                    <li className="flex items-start gap-2">
+                      <span className="text-primary mt-0.5">•</span>
+                      <span>{I18n.t("events.purchase_form.disclaimers.refund_policy")}</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="text-primary mt-0.5">•</span>
+                      <span>{I18n.t("events.purchase_form.disclaimers.platform_role")}</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+
           <CardFooter>
             <Button
               type="submit"

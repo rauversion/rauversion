@@ -1002,7 +1002,10 @@ es:
       your_price_label: "Tu Precio (%{currency})"
       minimum_price_error: "El precio mínimo es %{currency} %{min_price}"
       sold_out_badge: "Agotado"
-
+      disclaimers:
+        title: "Información Importante"
+        refund_policy: "Política de devolución: Las devoluciones solo están permitidas hasta un día antes del evento."
+        platform_role: "Rauversion actúa como intermediario entre el gestor del evento y el comprador del boleto."
       validation:
         quantity_negative: "La cantidad no puede ser negativa"
         max_tickets: "Máximo %{count} entradas disponibles"
