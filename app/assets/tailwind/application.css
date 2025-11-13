@@ -186,8 +186,6 @@
     text-decoration: underline;
   }
 
-
-
   .select__menu,
   .react-select__menu {
     background-color: var(--background) !important;
@@ -202,6 +200,11 @@
 
 
 @layer utilities {}
+
+
+.graf--p {
+  color: var(--primary);
+}
 
 /* Custom animations for marketing illustrations */
 @keyframes pulse-ring {
