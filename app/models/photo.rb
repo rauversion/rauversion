@@ -11,7 +11,12 @@ class Photo < ApplicationRecord
   # so presence validations on :image can run without hacks.
   before_validation :attach_image_from_signed_id, on: :create
 
-  validates :image, presence: true, on: :create
+  validates :image, presence: true, on: :create, unless: :photoable_allows_blank_image?
+
+  # Allow creating photos without an attached image for certain polymorphic parents (e.g., PressKit)
+  def photoable_allows_blank_image?
+    photoable_type == 'PressKit'
+  end
 
   private
 

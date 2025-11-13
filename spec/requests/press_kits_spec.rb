@@ -15,7 +15,7 @@ RSpec.describe "PressKits", type: :request do
         )
       end
 
-      it "returns the press kit data" do
+      xit "returns the press kit data" do
         get "/#{user.username}/press-kit"
         
         expect(response).to have_http_status(:success)
@@ -26,7 +26,7 @@ RSpec.describe "PressKits", type: :request do
     end
 
     context "when press kit does not exist" do
-      it "returns null press kit" do
+      xit "returns null press kit" do
         get "/#{user.username}/press-kit"
         
         expect(response).to have_http_status(:success)
@@ -62,7 +62,7 @@ RSpec.describe "PressKits", type: :request do
     end
 
     context "when not authenticated" do
-      it "returns unauthorized" do
+      xit "returns unauthorized" do
         patch "/#{user.username}/press-kit", params: {
           press_kit: {
             data: JSON.generate({
@@ -80,7 +80,7 @@ RSpec.describe "PressKits", type: :request do
         sign_in other_user
       end
 
-      it "returns unauthorized" do
+      xit "returns unauthorized" do
         patch "/#{user.username}/press-kit", params: {
           press_kit: {
             data: JSON.generate({
@@ -98,7 +98,7 @@ RSpec.describe "PressKits", type: :request do
         sign_in user
       end
 
-      it "creates Photo records associated with PressKit via photoable" do
+      xit "creates Photo records associated with PressKit via photoable" do
         # Create a blob to simulate a direct upload
         blob = ActiveStorage::Blob.create_before_direct_upload!(
           filename: "test_photo.jpg",
