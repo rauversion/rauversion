@@ -100,7 +100,7 @@
   },
   "scripts": {
     "build": "esbuild app/javascript/*.* --bundle --sourcemap --outdir=app/assets/builds --public-path=/assets --loader:.js=jsx",
-    "build:css": "tailwindcss -i ./app/assets/stylesheets/application.tailwind.css -o ./app/assets/builds/application.css --minify"
+    "build:css": "tailwindcss -i ./app/assets/tailwind/application.css -o ./app/assets/builds/application.css --minify"
   },
   "devDependencies": {
     "postcss-import": "^16.1.0"
