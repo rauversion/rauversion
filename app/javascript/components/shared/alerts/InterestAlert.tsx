@@ -126,7 +126,7 @@ const InterestAlert: React.FC<InterestAlertProps> = ({ type, onSubmit }) => {
               >
                 <Button
                   onClick={handleSubmit}
-                  className="w-full bg-white text-purple-600 hover:bg-opacity-90"
+                  className="w-full bg-white text-purple-600 hover:bg-white/90"
                 >
                   {I18n.t("interest_alert.submit")}
                 </Button>

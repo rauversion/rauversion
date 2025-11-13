@@ -44,7 +44,7 @@ const YouTubeBlock = ({ url, aspectRatio }) => {
 
   if (loading) {
     return (
-      <div className={`animate-pulse bg-gray-200 ${getAspectRatioClass()}`} />
+      <div className={`animate-pulse bg-secondary ${getAspectRatioClass()}`} />
     );
   }
 
@@ -58,7 +58,7 @@ const YouTubeBlock = ({ url, aspectRatio }) => {
 
   if (!embedData) {
     return (
-      <div className="bg-gray-50 p-4 rounded">
+      <div className="bg-muted p-4 rounded">
         Please enter a valid YouTube URL
       </div>
     );
@@ -73,7 +73,7 @@ const YouTubeBlock = ({ url, aspectRatio }) => {
         />
       </div>
       {embedData.title && (
-        <div className="mt-2 text-sm text-gray-600">
+        <div className="mt-2 text-sm text-muted-foreground">
           {embedData.title}
         </div>
       )}

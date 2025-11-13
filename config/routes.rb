@@ -297,6 +297,9 @@ Rails.application.routes.draw do
   get "/tracks/genre/:tag", to: "tags#index", as: :track_tag
 
   resources :tracks do
+    collection do
+      get :by_id
+    end
     resource :events, only: :show, controller: "tracking_events"
     resource :reposts
     resource :likes
@@ -483,6 +486,11 @@ Rails.application.routes.draw do
       get "/label_artists", to: "users#artists", as: :label_artists
 
       get "/articles", to: "users#articles"
+      
+      # Press Kit routes
+      get "/press-kit", to: "press_kits#show", as: :press_kit
+      patch "/press-kit", to: "press_kits#update"
+      
       member do
         get :playlists, format: :json, to: 'users#playlists_api'
       end

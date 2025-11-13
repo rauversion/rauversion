@@ -133,47 +133,47 @@ export default function Insights() {
     <div className="flex-grow bg-default text-default">
       <div className="mx-auto w-3/4">
         <div className="pt-4">
-          <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100">
+          <h3 className="text-lg leading-6 font-medium text-foreground dark:text-muted">
             Last 30 days
           </h3>
           <dl className="hidden mt-5 grid grid-cols-1 gap-5 sm:grid-cols-3">
-            <div className="px-4 py-5 bg-white shadow rounded-lg overflow-hidden sm:p-6 dark:bg-gray-900">
-              <dt className="text-sm font-medium text-gray-500 truncate">
+            <div className="px-4 py-5 bg-white shadow rounded-lg overflow-hidden sm:p-6 dark:bg-card">
+              <dt className="text-sm font-medium text-muted-foreground truncate">
                 Total de escuchas
               </dt>
-              <dd className="mt-1 text-3xl font-semibold text-gray-900 dark:text-gray-100">
+              <dd className="mt-1 text-3xl font-semibold text-foreground dark:text-muted">
                 {data.stats.plays}
               </dd>
             </div>
 
-            <div className="px-4 py-5 bg-white shadow rounded-lg overflow-hidden sm:p-6 dark:bg-gray-900">
-              <dt className="text-sm font-medium text-gray-500 truncate">
+            <div className="px-4 py-5 bg-white shadow rounded-lg overflow-hidden sm:p-6 dark:bg-card">
+              <dt className="text-sm font-medium text-muted-foreground truncate">
                 Me gusta
               </dt>
-              <dd className="mt-1 text-3xl font-semibold text-gray-900 dark:text-gray-100">
+              <dd className="mt-1 text-3xl font-semibold text-foreground dark:text-muted">
                 {data.stats.likes}
               </dd>
             </div>
 
-            <div className="px-4 py-5 bg-white shadow rounded-lg overflow-hidden sm:p-6 dark:bg-gray-900">
-              <dt className="text-sm font-medium text-gray-500 truncate">
+            <div className="px-4 py-5 bg-white shadow rounded-lg overflow-hidden sm:p-6 dark:bg-card">
+              <dt className="text-sm font-medium text-muted-foreground truncate">
                 Repost
               </dt>
-              <dd className="mt-1 text-3xl font-semibold text-gray-900 dark:text-gray-100">
+              <dd className="mt-1 text-3xl font-semibold text-foreground dark:text-muted">
                 {data.stats.reposts}
               </dd>
             </div>
 
-            <div className="px-4 py-5 bg-white shadow rounded-lg overflow-hidden sm:p-6 dark:bg-gray-900">
-              <dt className="text-sm font-medium text-gray-500 truncate">Descargas</dt>
-              <dd className="mt-1 text-3xl font-semibold text-gray-900 dark:text-gray-100">
+            <div className="px-4 py-5 bg-white shadow rounded-lg overflow-hidden sm:p-6 dark:bg-card">
+              <dt className="text-sm font-medium text-muted-foreground truncate">Descargas</dt>
+              <dd className="mt-1 text-3xl font-semibold text-foreground dark:text-muted">
                 {data.stats.downloads}
               </dd>
             </div>
 
-            <div className="px-4 py-5 bg-white shadow rounded-lg overflow-hidden sm:p-6 dark:bg-gray-900">
-              <dt className="text-sm font-medium text-gray-500 truncate">Comentarios</dt>
-              <dd className="mt-1 text-3xl font-semibold text-gray-900 dark:text-gray-100">
+            <div className="px-4 py-5 bg-white shadow rounded-lg overflow-hidden sm:p-6 dark:bg-card">
+              <dt className="text-sm font-medium text-muted-foreground truncate">Comentarios</dt>
+              <dd className="mt-1 text-3xl font-semibold text-foreground dark:text-muted">
                 {data.stats.comments}
               </dd>
             </div>
@@ -181,7 +181,7 @@ export default function Insights() {
         </div>
 
         <div>
-          <div className="shadow-lg rounded-lg overflow-hidden my-4 dark:bg-gray-900">
+          <div className="shadow-lg rounded-lg overflow-hidden my-4 dark:bg-card">
             <canvas
               ref={chartRef}
               className="p-10"
@@ -191,12 +191,12 @@ export default function Insights() {
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          <div className="p-4 shadow-lg rounded-lg col-span-2 md:col-span-1 overflow-hidden dark:bg-gray-900">
+          <div className="p-4 shadow-lg rounded-lg col-span-2 md:col-span-1 overflow-hidden dark:bg-card">
             <div className="py-5">
-              <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100">
+              <h3 className="text-lg leading-6 font-medium text-foreground dark:text-muted">
                 Mejores canciones
               </h3>
-              <p className="mt-1 max-w-2xl text-sm text-gray-500">
+              <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
                 Últimos 12 meses
               </p>
             </div>
@@ -210,10 +210,10 @@ export default function Insights() {
                         <img src={track.cover_url.small} alt="" className="h-8 w-8 rounded-xs" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                        <p className="text-sm font-medium text-foreground dark:text-muted truncate">
                           {track.title}
                         </p>
-                        <div className="text-sm text-gray-500 space-x-2 flex items-center">
+                        <div className="text-sm text-muted-foreground space-x-2 flex items-center">
                           <Play className="h-5 w-5" />
                           <span>reproduce {track.count}</span>
                         </div>
@@ -225,12 +225,12 @@ export default function Insights() {
             </div>
           </div>
 
-          <div className="p-4 shadow-lg rounded-lg col-span-2 md:col-span-1 overflow-hidden dark:bg-gray-900">
+          <div className="p-4 shadow-lg rounded-lg col-span-2 md:col-span-1 overflow-hidden dark:bg-card">
             <div className="py-5">
-              <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100">
+              <h3 className="text-lg leading-6 font-medium text-foreground dark:text-muted">
                 Top oyentes
               </h3>
-              <p className="mt-1 max-w-2xl text-sm text-gray-500">
+              <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
                 Últimos 12 meses
               </p>
             </div>
@@ -248,10 +248,10 @@ export default function Insights() {
                         />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                        <p className="text-sm font-medium text-foreground dark:text-muted truncate">
                           {listener.username}
                         </p>
-                        <div className="text-sm text-gray-500 space-x-2 flex items-center">
+                        <div className="text-sm text-muted-foreground space-x-2 flex items-center">
                           <Play className="h-5 w-5" />
                           <span>reproduce {listener.count}</span>
                         </div>
@@ -263,12 +263,12 @@ export default function Insights() {
             </div>
           </div>
 
-          <div className="p-4 col-span-2 shadow-lg rounded-lg overflow-hidden dark:bg-gray-900">
+          <div className="p-4 col-span-2 shadow-lg rounded-lg overflow-hidden dark:bg-card">
             <div className="py-5">
-              <h3 className="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100">
+              <h3 className="text-lg leading-6 font-medium text-foreground dark:text-muted">
                 Locaciones recurrentes
               </h3>
-              <p className="mt-1 max-w-2xl text-sm text-gray-500">
+              <p className="mt-1 max-w-2xl text-sm text-muted-foreground">
                 Datos personales y aplicación.
               </p>
             </div>
@@ -287,10 +287,10 @@ export default function Insights() {
                           />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                          <p className="text-sm font-medium text-foreground dark:text-muted truncate">
                             {location.country}
                           </p>
-                          <div className="text-sm text-gray-500 space-x-2 flex items-center">
+                          <div className="text-sm text-muted-foreground space-x-2 flex items-center">
                             <Play className="h-5 w-5" />
                             <span>reproduce {location.count}</span>
                           </div>

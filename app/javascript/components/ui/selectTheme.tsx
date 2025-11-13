@@ -1,68 +1,75 @@
-const selectTheme = (theme: any, isDark: boolean) => ({
-  ...theme,
+const mix = (col: string, pct: number) => `color-mix(in oklch, ${col} ${pct}%, transparent)`;
+
+
+const selectTheme = (_theme: any) => ({
+  ..._theme,
   colors: {
-    ...theme.colors,
-    primary: 'hsl(var(--primary))',
-    primary75: 'hsla(var(--primary), 0.75)',
-    primary50: 'hsla(var(--primary), 0.5)',
-    primary25: 'hsla(var(--primary), 0.25)',
-    danger: 'hsl(var(--destructive))',
-    dangerLight: 'hsla(var(--destructive), 0.2)',
-    neutral0: isDark ? 'hsl(var(--background))' : 'hsl(var(--background))',
-    neutral5: isDark ? 'hsl(var(--background))' : 'hsl(var(--muted))',
-    neutral10: isDark ? 'hsl(var(--muted))' : 'hsl(var(--muted))',
-    neutral20: isDark ? 'hsl(var(--border))' : 'hsl(var(--border))',
-    neutral30: isDark ? 'hsl(var(--border))' : 'hsl(var(--border))',
-    neutral40: isDark ? 'hsl(var(--muted-foreground))' : 'hsl(var(--muted-foreground))',
-    neutral50: isDark ? 'hsl(var(--muted-foreground))' : 'hsl(var(--muted-foreground))',
-    neutral60: isDark ? 'hsl(var(--foreground))' : 'hsl(var(--foreground))',
-    neutral70: isDark ? 'hsl(var(--foreground))' : 'hsl(var(--foreground))',
-    neutral80: isDark ? 'hsl(var(--foreground))' : 'hsl(var(--foreground))',
-    neutral90: isDark ? 'hsl(var(--foreground))' : 'hsl(var(--foreground))',
+    ..._theme.colors,
+    // usa directamente tus vars (ya son oklch(...))
+    primary: 'var(--primary)',
+    primary75: mix('var(--primary)', 75),
+    primary50: mix('var(--primary)', 50),
+    primary25: mix('var(--primary)', 25),
+
+    danger: 'var(--destructive)',
+    dangerLight: mix('var(--destructive)', 20),
+
+    // neutrales
+    neutral0: 'var(--background)',
+    neutral5: 'var(--muted)',
+    neutral10: 'var(--muted)',
+    neutral20: 'var(--border)',
+    neutral30: 'var(--border)',
+    neutral40: 'var(--muted-foreground)',
+    neutral50: 'var(--muted-foreground)',
+    neutral60: 'var(--foreground)',
+    neutral70: 'var(--foreground)',
+    neutral80: 'var(--foreground)',
+    neutral90: 'var(--foreground)',
   },
-})
+});
 
 const selectStyles = {
-  control: (base) => ({
+  control: (base: any, state: any) => ({
     ...base,
-    backgroundColor: 'hsl(var(--background))',
-    borderColor: 'hsl(var(--border))',
+    backgroundColor: 'var(--background)',
+    borderColor: 'var(--border)',
+    boxShadow: state.isFocused ? `0 0 0 2px var(--ring)` : base.boxShadow,
+    '&:hover': { borderColor: 'var(--border)' },
+  }),
+  menu: (base: any) => ({
+    ...base,
+    backgroundColor: 'var(--background)',
+    border: `1px solid var(--border)`,
+  }),
+  menuPortal: (base: any) => ({ ...base, zIndex: 9999 }),
+  option: (base: any, state: any) => ({
+    ...base,
+    backgroundColor: state.isFocused ? 'var(--accent)' : 'transparent',
+    color: state.isFocused ? 'var(--accent-foreground)' : 'inherit',
     '&:hover': {
-      borderColor: 'hsl(var(--border))'
-    }
+      backgroundColor: 'var(--accent)',
+      color: 'var(--accent-foreground)',
+    },
   }),
-  menu: (base) => ({
+  multiValue: (base: any) => ({
     ...base,
-    backgroundColor: 'hsl(var(--background))',
-    borderColor: 'hsl(var(--border))'
+    backgroundColor: 'var(--accent)',
+    color: 'var(--accent-foreground)',
   }),
-  option: (base, state) => ({
+  multiValueLabel: (base: any) => ({
     ...base,
-    backgroundColor: state.isFocused ? 'hsl(var(--accent))' : 'transparent',
-    color: state.isFocused ? 'hsl(var(--accent-foreground))' : 'inherit',
+    color: 'var(--accent-foreground)',
+  }),
+  multiValueRemove: (base: any) => ({
+    ...base,
+    color: 'var(--accent-foreground)',
     '&:hover': {
-      backgroundColor: 'hsl(var(--accent))',
-      color: 'hsl(var(--accent-foreground))'
-    }
+      backgroundColor: 'var(--destructive)',
+      color: 'var(--destructive-foreground)',
+    },
   }),
-  multiValue: (base) => ({
-    ...base,
-    backgroundColor: 'hsl(var(--accent))',
-    color: 'hsl(var(--accent-foreground))'
-  }),
-  multiValueLabel: (base) => ({
-    ...base,
-    color: 'hsl(var(--accent-foreground))'
-  }),
-  multiValueRemove: (base) => ({
-    ...base,
-    color: 'hsl(var(--accent-foreground))',
-    '&:hover': {
-      backgroundColor: 'hsl(var(--destructive))',
-      color: 'hsl(var(--destructive-foreground))'
-    }
-  })
-}
+};
 
-export default selectTheme
-export { selectTheme, selectStyles }
+export default selectTheme;
+export { selectTheme, selectStyles };

@@ -65,7 +65,7 @@ const CategoryGrid = () => {
     <div className="mb-16">
       <div className="flex flex-col items-center mb-12">
         <h1 className="text-5xl font-bold mb-4">Rau Store.</h1>
-        <p className="text-2xl text-gray-600">
+        <p className="text-2xl text-muted-foreground">
           The best way to buy the products you love.
         </p>
       </div>

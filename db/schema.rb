@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_10_035932) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_11_021157) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -418,11 +418,14 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_10_035932) do
   end
 
   create_table "photos", force: :cascade do |t|
-    t.bigint "user_id", null: false
+    t.bigint "user_id"
     t.text "description"
     t.string "tags", default: [], array: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "photoable_type"
+    t.bigint "photoable_id"
+    t.index ["photoable_type", "photoable_id"], name: "index_photos_on_photoable_type_and_photoable_id"
     t.index ["user_id"], name: "index_photos_on_user_id"
   end
 
@@ -511,6 +514,15 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_10_035932) do
 
   create_table "press_kits", force: :cascade do |t|
     t.bigint "user_id", null: false
+    t.jsonb "data", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["data"], name: "index_press_kits_on_data", using: :gin
+    t.index ["user_id"], name: "index_press_kits_on_user_id"
+  end
+
+  create_table "press_kits-old", id: :bigint, default: -> { "nextval('press_kits_id_seq'::regclass)" }, force: :cascade do |t|
+    t.bigint "user_id", null: false
     t.text "bio"
     t.text "press_release"
     t.text "technical_rider"
@@ -522,9 +534,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_10_035932) do
     t.datetime "updated_at", null: false
     t.jsonb "editor_data", default: {}
     t.boolean "use_builder", default: false
-    t.index ["editor_data"], name: "index_press_kits_on_editor_data", using: :gin
-    t.index ["published"], name: "index_press_kits_on_published"
-    t.index ["user_id"], name: "index_press_kits_on_user_id"
+    t.index ["editor_data"], name: "index_press_kits_on_editor_data__", using: :gin
+    t.index ["published"], name: "index_press_kits_on_published__"
+    t.index ["user_id"], name: "index_press_kits_on_user_id__"
   end
 
   create_table "preview_cards", force: :cascade do |t|
@@ -1066,6 +1078,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_10_035932) do
   add_foreign_key "posts", "categories"
   add_foreign_key "posts", "users"
   add_foreign_key "press_kits", "users"
+  add_foreign_key "press_kits-old", "users"
   add_foreign_key "product_cart_items", "product_carts"
   add_foreign_key "product_cart_items", "products"
   add_foreign_key "product_carts", "users"

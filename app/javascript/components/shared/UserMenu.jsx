@@ -233,13 +233,13 @@ function useIsMobile() {
 export default function UserMenu() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { isDarkMode, toggleDarkMode } = useThemeStore();
-  const { 
-    currentUser, 
-    labelUser, 
-    cartItemCount, 
-    unreadMessagesCount, 
+  const {
+    currentUser,
+    labelUser,
+    cartItemCount,
+    unreadMessagesCount,
     signOut,
-    incrementUnreadMessagesCount 
+    incrementUnreadMessagesCount
   } = useAuthStore();
   const { setLocale, t, currentLocale } = useLocaleStore();
   const navigate = useNavigate();
@@ -386,7 +386,7 @@ export default function UserMenu() {
   return (
     <>
       {labelUser && currentUser && (
-        <nav className="border-b-muted border-b bg-purple-600 text-white flex justify-center py-1">
+        <nav className="border-b-secondary border-b bg-purple-600 text-white flex justify-center py-1">
           <span className="text-xs">
             {I18n.t("menu.acting_on_behalf")}{" "}
             <span className="font-bold hover:underline">
@@ -408,7 +408,7 @@ export default function UserMenu() {
         </nav>
       )}
 
-      <nav className="border-b-muted border-b" aria-label="Global">
+      <nav className="border-b-secondary border-b" aria-label="Global">
         <div className="max-w-7xl mx-auto px-2 sm:px-4 lg:px-8 text-default">
           <div className="flex justify-between h-16">
             <div className="flex items-center px-2 lg:px-0">

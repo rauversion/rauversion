@@ -1,4 +1,5 @@
 web: unset PORT && env RUBY_DEBUG_OPEN=true bin/rails server 
 js: yarn build --watch
-css: yarn build:css --watch
+# css: yarn build:css --watch
+css: bin/rails tailwindcss:watch
 jobs: ./bin/jobs

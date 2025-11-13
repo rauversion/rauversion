@@ -79,7 +79,7 @@ export default function ProductShow() {
         <h2 className="text-xl font-bold text-red-500">
           Unsupported product type
         </h2>
-        <p className="mt-2 text-gray-600">
+        <p className="mt-2 text-muted-foreground">
           Product type: {product.type}
         </p>
       </div>

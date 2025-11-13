@@ -100,7 +100,7 @@ export function DiscPreview({ properties, isPlaying }: DiscPreviewProps) {
           </div>
 
           {properties.showWatermark && (
-            <div className="absolute bottom-4 right-4 text-xs text-neutral-500">turn.audio</div>
+            <div className="absolute bottom-4 right-4 text-xs text-muted-foreground">turn.audio</div>
           )}
         </div>
       </div>

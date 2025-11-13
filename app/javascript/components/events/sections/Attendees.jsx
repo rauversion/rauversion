@@ -388,20 +388,20 @@ export default function Attendees() {
                   <div className="flex items-center space-x-2">
                     <div>
                       <p className="font-medium">{item.user.name}</p>
-                      <p className="text-sm text-gray-500">{item.user.email}</p>
+                      <p className="text-sm text-muted-foreground">{item.user.email}</p>
                     </div>
                   </div>
                 </TableCell>
                 <TableCell>
                   <div className="font-medium">{item.event_ticket.title}</div>
-                  <div className="text-sm text-gray-500">
+                  <div className="text-sm text-muted-foreground">
                     {item.event_ticket.currency} {item.event_ticket.price}
                   </div>
                 </TableCell>
                 <TableCell>
                   <Badge
                     variant="secondary"
-                    className={attendeeStatuses[item.state]?.color || 'bg-gray-500'}
+                    className={attendeeStatuses[item.state]?.color || 'bg-secondary'}
                   >
                     {attendeeStatuses[item.state]?.label || item.state}
                   </Badge>

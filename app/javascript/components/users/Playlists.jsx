@@ -89,7 +89,7 @@ export function PlaylistCard({
 
                 {playlist.playlist_type === "album" &&
                   playlist.release_date && (
-                    <span className="text-sm text-zinc-400 font-medium">
+                    <span className="text-sm text-muted-foreground font-medium">
                       Album •{" "}
                       {new Date(playlist.release_date).toLocaleDateString(
                         undefined,
@@ -139,12 +139,12 @@ export function PlaylistCard({
             </div>
 
             {playlist.description && (
-              <p className="text-zinc-400 text-sm line-clamp-2">
+              <p className="text-muted-foreground text-sm line-clamp-2">
                 {playlist.description}
               </p>
             )}
 
-            <p className="text-zinc-400 text-sm font-medium">
+            <p className="text-muted-foreground text-sm font-medium">
               {playlist.tracks_count} tracks
             </p>
 
@@ -166,7 +166,7 @@ export function PlaylistCard({
                   variant="mini"
                 />}
                 {embed &&
-                  <p className="text-sm text-gray-500 mt-2">
+                  <p className="text-sm text-muted-foreground mt-2">
                     Powered by <a
                       href={`${host}`}
                       target="_blank"
@@ -260,7 +260,7 @@ export default function UserPlaylists({ namespace = "playlists" }) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4 }}
         >
-          <p className="text-zinc-400 text-lg">No {namespace} found</p>
+          <p className="text-muted-foreground text-lg">No {namespace} found</p>
         </motion.div>
       )}
     </div>

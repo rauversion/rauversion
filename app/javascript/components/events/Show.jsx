@@ -234,7 +234,7 @@ export default function EventShow() {
 
       <footer className="py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-between md:flex-row">
-          <p className="mt-6 text-base dark:text-gray-300 md:mt-0">
+          <p className="mt-6 text-base dark:text-muted-foreground md:mt-0">
             {new Date().getFullYear()} {event.title}. {I18n.t('events.show.all_rights')}
           </p>
         </div>

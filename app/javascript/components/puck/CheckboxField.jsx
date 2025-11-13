@@ -9,7 +9,7 @@ const CheckboxField = ({ onChange, value, label }) => {
         onChange={(e) => onChange(e.target.checked)}
         className="form-checkbox h-4 w-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500"
       />
-      <span className="text-gray-700">{label}</span>
+      <span className="text-foreground">{label}</span>
     </label>
   );
 };

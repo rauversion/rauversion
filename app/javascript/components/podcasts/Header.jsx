@@ -18,12 +18,12 @@ export default function PodcastHeader({ data, currentUser }) {
         <span className="font-mono text-muted">Hosted by</span>
         <span className="mt-6 flex gap-6 font-bold text-default">
           <Link to={`/${data?.user?.username}`}>{data?.user?.username}</Link>
-          <span aria-hidden="true" className="text-slate-400">/</span>
+          <span aria-hidden="true" className="text-muted-foreground">/</span>
         </span>
         {data?.podcaster_info?.hosts?.map((host) => (
           <span key={host.id} className="mt-6 flex gap-6 font-bold text-default">
             <Link to={`/${host.username}`}>{host.username}</Link>
-            <span aria-hidden="true" className="text-slate-400">/</span>
+            <span aria-hidden="true" className="text-muted-foreground">/</span>
           </span>
         ))}
       </div>

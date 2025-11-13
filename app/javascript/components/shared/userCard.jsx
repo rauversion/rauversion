@@ -67,7 +67,7 @@ export default function UserCard({ artist, username, variant = 'default' }) {
           <h3 className="text-4xl font-black tracking-tight text-white uppercase" title={I18n.t('users.artist_page.name', { name: artist.full_name })}>
             {artist.full_name}
           </h3>
-          <p className="text-xl font-mono text-gray-400" title={I18n.t('users.artist_page.username', { username: artist.username })}>@{artist.username}</p>
+          <p className="text-xl font-mono text-muted-foreground" title={I18n.t('users.artist_page.username', { username: artist.username })}>@{artist.username}</p>
         </div>
 
         <div className="space-y-6">
@@ -76,18 +76,18 @@ export default function UserCard({ artist, username, variant = 'default' }) {
               <span className="font-bold text-white" title={I18n.t('users.artist_page.tracks_count', { count: artist.tracks_count })}>
                 {artist.tracks_count}
               </span>
-              <span className="text-gray-400 uppercase text-sm ml-2">{I18n.t('users.artist_page.tracks')}</span>
+              <span className="text-muted-foreground uppercase text-sm ml-2">{I18n.t('users.artist_page.tracks')}</span>
             </div>}
             {artist.albums_count && <div className="border border-white/20 px-4 py-2">
               <span className="font-bold text-white" title={I18n.t('users.artist_page.albums_count', { count: artist.albums_count })}>
                 {artist.albums_count}
               </span>
-              <span className="text-gray-400 uppercase text-sm ml-2">{I18n.t('users.artist_page.albums')}</span>
+              <span className="text-muted-foreground uppercase text-sm ml-2">{I18n.t('users.artist_page.albums')}</span>
             </div>}
           </div>
 
           {artist.bio && (
-            <p className="text-base text-gray-400 line-clamp-2 font-mono" title={I18n.t('users.artist_page.bio')}>
+            <p className="text-base text-muted-foreground line-clamp-2 font-mono" title={I18n.t('users.artist_page.bio')}>
               {artist.bio}
             </p>
           )}
@@ -95,7 +95,7 @@ export default function UserCard({ artist, username, variant = 'default' }) {
           <div className="space-y-2">
             <Link
               to={`/${artist.username}`}
-              className="block w-full bg-white text-black py-4 text-center text-lg font-bold uppercase hover:bg-gray-200 transition-colors"
+              className="block w-full bg-white text-black py-4 text-center text-lg font-bold uppercase hover:bg-secondary transition-colors"
             >
               {I18n.t('users.artist_page.view_profile')}
             </Link>

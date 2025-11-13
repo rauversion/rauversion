@@ -80,11 +80,11 @@ export function ClassicTrackCell({ track }) {
         />
       </div>
 
-      <p className="mt-1 text-lg font-medium leading-none text-gray-900 dark:text-gray-100 truncate">
+      <p className="mt-1 text-lg font-medium leading-none text-foreground dark:text-muted truncate">
         {track.title}
       </p>
 
-      <h3 className="text-xs text-gray-700 dark:text-gray-300">
+      <h3 className="text-xs text-foreground dark:text-muted-foreground">
         {track.user.username}
       </h3>
     </Link>
@@ -132,7 +132,7 @@ export function ModernTrackCell({ track }) {
         <h3 className="font-bold mb-1 truncate">
           {track.title}
         </h3>
-        <p className="text-sm text-gray-400">
+        <p className="text-sm text-muted-foreground">
           {track.user.username}
         </p>
       </div>
@@ -193,7 +193,7 @@ export function MinimalTrackCell({ track }) {
               <h3 className="text-lg font-bold tracking-tight text-white line-clamp-1 mix-blend-difference">
                 {track.title}
               </h3>
-              <p className="text-sm text-gray-300 font-mono">
+              <p className="text-sm text-muted-foreground font-mono">
                 {track.user.username}
               </p>
             </div>
