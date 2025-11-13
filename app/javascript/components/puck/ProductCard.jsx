@@ -234,7 +234,7 @@ const ProductCard = ({
             alt={product.title}
           />
           {showGallery && product.photos?.length > 0 && (
-            <div className="absolute bottom-0 left-0 right-0 p-2 bg-black bg-opacity-50 flex gap-2 overflow-x-auto">
+            <div className="absolute bottom-0 left-0 right-0 p-2 bg-black/50 flex gap-2 overflow-x-auto">
               {product.photos.map((image) => (
                 <button
                   key={image.id}
@@ -257,7 +257,7 @@ const ProductCard = ({
           {product.category && (
             <div className="mb-2">
               <span
-                className="inline-block px-3 py-1 text-xs font-medium rounded-full bg-gray-100"
+                className="inline-block px-3 py-1 text-xs font-medium rounded-full bg-muted"
                 style={{ color: textColor }}
               >
                 {product.category}

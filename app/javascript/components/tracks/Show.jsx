@@ -246,7 +246,7 @@ export default function TrackShow() {
             variant="ghost"
             size="icon"
             onClick={handleLike}
-            className={`flex items-center gap-1 ${isLiked ? 'text-brand-500' : 'text-gray-400'}`}
+            className={`flex items-center gap-1 ${isLiked ? 'text-brand-500' : 'text-muted-foreground'}`}
           >
             <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
             <span className="text-sm">{likes}</span>

@@ -64,7 +64,7 @@ export default function EventsIndex() {
 function EventCard({ event }) {
   return (
     <Link to={`/events/${event.slug}`} className="group">
-      <div className="aspect-w-16 aspect-h-9 w-full overflow-hidden rounded-lg bg-gray-200">
+      <div className="aspect-w-16 aspect-h-9 w-full overflow-hidden rounded-lg bg-secondary">
         {event.cover_url ? (
           <img
             src={event.cover_url.medium}
@@ -72,25 +72,25 @@ function EventCard({ event }) {
             className="h-full w-full object-cover object-center group-hover:opacity-75"
           />
         ) : (
-          <div className="flex h-full items-center justify-center bg-gray-200">
-            <span className="text-gray-400">{I18n.t('events.no_image')}</span>
+          <div className="flex h-full items-center justify-center bg-secondary">
+            <span className="text-muted-foreground">{I18n.t('events.no_image')}</span>
           </div>
         )}
       </div>
       <div className="mt-4 flex items-center justify-between text-base font-medium">
-        <h3 className="text-gray-900 dark:text-gray-100">{event.title}</h3>
+        <h3 className="text-foreground dark:text-muted">{event.title}</h3>
         <div className="flex flex-col items-end">
           {event.online ? (
             <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
               {I18n.t('events.online')}
             </span>
           ) : (
-            <span className="text-sm text-gray-500">{event.venue || event.city}</span>
+            <span className="text-sm text-muted-foreground">{event.venue || event.city}</span>
           )}
         </div>
       </div>
       <div className="mt-2">
-        <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
+        <p className="text-sm text-muted-foreground dark:text-muted-foreground line-clamp-2">
           {event.description}
         </p>
       </div>
@@ -103,10 +103,10 @@ function EventCard({ event }) {
           />
         </div>
         <div className="ml-3">
-          <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+          <p className="text-sm font-medium text-foreground dark:text-muted">
             {event.author.name}
           </p>
-          <div className="flex space-x-1 text-sm text-gray-500">
+          <div className="flex space-x-1 text-sm text-muted-foreground">
             <time dateTime={event.event_start}>
               {new Date(event.event_start).toLocaleDateString()}
             </time>

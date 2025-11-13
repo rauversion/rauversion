@@ -44,6 +44,7 @@ import UserLinks from './users/Links'
 import MyArticles from './articles/MyArticles'
 import MyEvents from './events/MyEvents'
 import EditArticle from './articles/EditArticle'
+import PressKitPage from './press_kit/PressKitPage'
 import EventEdit from "./events/EventEdit"
 import Overview from "./events/sections/Overview"
 import Schedule from "./events/sections/Schedule"
@@ -311,6 +312,8 @@ function AppContent() {
           <Route path="/service_bookings/:id" element={<RequireAuth><ServiceBookingDetail /></RequireAuth>} />
           <Route path="/account_connections/new" element={<RequireAuth><AccountConnectionForm /></RequireAuth>} />
 
+          <Route path="/:username/press-kit" element={<PressKitPage />} />
+
           <Route path="/:username/*" element={<UserShow />}>
             <Route index element={<UserHome />} />
             <Route path="tracks" element={<UserTracks />} />
@@ -337,6 +340,7 @@ function AppContent() {
         !location.pathname.includes('albums') &&
         !location.pathname.includes('page-builder') &&
         !location.pathname.includes('conversations') &&
+        !location.pathname.includes('press-kit') &&
         (
           <Footer />
         )

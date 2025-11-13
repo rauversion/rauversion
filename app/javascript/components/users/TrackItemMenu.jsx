@@ -118,7 +118,7 @@ export default function TrackItemMenu({ track }) {
       <div className="flex items-center sm:gap-3 gap-1">
         <button
           onClick={handleLike}
-          className={`p-2 hover:text-white flex items-center gap-1 ${isLiked || track.liked_by_current_user ? 'text-brand-500' : 'text-gray-400'
+          className={`p-2 hover:text-white flex items-center gap-1 ${isLiked || track.liked_by_current_user ? 'text-brand-500' : 'text-muted-foreground'
             }`}
         >
           <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
@@ -130,7 +130,7 @@ export default function TrackItemMenu({ track }) {
           title={track.title}
           description={`Listen to ${track.title} by ${track.user.username} on Rauversion`}
         >
-          <button className="p-2 text-gray-400 hover:text-white">
+          <button className="p-2 text-muted-foreground hover:text-white">
             <Share2 className="w-5 h-5" />
           </button>
         </ShareDialog>
@@ -145,7 +145,7 @@ export default function TrackItemMenu({ track }) {
         {isAuthenticated && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="p-2 text-gray-400 hover:text-white">
+              <button className="p-2 text-muted-foreground hover:text-white">
                 <MoreHorizontal className="w-5 h-5" />
               </button>
             </DropdownMenuTrigger>

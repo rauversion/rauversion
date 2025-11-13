@@ -5,7 +5,7 @@ export default function PlaylistSkeleton() {
   return (
     <div className="bg-background text-foreground min-h-screen">
       {/* Header Section */}
-      <div className="relative bg-gradient-to-b from-muted to-background p-8">
+      <div className="relative bg-gradient-to-b from-secondary to-background p-8">
         <div className="max-w-7xl mx-auto">
           <div className="flex flex-col md:flex-row gap-8">
             {/* Cover Art Skeleton */}

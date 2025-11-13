@@ -132,7 +132,7 @@ export default function TracksIndex() {
                 <h1 className="text-4xl md:text-6xl font-black tracking-tighter mb-4 mix-blend-difference">
                   {highlightedPlaylist.title}
                 </h1>
-                <p className="text-2xl text-gray-300 mb-6 font-mono">
+                <p className="text-2xl text-muted-foreground mb-6 font-mono">
                   {truncate(highlightedPlaylist.description, 100)}
                 </p>
                 <div className="flex items-center gap-4">

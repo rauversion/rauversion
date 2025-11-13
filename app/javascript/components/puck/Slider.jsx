@@ -100,7 +100,7 @@ const Slider = ({
             <CarouselItem key={playlist.id} className={`pl-2 md:pl-4 ${itemSizeVariants[itemSize]}`}>
               <div className="p-1">
                 <div
-                  className={`relative group aspect-square overflow-hidden bg-zinc-100 rounded-md cursor-pointer
+                  className={`relative group aspect-square overflow-hidden bg-muted rounded-md cursor-pointer
                     ${selectedPlaylist === playlist.id ? `ring-2 ring-[${accentColor}]` : ''}`}
                   onClick={() => handlePlaylistClick(playlist.id)}
                 >
@@ -113,7 +113,7 @@ const Slider = ({
                   <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/60 to-transparent p-4">
                     <div className="text-white">
                       <h3 className="font-semibold">{playlist.title}</h3>
-                      <p className="text-sm text-zinc-300">{playlist.tracks_count} tracks</p>
+                      <p className="text-sm text-muted-foreground">{playlist.tracks_count} tracks</p>
                     </div>
                   </div>
                 </div>

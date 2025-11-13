@@ -49,7 +49,7 @@ const Carousel = ({ items = [], autoplay, interval }) => {
                 height: '400px',
               }}
             >
-              <div className="absolute inset-0 bg-black bg-opacity-40">
+              <div className="absolute inset-0 bg-black/40">
                 <div className="container mx-auto px-4 h-full flex items-center">
                   <div className="text-white">
                     <h2 className="text-3xl font-bold mb-4">{item.title}</h2>
@@ -81,9 +81,8 @@ const Carousel = ({ items = [], autoplay, interval }) => {
               <button
                 key={index}
                 onClick={() => goToSlide(index)}
-                className={`w-3 h-3 rounded-full ${
-                  index === currentIndex ? 'bg-white' : 'bg-white/50'
-                }`}
+                className={`w-3 h-3 rounded-full ${index === currentIndex ? 'bg-white' : 'bg-white/50'
+                  }`}
               />
             ))}
           </div>

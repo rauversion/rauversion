@@ -46,14 +46,14 @@ const EcoFriendlySection = () => {
                 {[1, 2, 3].map((i) => (
                   <div
                     key={i}
-                    className="w-8 h-8 rounded-full bg-gray-200 border-2 border-white"
+                    className="w-8 h-8 rounded-full bg-secondary border-2 border-white"
                   />
                 ))}
               </div>
 
               <div>
                 <div className="font-medium">500+</div>
-                <div className="text-sm text-gray-500">Happy Customers</div>
+                <div className="text-sm text-muted-foreground">Happy Customers</div>
               </div>
             </div>
           </div>

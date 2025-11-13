@@ -192,7 +192,7 @@ export default function UserLinks() {
               placeholder={placeholder}
             />
             {helper && (
-              <p className="mt-1 text-sm text-gray-500">{helper}</p>
+              <p className="mt-1 text-sm text-muted-foreground">{helper}</p>
             )}
           </div>
 

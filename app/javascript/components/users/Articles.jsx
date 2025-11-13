@@ -63,7 +63,7 @@ export default function UserArticles() {
                   <img 
                     src={article.user.avatar_url.small} 
                     alt={article.user.username}
-                    className="h-10 w-10 rounded-full bg-gray-50" 
+                    className="h-10 w-10 rounded-full bg-muted" 
                   />
                   <div className="text-sm leading-6">
                     <p className="font-semibold text-default">
@@ -85,7 +85,7 @@ export default function UserArticles() {
 
             {articles.length === 0 && !loading && (
               <div className="text-center py-12">
-                <p className="text-gray-400">{I18n.t('articles.no_articles')}</p>
+                <p className="text-muted-foreground">{I18n.t('articles.no_articles')}</p>
               </div>
             )}
           </div>

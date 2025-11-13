@@ -293,11 +293,11 @@ export default function Streaming() {
     <div className="m-4">
       <div className="my-4 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-4xl text-center">
-          <h2 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100 sm:text-4xl">
+          <h2 className="text-3xl font-bold tracking-tight text-foreground dark:text-muted sm:text-4xl">
             Streaming services
           </h2>
 
-          <p className="my-3 text-xl text-gray-500 dark:text-gray-300 sm:mt-4">
+          <p className="my-3 text-xl text-muted-foreground dark:text-muted-foreground sm:mt-4">
             Go live with a remote event via one of the following video streaming services
           </p>
 
@@ -315,12 +315,12 @@ export default function Streaming() {
         </div>
       </div>
 
-      <div className="divide-y divide-gray-200 dark:divide-gray-800 border dark:border-gray-800 overflow-hidden rounded-lg bg-gray-200 dark:bg-gray-900 shadow sm:grid sm:grid-cols-2 sm:gap-px sm:divide-y-0">
+      <div className="divide-y divide-gray-200 dark:divide-gray-800 border dark:border-gray-800 overflow-hidden rounded-lg bg-secondary dark:bg-card shadow sm:grid sm:grid-cols-2 sm:gap-px sm:divide-y-0">
         {streamingServices.map((service) => (
           <div 
             key={service.name}
             className={`relative group bg-default p-6 ${
-              service.active ? 'cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-800' : ''
+              service.active ? 'cursor-pointer hover:bg-muted dark:hover:bg-secondary' : ''
             } focus-within:ring-2 focus-within:ring-inset focus-within:ring-indigo-500`}
             onClick={() => handleServiceClick(service)}
           >
@@ -343,14 +343,14 @@ export default function Streaming() {
                   </div>
                 )}
               </h3>
-              <p className="mt-2 text-sm text-gray-500">
+              <p className="mt-2 text-sm text-muted-foreground">
                 {service.description}
               </p>
             </div>
 
             {service.active && (
               <span
-                className="pointer-events-none absolute top-6 right-6 text-gray-300 group-hover:text-gray-400"
+                className="pointer-events-none absolute top-6 right-6 text-muted-foreground group-hover:text-muted-foreground"
                 aria-hidden="true"
               >
                 <ArrowUpRight className="h-6 w-6" />

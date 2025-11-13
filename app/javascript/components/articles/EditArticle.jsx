@@ -728,7 +728,7 @@ export default function EditArticle() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="text-zinc-500 hover:text-zinc-400"
+                          className="text-muted-foreground hover:text-muted-foreground"
                           onClick={() => {
                             const previewUrl = `${window.location.origin}/articles/${article.signed_id}/preview`
                             navigator.clipboard.writeText(previewUrl)

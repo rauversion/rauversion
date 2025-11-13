@@ -91,7 +91,7 @@ export default function AiEnhancerBlock(props) {
       tabIndex={0}
     >
       {value ? (
-        <div className="rounded-lg bg-zinc-900 p-4 shadow border border-zinc-800">
+        <div className="rounded-lg bg-card p-4 shadow border border-zinc-800">
           <div className="flex items-center gap-2 mb-2">
             <Sparkles className="w-5 h-5 text-pink-400" />
             <span className="font-semibold text-pink-400">AI Enhanced Text</span>

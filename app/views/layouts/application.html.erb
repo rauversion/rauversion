@@ -7,6 +7,7 @@
     <%= csp_meta_tag %>
     <meta name="google-maps-api-key" content="<%= ENV['GOOGLE_MAPS_KEY'] %>">
 
+    <% # stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
     <%= display_meta_tags site: "Rauversion" %>

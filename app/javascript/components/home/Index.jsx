@@ -167,7 +167,7 @@ export default function Home() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.2 }}
-                    className="tracking-tight text-gray-900 dark:text-gray-100 text-4xl xl:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-brand-200 to-brand-600 mt-4"
+                    className="tracking-tight text-foreground dark:text-muted text-4xl xl:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-brand-200 to-brand-600 mt-4"
                   >
                     {I18n.t("home.hero.title")}
                   </motion.h1>
@@ -175,7 +175,7 @@ export default function Home() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
-                    className="mt-6 text-xl text-gray-100"
+                    className="mt-6 text-xl text-muted"
                   >
                     {I18n.t("home.hero.subtitle")}
                   </motion.p>
