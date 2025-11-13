@@ -7,11 +7,13 @@ import { get, patch } from "@rails/request.js"
 import { useToast } from "@/hooks/use-toast"
 import useAuthStore from "@/stores/authStore"
 import { useParams } from "react-router-dom"
+import { useLocaleStore } from "stores/locales"
 
 export default function PressKitPage() {
   const { username } = useParams()
   const { currentUser } = useAuthStore()
   const { toast } = useToast()
+  const { i18n } = useLocaleStore
   const [isDark, setIsDark] = useState(true)
   const [activeSection, setActiveSection] = useState("")
   const sectionsRef = useRef<(HTMLElement | null)[]>([])
@@ -513,7 +515,7 @@ export default function PressKitPage() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="text-lg">Loading press kit...</div>
+          <div className="text-lg">{i18n.t("press_kit.loading")}</div>
         </div>
       </div>
     )
@@ -544,9 +546,9 @@ export default function PressKitPage() {
                 </svg>
               </div>
 
-              <h1 className="text-2xl sm:text-3xl font-bold">No Press Kit yet</h1>
+              <h1 className="text-2xl sm:text-3xl font-bold">{i18n.t("press_kit.empty_state.title")}</h1>
               <p className="text-muted-foreground">
-                This artist hasn’t created a press kit yet. When it’s ready, you’ll find their bio, releases, photos and contact details here.
+                {i18n.t("press_kit.empty_state.description")}
               </p>
 
               {isOwner && (
@@ -555,7 +557,7 @@ export default function PressKitPage() {
                     onClick={() => setIsAdminOpen(true)}
                     className="bg-primary hover:bg-primary/90"
                   >
-                    Create your Press Kit
+                    {i18n.t("press_kit.empty_state.create_button")}
                   </Button>
                 </div>
               )}
@@ -651,7 +653,7 @@ export default function PressKitPage() {
                 <div className="flex flex-wrap items-center gap-4 text-sm">
                   <div className="flex items-center gap-2">
                     <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-                    <span className="text-muted-foreground">Available for Bookings</span>
+                    <span className="text-muted-foreground">{i18n.t("press_kit.display.available_for_bookings")}</span>
                   </div>
                   <div className="text-muted-foreground">{pressKitData.location}</div>
                   <div className="text-muted-foreground">{pressKitData.listeners}</div>
@@ -662,13 +664,13 @@ export default function PressKitPage() {
                     onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
                     className="bg-primary hover:bg-primary/90 text-primary-foreground"
                   >
-                    Book Now
+                    {i18n.t("press_kit.buttons.book_now")}
                   </Button>
                   <Button
                     variant="outline"
                     onClick={() => document.getElementById("music")?.scrollIntoView({ behavior: "smooth" })}
                   >
-                    Listen
+                    {i18n.t("press_kit.buttons.listen")}
                   </Button>
                 </div>
               </div>
@@ -679,7 +681,7 @@ export default function PressKitPage() {
         <section id="bio" ref={(el) => (sectionsRef.current[1] = el)} className={`min-h-screen py-20 sm:py-32 ${animatedSections.includes("bio") ? "animate-fade-in-up opacity-100" : "opacity-0"}`}>
           <div className="space-y-12">
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
-              <h2 className="text-4xl sm:text-5xl font-bold">Biography</h2>
+              <h2 className="text-4xl sm:text-5xl font-bold">{i18n.t("press_kit.navigation.bio")}</h2>
             </div>
 
             <div className="grid lg:grid-cols-2 gap-12">
@@ -692,7 +694,7 @@ export default function PressKitPage() {
               <div className="space-y-8">
                 {pressKitData.achievements.length > 0 && (
                   <div className="space-y-4">
-                    <h3 className="text-sm text-muted-foreground font-mono tracking-wider uppercase">Achievements</h3>
+                    <h3 className="text-sm text-muted-foreground font-mono tracking-wider uppercase">{i18n.t("press_kit.achievements.title")}</h3>
                     <ul className="space-y-3">
                       {pressKitData.achievements.map((achievement, index) => (
                         <li key={index} className="flex items-start gap-3">
@@ -706,7 +708,7 @@ export default function PressKitPage() {
 
                 {pressKitData.genres.length > 0 && (
                   <div className="space-y-4">
-                    <h3 className="text-sm text-muted-foreground font-mono tracking-wider uppercase">Genre</h3>
+                    <h3 className="text-sm text-muted-foreground font-mono tracking-wider uppercase">{i18n.t("press_kit.genres.title")}</h3>
                     <div className="flex flex-wrap gap-2">
                       {pressKitData.genres.map((genre) => (
                         <span
@@ -730,11 +732,11 @@ export default function PressKitPage() {
           className={`min-h-screen py-20 sm:py-32 ${animatedSections.includes("music") ? "animate-fade-in-up opacity-100" : "opacity-0"}`}
         >
           <div className="space-y-12">
-            <h2 className="text-4xl sm:text-5xl font-bold">Music</h2>
+            <h2 className="text-4xl sm:text-5xl font-bold">{i18n.t("press_kit.navigation.music")}</h2>
 
             {playlists.length > 0 && (
               <div className="space-y-6">
-                <h3 className="text-2xl font-semibold">Playlists & Albums</h3>
+                <h3 className="text-2xl font-semibold">{i18n.t("press_kit.music.playlists_albums")}</h3>
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {playlists.map((playlist) => (
                     <Link
@@ -751,7 +753,7 @@ export default function PressKitPage() {
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-muted-foreground">
-                            No Cover
+                            {i18n.t("press_kit.music.no_cover")}
                           </div>
                         )}
                       </div>
@@ -776,7 +778,7 @@ export default function PressKitPage() {
 
             {tracks.length > 0 && (
               <div className="space-y-6">
-                <h3 className="text-2xl font-semibold">Tracks</h3>
+                <h3 className="text-2xl font-semibold">{i18n.t("press_kit.music.tracks")}</h3>
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {tracks.map((track) => (
                     <TrackCell key={track.id} track={track} />
@@ -787,7 +789,7 @@ export default function PressKitPage() {
 
             {(pressKitData.externalMusicLinks || []).length > 0 && (
               <div className="space-y-6">
-                <h3 className="text-2xl font-semibold">Available On</h3>
+                <h3 className="text-2xl font-semibold">{i18n.t("press_kit.music.available_on")}</h3>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                   {(pressKitData.externalMusicLinks || []).map((link, index) => (
                     <a
@@ -827,7 +829,7 @@ export default function PressKitPage() {
             )}
 
             {playlists.length === 0 && tracks.length === 0 && (pressKitData.externalMusicLinks || []).length === 0 && (
-              <p className="text-muted-foreground">No music releases added yet</p>
+              <p className="text-muted-foreground">{i18n.t("press_kit.music.no_releases")}</p>
             )}
           </div>
         </section>
@@ -839,8 +841,8 @@ export default function PressKitPage() {
         >
           <div className="space-y-12">
             <div className="space-y-4">
-              <h2 className="text-4xl sm:text-5xl font-bold">Press Photos</h2>
-              <p className="text-lg text-muted-foreground">High-resolution images available for download</p>
+              <h2 className="text-4xl sm:text-5xl font-bold">{i18n.t("press_kit.navigation.photos")}</h2>
+              <p className="text-lg text-muted-foreground">{i18n.t("press_kit.press_photos.high_res_available")}</p>
             </div>
 
             {/* 
@@ -885,15 +887,15 @@ export default function PressKitPage() {
           className={`min-h-screen py-20 sm:py-32 ${animatedSections.includes("press") ? "animate-fade-in-up opacity-100" : "opacity-0"}`}
         >
           <div className="space-y-12">
-            <h2 className="text-4xl sm:text-5xl font-bold">Press & Reviews</h2>
-            <p className="text-muted-foreground">Press reviews and features will be displayed here</p>
+            <h2 className="text-4xl sm:text-5xl font-bold">{i18n.t("press_kit.press_reviews.title")}</h2>
+            <p className="text-muted-foreground">{i18n.t("press_kit.press_reviews.empty")}</p>
           </div>
         </section>
 
         <section id="contact" ref={(el) => (sectionsRef.current[5] = el)} className={`py-20 sm:py-32 ${animatedSections.includes("contact") ? "animate-fade-in-up opacity-100" : "opacity-0"}`}>
           <div className="grid lg:grid-cols-2 gap-12 sm:gap-16">
             <div className="space-y-8">
-              <h2 className="text-4xl sm:text-5xl font-bold">Get in Touch</h2>
+              <h2 className="text-4xl sm:text-5xl font-bold">{i18n.t("press_kit.navigation.contact")}</h2>
 
               <div className="space-y-8">
                 {pressKitData.contacts.map((contact, index) => (
@@ -919,7 +921,7 @@ export default function PressKitPage() {
                           />
                         </svg>
                       </a>
-                      {contact.agent && <div className="text-muted-foreground">Agent: {contact.agent}</div>}
+                      {contact.agent && <div className="text-muted-foreground">{i18n.t("press_kit.agent")}: {contact.agent}</div>}
                     </div>
                   </div>
                 ))}
@@ -1019,7 +1021,7 @@ export default function PressKitPage() {
                 variant="outline"
                 className="border-border hover:border-primary/50 bg-transparent"
               >
-                {isGeneratingPDF ? "Generating..." : "Download PDF"}
+                {isGeneratingPDF ? i18n.t("press_kit.generating") : i18n.t("press_kit.download_pdf")}
               </Button>
             </div>
           </div>
