@@ -8,6 +8,7 @@ import { ImageUploader } from "@/components/ui/image-uploader"
 import { useToast } from "@/hooks/use-toast"
 import MusicSelector from "./MusicSelector"
 import { useParams } from "react-router-dom"
+import { get } from "@rails/request.js"
 
 interface AdminPanelProps {
   isOpen: boolean
@@ -55,6 +56,8 @@ export interface PressKitData {
   }[]
   selectedTracks?: { id: number | string; title: string; cover_url?: any }[]
   selectedPlaylists?: { id: number | string; title: string; slug?: string; cover_url?: any }[]
+  playlist_ids?: (number | string)[]
+  track_ids?: (number | string)[]
   externalMusicLinks?: {
     platform: string
     url: string
@@ -66,24 +69,115 @@ export function AdminPanel({ isOpen, onClose, data, photos = [], onSave }: Admin
   const [formData, setFormData] = useState<PressKitData>(data)
   const [published, setPublished] = useState<boolean>(!!(data && (data as any).published))
   const [saving, setSaving] = useState(false)
+  const [prefillTick, setPrefillTick] = useState(0)
   const { toast } = useToast()
   const { username } = useParams()
 
   // Sync local state when opening panel or when data prop changes
   React.useEffect(() => {
-    setFormData(data)
+    setFormData((prev) => {
+      // Merge incoming data but preserve already resolved selections unless backend explicitly provides them
+      const next: any = { ...prev, ...data }
+      if (!Array.isArray((data as any).selectedPlaylists) && prev.selectedPlaylists) {
+        next.selectedPlaylists = prev.selectedPlaylists
+      }
+      if (!Array.isArray((data as any).selectedTracks) && prev.selectedTracks) {
+        next.selectedTracks = prev.selectedTracks
+      }
+      return next
+    })
     setPublished(!!(data && (data as any).published))
   }, [isOpen, data])
+
+  // Prefill selector UI from stored playlist_ids (only for UI; persisted as IDs)
+  React.useEffect(() => {
+    // If backend already includes selectedPlaylists objects, seed UI directly
+    /*const pre = (data as any).selectedPlaylists
+    if (Array.isArray(pre) && pre.length > 0 && (formData.selectedPlaylists || []).length === 0) {
+      setFormData((prev) => ({ ...prev, selectedPlaylists: pre }))
+      return
+    }*/
+
+    const fillPlaylistsFromIds = async () => {
+      try {
+        const ids = ((formData.playlist_ids as any) || (data as any).playlist_ids || []) as (number | string)[]
+        if (!ids.length) return
+        // Avoid refetch if already populated
+        if ((formData.selectedPlaylists || []).length > 0) return
+
+        const response = await get(`/playlists/albums.json`, { query: { ids: ids.join(",") } })
+        if ((response as any).ok) {
+          const json = await (response as any).json
+          const collection = json.collection || json.playlists || json.albums || []
+          const mapped = collection.map((pl: any) => ({
+            id: pl.id,
+            title: pl.title,
+            slug: pl.slug,
+            cover_url: pl.cover_url,
+          }))
+          setFormData((prev) => ({ ...prev, selectedPlaylists: mapped }))
+          setPrefillTick((x) => x + 1)
+        }
+      } catch (err) {
+        console.error("AdminPanel: prefill selectedPlaylists by ids failed", err)
+      }
+    }
+    fillPlaylistsFromIds()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, formData.playlist_ids, (data as any).playlist_ids, (data as any).selectedPlaylists])
+
+  // Prefill selector UI from stored track_ids (only for UI; persisted as IDs)
+  React.useEffect(() => {
+    // If backend already includes selectedTracks objects, seed UI directly
+    /*const pre = (data as any).selectedTracks
+    if (Array.isArray(pre) && pre.length > 0 && (formData.selectedTracks || []).length === 0) {
+      setFormData((prev) => ({ ...prev, selectedTracks: pre }))
+      return
+    }*/
+
+    const fillTracksFromIds = async () => {
+      try {
+      
+        const ids = ((formData.track_ids as any) || (data as any).track_ids || []) as (number | string)[]
+        if (!ids.length) return
+        // Avoid refetch if already populated
+        if ((formData.selectedTracks || []).length > 0) return
+
+        const response = await get(`/tracks/by_id.json`, { query: { ids: ids.join(",") } })
+        if ((response as any).ok) {
+          const json = await (response as any).json
+          const collection = json.collection || json.tracks || []
+          const mapped = collection.map((t: any) => ({
+            id: t.id,
+            title: t.title,
+            cover_url: t.cover_url,
+          }))
+          setFormData((prev) => ({ ...prev, selectedTracks: mapped }))
+          setPrefillTick((x) => x + 1)
+        }
+      } catch (err) {
+        console.error("AdminPanel: prefill selectedTracks by ids failed", err)
+      }
+    }
+    fillTracksFromIds()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, formData.track_ids, (data as any).track_ids, (data as any).selectedTracks])
 
   if (!isOpen) return null
 
   const handleSave = async () => {
     setSaving(true)
     try {
-      // Ensure published flag is included inside data
-      const dataWithPublished = { ...formData, published }
+      // Transform selections to IDs before saving
+      const playlist_ids = (formData.selectedPlaylists || []).map((p) => p.id)
+      const track_ids = (formData.selectedTracks || []).map((t) => t.id)
+
+      // Keep UI selections locally but persist only IDs in data
+      const dataWithPublished = { ...formData, playlist_ids, track_ids, published }
+      const { selectedPlaylists, selectedTracks, ...payload } = dataWithPublished as any
+
       // Await onSave so we can show toast on completion
-      await onSave(dataWithPublished)
+      await onSave(payload as PressKitData)
       toast({
         title: "Saved",
         description: "Press kit saved successfully"
@@ -199,7 +293,7 @@ export function AdminPanel({ isOpen, onClose, data, photos = [], onSave }: Admin
         </div>
 
         <div className="overflow-y-auto flex-1">
-          <Tabs defaultValue="bio" className="w-full">
+          <Tabs defaultValue="bio" className="w-full h-[calc(100vh-355px)]">
             <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent">
               <TabsTrigger
                 value="bio"
@@ -374,13 +468,15 @@ export function AdminPanel({ isOpen, onClose, data, photos = [], onSave }: Admin
                 <div className="space-y-4">
                   <div className="mb-4">
                     <MusicSelector
+                      key={`music-selector-${prefillTick}`}
                       username={username || ""}
                       selectedTracks={formData.selectedTracks || []}
-                      setSelectedTracks={(t) => setFormData({ ...formData, selectedTracks: t })}
+                      setSelectedTracks={(t) => setFormData((prev) => ({ ...prev, selectedTracks: t }))}
                       selectedPlaylists={formData.selectedPlaylists || []}
-                      setSelectedPlaylists={(p) => setFormData({ ...formData, selectedPlaylists: p })}
+                      setSelectedPlaylists={(p) => setFormData((prev) => ({ ...prev, selectedPlaylists: p }))}
                     />
                   </div>
+
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-semibold">External Music Links</h3>
                     <Button onClick={() => addItem("externalMusicLinks")} size="sm" variant="outline">

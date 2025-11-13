@@ -4,6 +4,21 @@ class TracksController < ApplicationController
 
   layout :layout_by_resource
 
+  def by_id
+    ids = params[:ids].to_s.split(",")
+    @tracks = Track
+      .where(id: ids)
+      .with_attached_cover
+      .includes(
+        user: { avatar_attachment: :blob },
+        artists: { avatar_attachment: :blob }
+      )
+
+    respond_to do |format|
+      format.json
+    end
+  end
+
   def index
     @tracks = Track.published
       .with_attached_cover

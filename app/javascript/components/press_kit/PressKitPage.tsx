@@ -36,8 +36,10 @@ export default function PressKitPage() {
     externalMusicLinks: [],
   })
   const [playlists, setPlaylists] = useState<any[]>([])
+  const [tracks, setTracks] = useState<any[]>([])
   const [photos, setPhotos] = useState<any[]>([])
   const [animatedSections, setAnimatedSections] = useState<string[]>([])
+  const S = (v: any) => (v ?? "").toString()
 
   const isOwner = currentUser && currentUser.username === username
 
@@ -49,13 +51,10 @@ export default function PressKitPage() {
     try {
       const response = await get(`/${username}/press-kit.json`)
       
-      if (response.ok) {
+      if ((response as any).ok) {
         const data = await response.json
         if (data.press_kit && data.press_kit.data) {
           setPressKitData(data.press_kit.data)
-        }
-        if (data.press_kit && data.press_kit.playlists) {
-          setPlaylists(data.press_kit.playlists)
         }
         // Load photos from the queryable association
         if (data.press_kit && data.press_kit.photos) {
@@ -113,6 +112,54 @@ export default function PressKitPage() {
   useEffect(() => {
     document.documentElement.classList.toggle("dark", isDark)
   }, [isDark])
+
+  // Fetch playlists/albums by IDs stored in pressKitData.playlist_ids
+  useEffect(() => {
+    const ids = (pressKitData as any).playlist_ids || []
+    if (!Array.isArray(ids)) return
+    if (ids.length === 0) {
+      setPlaylists([])
+      return
+    }
+    const fetchByIds = async () => {
+      try {
+        const response = await get(`/playlists/albums.json`, { query: { ids: ids.join(",") } })
+        if ((response as any).ok) {
+          const json = await (response as any).json
+          const collection = json.collection || json.playlists || json.albums || []
+          setPlaylists(collection)
+        }
+      } catch (e) {
+        console.error("Error fetching playlists by ids for press kit:", e)
+      }
+    }
+    fetchByIds()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pressKitData && (pressKitData as any).playlist_ids])
+
+  // Fetch tracks by IDs stored in pressKitData.track_ids
+  useEffect(() => {
+    const ids = (pressKitData as any).track_ids || []
+    if (!Array.isArray(ids)) return
+    if (ids.length === 0) {
+      setTracks([])
+      return
+    }
+    const fetchByIds = async () => {
+      try {
+        const response = await get(`/tracks/by_id.json`, { query: { ids: ids.join(",") } })
+        if ((response as any).ok) {
+          const json = await (response as any).json
+          const collection = json.collection || json.tracks || []
+          setTracks(collection)
+        }
+      } catch (e) {
+        console.error("Error fetching tracks by ids for press kit:", e)
+      }
+    }
+    fetchByIds()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pressKitData && (pressKitData as any).track_ids])
 
   useEffect(() => {
     // Defer until content loaded so refs are attached
@@ -222,18 +269,18 @@ export default function PressKitPage() {
       pdf.setFontSize(48)
       pdf.setFont(undefined, "bold")
       const artistNameParts = pressKitData.artistName.split(" ")
-      pdf.text(artistNameParts[0], pageWidth / 2, 100, { align: "center" })
+      pdf.text(S(artistNameParts[0]), pageWidth / 2, 100, { align: "center" })
 
       pdf.setTextColor(168, 85, 247)
-      pdf.text(artistNameParts.slice(1).join(" "), pageWidth / 2, 120, { align: "center" })
+      pdf.text(S(artistNameParts.slice(1).join(" ")), pageWidth / 2, 120, { align: "center" })
 
       pdf.setTextColor(136, 136, 136)
       pdf.setFontSize(14)
       pdf.setFont(undefined, "normal")
-      pdf.text(pressKitData.tagline, pageWidth / 2, 140, { align: "center" })
+      pdf.text(S(pressKitData.tagline), pageWidth / 2, 140, { align: "center" })
 
       pdf.setFontSize(11)
-      pdf.text(`${pressKitData.location} • ${pressKitData.listeners}`, pageWidth / 2, 150, { align: "center" })
+      pdf.text(S(`${pressKitData.location} • ${pressKitData.listeners}`), pageWidth / 2, 150, { align: "center" })
 
       pdf.setFontSize(8)
       pdf.text(`Press Kit v2.0 • ${new Date().getFullYear()}`, pageWidth / 2, pageHeight - 20, { align: "center" })
@@ -258,16 +305,16 @@ export default function PressKitPage() {
       pdf.setFontSize(11)
       pdf.setFont(undefined, "normal")
 
-      const splitIntro = pdf.splitTextToSize(pressKitData.bio.intro, pageWidth - 2 * margin)
+      const splitIntro = pdf.splitTextToSize(S(pressKitData.bio.intro), pageWidth - 2 * margin)
       pdf.text(splitIntro, margin, yPos)
       yPos += splitIntro.length * 6 + 5
 
-      const splitCareer = pdf.splitTextToSize(pressKitData.bio.career, pageWidth - 2 * margin)
+      const splitCareer = pdf.splitTextToSize(S(pressKitData.bio.career), pageWidth - 2 * margin)
       pdf.text(splitCareer, margin, yPos)
       yPos += splitCareer.length * 6 + 5
 
       pdf.setTextColor(255, 255, 255)
-      const splitSound = pdf.splitTextToSize(pressKitData.bio.sound, pageWidth - 2 * margin)
+      const splitSound = pdf.splitTextToSize(S(pressKitData.bio.sound), pageWidth - 2 * margin)
       pdf.text(splitSound, margin, yPos)
       yPos += splitSound.length * 6 + 10
 
@@ -283,7 +330,7 @@ export default function PressKitPage() {
         pdf.setTextColor(168, 85, 247)
         pdf.circle(margin + 2, yPos - 1.5, 0.8, "F")
         pdf.setTextColor(255, 255, 255)
-        const splitAchievement = pdf.splitTextToSize(achievement, pageWidth - 2 * margin - 10)
+        const splitAchievement = pdf.splitTextToSize(S(achievement), pageWidth - 2 * margin - 10)
         pdf.text(splitAchievement, margin + 6, yPos)
         yPos += splitAchievement.length * 5 + 2
       })
@@ -296,7 +343,7 @@ export default function PressKitPage() {
 
       pdf.setTextColor(255, 255, 255)
       pdf.setFontSize(10)
-      pdf.text(pressKitData.genres.join(" • "), margin, yPos)
+      pdf.text(S(pressKitData.genres.join(" • ")), margin, yPos)
 
       // Page 3: Press Photos
       addNewPage()
@@ -387,18 +434,18 @@ export default function PressKitPage() {
       pressKitData.contacts.forEach((contact) => {
         pdf.setTextColor(136, 136, 136)
         pdf.setFontSize(9)
-        pdf.text(contact.type.toUpperCase(), margin, yPos)
+        pdf.text(S(contact.type).toUpperCase(), margin, yPos)
         yPos += 6
 
         pdf.setTextColor(168, 85, 247)
         pdf.setFontSize(12)
-        pdf.text(contact.email, margin, yPos)
+        pdf.text(S(contact.email), margin, yPos)
         yPos += 5
 
         if (contact.agent) {
           pdf.setTextColor(136, 136, 136)
           pdf.setFontSize(9)
-          pdf.text(`Agent: ${contact.agent}`, margin, yPos)
+          pdf.text(S(`Agent: ${contact.agent}`), margin, yPos)
           yPos += 5
         }
         yPos += 8
@@ -414,10 +461,10 @@ export default function PressKitPage() {
       pdf.setFontSize(10)
       pressKitData.socialLinks.forEach((social) => {
         pdf.setFont(undefined, "bold")
-        pdf.text(social.name, margin, yPos)
+        pdf.text(S(social.name), margin, yPos)
         pdf.setFont(undefined, "normal")
         pdf.setTextColor(136, 136, 136)
-        pdf.text(social.handle, margin + 40, yPos)
+        pdf.text(S(social.handle), margin + 40, yPos)
         pdf.setTextColor(255, 255, 255)
         yPos += 6
       })
@@ -432,11 +479,11 @@ export default function PressKitPage() {
       pdf.setFontSize(10)
       pressKitData.tourDates.forEach((tour) => {
         pdf.setFont(undefined, "bold")
-        pdf.text(tour.venue, margin, yPos)
+        pdf.text(S(tour.venue), margin, yPos)
         pdf.setFont(undefined, "normal")
         pdf.setTextColor(136, 136, 136)
-        pdf.text(tour.city, margin, yPos + 5)
-        pdf.text(tour.date, pageWidth - margin, yPos, { align: "right" })
+        pdf.text(S(tour.city), margin, yPos + 5)
+        pdf.text(S(tour.date), pageWidth - margin, yPos, { align: "right" })
         pdf.setTextColor(255, 255, 255)
 
         pdf.setDrawColor(51, 51, 51)
@@ -627,14 +674,14 @@ export default function PressKitPage() {
                   {playlists.map((playlist) => (
                     <Link
                       key={playlist.id}
-                      to={`/playlists/${playlist.slug}`}
+                      to={`/playlists/${playlist.slug || playlist.id}`}
                       className="group relative overflow-hidden rounded-lg border border-border hover:border-primary/50 transition-all duration-500"
                     >
                       <div className="aspect-square relative overflow-hidden bg-secondary">
                         {playlist.cover_url ? (
                           <img
                             src={playlist.cover_url}
-                            alt={playlist.title}
+                            alt={String(playlist.title || "Playlist")}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           />
                         ) : (
@@ -662,6 +709,34 @@ export default function PressKitPage() {
               </div>
             )}
 
+            {tracks.length > 0 && (
+              <div className="space-y-6">
+                <h3 className="text-2xl font-semibold">Tracks</h3>
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                  {tracks.map((track) => (
+                    <Link
+                      key={track.id}
+                      to={`/tracks/${track.slug || track.id}`}
+                      className="group relative overflow-hidden rounded-lg border border-border hover:border-primary/50 transition-all duration-500"
+                    >
+                      <div className="aspect-square relative overflow-hidden bg-secondary">
+                        <img
+                          src={track.cover_url?.small || track.cover_url?.medium || "/placeholder.svg"}
+                          alt={String(track.title || "Track")}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                      </div>
+                      <div className="p-4 space-y-2">
+                        <h4 className="text-lg font-semibold group-hover:text-primary transition-colors duration-300">
+                          {track.title}
+                        </h4>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {(pressKitData.externalMusicLinks || []).length > 0 && (
               <div className="space-y-6">
                 <h3 className="text-2xl font-semibold">Available On</h3>
@@ -677,7 +752,7 @@ export default function PressKitPage() {
                       <div className="space-y-2">
                         <div className="flex items-center justify-between">
                           <span className="text-sm text-muted-foreground uppercase tracking-wider">
-                            {link.platform.replace('_', ' ')}
+                            {String(link.platform || "").replace('_', ' ')}
                           </span>
                           <svg
                             className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors"
@@ -703,7 +778,7 @@ export default function PressKitPage() {
               </div>
             )}
 
-            {playlists.length === 0 && (pressKitData.externalMusicLinks || []).length === 0 && (
+            {playlists.length === 0 && tracks.length === 0 && (pressKitData.externalMusicLinks || []).length === 0 && (
               <p className="text-muted-foreground">No music releases added yet</p>
             )}
           </div>

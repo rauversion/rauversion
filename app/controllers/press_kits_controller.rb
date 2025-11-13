@@ -51,6 +51,8 @@ class PressKitsController < ApplicationController
     #  - attach the signed blob to the Photo.image
     #  - replace the data entry's image field with the public url (via url_for)
     #  - remove the signed_id / cropData keys from stored data
+
+
     begin
       PressKit.transaction do
         # Process photos first, creating ActiveStorage-backed Photo records.
@@ -117,16 +119,6 @@ class PressKitsController < ApplicationController
           url: photo.image.attached? ? url_for(photo.image) : nil,
           description: photo.description,
           tags: photo.tags
-        }
-      end,
-      playlists: press_kit.user_playlists.map do |playlist|
-        {
-          id: playlist.id,
-          title: playlist.title,
-          slug: playlist.slug,
-          description: playlist.description,
-          playlist_type: playlist.playlist_type,
-          cover_url: playlist.cover.attached? ? url_for(playlist.cover) : nil
         }
       end,
       created_at: press_kit.created_at,

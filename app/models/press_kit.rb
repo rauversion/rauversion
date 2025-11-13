@@ -22,7 +22,8 @@ class PressKit < ApplicationRecord
       socialLinks: [],
       contacts: [],
       tourDates: [],
-      playlists: [],
+      playlist_ids: [],
+      track_ids: [],
       externalMusicLinks: [
         # Example: { platform: 'spotify', url: 'https://...', title: 'Album Name' }
       ]

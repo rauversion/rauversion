@@ -297,6 +297,9 @@ Rails.application.routes.draw do
   get "/tracks/genre/:tag", to: "tags#index", as: :track_tag
 
   resources :tracks do
+    collection do
+      get :by_id
+    end
     resource :events, only: :show, controller: "tracking_events"
     resource :reposts
     resource :likes
