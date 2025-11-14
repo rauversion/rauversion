@@ -42,6 +42,7 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
   const [tickets, setTickets] = React.useState<Ticket[]>([])
   const [loading, setLoading] = React.useState(false)
   const [event, setEvent] = React.useState<Event | null>(null)
+  const [showDisclaimers, setShowDisclaimers] = React.useState(false)
   const { toast } = useToast()
   const navigate = useNavigate()
 
@@ -449,16 +450,35 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
                   <h4 className="font-semibold text-sm">
                     {I18n.t("events.purchase_form.disclaimers.title")}
                   </h4>
-                  <ul className="text-xs text-muted-foreground space-y-1.5">
-                    <li className="flex items-start gap-2">
-                      <span className="text-primary mt-0.5">•</span>
-                      <span>{I18n.t("events.purchase_form.disclaimers.refund_policy")}</span>
-                    </li>
-                    <li className="flex items-start gap-2">
-                      <span className="text-primary mt-0.5">•</span>
-                      <span>{I18n.t("events.purchase_form.disclaimers.platform_role")}</span>
-                    </li>
-                  </ul>
+                  <p className="text-xs text-muted-foreground">
+                    {I18n.t("events.purchase_form.disclaimers.usage_agreement")} {" "}
+                    <button
+                      type="button"
+                      className="underline text-primary hover:text-primary/80"
+                      onClick={() => setShowDisclaimers((prev) => !prev)}
+                    >
+                      {I18n.t("events.purchase_form.disclaimers.read_more")}
+                    </button>
+                  </p>
+                  <AnimatePresence initial={false}>
+                    {showDisclaimers && (
+                      <motion.ul
+                        className="text-xs text-muted-foreground space-y-1.5 mt-2"
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                      >
+                        <li className="flex items-start gap-2">
+                          <span className="text-primary mt-0.5">•</span>
+                          <span>{I18n.t("events.purchase_form.disclaimers.refund_policy")}</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-primary mt-0.5">•</span>
+                          <span>{I18n.t("events.purchase_form.disclaimers.platform_role")}</span>
+                        </li>
+                      </motion.ul>
+                    )}
+                  </AnimatePresence>
                 </div>
               </div>
             </motion.div>

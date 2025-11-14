@@ -5,6 +5,8 @@ json.collection @purchased_items do |item|
   json.created_at item.created_at
   json.checked_in_at item.checked_in_at
   json.state item.state
+  json.currency item.currency
+  json.price item.price
 
   json.event_ticket do
     json.id purchased_item.id
