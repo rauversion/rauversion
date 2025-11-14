@@ -66,8 +66,8 @@ const invitationSchema = z.object({
 })
 
 const attendeeStatuses = {
-  paid: { label: I18n.t('events.edit.attendees.status.attending'), color: "bg-green-500" },
-  pending: { label: I18n.t('events.edit.attendees.status.pending'), color: "bg-yellow-500" },
+  paid: { label: I18n.t('events.edit.attendees.status.paid'), color: "bg-green-500 text-green-800" },
+  pending: { label: I18n.t('events.edit.attendees.status.pending'), color: "bg-yellow-500 text-yellow-800" },
   refunded: { label: "Refunded", color: "bg-red-500" },
 }
 
@@ -352,7 +352,7 @@ export default function Attendees() {
                   </FormControl>
                   <SelectContent>
                     <SelectItem value="all">{I18n.t('events.edit.attendees.search.all_statuses')}</SelectItem>
-                    <SelectItem value="paid">{I18n.t('events.edit.attendees.status.attending')}</SelectItem>
+                    <SelectItem value="paid">{I18n.t('events.edit.attendees.status.paid')}</SelectItem>
                     <SelectItem value="pending">{I18n.t('events.edit.attendees.status.pending')}</SelectItem>
                     <SelectItem value="refunded">Refunded</SelectItem>
                   </SelectContent>
@@ -410,6 +410,8 @@ export default function Attendees() {
                   {format(new Date(item.created_at), 'PPP')}
                 </TableCell>
                 <TableCell>
+                  {item.price} {item.currency?.toUpperCase()}
+
                   {item.checked_in_at && (
                     <Badge variant="success">
                       {I18n.t('events.edit.attendees.status.checked_in', { time: format(new Date(item.checked_in_at), 'PPp') })}
@@ -437,9 +439,6 @@ export default function Attendees() {
                   {item.state === 'refunded' && (
                     <span className="text-sm text-muted-foreground">Refunded</span>
                   )}
-                </TableCell>
-                <TableCell>
-                  {item.price} {item.currency}
                 </TableCell>
               </TableRow>
             ))}

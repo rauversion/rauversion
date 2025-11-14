@@ -828,7 +828,7 @@ en:
           status: State
           purchase_date: Date of Purchase
         status:
-          attending: Attending
+          paid: Paid
           cancelled: Cancelled
           pending: Pending
           checked_in: Registrado a las %{time}
@@ -935,6 +935,12 @@ en:
       your_price_label: "Your Price (%{currency})"
       minimum_price_error: "Minimum price is %{currency} %{min_price}"
       sold_out_badge: "Sold Out"
+      disclaimers:
+        title: "Important Information"
+        refund_policy: "Refund policy: Returns are only allowed up to one day before the event."
+        platform_role: "Rauversion acts as an intermediary between the event organizer and the ticket buyer."
+        usage_agreement: "By using Rauversion's ticketing service you agree to our terms and conditions."
+        read_more: "Read more"
       validation:
         quantity_negative: "Quantity cannot be negative"
         max_tickets: "Maximum %{count} tickets available"
