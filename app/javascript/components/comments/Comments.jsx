@@ -92,7 +92,7 @@ export function Comments({ resourceType, resourceId }) {
             value={newComment}
             onChange={(e) => setNewComment(e.target.value)}
             placeholder="Write a comment..."
-            className="min-h-[100px] bg-muted border-muted"
+            className="min-h-[100px] bg-background/80"
           />
           <Button type="submit" disabled={!newComment.trim()}>
             Post Comment
