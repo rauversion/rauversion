@@ -49,6 +49,7 @@ import Dante, {
 } from 'dante3/package/esm'
 import PlaylistBlock from "./PlaylistBlock";
 import AiEnhancerBlock from "./AiEnhancerBlock";
+import { ScrollGalleryBlockConfig } from "./scrollGallery";
 import { Sparkles } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DirectUpload } from "@rails/activestorage"
@@ -227,6 +228,17 @@ export function EditorComponent({ value, onChange, onUpload, readOnly = false })
         }),
         SpeechToTextBlockConfig(),
         PlaylistBlockConfig(),
+        ScrollGalleryBlockConfig({
+          options: {
+            upload_handler: (file, ctx) => {
+              uploadFile(file, (blob) => {
+                ctx.updateAttributes({
+                  url: blob.service_url
+                })
+              })
+            }
+          }
+        }),
         // AiEnhancerBlockConfig(), // we need to add this to the menu bar instead
       ]}
       onUpdate={(editor) => {
