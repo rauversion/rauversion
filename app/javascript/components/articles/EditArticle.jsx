@@ -520,8 +520,8 @@ export default function EditArticle() {
 
 
   return (
-    <div className="container mx-auto py-10">
-      <Breadcrumb className="mb-6 flex items-center">
+    <div className="container-- mx-auto-- py-10--">
+      <Breadcrumb className="mb-6 flex items-center m-4">
         <BreadcrumbItem>
           <BreadcrumbLink href="/articles/mine">Mis Artículos</BreadcrumbLink>
         </BreadcrumbItem>
@@ -531,7 +531,7 @@ export default function EditArticle() {
         </BreadcrumbItem>
       </Breadcrumb>
 
-      <div className="flex justify-end mb-4">
+      <div className="flex justify-end mb-4 mr-4">
         <Sheet open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
           <SheetTrigger asChild>
             <Button variant="outline" size="icon">
@@ -796,7 +796,7 @@ export default function EditArticle() {
         </Sheet>
       </div>
 
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl-- mx-auto--">
         <div className="prose dark:prose-invert max-w-none">
           <FormField
             control={form.control}

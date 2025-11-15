@@ -70,7 +70,7 @@ export default function ArticleShow({ preview }) {
   }
 
   return (
-    <div className="relative py-16 bg-default overflow-hidden">
+    <div className="relative py-16 bg-default">
       <div className="hidden lg:block lg:absolute lg:inset-y-0 lg:h-full lg:w-full">
         <div className="relative h-full text-lg max-w-prose mx-auto" aria-hidden="true">
           <svg
@@ -160,7 +160,7 @@ export default function ArticleShow({ preview }) {
         </div>
       </div>
 
-      <div className="relative px-4 sm:px-6 lg:px-8">
+      <div className="relative px-4- sm:px-6- lg:px-8-">
         <div className="text-lg max-w-prose mx-auto">
           <h1>
             <Link to={`/${article.author.username}`} className="flex items-center justify-center gap-2">
@@ -195,7 +195,7 @@ export default function ArticleShow({ preview }) {
 
         <div
           id={`article-${article.id}`}
-          className="post-wrapper mt-6 prose lg:prose-lg dark:prose-invert prose-indigo- prose-lg- text-muted-foreground dark:text-muted-foreground mx-auto"
+          classNameDis="post-wrapper mt-6 prose lg:prose-lg dark:prose-invert prose-indigo- prose-lg- text-muted-foreground dark:text-muted-foreground mx-auto"
           data-controller="medium-zoom"
         // dangerouslySetInnerHTML={{ __html: article.body }}
         >
