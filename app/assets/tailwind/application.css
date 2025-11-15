@@ -195,6 +195,19 @@
     z-index: 50;
     @apply bg-card border border-border shadow-md rounded-md;
   }
+
+  .node-ScrollGalleryBlock {
+    @apply self-start;
+  }
+
+  .graf {
+    @apply w-[92%] md:w-[952px] max-w-2xl;
+    /*width: 952px;
+    max-width: 632px;*/
+    padding: 16px 8px;
+    margin: 0 auto !important;
+  }
+
 }
 
 @import "../stylesheets/puck_copy.css";
@@ -206,6 +219,10 @@
 
 .graf--p {
   color: var(--primary);
+}
+
+.node-ScrollGalleryBlock {
+  @apply self-start;
 }
 
 /* Custom animations for marketing illustrations */

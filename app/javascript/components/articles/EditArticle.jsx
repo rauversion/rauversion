@@ -186,6 +186,13 @@ export function EditorComponent({ value, onChange, onUpload, readOnly = false })
       theme={darkTheme}
       content={value}
       readOnly={readOnly}
+      editorProps={
+        {
+          attributes: {
+            class: 'flex flex-col',
+          }
+        }
+      }
       widgets={[
         ImageBlockConfig({
           options: {
