@@ -146,7 +146,9 @@ export default function Schedule() {
     try {
       const formData = new FormData()
 
-      // Separate items to destroy from items to keep/update/create
+      // Separate items to destroy from items to keep/update/create.
+      // This is critical to prevent Rails from creating duplicates - Rails nested attributes
+      // requires sequential indices (0, 1, 2...) and proper separation of destroy operations.
       const itemsToDestroy = values.event_schedules_attributes.filter(item => item._destroy && item.id)
       const itemsToKeep = values.event_schedules_attributes.filter(item => !item._destroy)
 
