@@ -36,10 +36,8 @@ class PurchasesMailer < ApplicationMailer
       size: 250
     )
     
-    # Return as hash with explicit content type for proper attachment handling
-    {
-      mime_type: 'image/png',
-      content: png.to_s
-    }
+    # Return binary PNG data directly
+    # Rails ActionMailer will infer the content type from the filename
+    png.to_s
   end
 end
