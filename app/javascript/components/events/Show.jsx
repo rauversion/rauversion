@@ -211,7 +211,7 @@ export default function EventShow() {
             <div className="container mx-auto px-4">
               {/* Header */}
               <div className="mb-12 text-center mt-10">
-                <h2 className="mb-3 font-serif text-2xl font-bold tracking-tight text-foreground md:text-3xl">
+                <h2 className="mb-3 font-sans text-2xl font-bold tracking-tight text-foreground md:text-3xl">
                   {I18n.t('events.show.speakers')}
                 </h2>
                 {false && <p className="mx-auto max-w-2xl text-lg text-muted-foreground">{"subtitle"}</p>}
