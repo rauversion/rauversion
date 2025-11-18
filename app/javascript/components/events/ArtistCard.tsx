@@ -26,9 +26,9 @@ export function ArtistCard({ artist }: { artist: Artist }) {
     >
       {/* Image Container */}
       <div className="relative aspect-[4/5] overflow-hidden bg-muted">
-        {artist?.user?.avatar_url ? (
+        {(artist?.avatar_url || artist?.user?.avatar_url) ? (
           <img
-            src={artist.user.avatar_url.medium || "/placeholder.svg"}
+            src={artist.avatar_url || artist.user.avatar_url.medium || "/placeholder.svg"}
             alt={artist.name}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           />

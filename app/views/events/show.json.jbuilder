@@ -53,6 +53,7 @@ json.event_hosts @event.event_hosts do |host|
   json.description host.description
   json.listed_on_page host.listed_on_page
   json.event_manager host.event_manager
+  json.avatar_url host.avatar.url if host.avatar.present?
   json.user do
     json.partial! 'users/user', user: host.user, show_full_name: true if host.user.present?
   end

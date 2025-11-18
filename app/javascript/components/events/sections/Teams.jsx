@@ -214,6 +214,11 @@ export default function Teams() {
     }
   }
 
+  const handleImageUpload = async (blobId, cropData) => {
+    // Store the blob ID for submission
+    editForm.setValue('avatar', blobId)
+  }
+
   const handleEditSubmit = async (data) => {
     setIsEditLoading(true)
     try {
@@ -223,7 +228,7 @@ export default function Teams() {
       formData.append('event_host[listed_on_page]', data.listed_on_page)
       formData.append('event_host[event_manager]', data.event_manager)
       
-      if (data.avatar instanceof File) {
+      if (data.avatar) {
         formData.append('event_host[avatar]', data.avatar)
       }
 
@@ -302,11 +307,17 @@ export default function Teams() {
                   key={member.id}
                   className="flex items-center justify-between p-4 border rounded-lg"
                 >
-                  <div>
-                    <p className="font-medium">{member.name}</p>
-                    {member.description && (
-                      <p className="text-sm text-muted-foreground mt-1">{member.description}</p>
-                    )}
+                  <div className="flex items-center gap-3">
+                    <Avatar>
+                      <AvatarImage src={member.avatar_url} alt={member.name} />
+                      <AvatarFallback>{member.name?.charAt(0)?.toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-medium">{member.name}</p>
+                      {member.description && (
+                        <p className="text-sm text-muted-foreground mt-1">{member.description}</p>
+                      )}
+                    </div>
                   </div>
                   <div className="flex gap-2">
                     <Button
@@ -506,10 +517,10 @@ export default function Teams() {
                       <FormLabel>{I18n.t('events.edit.teams.edit_member.profile_image')}</FormLabel>
                       <FormControl>
                         <ImageUploader
-                          value={field.value}
-                          onChange={field.onChange}
-                          disabled={isEditLoading}
-                          defaultPreview={hostToEdit?.avatar_url}
+                          onUploadComplete={handleImageUpload}
+                          imageUrl={hostToEdit?.avatar_url}
+                          aspectRatio={1}
+                          maxSize={10}
                         />
                       </FormControl>
                       <FormMessage />
