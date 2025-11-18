@@ -34,9 +34,9 @@ RSpec.describe "Homes", type: :request do
       get "/home/events.json"
       expect(response).to have_http_status(:success)
       json_response = JSON.parse(response.body)
-      expect(json_response["events"]).to be_present
-      expect(json_response["events"].length).to eq(1)
-      expect(json_response["events"].first["id"]).to eq(published_event.id)
+      expect(json_response["collection"]).to be_present
+      expect(json_response["collection"].length).to eq(1)
+      expect(json_response["collection"].first["id"]).to eq(published_event.id)
     end
   end
 end
