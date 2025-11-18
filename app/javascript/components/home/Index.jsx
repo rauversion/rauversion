@@ -79,6 +79,8 @@ export default function Home() {
     try {
       const response = await get(`/home/${section}.json`);
       const jsonData = await response.json;
+
+      console.log(`Fetched ${section} data:`, jsonData.collection);
       setData((prev) => ({
         ...prev,
         [section]: jsonData.collection || [],
@@ -247,12 +249,12 @@ export default function Home() {
                       index == 0
                         ? "tall" //index === 0 ? 'featured' :
                         : index === 3
-                        ? "wide"
-                        : index === 4
-                        ? "tall"
-                        : index === data.releases.length - 1
-                        ? "large"
-                        : "default",
+                          ? "wide"
+                          : index === 4
+                            ? "tall"
+                            : index === data.releases.length - 1
+                              ? "large"
+                              : "default",
                   })),
                   /*{
                     type: 'image',

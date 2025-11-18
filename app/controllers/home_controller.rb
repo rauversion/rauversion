@@ -34,7 +34,7 @@ class HomeController < ApplicationController
       render "tracks/index" and return
     when 'events'
       @events = fetch_events
-      render "events/index" and return
+      render "events/event_collection" and return
     else
       # fetch_all
     end
