@@ -32,6 +32,25 @@ class EventsController < ApplicationController
 
   def show
     @event = Event.public_events.friendly.find(params[:id])
+
+    set_meta_tags(
+      title: @event.title,
+      description: "Join #{@event.title} on Rauversion",
+      og: {
+        title: @event.title,
+        description: "Join #{@event.title} on Rauversion",
+        image: (@event.cover.attached? ? (url_for(@event.cover) rescue nil) : nil),
+        type: 'event',
+        site_name: 'Rauversion'
+      },
+      twitter: {
+        card: "summary_large_image",
+        site: "@rauversion",
+        title: @event.title,
+        description: "Join #{@event.title} on Rauversion",
+        image: (@event.cover.attached? ? (url_for(@event.cover) rescue nil) : nil)
+      }
+    )
     
     respond_to do |format|
       format.html
