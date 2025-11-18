@@ -9,6 +9,13 @@ interface Artist {
   genre?: string
   image?: string
   bio?: string
+  description?: string
+  avatar_url?: string
+  user?: {
+    avatar_url?: {
+      medium?: string
+    }
+  }
   socialMedia?: {
     instagram?: string
     spotify?: string
