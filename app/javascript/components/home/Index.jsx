@@ -5,6 +5,7 @@ import { useInView } from "react-intersection-observer";
 import I18n from "stores/locales";
 import { Skeleton } from "../ui/skeleton";
 import Header from "./Header";
+import HomeEvents from "./HomeEvents";
 import MainArticles from "./MainArticles";
 import AlbumReleases from "./AlbumReleases";
 import FeaturedArtists from "./FeaturedArtists";
@@ -47,6 +48,7 @@ export default function Home() {
     currentUser: null,
     artists: [],
     posts: [],
+    events: [],
     albums: [],
     playlists: [],
     latestReleases: [],
@@ -59,6 +61,7 @@ export default function Home() {
   const [loading, setLoading] = useState({
     artists: true,
     posts: true,
+    events: true,
     albums: true,
     playlists: true,
     latestReleases: true,
@@ -112,6 +115,7 @@ export default function Home() {
     // Fetch section data
     fetchSectionData("artists");
     fetchSectionData("posts");
+    fetchSectionData("events");
     fetchSectionData("releases");
     fetchSectionData("albums");
     fetchSectionData("playlists");
@@ -204,6 +208,10 @@ export default function Home() {
       <>
         <motion.div variants={fadeInUp}>
           <Header posts={data.posts} />
+        </motion.div>
+
+        <motion.div variants={fadeInUp}>
+          <HomeEvents events={data.events} />
         </motion.div>
 
         <div ref={ref}>

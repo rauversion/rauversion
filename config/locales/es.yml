@@ -1138,6 +1138,10 @@ es:
     podcasts:
       title: Podcasts
       subtitle: Escucha los podcasts de la comunidad
+    events:
+      title: Próximos Eventos
+      subtitle: Descubre eventos de nuestra comunidad
+      view_all: Ver Todo
     hero:
       title: Sé tu propia industria musical
       subtitle: Empoderando comunidades musicales independientes en internet
