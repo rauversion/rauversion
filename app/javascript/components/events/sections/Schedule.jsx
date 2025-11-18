@@ -146,59 +146,80 @@ export default function Schedule() {
     try {
       const formData = new FormData()
 
-      values.event_schedules_attributes.forEach((item, index) => {
-        if (item.id) {
-          formData.append(`event[event_schedules_attributes][${index}][id]`, item.id)
-        }
+      // Separate items to destroy from items to keep/update/create
+      const itemsToDestroy = values.event_schedules_attributes.filter(item => item._destroy && item.id)
+      const itemsToKeep = values.event_schedules_attributes.filter(item => !item._destroy)
 
-        if (item._destroy) {
-          formData.append(`event[event_schedules_attributes][${index}][_destroy]`, '1')
-          return
+      // First, add items to destroy with their IDs
+      itemsToDestroy.forEach((item, idx) => {
+        formData.append(`event[event_schedules_attributes][${idx}][id]`, item.id)
+        formData.append(`event[event_schedules_attributes][${idx}][_destroy]`, '1')
+      })
+
+      // Then add items to keep with sequential indices starting after destroyed items
+      const startIndex = itemsToDestroy.length
+      itemsToKeep.forEach((item, idx) => {
+        const formIndex = startIndex + idx
+
+        if (item.id) {
+          formData.append(`event[event_schedules_attributes][${formIndex}][id]`, item.id)
         }
 
         const start_date = formatDateSafely(item.start_date)
         const end_date = formatDateSafely(item.end_date)
 
-        formData.append(`event[event_schedules_attributes][${index}][start_date]`, start_date)
-        formData.append(`event[event_schedules_attributes][${index}][end_date]`, end_date)
-        formData.append(`event[event_schedules_attributes][${index}][name]`, item.name)
-        formData.append(`event[event_schedules_attributes][${index}][description]`, item.description || '')
-        formData.append(`event[event_schedules_attributes][${index}][schedule_type]`, item.schedule_type || 'session')
+        formData.append(`event[event_schedules_attributes][${formIndex}][start_date]`, start_date)
+        formData.append(`event[event_schedules_attributes][${formIndex}][end_date]`, end_date)
+        formData.append(`event[event_schedules_attributes][${formIndex}][name]`, item.name)
+        formData.append(`event[event_schedules_attributes][${formIndex}][description]`, item.description || '')
+        formData.append(`event[event_schedules_attributes][${formIndex}][schedule_type]`, item.schedule_type || 'session')
 
-        if (item.schedule_schedulings_attributes) {
-          item.schedule_schedulings_attributes.forEach((scheduling, schedulingIndex) => {
+        if (item.schedule_schedulings_attributes && item.schedule_schedulings_attributes.length > 0) {
+          // Separate schedulings to destroy from schedulings to keep
+          const schedulingsToDestroy = item.schedule_schedulings_attributes.filter(s => s._destroy && s.id)
+          const schedulingsToKeep = item.schedule_schedulings_attributes.filter(s => !s._destroy)
+
+          // Add schedulings to destroy
+          schedulingsToDestroy.forEach((scheduling, sIdx) => {
+            formData.append(
+              `event[event_schedules_attributes][${formIndex}][schedule_schedulings_attributes][${sIdx}][id]`,
+              scheduling.id
+            )
+            formData.append(
+              `event[event_schedules_attributes][${formIndex}][schedule_schedulings_attributes][${sIdx}][_destroy]`,
+              '1'
+            )
+          })
+
+          // Add schedulings to keep with sequential indices
+          const schedulingStartIndex = schedulingsToDestroy.length
+          schedulingsToKeep.forEach((scheduling, sIdx) => {
+            const schedulingFormIndex = schedulingStartIndex + sIdx
+
             if (scheduling.id) {
               formData.append(
-                `event[event_schedules_attributes][${index}][schedule_schedulings_attributes][${schedulingIndex}][id]`,
+                `event[event_schedules_attributes][${formIndex}][schedule_schedulings_attributes][${schedulingFormIndex}][id]`,
                 scheduling.id
               )
-            }
-
-            if (scheduling._destroy) {
-              formData.append(
-                `event[event_schedules_attributes][${index}][schedule_schedulings_attributes][${schedulingIndex}][_destroy]`,
-                '1'
-              )
-              return
             }
 
             const schedulingStartDate = formatDateSafely(scheduling.start_date)
             const schedulingEndDate = formatDateSafely(scheduling.end_date)
 
             formData.append(
-              `event[event_schedules_attributes][${index}][schedule_schedulings_attributes][${schedulingIndex}][start_date]`,
+              `event[event_schedules_attributes][${formIndex}][schedule_schedulings_attributes][${schedulingFormIndex}][start_date]`,
               schedulingStartDate
             )
             formData.append(
-              `event[event_schedules_attributes][${index}][schedule_schedulings_attributes][${schedulingIndex}][end_date]`,
+              `event[event_schedules_attributes][${formIndex}][schedule_schedulings_attributes][${schedulingFormIndex}][end_date]`,
               schedulingEndDate
             )
             formData.append(
-              `event[event_schedules_attributes][${index}][schedule_schedulings_attributes][${schedulingIndex}][name]`,
+              `event[event_schedules_attributes][${formIndex}][schedule_schedulings_attributes][${schedulingFormIndex}][name]`,
               scheduling.name
             )
             formData.append(
-              `event[event_schedules_attributes][${index}][schedule_schedulings_attributes][${schedulingIndex}][short_description]`,
+              `event[event_schedules_attributes][${formIndex}][schedule_schedulings_attributes][${schedulingFormIndex}][short_description]`,
               scheduling.short_description || ''
             )
           })
