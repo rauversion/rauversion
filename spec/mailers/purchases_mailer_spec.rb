@@ -116,5 +116,49 @@ RSpec.describe PurchasesMailer, type: :mailer do
         expect(mail.html_part.body.encoded).to be_present
       end
     end
+
+    context 'QR code attachments' do
+      it 'includes QR code attachments for each purchased item' do
+        expect(mail.attachments.size).to eq(1)
+      end
+
+      it 'names the attachment correctly' do
+        attachment = mail.attachments.first
+        expect(attachment.filename).to eq("ticket_#{purchased_item.id}_qr_code.png")
+      end
+
+      it 'attaches PNG files' do
+        attachment = mail.attachments.first
+        expect(attachment.content_type).to start_with('image/png')
+      end
+
+      it 'includes non-empty QR code data' do
+        attachment = mail.attachments.first
+        expect(attachment.body.decoded.size).to be > 0
+      end
+    end
+
+    context 'with multiple tickets' do
+      let(:event_ticket_2) { FactoryBot.create(:event_ticket, event: event, title: 'General Admission') }
+      let(:purchased_item_2) do
+        FactoryBot.create(:purchased_item, purchase: purchase, purchased_item: event_ticket_2)
+      end
+
+      before do
+        purchased_item_2
+      end
+
+      it 'includes QR code attachments for all tickets' do
+        expect(mail.attachments.size).to eq(2)
+      end
+
+      it 'names each attachment uniquely' do
+        filenames = mail.attachments.map(&:filename)
+        expect(filenames).to contain_exactly(
+          "ticket_#{purchased_item.id}_qr_code.png",
+          "ticket_#{purchased_item_2.id}_qr_code.png"
+        )
+      end
+    end
   end
 end
