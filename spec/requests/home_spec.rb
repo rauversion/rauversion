@@ -23,4 +23,20 @@ RSpec.describe "Homes", type: :request do
       expect(cookies[:locale]).to eq("es")
     end
   end
+
+  describe "GET /home/events.json" do
+    let!(:user) { create(:user) }
+    let!(:published_event) { create(:event, user: user, state: 'published', event_start: 1.day.from_now) }
+    let!(:draft_event) { create(:event, user: user, state: 'draft', event_start: 1.day.from_now) }
+    let!(:past_event) { create(:event, user: user, state: 'published', event_start: 1.day.ago) }
+
+    it "returns published and upcoming events" do
+      get "/home/events.json"
+      expect(response).to have_http_status(:success)
+      json_response = JSON.parse(response.body)
+      expect(json_response["collection"]).to be_present
+      expect(json_response["collection"].length).to eq(1)
+      expect(json_response["collection"].first["id"]).to eq(published_event.id)
+    end
+  end
 end

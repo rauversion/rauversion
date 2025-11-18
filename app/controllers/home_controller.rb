@@ -32,6 +32,9 @@ class HomeController < ApplicationController
     when 'podcasts'
       @tracks = fetch_podcasts
       render "tracks/index" and return
+    when 'events'
+      @events = fetch_events
+      render "events/event_collection" and return
     else
       # fetch_all
     end
@@ -151,5 +154,14 @@ class HomeController < ApplicationController
       .where.not(podcast: "podcast")
       .page(params[:page])
       .per(10)
+  end
+
+  def fetch_events
+    Event.published
+      .upcoming
+      .includes(:user)
+      .with_attached_cover
+      .page(params[:page])
+      .per(6)
   end
 end

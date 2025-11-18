@@ -22,7 +22,7 @@ class EventsController < ApplicationController
     respond_to do |format|
       format.html
       format.turbo_stream
-      format.json
+      format.json 
     end
   end
 
