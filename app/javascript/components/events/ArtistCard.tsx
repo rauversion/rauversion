@@ -10,10 +10,16 @@ interface Artist {
   image?: string
   bio?: string
   description?: string
-  avatar_url?: string
+  avatar_url?: {
+    small?: string
+    medium?: string
+    large?: string
+  }
   user?: {
     avatar_url?: {
+      small?: string
       medium?: string
+      large?: string
     }
   }
   socialMedia?: {
@@ -33,9 +39,9 @@ export function ArtistCard({ artist }: { artist: Artist }) {
     >
       {/* Image Container */}
       <div className="relative aspect-[4/5] overflow-hidden bg-muted">
-        {(artist?.avatar_url || artist?.user?.avatar_url) ? (
+        {(artist?.avatar_url?.medium || artist?.user?.avatar_url?.medium) ? (
           <img
-            src={artist.avatar_url || artist.user.avatar_url.medium || "/placeholder.svg"}
+            src={artist.avatar_url?.medium || artist.user.avatar_url?.medium || "/placeholder.svg"}
             alt={artist.name}
             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
           />

@@ -90,6 +90,7 @@ export default function Teams() {
   const [hostToDelete, setHostToDelete] = React.useState(null)
   const [hostToEdit, setHostToEdit] = React.useState(null)
   const [isEditLoading, setIsEditLoading] = React.useState(false)
+  const [previewImageUrl, setPreviewImageUrl] = React.useState(null)
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -214,9 +215,11 @@ export default function Teams() {
     }
   }
 
-  const handleImageUpload = async (blobId, cropData) => {
+  const handleImageUpload = async (blobId, cropData, serviceUrl) => {
     // Store the blob ID for submission
     editForm.setValue('avatar', blobId)
+    // Store the service URL for immediate preview
+    setPreviewImageUrl(serviceUrl)
   }
 
   const handleEditSubmit = async (data) => {
@@ -286,6 +289,8 @@ export default function Teams() {
         event_manager: hostToEdit.event_manager || false,
         avatar: null
       })
+      // Reset preview to show existing avatar
+      setPreviewImageUrl(null)
     }
   }, [hostToEdit])
 
@@ -309,7 +314,7 @@ export default function Teams() {
                 >
                   <div className="flex items-center gap-3">
                     <Avatar>
-                      <AvatarImage src={member.avatar_url} alt={member.name} />
+                      <AvatarImage src={member.avatar_url?.small} alt={member.name} />
                       <AvatarFallback>{member.name?.charAt(0)?.toUpperCase()}</AvatarFallback>
                     </Avatar>
                     <div>
@@ -518,7 +523,7 @@ export default function Teams() {
                       <FormControl>
                         <ImageUploader
                           onUploadComplete={handleImageUpload}
-                          imageUrl={hostToEdit?.avatar_url}
+                          imageUrl={previewImageUrl || hostToEdit?.avatar_url?.medium}
                           aspectRatio={1}
                           maxSize={10}
                         />
