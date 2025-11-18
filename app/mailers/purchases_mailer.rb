@@ -35,6 +35,11 @@ class PurchasesMailer < ApplicationMailer
       resize_gte_to: false,
       size: 250
     )
-    png.to_s
+    
+    # Return as hash with explicit content type for proper attachment handling
+    {
+      mime_type: 'image/png',
+      content: png.to_s
+    }
   end
 end
