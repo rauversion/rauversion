@@ -73,7 +73,7 @@ export function ArtistCard({ artist }: { artist: Artist }) {
         )}
 
         {/* Artist Name */}
-        <h3 className="mb-2 font-serif text-3xl font-bold leading-tight text-foreground transition-all duration-300 group-hover:text-accent md:text-4xl">
+        <h3 className="mb-2 font-mono text-3xl font-bold leading-tight text-foreground transition-all duration-300 -group-hover:text-accent md:text-4xl">
           {artist.name}
         </h3>
 
