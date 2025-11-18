@@ -14,7 +14,13 @@ else
     json.description @event_host.description
     json.listed_on_page @event_host.listed_on_page
     json.event_manager @event_host.event_manager
-    json.avatar_url @event_host.avatar.url if @event_host.avatar.present?
+    if @event_host.avatar.attached?
+      json.avatar_url do
+        json.small @event_host.avatar_url(:small)
+        json.medium @event_host.avatar_url(:medium)
+        json.large @event_host.avatar_url(:large)
+      end
+    end
     json.created_at @event_host.created_at
     json.updated_at @event_host.updated_at
   end

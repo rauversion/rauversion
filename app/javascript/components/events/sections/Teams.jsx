@@ -90,6 +90,7 @@ export default function Teams() {
   const [hostToDelete, setHostToDelete] = React.useState(null)
   const [hostToEdit, setHostToEdit] = React.useState(null)
   const [isEditLoading, setIsEditLoading] = React.useState(false)
+  const [previewImageUrl, setPreviewImageUrl] = React.useState(null)
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -214,6 +215,13 @@ export default function Teams() {
     }
   }
 
+  const handleImageUpload = async (blobId, cropData, serviceUrl) => {
+    // Store the blob ID for submission
+    editForm.setValue('avatar', blobId)
+    // Store the service URL for immediate preview
+    setPreviewImageUrl(serviceUrl)
+  }
+
   const handleEditSubmit = async (data) => {
     setIsEditLoading(true)
     try {
@@ -223,7 +231,7 @@ export default function Teams() {
       formData.append('event_host[listed_on_page]', data.listed_on_page)
       formData.append('event_host[event_manager]', data.event_manager)
       
-      if (data.avatar instanceof File) {
+      if (data.avatar) {
         formData.append('event_host[avatar]', data.avatar)
       }
 
@@ -281,6 +289,8 @@ export default function Teams() {
         event_manager: hostToEdit.event_manager || false,
         avatar: null
       })
+      // Reset preview to show existing avatar
+      setPreviewImageUrl(null)
     }
   }, [hostToEdit])
 
@@ -302,11 +312,17 @@ export default function Teams() {
                   key={member.id}
                   className="flex items-center justify-between p-4 border rounded-lg"
                 >
-                  <div>
-                    <p className="font-medium">{member.name}</p>
-                    {member.description && (
-                      <p className="text-sm text-muted-foreground mt-1">{member.description}</p>
-                    )}
+                  <div className="flex items-center gap-3">
+                    <Avatar>
+                      <AvatarImage src={member.avatar_url?.small} alt={member.name} />
+                      <AvatarFallback>{member.name?.charAt(0)?.toUpperCase()}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-medium">{member.name}</p>
+                      {member.description && (
+                        <p className="text-sm text-muted-foreground mt-1">{member.description}</p>
+                      )}
+                    </div>
                   </div>
                   <div className="flex gap-2">
                     <Button
@@ -506,10 +522,10 @@ export default function Teams() {
                       <FormLabel>{I18n.t('events.edit.teams.edit_member.profile_image')}</FormLabel>
                       <FormControl>
                         <ImageUploader
-                          value={field.value}
-                          onChange={field.onChange}
-                          disabled={isEditLoading}
-                          defaultPreview={hostToEdit?.avatar_url}
+                          onUploadComplete={handleImageUpload}
+                          imageUrl={previewImageUrl || hostToEdit?.avatar_url?.medium}
+                          aspectRatio={1}
+                          maxSize={10}
                         />
                       </FormControl>
                       <FormMessage />
