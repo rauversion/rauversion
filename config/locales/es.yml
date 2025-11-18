@@ -240,7 +240,7 @@ es:
     past: Eventos pasados
     upcoming: Próximos eventos
     upcoming_sub: Próximos eventos de la comunidad Rauversion
-    speakers: Artistas/Exponentes
+    speakers: Performers
     people_attending: Personas asistentes
     venue: recinto
     location: ubicación
@@ -934,7 +934,7 @@ es:
       not_found: Evento no encontrado
       back_to_events: Volver a eventos
       get_tickets: Obtener entradas
-      speakers: Artistas/Exponentes
+      speakers: Performers
       people_attending: Personas Asistentes
       venue: Recinto
       location: Ubicación
