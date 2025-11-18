@@ -98,19 +98,19 @@ export default function Overview() {
   const form = useForm({
     mode: "onChange",
     resolver: zodResolver(formSchema),
-      defaultValues: {
-        title: '',
-        timezone: '',
-        description: '',
-        location: '',
-        venue: '',
-        event_start_date: '',
-        event_start_time: '',
-        event_end_date: '',
-        event_end_time: '',
-        lat: '',
-        lng: '',
-        state: 'draft',
+    defaultValues: {
+      title: '',
+      timezone: '',
+      description: '',
+      location: '',
+      venue: '',
+      event_start_date: '',
+      event_start_time: '',
+      event_end_date: '',
+      event_end_time: '',
+      lat: '',
+      lng: '',
+      state: 'draft',
     }
   })
 
@@ -119,12 +119,12 @@ export default function Overview() {
       try {
         const response = await fetch(`/events/${slug}/edit.json`)
         const data = await response.json()
-        
+
         setEvent(data)
-        
+
         const startDate = new Date(data.event_start)
         const endDate = new Date(data.event_ends)
-        
+
         form.reset({
           title: data.title,
           timezone: data.timezone,
@@ -151,7 +151,7 @@ export default function Overview() {
 
   const onSubmit = async (values) => {
     console.log("onSubmit called with values:", values)
-    
+
     try {
       console.log("Starting form submission process")
       const formData = new FormData()
@@ -159,23 +159,23 @@ export default function Overview() {
       const startDateTime = new Date(values.event_start_date)
       const [startHours, startMinutes] = values.event_start_time.split(':')
       startDateTime.setHours(parseInt(startHours), parseInt(startMinutes))
-      
+
       const endDateTime = new Date(values.event_end_date)
       const [endHours, endMinutes] = values.event_end_time.split(':')
       endDateTime.setHours(parseInt(endHours), parseInt(endMinutes))
-      
+
       const formattedData = {
         ...values,
         event_start: startDateTime.toISOString(),
         event_ends: endDateTime.toISOString(),
       }
-      
+
       // Clean up form fields that shouldn't be sent to API
       delete formattedData.event_start_date
       delete formattedData.event_start_time
       delete formattedData.event_end_date
       delete formattedData.event_end_time
-      
+
       Object.keys(formattedData).forEach(key => {
         if (formattedData[key] !== undefined && formattedData[key] !== null) {
           if (typeof formattedData[key] === 'object') {
@@ -194,7 +194,7 @@ export default function Overview() {
         contentType: false,
         processData: false,
       })
-      
+
       console.log("Response received:", response)
       const responseData = await response.json
       console.log("Response data:", responseData)
@@ -242,7 +242,7 @@ export default function Overview() {
             </FormItem>
           )}
         />
-        
+
         <FormField
           control={form.control}
           name="timezone"
@@ -266,7 +266,7 @@ export default function Overview() {
             </FormItem>
           )}
         />
-        
+
         <div className="grid gap-4 md:grid-cols-2">
           <div className="space-y-4">
             <FormField
@@ -310,7 +310,7 @@ export default function Overview() {
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="event_start_time"
@@ -332,7 +332,7 @@ export default function Overview() {
               )}
             />
           </div>
-          
+
           <div className="space-y-4">
             <FormField
               control={form.control}
@@ -375,7 +375,7 @@ export default function Overview() {
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="event_end_time"
@@ -476,7 +476,7 @@ export default function Overview() {
                     field.onChange(blob)
                     handleImageUpload(blob, cropData)
                   }}
-                  aspectRatio={16/9}
+                  aspectRatio={1}
                   preview={true}
                   enableCropper={true}
                   imageUrl={event?.cover_url?.large}
@@ -511,11 +511,11 @@ export default function Overview() {
         />
 
         <div>
-          <Button 
+          <Button
             type="button"
             onClick={form.handleSubmit(async (values) => {
               if (isSubmitting) return
-              
+
               try {
                 setIsSubmitting(true)
                 console.log("Submit button clicked with values:", values)
