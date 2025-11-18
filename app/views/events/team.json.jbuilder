@@ -11,6 +11,7 @@ json.event do
     json.description host.description
     json.listed_on_page host.listed_on_page
     json.event_manager host.event_manager
+    json.avatar_url host.avatar.url if host.avatar.present?
     json.created_at host.created_at
     
     json.user do
