@@ -935,6 +935,16 @@ en:
       your_price_label: "Your Price (%{currency})"
       minimum_price_error: "Minimum price is %{currency} %{min_price}"
       sold_out_badge: "Sold Out"
+      guest_purchase:
+        title: "To purchase tickets, you can:"
+        sign_in: "Sign in with my account"
+        or_guest: "Or purchase as guest (enter your email below)"
+        email_label: "Email for guest purchase:"
+        email_placeholder: "your-email@example.com"
+        email_required: "Email is required for guest purchases"
+        email_invalid: "Please enter a valid email address"
+        disclaimer_title: "Important:"
+        disclaimer_text: "The email must be correct, otherwise you will not receive the confirmation email with your tickets."
       disclaimers:
         title: "Important Information"
         refund_policy: "Refund policy: Returns are only allowed up to one day before the event."
@@ -951,6 +961,7 @@ en:
           title: "Error"
           load_tickets: "Failed to load tickets. Please try again."
           process_purchase: "Failed to process purchase. Please try again."
+          guest_email_required: "Email is required for guest purchases"
 
 
   event_hosts:

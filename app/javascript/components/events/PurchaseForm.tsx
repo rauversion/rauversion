@@ -8,9 +8,10 @@ import { Label } from "@/components/ui/label"
 import { useNavigate } from "react-router-dom"
 import { get, post } from "@rails/request.js"
 import { motion, AnimatePresence } from "framer-motion"
-import { Ticket, ShoppingCart, AlertCircle, Info } from "lucide-react"
+import { Ticket, ShoppingCart, AlertCircle, Info, LogIn, Mail } from "lucide-react"
 import I18n from "@/stores/locales"
 import { Badge } from "../ui/badge"
+import useAuthStore from "@/stores/authStore"
 
 interface Ticket {
   id: string
@@ -46,6 +47,7 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
   const [showDisclaimers, setShowDisclaimers] = React.useState(false)
   const { toast } = useToast()
   const navigate = useNavigate()
+  const { currentUser, isAuthenticated } = useAuthStore()
 
   const {
     register,
@@ -120,6 +122,17 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
   const onSubmit = async (data: any) => {
     setLoading(true)
     try {
+      // Validate guest email if not authenticated
+      if (!isAuthenticated() && !data.guest_email) {
+        toast({
+          variant: "destructive",
+          title: I18n.t("events.purchase_form.toast.error.title"),
+          description: I18n.t("events.purchase_form.toast.error.guest_email_required"),
+        })
+        setLoading(false)
+        return
+      }
+
       const ticketsData = tickets.map(ticket => {
         if (ticket.pay_what_you_want) {
           const quantity = data[`${ticket.id}_quantity`]
@@ -138,10 +151,17 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
         }
       }).filter(ticket => ticket.quantity > 0)
 
+      const requestBody: any = {
+        tickets: ticketsData,
+      }
+
+      // Add guest_email if not authenticated
+      if (!isAuthenticated() && data.guest_email) {
+        requestBody.guest_email = data.guest_email
+      }
+
       const response = await post(`/events/${eventId}/event_purchases.json`, {
-        body: JSON.stringify({
-          tickets: ticketsData,
-        }),
+        body: JSON.stringify(requestBody),
       })
       
       const result = await response.json
@@ -199,6 +219,78 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
           </motion.div>
         </CardHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
+          {/* Guest Email Section - Only show when not authenticated */}
+          {!isAuthenticated() && (
+            <div className="px-6 pt-4">
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 space-y-3"
+              >
+                <div className="space-y-3">
+                  <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                    {I18n.t("events.purchase_form.guest_purchase.title")}
+                  </p>
+                  <div className="space-y-2">
+                    <div className="flex items-center space-x-2 text-sm">
+                      <LogIn className="w-4 h-4 text-blue-600" />
+                      <a
+                        href="/users/sign_in"
+                        className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
+                      >
+                        {I18n.t("events.purchase_form.guest_purchase.sign_in")}
+                      </a>
+                    </div>
+                    <div className="flex items-start space-x-2 text-sm">
+                      <Mail className="w-4 h-4 text-blue-600 mt-0.5" />
+                      <span className="text-gray-700 dark:text-gray-300">
+                        {I18n.t("events.purchase_form.guest_purchase.or_guest")}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="guest_email" className="text-sm font-medium">
+                    {I18n.t("events.purchase_form.guest_purchase.email_label")}
+                  </Label>
+                  <Input
+                    id="guest_email"
+                    type="email"
+                    placeholder={I18n.t("events.purchase_form.guest_purchase.email_placeholder")}
+                    {...register("guest_email", {
+                      required: !isAuthenticated() && I18n.t("events.purchase_form.guest_purchase.email_required"),
+                      pattern: {
+                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                        message: I18n.t("events.purchase_form.guest_purchase.email_invalid"),
+                      },
+                    })}
+                    className="w-full"
+                  />
+                  {errors.guest_email && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex items-center gap-2 text-sm text-destructive"
+                    >
+                      <AlertCircle className="w-4 h-4" />
+                      <span>{errors.guest_email?.message as string}</span>
+                    </motion.div>
+                  )}
+                </div>
+
+                <div className="flex items-start space-x-2 text-xs text-amber-700 dark:text-amber-400">
+                  <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                  <p>
+                    <strong>{I18n.t("events.purchase_form.guest_purchase.disclaimer_title")}</strong>{" "}
+                    {I18n.t("events.purchase_form.guest_purchase.disclaimer_text")}
+                  </p>
+                </div>
+              </motion.div>
+            </div>
+          )}
+
           <CardContent className="space-y-6 overflow-auto max-h-96">
             <AnimatePresence>
               {tickets.map((ticket, index) => {

@@ -1002,6 +1002,16 @@ es:
       your_price_label: "Tu Precio (%{currency})"
       minimum_price_error: "El precio mínimo es %{currency} %{min_price}"
       sold_out_badge: "Agotado"
+      guest_purchase:
+        title: "Para comprar tickets, puedes:"
+        sign_in: "Entrar con mi cuenta"
+        or_guest: "O comprar como anónimo (ingresa tu email abajo)"
+        email_label: "Email para compra anónima:"
+        email_placeholder: "tu-email@ejemplo.com"
+        email_required: "El email es requerido para compras anónimas"
+        email_invalid: "Por favor ingresa un email válido"
+        disclaimer_title: "Importante:"
+        disclaimer_text: "El correo debe ser correcto, de lo contrario no recibirás el email de confirmación con tus tickets."
       disclaimers:
         title: "Información Importante"
         refund_policy: "Política de devolución: Las devoluciones solo están permitidas hasta un día antes del evento."
@@ -1018,6 +1028,7 @@ es:
           title: "Error"
           load_tickets: "No se pudieron cargar las entradas. Por favor, inténtalo de nuevo."
           process_purchase: "No se pudo procesar la compra. Por favor, inténtalo de nuevo."
+          guest_email_required: "El email es requerido para compras anónimas"
 
   event_hosts:
     listed: Listado en página
