@@ -6,7 +6,7 @@ class EventTicketsController < ApplicationController
     @ticket = @purchased_item.purchased_item
     @purchase = @purchased_item.purchase
     @event = @purchase.purchasable
-    @is_manager = @event.user_id == current_user.id || @event.managers.includes?(current_user)
+    @is_manager = @event.user_id == current_user.id || event_managers.includes?(current_user)
   end
 
   def update
@@ -14,7 +14,7 @@ class EventTicketsController < ApplicationController
     @ticket = @purchased_item.purchased_item
     @purchase = @purchased_item.purchase
     @event = @purchase.purchasable
-    @is_manager = @event.user_id == current_user.id || @event.managers.includes?(current_user)
+    @is_manager = @event.user_id == current_user.id || event_managers.includes?(current_user)
     @purchased_item.toggle_check_in!
 
     respond_to do |format|
@@ -34,5 +34,10 @@ class EventTicketsController < ApplicationController
     end
 
     render json: { secret_url: @event.secret_ticket_url(@ticket) }
+  end
+
+  private
+  def event_managers
+    @event.event_hosts.where(event_manager: true)
   end
 end
