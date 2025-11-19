@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_11_021157) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_19_053700) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -729,7 +729,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_11_021157) do
     t.bigint "purchasable_id"
     t.decimal "price"
     t.string "currency", default: "usd", null: false
+    t.string "guest_email"
     t.index ["checkout_type"], name: "index_purchases_on_checkout_type"
+    t.index ["guest_email"], name: "index_purchases_on_guest_email"
     t.index ["purchasable_type", "purchasable_id"], name: "index_purchases_on_purchasable_type_and_purchasable_id"
     t.index ["state"], name: "index_purchases_on_state"
     t.index ["user_id"], name: "index_purchases_on_user_id"

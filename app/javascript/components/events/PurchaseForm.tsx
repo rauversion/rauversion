@@ -38,16 +38,19 @@ interface PurchaseFormProps {
   ticketToken?: string
 }
 
-type TicketFormValues = Record<string, number>
+type TicketFormValues = {
+  guest_email?: string
+} & Record<string, any>
 
 export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps) {
+  const { toast } = useToast()
+  const navigate = useNavigate()
+  const { currentUser, isAuthenticated } = useAuthStore()
   const [tickets, setTickets] = React.useState<Ticket[]>([])
   const [loading, setLoading] = React.useState(false)
   const [event, setEvent] = React.useState<Event | null>(null)
   const [showDisclaimers, setShowDisclaimers] = React.useState(false)
-  const { toast } = useToast()
-  const navigate = useNavigate()
-  const { currentUser, isAuthenticated } = useAuthStore()
+  const [step, setStep] = React.useState<"guest" | "tickets">(isAuthenticated() ? "tickets" : "guest")
 
   const {
     register,
@@ -55,7 +58,10 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
     formState: { errors },
     setValue,
     watch,
-  } = useForm<TicketFormValues>()
+    trigger,
+  } = useForm<TicketFormValues>({
+    shouldUnregister: false,
+  })
 
   React.useEffect(() => {
     const fetchTickets = async () => {
@@ -179,8 +185,8 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
       if (result.payment_url) {
         window.location.href = result.payment_url
       } else {
-        // navigate(`/events/${eventId}/event_purchases/${result.id}`)
-        navigate("/purchases/tickets")
+        // For free purchases (no external payment), go directly to the event checkout success page
+        navigate(`/events/${eventId}/event_purchases/${result.id}/success`)
       }
     } catch (error) {
       toast({
@@ -190,6 +196,17 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
       })
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleGuestEmailContinue = async () => {
+    // Validate guest email before moving to ticket selection
+    const isValid = await trigger("guest_email")
+
+    if (!isValid) return
+
+    if (!isAuthenticated()) {
+      setStep("tickets")
     }
   }
 
@@ -220,7 +237,7 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
         </CardHeader>
         <form onSubmit={handleSubmit(onSubmit)}>
           {/* Guest Email Section - Only show when not authenticated */}
-          {!isAuthenticated() && (
+          {!isAuthenticated() && step === "guest" && (
             <div className="px-6 pt-4">
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
@@ -287,11 +304,23 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
                     {I18n.t("events.purchase_form.guest_purchase.disclaimer_text")}
                   </p>
                 </div>
+
+                <div className="pt-4 flex justify-end">
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={handleGuestEmailContinue}
+                  >
+                    Continuar
+                  </Button>
+                </div>
               </motion.div>
             </div>
           )}
 
-          <CardContent className="space-y-6 overflow-auto max-h-96">
+          {(isAuthenticated() || step === "tickets") && (
+            <>
+              <CardContent className="space-y-6 overflow-auto max-h-96">
             <AnimatePresence>
               {tickets.map((ticket, index) => {
                 const isPWYW = ticket.pay_what_you_want === true
@@ -348,9 +377,11 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
                             })
                           )}
                         </div>
-                        { event.show_remaining_tickets && <div className="text-sm text-muted-foreground">
-                          {I18n.t("events.purchase_form.available_tickets", { count: ticket.quantity })}
-                        </div>}
+                        {event?.show_remaining_tickets && (
+                          <div className="text-sm text-muted-foreground">
+                            {I18n.t("events.purchase_form.available_tickets", { count: ticket.quantity })}
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -607,6 +638,8 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
               )}
             </Button>
           </CardFooter>
+            </>
+          )}
         </form>
       </Card>
     </motion.div>

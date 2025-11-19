@@ -228,6 +228,13 @@ en:
     loading: Loading...
     no_image: Without image
     online: Online
+    events:
+      purchase_success:
+        tickets_title: "Your tickets"
+        view_ticket: "View ticket"
+        loading: "Loading your tickets..."
+        load_error: "We couldn't load your tickets. Please check your purchases page."
+
     edit:
       menu:
         event_summary: "Event Summary"

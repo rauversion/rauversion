@@ -247,6 +247,12 @@ es:
     loading: Cargando...
     no_image: Sin imagen
     online: En línea
+    purchase_success:
+      tickets_title: "Tus tickets"
+      view_ticket: "Ver ticket"
+      loading: "Cargando tus tickets..."
+      load_error: "No pudimos cargar tus tickets. Revisa tu sección de compras."
+
     edit:
       menu:
         event_summary: "Resumen del Evento"

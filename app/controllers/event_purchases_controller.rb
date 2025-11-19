@@ -1,5 +1,5 @@
 class EventPurchasesController < ApplicationController
-  before_action :authenticate_user!, except: [:new, :create]
+  before_action :authenticate_user!, except: [:new, :create,  :success, :failure]
   
   def new
     @event = Event.friendly.find(params[:event_id])
@@ -82,7 +82,7 @@ class EventPurchasesController < ApplicationController
       
       if user
         # User exists, assign purchase to them
-        @purchase = user.purchases.new(purchasable: @event)
+        @purchase = user.purchases.new(purchasable: @event, guest_email: guest_email)
       else
         # Create new user account with the email
         # Generate a random password and send confirmation email
@@ -93,7 +93,7 @@ class EventPurchasesController < ApplicationController
           password_confirmation: password,
           username: "user_#{SecureRandom.hex(4)}"
         )
-        
+
         if user.save
           @purchase = user.purchases.new(purchasable: @event)
           @purchase.guest_email = guest_email
@@ -179,9 +179,9 @@ class EventPurchasesController < ApplicationController
   def success
     @event = Event.friendly.find(params[:event_id])
     if current_user
-      @purchase = current_user.purchases.find(params[:id])
+      @purchase = current_user.purchases.find_signed(params[:id])
     else
-      @purchase = Purchase.find(params[:id])
+      @purchase = Purchase.find_signed(params[:id])
     end
 
     if params[:enc].present?
