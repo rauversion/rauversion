@@ -538,7 +538,7 @@ export default function EditArticle() {
               <Settings2 className="h-4 w-4" />
             </Button>
           </SheetTrigger>
-          <SheetContent className="w-[400px] sm:w-[540px] border-l bg-default flex flex-col h-full p-0">
+          <SheetContent className="w-[400px] sm:w-[540px] border-l bg-background flex flex-col h-full p-0">
             <SheetHeader className="flex flex-row justify-between items-center border-b pb-4 p-6">
               <div>
                 <SheetTitle className="text-lg">Nuevo artículo</SheetTitle>
