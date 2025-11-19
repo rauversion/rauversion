@@ -198,3 +198,5 @@ gem "i18n-js", "~> 4.2"
 gem "mercadopago-sdk", "~> 2.3"
 
 gem "mailbin", "~> 1.0"
+
+gem "bugsnag", "~> 6.28"

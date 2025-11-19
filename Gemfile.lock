@@ -205,6 +205,8 @@ GEM
     bootsnap (1.18.4)
       msgpack (~> 1.2)
     browser (5.3.1)
+    bugsnag (6.28.0)
+      concurrent-ruby (~> 1.0)
     builder (3.3.0)
     capybara (3.40.0)
       addressable
@@ -729,6 +731,7 @@ DEPENDENCIES
   backstage!
   bootsnap
   browser (~> 5.3)
+  bugsnag (~> 6.28)
   capybara
   country_select
   cssbundling-rails
