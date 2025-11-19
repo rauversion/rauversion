@@ -145,6 +145,8 @@ class EventsController < ApplicationController
     params.require(:event).permit(:title, :event_start, :event_ends,
       :timezone,
       :state,
+      # :visibility, 
+      :registration_type, :allow_comments, :show_attendees, :show_remaining_tickets, :social_sharing, :require_login,
       :description, :venue, :age_requirement, :payment_gateway,
       :ticket_currency, :location, :lat, :lng, :country, :city, :province,
       :participant_label, :participant_description, :scheduling_label,

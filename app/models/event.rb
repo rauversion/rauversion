@@ -50,6 +50,14 @@ class Event < ApplicationRecord
   store_accessor :event_settings, :scheduling_description, :string
   store_accessor :event_settings, :ticket_currency, :string
   store_accessor :event_settings, :hide_location_until_purchase, :boolean
+  store_accessor :event_settings, :show_remaining_tickets, :boolean, default: false
+
+  store_accessor :event_settings, :registration_type, :string, default: "open"
+  store_accessor :event_settings, :allow_comments, :boolean, default: true
+  store_accessor :event_settings, :show_attendees, :boolean, default: true
+  store_accessor :event_settings, :social_sharing, :boolean, default: true
+  store_accessor :event_settings, :require_login, :boolean, default: false
+
 
   scope :drafts, -> { where(state: "draft") }
   scope :managers, -> { where(event_manager: true) }

@@ -215,4 +215,5 @@ en:
       long: "%B %d, %Y %H:%M"
       short: "%d %b %H:%M"
       long_with_day: "%d %B %Y"
+      event_long_with_zone: "%B %d, %Y %I:%M %p %Z"
     pm: pm

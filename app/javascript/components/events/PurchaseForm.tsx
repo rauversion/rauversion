@@ -29,6 +29,7 @@ interface Event {
   id: string
   title: string
   ticket_currency: string
+  show_remaining_tickets: boolean
 }
 
 interface PurchaseFormProps {
@@ -255,9 +256,9 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
                             })
                           )}
                         </div>
-                        <div className="text-sm text-muted-foreground">
+                        { event.show_remaining_tickets && <div className="text-sm text-muted-foreground">
                           {I18n.t("events.purchase_form.available_tickets", { count: ticket.quantity })}
-                        </div>
+                        </div>}
                       </div>
                     </div>
 

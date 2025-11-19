@@ -215,8 +215,9 @@ es:
   time:
     am: am
     formats:
-      default: "%A, %-d de %B de %Y %H:%M:%S %z"
-      long: "%-d de %B de %Y %H:%M"
-      short: "%-d de %b %H:%M"
+      default: "%-d/%-m/%Y"
+      long: "%-d de %B de %Y"
+      short: "%-d de %b"
       long_with_day: "%d %B %Y"
+      event_long_with_zone: "%-d de %B de %Y %H:%M %Z"
     pm: pm

@@ -15,4 +15,5 @@ json.event do
   json.id @event.id
   json.title @event.title
   json.ticket_currency @event.ticket_currency
+  json.show_remaining_tickets @event.show_remaining_tickets
 end
