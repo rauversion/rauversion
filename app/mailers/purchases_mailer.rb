@@ -9,11 +9,16 @@ class PurchasesMailer < ApplicationMailer
 
     @purchase.purchased_items.each do |purchased_item|
       qr_code = generate_qr_code(purchased_item)
-      attachments["ticket_#{purchased_item.id}_qr_code.png"] = qr_code
-    end
-    
-    @url = tickets_purchases_url 
+      filename = "ticket_#{purchased_item.id}_qr_code.png"
 
+      # Adjuntamos el QR como imagen inline para poder usarlo vía CID en el HTML del email
+      attachments.inline[filename] = {
+        mime_type: "image/png",
+        content: qr_code
+      }
+    end
+
+    @url = tickets_purchases_url
 
     mail(to: @purchase.user.email, subject: "Purchase Confirmation")
   end

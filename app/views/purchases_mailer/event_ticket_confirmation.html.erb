@@ -96,7 +96,12 @@
             Tu código QR
           </p>
           <div style="background-color: #ffffff; display: inline-block; padding: 15px; border-radius: 8px; border: 2px solid #e0e0e0;">
-            <%= image_tag(item.qr, alt: "QR Code", style: "display: block; max-width: 200px; height: auto;") %>
+            <% filename = "ticket_#{item.id}_qr_code.png" %>
+            <% if attachments[filename] %>
+              <%= image_tag attachments[filename].url,
+                  alt: "QR Code",
+                  style: "display: block; max-width: 200px; height: auto;" %>
+            <% end %>
           </div>
           <p style="margin: 15px 0 0 0; font-size: 13px; color: #757575;">
             Presenta este código al ingresar al evento
