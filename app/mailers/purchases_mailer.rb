@@ -20,7 +20,7 @@ class PurchasesMailer < ApplicationMailer
 
     @url = tickets_purchases_url
 
-    mail(to: @purchase.user.email, subject: "Purchase Confirmation")
+    mail(to: @purchase.purchase_email, subject: "Purchase Confirmation")
   end
 
   private

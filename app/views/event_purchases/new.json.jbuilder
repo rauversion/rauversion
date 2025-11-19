@@ -17,3 +17,13 @@ json.event do
   json.ticket_currency @event.ticket_currency
   json.show_remaining_tickets @event.show_remaining_tickets
 end
+
+json.current_user do
+  if current_user
+    json.id current_user.id
+    json.email current_user.email
+    json.authenticated true
+  else
+    json.authenticated false
+  end
+end

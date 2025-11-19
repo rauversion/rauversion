@@ -1,11 +1,12 @@
 class Purchase < ApplicationRecord
-  belongs_to :user
+  belongs_to :user, optional: true
   has_many :purchased_items
   belongs_to :purchasable, polymorphic: true
 
   attr_writer :virtual_purchased
 
   validate :validate_purchased_items
+  validate :user_or_guest_email_present
 
   include AASM
 
@@ -143,5 +144,19 @@ class Purchase < ApplicationRecord
 
   def app_fee
     ENV['PLATFORM_EVENTS_FEE'].to_i
+  end
+
+  def user_or_guest_email_present
+    if user_id.blank? && guest_email.blank?
+      errors.add(:base, "Either user or guest email must be present")
+    end
+  end
+
+  def guest_purchase?
+    user_id.blank? && guest_email.present?
+  end
+
+  def purchase_email
+    user&.email || guest_email
   end
 end
