@@ -65,7 +65,7 @@ class EventsController < ApplicationController
     @event = current_user.events.friendly.find(params[:id])
     respond_to do |format|
       format.html { render_blank }
-      format.json{ render "show" }
+      format.json{ render "edit" }
     end
   end
 

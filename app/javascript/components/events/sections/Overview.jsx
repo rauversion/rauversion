@@ -249,7 +249,10 @@ export default function Overview() {
           render={({ field }) => (
             <FormItem>
               <FormLabel>{I18n.t('events.edit.form.timezone.label')}</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select
+                onValueChange={field.onChange}
+                value={field.value || undefined}
+              >
                 <FormControl>
                   <SelectTrigger>
                     <SelectValue placeholder={I18n.t('events.edit.form.timezone.placeholder')} />
