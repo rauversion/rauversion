@@ -16,6 +16,8 @@ json.event_ticket do
     if @purchased_item.present?
       json.id @purchased_item.id
       json.state @purchased_item.state
+      json.price @purchased_item.price
+      json.currency @purchased_item.currency
       json.paid @purchased_item.paid?
       json.qr @purchased_item.qr
       json.checked_in_at @purchased_item.checked_in_at

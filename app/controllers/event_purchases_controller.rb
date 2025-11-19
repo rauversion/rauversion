@@ -1,5 +1,5 @@
 class EventPurchasesController < ApplicationController
-  before_action :authenticate_user!
+  before_action :authenticate_user!, except: [:new, :create,  :success, :failure]
   
   def new
     @event = Event.friendly.find(params[:event_id])
@@ -25,7 +25,11 @@ class EventPurchasesController < ApplicationController
       @tickets = @event.available_tickets(Time.zone.now)
     end
 
-    @purchase = current_user.purchases.new
+    if current_user
+      @purchase = current_user.purchases.new
+    else
+      @purchase = Purchase.new
+    end
     @purchase.virtual_purchased = @tickets.map do |aa|
       VirtualPurchasedItem.new({resource: aa, quantity: 1})
     end
@@ -39,18 +43,75 @@ class EventPurchasesController < ApplicationController
 
   def show
     @event = Event.friendly.find(params[:event_id])
-    @purchase = current_user.purchases.find(params[:id])
+    if current_user
+      @purchase = current_user.purchases.find(params[:id])
+    else
+      @purchase = Purchase.find(params[:id])
+      # Security check: only allow access if the purchase belongs to the event
+      unless @purchase.purchasable_id == @event.id && @purchase.purchasable_type == 'Event'
+        redirect_to root_path, alert: "Purchase not found"
+        return
+      end
+    end
     render "show"
   end
 
   def create
     @event = Event.public_events.friendly.find(params[:event_id])
 
-    # When a customer purchases a ticket for an event:
-    customer = current_user
+    # Handle guest purchase or regular user purchase
+    if current_user
+      @customer = current_user
+      @purchase = current_user.purchases.new(purchasable: @event)
+    else
+      # Guest purchase: validate and find or create user
+      guest_email = params[:guest_email]
+      
+      if guest_email.blank?
+        @purchase = Purchase.new(purchasable: @event)
+        @purchase.errors.add(:guest_email, "is required for guest purchases")
+        respond_to do |format|
+          format.html { render_blank }
+          format.json { render :create, status: :unprocessable_entity }
+        end
+        return
+      end
+
+      # Find or create user by email
+      user = User.find_by(email: guest_email)
+      
+      if user
+        # User exists, assign purchase to them
+        @purchase = user.purchases.new(purchasable: @event, guest_email: guest_email)
+      else
+        # Create new user account with the email
+        # Generate a random password and send confirmation email
+        password = SecureRandom.hex(16)
+        user = User.new(
+          email: guest_email,
+          password: password,
+          password_confirmation: password,
+          username: "user_#{SecureRandom.hex(4)}"
+        )
+
+        if user.save
+          @purchase = user.purchases.new(purchasable: @event)
+          @purchase.guest_email = guest_email
+        else
+          @purchase = Purchase.new(purchasable: @event, guest_email: guest_email)
+          @purchase.errors.add(:guest_email, user.errors.full_messages.join(", "))
+          respond_to do |format|
+            format.html { render_blank }
+            format.json { render :create, status: :unprocessable_entity }
+          end
+          return
+        end
+      end
+      
+      @customer = user
+    end
 
     @tickets = @event.available_tickets(Time.zone.now)
-    @purchase = current_user.purchases.new(purchasable: @event)
     available_tickets_by_id = @tickets.index_by(&:id)
     selected_items = ticket_request_params.each_with_object([]) do |ticket_param, items|
       quantity = ticket_param[:quantity].to_i
@@ -117,7 +178,11 @@ class EventPurchasesController < ApplicationController
 
   def success
     @event = Event.friendly.find(params[:event_id])
-    @purchase = current_user.purchases.find(params[:id])
+    if current_user
+      @purchase = current_user.purchases.find_signed(params[:id])
+    else
+      @purchase = Purchase.find_signed(params[:id])
+    end
 
     if params[:enc].present?
       decoded_purchase = Purchase.find_signed(CGI.unescape(params[:enc]))
@@ -129,7 +194,11 @@ class EventPurchasesController < ApplicationController
 
   def failure
     @event = Event.friendly.find(params[:event_id])
-    @purchase = current_user.purchases.find(params[:id])
+    if current_user
+      @purchase = current_user.purchases.find(params[:id])
+    else
+      @purchase = Purchase.find(params[:id])
+    end
     render "show"
   end
 
@@ -139,7 +208,7 @@ class EventPurchasesController < ApplicationController
       if @purchase.save
         provider = PaymentProviders::EventStripeProvider.new(
           event: @event,
-          user: current_user,
+          user: @customer || current_user,
           purchase: @purchase
         )
 

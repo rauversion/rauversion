@@ -18,6 +18,7 @@ function TicketButton({ onClick }) {
   const navigate = useNavigate()
 
   function handleClick() {
+    return onClick()
     if (currentUser) {
       onClick()
     } else {

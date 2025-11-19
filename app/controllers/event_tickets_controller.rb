@@ -6,7 +6,7 @@ class EventTicketsController < ApplicationController
     @ticket = @purchased_item.purchased_item
     @purchase = @purchased_item.purchase
     @event = @purchase.purchasable
-    @is_manager = @event.user_id == current_user.id || event_managers.include?(current_user.id)
+    @is_manager = @event.user_id == current_user&.id || event_managers.include?(current_user&.id)
   end
 
   def update

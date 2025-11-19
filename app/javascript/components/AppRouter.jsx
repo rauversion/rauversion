@@ -97,6 +97,7 @@ import { InterestAlertDemo } from "./shared/alerts"
 
 import CheckoutSuccess from "./checkout/CheckoutSuccess"
 import CheckoutFailure from "./checkout/CheckoutFailure"
+import EventCheckoutSuccess from "./checkout/EventCheckoutSuccess"
 import ConversationsIndex from "./messaging/ConversationsIndex"
 import NewConversation from "./messaging/NewConversation"
 
@@ -252,7 +253,7 @@ function AppContent() {
           </Route>
 
           <Route path="/events/:slug/event_purchases/:purchase_id/failure" element={<CheckoutFailure />} />
-          <Route path="/events/:slug/event_purchases/:purchase_id/success" element={<CheckoutSuccess />} />
+          <Route path="/events/:slug/event_purchases/:purchase_id/success" element={<EventCheckoutSuccess />} />
           <Route path="/events/:slug/event_tickets/:id" element={<EventTicketShow />} />
 
           <Route path="/turn" element={<SpinningVideo />} />

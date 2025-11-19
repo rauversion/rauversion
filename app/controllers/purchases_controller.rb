@@ -1,5 +1,18 @@
 class PurchasesController < ApplicationController
-  before_action :authenticate_user!
+  before_action :authenticate_user!, except: [:show]
+
+  def show
+    if current_user
+      @purchase = current_user.purchases.find_signed(params[:id]) || current_user.purchases.find_by(id: params[:id])
+    else
+      @purchase = Purchase.where.not(guest_email: nil).find_signed(params[:id])
+      return render status: :unauthorized unless @purchase
+    end
+    respond_to do |format|
+      format.html { render_blank }
+      format.json
+    end
+  end
 
   def index
     @tab = params[:tab].present? ? params[:tab] : "music"

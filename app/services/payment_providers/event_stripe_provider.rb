@@ -93,7 +93,7 @@ module PaymentProviders
     end
 
     def success_url
-      Rails.application.routes.url_helpers.success_event_event_purchase_url(event, purchase)
+      Rails.application.routes.url_helpers.success_event_event_purchase_url(event, purchase.signed_id)
     end
 
     def cancel_url
