@@ -35,22 +35,26 @@ class EventsController < ApplicationController
 
     event_description = @event.description.presence || @event.title
 
+    og_image_url = (@event.cover.attached? ? (@event.cover_url(:og) rescue nil) : nil)
+
     set_meta_tags(
       title: @event.title,
       description: event_description,
       og: {
         title: @event.title,
         description: event_description,
-        image: (@event.cover.attached? ? (url_for(@event.cover) rescue nil) : nil),
+        image: og_image_url,
         type: 'event',
-        site_name: 'Rauversion'
+        site_name: 'Rauversion',
+        url: event_url(@event)
       },
       twitter: {
         card: "summary_large_image",
         site: "@rauversion",
         title: @event.title,
+        url: event_url(@event),
         description: event_description,
-        image: (@event.cover.attached? ? (url_for(@event.cover) rescue nil) : nil)
+        image: og_image_url
       }
     )
     

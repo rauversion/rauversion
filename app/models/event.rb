@@ -158,6 +158,10 @@ class Event < ApplicationRecord
     when :small
       cover.variant(resize_to_limit: [50, 50])&.processed&.url
 
+    when :og
+      # Optimized Open Graph image with 4:1 aspect ratio (e.g. 1600x400)
+      cover.variant(resize_to_fill: [800, 500])&.processed&.url
+
     else
       cover.variant(resize_to_limit: [200, 200])&.processed&.url
     end
