@@ -387,8 +387,8 @@ export default function Attendees() {
                 <TableCell>
                   <div className="flex items-center space-x-2">
                     <div>
-                      <p className="font-medium">{item.user.name}</p>
-                      <p className="text-sm text-muted-foreground">{item.user.email}</p>
+                      <p className="font-medium">{item.user.name || item.guest_email}</p>
+                      <p className="text-sm text-muted-foreground">{item.user.email || item.guest_email}</p>
                     </div>
                   </div>
                 </TableCell>

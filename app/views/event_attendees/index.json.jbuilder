@@ -7,6 +7,7 @@ json.collection @purchased_items do |item|
   json.state item.state
   json.currency item.currency
   json.price item.price
+  json.guest_email purchase.guest_email if purchase.guest_email.present?
 
   json.event_ticket do
     json.id purchased_item.id
