@@ -31,20 +31,37 @@ interface EventScheduleProps {
   schedulings: Scheduling[]
 }
 
-function formatTimeRange(startFormatted: string, endFormatted: string) {
-  // Extract time from formatted string like "November 03, 2025 11:04 PM -03"
-  const startMatch = startFormatted.match(/(\d{1,2}:\d{2}\s+[AP]M)/)
-  const endMatch = endFormatted.match(/(\d{1,2}:\d{2}\s+[AP]M)/)
+function formatTimeRange(startISO: string, endISO: string) {
+  // Recibe ISO strings como "2025-11-19T01:15:00.000Z" y devuelve "1:15 AM - 2:00 AM" (formato 12 horas)
+  if (!startISO || !endISO) return ""
 
-  if (startMatch && endMatch) {
-    return `${startMatch[1]} - ${endMatch[1]}`
+  const startMatch = startISO.match(/T(\d{2}):(\d{2})/)
+  const endMatch = endISO.match(/T(\d{2}):(\d{2})/)
+
+  if (!startMatch || !endMatch) return ""
+
+  const format12h = (hourStr: string, minuteStr: string) => {
+    let hour = parseInt(hourStr, 10)
+    const minutes = minuteStr
+    const period = hour >= 12 ? "PM" : "AM"
+
+    if (hour === 0) {
+      hour = 12
+    } else if (hour > 12) {
+      hour = hour - 12
+    }
+
+    return `${hour}:${minutes} ${period}`
   }
 
-  return ""
+  const startTime = format12h(startMatch[1], startMatch[2])
+  const endTime = format12h(endMatch[1], endMatch[2])
+
+  return `${startTime} - ${endTime}`
 }
 
 function ScheduleSession({ session }: { session: NestedScheduling }) {
-  const timeRange = formatTimeRange(session.start_date_formatted, session.end_date_formatted)
+  const timeRange = formatTimeRange(session.start_date, session.end_date)
 
   return (
     <div className="group relative overflow-hidden border-t border-border/40 bg-card/20 backdrop-blur-sm transition-all hover:bg-card/40">
