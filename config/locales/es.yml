@@ -966,6 +966,7 @@ es:
         error: No se pudo actualizar el evento
     show:
       not_found: Evento no encontrado
+      event_not_available: Este evento no está disponible
       private_event_requires_link: Este es un evento privado. Necesitas el enlace privado para acceder
       back_to_events: Volver a eventos
       get_tickets: Obtener entradas

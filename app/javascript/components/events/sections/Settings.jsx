@@ -171,7 +171,7 @@ export default function Settings() {
   }
 
   const copyPrivateLink = async () => {
-    if (event?.private_event_url) {
+    if (event?.private_event_url && event?.visibility === 'private') {
       try {
         await navigator.clipboard.writeText(event.private_event_url)
         setCopied(true)

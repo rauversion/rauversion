@@ -41,8 +41,9 @@ class EventsController < ApplicationController
     # First, try to find by signed_id (for private event access)
     begin
       @event = Event.find_signed(params[:id], purpose: :private_event)
-    rescue ActiveRecord::RecordNotFound, ActiveSupport::MessageVerifier::InvalidSignature
+    rescue ActiveRecord::RecordNotFound, ActiveSupport::MessageVerifier::InvalidSignature => e
       # Not a valid signed_id, continue to regular lookup
+      Rails.logger.debug "Signed ID lookup failed: #{e.message}" if params[:id].length > 50
     end
     
     # If not found via signed_id, try regular lookup
@@ -68,8 +69,9 @@ class EventsController < ApplicationController
     end
     
     # Ensure event is published (even if accessed via signed_id)
+    # Use generic message to avoid leaking information about draft events
     unless @event.published?
-      redirect_to events_path, alert: I18n.t('events.show.not_found')
+      redirect_to events_path, alert: I18n.t('events.show.event_not_available')
       return
     end
 

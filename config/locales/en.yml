@@ -900,6 +900,7 @@ en:
         error: The event could not be updated
     show:
       not_found: Event not found
+      event_not_available: This event is not available
       private_event_requires_link: This is a private event. You need the private link to access it
       back_to_events: Return to events
       get_tickets: Get tickets
