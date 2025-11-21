@@ -395,38 +395,44 @@ export default function Settings() {
                     )}
                   />
 
-                  {form.watch('visibility') === 'private' && event?.private_event_url && (
+                  {form.watch('visibility') === 'private' && (
                     <Alert>
                       <Lock className="h-4 w-4" />
                       <AlertTitle>{I18n.t('events.edit.settings.privacy.visibility.private_link.title')}</AlertTitle>
                       <AlertDescription>
                         <div className="space-y-2 mt-2">
                           <p className="text-sm">{I18n.t('events.edit.settings.privacy.visibility.private_link.description')}</p>
-                          <div className="flex items-center gap-2">
-                            <Input
-                              value={event.private_event_url}
-                              readOnly
-                              className="flex-1"
-                            />
-                            <Button
-                              type="button"
-                              variant="outline"
-                              size="sm"
-                              onClick={copyPrivateLink}
-                            >
-                              {copied ? (
-                                <>
-                                  <Check className="h-4 w-4 mr-2" />
-                                  {I18n.t('events.edit.settings.privacy.visibility.private_link.copied')}
-                                </>
-                              ) : (
-                                <>
-                                  <Copy className="h-4 w-4 mr-2" />
-                                  {I18n.t('events.edit.settings.privacy.visibility.private_link.copy')}
-                                </>
-                              )}
-                            </Button>
-                          </div>
+                          {event?.private_event_url ? (
+                            <div className="flex items-center gap-2">
+                              <Input
+                                value={event.private_event_url}
+                                readOnly
+                                className="flex-1"
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={copyPrivateLink}
+                              >
+                                {copied ? (
+                                  <>
+                                    <Check className="h-4 w-4 mr-2" />
+                                    {I18n.t('events.edit.settings.privacy.visibility.private_link.copied')}
+                                  </>
+                                ) : (
+                                  <>
+                                    <Copy className="h-4 w-4 mr-2" />
+                                    {I18n.t('events.edit.settings.privacy.visibility.private_link.copy')}
+                                  </>
+                                )}
+                              </Button>
+                            </div>
+                          ) : (
+                            <p className="text-sm text-muted-foreground">
+                              {I18n.t('events.edit.settings.privacy.visibility.private_link.save_first')}
+                            </p>
+                          )}
                         </div>
                       </AlertDescription>
                     </Alert>

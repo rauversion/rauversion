@@ -433,6 +433,7 @@ en:
               description: Share this link with people you want to invite to your private event
               copy: Copy Link
               copied: Copied!
+              save_first: Save your changes to generate the private link
           registration:
             label: Type of Record
             placeholder: Select type of record

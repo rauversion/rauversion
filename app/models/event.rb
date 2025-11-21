@@ -17,7 +17,7 @@ class Event < ApplicationRecord
   }, through: :purchased_items, source: :purchased_item, source_type: "EventTicket"
 
   def self.ransackable_attributes(auth_object = nil)
-    ["age_requirement", "attendee_list_settings", "city", "country", "created_at", "description", "eticket", "event_capacity", "event_capacity_limit", "event_ends", "event_settings", "event_short_link", "event_start", "id", "lat", "lng", "location", "online", "order_form", "postal", "private", "province", "scheduling_settings", "slug", "state", "streaming_service", "street", "street_number", "tax_rates_settings", "tickets", "timezone", "title", "updated_at", "user_id", "venue", "widget_button", "will_call"]
+    ["age_requirement", "attendee_list_settings", "city", "country", "created_at", "description", "eticket", "event_capacity", "event_capacity_limit", "event_ends", "event_settings", "event_short_link", "event_start", "id", "lat", "lng", "location", "online", "order_form", "postal", "private", "province", "scheduling_settings", "slug", "state", "streaming_service", "street", "street_number", "tax_rates_settings", "tickets", "timezone", "title", "updated_at", "user_id", "venue", "visibility", "widget_button", "will_call"]
   end
 
   def self.ransackable_associations(auth_object = nil)
@@ -28,7 +28,6 @@ class Event < ApplicationRecord
   scope :past, -> { where('event_start < ?', Time.current).order(event_start: :desc) }
   scope :published, -> { where(state: 'published') }
   scope :publicly_visible, -> { where(visibility: 'public') }
-  scope :listed, -> { publicly_visible }
 
   # has_many :paid_tickets,
 
@@ -36,6 +35,8 @@ class Event < ApplicationRecord
 
   extend FriendlyId
   friendly_id :title, use: :slugged
+
+  validates :visibility, inclusion: { in: %w[public private unlisted], message: "%{value} is not a valid visibility" }
 
   accepts_nested_attributes_for :event_hosts, allow_destroy: true
   accepts_nested_attributes_for :event_schedules, allow_destroy: true

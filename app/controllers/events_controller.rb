@@ -35,24 +35,40 @@ class EventsController < ApplicationController
 
   def show
     # Handle both regular slugs and signed IDs for private events
+    # Try to find by signed_id first, then fall back to regular lookup
+    @event = nil
+    
+    # First, try to find by signed_id (for private event access)
     begin
-      if params[:id].include?('-') && params[:id].length > 50
-        # Likely a signed_id, try to find by it
-        @event = Event.find_signed(params[:id], purpose: :private_event)
-        raise ActiveRecord::RecordNotFound unless @event&.published?
-      else
-        # Regular slug or id
+      @event = Event.find_signed(params[:id], purpose: :private_event)
+    rescue ActiveRecord::RecordNotFound, ActiveSupport::MessageVerifier::InvalidSignature
+      # Not a valid signed_id, continue to regular lookup
+    end
+    
+    # If not found via signed_id, try regular lookup
+    unless @event
+      begin
         @event = Event.published.friendly.find(params[:id])
-        # If event is private and not accessed via signed_id, deny access
-        if @event.private? && !user_signed_in?
-          redirect_to events_path, alert: I18n.t('events.show.private_event_requires_link')
-          return
-        elsif @event.private? && user_signed_in? && @event.user != current_user
-          redirect_to events_path, alert: I18n.t('events.show.private_event_requires_link')
-          return
+        
+        # Check if event is private
+        if @event.private?
+          # Allow access if user is the owner
+          if user_signed_in? && @event.user == current_user
+            # Owner can access their private event
+          else
+            # Non-owners need the signed link
+            redirect_to events_path, alert: I18n.t('events.show.private_event_requires_link')
+            return
+          end
         end
+      rescue ActiveRecord::RecordNotFound
+        redirect_to events_path, alert: I18n.t('events.show.not_found')
+        return
       end
-    rescue ActiveRecord::RecordNotFound
+    end
+    
+    # Ensure event is published (even if accessed via signed_id)
+    unless @event.published?
       redirect_to events_path, alert: I18n.t('events.show.not_found')
       return
     end

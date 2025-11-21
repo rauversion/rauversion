@@ -504,6 +504,7 @@ es:
               description: Comparte este enlace con las personas que quieras invitar a tu evento privado
               copy: Copiar Enlace
               copied: ¡Copiado!
+              save_first: Guarda tus cambios para generar el enlace privado
           registration:
             label: Tipo de Registro
             placeholder: Seleccionar tipo de registro
