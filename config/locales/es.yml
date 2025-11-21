@@ -1036,6 +1036,63 @@ es:
           process_purchase: "No se pudo procesar la compra. Por favor, inténtalo de nuevo."
           guest_email_required: "El email es requerido para compras anónimas"
 
+  event_purchases:
+    errors:
+      email_not_in_list: "Tu email no está autorizado para comprar este ticket: %{ticket_title}. Por favor contacta al organizador del evento."
+
+  event_lists:
+    title: "Listas de Correos"
+    description: "Gestiona listas de correos para acceso restringido a tickets"
+    new_list: "Crear Lista"
+    edit_list: "Editar Lista"
+    delete_list: "Eliminar Lista"
+    import: "Importar Contactos"
+    export: "Exportar Contactos"
+    no_file: "Por favor selecciona un archivo para subir"
+    invalid_csv: "Archivo CSV inválido: %{message}"
+    error: "Error de importación: %{message}"
+    form:
+      name:
+        label: "Nombre de la Lista"
+        placeholder: "Lista VIP, Acceso Anticipado, etc."
+      file:
+        label: "Archivo CSV"
+        description: "Sube un archivo CSV con columnas: email (requerido), name, first_name, last_name, dni, country"
+      upload_button: "Subir e Importar"
+    messages:
+      create_success: "Lista creada exitosamente"
+      update_success: "Lista actualizada exitosamente"
+      delete_success: "Lista eliminada exitosamente"
+      delete_confirm: "¿Estás seguro de que deseas eliminar esta lista? Esto también eliminará todos los contactos."
+      import_success: "Se importaron %{count} contactos exitosamente"
+      import_partial: "Se importaron %{imported} de %{total} contactos. Algunos registros tenían errores."
+      import_error: "No se pudieron importar los contactos"
+    contacts:
+      title: "Contactos"
+      add_contact: "Agregar Contacto"
+      edit_contact: "Editar Contacto"
+      delete_contact: "Eliminar Contacto"
+      no_contacts: "Aún no hay contactos en esta lista"
+      form:
+        email:
+          label: "Email"
+          placeholder: "contacto@ejemplo.com"
+        name:
+          label: "Nombre"
+          placeholder: "Nombre completo"
+        first_name:
+          label: "Nombre"
+          placeholder: "Nombre"
+        last_name:
+          label: "Apellido"
+          placeholder: "Apellido"
+        dni:
+          label: "RUT/DNI"
+          placeholder: "Número de identificación"
+        country:
+          label: "País"
+          placeholder: "País"
+
   event_hosts:
     listed: Listado en página
     manager: Gestor del evento

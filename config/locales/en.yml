@@ -970,6 +970,62 @@ en:
           process_purchase: "Failed to process purchase. Please try again."
           guest_email_required: "Email is required for guest purchases"
 
+  event_purchases:
+    errors:
+      email_not_in_list: "Your email is not authorized to purchase this ticket: %{ticket_title}. Please contact the event organizer."
+
+  event_lists:
+    title: "Email Lists"
+    description: "Manage email lists for restricted ticket access"
+    new_list: "Create List"
+    edit_list: "Edit List"
+    delete_list: "Delete List"
+    import: "Import Contacts"
+    export: "Export Contacts"
+    no_file: "Please select a file to upload"
+    invalid_csv: "Invalid CSV file: %{message}"
+    error: "Import error: %{message}"
+    form:
+      name:
+        label: "List Name"
+        placeholder: "VIP List, Early Access, etc."
+      file:
+        label: "CSV File"
+        description: "Upload a CSV file with columns: email (required), name, first_name, last_name, dni, country"
+      upload_button: "Upload & Import"
+    messages:
+      create_success: "List created successfully"
+      update_success: "List updated successfully"
+      delete_success: "List deleted successfully"
+      delete_confirm: "Are you sure you want to delete this list? This will also remove all contacts."
+      import_success: "Imported %{count} contacts successfully"
+      import_partial: "Imported %{imported} of %{total} contacts. Some records had errors."
+      import_error: "Failed to import contacts"
+    contacts:
+      title: "Contacts"
+      add_contact: "Add Contact"
+      edit_contact: "Edit Contact"
+      delete_contact: "Delete Contact"
+      no_contacts: "No contacts in this list yet"
+      form:
+        email:
+          label: "Email"
+          placeholder: "contact@example.com"
+        name:
+          label: "Name"
+          placeholder: "Full name"
+        first_name:
+          label: "First Name"
+          placeholder: "First name"
+        last_name:
+          label: "Last Name"
+          placeholder: "Last name"
+        dni:
+          label: "ID/DNI"
+          placeholder: "Identification number"
+        country:
+          label: "Country"
+          placeholder: "Country"
 
   event_hosts:
     listed: Listed on page

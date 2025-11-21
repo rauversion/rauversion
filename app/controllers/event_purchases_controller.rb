@@ -113,12 +113,27 @@ class EventPurchasesController < ApplicationController
 
     @tickets = @event.available_tickets(Time.zone.now)
     available_tickets_by_id = @tickets.index_by(&:id)
+    
+    # Get the email to validate against event lists
+    validation_email = current_user ? current_user.email : params[:guest_email]
+    
     selected_items = ticket_request_params.each_with_object([]) do |ticket_param, items|
       quantity = ticket_param[:quantity].to_i
       next if quantity <= 0
 
       ticket = available_tickets_by_id[ticket_param[:id].to_i]
       next unless ticket
+
+      # Validate email against event list if ticket has one assigned
+      unless ticket.can_redeem_with_email?(validation_email)
+        @purchase = Purchase.new(purchasable: @event)
+        @purchase.errors.add(:base, I18n.t('event_purchases.errors.email_not_in_list', ticket_title: ticket.title))
+        respond_to do |format|
+          format.html { render_blank }
+          format.json { render :create, status: :unprocessable_entity }
+        end
+        return
+      end
 
       virtual_item_attrs = { resource: ticket, quantity: quantity }
       

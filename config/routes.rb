@@ -274,6 +274,12 @@ Rails.application.routes.draw do
         get :secret_link
       end
     end
+    resources :event_lists do
+      member do
+        post :import
+      end
+      resources :event_list_contacts
+    end
     resources :event_streaming_services, only: [:new, :update]
     resources :event_attendees, only: [:index] do
       collection do
