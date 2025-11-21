@@ -216,4 +216,51 @@ RSpec.describe "EventPurchases", type: :request do
       expect(response).to have_http_status(:success)
     end
   end
+
+  describe "POST /create with requires_login ticket" do
+    let!(:login_required_ticket) do
+      ticket = FactoryBot.create(:event_ticket, event: event, qty: 10, price: 10.0, selling_start: 1.day.ago)
+      ticket.requires_login = true
+      ticket.save
+      ticket
+    end
+
+    context "when user is not logged in" do
+      before { sign_out user }
+
+      it "rejects the purchase and returns an error" do
+        post event_event_purchases_path(event), params: {
+          format: :json,
+          guest_email: "guest@example.com",
+          tickets: [
+            { id: login_required_ticket.id, quantity: 1 }
+          ]
+        }
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        json = JSON.parse(response.body)
+        expect(json['errors']).to be_present
+        expect(json['errors']['base']).to include(/requiere inicio de sesión|requires you to be logged in/i)
+      end
+    end
+
+    context "when user is logged in" do
+      it "allows the purchase" do
+        allow_any_instance_of(PaymentProviders::EventStripeProvider).to receive(:create_checkout_session).and_return({
+          checkout_url: "https://stripe.com/checkout/session"
+        })
+
+        expect {
+          post event_event_purchases_path(event), params: {
+            format: :json,
+            tickets: [
+              { id: login_required_ticket.id, quantity: 1 }
+            ]
+          }
+        }.to change(Purchase, :count).by(1)
+
+        expect(response).to have_http_status(:success)
+      end
+    end
+  end
 end
