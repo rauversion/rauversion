@@ -27,6 +27,8 @@ class Event < ApplicationRecord
   scope :upcoming, -> { where('event_start >= ?', Time.current).order(event_start: :asc) }
   scope :past, -> { where('event_start < ?', Time.current).order(event_start: :desc) }
   scope :published, -> { where(state: 'published') }
+  scope :publicly_visible, -> { where(visibility: 'public') }
+  scope :listed, -> { publicly_visible }
 
   # has_many :paid_tickets,
 
@@ -66,7 +68,7 @@ class Event < ApplicationRecord
 
   scope :public_events, -> {
     # where(private: false)
-    where(state: "published")
+    where(state: "published").where(visibility: 'public')
   }
 
   scope :upcoming_events, -> {
@@ -193,5 +195,24 @@ class Event < ApplicationRecord
       self,
       ticket_token: ticket.signed_id(expires_in: 30.days, purpose: :secret_purchase)
     )
+  end
+
+  def private_event_url
+    # Generate a secret URL for private events
+    Rails.application.routes.url_helpers.event_url(
+      signed_id(expires_in: 30.days, purpose: :private_event)
+    )
+  end
+
+  def public?
+    visibility == 'public'
+  end
+
+  def private?
+    visibility == 'private'
+  end
+
+  def unlisted?
+    visibility == 'unlisted'
   end
 end

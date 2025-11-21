@@ -380,6 +380,10 @@ en:
         messages:
           success_title: Success
           error_title: Error
+          success: Settings updated successfully
+          error: Failed to update settings
+          copy_link_success: Private link copied to clipboard
+          copy_link_error: Failed to copy link
         general:
           title: General Configuration
           description: Set up basic event settings
@@ -420,6 +424,15 @@ en:
               public: Public
               private: Private
               unlisted: Not listed
+            descriptions:
+              public: Your event will be visible to everyone and listed on the events page
+              private: Only people with the private link can access your event. It won't appear in listings
+              unlisted: Your event won't appear in listings, but anyone with the link can access it
+            private_link:
+              title: Private Event Link
+              description: Share this link with people you want to invite to your private event
+              copy: Copy Link
+              copied: Copied!
           registration:
             label: Type of Record
             placeholder: Select type of record
@@ -886,6 +899,7 @@ en:
         error: The event could not be updated
     show:
       not_found: Event not found
+      private_event_requires_link: This is a private event. You need the private link to access it
       back_to_events: Return to events
       get_tickets: Get tickets
       speakers: Artists/Speakers

@@ -6,14 +6,17 @@ class EventsController < ApplicationController
     @q = Event.ransack(params[:q])
     @q.sorts = 'starts_at asc' if @q.sorts.empty?
     
+    # Only show public and published events in index
     @events = @q.result(distinct: true)
       .published
+      .publicly_visible
       .upcoming
       .includes(:user)
       .with_attached_cover
       .page(params[:page]).per(12)
 
     @past_events = Event.published
+      .publicly_visible
       .past
       .includes(:user)
       .with_attached_cover
@@ -31,7 +34,28 @@ class EventsController < ApplicationController
   end
 
   def show
-    @event = Event.public_events.friendly.find(params[:id])
+    # Handle both regular slugs and signed IDs for private events
+    begin
+      if params[:id].include?('-') && params[:id].length > 50
+        # Likely a signed_id, try to find by it
+        @event = Event.find_signed(params[:id], purpose: :private_event)
+        raise ActiveRecord::RecordNotFound unless @event&.published?
+      else
+        # Regular slug or id
+        @event = Event.published.friendly.find(params[:id])
+        # If event is private and not accessed via signed_id, deny access
+        if @event.private? && !user_signed_in?
+          redirect_to events_path, alert: I18n.t('events.show.private_event_requires_link')
+          return
+        elsif @event.private? && user_signed_in? && @event.user != current_user
+          redirect_to events_path, alert: I18n.t('events.show.private_event_requires_link')
+          return
+        end
+      end
+    rescue ActiveRecord::RecordNotFound
+      redirect_to events_path, alert: I18n.t('events.show.not_found')
+      return
+    end
 
     event_description = @event.description.presence || @event.title
 
@@ -149,7 +173,7 @@ class EventsController < ApplicationController
     params.require(:event).permit(:title, :event_start, :event_ends,
       :timezone,
       :state,
-      # :visibility, 
+      :visibility, 
       :registration_type, :allow_comments, :show_attendees, :show_remaining_tickets, :social_sharing, :require_login,
       :description, :venue, :age_requirement, :payment_gateway,
       :ticket_currency, :location, :lat, :lng, :country, :city, :province,

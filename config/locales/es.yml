@@ -466,6 +466,10 @@ es:
         messages:
           success_title: Éxito
           error_title: Error
+          success: Configuración actualizada exitosamente
+          error: No se pudo actualizar la configuración
+          copy_link_success: Enlace privado copiado al portapapeles
+          copy_link_error: No se pudo copiar el enlace
         save: Guardar
         tabs:
           general: General
@@ -491,6 +495,15 @@ es:
               public: Público
               private: Privado
               unlisted: No listado
+            descriptions:
+              public: Tu evento será visible para todos y aparecerá en la página de eventos
+              private: Solo las personas con el enlace privado pueden acceder a tu evento. No aparecerá en los listados
+              unlisted: Tu evento no aparecerá en los listados, pero cualquiera con el enlace puede acceder
+            private_link:
+              title: Enlace de Evento Privado
+              description: Comparte este enlace con las personas que quieras invitar a tu evento privado
+              copy: Copiar Enlace
+              copied: ¡Copiado!
           registration:
             label: Tipo de Registro
             placeholder: Seleccionar tipo de registro
@@ -952,6 +965,7 @@ es:
         error: No se pudo actualizar el evento
     show:
       not_found: Evento no encontrado
+      private_event_requires_link: Este es un evento privado. Necesitas el enlace privado para acceder
       back_to_events: Volver a eventos
       get_tickets: Obtener entradas
       speakers: Performers

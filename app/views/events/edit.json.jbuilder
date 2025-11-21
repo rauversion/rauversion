@@ -3,6 +3,8 @@ json.slug @event.slug
 json.title @event.title
 json.description @event.description
 json.state @event.state
+json.visibility @event.visibility || 'public'
+json.private_event_url @event.private_event_url if @event.private?
 json.timezone @event.timezone
 json.event_start @event.event_start
 json.event_ends @event.event_ends
@@ -109,6 +111,12 @@ end
 
 json.scheduling_settings @event.scheduling_settings if @event.scheduling_settings.present?
 json.event_settings @event.event_settings if @event.event_settings.present?
+json.registration_type @event.registration_type
+json.allow_comments @event.allow_comments
+json.show_attendees @event.show_attendees
+json.show_remaining_tickets @event.show_remaining_tickets
+json.social_sharing @event.social_sharing
+json.require_login @event.require_login
 json.tickets @event.event_tickets if @event.event_tickets.present?
 
 json.author do
