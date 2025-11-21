@@ -20,6 +20,7 @@ module User::OmniAuthExtension
           secret: data["credentials"]["secret"]
           # :revoked => false
         )
+        identity.user.skip_confirmation!
         identity.user
       elsif current_user
         logger.info("USER DATA FOUND! #{data.to_json}")
@@ -29,6 +30,7 @@ module User::OmniAuthExtension
           uid: data["uid"],
           token: data["credentials"]["token"],
           secret: data["credentials"]["secret"])
+        current_user.skip_confirmation!
         current_user
       elsif !current_user
         current_user = User.find_by(email: data["info"]["email"])

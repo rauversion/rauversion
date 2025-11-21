@@ -13,6 +13,7 @@ import AudioPlayer from './audio_player'
 import Login from './auth/Login'
 import Register from './auth/Register'
 import ForgotPassword from './auth/ForgotPassword'
+import EditPassword from './auth/EditPassword'
 import AcceptInvitation from './users/AcceptInvitation'
 import TrackShow from './tracks/Show'
 import TracksIndex from './tracks/Index'
@@ -213,6 +214,7 @@ function AppContent() {
           <Route path="/users/sign_up" element={<Register />} />
           <Route path="/users/invitation/accept" element={<AcceptInvitation />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/users/password/edit" element={<EditPassword />} />
 
 
           <Route path="/" element={<Home />} />
