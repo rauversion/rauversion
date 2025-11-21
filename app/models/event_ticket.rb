@@ -24,6 +24,7 @@ class EventTicket < ApplicationRecord
   store_accessor :settings, :disable_qr, :boolean
   store_accessor :settings, :requires_shipping, :boolean
   store_accessor :settings, :show_remaining_count, :boolean
+  store_accessor :settings, :requires_login, :boolean
 
   validates :title, presence: true
   validates :price, presence: true

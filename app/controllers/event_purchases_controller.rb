@@ -135,6 +135,17 @@ class EventPurchasesController < ApplicationController
         return
       end
 
+      # Validate requires_login setting
+      if ticket.requires_login && !current_user
+        @purchase = Purchase.new(purchasable: @event)
+        @purchase.errors.add(:base, I18n.t('event_purchases.errors.requires_login', ticket_title: ticket.title))
+        respond_to do |format|
+          format.html { render_blank }
+          format.json { render :create, status: :unprocessable_entity }
+        end
+        return
+      end
+
       virtual_item_attrs = { resource: ticket, quantity: quantity }
       
       # For pay_what_you_want tickets, capture the custom price

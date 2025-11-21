@@ -172,7 +172,8 @@ class EventsController < ApplicationController
         :show_remaining_count, 
         :event_list_id,
         :disable_qr,
-        :sales_channel
+        :sales_channel,
+        :requires_login
       ])
   end
 end
