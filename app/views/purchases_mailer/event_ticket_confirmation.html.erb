@@ -90,24 +90,26 @@
           </table>
         </td>
       </tr>
-      <tr>
-        <td style="text-align: center; padding-top: 20px; border-top: 2px solid #e0e0e0;">
-          <p style="margin: 0 0 15px 0; font-size: 14px; font-weight: 600; color: #1a1a1a; text-transform: uppercase; letter-spacing: 0.5px;">
-            Tu código QR
-          </p>
-          <div style="background-color: #ffffff; display: inline-block; padding: 15px; border-radius: 8px; border: 2px solid #e0e0e0;">
-            <% filename = "ticket_#{item.id}_qr_code.png" %>
-            <% if attachments[filename] %>
-              <%= image_tag attachments[filename].url,
-                  alt: "QR Code",
-                  style: "display: block; max-width: 200px; height: auto;" %>
-            <% end %>
-          </div>
-          <p style="margin: 15px 0 0 0; font-size: 13px; color: #757575;">
-            Presenta este código al ingresar al evento
-          </p>
-        </td>
-      </tr>
+      <% unless item.purchased_item.disable_qr %>
+        <tr>
+          <td style="text-align: center; padding-top: 20px; border-top: 2px solid #e0e0e0;">
+            <p style="margin: 0 0 15px 0; font-size: 14px; font-weight: 600; color: #1a1a1a; text-transform: uppercase; letter-spacing: 0.5px;">
+              Tu código QR
+            </p>
+            <div style="background-color: #ffffff; display: inline-block; padding: 15px; border-radius: 8px; border: 2px solid #e0e0e0;">
+              <% filename = "ticket_#{item.id}_qr_code.png" %>
+              <% if attachments[filename] %>
+                <%= image_tag attachments[filename].url,
+                    alt: "QR Code",
+                    style: "display: block; max-width: 200px; height: auto;" %>
+              <% end %>
+            </div>
+            <p style="margin: 15px 0 0 0; font-size: 13px; color: #757575;">
+              Presenta este código al ingresar al evento
+            </p>
+          </td>
+        </tr>
+      <% end %>
     </table>
   </div>
 <% end %>

@@ -29,6 +29,9 @@ export default function EventTicketModal({ selectedTicket, selectedPurchase, tic
   })
   console.log(data)
 
+  // Determine if QR code should be displayed
+  const shouldShowQrCode = data?.event_ticket?.purchased_item?.paid && !data?.event_ticket?.settings?.disable_qr
+
   return (
     < Dialog open={open} onOpenChange={onOpenChange} >
       <DialogContent className="sm:max-w-2xl lg:max-w-4xl">
@@ -160,7 +163,7 @@ export default function EventTicketModal({ selectedTicket, selectedPurchase, tic
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
                   >
-                    {data.event_ticket.purchased_item?.paid && (
+                    {shouldShowQrCode && (
                       <motion.div
                         className="flex-shrink-0 bg-gradient-to-br from-green-100/80 to-green-200/50 dark:from-green-900/80 dark:to-green-800/50 p-6 rounded-lg shadow-lg"
                         whileHover={{ scale: 1.02 }}

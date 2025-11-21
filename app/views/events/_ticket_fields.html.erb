@@ -61,6 +61,11 @@
           hint: gettext("Display with a \"Sold out\" message after ticket quantity runs out.")
         %>
 
+        <%= form.check_box :disable_qr,
+          label: gettext("Disable QR Code"),
+          hint: gettext("When enabled, QR code will not be generated or displayed for this ticket.")
+        %>
+
         <div class="sm:col-span-3">
           <%= form.check_box :hidden,
           label: "Hide Ticket?",

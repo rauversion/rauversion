@@ -354,6 +354,9 @@ es:
           hidden:
             label: ¿Ocultar entrada?
             description: Marca para ocultar esta entrada en la página del evento y hacerla disponible solo mediante un enlace directo
+          disable_qr:
+            label: Desactivar código QR
+            description: Cuando está habilitado, el código QR no se generará ni se mostrará para esta entrada
           after_purchase_message:
             label: Mensaje después de la compra
             description: Mensaje adicional para incluir en la entrada comprada

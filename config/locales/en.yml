@@ -325,6 +325,9 @@ en:
           hidden:
             label: Hide ticket?
             description: Check to hide this ticket on your Event page and make it available via a direct link only
+          disable_qr:
+            label: Disable QR Code
+            description: When enabled, QR code will not be generated or displayed for this ticket
           after_purchase_message:
             label: After purchase message
             description: Additional message to include on the purchased ticket

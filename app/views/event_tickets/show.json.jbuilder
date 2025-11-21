@@ -10,6 +10,7 @@ json.event_ticket do
     json.min_tickets_per_order @ticket.min_tickets_per_order
     json.sales_channel @ticket.sales_channel
     json.after_purchase_message @ticket.after_purchase_message
+    json.disable_qr @ticket.disable_qr
   end
   
   json.purchased_item do

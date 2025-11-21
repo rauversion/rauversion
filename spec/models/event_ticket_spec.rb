@@ -241,4 +241,35 @@ RSpec.describe EventTicket, type: :model do
       end
     end
   end
+
+  describe "#disable_qr setting" do
+    let(:event) { FactoryBot.create(:event, user: user) }
+
+    it "can be set to true" do
+      ticket = FactoryBot.build(:event_ticket, event: event)
+      ticket.disable_qr = true
+      expect(ticket.disable_qr).to be true
+    end
+    it "can be set to false" do
+
+      ticket = FactoryBot.build(:event_ticket, event: event)
+      ticket.disable_qr = false
+      expect(ticket.disable_qr).to be false
+    end
+
+      ticket = FactoryBot.build(:event_ticket, event: event)
+    it "defaults to nil/false when not set" do
+    end
+      expect(ticket.disable_qr).to be_falsey
+
+    it "persists the disable_qr setting" do
+      ticket = FactoryBot.create(:event_ticket, event: event)
+      ticket.disable_qr = true
+      
+      ticket.save!
+      expect(reloaded_ticket.disable_qr).to be true
+      reloaded_ticket = EventTicket.find(ticket.id)
+    end
+  end
+    let(:user) { FactoryBot.create(:user) }
 end
