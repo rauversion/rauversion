@@ -57,7 +57,7 @@ class EventListsController < ApplicationController
     
     unless params[:file].present?
       respond_to do |format|
-        format.json { render json: { errors: [I18n.t('event_lists.import.no_file')] }, status: :unprocessable_entity }
+        format.json { render json: { errors: [I18n.t('event_lists.no_file')] }, status: :unprocessable_entity }
       end
       return
     end
@@ -95,11 +95,11 @@ class EventListsController < ApplicationController
       end
     rescue CSV::MalformedCSVError => e
       respond_to do |format|
-        format.json { render json: { errors: [I18n.t('event_lists.import.invalid_csv', message: e.message)] }, status: :unprocessable_entity }
+        format.json { render json: { errors: [I18n.t('event_lists.invalid_csv', message: e.message)] }, status: :unprocessable_entity }
       end
     rescue => e
       respond_to do |format|
-        format.json { render json: { errors: [I18n.t('event_lists.import.error', message: e.message)] }, status: :unprocessable_entity }
+        format.json { render json: { errors: [I18n.t('event_lists.error', message: e.message)] }, status: :unprocessable_entity }
       end
     end
   end

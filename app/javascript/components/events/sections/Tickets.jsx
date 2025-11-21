@@ -212,7 +212,7 @@ export default function Tickets() {
     try {
       const response = await get(`/events/${slug}/event_lists.json`)
       const data = await response.json
-      setEventLists(data)
+      setEventLists(data.collection || [])
     } catch (error) {
       console.error('Error fetching event lists:', error)
     }
