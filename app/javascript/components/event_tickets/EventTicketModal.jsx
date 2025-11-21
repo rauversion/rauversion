@@ -160,7 +160,7 @@ export default function EventTicketModal({ selectedTicket, selectedPurchase, tic
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.3 }}
                   >
-                    {data.event_ticket.purchased_item?.paid && (
+                    {data.event_ticket.purchased_item?.paid && !data.event_ticket.settings?.disable_qr && (
                       <motion.div
                         className="flex-shrink-0 bg-gradient-to-br from-green-100/80 to-green-200/50 dark:from-green-900/80 dark:to-green-800/50 p-6 rounded-lg shadow-lg"
                         whileHover={{ scale: 1.02 }}

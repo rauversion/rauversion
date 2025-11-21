@@ -44,8 +44,10 @@ TICKET #<%= index + 1 %>: <%= item.purchased_item.title %>
 📅 Fecha: <%= item.purchased_item.event.event_start %>
 🌍 Zona horaria: <%= item.purchased_item.event.timezone %>
 📍 Ubicación: <%= item.purchased_item.event.location %>
+<% unless item.purchased_item.disable_qr %>
 
 Código QR disponible en la versión HTML del email o en la web.
+<% end %>
 
 <% end %>
 
