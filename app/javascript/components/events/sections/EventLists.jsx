@@ -52,6 +52,14 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Plus, Trash2, Upload, Users, Mail } from "lucide-react"
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
 
 const listSchema = z.object({
   name: z.string().min(2, {
@@ -74,8 +82,10 @@ export default function EventLists() {
   const { slug } = useParams()
   const { toast } = useToast()
   const [lists, setLists] = React.useState([])
+  const [listsPagination, setListsPagination] = React.useState(null)
   const [selectedList, setSelectedList] = React.useState(null)
   const [contacts, setContacts] = React.useState([])
+  const [contactsPagination, setContactsPagination] = React.useState(null)
   const [isListDialogOpen, setIsListDialogOpen] = React.useState(false)
   const [isContactDialogOpen, setIsContactDialogOpen] = React.useState(false)
   const [isImportDialogOpen, setIsImportDialogOpen] = React.useState(false)
@@ -115,11 +125,12 @@ export default function EventLists() {
     }
   }, [selectedList])
 
-  const fetchLists = async () => {
+  const fetchLists = async (page = 1) => {
     try {
-      const response = await get(`/events/${slug}/event_lists.json`)
+      const response = await get(`/events/${slug}/event_lists.json?page=${page}`)
       const data = await response.json
-      setLists(data)
+      setLists(data.collection)
+      setListsPagination(data.metadata)
     } catch (error) {
       console.error('Error fetching lists:', error)
       toast({
@@ -130,11 +141,12 @@ export default function EventLists() {
     }
   }
 
-  const fetchContacts = async (listId) => {
+  const fetchContacts = async (listId, page = 1) => {
     try {
-      const response = await get(`/events/${slug}/event_lists/${listId}/event_list_contacts.json`)
+      const response = await get(`/events/${slug}/event_lists/${listId}/event_list_contacts.json?page=${page}`)
       const data = await response.json
-      setContacts(data)
+      setContacts(data.collection)
+      setContactsPagination(data.metadata)
     } catch (error) {
       console.error('Error fetching contacts:', error)
     }
@@ -396,7 +408,7 @@ export default function EventLists() {
                         <div>
                           <p className="font-medium">{list.name}</p>
                           <p className="text-xs text-muted-foreground">
-                            {list.event_list_contacts?.length || 0} contacts
+                            {list.contacts_count || 0} contacts
                           </p>
                         </div>
                         <div className="flex gap-1">
@@ -506,6 +518,54 @@ export default function EventLists() {
                         )}
                       </TableBody>
                     </Table>
+                    
+                    {/* Contacts Pagination */}
+                    {contactsPagination && contactsPagination.total_pages > 1 && (
+                      <div className="flex justify-center py-4">
+                        <Pagination>
+                          <PaginationContent>
+                            {contactsPagination.prev_page && (
+                              <PaginationItem>
+                                <PaginationPrevious 
+                                  href="#"
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    fetchContacts(selectedList.id, contactsPagination.prev_page)
+                                  }}
+                                />
+                              </PaginationItem>
+                            )}
+                            
+                            {Array.from({ length: contactsPagination.total_pages }, (_, i) => i + 1).map((page) => (
+                              <PaginationItem key={page}>
+                                <PaginationLink
+                                  href="#"
+                                  isActive={page === contactsPagination.current_page}
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    fetchContacts(selectedList.id, page)
+                                  }}
+                                >
+                                  {page}
+                                </PaginationLink>
+                              </PaginationItem>
+                            ))}
+                            
+                            {contactsPagination.next_page && (
+                              <PaginationItem>
+                                <PaginationNext 
+                                  href="#"
+                                  onClick={(e) => {
+                                    e.preventDefault()
+                                    fetchContacts(selectedList.id, contactsPagination.next_page)
+                                  }}
+                                />
+                              </PaginationItem>
+                            )}
+                          </PaginationContent>
+                        </Pagination>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <p className="text-sm text-muted-foreground text-center py-8">

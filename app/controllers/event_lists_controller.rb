@@ -7,15 +7,15 @@ class EventListsController < ApplicationController
   before_action :set_event_list, only: [:show, :update, :destroy]
 
   def index
-    @event_lists = @event.event_lists.order(created_at: :desc)
+    @collection = @event.event_lists.order(created_at: :desc).page(params[:page]).per(10)
     respond_to do |format|
-      format.json { render json: @event_lists.as_json(include: { event_list_contacts: { only: [:id, :email, :name, :first_name, :last_name, :dni, :country] } }) }
+      format.json
     end
   end
 
   def show
     respond_to do |format|
-      format.json { render json: @event_list.as_json(include: { event_list_contacts: { only: [:id, :email, :name, :first_name, :last_name, :dni, :country] } }) }
+      format.json
     end
   end
 

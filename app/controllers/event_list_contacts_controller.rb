@@ -6,9 +6,9 @@ class EventListContactsController < ApplicationController
   before_action :set_event_list_contact, only: [:show, :update, :destroy]
 
   def index
-    @contacts = @event_list.event_list_contacts.order(created_at: :desc)
+    @collection = @event_list.event_list_contacts.order(created_at: :desc).page(params[:page]).per(20)
     respond_to do |format|
-      format.json { render json: @contacts }
+      format.json
     end
   end
 
