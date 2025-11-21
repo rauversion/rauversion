@@ -20,6 +20,9 @@ class EventTicket < ApplicationRecord
   store_accessor :settings, :after_purchase_message, :string
   store_accessor :settings, :pay_what_you_want, :boolean
   store_accessor :settings, :minimum_price, :decimal
+  store_accessor :settings, :disable_qr, :boolean
+  store_accessor :settings, :requires_shipping, :boolean
+  store_accessor :settings, :show_remaining_count, :boolean
 
   validates :title, presence: true
   validates :price, presence: true

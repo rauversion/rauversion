@@ -160,5 +160,60 @@ RSpec.describe PurchasesMailer, type: :mailer do
         )
       end
     end
+
+    context 'when disable_qr is enabled' do
+      before do
+        event_ticket.disable_qr = true
+        event_ticket.save!
+      end
+
+      it 'does not include QR code attachment' do
+        expect(mail.attachments.size).to eq(0)
+      end
+
+      it 'still sends the email' do
+        expect(mail.subject).to eq('Purchase Confirmation')
+        expect(mail.to).to eq([user.email])
+      end
+
+      it 'does not display QR code section in HTML body' do
+        html_body = mail.html_part.body.encoded
+        expect(html_body).to include(event_ticket.title)
+        expect(html_body).not_to include('Tu código QR')
+      end
+
+      it 'does not display QR code message in text body' do
+        text_body = mail.text_part.body.encoded
+        expect(text_body).to include(event_ticket.title)
+        expect(text_body).not_to include('Código QR disponible')
+      end
+    end
+
+    context 'with mixed disable_qr settings' do
+      let(:event_ticket_with_qr) { FactoryBot.create(:event_ticket, event: event, title: 'VIP Pass') }
+      let(:event_ticket_without_qr) { FactoryBot.create(:event_ticket, event: event, title: 'General Admission') }
+      let(:purchased_item_with_qr) do
+        FactoryBot.create(:purchased_item, purchase: purchase, purchased_item: event_ticket_with_qr)
+      end
+      let(:purchased_item_without_qr) do
+        FactoryBot.create(:purchased_item, purchase: purchase, purchased_item: event_ticket_without_qr)
+      end
+
+      before do
+        event_ticket_with_qr.disable_qr = false
+        event_ticket_with_qr.save!
+        event_ticket_without_qr.disable_qr = true
+        event_ticket_without_qr.save!
+        purchased_item_with_qr
+        purchased_item_without_qr
+      end
+
+      it 'includes QR code only for tickets with disable_qr = false' do
+        # Recreate the mail after setting up the purchased items
+        mail = PurchasesMailer.event_ticket_confirmation(purchase: purchase)
+        expect(mail.attachments.size).to eq(2)
+        expect(mail.attachments.second.filename).to eq("ticket_#{purchased_item_with_qr.id}_qr_code.png")
+      end
+    end
   end
 end

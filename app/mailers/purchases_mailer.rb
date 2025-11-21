@@ -8,6 +8,9 @@ class PurchasesMailer < ApplicationMailer
     @message = message
 
     @purchase.purchased_items.each do |purchased_item|
+      # Skip QR code generation if disable_qr is enabled for this ticket
+      next if purchased_item.purchased_item.disable_qr
+
       qr_code = generate_qr_code(purchased_item)
       filename = "ticket_#{purchased_item.id}_qr_code.png"
 
