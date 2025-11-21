@@ -170,6 +170,7 @@ class EventsController < ApplicationController
         :pay_what_you_want, :minimum_price,
         :requires_shipping, 
         :show_remaining_count, 
+        :event_list_id,
         :disable_qr,
         :sales_channel
       ])

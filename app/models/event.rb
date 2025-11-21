@@ -6,6 +6,7 @@ class Event < ApplicationRecord
   has_many :event_recordings
   has_many :schedule_schedulings, through: :event_schedules
   has_many :event_tickets, dependent: :destroy
+  has_many :event_lists, dependent: :destroy
   has_many :purchases, as: :purchasable
   has_many :purchased_items, through: :purchases
   has_many :paid_purchased_items, -> {

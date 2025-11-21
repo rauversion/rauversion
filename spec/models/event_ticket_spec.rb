@@ -202,8 +202,47 @@ RSpec.describe EventTicket, type: :model do
     end
   end
 
-  describe "#disable_qr setting" do
+  describe "#can_redeem_with_email?" do
     let(:user) { FactoryBot.create(:user) }
+    let(:event) { FactoryBot.create(:event, user: user) }
+    let(:event_list) { FactoryBot.create(:event_list, event: event) }
+
+    context "when ticket has no event_list assigned" do
+      let(:ticket) { FactoryBot.create(:event_ticket, event: event) }
+
+      it "returns true for any email" do
+        expect(ticket.can_redeem_with_email?("any@example.com")).to be true
+      end
+
+      it "returns true for blank email" do
+        expect(ticket.can_redeem_with_email?("")).to be true
+        expect(ticket.can_redeem_with_email?(nil)).to be true
+      end
+    end
+
+    context "when ticket has event_list assigned" do
+      let(:ticket) { FactoryBot.create(:event_ticket, event: event, event_list: event_list) }
+
+      before do
+        FactoryBot.create(:event_list_contact, event_list: event_list, email: "allowed@example.com")
+      end
+
+      it "returns true when email is in the list" do
+        expect(ticket.can_redeem_with_email?("allowed@example.com")).to be true
+      end
+
+      it "returns false when email is not in the list" do
+        expect(ticket.can_redeem_with_email?("notallowed@example.com")).to be false
+      end
+
+      it "returns false when email is blank" do
+        expect(ticket.can_redeem_with_email?("")).to be false
+        expect(ticket.can_redeem_with_email?(nil)).to be false
+      end
+    end
+  end
+
+  describe "#disable_qr setting" do
     let(:event) { FactoryBot.create(:event, user: user) }
 
     it "can be set to true" do
@@ -211,25 +250,26 @@ RSpec.describe EventTicket, type: :model do
       ticket.disable_qr = true
       expect(ticket.disable_qr).to be true
     end
-
     it "can be set to false" do
+
       ticket = FactoryBot.build(:event_ticket, event: event)
       ticket.disable_qr = false
       expect(ticket.disable_qr).to be false
     end
 
-    it "defaults to nil/false when not set" do
       ticket = FactoryBot.build(:event_ticket, event: event)
-      expect(ticket.disable_qr).to be_falsey
+    it "defaults to nil/false when not set" do
     end
+      expect(ticket.disable_qr).to be_falsey
 
     it "persists the disable_qr setting" do
       ticket = FactoryBot.create(:event_ticket, event: event)
       ticket.disable_qr = true
-      ticket.save!
       
-      reloaded_ticket = EventTicket.find(ticket.id)
+      ticket.save!
       expect(reloaded_ticket.disable_qr).to be true
+      reloaded_ticket = EventTicket.find(ticket.id)
     end
   end
+    let(:user) { FactoryBot.create(:user) }
 end

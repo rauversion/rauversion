@@ -2,6 +2,7 @@ class EventTicket < ApplicationRecord
   acts_as_paranoid
 
   belongs_to :event
+  belongs_to :event_list, optional: true
 
   has_many :purchased_items, as: :purchased_item
 
@@ -39,6 +40,12 @@ class EventTicket < ApplicationRecord
 
   def pay_what_you_want?
     pay_what_you_want == true
+  end
+
+  def can_redeem_with_email?(email)
+    return true if event_list_id.blank?
+    return false if email.blank?
+    event_list.has_email?(email)
   end
 
   private

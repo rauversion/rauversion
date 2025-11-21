@@ -19,6 +19,7 @@ import {
   Mic2,
   LayoutDashboard,
   BarChart3,
+  Mail,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -60,6 +61,12 @@ export default function EventEdit() {
       icon: Ticket,
       path: "tickets",
       description: i18n.t("events.edit.tickets.description"),
+    },
+    {
+      title: i18n.t("events.edit.email_lists.title", { defaultValue: "Email Lists" }),
+      icon: Mail,
+      path: "email-lists",
+      description: i18n.t("events.edit.email_lists.description", { defaultValue: "Manage email lists for restricted ticket access" }),
     },
     {
       title: i18n.t("events.edit.streaming.title"),

@@ -287,6 +287,9 @@ en:
         add_ticket: Add Ticket
         save_tickets: Save Tickets
         new_ticket: New Ticket
+        email_lists:
+          title: Email Lists
+          description: Manage email lists for restricted ticket access
         hide_location_until_purchase:
           label: Hide location until ticket purchase
           description: When enabled, the event location will only be shown to attendees after they purchase a ticket. This is useful for secret venue events.
@@ -335,6 +338,11 @@ en:
               all: All channels
               event_page: Event page only
               box_office: Box office only
+          event_list:
+            label: Restrict to Email List
+            placeholder: No restriction
+            no_restriction: No restriction (open to all)
+            description: Only emails in the selected list can purchase this ticket
           pay_what_you_want:
             label: Pay What You Want
             description: Allow buyers to choose their own price
@@ -973,6 +981,66 @@ en:
           process_purchase: "Failed to process purchase. Please try again."
           guest_email_required: "Email is required for guest purchases"
 
+  event_purchases:
+    errors:
+      email_not_in_list: "Your email is not authorized to purchase this ticket: %{ticket_title}. Please contact the event organizer."
+
+  event_lists:
+    title: "Email Lists"
+    description: "Manage email lists for restricted ticket access"
+    new_list: "Create List"
+    edit_list: "Edit List"
+    delete_list: "Delete List"
+    import: "Import Contacts"
+    export: "Export Contacts"
+    no_file: "Please select a file to upload"
+    invalid_csv: "Invalid CSV file: %{message}"
+    error: "Import error: %{message}"
+    form:
+      name:
+        label: "List Name"
+        placeholder: "VIP List, Early Access, etc."
+      file:
+        label: "CSV File"
+        description: "Upload a CSV file with columns: email (required), name, first_name, last_name, dni, country"
+      upload_button: "Upload & Import"
+    messages:
+      create_success: "List created successfully"
+      update_success: "List updated successfully"
+      delete_success: "List deleted successfully"
+      delete_confirm: "Are you sure you want to delete this list? This will also remove all contacts."
+      import_success: "Imported %{count} contacts successfully"
+      import_partial: "Imported %{imported} of %{total} contacts. Some records had errors."
+      import_error: "Failed to import contacts"
+    template:
+      title: "CSV Template"
+      description: "Download the example file to see the correct format for your CSV import"
+      download: "Download example CSV"
+    contacts:
+      title: "Contacts"
+      add_contact: "Add Contact"
+      edit_contact: "Edit Contact"
+      delete_contact: "Delete Contact"
+      no_contacts: "No contacts in this list yet"
+      form:
+        email:
+          label: "Email"
+          placeholder: "contact@example.com"
+        name:
+          label: "Name"
+          placeholder: "Full name"
+        first_name:
+          label: "First Name"
+          placeholder: "First name"
+        last_name:
+          label: "Last Name"
+          placeholder: "Last name"
+        dni:
+          label: "ID/DNI"
+          placeholder: "Identification number"
+        country:
+          label: "Country"
+          placeholder: "Country"
 
   event_hosts:
     listed: Listed on page
