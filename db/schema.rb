@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_19_053700) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_21_033032) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -169,6 +169,30 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_19_053700) do
     t.index ["user_id"], name: "index_event_hosts_on_user_id"
   end
 
+  create_table "event_list_contacts", force: :cascade do |t|
+    t.bigint "event_list_id", null: false
+    t.string "email", null: false
+    t.string "name"
+    t.string "first_name"
+    t.string "last_name"
+    t.string "dni"
+    t.string "country"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email"], name: "index_event_list_contacts_on_email"
+    t.index ["event_list_id", "email"], name: "index_event_list_contacts_on_event_list_id_and_email", unique: true
+    t.index ["event_list_id"], name: "index_event_list_contacts_on_event_list_id"
+  end
+
+  create_table "event_lists", force: :cascade do |t|
+    t.string "name", null: false
+    t.bigint "event_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id", "name"], name: "index_event_lists_on_event_id_and_name", unique: true
+    t.index ["event_id"], name: "index_event_lists_on_event_id"
+  end
+
   create_table "event_recordings", force: :cascade do |t|
     t.string "type"
     t.string "title"
@@ -208,8 +232,10 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_19_053700) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "deleted_at"
+    t.bigint "event_list_id"
     t.index ["deleted_at"], name: "index_event_tickets_on_deleted_at"
     t.index ["event_id"], name: "index_event_tickets_on_event_id"
+    t.index ["event_list_id"], name: "index_event_tickets_on_event_list_id"
   end
 
   create_table "events", force: :cascade do |t|
@@ -1058,8 +1084,11 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_19_053700) do
   add_foreign_key "courses", "users"
   add_foreign_key "event_hosts", "events"
   add_foreign_key "event_hosts", "users"
+  add_foreign_key "event_list_contacts", "event_lists", on_delete: :cascade
+  add_foreign_key "event_lists", "events"
   add_foreign_key "event_recordings", "events"
   add_foreign_key "event_schedules", "events"
+  add_foreign_key "event_tickets", "event_lists", on_delete: :nullify
   add_foreign_key "event_tickets", "events"
   add_foreign_key "events", "users"
   add_foreign_key "interest_alerts", "users"

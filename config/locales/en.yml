@@ -287,9 +287,9 @@ en:
         add_ticket: Add Ticket
         save_tickets: Save Tickets
         new_ticket: New Ticket
-      email_lists:
-        title: Email Lists
-        description: Manage email lists for restricted ticket access
+        email_lists:
+          title: Email Lists
+          description: Manage email lists for restricted ticket access
         hide_location_until_purchase:
           label: Hide location until ticket purchase
           description: When enabled, the event location will only be shown to attendees after they purchase a ticket. This is useful for secret venue events.

@@ -316,9 +316,9 @@ es:
         add_ticket: Agregar Entrada
         save_tickets: Guardar Entradas
         new_ticket: Nueva Entrada
-      email_lists:
-        title: Listas de Correos
-        description: Gestiona listas de correos para acceso restringido a tickets
+        email_lists:
+          title: Listas de Correos
+          description: Gestiona listas de correos para acceso restringido a tickets
         hide_location_until_purchase:
           label: Ocultar ubicación hasta la compra del ticket
           description: Cuando está habilitado, la ubicación del evento solo se mostrará a los asistentes después de que compren un ticket. Esto es útil para eventos en lugares secretos.

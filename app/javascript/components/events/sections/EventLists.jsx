@@ -158,7 +158,7 @@ export default function EventLists() {
         const response = await put(`/events/${slug}/event_lists/${editingList.id}.json`, {
           body: JSON.stringify({ event_list: data }),
         })
-        
+
         if (response.ok) {
           toast({
             title: I18n.t('event_lists.messages.update_success'),
@@ -172,7 +172,7 @@ export default function EventLists() {
         const response = await post(`/events/${slug}/event_lists.json`, {
           body: JSON.stringify({ event_list: data }),
         })
-        
+
         if (response.ok) {
           toast({
             title: I18n.t('event_lists.messages.create_success'),
@@ -200,7 +200,7 @@ export default function EventLists() {
         const response = await put(`/events/${slug}/event_lists/${selectedList.id}/event_list_contacts/${editingContact.id}.json`, {
           body: JSON.stringify({ event_list_contact: data }),
         })
-        
+
         if (response.ok) {
           toast({
             title: I18n.t('event_lists.contacts.messages.update_success', { defaultValue: 'Contact updated' }),
@@ -214,7 +214,7 @@ export default function EventLists() {
         const response = await post(`/events/${slug}/event_lists/${selectedList.id}/event_list_contacts.json`, {
           body: JSON.stringify({ event_list_contact: data }),
         })
-        
+
         if (response.ok) {
           toast({
             title: I18n.t('event_lists.contacts.messages.create_success', { defaultValue: 'Contact added' }),
@@ -239,7 +239,7 @@ export default function EventLists() {
 
     try {
       const response = await destroy(`/events/${slug}/event_lists/${listToDelete.id}.json`)
-      
+
       if (response.ok) {
         toast({
           title: I18n.t('event_lists.messages.delete_success'),
@@ -268,7 +268,7 @@ export default function EventLists() {
 
     try {
       const response = await destroy(`/events/${slug}/event_lists/${selectedList.id}/event_list_contacts/${contactId}.json`)
-      
+
       if (response.ok) {
         toast({
           title: I18n.t('event_lists.contacts.messages.delete_success', { defaultValue: 'Contact deleted' }),
@@ -302,9 +302,9 @@ export default function EventLists() {
       if (response.ok) {
         if (result.errors && result.errors.length > 0) {
           toast({
-            title: I18n.t('event_lists.messages.import_partial', { 
-              imported: result.imported, 
-              total: result.total 
+            title: I18n.t('event_lists.messages.import_partial', {
+              imported: result.imported,
+              total: result.total
             }),
             description: result.errors.slice(0, 3).join('\n'),
             variant: "warning",
@@ -399,9 +399,8 @@ export default function EventLists() {
                   {lists.map((list) => (
                     <div
                       key={list.id}
-                      className={`p-3 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors ${
-                        selectedList?.id === list.id ? 'bg-muted border-primary' : ''
-                      }`}
+                      className={`p-3 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors ${selectedList?.id === list.id ? 'bg-muted border-primary' : ''
+                        }`}
                       onClick={() => setSelectedList(list)}
                     >
                       <div className="flex justify-between items-center">
@@ -518,7 +517,7 @@ export default function EventLists() {
                         )}
                       </TableBody>
                     </Table>
-                    
+
                     {/* Contacts Pagination */}
                     {contactsPagination && contactsPagination.total_pages > 1 && (
                       <div className="flex justify-center py-4">
@@ -526,7 +525,7 @@ export default function EventLists() {
                           <PaginationContent>
                             {contactsPagination.prev_page && (
                               <PaginationItem>
-                                <PaginationPrevious 
+                                <PaginationPrevious
                                   href="#"
                                   onClick={(e) => {
                                     e.preventDefault()
@@ -535,7 +534,7 @@ export default function EventLists() {
                                 />
                               </PaginationItem>
                             )}
-                            
+
                             {Array.from({ length: contactsPagination.total_pages }, (_, i) => i + 1).map((page) => (
                               <PaginationItem key={page}>
                                 <PaginationLink
@@ -550,10 +549,10 @@ export default function EventLists() {
                                 </PaginationLink>
                               </PaginationItem>
                             ))}
-                            
+
                             {contactsPagination.next_page && (
                               <PaginationItem>
-                                <PaginationNext 
+                                <PaginationNext
                                   href="#"
                                   onClick={(e) => {
                                     e.preventDefault()
@@ -724,7 +723,9 @@ export default function EventLists() {
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <FormLabel>{I18n.t('event_lists.form.file.label')}</FormLabel>
+              <label className="block text-sm font-medium text-muted-foreground mb-1">
+                {I18n.t('event_lists.form.file.label')}
+              </label>
               <Input
                 type="file"
                 accept=".csv,.xlsx,.xls"
