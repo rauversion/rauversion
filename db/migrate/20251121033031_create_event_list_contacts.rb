@@ -1,7 +1,7 @@
 class CreateEventListContacts < ActiveRecord::Migration[8.0]
   def change
     create_table :event_list_contacts do |t|
-      t.references :event_list, null: false, foreign_key: true
+      t.references :event_list, null: false, foreign_key: { on_delete: :cascade }
       t.string :email, null: false
       t.string :name
       t.string :first_name
