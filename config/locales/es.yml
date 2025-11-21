@@ -316,6 +316,9 @@ es:
         add_ticket: Agregar Entrada
         save_tickets: Guardar Entradas
         new_ticket: Nueva Entrada
+      email_lists:
+        title: Listas de Correos
+        description: Gestiona listas de correos para acceso restringido a tickets
         hide_location_until_purchase:
           label: Ocultar ubicación hasta la compra del ticket
           description: Cuando está habilitado, la ubicación del evento solo se mostrará a los asistentes después de que compren un ticket. Esto es útil para eventos en lugares secretos.
@@ -361,6 +364,11 @@ es:
               all: Todos los canales
               event_page: Solo página del evento
               box_office: Solo taquilla
+          event_list:
+            label: Restringir a Lista de Correos
+            placeholder: Sin restricción
+            no_restriction: Sin restricción (abierto a todos)
+            description: Solo los emails en la lista seleccionada pueden comprar este ticket
           pay_what_you_want:
             label: Paga lo que Quieras
             description: Permitir a los compradores elegir su propio precio

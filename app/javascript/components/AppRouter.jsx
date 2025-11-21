@@ -50,6 +50,7 @@ import Overview from "./events/sections/Overview"
 import Schedule from "./events/sections/Schedule"
 import Teams from "./events/sections/Teams"
 import Tickets from "./events/sections/Tickets"
+import EventLists from "./events/sections/EventLists"
 import Streaming from "./events/sections/Streaming"
 import Attendees from "./events/sections/Attendees"
 import Recordings from "./events/sections/Recordings"
@@ -245,6 +246,7 @@ function AppContent() {
             <Route path="schedule" element={<Schedule />} />
             <Route path="teams" element={<Teams />} />
             <Route path="tickets" element={<Tickets />} />
+            <Route path="email-lists" element={<EventLists />} />
             <Route path="streaming" element={<Streaming />} />
             <Route path="attendees" element={<Attendees />} />
             <Route path="recordings" element={<Recordings />} />

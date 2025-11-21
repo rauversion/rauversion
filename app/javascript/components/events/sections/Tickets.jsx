@@ -70,6 +70,7 @@ const ticketSchema = z.object({
   sales_channel: z.enum(["all", "event_page", "box_office"]).default("all"),
   pay_what_you_want: z.boolean().default(false),
   minimum_price: z.coerce.number().min(0).optional(),
+  event_list_id: z.coerce.number().nullable().optional(),
   _destroy: z.boolean().optional(),
   hidden_in_form: z.boolean().optional(),
 })
@@ -120,6 +121,7 @@ export default function Tickets() {
   const { toast } = useToast()
   const [event, setEvent] = React.useState(null)
   const [copiedTicketId, setCopiedTicketId] = React.useState(null)
+  const [eventLists, setEventLists] = React.useState([])
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -187,8 +189,12 @@ export default function Tickets() {
             sales_channel: ticket.settings.sales_channel,
             pay_what_you_want: ticket.settings.pay_what_you_want || false,
             minimum_price: ticket.settings.minimum_price || 0,
+            event_list_id: ticket.event_list_id || null,
           })) || []
         })
+        
+        // Fetch event lists
+        fetchEventLists()
       } catch (error) {
         console.error('Error fetching tickets:', error)
         toast({
@@ -201,6 +207,16 @@ export default function Tickets() {
 
     fetchTickets()
   }, [slug])
+
+  const fetchEventLists = async () => {
+    try {
+      const response = await get(`/events/${slug}/event_lists.json`)
+      const data = await response.json
+      setEventLists(data)
+    } catch (error) {
+      console.error('Error fetching event lists:', error)
+    }
+  }
 
   const addTicket = () => {
     append({
@@ -764,6 +780,43 @@ export default function Tickets() {
                                       ))}
                                     </SelectContent>
                                   </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name={`tickets.${index}.event_list_id`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>{I18n.t('events.edit.tickets.form.event_list.label', { defaultValue: 'Restrict to Email List' })}</FormLabel>
+                                  <Select
+                                    onValueChange={(value) => field.onChange(value === "none" ? null : parseInt(value))}
+                                    value={field.value?.toString() || "none"}
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder={I18n.t('events.edit.tickets.form.event_list.placeholder', { defaultValue: 'No restriction' })} />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      <SelectItem value="none">
+                                        {I18n.t('events.edit.tickets.form.event_list.no_restriction', { defaultValue: 'No restriction' })}
+                                      </SelectItem>
+                                      {eventLists.map((list) => (
+                                        <SelectItem
+                                          key={list.id}
+                                          value={list.id.toString()}
+                                        >
+                                          {list.name}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  <FormDescription>
+                                    {I18n.t('events.edit.tickets.form.event_list.description', { defaultValue: 'Only emails in the selected list can purchase this ticket' })}
+                                  </FormDescription>
                                   <FormMessage />
                                 </FormItem>
                               )}
