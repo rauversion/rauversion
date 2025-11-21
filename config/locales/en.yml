@@ -343,6 +343,9 @@ en:
             placeholder: No restriction
             no_restriction: No restriction (open to all)
             description: Only emails in the selected list can purchase this ticket
+          requires_login:
+            label: Require Login
+            description: Users must be logged in to purchase this ticket. Guest checkout will not be allowed.
           pay_what_you_want:
             label: Pay What You Want
             description: Allow buyers to choose their own price
@@ -984,6 +987,7 @@ en:
   event_purchases:
     errors:
       email_not_in_list: "Your email is not authorized to purchase this ticket: %{ticket_title}. Please contact the event organizer."
+      requires_login: "This ticket requires you to be logged in: %{ticket_title}. Please log in or create an account to purchase."
 
   event_lists:
     title: "Email Lists"

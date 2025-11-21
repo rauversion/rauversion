@@ -372,6 +372,9 @@ es:
             placeholder: Sin restricción
             no_restriction: Sin restricción (abierto a todos)
             description: Solo los emails en la lista seleccionada pueden comprar este ticket
+          requires_login:
+            label: Requiere Inicio de Sesión
+            description: Los usuarios deben iniciar sesión para comprar este ticket. No se permitirá la compra como invitado.
           pay_what_you_want:
             label: Paga lo que Quieras
             description: Permitir a los compradores elegir su propio precio
@@ -1050,6 +1053,7 @@ es:
   event_purchases:
     errors:
       email_not_in_list: "Tu email no está autorizado para comprar este ticket: %{ticket_title}. Por favor contacta al organizador del evento."
+      requires_login: "Este ticket requiere inicio de sesión: %{ticket_title}. Por favor inicia sesión o crea una cuenta para comprar."
 
   event_lists:
     title: "Listas de Correos"
