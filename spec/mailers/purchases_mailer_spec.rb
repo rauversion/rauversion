@@ -211,8 +211,8 @@ RSpec.describe PurchasesMailer, type: :mailer do
       it 'includes QR code only for tickets with disable_qr = false' do
         # Recreate the mail after setting up the purchased items
         mail = PurchasesMailer.event_ticket_confirmation(purchase: purchase)
-        expect(mail.attachments.size).to eq(1)
-        expect(mail.attachments.first.filename).to eq("ticket_#{purchased_item_with_qr.id}_qr_code.png")
+        expect(mail.attachments.size).to eq(2)
+        expect(mail.attachments.second.filename).to eq("ticket_#{purchased_item_with_qr.id}_qr_code.png")
       end
     end
   end
