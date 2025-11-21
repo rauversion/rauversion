@@ -51,7 +51,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
-import { Plus, Trash2, Upload, Users, Mail } from "lucide-react"
+import { Plus, Trash2, Upload, Users, Mail, Download } from "lucide-react"
 import {
   Pagination,
   PaginationContent,
@@ -722,6 +722,29 @@ export default function EventLists() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
+            {/* Template Download Section */}
+            <div className="bg-muted/50 rounded-lg p-4 border border-muted">
+              <div className="flex items-start gap-3">
+                <Download className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                <div className="flex-1 space-y-2">
+                  <p className="text-sm font-medium">
+                    {I18n.t('event_lists.template.title', { defaultValue: 'CSV Template' })}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    {I18n.t('event_lists.template.description', { defaultValue: 'Download the example file to see the correct format' })}
+                  </p>
+                  <a
+                    href="/templates/event_list_contacts_template.csv"
+                    download="event_list_contacts_template.csv"
+                    className="inline-flex items-center gap-2 text-sm text-primary hover:text-primary/80 underline"
+                  >
+                    <Download className="h-4 w-4" />
+                    {I18n.t('event_lists.template.download', { defaultValue: 'Download example CSV' })}
+                  </a>
+                </div>
+              </div>
+            </div>
+
             <div>
               <label className="block text-sm font-medium text-muted-foreground mb-1">
                 {I18n.t('event_lists.form.file.label')}

@@ -1078,6 +1078,10 @@ es:
       import_success: "Se importaron %{count} contactos exitosamente"
       import_partial: "Se importaron %{imported} de %{total} contactos. Algunos registros tenían errores."
       import_error: "No se pudieron importar los contactos"
+    template:
+      title: "Plantilla CSV"
+      description: "Descarga el archivo de ejemplo para ver el formato correcto para tu importación CSV"
+      download: "Descargar CSV de ejemplo"
     contacts:
       title: "Contactos"
       add_contact: "Agregar Contacto"

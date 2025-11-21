@@ -1,0 +1,4 @@
+email,name,first_name,last_name,dni,country
+john.doe@example.com,John Doe,John,Doe,12345678,United States
+jane.smith@example.com,Jane Smith,Jane,Smith,87654321,United Kingdom
+carlos.garcia@example.com,Carlos García,Carlos,García,11223344,Spain

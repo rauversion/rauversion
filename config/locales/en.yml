@@ -1012,6 +1012,10 @@ en:
       import_success: "Imported %{count} contacts successfully"
       import_partial: "Imported %{imported} of %{total} contacts. Some records had errors."
       import_error: "Failed to import contacts"
+    template:
+      title: "CSV Template"
+      description: "Download the example file to see the correct format for your CSV import"
+      download: "Download example CSV"
     contacts:
       title: "Contacts"
       add_contact: "Add Contact"
