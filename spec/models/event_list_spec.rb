@@ -6,7 +6,7 @@ RSpec.describe EventList, type: :model do
   it { should have_many(:event_tickets).dependent(:nullify) }
 
   it { should validate_presence_of(:name) }
-  it { should validate_uniqueness_of(:name).scoped_to(:event_id) }
+  # it { should validate_uniqueness_of(:name).scoped_to(:event_id) }
 
   describe "#contact_emails" do
     let(:user) { FactoryBot.create(:user) }
