@@ -332,26 +332,29 @@ class EventPurchasesController < ApplicationController
 
   def find_event_for_purchase(event_id)
     # Try to find by signed_id first for private event access
-    event = nil
     begin
       event = Event.find_signed(event_id, purpose: :private_event)
-      # Ensure the event is published
-      return event if event&.published?
+      # Signed ID found - ensure the event is published
+      if event&.published?
+        return event
+      else
+        # Event found via signed_id but not published - deny access
+        raise ActiveRecord::RecordNotFound, "Event not available"
+      end
     rescue ActiveRecord::RecordNotFound, ActiveSupport::MessageVerifier::InvalidSignature
       # Not a valid signed_id, continue to regular lookup
     end
     
     # Fall back to regular lookup for public/unlisted events
-    unless event
-      event = Event.published.friendly.find(event_id)
-      # Check visibility - allow public and unlisted, but not private without signed_id
-      if event.private?
-        # Only allow if user is the owner
-        if user_signed_in? && event.user == current_user
-          return event
-        else
-          raise ActiveRecord::RecordNotFound, "Private event requires signed link"
-        end
+    event = Event.published.friendly.find(event_id)
+    
+    # Check visibility - allow public and unlisted, but not private without signed_id
+    if event.private?
+      # Only allow if user is the owner
+      if user_signed_in? && event.user == current_user
+        return event
+      else
+        raise ActiveRecord::RecordNotFound, "Private event requires signed link"
       end
     end
     
