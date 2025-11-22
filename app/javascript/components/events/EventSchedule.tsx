@@ -28,6 +28,7 @@ export interface Scheduling {
 }
 
 interface EventScheduleProps {
+  description?: string
   schedulings: Scheduling[]
 }
 
@@ -135,7 +136,8 @@ function ScheduleDay({ schedule }: { schedule: Scheduling }) {
   )
 }
 
-export default function EventSchedule({ schedulings }: EventScheduleProps) {
+export default function EventSchedule({ description, schedulings }: EventScheduleProps) {
+  
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-5xl px-6 py-16 md:py-24">
@@ -144,7 +146,7 @@ export default function EventSchedule({ schedulings }: EventScheduleProps) {
             {I18n.t('events.show.schedule.title')}
           </h1>
           <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl">
-            {I18n.t('events.show.schedule.description')}
+            {description}
           </p>
         </div>
 

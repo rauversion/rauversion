@@ -10,6 +10,7 @@ interface PurchaseDialogProps {
 }
 
 export default function PurchaseDialog({ open, onOpenChange, eventId, ticketToken }: PurchaseDialogProps) {
+  console.log("PurchaseDialog rendered with:", { open, eventId, ticketToken })
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">

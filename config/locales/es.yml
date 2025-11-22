@@ -521,8 +521,6 @@ es:
           require_login:
             label: Requerir Inicio de Sesión
             description: Los usuarios deben iniciar sesión para ver los detalles del evento
-        messages:
-          success: Configuración actualizada exitosamente
         general:
           title: Configuración General
           description: Configurar ajustes básicos del evento

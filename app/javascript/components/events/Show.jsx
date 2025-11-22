@@ -86,6 +86,8 @@ export default function EventShow() {
     return <div className="min-h-screen flex items-center justify-center">{I18n.t('events.loading')}</div>
   }
 
+  console.log('Event data:', slug)
+
   if (!event) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
@@ -186,7 +188,7 @@ export default function EventShow() {
       <PurchaseDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        eventId={event.slug}
+        eventId={slug}
         ticketToken={ticketToken}
       />
 
