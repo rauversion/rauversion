@@ -4,7 +4,8 @@ json.title @event.title
 json.description @event.description
 json.state @event.state
 json.visibility @event.visibility || 'public'
-json.private_event_url @event.private_event_url if @event.private?
+# Always include private_event_url so UI can show it immediately when visibility changes to private
+json.private_event_url @event.private_event_url
 json.timezone @event.timezone
 json.event_start @event.event_start
 json.event_ends @event.event_ends

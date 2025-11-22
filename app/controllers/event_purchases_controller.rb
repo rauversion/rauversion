@@ -2,7 +2,7 @@ class EventPurchasesController < ApplicationController
   before_action :authenticate_user!, except: [:new, :create,  :success, :failure]
   
   def new
-    @event = Event.friendly.find(params[:event_id])
+    @event = find_event_for_purchase(params[:event_id])
 
     # When a customer purchases a ticket for an event:
     customer = current_user
@@ -57,7 +57,8 @@ class EventPurchasesController < ApplicationController
   end
 
   def create
-    @event = Event.public_events.friendly.find(params[:event_id])
+    # Try to find by signed_id first (for private event access), then fall back to regular lookup
+    @event = find_event_for_purchase(params[:event_id])
 
     # Handle guest purchase or regular user purchase
     if current_user
@@ -327,5 +328,33 @@ class EventPurchasesController < ApplicationController
     params.require(:tickets).map do |ticket_param|
       ticket_param.permit(:id, :quantity, :custom_price)
     end
+  end
+
+  def find_event_for_purchase(event_id)
+    # Try to find by signed_id first for private event access
+    event = nil
+    begin
+      event = Event.find_signed(event_id, purpose: :private_event)
+      # Ensure the event is published
+      return event if event&.published?
+    rescue ActiveRecord::RecordNotFound, ActiveSupport::MessageVerifier::InvalidSignature
+      # Not a valid signed_id, continue to regular lookup
+    end
+    
+    # Fall back to regular lookup for public/unlisted events
+    unless event
+      event = Event.published.friendly.find(event_id)
+      # Check visibility - allow public and unlisted, but not private without signed_id
+      if event.private?
+        # Only allow if user is the owner
+        if user_signed_in? && event.user == current_user
+          return event
+        else
+          raise ActiveRecord::RecordNotFound, "Private event requires signed link"
+        end
+      end
+    end
+    
+    event
   end
 end
