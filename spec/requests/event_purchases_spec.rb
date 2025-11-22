@@ -238,9 +238,10 @@ RSpec.describe "EventPurchases", type: :request do
         }
 
         expect(response).to have_http_status(:unprocessable_entity)
+ 
         json = JSON.parse(response.body)
         expect(json['errors']).to be_present
-        expect(json['errors']['base']).to include(/requiere inicio de sesión|requires you to be logged in/i)
+        expect(json['errors'].first).to include(/requiere inicio de sesión|requires you to be logged in/i)
       end
     end
 
