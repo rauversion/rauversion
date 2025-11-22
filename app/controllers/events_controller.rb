@@ -6,14 +6,17 @@ class EventsController < ApplicationController
     @q = Event.ransack(params[:q])
     @q.sorts = 'starts_at asc' if @q.sorts.empty?
     
+    # Only show public and published events in index
     @events = @q.result(distinct: true)
       .published
+      .publicly_visible
       .upcoming
       .includes(:user)
       .with_attached_cover
       .page(params[:page]).per(12)
 
     @past_events = Event.published
+      .publicly_visible
       .past
       .includes(:user)
       .with_attached_cover
@@ -31,7 +34,46 @@ class EventsController < ApplicationController
   end
 
   def show
-    @event = Event.public_events.friendly.find(params[:id])
+    # Handle both regular slugs and signed IDs for private events
+    # Try to find by signed_id first, then fall back to regular lookup
+    @event = nil
+    
+    # First, try to find by signed_id (for private event access)
+    begin
+      @event = Event.find_signed(params[:id], purpose: :private_event)
+    rescue ActiveRecord::RecordNotFound, ActiveSupport::MessageVerifier::InvalidSignature => e
+      # Not a valid signed_id, continue to regular lookup
+      Rails.logger.debug "Signed ID lookup failed: #{e.message}" if params[:id].length > 50
+    end
+    
+    # If not found via signed_id, try regular lookup
+    unless @event
+      begin
+        @event = Event.published.friendly.find(params[:id])
+        
+        # Check if event is private
+        if @event.private?
+          # Allow access if user is the owner
+          if user_signed_in? && @event.user == current_user
+            # Owner can access their private event
+          else
+            # Non-owners need the signed link
+            redirect_to events_path, alert: I18n.t('events.show.private_event_requires_link')
+            return
+          end
+        end
+      rescue ActiveRecord::RecordNotFound
+        redirect_to events_path, alert: I18n.t('events.show.not_found')
+        return
+      end
+    end
+    
+    # Ensure event is published (even if accessed via signed_id)
+    # Use generic message to avoid leaking information about draft events
+    unless @event.published?
+      redirect_to events_path, alert: I18n.t('events.show.event_not_available')
+      return
+    end
 
     event_description = @event.description.presence || @event.title
 
@@ -149,7 +191,7 @@ class EventsController < ApplicationController
     params.require(:event).permit(:title, :event_start, :event_ends,
       :timezone,
       :state,
-      # :visibility, 
+      :visibility, 
       :registration_type, :allow_comments, :show_attendees, :show_remaining_tickets, :social_sharing, :require_login,
       :description, :venue, :age_requirement, :payment_gateway,
       :ticket_currency, :location, :lat, :lng, :country, :city, :province,

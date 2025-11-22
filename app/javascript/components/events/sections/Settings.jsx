@@ -58,7 +58,9 @@ import {
   Settings as SettingsIcon,
   Share2,
   Trash2,
-  Users
+  Users,
+  Copy,
+  Check
 } from "lucide-react"
 
 const settingsSchema = z.object({
@@ -106,6 +108,7 @@ export default function Settings() {
   const { toast } = useToast()
   const [event, setEvent] = React.useState(null)
   const [loading, setLoading] = React.useState(true)
+  const [copied, setCopied] = React.useState(false)
 
   const form = useForm({
     resolver: zodResolver(settingsSchema),
@@ -164,6 +167,27 @@ export default function Settings() {
         description: I18n.t('events.edit.settings.messages.error'),
         variant: "destructive",
       })
+    }
+  }
+
+  const copyPrivateLink = async () => {
+    if (event?.private_event_url && event?.visibility === 'private') {
+      try {
+        await navigator.clipboard.writeText(event.private_event_url)
+        setCopied(true)
+        toast({
+          title: I18n.t("events.edit.settings.messages.success_title"),
+          description: I18n.t('events.edit.settings.messages.copy_link_success'),
+        })
+        setTimeout(() => setCopied(false), 2000)
+      } catch (error) {
+        console.error('Error copying link:', error)
+        toast({
+          title: I18n.t("events.edit.settings.messages.error_title"),
+          description: I18n.t('events.edit.settings.messages.copy_link_error'),
+          variant: "destructive",
+        })
+      }
     }
   }
 
@@ -361,10 +385,58 @@ export default function Settings() {
                             ))}
                           </SelectContent>
                         </Select>
+                        <FormDescription>
+                          {field.value === 'public' && I18n.t('events.edit.settings.privacy.visibility.descriptions.public')}
+                          {field.value === 'private' && I18n.t('events.edit.settings.privacy.visibility.descriptions.private')}
+                          {field.value === 'unlisted' && I18n.t('events.edit.settings.privacy.visibility.descriptions.unlisted')}
+                        </FormDescription>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+
+                  {form.watch('visibility') === 'private' && (
+                    <Alert>
+                      <Lock className="h-4 w-4" />
+                      <AlertTitle>{I18n.t('events.edit.settings.privacy.visibility.private_link.title')}</AlertTitle>
+                      <AlertDescription>
+                        <div className="space-y-2 mt-2">
+                          <p className="text-sm">{I18n.t('events.edit.settings.privacy.visibility.private_link.description')}</p>
+                          {event?.private_event_url ? (
+                            <div className="flex items-center gap-2">
+                              <Input
+                                value={event.private_event_url}
+                                readOnly
+                                className="flex-1"
+                              />
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={copyPrivateLink}
+                              >
+                                {copied ? (
+                                  <>
+                                    <Check className="h-4 w-4 mr-2" />
+                                    {I18n.t('events.edit.settings.privacy.visibility.private_link.copied')}
+                                  </>
+                                ) : (
+                                  <>
+                                    <Copy className="h-4 w-4 mr-2" />
+                                    {I18n.t('events.edit.settings.privacy.visibility.private_link.copy')}
+                                  </>
+                                )}
+                              </Button>
+                            </div>
+                          ) : (
+                            <p className="text-sm text-muted-foreground">
+                              {I18n.t('events.edit.settings.privacy.visibility.private_link.save_first')}
+                            </p>
+                          )}
+                        </div>
+                      </AlertDescription>
+                    </Alert>
+                  )}
 
                   <FormField
                     control={form.control}

@@ -4,7 +4,6 @@ import EventTicketModal from './EventTicketModal'
 
 export default function EventTicketShow() {
   const { slug, id } = useParams()
-
   return (
     <div className="min-h-screen bg-background">
       <EventTicketModal
