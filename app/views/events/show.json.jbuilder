@@ -78,8 +78,8 @@ json.event_schedules @event.event_schedules do |schedule|
   json.schedulings schedule.schedule_schedulings do |scheduling|
     json.id scheduling.id
     json.name scheduling.name
-    json.start_date scheduling.start_date
-    json.end_date scheduling.end_date
+    json.start_date scheduling.start_date.in_time_zone(@event.timezone)
+    json.end_date scheduling.end_date.in_time_zone(@event.timezone)
     json.start_date_formatted I18n.l(scheduling.start_date.in_time_zone(@event.timezone), format: :event_long_with_zone) if scheduling.start_date.present?
     json.end_date_formatted I18n.l(scheduling.end_date.in_time_zone(@event.timezone), format: :event_long_with_zone) if scheduling.end_date.present?
     json.short_description scheduling.short_description
