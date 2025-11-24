@@ -24,11 +24,6 @@ class Event < ApplicationRecord
     ["cover_attachment", "cover_blob", "event_hosts", "event_recordings", "event_schedules", "event_tickets", "paid_purchased_items", "purchased_event_tickets", "purchased_items", "purchases", "schedule_schedulings", "user"]
   end
 
-  scope :upcoming, -> { where('event_start >= ?', Time.current).order(event_start: :asc) }
-  scope :past, -> { where('event_start < ?', Time.current).order(event_start: :desc) }
-  scope :published, -> { where(state: 'published') }
-  scope :publicly_visible, -> { where(visibility: 'public') }
-
   # has_many :paid_tickets,
 
   has_one_attached :cover
@@ -66,6 +61,11 @@ class Event < ApplicationRecord
   scope :drafts, -> { where(state: "draft") }
   scope :managers, -> { where(event_manager: true) }
   # Ex:- scope :active, -> {where(:active => true)}
+
+  scope :upcoming, -> { where('event_start >= ?', Time.current).order(event_start: :asc) }
+  scope :past, -> { where('event_start < ?', Time.current).order(event_start: :desc) }
+  scope :published, -> { where(state: 'published') }
+  scope :publicly_visible, -> { where(visibility: 'public') }
 
   scope :public_events, -> {
     # where(private: false)

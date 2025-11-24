@@ -157,7 +157,7 @@ class HomeController < ApplicationController
   end
 
   def fetch_events
-    Event.published
+    Event.public_events
       .upcoming
       .includes(:user)
       .with_attached_cover

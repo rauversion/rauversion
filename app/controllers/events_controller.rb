@@ -8,15 +8,14 @@ class EventsController < ApplicationController
     
     # Only show public and published events in index
     @events = @q.result(distinct: true)
-      .published
-      .publicly_visible
+      .public_events
       .upcoming
       .includes(:user)
       .with_attached_cover
       .page(params[:page]).per(12)
 
     @past_events = Event.published
-      .publicly_visible
+      .public_events
       .past
       .includes(:user)
       .with_attached_cover
