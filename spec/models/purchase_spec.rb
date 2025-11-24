@@ -125,8 +125,11 @@ RSpec.describe Purchase, type: :model do
       ticket = FactoryBot.create(:event_ticket, event: event, qty: 100, max_tickets_per_user: 2)
       guest_email = "guest@example.com"
       
+      # Create a guest user for this email
+      guest_user = FactoryBot.create(:user, email: guest_email)
+      
       # First purchase as guest
-      first_purchase = Purchase.create!(purchasable: event, user: user, guest_email: guest_email)
+      first_purchase = Purchase.create!(purchasable: event, user: guest_user, guest_email: guest_email)
       first_purchase.virtual_purchased = [VirtualPurchasedItem.new(resource: ticket, quantity: 1)]
       first_purchase.store_items
       first_purchase.save!
@@ -134,7 +137,7 @@ RSpec.describe Purchase, type: :model do
       first_purchase.purchased_items.update_all(state: "paid")
       
       # Second purchase with same email: try to buy 2 more tickets (should fail)
-      second_purchase = Purchase.new(purchasable: event, user: user, guest_email: guest_email)
+      second_purchase = Purchase.new(purchasable: event, user: guest_user, guest_email: guest_email)
       second_purchase.virtual_purchased = [VirtualPurchasedItem.new(resource: ticket, quantity: 2)]
       
       expect(second_purchase).to_not be_valid
