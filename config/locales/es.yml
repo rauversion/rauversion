@@ -742,6 +742,15 @@ es:
           email_placeholder: email@ejemplo.com
           role_placeholder: Seleccionar rol
           send_invitations: Enviar Invitaciones
+        add_standalone_host:
+          title: Agregar Miembro del Equipo
+          description: Agrega un miembro del equipo sin vincular a una cuenta de usuario
+          button: Agregar Anfitrión Independiente
+          name_placeholder: Ingresar nombre
+          description_placeholder: Ingresar descripción (opcional)
+          create: Crear Anfitrión
+          creating: Creando...
+          cancel: Cancelar
         roles:
           host: Anfitrión
           manager: Gestor

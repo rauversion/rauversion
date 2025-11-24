@@ -681,6 +681,15 @@ en:
           email_placeholder: email@ejemplo.com
           role_placeholder: Select role
           send_invitations: Send Invitations
+        add_standalone_host:
+          title: Add Team Member
+          description: Add a team member without linking to a user account
+          button: Add Standalone Host
+          name_placeholder: Enter name
+          description_placeholder: Enter description (optional)
+          create: Create Host
+          creating: Creating...
+          cancel: Cancel
         edit_member:
           title: Edit Team Member
           profile_image: Profile Picture

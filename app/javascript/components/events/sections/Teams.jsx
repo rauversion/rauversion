@@ -91,6 +91,9 @@ export default function Teams() {
   const [hostToEdit, setHostToEdit] = React.useState(null)
   const [isEditLoading, setIsEditLoading] = React.useState(false)
   const [previewImageUrl, setPreviewImageUrl] = React.useState(null)
+  const [showStandaloneDialog, setShowStandaloneDialog] = React.useState(false)
+  const [isStandaloneLoading, setIsStandaloneLoading] = React.useState(false)
+  const [standalonePreviewUrl, setStandalonePreviewUrl] = React.useState(null)
 
   const form = useForm({
     resolver: zodResolver(formSchema),
@@ -100,6 +103,17 @@ export default function Teams() {
   })
 
   const editForm = useForm({
+    resolver: zodResolver(hostSchema),
+    defaultValues: {
+      name: "",
+      description: "",
+      listed_on_page: false,
+      event_manager: false,
+      avatar: null
+    }
+  })
+
+  const standaloneForm = useForm({
     resolver: zodResolver(hostSchema),
     defaultValues: {
       name: "",
@@ -280,6 +294,67 @@ export default function Teams() {
     }
   }
 
+  const handleStandaloneImageUpload = async (blobId, cropData, serviceUrl) => {
+    standaloneForm.setValue('avatar', blobId)
+    setStandalonePreviewUrl(serviceUrl)
+  }
+
+  const handleStandaloneSubmit = async (data) => {
+    setIsStandaloneLoading(true)
+    try {
+      const formData = new FormData()
+      formData.append('event_host[name]', data.name)
+      formData.append('event_host[description]', data.description || '')
+      formData.append('event_host[listed_on_page]', data.listed_on_page)
+      formData.append('event_host[event_manager]', data.event_manager)
+      
+      if (data.avatar) {
+        formData.append('event_host[avatar]', data.avatar)
+      }
+
+      const response = await post(`/events/${slug}/event_hosts.json`, {
+        body: formData,
+      })
+
+      const responseData = await response.json
+
+      if (response.ok) {
+        fetchTeamData()
+        toast({
+          title: I18n.t("events.edit.teams.messages.success_title"),
+          description: I18n.t('events.edit.teams.messages.update_success'),
+        })
+        setShowStandaloneDialog(false)
+        standaloneForm.reset()
+        setStandalonePreviewUrl(null)
+      } else {
+        if (responseData.errors) {
+          Object.keys(responseData.errors).forEach(key => {
+            standaloneForm.setError(key, {
+              type: 'server',
+              message: responseData.errors[key][0]
+            })
+          })
+        }
+        
+        toast({
+          title: I18n.t("events.edit.teams.messages.error_title"),
+          description: responseData.message || I18n.t('events.edit.teams.messages.update_error'),
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+      console.error('Error creating standalone host:', error)
+      toast({
+        title: I18n.t("events.edit.teams.messages.error_title"),
+        description: I18n.t('events.edit.teams.messages.update_error'),
+        variant: "destructive",
+      })
+    } finally {
+      setIsStandaloneLoading(false)
+    }
+  }
+
   React.useEffect(() => {
     if (hostToEdit) {
       editForm.reset({
@@ -385,15 +460,26 @@ export default function Teams() {
                 {I18n.t('events.edit.teams.add_members.description')}
               </CardDescription>
             </div>
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={addTeamMember}
-            >
-              <UserPlus className="h-4 w-4 mr-2" />
-              {I18n.t('events.edit.teams.add_members.add_person')}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setShowStandaloneDialog(true)}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                {I18n.t('events.edit.teams.add_standalone_host.button')}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addTeamMember}
+              >
+                <UserPlus className="h-4 w-4 mr-2" />
+                {I18n.t('events.edit.teams.add_members.add_person')}
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -626,6 +712,149 @@ export default function Teams() {
                     </>
                   ) : (
                     I18n.t('events.edit.teams.edit_member.save')
+                  )}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showStandaloneDialog} onOpenChange={(open) => {
+        if (!open) {
+          setShowStandaloneDialog(false)
+          standaloneForm.reset()
+          setStandalonePreviewUrl(null)
+        }
+      }}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{I18n.t('events.edit.teams.add_standalone_host.title')}</DialogTitle>
+          </DialogHeader>
+          <Form {...standaloneForm}>
+            <form onSubmit={standaloneForm.handleSubmit(handleStandaloneSubmit)} className="space-y-4">
+              <div className="space-y-4">
+                <FormField
+                  control={standaloneForm.control}
+                  name="avatar"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{I18n.t('events.edit.teams.edit_member.profile_image')}</FormLabel>
+                      <FormControl>
+                        <ImageUploader
+                          onUploadComplete={handleStandaloneImageUpload}
+                          imageUrl={standalonePreviewUrl}
+                          aspectRatio={1}
+                          maxSize={10}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={standaloneForm.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{I18n.t('events.edit.teams.edit_member.name.label')}</FormLabel>
+                      <FormControl>
+                        <Input 
+                          {...field} 
+                          placeholder={I18n.t('events.edit.teams.add_standalone_host.name_placeholder')}
+                          disabled={isStandaloneLoading} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={standaloneForm.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{I18n.t('events.edit.teams.edit_member.description')}</FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          {...field} 
+                          placeholder={I18n.t('events.edit.teams.add_standalone_host.description_placeholder')}
+                          disabled={isStandaloneLoading} 
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={standaloneForm.control}
+                  name="listed_on_page"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                      <div className="space-y-0.5">
+                        <FormLabel>{I18n.t('events.edit.teams.edit_member.listed.label')}</FormLabel>
+                        <FormDescription>
+                          {I18n.t('events.edit.teams.edit_member.listed.description')}
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          disabled={isStandaloneLoading}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={standaloneForm.control}
+                  name="event_manager"
+                  render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                      <div className="space-y-0.5">
+                        <FormLabel>{I18n.t('events.edit.teams.edit_member.manager.label')}</FormLabel>
+                        <FormDescription>
+                          {I18n.t('events.edit.teams.edit_member.manager.description')}
+                        </FormDescription>
+                      </div>
+                      <FormControl>
+                        <Switch
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                          disabled={isStandaloneLoading}
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="flex justify-end space-x-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    setShowStandaloneDialog(false)
+                    standaloneForm.reset()
+                    setStandalonePreviewUrl(null)
+                  }}
+                  disabled={isStandaloneLoading}
+                >
+                  {I18n.t('events.edit.teams.add_standalone_host.cancel')}
+                </Button>
+                <Button type="submit" disabled={isStandaloneLoading}>
+                  {isStandaloneLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {I18n.t('events.edit.teams.add_standalone_host.creating')}
+                    </>
+                  ) : (
+                    I18n.t('events.edit.teams.add_standalone_host.create')
                   )}
                 </Button>
               </div>
