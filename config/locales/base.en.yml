@@ -216,4 +216,8 @@ en:
       short: "%d %b %H:%M"
       long_with_day: "%d %B %Y"
       event_long_with_zone: "%B %d, %Y %I:%M %p %Z"
-    pm: pm
+    pm: pm  events:
+    date_formatting:
+      from_time: "from"
+      to_time: "to"
+      until_date: "until"

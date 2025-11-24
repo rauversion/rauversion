@@ -3,6 +3,8 @@ require "rails_helper"
 RSpec.describe EventsHelper, type: :helper do
   describe "#event_dates_formatted" do
     let(:timezone) { "America/Santiago" }
+    # Use a fixed date to ensure consistent test results
+    let(:base_date) { Time.zone.parse("2024-12-12 00:00:00") }
     
     context "when event_start is nil" do
       it "returns nil" do
@@ -13,7 +15,7 @@ RSpec.describe EventsHelper, type: :helper do
     
     context "when event is single day (no end date)" do
       it "returns just the start date formatted" do
-        start_time = Time.zone.parse("2024-12-12 21:00:00")
+        start_time = base_date + 21.hours
         
         result = helper.event_dates_formatted(start_time, nil, timezone)
         
@@ -26,8 +28,8 @@ RSpec.describe EventsHelper, type: :helper do
     
     context "when event starts and ends on same day" do
       it "returns just the date without times" do
-        start_time = Time.zone.parse("2024-12-12 14:00:00")
-        end_time = Time.zone.parse("2024-12-12 18:00:00")
+        start_time = base_date + 14.hours
+        end_time = base_date + 18.hours
         
         result = helper.event_dates_formatted(start_time, end_time, timezone)
         
@@ -43,12 +45,13 @@ RSpec.describe EventsHelper, type: :helper do
     context "when event spans two days but ends in early morning (before 6 AM)" do
       it "formats as single day with time range" do
         # Friday 9 PM to Saturday 1 AM
-        start_time = Time.zone.parse("2024-12-12 21:00:00")
-        end_time = Time.zone.parse("2024-12-13 01:00:00")
+        start_time = base_date + 21.hours
+        end_time = base_date + 1.day + 1.hour
         
         result = helper.event_dates_formatted(start_time, end_time, timezone)
         
-        # Should show: "12 de diciembre desde las 21:00 hasta las 01:00"
+        # Should show: "12 de diciembre desde las 21:00 hasta las 01:00" or 
+        # "December 12, 2024 from 21:00 to 01:00"
         expect(result).to include("12")
         expect(result).to match(/diciembre|December/)
         expect(result).to include("21:00")
@@ -56,12 +59,12 @@ RSpec.describe EventsHelper, type: :helper do
         expect(result).to match(/desde las|from/)
         expect(result).to match(/hasta las|to/)
         # Should NOT show the 13th as a separate date
-        expect(result).not_to include("13 de")
+        expect(result).not_to include("13")
       end
       
       it "handles events ending at 5:59 AM as early morning" do
-        start_time = Time.zone.parse("2024-12-12 22:00:00")
-        end_time = Time.zone.parse("2024-12-13 05:59:00")
+        start_time = base_date + 22.hours
+        end_time = base_date + 1.day + 5.hours + 59.minutes
         
         result = helper.event_dates_formatted(start_time, end_time, timezone)
         
@@ -75,12 +78,13 @@ RSpec.describe EventsHelper, type: :helper do
     context "when event genuinely spans multiple days" do
       it "formats with both dates and times when ending after 6 AM" do
         # Friday 9 PM to Saturday 7 PM
-        start_time = Time.zone.parse("2024-12-12 21:00:00")
-        end_time = Time.zone.parse("2024-12-13 19:00:00")
+        start_time = base_date + 21.hours
+        end_time = base_date + 1.day + 19.hours
         
         result = helper.event_dates_formatted(start_time, end_time, timezone)
         
-        # Should show: "12 de diciembre 21:00 hasta el 13 de diciembre 19:00"
+        # Should show: "12 de diciembre 21:00 hasta el 13 de diciembre 19:00" or
+        # "December 12, 2024 21:00 until December 13, 2024 19:00"
         expect(result).to include("12")
         expect(result).to include("13")
         expect(result).to include("21:00")
@@ -90,8 +94,8 @@ RSpec.describe EventsHelper, type: :helper do
       
       it "handles events spanning more than one day" do
         # Event from Monday to Wednesday
-        start_time = Time.zone.parse("2024-12-09 09:00:00")
-        end_time = Time.zone.parse("2024-12-11 17:00:00")
+        start_time = base_date - 3.days + 9.hours
+        end_time = base_date - 1.day + 17.hours
         
         result = helper.event_dates_formatted(start_time, end_time, timezone)
         
@@ -104,8 +108,8 @@ RSpec.describe EventsHelper, type: :helper do
     
     context "with different timezones" do
       it "correctly applies timezone conversion" do
-        start_time = Time.zone.parse("2024-12-12 21:00:00 UTC")
-        end_time = Time.zone.parse("2024-12-13 02:00:00 UTC")
+        start_time = base_date + 21.hours
+        end_time = base_date + 1.day + 2.hours
         
         # America/Santiago is UTC-3 (or UTC-4 depending on DST)
         result = helper.event_dates_formatted(start_time, end_time, "America/Santiago")

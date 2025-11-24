@@ -50,7 +50,10 @@ module EventsHelper
     start_hour = start_time.strftime("%H:%M")
     end_hour = end_time.strftime("%H:%M")
     
-    "#{date_str} desde las #{start_hour} hasta las #{end_hour}"
+    from_text = I18n.t('events.date_formatting.from_time')
+    to_text = I18n.t('events.date_formatting.to_time')
+    
+    "#{date_str} #{from_text} #{start_hour} #{to_text} #{end_hour}"
   end
   
   # Format for genuine multi-day events (e.g., "12 de diciembre 21:00 hasta el 13 de diciembre 19:00")
@@ -60,6 +63,8 @@ module EventsHelper
     end_date = I18n.l(end_time.to_date, format: :long)
     end_hour = end_time.strftime("%H:%M")
     
-    "#{start_date} #{start_hour} hasta el #{end_date} #{end_hour}"
+    until_text = I18n.t('events.date_formatting.until_date')
+    
+    "#{start_date} #{start_hour} #{until_text} #{end_date} #{end_hour}"
   end
 end
