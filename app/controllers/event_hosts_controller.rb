@@ -84,7 +84,8 @@ class EventHostsController < ApplicationController
 
   def create_single_host
     @event_host = @event.event_hosts.new(event_host_params)
-    @event_host.invite_user
+    # Only invite user if email is provided
+    @event_host.invite_user if @event_host.email.present?
 
     respond_to do |format|
       if @event_host.save
