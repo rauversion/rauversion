@@ -654,11 +654,14 @@ export default function Tickets() {
                                   <Input 
                                     type="number" 
                                     min="0" 
-                                    placeholder="0 = sin límite"
+                                    placeholder="0"
                                     {...field} 
                                     value={field.value || ""} 
                                   />
                                 </FormControl>
+                                <FormDescription>
+                                  {I18n.t('events.edit.tickets.form.max_tickets_per_user.description')}
+                                </FormDescription>
                                 <FormMessage />
                               </FormItem>
                             )}
