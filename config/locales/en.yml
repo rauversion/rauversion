@@ -678,7 +678,7 @@ en:
           title: Add Members to the Team
           description: Invite new people to help manage your event
           add_person: Add Person
-          email_placeholder: email@ejemplo.com
+          email_placeholder: email@example.com
           role_placeholder: Select role
           send_invitations: Send Invitations
         add_standalone_host:
