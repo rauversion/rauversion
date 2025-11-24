@@ -61,6 +61,7 @@ const ticketSchema = z.object({
   }, z.date().nullable()),
   min_tickets_per_order: z.coerce.number().min(1).default(1),
   max_tickets_per_order: z.coerce.number().min(1).default(1),
+  max_tickets_per_user: z.coerce.number().min(0).optional(),
   requires_shipping: z.boolean().default(false),
   show_remaining_count: z.boolean().default(true),
   show_sell_until: z.boolean().default(false),
@@ -182,6 +183,7 @@ export default function Tickets() {
             selling_end: formatDateSafely(ticket.selling_end),
             min_tickets_per_order: ticket.settings.min_tickets_per_order,
             max_tickets_per_order: ticket.settings.max_tickets_per_order,
+            max_tickets_per_user: ticket.settings.max_tickets_per_user || null,
             requires_shipping: ticket.requires_shipping,
             show_remaining_count: ticket.show_remaining_count,
             show_sell_until: ticket.settings.show_sell_until,
@@ -232,6 +234,7 @@ export default function Tickets() {
       selling_end: new Date(),
       min_tickets_per_order: 1,
       max_tickets_per_order: 1,
+      max_tickets_per_user: null,
       requires_shipping: false,
       show_remaining_count: true,
       show_sell_until: false,
@@ -612,7 +615,7 @@ export default function Tickets() {
                         </div>
 
                         {/* Order Limits */}
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-3 gap-4">
                           <FormField
                             control={form.control}
                             name={`tickets.${index}.min_tickets_per_order`}
@@ -635,6 +638,26 @@ export default function Tickets() {
                                 <FormLabel>{I18n.t('events.edit.tickets.form.max_tickets_per_order.label')}</FormLabel>
                                 <FormControl>
                                   <Input type="number" min="1" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name={`tickets.${index}.max_tickets_per_user`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>{I18n.t('events.edit.tickets.form.max_tickets_per_user.label')}</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    type="number" 
+                                    min="0" 
+                                    placeholder="0 = sin límite"
+                                    {...field} 
+                                    value={field.value || ""} 
+                                  />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>

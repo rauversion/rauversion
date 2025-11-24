@@ -315,6 +315,9 @@ en:
             label: Min Tickets per Order
           max_tickets_per_order:
             label: Max Tickets per Order
+          max_tickets_per_user:
+            label: Max Tickets per Person
+            description: Maximum total tickets a person can purchase across all orders (0 = unlimited)
           show_sell_until:
             label: Show sell until
             description: Show the Sell Until date on the event page
