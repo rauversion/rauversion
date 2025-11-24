@@ -136,7 +136,7 @@ export default function Teams() {
       setEvent(data.event)
       setCurrentTeam(data.event_hosts || [])
       setPendingInvites(data.pending_invites || [])
-      
+
       form.reset({
         team_members: []
       })
@@ -244,7 +244,7 @@ export default function Teams() {
       formData.append('event_host[description]', data.description || '')
       formData.append('event_host[listed_on_page]', data.listed_on_page)
       formData.append('event_host[event_manager]', data.event_manager)
-      
+
       if (data.avatar) {
         formData.append('event_host[avatar]', data.avatar)
       }
@@ -256,8 +256,8 @@ export default function Teams() {
       const responseData = await response.json
 
       if (response.ok) {
-        setCurrentTeam(team => 
-          team.map(member => 
+        setCurrentTeam(team =>
+          team.map(member =>
             member.id === hostToEdit.id ? { ...member, ...responseData.event_host } : member
           )
         )
@@ -275,7 +275,7 @@ export default function Teams() {
             })
           })
         }
-        
+
         toast({
           title: I18n.t("events.edit.teams.messages.error_title"),
           description: responseData.message || I18n.t('events.edit.teams.messages.update_error'),
@@ -307,7 +307,7 @@ export default function Teams() {
       formData.append('event_host[description]', data.description || '')
       formData.append('event_host[listed_on_page]', data.listed_on_page)
       formData.append('event_host[event_manager]', data.event_manager)
-      
+
       if (data.avatar) {
         formData.append('event_host[avatar]', data.avatar)
       }
@@ -336,7 +336,7 @@ export default function Teams() {
             })
           })
         }
-        
+
         toast({
           title: I18n.t("events.edit.teams.messages.error_title"),
           description: responseData.message || I18n.t('events.edit.teams.messages.update_error'),
@@ -397,6 +397,18 @@ export default function Teams() {
                       {member.description && (
                         <p className="text-sm text-muted-foreground mt-1">{member.description}</p>
                       )}
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {member.listed_on_page && (
+                          <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+                            {I18n.t('events.edit.teams.edit_member.listed.label')}
+                          </span>
+                        )}
+                        <span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800">
+                          {member.event_manager
+                            ? I18n.t('events.edit.teams.roles.manager')
+                            : I18n.t('events.edit.teams.roles.host')}
+                        </span>
+                      </div>
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -503,10 +515,10 @@ export default function Teams() {
                           render={({ field }) => (
                             <FormItem>
                               <FormControl>
-                                <Input 
-                                  type="email" 
+                                <Input
+                                  type="email"
                                   placeholder={I18n.t('events.edit.teams.add_members.email_placeholder')}
-                                  {...field} 
+                                  {...field}
                                 />
                               </FormControl>
                               <FormMessage />
@@ -521,8 +533,8 @@ export default function Teams() {
                           render={({ field }) => (
                             <FormItem>
                               <FormControl>
-                                <Select 
-                                  onValueChange={field.onChange} 
+                                <Select
+                                  onValueChange={field.onChange}
                                   defaultValue={field.value}
                                 >
                                   <FormControl>
@@ -532,8 +544,8 @@ export default function Teams() {
                                   </FormControl>
                                   <SelectContent>
                                     {roleOptions.map((role) => (
-                                      <SelectItem 
-                                        key={role.value} 
+                                      <SelectItem
+                                        key={role.value}
                                         value={role.value}
                                       >
                                         {role.label}
@@ -760,10 +772,10 @@ export default function Teams() {
                     <FormItem>
                       <FormLabel>{I18n.t('events.edit.teams.edit_member.name.label')}</FormLabel>
                       <FormControl>
-                        <Input 
-                          {...field} 
+                        <Input
+                          {...field}
                           placeholder={I18n.t('events.edit.teams.add_standalone_host.name_placeholder')}
-                          disabled={isStandaloneLoading} 
+                          disabled={isStandaloneLoading}
                         />
                       </FormControl>
                       <FormMessage />
@@ -778,10 +790,10 @@ export default function Teams() {
                     <FormItem>
                       <FormLabel>{I18n.t('events.edit.teams.edit_member.description')}</FormLabel>
                       <FormControl>
-                        <Textarea 
-                          {...field} 
+                        <Textarea
+                          {...field}
                           placeholder={I18n.t('events.edit.teams.add_standalone_host.description_placeholder')}
-                          disabled={isStandaloneLoading} 
+                          disabled={isStandaloneLoading}
                         />
                       </FormControl>
                       <FormMessage />
