@@ -10,9 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_25_024605) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_25_040029) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+  enable_extension "vector"
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.string "name", null: false
@@ -507,6 +508,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_25_024605) do
     t.datetime "generated_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "prompt"
     t.index ["generated_at"], name: "index_playlist_gen_playlists_on_generated_at"
     t.index ["status"], name: "index_playlist_gen_playlists_on_status"
   end
@@ -524,7 +526,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_25_024605) do
     t.string "external_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.vector "embedding", limit: 1536
     t.index ["bpm"], name: "index_playlist_gen_tracks_on_bpm"
+    t.index ["embedding"], name: "index_playlist_gen_tracks_on_embedding", opclass: :vector_cosine_ops, using: :ivfflat
     t.index ["energy"], name: "index_playlist_gen_tracks_on_energy"
     t.index ["external_id", "source"], name: "index_playlist_gen_tracks_on_external_id_and_source", unique: true
     t.index ["genre"], name: "index_playlist_gen_tracks_on_genre"
