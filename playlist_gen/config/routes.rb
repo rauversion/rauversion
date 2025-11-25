@@ -8,6 +8,17 @@ PlaylistGen::Engine.routes.draw do
         end
       end
       post "sets/generate", to: "sets#generate"
+      
+      # Tracks and genre classification
+      resources :tracks, only: [:index] do
+        member do
+          post :classify
+        end
+        collection do
+          post :classify_batch
+          get :stats
+        end
+      end
     end
   end
 end
