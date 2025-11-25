@@ -150,19 +150,17 @@ export default function PlaylistGenPage() {
       formData.append("file", file)
       formData.append("source", "rekordbox")
 
-      const response = await fetch("/playlist_gen/api/v1/library_uploads", {
-        method: "POST",
-        body: formData,
-        headers: {
-          Accept: "application/json",
-        },
+      const response = await post("/playlist_gen/api/v1/library_uploads", {
+        body: formData as any,
+        contentType: false,
+        responseKind: "json",
       })
 
       if (!response.ok) {
         throw new Error("Upload failed")
       }
 
-      return response.json() as Promise<LibraryUpload>
+      return response.json as LibraryUpload
     },
     onSuccess: (data) => {
       setCurrentUploadId(data.id)
@@ -194,7 +192,7 @@ export default function PlaylistGenPage() {
       })
 
       if (!response.ok) {
-        const errorData = await response.json
+        const errorData = response.json
         throw new Error(errorData?.error || "Generation failed")
       }
 
