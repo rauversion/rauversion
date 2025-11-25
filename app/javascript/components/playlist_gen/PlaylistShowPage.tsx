@@ -24,6 +24,7 @@ import {
   MoreHorizontal,
   Music,
   Play,
+  ChevronDown,
 } from "lucide-react"
 
 interface Track {
@@ -74,6 +75,14 @@ export default function PlaylistShowPage() {
 
   const handleExportM3U = () => {
     window.location.href = `/playlist_gen/api/v1/playlists/${id}/export_m3u`
+  }
+
+  const handleExportRekordbox = () => {
+    window.location.href = `/playlist_gen/api/v1/playlists/${id}/export_rekordbox`
+  }
+
+  const handleExportTraktor = () => {
+    window.location.href = `/playlist_gen/api/v1/playlists/${id}/export_traktor`
   }
 
   const openFileLocation = (filePath: string | null) => {
@@ -141,10 +150,31 @@ export default function PlaylistShowPage() {
           )}
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={handleExportM3U}>
-            <Download className="mr-2 h-4 w-4" />
-            Export M3U
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                <Download className="mr-2 h-4 w-4" />
+                Export Playlist
+                <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel>Export Formats</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleExportM3U}>
+                <FileAudio className="mr-2 h-4 w-4" />
+                M3U Playlist (.m3u)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportRekordbox}>
+                <Music className="mr-2 h-4 w-4" />
+                Rekordbox XML (.xml)
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleExportTraktor}>
+                <Music className="mr-2 h-4 w-4" />
+                Traktor NML (.nml)
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 

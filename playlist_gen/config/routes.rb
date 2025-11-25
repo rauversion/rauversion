@@ -5,6 +5,8 @@ PlaylistGen::Engine.routes.draw do
       resources :playlists, only: [:index, :show] do
         member do
           get :export_m3u
+          get :export_rekordbox
+          get :export_traktor
         end
       end
       post "sets/generate", to: "sets#generate"
