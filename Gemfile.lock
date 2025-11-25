@@ -94,6 +94,12 @@ PATH
     backstage (0.1.0)
       rails (>= 7.1.3.2)
 
+PATH
+  remote: playlist_gen
+  specs:
+    playlist_gen (0.1.0)
+      rails (>= 7.1.3.2)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -774,6 +780,7 @@ DEPENDENCIES
   paranoia
   pg (~> 1.1)
   pg_search
+  playlist_gen!
   pry
   pry-nav
   puma

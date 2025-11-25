@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_11_24_005937) do
+ActiveRecord::Schema[8.0].define(version: 2025_11_25_024605) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -471,6 +471,63 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_24_005937) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["plain_conversation_id"], name: "index_plain_messages_on_plain_conversation_id"
+  end
+
+  create_table "playlist_gen_library_uploads", force: :cascade do |t|
+    t.string "status", default: "pending", null: false
+    t.string "source", null: false
+    t.text "error_message"
+    t.integer "total_tracks_imported"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["source"], name: "index_playlist_gen_library_uploads_on_source"
+    t.index ["status"], name: "index_playlist_gen_library_uploads_on_status"
+  end
+
+  create_table "playlist_gen_playlist_tracks", force: :cascade do |t|
+    t.bigint "playlist_id", null: false
+    t.bigint "track_id", null: false
+    t.integer "position", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["playlist_id", "position"], name: "index_playlist_gen_playlist_tracks_on_playlist_id_and_position"
+    t.index ["playlist_id", "track_id"], name: "index_playlist_gen_playlist_tracks_on_playlist_id_and_track_id", unique: true
+    t.index ["playlist_id"], name: "index_playlist_gen_playlist_tracks_on_playlist_id"
+    t.index ["track_id"], name: "index_playlist_gen_playlist_tracks_on_track_id"
+  end
+
+  create_table "playlist_gen_playlists", force: :cascade do |t|
+    t.string "name", null: false
+    t.integer "duration_seconds"
+    t.decimal "bpm_min", precision: 5, scale: 2
+    t.decimal "bpm_max", precision: 5, scale: 2
+    t.string "energy_curve"
+    t.integer "total_tracks"
+    t.string "status", default: "draft", null: false
+    t.datetime "generated_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["generated_at"], name: "index_playlist_gen_playlists_on_generated_at"
+    t.index ["status"], name: "index_playlist_gen_playlists_on_status"
+  end
+
+  create_table "playlist_gen_tracks", force: :cascade do |t|
+    t.string "title", null: false
+    t.string "artist"
+    t.decimal "bpm", precision: 5, scale: 2
+    t.string "key"
+    t.string "genre"
+    t.integer "energy"
+    t.integer "duration_seconds"
+    t.string "file_path"
+    t.string "source"
+    t.string "external_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["bpm"], name: "index_playlist_gen_tracks_on_bpm"
+    t.index ["energy"], name: "index_playlist_gen_tracks_on_energy"
+    t.index ["external_id", "source"], name: "index_playlist_gen_tracks_on_external_id_and_source", unique: true
+    t.index ["genre"], name: "index_playlist_gen_tracks_on_genre"
   end
 
   create_table "playlists", force: :cascade do |t|
@@ -1103,6 +1160,8 @@ ActiveRecord::Schema[8.0].define(version: 2025_11_24_005937) do
   add_foreign_key "participants", "users"
   add_foreign_key "photos", "users"
   add_foreign_key "plain_messages", "plain_conversations"
+  add_foreign_key "playlist_gen_playlist_tracks", "playlist_gen_playlists", column: "playlist_id"
+  add_foreign_key "playlist_gen_playlist_tracks", "playlist_gen_tracks", column: "track_id"
   add_foreign_key "playlists", "users"
   add_foreign_key "podcaster_hosts", "podcaster_infos"
   add_foreign_key "podcaster_hosts", "users"
