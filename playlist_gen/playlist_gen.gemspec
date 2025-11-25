@@ -17,4 +17,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency "rails", ">= 8.0.0"
   spec.add_dependency "nokogiri"
   spec.add_dependency "neighbor"
+  spec.add_dependency "ruby-openai"
 end
