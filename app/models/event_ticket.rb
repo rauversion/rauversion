@@ -17,6 +17,7 @@ class EventTicket < ApplicationRecord
   store_accessor :settings, :hidden, :boolean
   store_accessor :settings, :max_tickets_per_order, :integer
   store_accessor :settings, :min_tickets_per_order, :integer
+  store_accessor :settings, :max_tickets_per_user, :integer
   store_accessor :settings, :sales_channel, :string
   store_accessor :settings, :after_purchase_message, :string
   store_accessor :settings, :pay_what_you_want, :boolean

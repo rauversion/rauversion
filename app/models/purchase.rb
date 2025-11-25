@@ -70,6 +70,26 @@ class Purchase < ApplicationRecord
     if ticket.max_tickets_per_order.present? && purchased_item.quantity > ticket.max_tickets_per_order.to_i
       errors.add(:base, "Ticket ID #{ticket.id} allows a maximum of #{ticket.settings["max_tickets_per_order"]} tickets per order.")
     end
+
+    # Check if the user has exceeded their total ticket limit across all purchases (max_tickets_per_user)
+    if ticket.max_tickets_per_user.present? && ticket.max_tickets_per_user.to_i > 0
+      # Get the user_id for the purchase (either current user or find by guest_email)
+      purchase_user_id = user_id
+      purchase_email = user&.email || guest_email
+      
+      # Count all paid tickets for this ticket type for this user/email
+      # We need to check both user_id and guest_email to handle both logged in and guest purchases
+      user_purchased_count = PurchasedItem.joins(:purchase)
+        .where(purchased_item_type: "EventTicket", purchased_item_id: ticket.id, state: "paid")
+        .where("purchases.user_id = ? OR purchases.guest_email = ?", purchase_user_id, purchase_email)
+        .count
+      
+      # Check if adding this quantity would exceed the limit
+      if user_purchased_count + purchased_item.quantity > ticket.max_tickets_per_user.to_i
+        available = ticket.max_tickets_per_user.to_i - user_purchased_count
+        errors.add(:base, "You have reached the maximum limit of #{ticket.max_tickets_per_user} tickets per person for '#{ticket.title}'. You already have #{user_purchased_count} ticket(s) and can only purchase #{available} more.")
+      end
+    end
   end
 
   def store_items

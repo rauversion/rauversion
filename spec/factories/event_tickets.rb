@@ -12,5 +12,17 @@ FactoryBot.define do
     event { nil }
     created_at { "2023-07-26 18:20:42" }
     updated_at { "2023-07-26 18:20:42" }
+
+    transient do
+      min_tickets_per_order { nil }
+      max_tickets_per_order { nil }
+      max_tickets_per_user { nil }
+    end
+
+    after(:build) do |event_ticket, evaluator|
+      event_ticket.min_tickets_per_order = evaluator.min_tickets_per_order if evaluator.min_tickets_per_order
+      event_ticket.max_tickets_per_order = evaluator.max_tickets_per_order if evaluator.max_tickets_per_order
+      event_ticket.max_tickets_per_user = evaluator.max_tickets_per_user if evaluator.max_tickets_per_user
+    end
   end
 end

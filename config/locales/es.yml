@@ -345,6 +345,9 @@ es:
             label: Mín. Entradas por Orden
           max_tickets_per_order:
             label: Máx. Entradas por Orden
+          max_tickets_per_user:
+            label: Máx. Entradas por Persona
+            description: Máximo total de entradas que una persona puede comprar en todas sus compras (0 = sin límite)
           show_sell_until:
             label: Mostrar venta hasta
             description: Mostrar la fecha de venta hasta en la página del evento

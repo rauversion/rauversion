@@ -94,6 +94,92 @@ RSpec.describe Purchase, type: :model do
       # expect(purchase.purchased_items.size).to eq(3)
     end
 
+    it "validates max_tickets_per_user across all purchases" do
+      # Create a ticket with a limit of 3 tickets per user total
+      ticket = FactoryBot.create(:event_ticket, event: event, qty: 100, max_tickets_per_user: 3)
+      
+      # First purchase: buy 2 tickets
+      first_purchase = user.purchases.create!(purchasable: event)
+      first_purchase.virtual_purchased = [VirtualPurchasedItem.new(resource: ticket, quantity: 2)]
+      first_purchase.store_items
+      first_purchase.save!
+      # Mark as paid to count towards limit
+      first_purchase.purchased_items.update_all(state: "paid")
+      
+      # Second purchase: try to buy 2 more tickets (should fail because user already has 2)
+      second_purchase = user.purchases.new(purchasable: event)
+      second_purchase.virtual_purchased = [VirtualPurchasedItem.new(resource: ticket, quantity: 2)]
+      
+      expect(second_purchase).to_not be_valid
+      expect(second_purchase.errors.full_messages.join(" ")).to include("maximum limit of 3 tickets per person")
+      expect(second_purchase.errors.full_messages.join(" ")).to include("already have 2 ticket(s)")
+      
+      # Should allow buying 1 more ticket (total 3)
+      third_purchase = user.purchases.new(purchasable: event)
+      third_purchase.virtual_purchased = [VirtualPurchasedItem.new(resource: ticket, quantity: 1)]
+      expect(third_purchase).to be_valid
+    end
+
+    it "validates max_tickets_per_user for guest purchases by email" do
+      # Create a ticket with a limit of 2 tickets per user total
+      ticket = FactoryBot.create(:event_ticket, event: event, qty: 100, max_tickets_per_user: 2)
+      guest_email = "guest@example.com"
+      
+      # Create a guest user for this email
+      guest_user = FactoryBot.create(:user, email: guest_email)
+      
+      # First purchase as guest
+      first_purchase = Purchase.create!(purchasable: event, user: guest_user, guest_email: guest_email)
+      first_purchase.virtual_purchased = [VirtualPurchasedItem.new(resource: ticket, quantity: 1)]
+      first_purchase.store_items
+      first_purchase.save!
+      # Mark as paid to count towards limit
+      first_purchase.purchased_items.update_all(state: "paid")
+      
+      # Second purchase with same email: try to buy 2 more tickets (should fail)
+      second_purchase = Purchase.new(purchasable: event, user: guest_user, guest_email: guest_email)
+      second_purchase.virtual_purchased = [VirtualPurchasedItem.new(resource: ticket, quantity: 2)]
+      
+      expect(second_purchase).to_not be_valid
+      expect(second_purchase.errors.full_messages.join(" ")).to include("maximum limit of 2 tickets per person")
+    end
+
+    it "allows unlimited tickets when max_tickets_per_user is not set" do
+      # Create a ticket without max_tickets_per_user limit
+      ticket = FactoryBot.create(:event_ticket, event: event, qty: 100)
+      
+      # First purchase: buy 5 tickets
+      first_purchase = user.purchases.create!(purchasable: event)
+      first_purchase.virtual_purchased = [VirtualPurchasedItem.new(resource: ticket, quantity: 5)]
+      first_purchase.store_items
+      first_purchase.save!
+      first_purchase.purchased_items.update_all(state: "paid")
+      
+      # Second purchase: buy 5 more tickets (should succeed)
+      second_purchase = user.purchases.new(purchasable: event)
+      second_purchase.virtual_purchased = [VirtualPurchasedItem.new(resource: ticket, quantity: 5)]
+      
+      expect(second_purchase).to be_valid
+    end
+
+    it "allows unlimited tickets when max_tickets_per_user is 0" do
+      # Create a ticket with max_tickets_per_user set to 0 (unlimited)
+      ticket = FactoryBot.create(:event_ticket, event: event, qty: 100, max_tickets_per_user: 0)
+      
+      # First purchase: buy 5 tickets
+      first_purchase = user.purchases.create!(purchasable: event)
+      first_purchase.virtual_purchased = [VirtualPurchasedItem.new(resource: ticket, quantity: 5)]
+      first_purchase.store_items
+      first_purchase.save!
+      first_purchase.purchased_items.update_all(state: "paid")
+      
+      # Second purchase: buy 5 more tickets (should succeed)
+      second_purchase = user.purchases.new(purchasable: event)
+      second_purchase.virtual_purchased = [VirtualPurchasedItem.new(resource: ticket, quantity: 5)]
+      
+      expect(second_purchase).to be_valid
+    end
+
     it "stores price and currency when creating purchased items for paid tickets" do
       ticket = FactoryBot.create(:event_ticket, event: event, qty: 5, price: 50.0)
       purchase = user.purchases.new(purchasable: event)
