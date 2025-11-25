@@ -21,7 +21,7 @@ RSpec.describe "PlaylistGen API V1", type: :request do
         original_filename: "collection.xml"
       )
 
-      post "/playlist_gen/api/v1/library_uploads", params: { file: file }
+      post "/playlist_gen/api/v1/library_uploads", params: { file: file, async: "false" }
 
       expect(response).to have_http_status(:created)
       json = JSON.parse(response.body)
@@ -30,6 +30,22 @@ RSpec.describe "PlaylistGen API V1", type: :request do
       expect(json["source"]).to eq("rekordbox")
       expect(json["total_tracks_imported"]).to eq(2)
       expect(PlaylistGen::Track.count).to eq(2)
+    end
+
+    it "queues background job for async processing by default" do
+      file = Rack::Test::UploadedFile.new(
+        StringIO.new(xml_content),
+        "application/xml",
+        original_filename: "collection.xml"
+      )
+
+      expect {
+        post "/playlist_gen/api/v1/library_uploads", params: { file: file }
+      }.to have_enqueued_job(PlaylistGen::XmlImportJob)
+
+      expect(response).to have_http_status(:created)
+      json = JSON.parse(response.body)
+      expect(json["status"]).to eq("pending")
     end
   end
 

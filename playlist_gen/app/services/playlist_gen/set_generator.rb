@@ -168,7 +168,11 @@ module PlaylistGen
       match = key.to_s.match(/^(\d+)([ABab])$/i)
       return [nil, nil] unless match
 
-      [match[1].to_i, match[2].upcase]
+      num = match[1].to_i
+      # Validate Camelot wheel range (1-12)
+      return [nil, nil] unless num >= 1 && num <= 12
+
+      [num, match[2].upcase]
     end
 
     def calculate_desired_energy(progress)

@@ -14,10 +14,14 @@ module PlaylistGen
 
           library_upload.save!
 
-          # Run import inline (could be async with background job)
-          Rekordbox::XmlImporter.call(library_upload)
-
-          library_upload.reload
+          # Process import asynchronously to prevent timeouts with large libraries
+          # Use async: false param to process inline (for testing or small libraries)
+          if params[:async] == "false"
+            Rekordbox::XmlImporter.call(library_upload)
+            library_upload.reload
+          else
+            XmlImportJob.perform_later(library_upload.id)
+          end
 
           render json: library_upload_json(library_upload), status: :created
         end
