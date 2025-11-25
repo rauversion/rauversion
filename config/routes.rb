@@ -94,6 +94,7 @@ Rails.application.routes.draw do
 
 
   mount Backstage::Engine => "/admin"
+  mount PlaylistGen::Engine => "/playlist_gen"
 
   #namespace :admin do
   #  root to: 'dashboard#index'
