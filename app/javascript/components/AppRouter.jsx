@@ -97,6 +97,7 @@ import NewTrack from "./tracks/NewTrack"
 import CategoryView from "./store/CategoryView"
 import { InterestAlertDemo } from "./shared/alerts"
 import PlaylistGenPage from "./playlist_gen/PlaylistGenPage"
+import PlaylistShowPage from "./playlist_gen/PlaylistShowPage"
 
 import CheckoutSuccess from "./checkout/CheckoutSuccess"
 import CheckoutFailure from "./checkout/CheckoutFailure"
@@ -318,6 +319,7 @@ function AppContent() {
           <Route path="/service_bookings/:id" element={<RequireAuth><ServiceBookingDetail /></RequireAuth>} />
           <Route path="/account_connections/new" element={<RequireAuth><AccountConnectionForm /></RequireAuth>} />
           <Route path="/set-generator" element={<RequireAuth><PlaylistGenPage /></RequireAuth>} />
+          <Route path="/set-generator/playlists/:id" element={<RequireAuth><PlaylistShowPage /></RequireAuth>} />
 
           <Route path="/:username/press-kit" element={<PressKitPage />} />
 

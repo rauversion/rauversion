@@ -105,6 +105,7 @@ gem "dotenv-rails", groups: [:development, :test]
 
 gem "ruby-openai", "~> 7.1"
 gem "qdrant-ruby", "~> 0.9.2"
+gem "neighbor"
 # gem "pgvector", "~> 0.2"
 
 # gem "plain-rails", path: "/Users/michelson/Documents/rubyonrails/plain"

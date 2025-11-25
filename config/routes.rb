@@ -46,6 +46,7 @@ Rails.application.routes.draw do
   get "/search", to: "application#render_blank"
   get "/forgot-password", to: "application#render_blank"
   get "/set-generator", to: "application#render_blank"
+  get "/set-generator/playlists/:id", to: "application#render_blank"
 
 
   # Stripe Connect routes

@@ -1,6 +1,6 @@
 module PlaylistGen
   class SetGenerator
-    attr_reader :duration_minutes, :bpm_min, :bpm_max, :genres, :energy_curve, :name
+    attr_reader :duration_minutes, :bpm_min, :bpm_max, :genres, :energy_curve, :name, :prompt
 
     ENERGY_CURVES = {
       linear_up: { start: 3, finish: 9, type: :linear },
@@ -12,13 +12,14 @@ module PlaylistGen
       new(**args).call
     end
 
-    def initialize(duration_minutes:, bpm_min:, bpm_max:, genres: [], energy_curve: :linear_up, name: "Auto Set")
+    def initialize(duration_minutes:, bpm_min:, bpm_max:, genres: [], energy_curve: :linear_up, name: "Auto Set", prompt: nil)
       @duration_minutes = duration_minutes
       @bpm_min = bpm_min.to_f
       @bpm_max = bpm_max.to_f
       @genres = Array(genres).map(&:to_s).reject(&:blank?)
       @energy_curve = energy_curve.to_sym
       @name = name
+      @prompt = prompt
     end
 
     def call
@@ -40,6 +41,20 @@ module PlaylistGen
     private
 
     def build_track_pool
+      # If prompt is provided and we have embeddings, use semantic search
+      if prompt.present?
+        begin
+          semantic_tracks = PlaylistGen::Track.search_by_prompt(prompt, limit: 100)
+          if semantic_tracks.any?
+            # Filter semantic results by BPM range
+            return semantic_tracks.by_bpm_range(bpm_min, bpm_max).to_a
+          end
+        rescue => e
+          Rails.logger.warn "Embedding search failed, falling back to traditional search: #{e.message}"
+        end
+      end
+
+      # Traditional filter-based search
       scope = PlaylistGen::Track.by_bpm_range(bpm_min, bpm_max)
       
       if genres.any?
@@ -204,7 +219,8 @@ module PlaylistGen
         energy_curve: energy_curve.to_s,
         total_tracks: tracks.size,
         status: "generated",
-        generated_at: Time.current
+        generated_at: Time.current,
+        prompt: prompt
       )
 
       tracks.each_with_index do |track, index|
