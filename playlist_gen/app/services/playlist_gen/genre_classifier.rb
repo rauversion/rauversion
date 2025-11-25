@@ -66,7 +66,7 @@ module PlaylistGen
          - "Indie Dance"
          - "Other"
 
-         Si no estás razonablemente seguro, usa "Other".
+         Si no estás razonablemente seguro, usa "".
 
       3. Si el input ya trae un género:
          - Úsalo como pista, pero corrígelo si es muy evidente que otro encaja mejor.
@@ -151,7 +151,9 @@ module PlaylistGen
     end
 
     def openai_client
-      @openai_client ||= OpenAI::Client.new
+      @openai_client ||= OpenAI::Client.new(
+        access_token: ENV.fetch("OPENAI_API_KEY")
+      )
     end
   end
 end

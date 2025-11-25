@@ -38,10 +38,9 @@ module PlaylistGen
     # Generate and store embedding
     def generate_embedding!
       return if to_embedding_text.blank?
-
       response = openai_client.embeddings(
         parameters: {
-          model: "text-embedding-3-small",
+          model: "text-embedding-ada-002",
           input: to_embedding_text
         }
       )
@@ -78,11 +77,15 @@ module PlaylistGen
     private
 
     def openai_client
-      @openai_client ||= OpenAI::Client.new
+       @openai_client ||= OpenAI::Client.new(
+        access_token: ENV.fetch("OPENAI_API_KEY")
+      )
     end
 
     def self.openai_client
-      @openai_client ||= OpenAI::Client.new
+      @openai_client ||= OpenAI::Client.new(
+        access_token: ENV.fetch("OPENAI_API_KEY")
+      )
     end
   end
 end
