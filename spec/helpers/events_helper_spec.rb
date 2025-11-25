@@ -3,8 +3,8 @@ require "rails_helper"
 RSpec.describe EventsHelper, type: :helper do
   describe "#event_dates_formatted" do
     let(:timezone) { "America/Santiago" }
-    # Use a fixed date to ensure consistent test results
-    let(:base_date) { Time.zone.parse("2024-12-12 00:00:00") }
+    # Use a fixed date in the event's timezone to ensure consistent test results
+    let(:base_date) { Time.find_zone!(timezone).parse("2024-12-12 00:00:00") }
     
     context "when event_start is nil" do
       it "returns nil" do

@@ -233,6 +233,10 @@ en:
       view_ticket: "View ticket"
       loading: "Loading your tickets..."
       load_error: "We couldn't load your tickets. Please check your purchases page."
+    date_formatting:
+      from_time: "from"
+      to_time: "to"
+      until_date: "until"
 
     edit:
       menu:
