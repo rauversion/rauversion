@@ -15,6 +15,13 @@ module PlaylistGen
     scope :by_genres, ->(genres) { where("LOWER(genre) IN (?)", genres.map(&:downcase)) }
     scope :by_energy_range, ->(min, max) { where(energy: min..max) }
     scope :by_source, ->(source) { where(source: source) }
+    scope :without_genre, -> { where(genre: [nil, "", "Other"]) }
+    scope :with_genre, -> { where.not(genre: [nil, "", "Other"]) }
+
+    # Classify genre using AI
+    def classify_genre!
+      GenreClassifier.call(self)
+    end
 
     # Generate text representation for embedding
     def to_embedding_text
