@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from "react"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useNavigate } from "react-router-dom"
 import { get, post } from "@rails/request.js"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,7 +11,7 @@ import { Slider } from "@/components/ui/slider"
 import { Badge } from "@/components/ui/badge"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Upload, Loader2, HelpCircle, Download, RefreshCw, Music, X, AlertCircle, CheckCircle } from "lucide-react"
+import { Upload, Loader2, HelpCircle, Download, RefreshCw, Music, X, AlertCircle, CheckCircle, Eye, Sparkles } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
 import {
   DropdownMenu,
@@ -53,6 +54,7 @@ interface Playlist {
   energy_curve: string
   total_tracks: number
   status: string
+  prompt: string | null
   generated_at: string
   tracks?: Track[]
 }
@@ -74,6 +76,7 @@ interface GenerateSetParams {
   bpm_max: number
   genres: string[]
   energy_curve: string
+  prompt: string
 }
 
 const ENERGY_CURVES = [
@@ -101,6 +104,7 @@ const GENRES = [
 export default function PlaylistGenPage() {
   const { toast } = useToast()
   const queryClient = useQueryClient()
+  const navigate = useNavigate()
 
   // Form state
   const [setName, setSetName] = useState("My DJ Set")
@@ -108,6 +112,7 @@ export default function PlaylistGenPage() {
   const [bpmRange, setBpmRange] = useState([122, 130])
   const [energyCurve, setEnergyCurve] = useState("linear_up")
   const [selectedGenres, setSelectedGenres] = useState<string[]>([])
+  const [prompt, setPrompt] = useState("")
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false)
   const [uploadFile, setUploadFile] = useState<File | null>(null)
   const [currentUploadId, setCurrentUploadId] = useState<number | null>(null)
@@ -222,6 +227,7 @@ export default function PlaylistGenPage() {
       bpm_max: bpmRange[1],
       genres: selectedGenres,
       energy_curve: energyCurve,
+      prompt: prompt,
     })
   }
 
@@ -420,6 +426,25 @@ export default function PlaylistGenPage() {
                 ))}
               </div>
             </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="prompt">
+                <span className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  AI Prompt (optional)
+                </span>
+              </Label>
+              <Textarea
+                id="prompt"
+                value={prompt}
+                onChange={(e) => setPrompt(e.target.value)}
+                placeholder="Describe your ideal set... e.g., 'Dark driving techno with hypnotic basslines, perfect for peak time at 3am'"
+                className="min-h-[80px]"
+              />
+              <p className="text-xs text-muted-foreground">
+                Use natural language to describe the vibe you're looking for. The AI will search for matching tracks using semantic similarity.
+              </p>
+            </div>
           </CardContent>
           <CardFooter>
             <Button
@@ -529,21 +554,31 @@ export default function PlaylistGenPage() {
                       {new Date(playlist.generated_at).toLocaleDateString()}
                     </TableCell>
                     <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
-                            Actions
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuLabel>Export</DropdownMenuLabel>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem onClick={() => handleExportM3U(playlist.id)}>
-                            <Download className="mr-2 h-4 w-4" />
-                            Download M3U
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <div className="flex items-center justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => navigate(`/set-generator/playlists/${playlist.id}`)}
+                        >
+                          <Eye className="mr-2 h-4 w-4" />
+                          View
+                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              Actions
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Export</DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuItem onClick={() => handleExportM3U(playlist.id)}>
+                              <Download className="mr-2 h-4 w-4" />
+                              Download M3U
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}

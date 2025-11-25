@@ -37,6 +37,7 @@ module PlaylistGen
             bpm_min: playlist.bpm_min.to_f,
             bpm_max: playlist.bpm_max.to_f,
             energy_curve: playlist.energy_curve,
+            prompt: playlist.prompt,
             generated_at: playlist.generated_at
           }
         end
@@ -52,6 +53,7 @@ module PlaylistGen
             energy_curve: playlist.energy_curve,
             total_tracks: playlist.total_tracks,
             status: playlist.status,
+            prompt: playlist.prompt,
             generated_at: playlist.generated_at,
             tracks: playlist.playlist_tracks.includes(:track).map do |pt|
               track_json(pt)
@@ -71,7 +73,8 @@ module PlaylistGen
             genre: track.genre,
             energy: track.energy,
             duration_seconds: track.duration_seconds,
-            duration_human: playlist_track.duration_human
+            duration_human: playlist_track.duration_human,
+            file_path: track.file_path
           }
         end
 
