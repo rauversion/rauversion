@@ -4,19 +4,21 @@ module PlaylistGen
       class TracksController < ApplicationController
         # GET /api/v1/tracks
         def index
-          tracks = Track.all
+          base_scope = Track.all
           
           # Optional filters
-          tracks = tracks.by_bpm_range(params[:bpm_min], params[:bpm_max]) if params[:bpm_min] && params[:bpm_max]
-          tracks = tracks.by_genres(params[:genres].split(",")) if params[:genres].present?
-          tracks = tracks.without_genre if params[:without_genre] == "true"
-          tracks = tracks.with_genre if params[:with_genre] == "true"
+          base_scope = base_scope.by_bpm_range(params[:bpm_min], params[:bpm_max]) if params[:bpm_min] && params[:bpm_max]
+          base_scope = base_scope.by_genres(params[:genres].split(",")) if params[:genres].present?
+          base_scope = base_scope.without_genre if params[:without_genre] == "true"
+          base_scope = base_scope.with_genre if params[:with_genre] == "true"
           
-          tracks = tracks.limit(params[:limit] || 100)
+          total_matching = base_scope.count
+          tracks = base_scope.limit(params[:limit] || 100)
 
           render json: {
             tracks: tracks.map { |t| track_json(t) },
-            total: tracks.count,
+            returned_count: tracks.size,
+            total_matching: total_matching,
             without_genre_count: Track.without_genre.count
           }
         end
@@ -65,7 +67,7 @@ module PlaylistGen
             total_tracks: Track.count,
             with_genre: Track.with_genre.count,
             without_genre: Track.without_genre.count,
-            genre_distribution: Track.where.not(genre: [nil, ""]).group(:genre).count,
+            genre_distribution: Track.with_genre.group(:genre).count,
             bpm_range: {
               min: Track.minimum(:bpm),
               max: Track.maximum(:bpm),

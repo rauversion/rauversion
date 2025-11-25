@@ -24,6 +24,8 @@ module PlaylistGen
       "Other"
     ].freeze
 
+    # Note: System prompt is in Spanish as specified by the user requirements.
+    # The prompt instructs the AI to classify tracks using DJ/curator expertise.
     SYSTEM_PROMPT = <<~PROMPT
       Eres un experto en música electrónica y en catálogos de DJ (Beatport, Bandcamp, Discogs, Juno, etc.). 
       Tu tarea es CLASIFICAR el género de un track usando únicamente sus metadatos: título, artista, BPM, tonalidad, ruta de archivo y cualquier pista contenida en el nombre de la carpeta o release.
@@ -86,7 +88,7 @@ module PlaylistGen
       tracks = Track.where(genre: [nil, "", "Other"]).limit(limit)
       results = []
       
-      tracks.find_each do |track|
+      tracks.each do |track|
         result = call(track)
         results << { track_id: track.id, result: result }
       end
