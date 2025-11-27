@@ -143,9 +143,9 @@ class Purchase < ApplicationRecord
   end
 
   def app_fee
-    # If the purchasable is an Event with a custom_fee, use it; otherwise, fall back to env var
-    if purchasable.is_a?(Event) && purchasable.custom_fee.present?
-      purchasable.custom_fee.to_i
+    # If the purchasable is an Event, use its effective_fee; otherwise, fall back to env var
+    if purchasable.is_a?(Event)
+      purchasable.effective_fee
     else
       ENV['PLATFORM_EVENTS_FEE'].to_i
     end
