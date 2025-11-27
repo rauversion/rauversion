@@ -56,6 +56,7 @@ class Event < ApplicationRecord
   store_accessor :event_settings, :show_attendees, :boolean, default: true
   store_accessor :event_settings, :social_sharing, :boolean, default: true
   store_accessor :event_settings, :require_login, :boolean, default: false
+  store_accessor :event_settings, :custom_fee, :integer
 
 
   scope :drafts, -> { where(state: "draft") }
@@ -215,5 +216,15 @@ class Event < ApplicationRecord
 
   def unlisted?
     visibility == 'unlisted'
+  end
+
+  # Returns the effective fee percentage for this event.
+  # Uses custom_fee if set, otherwise falls back to the PLATFORM_EVENTS_FEE env var (default 10%).
+  def effective_fee
+    if custom_fee.present?
+      custom_fee.to_i
+    else
+      ENV.fetch('PLATFORM_EVENTS_FEE', 10).to_i
+    end
   end
 end

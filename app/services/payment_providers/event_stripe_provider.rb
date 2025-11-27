@@ -88,7 +88,8 @@ module PaymentProviders
     end
 
     def calculate_fee(total)
-      fee_percentage = ENV.fetch('PLATFORM_EVENTS_FEE', 10).to_f / 100.0
+      # Use event's custom_fee if set, otherwise fall back to env var
+      fee_percentage = event.effective_fee.to_f / 100.0
       (total * fee_percentage).to_i
     end
 
