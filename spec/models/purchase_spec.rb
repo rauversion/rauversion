@@ -137,4 +137,43 @@ RSpec.describe Purchase, type: :model do
       # expect(enqueued_jobs.map { |j| j[:job] }).to include(ActionMailer::MailDeliveryJob)
     end
   end
+
+  describe "#app_fee" do
+    let!(:user) { FactoryBot.create(:user) }
+
+    context "when purchasable is an Event with custom_fee" do
+      let!(:event) { FactoryBot.create(:event, user: user) }
+      let!(:purchase) { FactoryBot.create(:purchase, user: user, purchasable: event) }
+
+      it "returns the event's custom_fee when set" do
+        event.custom_fee = 5
+        event.save!
+
+        expect(purchase.app_fee).to eq(5)
+      end
+
+      it "returns the PLATFORM_EVENTS_FEE env var when custom_fee is not set" do
+        event.custom_fee = nil
+        event.save!
+
+        allow(ENV).to receive(:[]).with('PLATFORM_EVENTS_FEE').and_return("8")
+        expect(purchase.app_fee).to eq(8)
+      end
+    end
+
+    context "when purchasable is not an Event" do
+      # Purchases can be for other types, like Track or Product
+      # In such case, fall back to env var
+      let!(:event) { FactoryBot.create(:event, user: user) }
+      let!(:purchase) { FactoryBot.create(:purchase, user: user, purchasable: event) }
+
+      it "returns the PLATFORM_EVENTS_FEE env var" do
+        allow(ENV).to receive(:[]).with('PLATFORM_EVENTS_FEE').and_return("12")
+        # Even for events without custom_fee, it should fall back to env
+        event.custom_fee = nil
+        event.save!
+        expect(purchase.app_fee).to eq(12)
+      end
+    end
+  end
 end
