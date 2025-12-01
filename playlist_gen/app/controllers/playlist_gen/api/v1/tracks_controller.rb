@@ -2,6 +2,11 @@ module PlaylistGen
   module Api
     module V1
       class TracksController < ApplicationController
+        # Security: This controller is designed for local/personal use where the
+        # Rails server runs on the same machine as the audio files (e.g., a DJ's Mac).
+        # Access is restricted to specific filesystem paths via PLAYLIST_GEN_ALLOWED_PATHS.
+        # If deployed in a multi-user environment, add authentication via before_action.
+        
         # Allowed base paths for streaming - configurable via ENV
         ALLOWED_AUDIO_PATHS = ENV.fetch("PLAYLIST_GEN_ALLOWED_PATHS", "/Volumes,/Music,/home").split(",").map(&:strip).freeze
         
@@ -201,9 +206,12 @@ module PlaylistGen
 
         # Stream file with range support for seeking
         def send_file_with_range(path, start_byte, length, content_type)
-          File.open(path, "rb") do |file|
-            file.seek(start_byte)
-            self.response_body = Enumerator.new do |yielder|
+          # Open the file outside the block so it remains open during streaming
+          file = File.open(path, "rb")
+          file.seek(start_byte)
+          
+          self.response_body = Enumerator.new do |yielder|
+            begin
               remaining = length
               while remaining > 0
                 chunk_size = [8192, remaining].min
@@ -212,6 +220,8 @@ module PlaylistGen
                 yielder << data
                 remaining -= data.bytesize
               end
+            ensure
+              file.close
             end
           end
         end

@@ -115,7 +115,14 @@ export default function PlaylistShowPage() {
       audio.removeEventListener("play", handlePlay)
       audio.removeEventListener("pause", handlePause)
     }
-  }, [currentTrackId, playlist])
+  }, [currentTrackId])
+
+  // Auto-play when track changes
+  useEffect(() => {
+    if (currentTrackId && audioRef.current) {
+      audioRef.current.play().catch(console.error)
+    }
+  }, [currentTrackId])
 
   // Play a specific track
   const playTrack = (track: Track) => {
@@ -129,17 +136,10 @@ export default function PlaylistShowPage() {
         audioRef.current.play()
       }
     } else {
-      // Play new track
+      // Play new track - setting currentTrackId will trigger auto-play via useEffect
       setCurrentTrackId(track.id)
       setCurrentTime(0)
       setDuration(track.duration_seconds || 0)
-      
-      // Wait for state update then play
-      setTimeout(() => {
-        if (audioRef.current) {
-          audioRef.current.play().catch(console.error)
-        }
-      }, 100)
     }
   }
 
