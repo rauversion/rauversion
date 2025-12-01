@@ -17,7 +17,11 @@ module PlaylistGen
     scope :by_source, ->(source) { where(source: source) }
     scope :without_genre, -> { where(genre: [nil, "", "Other"]) }
     scope :with_genre, -> { where.not(genre: [nil, "", "Other"]) }
+    scope :with_embedding, -> { where.not(embedding: nil) }
+    scope :without_embedding, -> { where(embedding: nil) }
 
+    # PlaylistGen::Track.with_genre.without_embedding.last.generate_embedding!
+    # 
     # Classify genre using AI
     def classify_genre!
       GenreClassifier.call(self)
@@ -58,7 +62,7 @@ module PlaylistGen
 
       response = openai_client.embeddings(
         parameters: {
-          model: "text-embedding-3-small",
+          model: "text-embedding-ada-002",
           input: prompt
         }
       )
