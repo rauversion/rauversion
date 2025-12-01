@@ -19,6 +19,7 @@ PlaylistGen::Engine.routes.draw do
         collection do
           post :classify_batch
           get :stats
+          get :search_by_prompt
         end
       end
     end

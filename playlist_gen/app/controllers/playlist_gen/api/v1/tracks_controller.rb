@@ -76,6 +76,26 @@ module PlaylistGen
           }
         end
 
+        # GET /api/v1/tracks/search_by_prompt
+        def search_by_prompt
+          prompt = params[:prompt]
+          limit = (params[:limit] || 20).to_i
+          limit = [limit, 100].min # Cap at 100
+
+          if prompt.blank?
+            render json: { error: "Prompt is required" }, status: :bad_request
+            return
+          end
+
+          tracks = Track.search_by_prompt(prompt, limit: limit)
+
+          render json: {
+            tracks: tracks.map { |t| track_json(t) },
+            count: tracks.size,
+            prompt: prompt
+          }
+        end
+
         private
 
         def track_json(track)

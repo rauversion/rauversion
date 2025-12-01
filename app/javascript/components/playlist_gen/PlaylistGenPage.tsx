@@ -272,13 +272,18 @@ export default function PlaylistGenPage() {
             Generate intelligent DJ sets from your Rekordbox library
           </p>
         </div>
-        <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
-          <DialogTrigger asChild>
-            <Button variant="outline">
-              <Upload className="mr-2 h-4 w-4" />
-              Import Library
-            </Button>
-          </DialogTrigger>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => navigate("/set-generator/search")}>
+            <Sparkles className="mr-2 h-4 w-4" />
+            Track Search
+          </Button>
+          <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
+            <DialogTrigger asChild>
+              <Button variant="outline">
+                <Upload className="mr-2 h-4 w-4" />
+                Import Library
+              </Button>
+            </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>Import Rekordbox Library</DialogTitle>
@@ -343,6 +348,7 @@ export default function PlaylistGenPage() {
             </div>
           </DialogContent>
         </Dialog>
+        </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-3">
