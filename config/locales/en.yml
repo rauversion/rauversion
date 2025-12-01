@@ -233,6 +233,10 @@ en:
       view_ticket: "View ticket"
       loading: "Loading your tickets..."
       load_error: "We couldn't load your tickets. Please check your purchases page."
+    date_formatting:
+      from_time: "from"
+      to_time: "to"
+      until_date: "until"
 
     edit:
       menu:
@@ -315,6 +319,9 @@ en:
             label: Min Tickets per Order
           max_tickets_per_order:
             label: Max Tickets per Order
+          max_tickets_per_user:
+            label: Max Tickets per Person
+            description: Maximum total tickets a person can purchase across all orders (0 = unlimited)
           show_sell_until:
             label: Show sell until
             description: Show the Sell Until date on the event page
