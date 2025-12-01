@@ -9,9 +9,7 @@ json.private_event_url @event.private_event_url
 json.timezone @event.timezone
 json.event_start @event.event_start
 json.event_ends @event.event_ends
-event_start_formatted =  @event.event_start.present? ? @event.event_start.in_time_zone(@event.timezone).strftime("%B %d, %Y") : nil
-event_ends_formatted = @event.event_ends.present? ? @event.event_ends.in_time_zone(@event.timezone).strftime("%B %d, %Y") : nil
-json.event_dates_formatted [event_start_formatted, event_ends_formatted].compact.uniq.to_sentence(two_words_connector: " - ", last_word_connector: " o ")
+json.event_dates_formatted event_dates_formatted(@event.event_start, @event.event_ends, @event.timezone)
 json.private @event.private
 json.online @event.online
 

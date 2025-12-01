@@ -221,3 +221,8 @@ es:
       long_with_day: "%d %B %Y"
       event_long_with_zone: "%-d de %B de %Y %H:%M %Z"
     pm: pm
+  events:
+    date_formatting:
+      from_time: "desde las"
+      to_time: "hasta las"
+      until_date: "hasta el"

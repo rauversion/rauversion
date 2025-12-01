@@ -94,4 +94,38 @@ RSpec.describe Event, type: :model do
       expect(event.hide_location_until_purchase).to be_nil
     end
   end
+
+  describe "custom_fee setting" do
+    let(:event) { FactoryBot.create(:event, user: user) }
+
+    it "allows setting custom_fee" do
+      event.custom_fee = 5
+      event.save
+      expect(event.reload.custom_fee.to_i).to eq(5)
+    end
+
+    it "defaults to nil when not set" do
+      expect(event.custom_fee).to be_nil
+    end
+
+    describe "#effective_fee" do
+      it "returns custom_fee when set" do
+        event.custom_fee = 15
+        event.save
+        expect(event.effective_fee).to eq(15)
+      end
+
+      it "returns PLATFORM_EVENTS_FEE env var when custom_fee is not set" do
+        # Default env var value is 10 if not set
+        allow(ENV).to receive(:fetch).with('PLATFORM_EVENTS_FEE', 10).and_return(8)
+        expect(event.effective_fee).to eq(8)
+      end
+
+      it "returns default of 10 when neither custom_fee nor env var is set" do
+        event.custom_fee = nil
+        allow(ENV).to receive(:fetch).with('PLATFORM_EVENTS_FEE', 10).and_return(10)
+        expect(event.effective_fee).to eq(10)
+      end
+    end
+  end
 end
