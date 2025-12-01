@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react"
+import React, { useState, useRef, useEffect, useCallback } from "react"
 import { useParams, useNavigate, Link } from "react-router-dom"
 import { useQuery } from "@tanstack/react-query"
 import { get } from "@rails/request.js"
@@ -45,6 +45,7 @@ interface Track {
   duration_seconds: number
   duration_human: string
   file_path: string | null
+  stream_url: string | null
 }
 
 interface Playlist {
@@ -91,6 +92,20 @@ export default function PlaylistShowPage() {
   // Get current track from playlist
   const currentTrack = playlist?.tracks.find(t => t.id === currentTrackId)
 
+  // Handle next track - defined early to use in useEffect
+  const handleNextTrack = useCallback(() => {
+    if (!playlist || !currentTrackId) return
+    const currentIndex = playlist.tracks.findIndex(t => t.id === currentTrackId)
+    if (currentIndex < playlist.tracks.length - 1) {
+      const nextTrack = playlist.tracks[currentIndex + 1]
+      if (nextTrack.file_path) {
+        setCurrentTrackId(nextTrack.id)
+        setCurrentTime(0)
+        setDuration(nextTrack.duration_seconds || 0)
+      }
+    }
+  }, [playlist, currentTrackId])
+
   // Audio event handlers
   useEffect(() => {
     const audio = audioRef.current
@@ -115,12 +130,14 @@ export default function PlaylistShowPage() {
       audio.removeEventListener("play", handlePlay)
       audio.removeEventListener("pause", handlePause)
     }
-  }, [currentTrackId])
+  }, [currentTrackId, handleNextTrack])
 
   // Auto-play when track changes
   useEffect(() => {
     if (currentTrackId && audioRef.current) {
-      audioRef.current.play().catch(console.error)
+      audioRef.current.play().catch(() => {
+        // Auto-play may be blocked by browser policy
+      })
     }
   }, [currentTrackId])
 
@@ -148,18 +165,9 @@ export default function PlaylistShowPage() {
     if (isPlaying) {
       audioRef.current.pause()
     } else {
-      audioRef.current.play().catch(console.error)
-    }
-  }
-
-  const handleNextTrack = () => {
-    if (!playlist || !currentTrackId) return
-    const currentIndex = playlist.tracks.findIndex(t => t.id === currentTrackId)
-    if (currentIndex < playlist.tracks.length - 1) {
-      const nextTrack = playlist.tracks[currentIndex + 1]
-      if (nextTrack.file_path) {
-        playTrack(nextTrack)
-      }
+      audioRef.current.play().catch(() => {
+        // Play may be blocked by browser policy
+      })
     }
   }
 
@@ -169,7 +177,9 @@ export default function PlaylistShowPage() {
     if (currentIndex > 0) {
       const prevTrack = playlist.tracks[currentIndex - 1]
       if (prevTrack.file_path) {
-        playTrack(prevTrack)
+        setCurrentTrackId(prevTrack.id)
+        setCurrentTime(0)
+        setDuration(prevTrack.duration_seconds || 0)
       }
     }
   }

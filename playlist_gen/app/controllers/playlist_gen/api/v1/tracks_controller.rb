@@ -193,11 +193,17 @@ module PlaylistGen
         end
 
         # Security: Check if path starts with one of the allowed base paths
+        # Uses File.realpath when file exists to resolve symlinks; falls back to expand_path
         def allowed_path?(path)
           return false if path.blank?
           
-          # Normalize the path first
-          normalized = File.expand_path(path)
+          # Try to resolve the real path (handles symlinks)
+          # If file doesn't exist, use expand_path for initial validation
+          normalized = begin
+            File.realpath(path)
+          rescue Errno::ENOENT
+            File.expand_path(path)
+          end
           
           ALLOWED_AUDIO_PATHS.any? do |allowed_base|
             normalized.start_with?(allowed_base)
