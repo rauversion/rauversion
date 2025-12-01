@@ -102,6 +102,21 @@ export default function TrackSearchPage() {
     return `${mins}:${secs.toString().padStart(2, "0")}`
   }
 
+  const getTrackSearchQuery = (track: Track): string => {
+    return encodeURIComponent(`${track.artist || ""} ${track.title}`.trim())
+  }
+
+  const openExternalSearch = (track: Track, platform: "youtube" | "spotify" | "soundcloud" | "beatport") => {
+    const searchQuery = getTrackSearchQuery(track)
+    const urls: Record<string, string> = {
+      youtube: `https://www.youtube.com/results?search_query=${searchQuery}`,
+      spotify: `https://open.spotify.com/search/${searchQuery}`,
+      soundcloud: `https://soundcloud.com/search?q=${searchQuery}`,
+      beatport: `https://www.beatport.com/search?q=${searchQuery}`,
+    }
+    window.open(urls[platform], "_blank")
+  }
+
   return (
     <div className="container mx-auto py-6 space-y-6">
       {/* Header */}
@@ -231,59 +246,19 @@ export default function TrackSearchPage() {
                           <DropdownMenuContent align="end">
                             <DropdownMenuLabel>Search & Listen</DropdownMenuLabel>
                             <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              onClick={() => {
-                                const searchQuery = encodeURIComponent(
-                                  `${track.artist || ""} ${track.title}`.trim()
-                                )
-                                window.open(
-                                  `https://www.youtube.com/results?search_query=${searchQuery}`,
-                                  "_blank"
-                                )
-                              }}
-                            >
+                            <DropdownMenuItem onClick={() => openExternalSearch(track, "youtube")}>
                               <ExternalLink className="mr-2 h-4 w-4" />
                               Search on YouTube
                             </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => {
-                                const searchQuery = encodeURIComponent(
-                                  `${track.artist || ""} ${track.title}`.trim()
-                                )
-                                window.open(
-                                  `https://open.spotify.com/search/${searchQuery}`,
-                                  "_blank"
-                                )
-                              }}
-                            >
+                            <DropdownMenuItem onClick={() => openExternalSearch(track, "spotify")}>
                               <ExternalLink className="mr-2 h-4 w-4" />
                               Search on Spotify
                             </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => {
-                                const searchQuery = encodeURIComponent(
-                                  `${track.artist || ""} ${track.title}`.trim()
-                                )
-                                window.open(
-                                  `https://soundcloud.com/search?q=${searchQuery}`,
-                                  "_blank"
-                                )
-                              }}
-                            >
+                            <DropdownMenuItem onClick={() => openExternalSearch(track, "soundcloud")}>
                               <ExternalLink className="mr-2 h-4 w-4" />
                               Search on SoundCloud
                             </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => {
-                                const searchQuery = encodeURIComponent(
-                                  `${track.artist || ""} ${track.title}`.trim()
-                                )
-                                window.open(
-                                  `https://www.beatport.com/search?q=${searchQuery}`,
-                                  "_blank"
-                                )
-                              }}
-                            >
+                            <DropdownMenuItem onClick={() => openExternalSearch(track, "beatport")}>
                               <ExternalLink className="mr-2 h-4 w-4" />
                               Search on Beatport
                             </DropdownMenuItem>
