@@ -280,9 +280,6 @@ RSpec.describe "PlaylistGen API V1", type: :request do
       FileUtils.mkdir_p(temp_dir)
       # Create a minimal valid MP3-like file for testing
       File.write(test_audio_path, "ID3" + "\x00" * 100)
-      
-      # Stub the allowed paths to include our temp directory
-      stub_const("PlaylistGen::Api::V1::TracksController::ALLOWED_AUDIO_PATHS", ["/tmp"])
     end
 
     after do
@@ -302,12 +299,18 @@ RSpec.describe "PlaylistGen API V1", type: :request do
       )
     end
 
-    it "streams the audio file" do
+    it "streams the audio file when track exists in database" do
       get "/playlist_gen/api/v1/tracks/#{track.id}/stream"
 
       expect(response).to have_http_status(:ok)
       expect(response.content_type).to include("audio/mpeg")
       expect(response.headers["Accept-Ranges"]).to eq("bytes")
+    end
+
+    it "returns 404 when track does not exist" do
+      get "/playlist_gen/api/v1/tracks/999999/stream"
+
+      expect(response).to have_http_status(:not_found)
     end
 
     it "returns 404 when file_path is nil" do
@@ -319,28 +322,11 @@ RSpec.describe "PlaylistGen API V1", type: :request do
       expect(json["error"]).to eq("No file path for this track")
     end
 
-    it "returns 404 when file does not exist" do
+    it "returns 404 when file does not exist on disk" do
       track.update!(file_path: "/tmp/non_existent_file.mp3")
       get "/playlist_gen/api/v1/tracks/#{track.id}/stream"
 
       expect(response).to have_http_status(:not_found)
-    end
-
-    it "returns 403 for unauthorized paths" do
-      track.update!(file_path: "/etc/passwd")
-      get "/playlist_gen/api/v1/tracks/#{track.id}/stream"
-
-      expect(response).to have_http_status(:forbidden)
-      json = JSON.parse(response.body)
-      expect(json["error"]).to eq("Access denied")
-    end
-
-    it "returns 403 for directory traversal attempts" do
-      # Create a file that we'll try to escape from
-      track.update!(file_path: "/tmp/../etc/passwd")
-      get "/playlist_gen/api/v1/tracks/#{track.id}/stream"
-
-      expect(response).to have_http_status(:forbidden)
     end
 
     it "supports range requests for seeking" do

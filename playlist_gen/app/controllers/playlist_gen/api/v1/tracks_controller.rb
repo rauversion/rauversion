@@ -4,11 +4,9 @@ module PlaylistGen
       class TracksController < ApplicationController
         # Security: This controller is designed for local/personal use where the
         # Rails server runs on the same machine as the audio files (e.g., a DJ's Mac).
-        # Access is restricted to specific filesystem paths via PLAYLIST_GEN_ALLOWED_PATHS.
+        # Access is validated by ensuring the track exists in the database with a file_path.
+        # Only paths that were imported into the database (e.g., from Rekordbox XML) can be streamed.
         # If deployed in a multi-user environment, add authentication via before_action.
-        
-        # Allowed base paths for streaming - configurable via ENV
-        ALLOWED_AUDIO_PATHS = ENV.fetch("PLAYLIST_GEN_ALLOWED_PATHS", "/Volumes,/Music,/home").split(",").map(&:strip).freeze
         
         # Allowed audio MIME types
         AUDIO_MIME_TYPES = {
@@ -25,29 +23,18 @@ module PlaylistGen
 
         # GET /api/v1/tracks/:id/stream
         def stream
+          # Security: Track must exist in database - this validates the file_path was imported
           track = Track.find(params[:id])
           
           unless track.file_path.present?
             return render json: { error: "No file path for this track" }, status: :not_found
           end
 
-          # Security: Validate the path is allowed
-          unless allowed_path?(track.file_path)
-            Rails.logger.warn "Blocked attempt to access unauthorized path: #{track.file_path}"
-            return render json: { error: "Access denied" }, status: :forbidden
-          end
-
-          # Resolve the real path to prevent directory traversal attacks
+          # Resolve the real path and verify the file exists
           begin
             real_path = File.realpath(track.file_path)
           rescue Errno::ENOENT
             return render json: { error: "File not found" }, status: :not_found
-          end
-
-          # Re-check the resolved path is still within allowed directories
-          unless allowed_path?(real_path)
-            Rails.logger.warn "Blocked directory traversal attempt: #{track.file_path} -> #{real_path}"
-            return render json: { error: "Access denied" }, status: :forbidden
           end
 
           unless File.exist?(real_path)
@@ -190,24 +177,6 @@ module PlaylistGen
 
         def stream_track_url(track)
           "/playlist_gen/api/v1/tracks/#{track.id}/stream"
-        end
-
-        # Security: Check if path starts with one of the allowed base paths
-        # Uses File.realpath when file exists to resolve symlinks; falls back to expand_path
-        def allowed_path?(path)
-          return false if path.blank?
-          
-          # Try to resolve the real path (handles symlinks)
-          # If file doesn't exist, use expand_path for initial validation
-          normalized = begin
-            File.realpath(path)
-          rescue Errno::ENOENT
-            File.expand_path(path)
-          end
-          
-          ALLOWED_AUDIO_PATHS.any? do |allowed_base|
-            normalized.start_with?(allowed_base)
-          end
         end
 
         # Stream file with range support for seeking
