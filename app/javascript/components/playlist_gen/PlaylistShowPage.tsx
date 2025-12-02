@@ -430,6 +430,7 @@ export default function PlaylistShowPage() {
             getFilePath={(track) => track.file_path}
             showPosition
             getPosition={(track) => track.position}
+            playlistId={playlist.id}
           />
         </CardContent>
       </Card>
