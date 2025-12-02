@@ -3,7 +3,8 @@ module PlaylistGen
     module V1
       class PlaylistsController < ApplicationController
         def index
-          playlists = Playlist.recent
+          # Include both generated and draft playlists
+          playlists = Playlist.where(status: %w[generated draft]).recent
 
           render json: {
             playlists: playlists.map { |p| playlist_summary_json(p) }
@@ -57,10 +58,8 @@ module PlaylistGen
           removed_position = playlist_track.position
           playlist_track.destroy
 
-          # Reorder remaining tracks
-          playlist.playlist_tracks.where("position > ?", removed_position).each do |pt|
-            pt.update(position: pt.position - 1)
-          end
+          # Reorder remaining tracks efficiently using update_all
+          playlist.playlist_tracks.where("position > ?", removed_position).update_all("position = position - 1")
 
           update_playlist_stats(playlist)
           render json: { 

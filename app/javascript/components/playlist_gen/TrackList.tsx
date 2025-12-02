@@ -149,8 +149,9 @@ export function TrackList<T = any>({
         title: "Playlist Created",
         description: `Track added to "${data.playlist.name}"`,
       })
-      queryClient.invalidateQueries({ queryKey: ["playlist_gen_playlists_list"] })
-      queryClient.invalidateQueries({ queryKey: ["playlist_gen_playlists"] })
+      // Invalidate only the playlists list queries
+      queryClient.invalidateQueries({ queryKey: ["playlist_gen_playlists_list"], exact: true })
+      queryClient.invalidateQueries({ queryKey: ["playlist_gen_playlists"], exact: true })
       setIsNewPlaylistDialogOpen(false)
       setNewPlaylistName("")
       setSelectedTrackIdForNewPlaylist(null)
@@ -178,16 +179,16 @@ export function TrackList<T = any>({
         throw new Error(errorData?.errors?.[0] || "Failed to add track")
       }
 
-      return response.json
+      return { playlistId, ...(await response.json) }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast({
         title: "Track Added",
         description: "Track added to playlist successfully",
       })
-      queryClient.invalidateQueries({ queryKey: ["playlist_gen_playlists_list"] })
-      queryClient.invalidateQueries({ queryKey: ["playlist_gen_playlists"] })
-      queryClient.invalidateQueries({ queryKey: ["playlist_gen_playlist"] })
+      // Invalidate the playlists list and the specific playlist being modified
+      queryClient.invalidateQueries({ queryKey: ["playlist_gen_playlists_list"], exact: true })
+      queryClient.invalidateQueries({ queryKey: ["playlist_gen_playlist", String(data.playlistId)] })
     },
     onError: (error: Error) => {
       toast({
@@ -211,16 +212,16 @@ export function TrackList<T = any>({
         throw new Error("Failed to remove track")
       }
 
-      return response.json
+      return { playlistId, ...(await response.json) }
     },
-    onSuccess: () => {
+    onSuccess: (data) => {
       toast({
         title: "Track Removed",
         description: "Track removed from playlist successfully",
       })
-      queryClient.invalidateQueries({ queryKey: ["playlist_gen_playlists_list"] })
-      queryClient.invalidateQueries({ queryKey: ["playlist_gen_playlists"] })
-      queryClient.invalidateQueries({ queryKey: ["playlist_gen_playlist"] })
+      // Invalidate the playlists list and the specific playlist being modified
+      queryClient.invalidateQueries({ queryKey: ["playlist_gen_playlists_list"], exact: true })
+      queryClient.invalidateQueries({ queryKey: ["playlist_gen_playlist", String(data.playlistId)] })
       onTrackRemoved?.()
     },
     onError: () => {
