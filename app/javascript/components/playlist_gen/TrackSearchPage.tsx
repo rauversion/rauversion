@@ -6,22 +6,10 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Badge } from "@/components/ui/badge"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { Textarea } from "@/components/ui/textarea"
 import {
   ArrowLeft,
-  ExternalLink,
   Loader2,
-  MoreHorizontal,
-  Music,
   Search,
   Sparkles,
   Play,
@@ -30,11 +18,10 @@ import {
   SkipForward,
   Volume2,
   VolumeX,
-  Disc,
 } from "lucide-react"
-import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
 import useDjDecksStore from "@/stores/djDecksStore"
+import { TrackList } from "./TrackList"
 
 interface Track {
   id: number
@@ -82,7 +69,7 @@ export default function TrackSearchPage() {
       })
       return
     }
-    
+
     const deckTrack = {
       id: track.id,
       title: track.title,
@@ -92,20 +79,20 @@ export default function TrackSearchPage() {
       bpm: track.bpm || undefined,
       key: track.key || undefined,
     }
-    
+
     if (deck === "A") {
       addToDeckA(deckTrack)
     } else {
       addToDeckB(deckTrack)
     }
-    
+
     toast({
       title: `Added to Deck ${deck}`,
       description: `${track.title} - ${track.artist || "Unknown Artist"}`,
     })
-    
-    // Navigate to DJ Decks page
-    navigate("/set-generator/decks")
+
+    // Mixer ya está fijo en layout, no navegamos a una ruta aparte
+    // navigate("/set-generator/decks")
   }
 
   // Search mutation
@@ -118,7 +105,7 @@ export default function TrackSearchPage() {
 
       if (!response.ok) {
         const errorData = await response.json
-        throw new Error(errorData?.error || "Search failed")
+        throw new Error((errorData as any)?.error || "Search failed")
       }
 
       return response.json as SearchResult
@@ -151,14 +138,6 @@ export default function TrackSearchPage() {
     }
   }
 
-  const getEnergyColor = (energy: number | null) => {
-    if (energy === null) return "bg-gray-400"
-    if (energy <= 3) return "bg-green-500"
-    if (energy <= 5) return "bg-yellow-500"
-    if (energy <= 7) return "bg-orange-500"
-    return "bg-red-500"
-  }
-
   const formatDuration = (seconds: number | null): string => {
     if (seconds === null) return "—"
     const mins = Math.floor(seconds / 60)
@@ -171,24 +150,6 @@ export default function TrackSearchPage() {
     const mins = Math.floor(seconds / 60)
     const secs = Math.floor(seconds % 60)
     return `${mins}:${secs.toString().padStart(2, "0")}`
-  }
-
-  const getTrackSearchQuery = (track: Track): string => {
-    return encodeURIComponent(`${track.artist || ""} ${track.title}`.trim())
-  }
-
-  const openExternalSearch = (
-    track: Track,
-    platform: "youtube" | "spotify" | "soundcloud" | "beatport"
-  ) => {
-    const searchQuery = getTrackSearchQuery(track)
-    const urls: Record<string, string> = {
-      youtube: `https://www.youtube.com/results?search_query=${searchQuery}`,
-      spotify: `https://open.spotify.com/search/${searchQuery}`,
-      soundcloud: `https://soundcloud.com/search?q=${searchQuery}`,
-      beatport: `https://www.beatport.com/search?q=${searchQuery}`,
-    }
-    window.open(urls[platform], "_blank")
   }
 
   const getStreamUrl = (trackId: number) => `/playlist_gen/api/v1/tracks/${trackId}/stream`
@@ -393,128 +354,22 @@ export default function TrackSearchPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {searchMutation.data.tracks.length > 0 ? (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-12"></TableHead>
-                    <TableHead>Title</TableHead>
-                    <TableHead>Artist</TableHead>
-                    <TableHead className="text-center">BPM</TableHead>
-                    <TableHead className="text-center">Key</TableHead>
-                    <TableHead className="text-center">Energy</TableHead>
-                    <TableHead>Duration</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {searchMutation.data.tracks.map((track) => (
-                    <TableRow
-                      key={track.id}
-                      className={currentTrackId === track.id ? "bg-accent" : ""}
-                    >
-                      <TableCell>
-                        {track.file_path ? (
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="h-8 w-8 p-0"
-                            onClick={() => playTrack(track)}
-                          >
-                            {currentTrackId === track.id && isPlaying ? (
-                              <Pause className="h-4 w-4" />
-                            ) : (
-                              <Play className="h-4 w-4" />
-                            )}
-                          </Button>
-                        ) : (
-                          <span className="text-muted-foreground text-xs">N/A</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <div className="font-medium">{track.title}</div>
-                        {track.genre && (
-                          <div className="text-sm text-muted-foreground">{track.genre}</div>
-                        )}
-                      </TableCell>
-                      <TableCell>{track.artist || "Unknown Artist"}</TableCell>
-                      <TableCell className="text-center">
-                        {track.bpm ? (
-                          <Badge variant="outline">{track.bpm.toFixed(1)}</Badge>
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Badge variant="secondary">{track.key || "—"}</Badge>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {track.energy !== null ? (
-                          <div className="flex items-center justify-center gap-1">
-                            <div
-                              className={`h-2 w-2 rounded-full ${getEnergyColor(track.energy)}`}
-                            />
-                            <span className="text-sm">{track.energy}/10</span>
-                          </div>
-                        ) : (
-                          <span className="text-muted-foreground">—</span>
-                        )}
-                      </TableCell>
-                      <TableCell>{formatDuration(track.duration_seconds)}</TableCell>
-                      <TableCell className="text-right">
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            {track.file_path && (
-                              <>
-                                <DropdownMenuLabel className="text-xs text-muted-foreground">DJ Decks</DropdownMenuLabel>
-                                <DropdownMenuItem onClick={() => handleAddToDeck(track, "A")}>
-                                  <Disc className="mr-2 h-4 w-4" />
-                                  Add to Deck A
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleAddToDeck(track, "B")}>
-                                  <Disc className="mr-2 h-4 w-4" />
-                                  Add to Deck B
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator />
-                              </>
-                            )}
-                            <DropdownMenuLabel>Search & Listen</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem onClick={() => openExternalSearch(track, "youtube")}>
-                              <ExternalLink className="mr-2 h-4 w-4" />
-                              Search on YouTube
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => openExternalSearch(track, "spotify")}>
-                              <ExternalLink className="mr-2 h-4 w-4" />
-                              Search on Spotify
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => openExternalSearch(track, "soundcloud")}>
-                              <ExternalLink className="mr-2 h-4 w-4" />
-                              Search on SoundCloud
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => openExternalSearch(track, "beatport")}>
-                              <ExternalLink className="mr-2 h-4 w-4" />
-                              Search on Beatport
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            ) : (
-              <div className="flex flex-col items-center justify-center h-32 text-muted-foreground">
-                <Music className="h-8 w-8 mb-2" />
-                <p>No tracks found matching your prompt</p>
-                <p className="text-sm">Try a different description or import more tracks</p>
-              </div>
-            )}
+            <TrackList
+              tracks={tracks}
+              currentTrackId={currentTrackId}
+              isPlaying={isPlaying}
+              onPlayClick={playTrack}
+              onAddToDeck={handleAddToDeck}
+              getId={(track) => track.id}
+              getTitle={(track) => track.title}
+              getArtist={(track) => track.artist}
+              getBpm={(track) => track.bpm}
+              getKey={(track) => track.key}
+              getGenre={(track) => track.genre}
+              getEnergy={(track) => track.energy}
+              getDurationLabel={(track) => formatDuration(track.duration_seconds)}
+              getFilePath={(track) => track.file_path}
+            />
           </CardContent>
         </Card>
       )}

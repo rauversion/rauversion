@@ -35,6 +35,7 @@ import {
 } from "lucide-react"
 import useDjDecksStore from "@/stores/djDecksStore"
 import { useToast } from "@/hooks/use-toast"
+import { TrackList } from "./TrackList"
 
 interface Track {
   id: number
@@ -412,171 +413,24 @@ export default function PlaylistShowPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-12"></TableHead>
-                <TableHead className="w-12">#</TableHead>
-                <TableHead>Title</TableHead>
-                <TableHead>Artist</TableHead>
-                <TableHead className="text-center">BPM</TableHead>
-                <TableHead className="text-center">Key</TableHead>
-                <TableHead className="text-center">Energy</TableHead>
-                <TableHead>Duration</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {playlist.tracks.map((track) => (
-                <TableRow 
-                  key={track.id}
-                  className={currentTrackId === track.id ? "bg-accent" : ""}
-                >
-                  <TableCell>
-                    {track.file_path ? (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="h-8 w-8 p-0"
-                        onClick={() => playTrack(track)}
-                      >
-                        {currentTrackId === track.id && isPlaying ? (
-                          <Pause className="h-4 w-4" />
-                        ) : (
-                          <Play className="h-4 w-4" />
-                        )}
-                      </Button>
-                    ) : (
-                      <span className="text-muted-foreground text-xs">N/A</span>
-                    )}
-                  </TableCell>
-                  <TableCell className="font-medium text-muted-foreground">
-                    {track.position}
-                  </TableCell>
-                  <TableCell>
-                    <div className="font-medium">{track.title}</div>
-                    {track.genre && (
-                      <div className="text-sm text-muted-foreground">{track.genre}</div>
-                    )}
-                  </TableCell>
-                  <TableCell>{track.artist || "Unknown Artist"}</TableCell>
-                  <TableCell className="text-center">
-                    <Badge variant="outline">{track.bpm.toFixed(1)}</Badge>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <Badge variant="secondary">{track.key || "—"}</Badge>
-                  </TableCell>
-                  <TableCell className="text-center">
-                    <div className="flex items-center justify-center gap-1">
-                      <div
-                        className={`h-2 w-2 rounded-full ${getEnergyColor(track.energy)}`}
-                      />
-                      <span className="text-sm">{track.energy}/10</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>{track.duration_human}</TableCell>
-                  <TableCell className="text-right">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm">
-                          <MoreHorizontal className="h-4 w-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuLabel>Track Actions</DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        {track.file_path && (
-                          <>
-                            <DropdownMenuLabel className="text-xs text-muted-foreground">DJ Decks</DropdownMenuLabel>
-                            <DropdownMenuItem onClick={() => handleAddToDeck(track, "A")}>
-                              <Disc className="mr-2 h-4 w-4" />
-                              Add to Deck A
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => handleAddToDeck(track, "B")}>
-                              <Disc className="mr-2 h-4 w-4" />
-                              Add to Deck B
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuItem
-                              onClick={() => {
-                                navigator.clipboard.writeText(track.file_path!)
-                              }}
-                            >
-                              <FileAudio className="mr-2 h-4 w-4" />
-                              Copy File Path
-                            </DropdownMenuItem>
-                            <DropdownMenuItem
-                              onClick={() => openFileLocation(track.file_path)}
-                            >
-                              <Folder className="mr-2 h-4 w-4" />
-                              Copy Folder Path
-                            </DropdownMenuItem>
-                            <DropdownMenuSeparator />
-                          </>
-                        )}
-                        <DropdownMenuItem
-                          onClick={() => {
-                            const searchQuery = encodeURIComponent(
-                              `${track.artist} ${track.title}`
-                            )
-                            window.open(
-                              `https://www.youtube.com/results?search_query=${searchQuery}`,
-                              "_blank"
-                            )
-                          }}
-                        >
-                          <ExternalLink className="mr-2 h-4 w-4" />
-                          Search on YouTube
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => {
-                            const searchQuery = encodeURIComponent(
-                              `${track.artist} ${track.title}`
-                            )
-                            window.open(
-                              `https://open.spotify.com/search/${searchQuery}`,
-                              "_blank"
-                            )
-                          }}
-                        >
-                          <ExternalLink className="mr-2 h-4 w-4" />
-                          Search on Spotify
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => {
-                            const searchQuery = encodeURIComponent(
-                              `${track.artist} ${track.title}`
-                            )
-                            window.open(
-                              `https://soundcloud.com/search?q=${searchQuery}`,
-                              "_blank"
-                            )
-                          }}
-                        >
-                          <ExternalLink className="mr-2 h-4 w-4" />
-                          Search on SoundCloud
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onClick={() => {
-                            const searchQuery = encodeURIComponent(
-                              `${track.artist} ${track.title}`
-                            )
-                            window.open(
-                              `https://www.beatport.com/search?q=${searchQuery}`,
-                              "_blank"
-                            )
-                          }}
-                        >
-                          <ExternalLink className="mr-2 h-4 w-4" />
-                          Search on Beatport
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+          <TrackList
+            tracks={playlist.tracks}
+            currentTrackId={currentTrackId}
+            isPlaying={isPlaying}
+            onPlayClick={playTrack}
+            onAddToDeck={handleAddToDeck}
+            getId={(track) => track.id}
+            getTitle={(track) => track.title}
+            getArtist={(track) => track.artist}
+            getBpm={(track) => track.bpm}
+            getKey={(track) => track.key}
+            getGenre={(track) => track.genre}
+            getEnergy={(track) => track.energy}
+            getDurationLabel={(track) => track.duration_human}
+            getFilePath={(track) => track.file_path}
+            showPosition
+            getPosition={(track) => track.position}
+          />
         </CardContent>
       </Card>
 

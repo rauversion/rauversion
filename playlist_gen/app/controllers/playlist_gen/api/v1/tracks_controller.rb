@@ -34,10 +34,12 @@ module PlaylistGen
           begin
             real_path = File.realpath(track.file_path)
           rescue Errno::ENOENT
+            Rails.logger.error "File not found for Track #{track.id} at path #{track.file_path}"
             return render json: { error: "File not found" }, status: :not_found
           end
 
           unless File.exist?(real_path)
+            Rails.logger.error "File not found for Track #{track.id} at path #{track.file_path}"
             return render json: { error: "File not found" }, status: :not_found
           end
 
@@ -46,6 +48,7 @@ module PlaylistGen
           content_type = AUDIO_MIME_TYPES[ext]
           
           unless content_type
+            Rails.logger.error "Unsupported audio format for Track #{track.id} at path #{track.file_path}"
             return render json: { error: "Unsupported audio format" }, status: :unsupported_media_type
           end
 
