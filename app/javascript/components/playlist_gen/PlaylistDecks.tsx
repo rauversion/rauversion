@@ -284,12 +284,9 @@ export default function DJMixer() {
     }
   }, [pendingDeckB, handleTrackLoad, clearPendingDeckB])
 
-  // Sync function
+  // Central Sync button: syncs Deck B to Deck A (A is master, B is slave)
   const syncDecks = () => {
-    if (deckA.bpm && deckB.bpm) {
-      setDeckB({ ...deckB, bpm: deckA.bpm })
-      console.log("[v0] Synced deck B BPM to deck A:", deckA.bpm)
-    }
+    syncDeckToOther("A", "B")
   }
 
   const adjustLoopLength = (direction: "up" | "down") => {
@@ -716,15 +713,14 @@ export default function DJMixer() {
     window.addEventListener("mouseup", handleMouseUp)
   }
 
+  // Sync BPM + phase: when deck "A" sync is pressed, A is slave and B is master; vice versa
   const syncBPM = (deck: "A" | "B") => {
     if (deck === "A") {
-      const newDeck = { ...deckA, bpm: deckB.bpm, isSynced: true }
-      setDeckA(newDeck)
-      updatePlaybackRate(newDeck)
+      // Deck A is the slave, Deck B is the master
+      syncDeckToOther("B", "A")
     } else {
-      const newDeck = { ...deckB, bpm: deckA.bpm, isSynced: true }
-      setDeckB(newDeck)
-      updatePlaybackRate(newDeck)
+      // Deck B is the slave, Deck A is the master
+      syncDeckToOther("A", "B")
     }
   }
 
@@ -824,6 +820,80 @@ export default function DJMixer() {
   const quantizeToGrid = (currentTime: number, bpm: number): number => {
     const secondsPerBeat = 60 / bpm
     return Math.floor(currentTime / secondsPerBeat) * secondsPerBeat
+  }
+
+  // Helper: Calculate seconds per beat from BPM
+  const getSecondsPerBeat = (bpm: number): number => {
+    return 60 / bpm
+  }
+
+  // Helper: Get the beat index (which beat number we're on) from currentTime and BPM
+  // Using Math.floor for consistent beat alignment
+  const getBeatIndex = (currentTime: number, bpm: number): number => {
+    const secondsPerBeat = getSecondsPerBeat(bpm)
+    return Math.floor(currentTime / secondsPerBeat)
+  }
+
+  // Core beat sync function: syncs slave deck to master deck (tempo + phase alignment)
+  const syncDeckToOther = (master: "A" | "B", slave: "A" | "B") => {
+    // Validate that master and slave are different decks
+    if (master === slave) {
+      console.warn(`[v0] Cannot sync: master and slave decks are the same (${master})`)
+      return
+    }
+
+    const masterDeck = master === "A" ? deckA : deckB
+    const slaveDeck = slave === "A" ? deckA : deckB
+    const setSlaveFunc = slave === "A" ? setDeckA : setDeckB
+
+    // Validate master deck has valid audio and BPM
+    if (!masterDeck.audio || masterDeck.duration === 0 || !masterDeck.bpm || masterDeck.bpm <= 0) {
+      console.warn(`[v0] Cannot sync: missing bpm or audio on deck ${master} (master)`)
+      return
+    }
+
+    // Validate slave deck has valid audio and BPM
+    if (!slaveDeck.audio || slaveDeck.duration === 0 || !slaveDeck.bpm || slaveDeck.bpm <= 0) {
+      console.warn(`[v0] Cannot sync: missing bpm or audio on deck ${slave} (slave)`)
+      return
+    }
+
+    // Step 1: Tempo Sync - copy master BPM to slave
+    const newSlaveBpm = masterDeck.bpm
+    console.log(`[v0] Syncing tempo: Deck ${slave} BPM ${slaveDeck.bpm} -> ${newSlaveBpm}`)
+
+    // Step 2: Phase/Beat Sync - align slave to the same beat index as master
+    const masterQuantizedTime = quantizeToGrid(masterDeck.audio.currentTime, masterDeck.bpm)
+    const beatsMaster = getBeatIndex(masterQuantizedTime, masterDeck.bpm)
+
+    // Calculate new position for slave: same beat index, using slave's new BPM (which equals master BPM now)
+    const secondsPerBeatSlave = getSecondsPerBeat(newSlaveBpm)
+    const newSlaveTime = beatsMaster * secondsPerBeatSlave
+
+    // Clamp to valid range within the slave track
+    const clampedSlaveTime = Math.max(0, Math.min(slaveDeck.duration, newSlaveTime))
+
+    console.log(
+      `[v0] Phase sync: Master beat index ${beatsMaster}, Slave currentTime ${slaveDeck.audio.currentTime.toFixed(2)} -> ${clampedSlaveTime.toFixed(2)}`
+    )
+
+    // Apply the new currentTime to the slave audio element
+    slaveDeck.audio.currentTime = clampedSlaveTime
+
+    // Update slave deck state with new BPM and sync flag
+    const newSlaveDeck: DeckState = {
+      ...slaveDeck,
+      bpm: newSlaveBpm,
+      isSynced: true,
+      currentTime: clampedSlaveTime,
+    }
+
+    setSlaveFunc(newSlaveDeck)
+
+    // Update playback rate for the slave deck
+    updatePlaybackRate(newSlaveDeck)
+
+    console.log(`[v0] Beat sync complete: Deck ${slave} synced to Deck ${master}`)
   }
 
   const activateBeatDivide = async (subdivision: string, deck: "A" | "B") => {
