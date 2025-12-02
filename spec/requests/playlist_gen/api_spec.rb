@@ -235,4 +235,118 @@ RSpec.describe "PlaylistGen API V1", type: :request do
       expect(content).to include("/Music/test.mp3")
     end
   end
+
+  describe "GET /playlist_gen/api/v1/tracks/:id" do
+    let(:track) do
+      PlaylistGen::Track.create!(
+        title: "Test Track",
+        artist: "Test Artist",
+        bpm: 124,
+        key: "8A",
+        genre: "House",
+        energy: 6,
+        duration_seconds: 300,
+        file_path: "/Music/test.mp3"
+      )
+    end
+
+    it "returns track details with stream_url" do
+      get "/playlist_gen/api/v1/tracks/#{track.id}"
+
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+      
+      expect(json["track"]["id"]).to eq(track.id)
+      expect(json["track"]["title"]).to eq("Test Track")
+      expect(json["track"]["stream_url"]).to eq("/playlist_gen/api/v1/tracks/#{track.id}/stream")
+    end
+
+    it "returns nil stream_url when file_path is nil" do
+      track.update!(file_path: nil)
+      get "/playlist_gen/api/v1/tracks/#{track.id}"
+
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+      
+      expect(json["track"]["stream_url"]).to be_nil
+    end
+  end
+
+  describe "GET /playlist_gen/api/v1/tracks/:id/stream" do
+    let(:temp_dir) { "/tmp/playlist_gen_test_audio" }
+    let(:test_audio_path) { File.join(temp_dir, "test_track.mp3") }
+    
+    before do
+      FileUtils.mkdir_p(temp_dir)
+      # Create a minimal valid MP3-like file for testing
+      File.write(test_audio_path, "ID3" + "\x00" * 100)
+    end
+
+    after do
+      FileUtils.rm_rf(temp_dir)
+    end
+
+    let(:track) do
+      PlaylistGen::Track.create!(
+        title: "Test Track",
+        artist: "Test Artist",
+        bpm: 124,
+        key: "8A",
+        genre: "House",
+        energy: 6,
+        duration_seconds: 300,
+        file_path: test_audio_path
+      )
+    end
+
+    it "streams the audio file when track exists in database" do
+      get "/playlist_gen/api/v1/tracks/#{track.id}/stream"
+
+      expect(response).to have_http_status(:ok)
+      expect(response.content_type).to include("audio/mpeg")
+      expect(response.headers["Accept-Ranges"]).to eq("bytes")
+    end
+
+    it "returns 404 when track does not exist" do
+      get "/playlist_gen/api/v1/tracks/999999/stream"
+
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "returns 404 when file_path is nil" do
+      track.update!(file_path: nil)
+      get "/playlist_gen/api/v1/tracks/#{track.id}/stream"
+
+      expect(response).to have_http_status(:not_found)
+      json = JSON.parse(response.body)
+      expect(json["error"]).to eq("No file path for this track")
+    end
+
+    it "returns 404 when file does not exist on disk" do
+      track.update!(file_path: "/tmp/non_existent_file.mp3")
+      get "/playlist_gen/api/v1/tracks/#{track.id}/stream"
+
+      expect(response).to have_http_status(:not_found)
+    end
+
+    it "supports range requests for seeking" do
+      get "/playlist_gen/api/v1/tracks/#{track.id}/stream", headers: { "Range" => "bytes=0-50" }
+
+      expect(response).to have_http_status(206)
+      expect(response.headers["Content-Range"]).to match(/bytes 0-50\/\d+/)
+      expect(response.headers["Accept-Ranges"]).to eq("bytes")
+    end
+
+    it "returns 415 for unsupported audio formats" do
+      unsupported_path = File.join(temp_dir, "test.xyz")
+      File.write(unsupported_path, "test content")
+      track.update!(file_path: unsupported_path)
+      
+      get "/playlist_gen/api/v1/tracks/#{track.id}/stream"
+
+      expect(response).to have_http_status(:unsupported_media_type)
+      json = JSON.parse(response.body)
+      expect(json["error"]).to eq("Unsupported audio format")
+    end
+  end
 end
