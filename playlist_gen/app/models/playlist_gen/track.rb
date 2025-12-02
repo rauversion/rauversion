@@ -78,6 +78,60 @@ module PlaylistGen
       none
     end
 
+    def self.classify_batch_genres(batch_size: 50)
+     require "concurrent-ruby"
+
+      # Pool con 4 threads
+      pool = Concurrent::FixedThreadPool.new(4)
+
+      begin
+        PlaylistGen::Track.without_genre.order(id: :desc).find_in_batches(batch_size: 100) do |batch|
+          batch.each do |track|
+            pool.post do
+              ActiveRecord::Base.connection_pool.with_connection do
+                begin
+                  track.classify_genre!
+                rescue => e
+                  Rails.logger.error("[GenreClassifier] Track #{track.id} failed: #{e.class} - #{e.message}")
+                end
+              end
+            end
+          end
+        end
+      ensure
+        # Cerramos el pool y esperamos que termine todo
+        pool.shutdown
+        pool.wait_for_termination
+      end
+    end
+
+    def self.generate_emebeddings_in_batches(batch_size: 50)
+      require "concurrent-ruby"
+
+      # Pool con 4 threads
+      pool = Concurrent::FixedThreadPool.new(4)
+
+      begin
+        PlaylistGen::Track.with_genre.without_embedding.order(id: :desc).find_in_batches(batch_size: 100) do |batch|
+          batch.each do |track|
+            pool.post do
+              ActiveRecord::Base.connection_pool.with_connection do
+                begin
+                  track.generate_embedding!
+                rescue => e
+                  Rails.logger.error("[EmbeddingGeneration] Track #{track.id} failed: #{e.class} - #{e.message}")
+                end
+              end
+            end
+          end
+        end
+      ensure
+        # Cerramos el pool y esperamos que termine todo
+        pool.shutdown
+        pool.wait_for_termination
+      end
+    end
+
     private
 
     def openai_client
