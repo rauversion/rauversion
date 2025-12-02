@@ -31,7 +31,10 @@ import {
   Volume2,
   VolumeX,
   ChevronDown,
+  Disc,
 } from "lucide-react"
+import useDjDecksStore from "@/stores/djDecksStore"
+import { useToast } from "@/hooks/use-toast"
 
 interface Track {
   id: number
@@ -66,6 +69,10 @@ interface Playlist {
 export default function PlaylistShowPage() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { toast } = useToast()
+  
+  // DJ Decks store for adding tracks to decks
+  const { addToDeckA, addToDeckB } = useDjDecksStore()
   
   // Audio player state
   const audioRef = useRef<HTMLAudioElement>(null)
@@ -88,6 +95,42 @@ export default function PlaylistShowPage() {
   })
 
   const playlist = data?.playlist
+  
+  // Helper to add track to deck
+  const handleAddToDeck = (track: Track, deck: "A" | "B") => {
+    if (!track.file_path) {
+      toast({
+        variant: "destructive",
+        title: "Cannot add to deck",
+        description: "This track does not have a playable file.",
+      })
+      return
+    }
+    
+    const deckTrack = {
+      id: track.id,
+      title: track.title,
+      artist: track.artist,
+      streamUrl: getStreamUrl(track.id),
+      duration: track.duration_seconds || undefined,
+      bpm: track.bpm || undefined,
+      key: track.key || undefined,
+    }
+    
+    if (deck === "A") {
+      addToDeckA(deckTrack)
+    } else {
+      addToDeckB(deckTrack)
+    }
+    
+    toast({
+      title: `Added to Deck ${deck}`,
+      description: `${track.title} - ${track.artist || "Unknown Artist"}`,
+    })
+    
+    // Navigate to DJ Decks page
+    // navigate("/set-generator/decks")
+  }
   
   // Get current track from playlist
   const currentTrack = playlist?.tracks.find(t => t.id === currentTrackId)
@@ -444,6 +487,16 @@ export default function PlaylistShowPage() {
                         <DropdownMenuSeparator />
                         {track.file_path && (
                           <>
+                            <DropdownMenuLabel className="text-xs text-muted-foreground">DJ Decks</DropdownMenuLabel>
+                            <DropdownMenuItem onClick={() => handleAddToDeck(track, "A")}>
+                              <Disc className="mr-2 h-4 w-4" />
+                              Add to Deck A
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => handleAddToDeck(track, "B")}>
+                              <Disc className="mr-2 h-4 w-4" />
+                              Add to Deck B
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
                             <DropdownMenuItem
                               onClick={() => {
                                 navigator.clipboard.writeText(track.file_path!)

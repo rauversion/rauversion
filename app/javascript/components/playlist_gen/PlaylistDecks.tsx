@@ -2,11 +2,12 @@
 
 import React from "react"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Play, Pause, Upload, RotateCcw, ChevronUp, ChevronDown, Repeat, ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { analyzeWaveform, detectBPM } from "./audioAnalisys"
+import useDjDecksStore, { DeckTrack } from "@/stores/djDecksStore"
 
 const NOTES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"]
 
@@ -126,6 +127,162 @@ export default function DJMixer() {
 
   const [zoomLevelA, setZoomLevelA] = useState(1) // 1 = full view, 2 = 2x zoom, etc.
   const [zoomLevelB, setZoomLevelB] = useState(1)
+
+  // DJ Decks store for loading tracks from other pages
+  const { pendingDeckA, pendingDeckB, clearPendingDeckA, clearPendingDeckB } = useDjDecksStore()
+
+  // Handle loading a track from URL (for tracks from other pages)
+  const handleTrackLoad = useCallback(async (track: DeckTrack, deck: "A" | "B") => {
+    const currentDeck = deck === "A" ? deckA : deckB
+    const setDeck = deck === "A" ? setDeckA : setDeckB
+
+    console.log("[v0] Loading track from URL:", track.title, "for deck", deck)
+
+    try {
+      const audio = new Audio(track.streamUrl)
+      audio.crossOrigin = "anonymous"
+      console.log("[v0] Audio element created from URL")
+
+      const audioContext = new AudioContext()
+      console.log("[v0] AudioContext created")
+
+      // Wait for audio metadata to load first
+      console.log("[v0] Waiting for audio metadata...")
+      await new Promise<void>((resolve, reject) => {
+        const timeoutId = setTimeout(() => {
+          reject(new Error("Audio metadata load timeout"))
+        }, 30000)
+
+        if (audio.readyState >= 1) {
+          clearTimeout(timeoutId)
+          console.log("[v0] Audio metadata already loaded")
+          resolve()
+        } else {
+          audio.addEventListener("loadedmetadata", () => {
+            clearTimeout(timeoutId)
+            console.log("[v0] Audio metadata loaded, duration:", audio.duration)
+            resolve()
+          })
+          audio.addEventListener("error", (e) => {
+            clearTimeout(timeoutId)
+            reject(new Error("Failed to load audio: " + (audio.error?.message || "Unknown error")))
+          })
+          audio.load()
+        }
+      })
+
+      // Fetch the audio for buffer analysis (may not work with CORS restrictions)
+      let audioBuffer: AudioBuffer | null = null
+      let waveformData: number[] = []
+      let detectedBPM = track.bpm || 130
+
+      try {
+        const response = await fetch(track.streamUrl)
+        if (response.ok) {
+          console.log("[v0] Fetched audio file for analysis")
+          const arrayBuffer = await response.arrayBuffer()
+          console.log("[v0] Got array buffer")
+          audioBuffer = await audioContext.decodeAudioData(arrayBuffer)
+          console.log("[v0] Audio buffer decoded")
+
+          // Analyze waveform
+          console.log("[v0] Starting waveform analysis")
+          waveformData = await analyzeWaveform(audioBuffer)
+          console.log("[v0] Waveform analyzed:", waveformData.length, "points")
+
+          // Auto-detect BPM if not provided
+          if (!track.bpm) {
+            console.log("[v0] Starting BPM detection")
+            detectedBPM = await detectBPM(audioBuffer)
+            console.log("[v0] BPM detected:", detectedBPM)
+          }
+        }
+      } catch (fetchError) {
+        console.warn("[v0] Could not fetch audio for analysis (CORS?):", fetchError)
+        // Generate placeholder waveform data
+        waveformData = Array.from({ length: 200 }, () => Math.random() * 80 + 20)
+      }
+
+      const sourceNode = audioContext.createMediaElementSource(audio)
+      const highShelfFilter = audioContext.createBiquadFilter()
+      highShelfFilter.type = "highshelf"
+      highShelfFilter.frequency.value = 3000
+      highShelfFilter.gain.value = 0
+
+      const midPeakFilter = audioContext.createBiquadFilter()
+      midPeakFilter.type = "peaking"
+      midPeakFilter.frequency.value = 1000
+      midPeakFilter.Q.value = 1
+      midPeakFilter.gain.value = 0
+
+      const lowShelfFilter = audioContext.createBiquadFilter()
+      lowShelfFilter.type = "lowshelf"
+      lowShelfFilter.frequency.value = 250
+      lowShelfFilter.gain.value = 0
+
+      const gainNode = audioContext.createGain()
+      gainNode.gain.value = currentDeck.volume / 100
+
+      const masterGainNode = audioContext.createGain()
+      masterGainNode.gain.value = 0.8
+
+      const filterNode = audioContext.createBiquadFilter()
+      filterNode.type = "lowpass"
+      filterNode.frequency.value = 20000
+
+      // Connect the chain
+      sourceNode.connect(highShelfFilter)
+      highShelfFilter.connect(midPeakFilter)
+      midPeakFilter.connect(lowShelfFilter)
+      lowShelfFilter.connect(gainNode)
+      gainNode.connect(filterNode)
+      filterNode.connect(masterGainNode)
+      masterGainNode.connect(audioContext.destination)
+
+      console.log("[v0] Audio context and nodes connected")
+
+      console.log("[v0] Updating deck state with new audio from URL")
+      setDeck({
+        ...currentDeck,
+        audio,
+        audioContext,
+        audioBuffer,
+        sourceNode,
+        highShelfFilter,
+        midPeakFilter,
+        lowShelfFilter,
+        gainNode,
+        masterGainNode,
+        filterNode,
+        fileName: track.title,
+        duration: track.duration || audio.duration,
+        bpm: detectedBPM,
+        detectedBpm: detectedBPM,
+        waveformData,
+        trackName: track.title,
+        artist: track.artist || "Unknown Artist",
+        currentTime: 0,
+      })
+      console.log("[v0] Deck state updated successfully - Play button should be active now")
+    } catch (error) {
+      console.error("[v0] Error loading track from URL:", error)
+    }
+  }, [deckA, deckB])
+
+  // Watch for pending tracks from the store (added from other pages)
+  useEffect(() => {
+    if (pendingDeckA) {
+      handleTrackLoad(pendingDeckA, "A")
+      clearPendingDeckA()
+    }
+  }, [pendingDeckA, handleTrackLoad, clearPendingDeckA])
+
+  useEffect(() => {
+    if (pendingDeckB) {
+      handleTrackLoad(pendingDeckB, "B")
+      clearPendingDeckB()
+    }
+  }, [pendingDeckB, handleTrackLoad, clearPendingDeckB])
 
   // Sync function
   const syncDecks = () => {

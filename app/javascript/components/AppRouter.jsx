@@ -99,6 +99,7 @@ import { InterestAlertDemo } from "./shared/alerts"
 import PlaylistGenPage from "./playlist_gen/PlaylistGenPage"
 import PlaylistShowPage from "./playlist_gen/PlaylistShowPage"
 import TrackSearchPage from "./playlist_gen/TrackSearchPage"
+import DJMixer from "./playlist_gen/PlaylistDecks"
 
 import CheckoutSuccess from "./checkout/CheckoutSuccess"
 import CheckoutFailure from "./checkout/CheckoutFailure"
@@ -132,6 +133,15 @@ function RequireAuth({ children }) {
   }
 
   return children
+}
+
+function SetGeneratorLayout() {
+  return (
+    <>
+      <DJMixer />
+      <Outlet />
+    </>
+  )
 }
 
 function AppContent() {
@@ -319,9 +329,11 @@ function AppContent() {
           <Route path="/service_bookings" element={<RequireAuth><ServiceBookings /></RequireAuth>} />
           <Route path="/service_bookings/:id" element={<RequireAuth><ServiceBookingDetail /></RequireAuth>} />
           <Route path="/account_connections/new" element={<RequireAuth><AccountConnectionForm /></RequireAuth>} />
-          <Route path="/set-generator" element={<RequireAuth><PlaylistGenPage /></RequireAuth>} />
-          <Route path="/set-generator/playlists/:id" element={<RequireAuth><PlaylistShowPage /></RequireAuth>} />
-          <Route path="/set-generator/search" element={<RequireAuth><TrackSearchPage /></RequireAuth>} />
+          <Route path="/set-generator" element={<RequireAuth><SetGeneratorLayout /></RequireAuth>} >
+            <Route index element={<PlaylistGenPage />} />
+            <Route path="playlists/:id" element={<PlaylistShowPage />} />
+            <Route path="search" element={<TrackSearchPage />} />
+          </Route>
 
           <Route path="/:username/press-kit" element={<PressKitPage />} />
 
