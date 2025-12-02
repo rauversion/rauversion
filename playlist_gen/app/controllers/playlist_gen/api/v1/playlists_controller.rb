@@ -3,7 +3,8 @@ module PlaylistGen
     module V1
       class PlaylistsController < ApplicationController
         def index
-          playlists = Playlist.generated.recent
+          # Include both generated and draft playlists
+          playlists = Playlist.where(status: %w[generated draft]).recent
 
           render json: {
             playlists: playlists.map { |p| playlist_summary_json(p) }
@@ -13,6 +14,58 @@ module PlaylistGen
         def show
           playlist = Playlist.find(params[:id])
           render json: { playlist: playlist_detail_json(playlist) }
+        end
+
+        def create
+          playlist = Playlist.new(playlist_params)
+          playlist.status = "draft"
+          playlist.generated_at = Time.current
+
+          if playlist.save
+            render json: { playlist: playlist_summary_json(playlist) }, status: :created
+          else
+            render json: { errors: playlist.errors.full_messages }, status: :unprocessable_entity
+          end
+        end
+
+        def add_track
+          playlist = Playlist.find(params[:id])
+          track = Track.find(params[:track_id])
+
+          # Calculate next position
+          next_position = (playlist.playlist_tracks.maximum(:position) || 0) + 1
+
+          playlist_track = playlist.playlist_tracks.build(
+            track: track,
+            position: next_position
+          )
+
+          if playlist_track.save
+            update_playlist_stats(playlist)
+            render json: { 
+              playlist: playlist_detail_json(playlist.reload),
+              message: "Track added successfully"
+            }
+          else
+            render json: { errors: playlist_track.errors.full_messages }, status: :unprocessable_entity
+          end
+        end
+
+        def remove_track
+          playlist = Playlist.find(params[:id])
+          playlist_track = playlist.playlist_tracks.find_by!(track_id: params[:track_id])
+
+          removed_position = playlist_track.position
+          playlist_track.destroy
+
+          # Reorder remaining tracks efficiently using update_all
+          playlist.playlist_tracks.where("position > ?", removed_position).update_all("position = position - 1")
+
+          update_playlist_stats(playlist)
+          render json: { 
+            playlist: playlist_detail_json(playlist.reload),
+            message: "Track removed successfully"
+          }
         end
 
         def export_m3u
@@ -214,6 +267,21 @@ module PlaylistGen
             end
           end
           builder.to_xml
+        end
+
+        def playlist_params
+          params.require(:playlist).permit(:name, :energy_curve)
+        end
+
+        def update_playlist_stats(playlist)
+          tracks = playlist.playlist_tracks.includes(:track).map(&:track)
+          
+          playlist.update(
+            total_tracks: tracks.count,
+            duration_seconds: tracks.sum { |t| t.duration_seconds || 0 },
+            bpm_min: tracks.filter_map(&:bpm).min,
+            bpm_max: tracks.filter_map(&:bpm).max
+          )
         end
       end
     end

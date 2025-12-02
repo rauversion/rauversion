@@ -390,7 +390,7 @@ export default function PlaylistShowPage() {
           <CardHeader className="pb-2">
             <CardDescription>Energy Curve</CardDescription>
             <CardTitle className="text-2xl capitalize">
-              {playlist.energy_curve.replace("_", " ")}
+              {playlist.energy_curve?.replace("_", " ")}
             </CardTitle>
           </CardHeader>
         </Card>
@@ -430,6 +430,7 @@ export default function PlaylistShowPage() {
             getFilePath={(track) => track.file_path}
             showPosition
             getPosition={(track) => track.position}
+            playlistId={playlist.id}
           />
         </CardContent>
       </Card>
