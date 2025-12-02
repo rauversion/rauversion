@@ -112,9 +112,9 @@ export default function PlaylistShowPage() {
       title: track.title,
       artist: track.artist,
       streamUrl: getStreamUrl(track.id),
-      duration: track.duration_seconds,
-      bpm: track.bpm,
-      key: track.key,
+      duration: track.duration_seconds || undefined,
+      bpm: track.bpm || undefined,
+      key: track.key || undefined,
     }
     
     if (deck === "A") {

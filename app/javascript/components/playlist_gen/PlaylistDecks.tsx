@@ -2,7 +2,7 @@
 
 import React from "react"
 
-import { useState, useRef, useEffect } from "react"
+import { useState, useRef, useEffect, useCallback } from "react"
 import { Button } from "@/components/ui/button"
 import { Play, Pause, Upload, RotateCcw, ChevronUp, ChevronDown, Repeat, ChevronLeft, ChevronRight } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -132,7 +132,7 @@ export default function DJMixer() {
   const { pendingDeckA, pendingDeckB, clearPendingDeckA, clearPendingDeckB } = useDjDecksStore()
 
   // Handle loading a track from URL (for tracks from other pages)
-  const handleTrackLoad = async (track: DeckTrack, deck: "A" | "B") => {
+  const handleTrackLoad = useCallback(async (track: DeckTrack, deck: "A" | "B") => {
     const currentDeck = deck === "A" ? deckA : deckB
     const setDeck = deck === "A" ? setDeckA : setDeckB
 
@@ -267,7 +267,7 @@ export default function DJMixer() {
     } catch (error) {
       console.error("[v0] Error loading track from URL:", error)
     }
-  }
+  }, [deckA, deckB])
 
   // Watch for pending tracks from the store (added from other pages)
   useEffect(() => {
@@ -275,14 +275,14 @@ export default function DJMixer() {
       handleTrackLoad(pendingDeckA, "A")
       clearPendingDeckA()
     }
-  }, [pendingDeckA])
+  }, [pendingDeckA, handleTrackLoad, clearPendingDeckA])
 
   useEffect(() => {
     if (pendingDeckB) {
       handleTrackLoad(pendingDeckB, "B")
       clearPendingDeckB()
     }
-  }, [pendingDeckB])
+  }, [pendingDeckB, handleTrackLoad, clearPendingDeckB])
 
   // Sync function
   const syncDecks = () => {
