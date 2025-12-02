@@ -104,9 +104,9 @@ export function TrackList<T = any>({
   const [newPlaylistName, setNewPlaylistName] = useState("")
   const [selectedTrackIdForNewPlaylist, setSelectedTrackIdForNewPlaylist] = useState<number | null>(null)
 
-  // Fetch available playlists
+  // Fetch available playlists - using same query key as PlaylistGenPage for cache consistency
   const { data: playlistsData } = useQuery({
-    queryKey: ["playlist_gen_playlists_list"],
+    queryKey: ["playlist_gen_playlists"],
     queryFn: async () => {
       const response = await get("/playlist_gen/api/v1/playlists", {
         responseKind: "json",
@@ -149,8 +149,7 @@ export function TrackList<T = any>({
         title: "Playlist Created",
         description: `Track added to "${data.playlist.name}"`,
       })
-      // Invalidate only the playlists list queries
-      queryClient.invalidateQueries({ queryKey: ["playlist_gen_playlists_list"], exact: true })
+      // Invalidate the playlists query - used by both TrackList and PlaylistGenPage
       queryClient.invalidateQueries({ queryKey: ["playlist_gen_playlists"], exact: true })
       setIsNewPlaylistDialogOpen(false)
       setNewPlaylistName("")
@@ -187,7 +186,7 @@ export function TrackList<T = any>({
         description: "Track added to playlist successfully",
       })
       // Invalidate the playlists list and the specific playlist being modified
-      queryClient.invalidateQueries({ queryKey: ["playlist_gen_playlists_list"], exact: true })
+      queryClient.invalidateQueries({ queryKey: ["playlist_gen_playlists"], exact: true })
       queryClient.invalidateQueries({ queryKey: ["playlist_gen_playlist", String(data.playlistId)] })
     },
     onError: (error: Error) => {
@@ -220,7 +219,7 @@ export function TrackList<T = any>({
         description: "Track removed from playlist successfully",
       })
       // Invalidate the playlists list and the specific playlist being modified
-      queryClient.invalidateQueries({ queryKey: ["playlist_gen_playlists_list"], exact: true })
+      queryClient.invalidateQueries({ queryKey: ["playlist_gen_playlists"], exact: true })
       queryClient.invalidateQueries({ queryKey: ["playlist_gen_playlist", String(data.playlistId)] })
       onTrackRemoved?.()
     },
