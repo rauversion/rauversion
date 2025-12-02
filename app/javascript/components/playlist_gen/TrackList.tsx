@@ -103,6 +103,7 @@ export function TrackList<T = any>({
   const [isNewPlaylistDialogOpen, setIsNewPlaylistDialogOpen] = useState(false)
   const [newPlaylistName, setNewPlaylistName] = useState("")
   const [selectedTrackIdForNewPlaylist, setSelectedTrackIdForNewPlaylist] = useState<number | null>(null)
+  const [playlistSearch, setPlaylistSearch] = useState("")
 
   // Fetch available playlists - using same query key as PlaylistGenPage for cache consistency
   const { data: playlistsData } = useQuery({
@@ -257,6 +258,9 @@ export function TrackList<T = any>({
   }
 
   const playlists = playlistsData?.playlists || []
+  const filteredPlaylists = playlists.filter((playlist) =>
+    playlist.name.toLowerCase().includes(playlistSearch.toLowerCase()),
+  )
 
   if (!tracks.length) {
     return (
@@ -373,25 +377,44 @@ export function TrackList<T = any>({
                           Add to Playlist
                         </DropdownMenuSubTrigger>
                         <DropdownMenuPortal>
-                          <DropdownMenuSubContent>
+                          <DropdownMenuSubContent className="w-72">
                             <DropdownMenuItem onClick={() => handleOpenNewPlaylistDialog(id)}>
                               <Plus className="mr-2 h-4 w-4" />
                               Create New Playlist
                             </DropdownMenuItem>
-                            {playlists.length > 0 && <DropdownMenuSeparator />}
-                            {playlists.map((playlist) => (
-                              <DropdownMenuItem
-                                key={playlist.id}
-                                onClick={() => handleAddToPlaylist(playlist.id, id)}
-                                disabled={addToPlaylistMutation.isPending}
-                              >
-                                <Music className="mr-2 h-4 w-4" />
-                                {playlist.name}
-                                <span className="ml-auto text-xs text-muted-foreground">
-                                  ({playlist.total_tracks})
-                                </span>
-                              </DropdownMenuItem>
-                            ))}
+                            {playlists.length > 0 && (
+                              <>
+                                <DropdownMenuSeparator />
+                                <div className="px-2 pb-2">
+                                  <Input
+                                    placeholder="Search playlists..."
+                                    value={playlistSearch}
+                                    onChange={(e) => setPlaylistSearch(e.target.value)}
+                                    className="h-8"
+                                  />
+                                </div>
+                                <div className="max-h-64 overflow-y-auto">
+                                  {filteredPlaylists.map((playlist) => (
+                                    <DropdownMenuItem
+                                      key={playlist.id}
+                                      onClick={() => handleAddToPlaylist(playlist.id, id)}
+                                      disabled={addToPlaylistMutation.isPending}
+                                    >
+                                      <Music className="mr-2 h-4 w-4" />
+                                      {playlist.name}
+                                      <span className="ml-auto text-xs text-muted-foreground">
+                                        ({playlist.total_tracks})
+                                      </span>
+                                    </DropdownMenuItem>
+                                  ))}
+                                  {filteredPlaylists.length === 0 && (
+                                    <div className="px-2 pb-2 text-xs text-muted-foreground">
+                                      No playlists found
+                                    </div>
+                                  )}
+                                </div>
+                              </>
+                            )}
                           </DropdownMenuSubContent>
                         </DropdownMenuPortal>
                       </DropdownMenuSub>
