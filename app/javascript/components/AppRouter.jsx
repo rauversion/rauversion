@@ -99,6 +99,7 @@ import { InterestAlertDemo } from "./shared/alerts"
 import PlaylistGenPage from "./playlist_gen/PlaylistGenPage"
 import PlaylistShowPage from "./playlist_gen/PlaylistShowPage"
 import TrackSearchPage from "./playlist_gen/TrackSearchPage"
+import DJMixer from "./playlist_gen/PlaylistDecks"
 
 import CheckoutSuccess from "./checkout/CheckoutSuccess"
 import CheckoutFailure from "./checkout/CheckoutFailure"
@@ -322,6 +323,7 @@ function AppContent() {
           <Route path="/set-generator" element={<RequireAuth><PlaylistGenPage /></RequireAuth>} />
           <Route path="/set-generator/playlists/:id" element={<RequireAuth><PlaylistShowPage /></RequireAuth>} />
           <Route path="/set-generator/search" element={<RequireAuth><TrackSearchPage /></RequireAuth>} />
+          <Route path="/set-generator/decks" element={<RequireAuth><DJMixer /></RequireAuth>} />
 
           <Route path="/:username/press-kit" element={<PressKitPage />} />
 

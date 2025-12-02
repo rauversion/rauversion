@@ -30,9 +30,11 @@ import {
   SkipForward,
   Volume2,
   VolumeX,
+  Disc,
 } from "lucide-react"
 import { Textarea } from "@/components/ui/textarea"
 import { useToast } from "@/hooks/use-toast"
+import useDjDecksStore from "@/stores/djDecksStore"
 
 interface Track {
   id: number
@@ -58,6 +60,9 @@ export default function TrackSearchPage() {
   const navigate = useNavigate()
   const [prompt, setPrompt] = useState("")
 
+  // DJ Decks store for adding tracks to decks
+  const { addToDeckA, addToDeckB } = useDjDecksStore()
+
   // Audio player state (similar to PlaylistShowPage)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const [currentTrackId, setCurrentTrackId] = useState<number | null>(null)
@@ -66,6 +71,42 @@ export default function TrackSearchPage() {
   const [duration, setDuration] = useState(0)
   const [volume, setVolume] = useState(0.8)
   const [isMuted, setIsMuted] = useState(false)
+
+  // Helper to add track to deck
+  const handleAddToDeck = (track: Track, deck: "A" | "B") => {
+    if (!track.file_path) {
+      toast({
+        variant: "destructive",
+        title: "Cannot add to deck",
+        description: "This track does not have a playable file.",
+      })
+      return
+    }
+    
+    const deckTrack = {
+      id: track.id,
+      title: track.title,
+      artist: track.artist,
+      streamUrl: getStreamUrl(track.id),
+      duration: track.duration_seconds || undefined,
+      bpm: track.bpm || undefined,
+      key: track.key || undefined,
+    }
+    
+    if (deck === "A") {
+      addToDeckA(deckTrack)
+    } else {
+      addToDeckB(deckTrack)
+    }
+    
+    toast({
+      title: `Added to Deck ${deck}`,
+      description: `${track.title} - ${track.artist || "Unknown Artist"}`,
+    })
+    
+    // Navigate to DJ Decks page
+    navigate("/set-generator/decks")
+  }
 
   // Search mutation
   const searchMutation = useMutation({
@@ -428,6 +469,20 @@ export default function TrackSearchPage() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
+                            {track.file_path && (
+                              <>
+                                <DropdownMenuLabel className="text-xs text-muted-foreground">DJ Decks</DropdownMenuLabel>
+                                <DropdownMenuItem onClick={() => handleAddToDeck(track, "A")}>
+                                  <Disc className="mr-2 h-4 w-4" />
+                                  Add to Deck A
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleAddToDeck(track, "B")}>
+                                  <Disc className="mr-2 h-4 w-4" />
+                                  Add to Deck B
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator />
+                              </>
+                            )}
                             <DropdownMenuLabel>Search & Listen</DropdownMenuLabel>
                             <DropdownMenuSeparator />
                             <DropdownMenuItem onClick={() => openExternalSearch(track, "youtube")}>
