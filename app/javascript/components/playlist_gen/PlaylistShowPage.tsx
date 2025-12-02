@@ -129,7 +129,7 @@ export default function PlaylistShowPage() {
     })
     
     // Navigate to DJ Decks page
-    navigate("/set-generator/decks")
+    // navigate("/set-generator/decks")
   }
   
   // Get current track from playlist

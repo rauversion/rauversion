@@ -135,6 +135,15 @@ function RequireAuth({ children }) {
   return children
 }
 
+function SetGeneratorLayout() {
+  return (
+    <>
+      <DJMixer />
+      <Outlet />
+    </>
+  )
+}
+
 function AppContent() {
   const { currentUser } = useAuthStore()
   const { subscribe, unsubscribe, subscription } = useActionCable()
@@ -320,10 +329,11 @@ function AppContent() {
           <Route path="/service_bookings" element={<RequireAuth><ServiceBookings /></RequireAuth>} />
           <Route path="/service_bookings/:id" element={<RequireAuth><ServiceBookingDetail /></RequireAuth>} />
           <Route path="/account_connections/new" element={<RequireAuth><AccountConnectionForm /></RequireAuth>} />
-          <Route path="/set-generator" element={<RequireAuth><PlaylistGenPage /></RequireAuth>} />
-          <Route path="/set-generator/playlists/:id" element={<RequireAuth><PlaylistShowPage /></RequireAuth>} />
-          <Route path="/set-generator/search" element={<RequireAuth><TrackSearchPage /></RequireAuth>} />
-          <Route path="/set-generator/decks" element={<RequireAuth><DJMixer /></RequireAuth>} />
+          <Route path="/set-generator" element={<RequireAuth><SetGeneratorLayout /></RequireAuth>} >
+            <Route index element={<PlaylistGenPage />} />
+            <Route path="playlists/:id" element={<PlaylistShowPage />} />
+            <Route path="search" element={<TrackSearchPage />} />
+          </Route>
 
           <Route path="/:username/press-kit" element={<PressKitPage />} />
 
