@@ -225,6 +225,10 @@ export default function EventTicketModal({ selectedTicket, selectedPurchase, tic
                         <div className="text-sm font-semibold">
                           {data.event_ticket.event.location}
                         </div>
+
+                        <div className="text-md text-muted-foreground font-medium break-all whitespace-break-spaces">
+                          {data?.event_ticket?.settings?.after_purchase_message}
+                        </div>
                       </motion.div>
                     </motion.div>
                   </motion.div>
