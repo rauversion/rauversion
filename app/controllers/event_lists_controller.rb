@@ -67,9 +67,13 @@ class EventListsController < ApplicationController
       imported_count = 0
       errors = []
 
-      CSV.foreach(file.path, headers: true, header_converters: :symbol) do |row|
+      CSV.foreach(file.path, 
+        headers: true, 
+        header_converters: :symbol,
+        encoding: "ISO-8859-1:UTF-8" # o "Windows-1252:UTF-8"
+        ) do |row|
         contact = @event_list.event_list_contacts.new(
-          email: row[:email],
+          email: row[:email].downcase,
           name: row[:name],
           first_name: row[:first_name],
           last_name: row[:last_name],
