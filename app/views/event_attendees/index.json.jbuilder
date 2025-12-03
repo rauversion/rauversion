@@ -17,6 +17,7 @@ json.collection @purchased_items do |item|
   end
 
   json.user do
+    json.email purchase.user.email
     json.partial! 'users/user', user: purchase.user, show_full_name: true
   end
 end
