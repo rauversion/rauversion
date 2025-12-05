@@ -45,6 +45,8 @@ Rails.application.routes.draw do
   get "/page-builder", to: "application#render_blank"
   get "/search", to: "application#render_blank"
   get "/forgot-password", to: "application#render_blank"
+  get "/set-generator", to: "application#render_blank"
+  get "/set-generator/playlists/:id", to: "application#render_blank"
 
 
   # Stripe Connect routes
@@ -94,6 +96,7 @@ Rails.application.routes.draw do
 
 
   mount Backstage::Engine => "/admin"
+  mount PlaylistGen::Engine => "/playlist_gen"
 
   #namespace :admin do
   #  root to: 'dashboard#index'
