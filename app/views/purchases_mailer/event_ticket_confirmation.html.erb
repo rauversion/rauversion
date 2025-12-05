@@ -42,7 +42,7 @@
         <td style="padding-top: 20px; padding-bottom: 20px;">
           <% if item.purchased_item.after_purchase_message.present? %>
             <div style="background-color: #fff; border-left: 3px solid #2196f3; padding: 12px 15px; margin-bottom: 20px; border-radius: 3px;">
-              <p style="margin: 0; font-size: 14px; color: #333333; font-weight: 500;">
+              <p style="margin: 0; font-size: 14px; color: #333333; font-weight: 500;word-wrap: break-word; white-space: pre-wrap;">
                 <%= item.purchased_item.after_purchase_message %>
               </p>
             </div>
@@ -113,7 +113,7 @@
     </table>
   </div>
 <% end %>
-
+<!--
 <table role="presentation" style="width: 100%; margin-top: 30px;">
   <tr>
     <td style="text-align: center;">
@@ -130,3 +130,4 @@
     </td>
   </tr>
 </table>
+-->
