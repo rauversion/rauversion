@@ -11,6 +11,15 @@ if @event.errors.any?
           json.set! "event_schedules_attributes.#{index}.#{field}", messages
         end
       end
+      
+      # Include nested errors from schedule_schedulings
+      schedule.schedule_schedulings.each_with_index do |scheduling, scheduling_index|
+        if scheduling.errors.any?
+          scheduling.errors.messages.each do |field, messages|
+            json.set! "event_schedules_attributes.#{index}.schedule_schedulings_attributes.#{scheduling_index}.#{field}", messages
+          end
+        end
+      end
     end
 
     @event.event_tickets.each_with_index do |ticket, index|
