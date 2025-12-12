@@ -105,6 +105,7 @@ gem "dotenv-rails", groups: [:development, :test]
 
 gem "ruby-openai", "~> 7.1"
 gem "qdrant-ruby", "~> 0.9.2"
+gem "neighbor"
 # gem "pgvector", "~> 0.2"
 
 # gem "plain-rails", path: "/Users/michelson/Documents/rubyonrails/plain"
@@ -191,6 +192,7 @@ gem "mrsk", "~> 0.15.1"
 
 # gem 'backstage-rails', path: 'backstage-rails'
 gem 'backstage', path: 'backstage'
+gem 'playlist_gen', path: 'playlist_gen'
 gem "langchain", "~> 0.1.0"
 
 gem "i18n-js", "~> 4.2"
