@@ -72,6 +72,12 @@ Rails.application.routes.draw do
       resources :categories, only: [:index]
       get 'tags/popular', to: 'tags#popular'
       
+      resources :themes, only: [:index, :show] do
+        member do
+          post :download_tarball
+        end
+      end
+      
       resources :users, param: :username, only: [] do
         resources :user_links, only: [:index]
       end
