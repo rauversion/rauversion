@@ -86,8 +86,11 @@ class ThemeDownloadJob < ApplicationJob
           next unless entry.file?
           
           # Remove the first directory component (GitHub adds a repo-ref/ prefix)
-          path = entry.full_name.split('/', 2).last
-          next if path.nil? || path.empty?
+          parts = entry.full_name.split('/', 2)
+          path = parts.length > 1 ? parts[1] : parts[0]
+          
+          # Skip if path is empty or just a dot
+          next if path.nil? || path.empty? || path == '.'
           
           files << {
             path: path,

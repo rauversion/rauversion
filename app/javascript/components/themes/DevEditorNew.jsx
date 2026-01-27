@@ -42,8 +42,7 @@ export function DevEditorNew({ siteId, onThemeFilesReady }) {
   const handleFilesReady = (files) => {
     toast({
       title: 'Success',
-      description: `Theme "${selectedTheme.name}" activated successfully!`,
-      variant: 'success'
+      description: `Theme "${selectedTheme.name}" activated successfully!`
     })
     
     // Pass files to parent component for WebContainer integration
