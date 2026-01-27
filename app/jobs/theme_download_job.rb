@@ -1,4 +1,4 @@
-require 'open-uri'
+require 'net/http'
 require 'rubygems/package'
 require 'zlib'
 
@@ -26,11 +26,8 @@ class ThemeDownloadJob < ApplicationJob
         progress: 20
       })
 
-      # Download the tarball
-      tarball_data = URI.open(tarball_url, 
-        'User-Agent' => 'Rauversion',
-        read_timeout: 60
-      ).read
+      # Download the tarball using Net::HTTP for better security
+      tarball_data = download_tarball_securely(tarball_url)
 
       broadcast_progress(channel_name, {
         status: 'extracting',
@@ -71,6 +68,51 @@ class ThemeDownloadJob < ApplicationJob
 
   def broadcast_progress(channel_name, data)
     ActionCable.server.broadcast(channel_name, data)
+  end
+
+  def download_tarball_securely(url)
+    # Parse and validate the URL
+    uri = URI.parse(url)
+    
+    # Ensure we're only downloading from GitHub API
+    unless uri.host == 'api.github.com' && uri.scheme == 'https'
+      raise SecurityError, 'Invalid download URL - only GitHub API is allowed'
+    end
+
+    # Use Net::HTTP for secure download
+    Net::HTTP.start(uri.host, uri.port, use_ssl: true, read_timeout: 60) do |http|
+      request = Net::HTTP::Get.new(uri.request_uri)
+      request['User-Agent'] = 'Rauversion'
+      
+      response = http.request(request)
+      
+      case response
+      when Net::HTTPSuccess
+        response.body
+      when Net::HTTPRedirection
+        # GitHub API returns redirects to the actual tarball location
+        redirect_uri = URI.parse(response['location'])
+        download_from_redirect(redirect_uri)
+      else
+        raise "Failed to download tarball: #{response.code} #{response.message}"
+      end
+    end
+  end
+
+  def download_from_redirect(uri)
+    # Follow redirect to download actual tarball
+    Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https', read_timeout: 60) do |http|
+      request = Net::HTTP::Get.new(uri.request_uri)
+      request['User-Agent'] = 'Rauversion'
+      
+      response = http.request(request)
+      
+      unless response.is_a?(Net::HTTPSuccess)
+        raise "Failed to download tarball from redirect: #{response.code} #{response.message}"
+      end
+      
+      response.body
+    end
   end
 
   def extract_tarball(tarball_data)
