@@ -4,6 +4,7 @@ import SalesProductShow from './sales/ProductShow'
 import PagesTable from './pages/PagesTable'
 import PagesEditor from './pages/PagesEditor'
 import PagesShow from './pages/PagesShow'
+import { DevEditorNew } from './themes/DevEditorNew'
 import useAuthStore from '@/stores/authStore'
 import { useActionCable } from '../hooks/useActionCable'
 import ArticlesIndex from './articles/Index'
@@ -209,6 +210,7 @@ function AppContent() {
           <Route path="/pages" element={<RequireAuth> <PagesTable /></RequireAuth>} />
           <Route path="/pages/:id/edit" element={<RequireAuth> <PagesEditor /></RequireAuth>} />
           <Route path="/pages/:slug" element={<PagesShow />} />
+          <Route path="/dev-editor" element={<RequireAuth> <DevEditorNew /></RequireAuth>} />
 
           <Route path="/users/sign_in" element={<Login />} />
           <Route path="/users/sign_up" element={<Register />} />
