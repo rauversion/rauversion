@@ -1,0 +1,20 @@
+<h1 style="font-size: 24px; color: #2d3748; margin-bottom: 16px;">
+  <%= t('.greeting', user: @user.username) %>
+</h1>
+
+<p style="color: #4a5568; margin-bottom: 16px;">
+  <%= t('.body', liker: @liker.username) %>
+</p>
+
+<% content_url = @likeable.is_a?(Track) ? track_url(@likeable) : nil %>
+<% if content_url %>
+  <div style="margin: 24px 0;">
+    <%= link_to t('.view_content'),
+        content_url,
+        style: "display: inline-block; background-color: #4299e1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px;" %>
+  </div>
+<% end %>
+
+<p style="color: #718096; font-size: 14px;">
+  <%= t('.footer') %>
+</p>

@@ -1,0 +1,26 @@
+<h1 style="font-size: 24px; color: #2d3748; margin-bottom: 16px;">
+  <%= t('.greeting', user: @user.username) %>
+</h1>
+
+<p style="color: #4a5568; margin-bottom: 16px;">
+  <%= t('.body', commenter: @commenter.username) %>
+</p>
+
+<% if @comment.body.present? %>
+  <div style="background-color: #f7fafc; border-left: 4px solid #4299e1; padding: 12px 16px; margin: 16px 0; border-radius: 0 4px 4px 0;">
+    <p style="color: #4a5568; margin: 0; font-style: italic;">"<%= @comment.body %>"</p>
+  </div>
+<% end %>
+
+<% content_url = @commentable.is_a?(Track) ? track_url(@commentable) : nil %>
+<% if content_url %>
+  <div style="margin: 24px 0;">
+    <%= link_to t('.view_content'),
+        content_url,
+        style: "display: inline-block; background-color: #4299e1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px;" %>
+  </div>
+<% end %>
+
+<p style="color: #718096; font-size: 14px;">
+  <%= t('.footer') %>
+</p>

@@ -94,6 +94,7 @@ class Track < ApplicationRecord
   include AASM
 
   after_create :reprocess_async
+  after_create_commit :notify_followers_of_new_post
 
   aasm column: :state do
     state :pending, initial: true
@@ -228,6 +229,10 @@ class Track < ApplicationRecord
 
   def reprocess_async
     TrackProcessorJob.perform_later(id)
+  end
+
+  def notify_followers_of_new_post
+    NewPostNotificationJob.perform_later(id)
   end
 
   def reprocess!
