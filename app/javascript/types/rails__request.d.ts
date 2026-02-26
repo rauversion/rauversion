@@ -4,6 +4,7 @@ declare module '@rails/request.js' {
     headers?: Record<string, string>
     query?: Record<string, string>
     responseKind?: 'json' | 'html' | 'turbo-stream'
+    contentType?: string | false
   }
 
   interface Response {
@@ -11,6 +12,7 @@ declare module '@rails/request.js' {
     html?: string
     response: globalThis.Response
     success: boolean
+    ok: boolean
   }
 
   export function get(path: string, options?: RequestOptions): Promise<Response>
