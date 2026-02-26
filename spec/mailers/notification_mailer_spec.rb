@@ -60,7 +60,8 @@ RSpec.describe NotificationMailer, type: :mailer do
   end
 
   describe "new_post" do
-    let(:mail) { NotificationMailer.with(author: other_user, user: user, track: track).new_post }
+    let(:post) { FactoryBot.create(:post, user: other_user, state: "published", private: false, title: "My Article") }
+    let(:mail) { NotificationMailer.with(author: other_user, user: user, post: post).new_post }
 
     it "renders the headers" do
       expect(mail.to).to eq([user.email])
@@ -69,7 +70,7 @@ RSpec.describe NotificationMailer, type: :mailer do
 
     it "renders the body" do
       expect(mail.body.encoded).to match(other_user.username)
-      expect(mail.body.encoded).to match(track.title)
+      expect(mail.body.encoded).to match(post.title)
     end
   end
 end

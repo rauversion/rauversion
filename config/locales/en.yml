@@ -35,8 +35,8 @@ en:
       new_post:
         subject: "%{author} published new content"
         greeting: "Hi %{user}!"
-        body: "%{author} just published a new track: \"%{track}\"."
-        view_track: "View Track"
+        body: "%{author} just published a new article: \"%{post}\"."
+        view_post: "View Article"
         footer: "You received this email because you follow %{author} and have new post notifications enabled."
   hello: Hello world
   by: Por %{name}

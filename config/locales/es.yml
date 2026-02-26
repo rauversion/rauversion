@@ -35,8 +35,8 @@ es:
       new_post:
         subject: "%{author} publicó nuevo contenido"
         greeting: "¡Hola %{user}!"
-        body: "%{author} acaba de publicar un nuevo track: \"%{track}\"."
-        view_track: "Ver Track"
+        body: "%{author} acaba de publicar un nuevo artículo: \"%{post}\"."
+        view_post: "Ver Artículo"
         footer: "Recibiste este correo porque sigues a %{author} y tienes activadas las notificaciones de nuevas publicaciones."
   hello: "Hola mundo"
   by: "Por %{name}"

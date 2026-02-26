@@ -1,12 +1,12 @@
 class NewPostNotificationJob < ApplicationJob
   queue_as :default
 
-  def perform(track_id)
-    track = Track.find_by(id: track_id)
-    return unless track
-    return if track.private?
+  def perform(post_id)
+    post = Post.find_by(id: post_id)
+    return unless post
+    return unless post.state == "published" && !post.private?
 
-    author = track.user
+    author = post.user
     followers = author.followers(User)
 
     followers.each do |follower|
@@ -15,7 +15,7 @@ class NewPostNotificationJob < ApplicationJob
       NotificationMailer.with(
         author: author,
         user: follower,
-        track: track
+        post: post
       ).new_post.deliver_later
     end
   end

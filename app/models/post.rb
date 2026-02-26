@@ -25,6 +25,8 @@ class Post < ApplicationRecord
   scope :draft, -> { where(state: "draft") }
   scope :latests, -> { order("created_at desc") }
 
+  after_commit :notify_followers_if_published, on: [:create, :update]
+
   def tags=(list)
     self[:tags] = list.map(&:downcase).reject { |item| item.empty? }
   end
@@ -102,5 +104,18 @@ class Post < ApplicationRecord
 
   def plain_text
     Dante::Utils.extract_plain_text(body["content"])
+  end
+
+  private
+
+  def notify_followers_if_published
+    return unless state == "published" && !private?
+
+    state_just_published = saved_change_to_state? && state_before_last_save != "published"
+    just_made_public = saved_change_to_private? && private_before_last_save == true
+
+    return unless state_just_published || just_made_public
+
+    NewPostNotificationJob.perform_later(id)
   end
 end

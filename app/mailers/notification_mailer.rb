@@ -46,7 +46,7 @@ class NotificationMailer < ApplicationMailer
   def new_post
     @author = params[:author]
     @user = params[:user]
-    @track = params[:track]
+    @post = params[:post]
 
     mail(
       to: @user.email,
