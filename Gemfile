@@ -191,7 +191,7 @@ gem "mrsk", "~> 0.15.1"
 
 # gem 'backstage-rails', path: 'backstage-rails'
 gem 'backstage', path: 'backstage'
-gem "langchain", "~> 0.1.0"
+# gem "langchain", "~> 0.1.0"
 
 gem "i18n-js", "~> 4.2"
 
