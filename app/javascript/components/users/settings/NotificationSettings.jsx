@@ -73,7 +73,7 @@ export default function NotificationSettings() {
 
   const onSubmit = async (data) => {
     try {
-      const response = await patch(`/${username}/settings/email`, {
+      const response = await patch(`/${username}/settings/notifications`, {
         body: JSON.stringify({ user: data }),
         responseKind: "json"
       })

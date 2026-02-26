@@ -69,20 +69,20 @@ class User < ApplicationRecord
 
   include User::OmniAuthExtension
 
-  store_attribute :notification_settings, :new_follower_email, :boolean
-  store_attribute :notification_settings, :new_follower_app, :boolean
-  store_attribute :notification_settings, :repost_of_your_post_email, :boolean
-  store_attribute :notification_settings, :repost_of_your_post_app, :boolean
+  store_attribute :notification_settings, :new_follower_email, :boolean, default: ->{true}
+  store_attribute :notification_settings, :new_follower_app, :boolean, default: ->{true}
+  store_attribute :notification_settings, :repost_of_your_post_email, :boolean, default: ->{true}
+  store_attribute :notification_settings, :repost_of_your_post_app, :boolean, default: ->{true}
   store_attribute :notification_settings, :new_post_by_followed_user_email, :boolean
   store_attribute :notification_settings, :new_post_by_followed_user_app, :boolean
-  store_attribute :notification_settings, :like_and_plays_on_your_post_app, :boolean
-  store_attribute :notification_settings, :comment_on_your_post_email, :boolean
-  store_attribute :notification_settings, :comment_on_your_post_app, :boolean
-  store_attribute :notification_settings, :suggested_content_email, :boolean
-  store_attribute :notification_settings, :suggested_content_app, :boolean
-  store_attribute :notification_settings, :new_message_email, :boolean
-  store_attribute :notification_settings, :new_message_app, :boolean
-  store_attribute :notification_settings, :like_and_plays_on_your_post_email, :boolean
+  store_attribute :notification_settings, :like_and_plays_on_your_post_app, :boolean, default: ->{true}
+  store_attribute :notification_settings, :like_and_plays_on_your_post_email, :boolean, default: ->{true}
+  store_attribute :notification_settings, :comment_on_your_post_email, :boolean, default: ->{true}
+  store_attribute :notification_settings, :comment_on_your_post_app, :boolean, default: ->{true}
+  store_attribute :notification_settings, :suggested_content_email, :boolean, default: ->{true}
+  store_attribute :notification_settings, :suggested_content_app, :boolean, default: ->{true}
+  store_attribute :notification_settings, :new_message_email, :boolean, default: ->{true}
+  store_attribute :notification_settings, :new_message_app, :boolean, default: ->{true}
 
   store_attribute :settings, :hide_username_from_profile, :boolean
   store_attribute :settings, :pst_enabled, :boolean

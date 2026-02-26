@@ -1,43 +1,46 @@
 es:
-  mailers:
-    message:
-      new_message:
-        subject: "Nuevo mensaje de %{sender}"
-        greeting: "¡Hola %{recipient}!"
-        body: "%{sender} te ha enviado un nuevo mensaje en tu conversación"
-        view_conversation: "Ver Conversación"
-        footer: "Haz clic en el enlace de arriba para ver y responder al mensaje"
-    notification:
-      new_follower:
-        subject: "%{follower} ahora te sigue"
-        greeting: "¡Hola %{user}!"
-        body: "%{follower} ha comenzado a seguirte."
-        view_profile: "Ver Perfil"
-        footer: "Recibiste este correo porque tienes activadas las notificaciones de nuevos seguidores."
-      new_comment:
-        subject: "%{commenter} comentó en tu contenido"
-        greeting: "¡Hola %{user}!"
-        body: "%{commenter} dejó un comentario en tu contenido."
-        view_content: "Ver Contenido"
-        footer: "Recibiste este correo porque tienes activadas las notificaciones de comentarios."
-      new_like:
-        subject: "%{liker} le dio me gusta a tu contenido"
-        greeting: "¡Hola %{user}!"
-        body: "%{liker} le dio me gusta a tu contenido."
-        view_content: "Ver Contenido"
-        footer: "Recibiste este correo porque tienes activadas las notificaciones de me gusta."
-      new_repost:
-        subject: "%{reposter} reposteó tu track"
-        greeting: "¡Hola %{user}!"
-        body: "%{reposter} reposteó tu track \"%{track}\"."
-        view_track: "Ver Track"
-        footer: "Recibiste este correo porque tienes activadas las notificaciones de reposteos."
-      new_post:
-        subject: "%{author} publicó nuevo contenido"
-        greeting: "¡Hola %{user}!"
-        body: "%{author} acaba de publicar un nuevo artículo: \"%{post}\"."
-        view_post: "Ver Artículo"
-        footer: "Recibiste este correo porque sigues a %{author} y tienes activadas las notificaciones de nuevas publicaciones."
+  notification_mailer:
+    new_message:
+      subject: "Nuevo mensaje de %{sender}"
+      greeting: "¡Hola %{recipient}!"
+      body: "%{sender} te ha enviado un nuevo mensaje en tu conversación"
+      view_conversation: "Ver Conversación"
+      footer: "Haz clic en el enlace de arriba para ver y responder al mensaje"
+    new_follower:
+      subject: "%{follower} ahora te sigue"
+      greeting: "¡Hola %{user}!"
+      body: "%{follower} ha comenzado a seguirte."
+      view_profile: "Ver Perfil"
+      footer: "Recibiste este correo porque tienes activadas las notificaciones de nuevos seguidores."
+    new_comment:
+      subject: "%{commenter} comentó en tu contenido"
+      greeting: "¡Hola %{user}!"
+      body: "%{commenter} dejó un comentario en tu contenido."
+      view_content: "Ver Contenido"
+      content_url_label: "URL"
+      content_preview_alt: "Imagen de portada de %{title}"
+      footer: "Recibiste este correo porque tienes activadas las notificaciones de comentarios."
+    new_like:
+      subject: "%{liker} le dio me gusta a tu contenido"
+      greeting: "¡Hola %{user}!"
+      body: "%{liker} le dio me gusta a tu contenido."
+      view_content: "Ver Contenido"
+      content_url_label: "URL"
+      content_preview_alt: "Imagen de portada de %{title}"
+      footer: "Recibiste este correo porque tienes activadas las notificaciones de me gusta."
+    new_repost:
+      subject: "%{reposter} reposteó tu track"
+      greeting: "¡Hola %{user}!"
+      body: "%{reposter} reposteó tu track \"%{track}\"."
+      view_track: "Ver Track"
+      footer: "Recibiste este correo porque tienes activadas las notificaciones de reposteos."
+    new_post:
+      subject: "%{author} publicó nuevo contenido"
+      greeting: "¡Hola %{user}!"
+      body: "%{author} acaba de publicar un nuevo artículo: \"%{post}\"."
+      view_post: "Ver Artículo"
+      footer: "Recibiste este correo porque sigues a %{author} y tienes activadas las notificaciones de nuevas publicaciones."
+
   hello: "Hola mundo"
   by: "Por %{name}"
   see_everything: Ver Todo
