@@ -1,0 +1,58 @@
+<h1 style="font-size: 24px; color: #2d3748; margin-bottom: 16px;">
+  <%= t('.greeting', user: @user.username) %>
+</h1>
+
+<p style="color: #4a5568; margin-bottom: 16px;">
+  <%= t('.body', commenter: @commenter.username) %>
+</p>
+
+<% if @comment.body.present? %>
+  <div style="background-color: #f7fafc; border-left: 4px solid #4299e1; padding: 12px 16px; margin: 16px 0; border-radius: 0 4px 4px 0;">
+    <p style="color: #4a5568; margin: 0; font-style: italic;">"<%= @comment.body %>"</p>
+  </div>
+<% end %>
+
+<% if @commentable.present? %>
+  <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px; margin: 16px 0; background-color: #ffffff;">
+    <% if @commentable_cover_url.present? %>
+      <img
+        src="<%= @commentable_cover_url %>"
+        alt="<%= t('.content_preview_alt', title: @commentable_title || @commentable_type) %>"
+        width="72"
+        height="72"
+        style="display: block; width: 72px; height: 72px; object-fit: cover; border-radius: 8px; margin-bottom: 12px;"
+      />
+    <% end %>
+
+    <p style="margin: 0 0 6px; color: #4a5568; font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em;">
+      <%= @commentable_type %>
+    </p>
+
+    <% if @commentable_title.present? %>
+      <p style="margin: 0 0 8px; color: #2d3748; font-size: 16px; font-weight: 600;">
+        <%= @commentable_title %>
+      </p>
+    <% end %>
+
+    <% if @commentable_url.present? %>
+      <p style="margin: 0; color: #4a5568; font-size: 13px;">
+        <strong><%= t('.content_url_label') %>:</strong>
+        <a href="<%= @commentable_url %>" style="color: #3182ce; text-decoration: none;">
+          <%= @commentable_url %>
+        </a>
+      </p>
+    <% end %>
+  </div>
+<% end %>
+
+<% if @commentable_url.present? %>
+  <div style="margin: 24px 0;">
+    <%= link_to t('.view_content'),
+        @commentable_url,
+        style: "display: inline-block; background-color: #4299e1; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px;" %>
+  </div>
+<% end %>
+
+<p style="color: #718096; font-size: 14px;">
+  <%= t('.footer') %>
+</p>

@@ -1,12 +1,47 @@
 en:
-  mailers:
-    message:
-      new_message:
-        subject: "New message from %{sender}"
-        greeting: "Hello %{recipient}!"
-        body: "%{sender} has sent you a new message in your conversation"
-        view_conversation: "View Conversation"
-        footer: "Click the link above to view and respond to the message"
+  notification_mailer:
+    new_message:
+      subject: "New message from %{sender}"
+      greeting: "Hello %{recipient}!"
+      body: "%{sender} has sent you a new message in your conversation"
+      view_conversation: "View Conversation"
+      footer: "Click the link above to view and respond to the message"
+
+    new_follower:
+      subject: "%{follower} is now following you"
+      greeting: "Hi %{user}!"
+      body: "%{follower} has started following you."
+      view_profile: "View Profile"
+      footer: "You received this email because you have new follower notifications enabled."
+    new_comment:
+      subject: "%{commenter} commented on your content"
+      greeting: "Hi %{user}!"
+      body: "%{commenter} left a comment on your content."
+      view_content: "View Content"
+      content_url_label: "URL"
+      content_preview_alt: "Cover image for %{title}"
+      footer: "You received this email because you have comment notifications enabled."
+    new_like:
+      subject: "%{liker} liked your content"
+      greeting: "Hi %{user}!"
+      body: "%{liker} liked your content."
+      view_content: "View Content"
+      content_url_label: "URL"
+      content_preview_alt: "Cover image for %{title}"
+      footer: "You received this email because you have likes notifications enabled."
+    new_repost:
+      subject: "%{reposter} reposted your track"
+      greeting: "Hi %{user}!"
+      body: "%{reposter} reposted your track \"%{track}\"."
+      view_track: "View Track"
+      footer: "You received this email because you have repost notifications enabled."
+    new_post:
+      subject: "%{author} published new content"
+      greeting: "Hi %{user}!"
+      body: "%{author} just published a new article: \"%{post}\"."
+      view_post: "View Article"
+      footer: "You received this email because you follow %{author} and have new post notifications enabled."
+
   hello: Hello world
   by: Por %{name}
   common:

@@ -9,6 +9,8 @@ json.playlist do
   json.editor_choice_position @playlist.editor_choice_position
   json.created_at @playlist.created_at
   json.updated_at @playlist.updated_at
+  json.likes_count @playlist.likes.count
+  json.like_id current_user.present? && @playlist.liked_by?(current_user)
   json.price @playlist.price
   json.name_your_price @playlist.name_your_price
   json.formatted_price number_to_currency(@playlist.price)
