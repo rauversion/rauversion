@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { get } from "@rails/request.js";
+import { get, post } from "@rails/request.js";
 import useAudioStore from "../../stores/audioStore";
 import useAuthStore from "../../stores/authStore";
 import { format } from "date-fns";
@@ -15,11 +15,14 @@ import { ShareDialog } from "@/components/ui/share-dialog";
 import { Comments } from "@/components/comments/Comments";
 import MusicPurchase from "@/components/shared/MusicPurchase";
 import { ShowMoreText } from "@/components/ui/show_more";
+import { useToast } from "@/hooks/use-toast";
 export default function PlaylistShow() {
   const { slug } = useParams();
   const [playlist, setPlaylist] = useState(null);
   const [loading, setLoading] = useState(true);
   const [editOpen, setEditOpen] = useState(false);
+  const [likes, setLikes] = useState(0);
+  const [isLiked, setIsLiked] = useState(false);
   const {
     currentTrackId,
     isPlaying,
@@ -31,12 +34,16 @@ export default function PlaylistShow() {
     addMultipleToPlaylist,
   } = useAudioStore();
   const { currentUser } = useAuthStore();
+  const { toast } = useToast();
+
   const fetchPlaylist = async () => {
     try {
       const response = await get(`/playlists/${slug}.json`);
       if (response.ok) {
         const data = await response.json;
         setPlaylist(data.playlist);
+        setLikes(data.playlist.likes_count || 0);
+        setIsLiked(Boolean(data.playlist.like_id));
         // Set the playlist in the audio store
         setAudioPlaylist(data.playlist.tracks);
       }
@@ -69,6 +76,46 @@ export default function PlaylistShow() {
     } else {
       pause();
       play(trackId);
+    }
+  };
+
+  const handleLike = async () => {
+    if (!currentUser) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to like playlists",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const response = await post(`/playlists/${playlist.slug}/likes`, {
+        responseKind: "json",
+      });
+
+      if (response.ok) {
+        const { liked, resource } = await response.json;
+        setLikes(resource.likes_count || 0);
+        setIsLiked(liked);
+        toast({
+          title: "Success",
+          description: !liked ? "Unliked playlist!" : "Playlist liked!",
+        });
+      } else {
+        const error = await response.json;
+        toast({
+          title: "Error",
+          description: error.message || error.error || "Error liking playlist",
+          variant: "destructive",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Error liking playlist",
+        variant: "destructive",
+      });
     }
   };
 
@@ -259,19 +306,21 @@ export default function PlaylistShow() {
                   </ShareDialog>
 
                   <motion.button
+                    onClick={handleLike}
                     className={cn(
                       "px-4 py-2 rounded-full",
                       "border border-white/10",
-                      "text-foreground",
+                      isLiked ? "text-brand-500 border-brand-500/20 bg-brand-500/10" : "text-foreground",
                       "flex items-center gap-2",
                       "transition-all duration-300",
-                      "hover:bg-white/10 hover:border-white/20"
+                      isLiked ? "hover:bg-brand-500/20" : "hover:bg-white/10 hover:border-white/20"
                     )}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >
-                    <Heart size={20} />
-                    <span className="hidden sm:inline">3 Me gusta</span>
+                    <Heart size={20} className={isLiked ? "fill-current" : ""} />
+                    <span className="hidden sm:inline">{likes} Me gusta</span>
+                    <span className="sr-only">Like playlist</span>
                   </motion.button>
                 </div>
               </motion.div>

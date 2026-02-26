@@ -10,7 +10,7 @@ class NewLikeNotificationJob < ApplicationJob
     return unless likeable.respond_to?(:user)
 
     user = likeable.user
-    return if user == liker
+    #return if user == liker
     return unless user.like_and_plays_on_your_post_email?
 
     NotificationMailer.with(
