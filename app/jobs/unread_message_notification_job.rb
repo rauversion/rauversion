@@ -11,6 +11,7 @@ class UnreadMessageNotificationJob < ApplicationJob
     recipients.each do |recipient|
       # Skip if message is already read by this participant
       next if message.read_by?(recipient)
+      next unless recipient.user.new_message_email?
 
       # Send email notification
       MessageMailer.with(
