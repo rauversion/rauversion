@@ -12,8 +12,6 @@ function TextContentField({ value = "", onChange }) {
       <SimpleEditor
         value={value}
         onChange={onChange}
-        placeholder="Enter text"
-        rows={4}
       />
     </div>
   );
