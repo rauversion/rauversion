@@ -308,6 +308,7 @@ Rails.application.routes.draw do
   resources :tracks do
     collection do
       get :by_id
+      get :mine
     end
     resource :events, only: :show, controller: "tracking_events"
     resource :reposts
