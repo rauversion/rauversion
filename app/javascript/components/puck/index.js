@@ -1,10 +1,16 @@
 import React from "react";
-import { ActionBar } from "@measured/puck";
-import { Puck } from "@measured/puck";
+import { ActionBar } from "@puckeditor/core";
+import { Puck } from "@puckeditor/core";
+import { createAiPlugin } from "@puckeditor/plugin-ai";
+// import "@puckeditor/plugin-ai/styles.css";
+// import "@puckeditor/core/puck.css";
+
+
 import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-
+import { migratePuckData } from "./migrateData";
+import { prepareConfigForAi } from "./aiConfig";
 
 
 import ImageUploadField from './ImageUploadField';
@@ -282,13 +288,35 @@ export const config = {
   }
 }
 
+const plugins = [
+  createAiPlugin({
+    host: "/api/puck/chat",
+    prepareRequest: (opts) => ({
+      ...opts,
+      body: {
+        ...opts.body,
+        config: prepareConfigForAi(opts.body?.config || config),
+        pageData: migratePuckData(opts.body?.pageData, config),
+      },
+    }),
+  }),
+];
+
 export const PuckEditor = ({ data, onPublish }) => {
+  const migratedData = React.useMemo(() => migratePuckData(data, config), [data]);
+  const handlePublish = React.useCallback((nextData) => {
+    if (onPublish) {
+      onPublish(migratePuckData(nextData, config));
+    }
+  }, [onPublish]);
+
   return (
     <Puck
       config={config}
-      data={data}
-      onPublish={onPublish}
+      data={migratedData}
+      onPublish={handlePublish}
       overrides={config.overrides}
+      plugins={plugins}
     />
   );
 };

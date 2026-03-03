@@ -1,5 +1,4 @@
 import React from "react";
-import { DropZone } from "@measured/puck";
 import ClassField, { mergeVariantClasses } from "./ClassField";
 
 const Grid = ({
@@ -15,14 +14,15 @@ const Grid = ({
         minHeight: "50px",
       }}
     >
-      {columns.map((item, idx) => (
-        <DropZone
-          key={item.id || idx}
-          zone={`grid-item-${idx}`}
-          className={`w-full h-full ${item.colSpan || ""}`}
-          {...item}
-        />
-      ))}
+      {columns.map((item, idx) => {
+        const Slot = item.content;
+
+        return (
+          <div key={item.id || idx} className={`w-full h-full ${item.colSpan || ""}`}>
+            {Slot ? Slot({ className: "w-full h-full" }) : null}
+          </div>
+        );
+      })}
     </div>
   );
 };
@@ -76,6 +76,10 @@ export const config = {
       type: "array",
       label: "Grid Items",
       arrayFields: {
+        content: {
+          type: "slot",
+          label: "Content",
+        },
         colSpan: {
           type: "select",
           label: "Column Span",

@@ -1,5 +1,4 @@
 import React from 'react';
-import { DropZone } from "@measured/puck";
 import ClassField, { mergeVariantClasses } from "./ClassField";
 
 const Flex = ({
@@ -11,23 +10,29 @@ const Flex = ({
   className = '',
   basis = {},
   grow = {},
-  shrink = {}
+  shrink = {},
+  content
 }) => {
+  const ContentSlot = content;
+  const mergedClassName = `flex ${mergeVariantClasses(direction, v => v)} ${mergeVariantClasses(wrap, v => v)} ${mergeVariantClasses(justify, v => v)} ${mergeVariantClasses(align, v => v)} ${mergeVariantClasses(gap, v => v)} ${mergeVariantClasses(basis, v => v)} ${mergeVariantClasses(grow, v => v)} ${mergeVariantClasses(shrink, v => v)} ${className}`;
+  const style = {
+    minHeight: '50px',
+    minWidth: (basis.mobile || basis) === 'basis-0' ? '100px' : 'auto'
+  };
+
   return (
-    <DropZone
-      zone="flex-content"
-      classNamessss="h-full flex w-full"
-      className={`flex ${mergeVariantClasses(direction, v => v)} ${mergeVariantClasses(wrap, v => v)} ${mergeVariantClasses(justify, v => v)} ${mergeVariantClasses(align, v => v)} ${mergeVariantClasses(gap, v => v)} ${mergeVariantClasses(basis, v => v)} ${mergeVariantClasses(grow, v => v)} ${mergeVariantClasses(shrink, v => v)} ${className}`}
-      style={{
-        minHeight: '50px',
-        minWidth: (basis.mobile || basis) === 'basis-0' ? '100px' : 'auto'
-      }}
-    />
+    ContentSlot
+      ? ContentSlot({ className: mergedClassName, style })
+      : <div className={mergedClassName} style={style} />
   );
 };
 
 export const config = {
   fields: {
+    content: {
+      type: "slot",
+      label: "Content",
+    },
     direction: {
       type: "custom",
       label: "Direction",

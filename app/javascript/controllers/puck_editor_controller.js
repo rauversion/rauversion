@@ -1,11 +1,14 @@
 import { Controller } from "@hotwired/stimulus";
 import { createRoot } from "react-dom/client";
 import React from "react";
-import { Puck } from "@measured/puck";
-// import "@measured/puck/puck.css";
+import { Puck } from "@puckeditor/core";
+import { createAiPlugin } from "@puckeditor/plugin-ai";
+// import "@puckeditor/core/puck.css";
 // import "../components/puck_copy.css";
 // import "../components/aaa.css";
 import { put, get } from '@rails/request.js';
+import { migratePuckData } from "../components/puck/migrateData";
+import { prepareConfigForAi } from "../components/puck/aiConfig";
 
 import {
   Playlist,
@@ -192,17 +195,31 @@ const config = {
 
 // Describe the initial data
 const initialData = {};
+const plugins = [
+  createAiPlugin({
+    host: "/api/puck/chat",
+    prepareRequest: (opts) => ({
+      ...opts,
+      body: {
+        ...opts.body,
+        config: prepareConfigForAi(opts.body?.config || config),
+        pageData: migratePuckData(opts.body?.pageData, config),
+      },
+    }),
+  }),
+];
 
 // Save the data to your database
 async function save(data) {
   console.log("Saving data: ", data);
   const releaseId = document.querySelector('meta[name="current-release-id"]')?.content;
+  const migratedData = migratePuckData(data, config);
 
   try {
     const response = await put(`/releases/${releaseId}.json`, {
       body: JSON.stringify({
         release: {
-          editor_data: data
+          editor_data: migratedData
         }
       })
     });
@@ -238,7 +255,7 @@ function Editor() {
         if (response.ok) {
           const releaseData = await response.json;
           if (releaseData.editor_data) {
-            setData(releaseData.editor_data);
+            setData(migratePuckData(releaseData.editor_data, config));
           }
         }
       } catch (error) {
@@ -257,8 +274,10 @@ function Editor() {
     </div>;
   }
 
+  const migratedData = React.useMemo(() => migratePuckData(data, config), [data]);
+
   return (
-    <Puck config={config} data={data} onPublish={save} />
+    <Puck config={config} data={migratedData} onPublish={save} plugins={plugins} />
   );
 }
 
