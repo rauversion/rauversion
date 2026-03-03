@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import ImageUploadField from './ImageUploadField';
 import CheckboxField from './CheckboxField';
+import { composeSpacingClasses, createMarginField, createPaddingField } from './SpacingProps';
 
-const Carousel = ({ items = [], autoplay, interval }) => {
+const Carousel = ({ items = [], autoplay, interval, padding = {}, margin = {} }) => {
+  const spacingClasses = composeSpacingClasses({ margin, padding });
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -30,7 +32,7 @@ const Carousel = ({ items = [], autoplay, interval }) => {
   if (!items.length) return <div>No items</div>;
 
   return (
-    <div className="relative">
+    <div className={`relative ${spacingClasses}`}>
       <div className="overflow-hidden relative">
         <div
           className="flex transition-transform duration-500 ease-out"
@@ -121,7 +123,9 @@ export const config = {
     interval: {
       type: "number",
       label: "Autoplay Interval (ms)"
-    }
+    },
+    padding: createPaddingField(),
+    margin: createMarginField(),
   },
   defaultProps: {
     items: [
@@ -137,7 +141,9 @@ export const config = {
       }
     ],
     autoplay: true,
-    interval: 5000
+    interval: 5000,
+    padding: { mobile: "", tablet: "", desktop: "" },
+    margin: { mobile: "", tablet: "", desktop: "" },
   }
 };
 

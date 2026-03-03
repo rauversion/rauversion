@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { get } from '@rails/request.js';
+import { composeSpacingClasses, createMarginField, createPaddingField } from './SpacingProps';
 
-const YouTubeBlock = ({ url, aspectRatio }) => {
+const YouTubeBlock = ({ url, aspectRatio, padding = {}, margin = {} }) => {
+  const spacingClasses = composeSpacingClasses({ margin, padding });
   const [embedData, setEmbedData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
@@ -44,39 +46,47 @@ const YouTubeBlock = ({ url, aspectRatio }) => {
 
   if (loading) {
     return (
-      <div className={`animate-pulse bg-secondary ${getAspectRatioClass()}`} />
+      <div className={spacingClasses}>
+        <div className={`animate-pulse bg-secondary ${getAspectRatioClass()}`} />
+      </div>
     );
   }
 
   if (error) {
     return (
-      <div className="bg-red-50 text-red-500 p-4 rounded">
-        {error}
+      <div className={spacingClasses}>
+        <div className="bg-red-50 text-red-500 p-4 rounded">
+          {error}
+        </div>
       </div>
     );
   }
 
   if (!embedData) {
     return (
-      <div className="bg-muted p-4 rounded">
-        Please enter a valid YouTube URL
+      <div className={spacingClasses}>
+        <div className="bg-muted p-4 rounded">
+          Please enter a valid YouTube URL
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full">
-      <div className={`relative ${getAspectRatioClass()} w-full`}>
-        <div 
-          className="absolute inset-0"
-          dangerouslySetInnerHTML={{ __html: embedData.html }}
-        />
-      </div>
-      {embedData.title && (
-        <div className="mt-2 text-sm text-muted-foreground">
-          {embedData.title}
+    <div className={spacingClasses}>
+      <div className="w-full">
+        <div className={`relative ${getAspectRatioClass()} w-full`}>
+          <div 
+            className="absolute inset-0"
+            dangerouslySetInnerHTML={{ __html: embedData.html }}
+          />
         </div>
-      )}
+        {embedData.title && (
+          <div className="mt-2 text-sm text-muted-foreground">
+            {embedData.title}
+          </div>
+        )}
+      </div>
     </div>
   );
 };
@@ -98,11 +108,15 @@ export const config = {
         { label: "21:9 (Ultrawide)", value: "21:9" },
       ],
       defaultValue: "16:9",
-    }
+    },
+    padding: createPaddingField(),
+    margin: createMarginField(),
   },
   defaultProps: {
     url: "",
     aspectRatio: "16:9",
+    padding: { mobile: "", tablet: "", desktop: "" },
+    margin: { mobile: "", tablet: "", desktop: "" },
   },
 };
 

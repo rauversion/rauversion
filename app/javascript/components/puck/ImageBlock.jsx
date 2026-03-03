@@ -1,5 +1,6 @@
 import React from 'react';
 import ImageUploadField from './ImageUploadField';
+import { composeSpacingClasses, createMarginField, createPaddingField } from './SpacingProps';
 
 const ImageBlock = ({ 
   image, 
@@ -8,8 +9,11 @@ const ImageBlock = ({
   aspectRatio = "4/3",
   maxWidth = "2xl",
   rounded = "lg",
-  shadow = "lg"
+  shadow = "lg",
+  padding = {},
+  margin = {},
 }) => {
+  const spacingClasses = composeSpacingClasses({ margin, padding });
   const containerStyle = {
     position: 'relative',
     aspectRatio: aspectRatio
@@ -36,6 +40,7 @@ const ImageBlock = ({
 
   if (href) {
     return (
+      <div className={spacingClasses}>
       <a 
         href={href}
         target="_blank"
@@ -44,10 +49,11 @@ const ImageBlock = ({
       >
         {ImageComponent}
       </a>
+      </div>
     );
   }
 
-  return ImageComponent;
+  return <div className={spacingClasses}>{ImageComponent}</div>;
 };
 
 export const config = {
@@ -117,7 +123,9 @@ export const config = {
         { label: "2XL", value: "2xl" },
       ],
       defaultValue: "lg",
-    }
+    },
+    padding: createPaddingField(),
+    margin: createMarginField(),
   },
   defaultProps: {
     image: "",
@@ -126,7 +134,9 @@ export const config = {
     aspectRatio: "4/3",
     maxWidth: "2xl",
     rounded: "lg",
-    shadow: "lg"
+    shadow: "lg",
+    padding: { mobile: "", tablet: "", desktop: "" },
+    margin: { mobile: "", tablet: "", desktop: "" },
   }
 };
 

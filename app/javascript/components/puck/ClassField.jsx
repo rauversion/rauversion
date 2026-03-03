@@ -19,6 +19,19 @@ const DEVICES = [
   { key: "desktop", label: "Desktop" },
 ];
 
+export function normalizeVariantValue(value) {
+  if (!value) return { mobile: "", tablet: "", desktop: "" };
+  if (typeof value === "string") {
+    return { mobile: value, tablet: "", desktop: "" };
+  }
+
+  return {
+    mobile: value.mobile || "",
+    tablet: value.tablet || "",
+    desktop: value.desktop || "",
+  };
+}
+
 // Helper to merge device-specific classes (mobile, tablet, desktop)
 export function mergeVariantClasses(field, map) {
   if (!field) return "";
@@ -44,10 +57,11 @@ export default function VariantField({
   placeholder = "",
 }) {
   const [tab, setTab] = useState("mobile");
+  const normalizedValue = normalizeVariantValue(value);
 
   const handleChange = (device, val) => {
     const updatedValue = {
-      ...value,
+      ...normalizedValue,
       [device]: val,
     };
     onChange(updatedValue);
@@ -68,12 +82,12 @@ export default function VariantField({
           <TabsContent key={device.key} value={device.key}>
             {type === "color" && render ? (
               render({
-                value: value[device.key] || "",
+                value: normalizedValue[device.key] || "",
                 onChange: (val) => handleChange(device.key, val),
               })
             ) : type === "select" ? (
               <Select
-                value={value[device.key] || ""}
+                value={normalizedValue[device.key] || ""}
                 onValueChange={(val) => handleChange(device.key, val)}
               >
                 <SelectTrigger>
@@ -89,7 +103,7 @@ export default function VariantField({
               </Select>
             ) : (
               <Input
-                value={value[device.key] || ""}
+                value={normalizedValue[device.key] || ""}
                 onChange={(e) => handleChange(device.key, e.target.value)}
                 placeholder={placeholder}
               />

@@ -1,15 +1,20 @@
 import React from "react";
 import ClassField, { mergeVariantClasses } from "./ClassField";
+import { composeSpacingClasses, createMarginField, createPaddingField } from "./SpacingProps";
 
 const Grid = ({
   gap = {},
   gridColumns = {},
+  margin = {},
+  padding = {},
   columns = [],
   className = "",
 }) => {
+  const spacingClasses = composeSpacingClasses({ margin, padding });
+
   return (
     <div
-      className={`grid ${mergeVariantClasses(gap, v => v)} ${mergeVariantClasses(gridColumns, v => v)} ${className}`}
+      className={`grid ${mergeVariantClasses(gap, v => v)} ${mergeVariantClasses(gridColumns, v => v)} ${spacingClasses} ${className}`}
       style={{
         minHeight: "50px",
       }}
@@ -72,6 +77,8 @@ export const config = {
         }),
       defaultValue: { mobile: "grid-cols-1", tablet: "", desktop: "" },
     },
+    padding: createPaddingField(),
+    margin: createMarginField(),
     columns: {
       type: "array",
       label: "Grid Items",
@@ -108,6 +115,8 @@ export const config = {
   defaultProps: {
     gap: { mobile: "gap-4", tablet: "", desktop: "" },
     gridColumns: { mobile: "grid-cols-1", tablet: "", desktop: "" },
+    padding: { mobile: "", tablet: "", desktop: "" },
+    margin: { mobile: "", tablet: "", desktop: "" },
     columns: [],
     className: "",
   },

@@ -1,9 +1,12 @@
 import React from 'react';
 import ColorPicker from './ColorPicker';
 import ImageUploadField from './ImageUploadField';
+import { composeSpacingClasses, createMarginField, createPaddingField } from './SpacingProps';
 
 const Container = ({ 
   className, 
+  margin = {},
+  padding = {},
   backgroundColor,
   backgroundImage,
   backgroundPosition,
@@ -20,10 +23,17 @@ const Container = ({
     backgroundSize: backgroundSize || 'cover',
     backgroundRepeat: backgroundRepeat || 'no-repeat'
   };
+  const spacingClasses = composeSpacingClasses({ margin, padding });
+  const mergedClassName = [
+    className || 'max-w-3xl mx-auto space-y-6',
+    spacingClasses,
+  ]
+    .filter(Boolean)
+    .join(' ');
 
   return (
     <div 
-      className={`${className || 'max-w-3xl mx-auto p-8 space-y-6'}`}
+      className={mergedClassName}
       style={style}
     >
       {ContentSlot ? ContentSlot() : children}
@@ -41,8 +51,12 @@ export const config = {
       type: "text",
       label: "Container Classes",
       description: "Override default container classes",
-      defaultValue: "max-w-3xl mx-auto p-8 space-y-6",
+      defaultValue: "max-w-3xl mx-auto space-y-6",
     },
+    padding: createPaddingField({
+      defaultMobile: "p-8",
+    }),
+    margin: createMarginField(),
     backgroundColor: {
       type: "custom",
       label: "Background Color",
@@ -89,7 +103,9 @@ export const config = {
     },
   },
   defaultProps: {
-    className: "max-w-3xl mx-auto p-8 space-y-6",
+    className: "max-w-3xl mx-auto space-y-6",
+    padding: { mobile: "p-8", tablet: "", desktop: "" },
+    margin: { mobile: "", tablet: "", desktop: "" },
     backgroundColor: "#FFFFFF",
     backgroundImage: "",
     backgroundPosition: "center",

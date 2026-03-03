@@ -5,6 +5,7 @@ import { get } from '@rails/request.js';
 import CheckboxField from './CheckboxField';
 import PlaylistComponent from './Playlist';
 import ColorPicker from "./ColorPicker";
+import { composeSpacingClasses, createMarginField, createPaddingField } from './SpacingProps';
 import {
   Carousel,
   CarouselContent,
@@ -28,8 +29,11 @@ const Slider = ({
   itemSize = "responsive",
   accentColor = "#1DB954",
   color = "#444",
-  openAsComponent = false
+  openAsComponent = false,
+  padding = {},
+  margin = {},
 }) => {
+  const spacingClasses = composeSpacingClasses({ margin, padding });
   const [playlists, setPlaylists] = useState([]);
   const [loading, setLoading] = useState(true);
   const [api, setApi] = useState();
@@ -85,7 +89,7 @@ const Slider = ({
   };
 
   return (
-    <div className="w-full space-y-8">
+    <div className={`w-full space-y-8 ${spacingClasses}`}>
       <Carousel
         orientation={orientation}
         setApi={setApi}
@@ -196,7 +200,9 @@ export const config = {
       type: "custom",
       render: CheckboxField,
       label: "Open as React Component"
-    }
+    },
+    padding: createPaddingField(),
+    margin: createMarginField(),
   },
   defaultProps: {
     playlistIds: [],
@@ -207,7 +213,9 @@ export const config = {
     itemSize: "responsive",
     accentColor: "#1DB954",
     color: "#1DB954",
-    openAsComponent: false
+    openAsComponent: false,
+    padding: { mobile: "", tablet: "", desktop: "" },
+    margin: { mobile: "", tablet: "", desktop: "" },
   }
 };
 

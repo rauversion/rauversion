@@ -1,8 +1,19 @@
 import React from 'react';
+import { composeSpacingClasses, createMarginField, createPaddingField } from './SpacingProps';
 
-const MultiList = ({ columns, gridCols, textColor, textSize, className }) => {
+const MultiList = ({
+  columns,
+  gridCols,
+  textColor,
+  textSize,
+  className,
+  padding = {},
+  margin = {},
+}) => {
+  const spacingClasses = composeSpacingClasses({ margin, padding });
+
   return (
-    <div className={className}>
+    <div className={`${className || ""} ${spacingClasses}`.trim()}>
       <div className={`grid md:${gridCols} grid-cols-1 gap-4 ${textColor} ${textSize}`}>
         {columns.map((column, index) => (
           <div key={index}>
@@ -87,7 +98,9 @@ export const config = {
       label: "Wrapper Classes",
       description: "Add custom classes to the wrapper element",
       defaultValue: "",
-    }
+    },
+    padding: createPaddingField(),
+    margin: createMarginField(),
   },
   defaultProps: {
     columns: [
@@ -116,7 +129,9 @@ export const config = {
     gridCols: "grid-cols-2",
     textColor: "text-default0",
     textSize: "text-xs",
-    className: ""
+    className: "",
+    padding: { mobile: "", tablet: "", desktop: "" },
+    margin: { mobile: "", tablet: "", desktop: "" },
   }
 };
 

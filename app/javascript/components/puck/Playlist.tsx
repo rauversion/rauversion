@@ -5,6 +5,7 @@ import useAudioStore from '../../stores/audioStore';
 import ColorPicker from './ColorPicker';
 import PlaylistSelector from './PlaylistSelectorSingle';
 import { get } from '@rails/request.js';
+import { composeSpacingClasses, createMarginField, createPaddingField } from './SpacingProps';
 
 interface Track {
   id: number;
@@ -57,9 +58,26 @@ interface PlaylistProps {
   playlistId: string | number;
   accentColor?: string;
   color?: string;
+  padding?: {
+    mobile?: string;
+    tablet?: string;
+    desktop?: string;
+  } | string;
+  margin?: {
+    mobile?: string;
+    tablet?: string;
+    desktop?: string;
+  } | string;
 }
 
-export default function PlaylistComponent({ playlistId, accentColor = "#1DB954", color = "var(--rau-text)" }: PlaylistProps) {
+export default function PlaylistComponent({
+  playlistId,
+  accentColor = "#1DB954",
+  color = "var(--rau-text)",
+  padding = {},
+  margin = {},
+}: PlaylistProps) {
+  const spacingClasses = composeSpacingClasses({ margin, padding });
   const [playlist, setPlaylist] = useState<Playlist | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -131,7 +149,7 @@ export default function PlaylistComponent({ playlistId, accentColor = "#1DB954",
     <>{
       playlist && (
         <div
-          className="rounded-lg p-4"
+          className={`rounded-lg ${spacingClasses}`}
           style={{ 
             '--accent-color': accentColor, 
             '--player-color': color, 
@@ -311,11 +329,17 @@ export const config = {
       type: "custom",
       label: "Text Color",
       render: ColorPicker,
-    }
+    },
+    padding: createPaddingField({
+      defaultMobile: "p-4",
+    }),
+    margin: createMarginField(),
   },
   defaultProps: {
     playlistId: "",
     accentColor: "#1DB954",
-    color: "#444444"
+    color: "#444444",
+    padding: { mobile: "p-4", tablet: "", desktop: "" },
+    margin: { mobile: "", tablet: "", desktop: "" },
   },
 }

@@ -2,6 +2,7 @@ import React from 'react';
 import ColorPicker from './ColorPicker';
 import ImageUploadField from './ImageUploadField';
 import SimpleEditor from '@/components/ui/SimpleEditor';
+import { composeSpacingClasses, createMarginField, createPaddingField } from './SpacingProps';
 
 const CardBlock = ({ 
   image, 
@@ -14,15 +15,18 @@ const CardBlock = ({
   titleColor,
   subtitleColor,
   textColor,
-  padding,
+  padding = {},
+  margin = {},
   imageHeight,
   titleSize,
   subtitleSize,
   textSize
 }) => {
+  const spacingClasses = composeSpacingClasses({ margin, padding });
+
   return (
     <div 
-      className={`overflow-hidden ${borderRadius} ${shadow} ${padding}`}
+      className={`overflow-hidden ${borderRadius} ${shadow} ${spacingClasses}`}
       style={{ backgroundColor }}
     >
       {image && (
@@ -164,17 +168,16 @@ export const config = {
       label: "Background Color",
       render: ColorPicker,
     },
-    padding: {
-      type: "select",
-      label: "Padding",
-      options: [
-        { label: "Small", value: "p-4" },
-        { label: "Medium", value: "p-6" },
-        { label: "Large", value: "p-8" },
-        { label: "Extra Large", value: "p-10" },
+    padding: createPaddingField({
+      defaultMobile: "p-6",
+      extraOptions: [
+        { label: "p-4", value: "p-4" },
+        { label: "p-6", value: "p-6" },
+        { label: "p-8", value: "p-8" },
+        { label: "p-10", value: "p-10" },
       ],
-      defaultValue: "p-6",
-    },
+    }),
+    margin: createMarginField(),
   },
   defaultProps: {
     image: "",
@@ -191,7 +194,8 @@ export const config = {
     borderRadius: "rounded-lg",
     shadow: "shadow-md",
     backgroundColor: "#FFFFFF",
-    padding: "p-6",
+    padding: { mobile: "p-6", tablet: "", desktop: "" },
+    margin: { mobile: "", tablet: "", desktop: "" },
   }
 };
 

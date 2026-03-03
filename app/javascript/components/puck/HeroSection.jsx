@@ -2,6 +2,7 @@ import React from 'react';
 import ImageUploadField from './ImageUploadField';
 import Button from './Button';
 import SimpleEditor from '@/components/ui/SimpleEditor';
+import { composeSpacingClasses, createMarginField, createPaddingField } from './SpacingProps';
 
 const HeroSection = ({
   backgroundImage,
@@ -12,8 +13,11 @@ const HeroSection = ({
   buttons,
   align,
   image,
+  padding = {},
+  margin = {},
   puck
 }) => {
+  const spacingClasses = composeSpacingClasses({ margin, padding });
   // Ensure image is always an object to prevent TypeError
   image = image || {};
   const getClassName = (element) => {
@@ -35,7 +39,7 @@ const HeroSection = ({
 
   return (
     <div
-      className={`relative ${height}`}
+      className={`relative ${height} ${spacingClasses}`}
       style={{
         backgroundImage: image?.mode === "background" ? `url(${image?.url})` : `url(${backgroundImage})`,
         backgroundSize: 'cover',
@@ -170,7 +174,9 @@ export const config = {
           ]
         }
       }
-    }
+    },
+    padding: createPaddingField(),
+    margin: createMarginField(),
   },
   defaultProps: {
     title: "Welcome to Our Site",
@@ -196,7 +202,9 @@ export const config = {
         variant: "secondary",
         size: "large"
       }
-    ]
+    ],
+    padding: { mobile: "", tablet: "", desktop: "" },
+    margin: { mobile: "", tablet: "", desktop: "" },
   }
 };
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import CheckboxField from './CheckboxField';
+import { composeSpacingClasses, createMarginField, createPaddingField } from './SpacingProps';
 
 const Button = ({ 
   label, 
@@ -12,8 +13,12 @@ const Button = ({
   onClick,
   disabled = false,
   className = '',
-  target
+  target,
+  padding = {},
+  margin = {},
 }) => {
+  const spacingClasses = composeSpacingClasses({ margin, padding });
+
   const getVariantClasses = () => {
     const variants = {
       primary: 'bg-blue-600 text-white hover:bg-blue-700',
@@ -39,6 +44,7 @@ const Button = ({
     'inline-flex items-center justify-center rounded-lg transition-colors duration-200',
     getVariantClasses(),
     getSizeClasses(),
+    spacingClasses,
     fullWidth ? 'w-full' : '',
     disabled ? 'opacity-50 cursor-not-allowed' : '',
     className
@@ -135,7 +141,9 @@ export const config = {
     className: {
       type: "text",
       label: "Additional Classes"
-    }
+    },
+    padding: createPaddingField(),
+    margin: createMarginField(),
   },
   defaultProps: {
     label: "Click Me",
@@ -144,7 +152,9 @@ export const config = {
     fullWidth: false,
     disabled: false,
     target: "_self",
-    className: ""
+    className: "",
+    padding: { mobile: "", tablet: "", desktop: "" },
+    margin: { mobile: "", tablet: "", desktop: "" },
   }
 };
 

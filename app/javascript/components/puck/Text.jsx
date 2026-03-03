@@ -2,6 +2,7 @@ import React from "react";
 import Typography from "./Typography";
 import TypographyField from "./TypographyField";
 import SimpleEditor from "@/components/ui/SimpleEditor";
+import { composeSpacingClasses, createMarginField, createPaddingField } from "./SpacingProps";
 
 
 // Custom field for editing text content using SimpleEditor
@@ -18,18 +19,24 @@ function TextContentField({ value = "", onChange }) {
 }
 
 
-const Text = ({ text, typography = {} }) => {
+const Text = ({ text, typography = {}, padding = {}, margin = {} }) => {
+  const spacingClasses = composeSpacingClasses({ margin, padding });
+
   // Render the text as a div, styled with Typography (but allow multi-line)
   return (
-    <Typography
-      {...typography}
-      text={text}
-    />
+    <div className={spacingClasses}>
+      <Typography
+        {...typography}
+        text={text}
+      />
+    </div>
   );
 };
 
 export const config = {
   fields: {
+    padding: createPaddingField(),
+    margin: createMarginField(),
     text: {
       type: "custom",
       label: "Text",
@@ -52,6 +59,8 @@ export const config = {
     },
   },
   defaultProps: {
+    padding: { mobile: "", tablet: "", desktop: "" },
+    margin: { mobile: "", tablet: "", desktop: "" },
     text: "Text",
     typography: {
       size: { mobile: "text-base", tablet: "", desktop: "" },

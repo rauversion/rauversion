@@ -6,6 +6,7 @@ import Select from 'react-select';
 import useCartStore from '@/stores/cartStore'
 import I18n from '@/stores/locales'
 import { mergeVariantClasses } from "./ClassField";
+import { composeSpacingClasses, createMarginField, createPaddingField } from './SpacingProps';
 
 const ProductSelector = ({ value, onChange }) => {
   const [products, setProducts] = useState([]);
@@ -64,8 +65,11 @@ const ProductCard = ({
   shadow,
   hoverEffect,
   roundedCorners,
-  aspectRatio
+  aspectRatio,
+  padding = {},
+  margin = {},
 }) => {
+  const spacingClasses = composeSpacingClasses({ margin, padding });
   const [loading, setLoading] = useState(true);
   const [adding, setAdding] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
@@ -211,7 +215,7 @@ const ProductCard = ({
 
   console.log('valuande', variants, variant)
   return (
-    <div className={`${className || ''}`}>
+    <div className={`${className || ''} ${spacingClasses}`.trim()}>
       <div
         className={`
           ${selectedVariant.wrapper}
@@ -406,6 +410,8 @@ export const config = {
       defaultValue: "",
       description: "Add custom classes to the root element"
     },
+    padding: createPaddingField(),
+    margin: createMarginField(),
     backgroundColor: {
       type: "custom",
       label: "Background Color",
@@ -471,7 +477,9 @@ export const config = {
     roundedCorners: "lg",
     aspectRatio: "square",
     showGallery: true,
-    className: ""
+    className: "",
+    padding: { mobile: "", tablet: "", desktop: "" },
+    margin: { mobile: "", tablet: "", desktop: "" },
   }
 };
 

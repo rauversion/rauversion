@@ -1,5 +1,6 @@
 import React from 'react';
 import ClassField, { mergeVariantClasses } from "./ClassField";
+import { composeSpacingClasses, createMarginField, createPaddingField } from "./SpacingProps";
 
 const Flex = ({
   direction = {},
@@ -7,6 +8,8 @@ const Flex = ({
   justify = {},
   align = {},
   gap = {},
+  margin = {},
+  padding = {},
   className = '',
   basis = {},
   grow = {},
@@ -14,7 +17,8 @@ const Flex = ({
   content
 }) => {
   const ContentSlot = content;
-  const mergedClassName = `flex ${mergeVariantClasses(direction, v => v)} ${mergeVariantClasses(wrap, v => v)} ${mergeVariantClasses(justify, v => v)} ${mergeVariantClasses(align, v => v)} ${mergeVariantClasses(gap, v => v)} ${mergeVariantClasses(basis, v => v)} ${mergeVariantClasses(grow, v => v)} ${mergeVariantClasses(shrink, v => v)} ${className}`;
+  const spacingClasses = composeSpacingClasses({ margin, padding });
+  const mergedClassName = `flex ${mergeVariantClasses(direction, v => v)} ${mergeVariantClasses(wrap, v => v)} ${mergeVariantClasses(justify, v => v)} ${mergeVariantClasses(align, v => v)} ${mergeVariantClasses(gap, v => v)} ${mergeVariantClasses(basis, v => v)} ${mergeVariantClasses(grow, v => v)} ${mergeVariantClasses(shrink, v => v)} ${spacingClasses} ${className}`;
   const style = {
     minHeight: '50px',
     minWidth: (basis.mobile || basis) === 'basis-0' ? '100px' : 'auto'
@@ -126,6 +130,8 @@ export const config = {
       ),
       defaultValue: { mobile: "gap-4", tablet: "", desktop: "" },
     },
+    padding: createPaddingField(),
+    margin: createMarginField(),
     basis: {
       type: "custom",
       label: "Basis (width)",
@@ -191,6 +197,8 @@ export const config = {
     justify: { mobile: "justify-start", tablet: "", desktop: "" },
     align: { mobile: "items-start", tablet: "", desktop: "" },
     gap: { mobile: "gap-4", tablet: "", desktop: "" },
+    padding: { mobile: "", tablet: "", desktop: "" },
+    margin: { mobile: "", tablet: "", desktop: "" },
     basis: { mobile: "basis-auto", tablet: "", desktop: "" },
     grow: { mobile: "grow-0", tablet: "", desktop: "" },
     shrink: { mobile: "shrink", tablet: "", desktop: "" },

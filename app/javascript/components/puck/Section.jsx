@@ -2,6 +2,7 @@ import React from 'react';
 import ColorPicker from './ColorPicker';
 import ImageUploadField from './ImageUploadField';
 import SimpleEditor from '@/components/ui/SimpleEditor';
+import { composeSpacingClasses, createMarginField, createPaddingField } from './SpacingProps';
 
 const Section = ({ 
   variant,
@@ -14,7 +15,8 @@ const Section = ({
   titleColor,
   subtitleColor,
   textColor,
-  padding,
+  padding = {},
+  margin = {},
   titleSize,
   subtitleSize,
   textSize
@@ -138,10 +140,11 @@ const Section = ({
   };
 
   const renderVariant = variants[variant] || variants.left;
+  const spacingClasses = composeSpacingClasses({ margin, padding });
 
   return (
     <section 
-      className={`${variant === 'overlay' ? '' : 'container--- mx-auto---'} ${padding} border-t-4`}
+      className={`${variant === 'overlay' ? '' : 'container--- mx-auto---'} ${spacingClasses} border-t-4`}
       style={{ 
         backgroundColor: variant === 'overlay' ? 'transparent' : backgroundColor,
         borderColor: borderColor
@@ -241,18 +244,16 @@ export const config = {
       label: "Border Color",
       render: ColorPicker,
     },
-    padding: {
-      type: "select",
-      label: "Padding",
-      options: [
-        { label: "None", value: "p-0" },
-        { label: "Small", value: "px-4 py-8" },
-        { label: "Medium", value: "px-6 py-10" },
-        { label: "Large", value: "px-8 py-12" },
-        { label: "Extra Large", value: "px-10 py-16" },
+    padding: createPaddingField({
+      defaultMobile: "px-8 py-12",
+      extraOptions: [
+        { label: "px-4 py-8", value: "px-4 py-8" },
+        { label: "px-6 py-10", value: "px-6 py-10" },
+        { label: "px-8 py-12", value: "px-8 py-12" },
+        { label: "px-10 py-16", value: "px-10 py-16" },
       ],
-      defaultValue: "px-8 py-12",
-    },
+    }),
+    margin: createMarginField(),
   },
   defaultProps: {
     variant: "left",
@@ -268,7 +269,8 @@ export const config = {
     image: "",
     backgroundColor: "#FFFFFF",
     borderColor: "#D1D5DB",
-    padding: "px-8 py-12",
+    padding: { mobile: "px-8 py-12", tablet: "", desktop: "" },
+    margin: { mobile: "", tablet: "", desktop: "" },
   }
 };
 
