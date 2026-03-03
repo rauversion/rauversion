@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import useAudioStore from '../stores/audioStore';
 import { get } from '@rails/request.js';
 import { cn } from "@/lib/utils"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion } from "framer-motion"
 import { Link } from "react-router-dom";
 import {
   Sheet,
@@ -151,7 +151,7 @@ const PlaybackControls = ({ onPrevious, onPlayPause, onNext, isPlaying }) => (
   </div>
 );
 
-export default function AudioPlayer({ id, url, peaks, height }) {
+export default function AudioPlayer({ id }) {
   const audioRef = useRef(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -161,13 +161,14 @@ export default function AudioPlayer({ id, url, peaks, height }) {
   const debounceTimeoutRef = useRef(null);
   const { currentTrackId, isPlaying, playNext, playPrevious } = useAudioStore();
   const [playerData, setPlayerData] = useState(null);
+  const activeTrackId = currentTrackId ?? id;
 
   useEffect(() => {
     const fetchAndPlayTrack = async () => {
-      if (!currentTrackId) return;
+      if (!activeTrackId) return;
       
       try {
-        const response = await get(`/player.json?id=${currentTrackId}`, {
+        const response = await get(`/player.json?id=${activeTrackId}`, {
           responseKind: "json"
         });
         
@@ -182,7 +183,7 @@ export default function AudioPlayer({ id, url, peaks, height }) {
     };
 
     fetchAndPlayTrack();
-  }, [currentTrackId]);
+  }, [activeTrackId]);
 
   useEffect(() => {
     if(isPlaying) {
@@ -199,14 +200,20 @@ export default function AudioPlayer({ id, url, peaks, height }) {
     if (!audio) return;
 
     const handleTimeUpdate = () => {
-      setCurrentTime(audio.currentTime);
-      const percent = (audio.currentTime / audio.duration) * 100;
+      const nextCurrentTime = audio.currentTime || 0;
+      const nextDuration = audio.duration || 0;
+      const percent = nextDuration > 0 ? (nextCurrentTime / nextDuration) * 100 : 0;
+
+      setCurrentTime(nextCurrentTime);
+      useAudioStore.setState({ currentTime: nextCurrentTime });
       checkHalfwayEvent(percent);
-      dispatchAudioProgressEvent(audio.currentTime, percent);
+      dispatchAudioProgressEvent(nextCurrentTime, percent);
     };
 
     const handleLoadedMetadata = () => {
-      setDuration(audio.duration);
+      const nextDuration = audio.duration || 0;
+      setDuration(nextDuration);
+      useAudioStore.setState({ duration: nextDuration });
     };
 
     const handleLoadedData = () => {
@@ -233,16 +240,13 @@ export default function AudioPlayer({ id, url, peaks, height }) {
     audio.addEventListener("loadeddata", handleLoadedData);
     audio.addEventListener("ended", handleEnded);
 
-    document.addEventListener(`audio-process-mouseup-${id}`, updateSeek);
-
     return () => {
       audio.removeEventListener("timeupdate", handleTimeUpdate);
       audio.removeEventListener("loadedmetadata", handleLoadedMetadata);
       audio.removeEventListener("loadeddata", handleLoadedData);
       audio.removeEventListener("ended", handleEnded);
-      document.removeEventListener(`audio-process-mouseup-${id}`, updateSeek);
     };
-  }, [id]);
+  }, [activeTrackId]);
 
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
@@ -258,11 +262,11 @@ export default function AudioPlayer({ id, url, peaks, height }) {
   };
 
   useEffect(() => {
-    if (hasHalfwayEventFired && currentTrackId) {
+    if (hasHalfwayEventFired && activeTrackId) {
       console.log("Tracking event after state update");
-      trackEvent(currentTrackId);
+      trackEvent(activeTrackId);
     }
-  }, [hasHalfwayEventFired, currentTrackId]);
+  }, [hasHalfwayEventFired, activeTrackId]);
 
   const trackEvent = async (trackId) => {
     try {
@@ -275,7 +279,9 @@ export default function AudioPlayer({ id, url, peaks, height }) {
   };
 
   const dispatchAudioProgressEvent = (currentTime, percent) => {
-    const ev = new CustomEvent(`audio-process-${id}`, {
+    if (!activeTrackId) return;
+
+    const ev = new CustomEvent(`audio-process-${activeTrackId}`, {
       detail: {
         position: currentTime,
         percent: parseFloat(percent.toFixed(2))/100
@@ -285,10 +291,10 @@ export default function AudioPlayer({ id, url, peaks, height }) {
   };
 
   const handlePlayPause = () => {
-    if (!audioRef.current) return;
+    if (!audioRef.current || !activeTrackId) return;
 
     if (audioRef.current.paused) {
-      useAudioStore.setState({ currentTrackId: currentTrackId, isPlaying: true });
+      useAudioStore.setState({ currentTrackId: activeTrackId, isPlaying: true });
     } else {
       useAudioStore.setState({ isPlaying: false });
     }
@@ -323,7 +329,8 @@ export default function AudioPlayer({ id, url, peaks, height }) {
   const handleSeek = (e) => {
     if (!audioRef.current) return;
     const rect = e.currentTarget.getBoundingClientRect();
-    const percent = (e.clientX - rect.left) / rect.width;
+    const rawPercent = (e.clientX - rect.left) / rect.width;
+    const percent = Math.min(Math.max(rawPercent, 0), 1);
     audioRef.current.currentTime = percent * audioRef.current.duration;
   };
 
@@ -331,8 +338,21 @@ export default function AudioPlayer({ id, url, peaks, height }) {
     const { position } = event.detail;
     if (position !== undefined && !isNaN(position) && audioRef.current) {
       audioRef.current.currentTime = position;
+      setCurrentTime(position);
+      useAudioStore.setState({ currentTime: position });
     }
   };
+
+  useEffect(() => {
+    if (!activeTrackId) return;
+
+    const eventName = `audio-process-mouseup-${activeTrackId}`;
+    document.addEventListener(eventName, updateSeek);
+
+    return () => {
+      document.removeEventListener(eventName, updateSeek);
+    };
+  }, [activeTrackId]);
 
   const stopAudio = () => {
     if (!audioRef.current) return;

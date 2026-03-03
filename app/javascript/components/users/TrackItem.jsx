@@ -14,7 +14,8 @@ export default function TrackItem({
   embed,
   host
 }) {
-  const isCurrentTrack = currentTrackId === track.id
+  const isCurrentTrack =
+    currentTrackId !== null && `${currentTrackId}` === `${track.id}`
   const isCurrentlyPlaying = isCurrentTrack && isPlaying
 
   return (
@@ -66,7 +67,7 @@ export default function TrackItem({
                 </Link>
               </div>
 
-              <div class="space-x-2">
+              <div className="space-x-2">
                 <Link
                   to={`${host || ""}/${track.user.username}`}
                   target={embed ? "_blank" : "_self"}
