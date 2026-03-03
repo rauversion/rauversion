@@ -87,7 +87,13 @@ const DEVICES = [
   { key: "desktop", label: "Desktop" },
 ];
 
-export default function TypographyField({ value = {}, onChange }) {
+export default function TypographyField({
+  value = {},
+  onChange,
+  showText = true,
+  textLabel = "Text",
+  textPlaceholder = "Enter text",
+}) {
   const [tab, setTab] = useState("mobile");
 
   // Helper to update a device-specific field
@@ -103,14 +109,16 @@ export default function TypographyField({ value = {}, onChange }) {
 
   return (
     <div className="space-y-4">
-      <div>
-        <label className="block text-xs font-semibold mb-1">Text</label>
-        <Input
-          value={value.text || ""}
-          onChange={(e) => onChange({ ...value, text: e.target.value })}
-          placeholder="Enter text"
-        />
-      </div>
+      {showText && (
+        <div>
+          <label className="block text-xs font-semibold mb-1">{textLabel}</label>
+          <Input
+            value={value.text || ""}
+            onChange={(e) => onChange({ ...value, text: e.target.value })}
+            placeholder={textPlaceholder}
+          />
+        </div>
+      )}
       <div>
         <label className="block text-xs font-semibold mb-1">Variants</label>
         <Tabs value={tab} onValueChange={setTab} className="w-full">

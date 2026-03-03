@@ -1,54 +1,49 @@
 import React from "react";
+import { mergeVariantClasses, normalizeVariantValue } from "./ClassField";
 
-// Helper to merge Tailwind classes for breakpoints
-function mergeClasses({ mobile, tablet, desktop }) {
-  return [
-    mobile,
-    tablet ? `sm:${tablet}` : "",
-    desktop ? `md:${desktop}` : "",
-  ]
-    .filter(Boolean)
-    .join(" ");
+function mergeClasses(field) {
+  return mergeVariantClasses(field, (value) => value);
 }
 
-// Helper to merge fontStretch for breakpoints
-function getFontStretch({ mobile, tablet, desktop }) {
-  // Only mobile is supported inline, but we can add md: and lg: via style if needed
-  // For now, just use mobile, or fallback to normal
-  return mobile || "normal";
+function getFontStretch(fontStretch) {
+  if (typeof fontStretch === "string") return fontStretch || "normal";
+
+  const normalized = normalizeVariantValue(fontStretch);
+  return normalized.mobile || "normal";
 }
 
 const Typography = ({
+  as: Component = "div",
   text = "",
   size = {},
   weight = {},
   letterSpacing = {},
   alignment = {},
-  color = "#000000",
+  color = "",
   fontFamily = {},
   fontStretch = {},
+  className = "",
+  style: customStyle = {},
 }) => {
-  const className = [
+  const typographyClassName = [
     mergeClasses(size),
     mergeClasses(weight),
     mergeClasses(letterSpacing),
     mergeClasses(alignment),
     mergeClasses(fontFamily),
+    className,
   ]
     .filter(Boolean)
     .join(" ");
 
   const style = {
-    color,
+    ...(color ? { color } : {}),
     fontStretch: getFontStretch(fontStretch),
+    ...customStyle,
   };
 
   return (
-    <div
-      className={className}
-      style={style}
-      dangerouslySetInnerHTML={{ __html: text }}
-    />
+    <Component className={typographyClassName} style={style} dangerouslySetInnerHTML={{ __html: text || "" }} />
   );
 };
 

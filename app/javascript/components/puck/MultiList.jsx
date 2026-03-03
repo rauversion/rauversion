@@ -1,25 +1,61 @@
-import React from 'react';
-import { composeSpacingClasses, createMarginField, createPaddingField } from './SpacingProps';
+import React from "react";
+import Typography from "./Typography";
+import { composeSpacingClasses, createMarginField, createPaddingField } from "./SpacingProps";
+import {
+  createTypographyDefaults,
+  createTypographyField,
+  mergeTypographyProps,
+} from "./TypographyProps";
+
+const getDefaultTitleTypography = () =>
+  createTypographyDefaults({
+    size: { mobile: "text-base", tablet: "", desktop: "" },
+    weight: { mobile: "font-bold", tablet: "", desktop: "" },
+    color: "",
+  });
+
+const getDefaultItemTypography = () =>
+  createTypographyDefaults({
+    size: { mobile: "text-xs", tablet: "", desktop: "" },
+    weight: { mobile: "font-normal", tablet: "", desktop: "" },
+    color: "",
+  });
 
 const MultiList = ({
-  columns,
-  gridCols,
+  columns = [],
+  gridCols = "grid-cols-2",
   textColor,
   textSize,
+  titleTypography = {},
+  itemTypography = {},
   className,
   padding = {},
   margin = {},
 }) => {
   const spacingClasses = composeSpacingClasses({ margin, padding });
+  const resolvedTitleTypography = mergeTypographyProps(
+    getDefaultTitleTypography(),
+    titleTypography
+  );
+  const resolvedItemTypography = mergeTypographyProps(
+    getDefaultItemTypography(),
+    itemTypography
+  );
+  const legacyTextClasses = [textColor, textSize].filter(Boolean).join(" ");
 
   return (
     <div className={`${className || ""} ${spacingClasses}`.trim()}>
-      <div className={`grid md:${gridCols} grid-cols-1 gap-4 ${textColor} ${textSize}`}>
+      <div className={`grid md:${gridCols} grid-cols-1 gap-4 ${legacyTextClasses}`.trim()}>
         {columns.map((column, index) => (
           <div key={index}>
-            <h3 className="font-bold mb-2">{column.title}</h3>
+            <Typography
+              as="h3"
+              className="mb-2"
+              {...resolvedTitleTypography}
+              text={column.title || ""}
+            />
             <ul className="space-y-1">
-              {column.items.map((item, itemIndex) => (
+              {(column.items || []).map((item, itemIndex) => (
                 <li key={itemIndex}>
                   {item.url ? (
                     <a 
@@ -28,10 +64,10 @@ const MultiList = ({
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      {item.text}
+                      <Typography as="span" {...resolvedItemTypography} text={item.text || ""} />
                     </a>
                   ) : (
-                    item.text
+                    <Typography as="span" {...resolvedItemTypography} text={item.text || ""} />
                   )}
                 </li>
               ))}
@@ -81,11 +117,11 @@ export const config = {
     },
     textColor: {
       type: "text",
-      label: "Text Color",
+      label: "Text Color (legacy class)",
     },
     textSize: {
       type: "select",
-      label: "Text Size",
+      label: "Text Size (legacy class)",
       options: [
         { label: "Extra Small", value: "text-xs" },
         { label: "Small", value: "text-sm" },
@@ -93,6 +129,16 @@ export const config = {
         { label: "Large", value: "text-lg" },
       ],
     },
+    titleTypography: createTypographyField({
+      label: "Title Typography",
+      includeText: false,
+      defaultValue: getDefaultTitleTypography(),
+    }),
+    itemTypography: createTypographyField({
+      label: "Item Typography",
+      includeText: false,
+      defaultValue: getDefaultItemTypography(),
+    }),
     className: {
       type: "text",
       label: "Wrapper Classes",
@@ -129,6 +175,8 @@ export const config = {
     gridCols: "grid-cols-2",
     textColor: "text-default0",
     textSize: "text-xs",
+    titleTypography: getDefaultTitleTypography(),
+    itemTypography: getDefaultItemTypography(),
     className: "",
     padding: { mobile: "", tablet: "", desktop: "" },
     margin: { mobile: "", tablet: "", desktop: "" },

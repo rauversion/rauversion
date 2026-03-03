@@ -1,8 +1,12 @@
 import React from "react";
 import Typography from "./Typography";
-import TypographyField from "./TypographyField";
 import SimpleEditor from "@/components/ui/SimpleEditor";
 import { composeSpacingClasses, createMarginField, createPaddingField } from "./SpacingProps";
+import {
+  createTypographyDefaults,
+  createTypographyField,
+  mergeTypographyProps,
+} from "./TypographyProps";
 
 
 // Custom field for editing text content using SimpleEditor
@@ -18,15 +22,18 @@ function TextContentField({ value = "", onChange }) {
   );
 }
 
-
 const Text = ({ text, typography = {}, padding = {}, margin = {} }) => {
   const spacingClasses = composeSpacingClasses({ margin, padding });
+  const resolvedTypography = mergeTypographyProps(
+    createTypographyDefaults(),
+    typography
+  );
 
   // Render the text as a div, styled with Typography (but allow multi-line)
   return (
     <div className={spacingClasses}>
       <Typography
-        {...typography}
+        {...resolvedTypography}
         text={text}
       />
     </div>
@@ -43,34 +50,16 @@ export const config = {
       render: TextContentField,
       defaultValue: "Text",
     },
-    typography: {
-      type: "custom",
-      label: "Typography",
-      render: TypographyField,
-      defaultValue: {
-        size: { mobile: "text-base", tablet: "", desktop: "" },
-        weight: { mobile: "font-normal", tablet: "", desktop: "" },
-        letterSpacing: { mobile: "tracking-normal", tablet: "", desktop: "" },
-        alignment: { mobile: "text-left", tablet: "", desktop: "" },
-        color: "#000000",
-        fontFamily: { mobile: "font-sans", tablet: "", desktop: "" },
-        fontStretch: { mobile: "normal", tablet: "", desktop: "" },
-      },
-    },
+    typography: createTypographyField({
+      includeText: false,
+      defaultValue: createTypographyDefaults(),
+    }),
   },
   defaultProps: {
     padding: { mobile: "", tablet: "", desktop: "" },
     margin: { mobile: "", tablet: "", desktop: "" },
     text: "Text",
-    typography: {
-      size: { mobile: "text-base", tablet: "", desktop: "" },
-      weight: { mobile: "font-normal", tablet: "", desktop: "" },
-      letterSpacing: { mobile: "tracking-normal", tablet: "", desktop: "" },
-      alignment: { mobile: "text-left", tablet: "", desktop: "" },
-      color: "#000000",
-      fontFamily: { mobile: "font-sans", tablet: "", desktop: "" },
-      fontStretch: { mobile: "normal", tablet: "", desktop: "" },
-    },
+    typography: createTypographyDefaults(),
   },
 };
 
