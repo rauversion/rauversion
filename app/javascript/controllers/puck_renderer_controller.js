@@ -1,8 +1,9 @@
 import { Controller } from "@hotwired/stimulus";
 import { createRoot } from "react-dom/client";
 import React from "react";
-import { Render } from "@measured/puck";
+import { Render } from "@puckeditor/core";
 import { get } from '@rails/request.js';
+import { migratePuckData } from "../components/puck/migrateData";
 
 import {
   ButtonBlock,
@@ -116,7 +117,7 @@ const config = {
 };
 
 function Page({ data }) {
-  return <Render config={config} data={data} />;
+  return <Render config={config} data={migratePuckData(data, config)} />;
 }
 
 export default class extends Controller {

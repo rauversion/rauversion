@@ -2,7 +2,7 @@ import React from "react";
 import { useParams } from "react-router-dom";
 import { get } from "@rails/request.js";
 import { useToast } from "@/hooks/use-toast";
-import { Render } from "@measured/puck";
+import { Render } from "@puckeditor/core";
 import {
   Playlist,
   PlaylistConfig,
@@ -40,6 +40,7 @@ import {
   OembedBlock,
   OembedBlockConfig,
 } from "../puck";
+import { migratePuckData } from "../puck/migrateData";
 
 // Same config as AlbumShow
 const config = {
@@ -240,7 +241,7 @@ export default function PagesShow() {
       <div className="min-h-screen">
         <Render
           config={config}
-          data={page.body}
+          data={migratePuckData(page.body, config)}
           renderMode="view"
         />
       </div>

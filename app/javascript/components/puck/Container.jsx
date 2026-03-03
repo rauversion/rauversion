@@ -1,5 +1,4 @@
 import React from 'react';
-import { DropZone } from "@measured/puck";
 import ColorPicker from './ColorPicker';
 import ImageUploadField from './ImageUploadField';
 
@@ -10,8 +9,10 @@ const Container = ({
   backgroundPosition,
   backgroundSize,
   backgroundRepeat,
+  content,
   children 
 }) => {
+  const ContentSlot = content;
   const style = {
     backgroundColor,
     backgroundImage: backgroundImage ? `url(${backgroundImage})` : undefined,
@@ -25,13 +26,17 @@ const Container = ({
       className={`${className || 'max-w-3xl mx-auto p-8 space-y-6'}`}
       style={style}
     >
-      <DropZone zone="content" />
+      {ContentSlot ? ContentSlot() : children}
     </div>
   );
 };
 
 export const config = {
   fields: {
+    content: {
+      type: "slot",
+      label: "Content",
+    },
     className: {
       type: "text",
       label: "Container Classes",

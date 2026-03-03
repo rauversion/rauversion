@@ -3,7 +3,7 @@ import { useParams, Navigate } from "react-router-dom"
 import { get } from "@rails/request.js"
 import { useToast } from "@/hooks/use-toast"
 import PlaylistShow from "../playlists/Show"
-import { Render } from "@measured/puck"
+import { Render } from "@puckeditor/core"
 import {
 
   Playlist,
@@ -42,6 +42,7 @@ import {
   OembedBlock,
   OembedBlockConfig,
 } from "../puck"
+import { migratePuckData } from "../puck/migrateData"
 
 // Create Puck component config
 const config = {
@@ -246,7 +247,7 @@ export default function AlbumShow() {
       <div className="min-h-screen">
         <Render
           config={config}
-          data={album.editor_data}
+          data={migratePuckData(album.editor_data, config)}
           renderMode="view"
         />
       </div>
