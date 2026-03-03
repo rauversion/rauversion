@@ -8,6 +8,7 @@ import { createAiPlugin } from "@puckeditor/plugin-ai";
 // import "../components/aaa.css";
 import { put, get } from '@rails/request.js';
 import { migratePuckData } from "../components/puck/migrateData";
+import { prepareConfigForAi } from "../components/puck/aiConfig";
 
 import {
   Playlist,
@@ -201,6 +202,7 @@ const plugins = [
       ...opts,
       body: {
         ...opts.body,
+        config: prepareConfigForAi(opts.body?.config || config),
         pageData: migratePuckData(opts.body?.pageData, config),
       },
     }),

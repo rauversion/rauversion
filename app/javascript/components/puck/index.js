@@ -5,10 +5,12 @@ import { createAiPlugin } from "@puckeditor/plugin-ai";
 // import "@puckeditor/plugin-ai/styles.css";
 // import "@puckeditor/core/puck.css";
 
+
 import { Label } from "@/components/ui/label";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { migratePuckData } from "./migrateData";
+import { prepareConfigForAi } from "./aiConfig";
 
 
 import ImageUploadField from './ImageUploadField';
@@ -293,6 +295,7 @@ const plugins = [
       ...opts,
       body: {
         ...opts.body,
+        config: prepareConfigForAi(opts.body?.config || config),
         pageData: migratePuckData(opts.body?.pageData, config),
       },
     }),

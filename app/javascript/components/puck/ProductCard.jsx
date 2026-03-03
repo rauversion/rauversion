@@ -308,7 +308,13 @@ export const config = {
     productId: {
       type: "custom",
       label: "Select Product",
-      render: ProductSelector
+      render: ProductSelector,
+      ai: {
+        schema: {
+          type: "string",
+          description: "Product slug identifier."
+        }
+      }
     },
     variant: {
       type: "select",

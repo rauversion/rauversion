@@ -2,7 +2,6 @@
 @import 'tw-animate-css';
 @import "@puckeditor/plugin-ai/styles.css";
 
-
 @plugin "@tailwindcss/typography";
 @custom-variant dark (&:is(.dark *));
 

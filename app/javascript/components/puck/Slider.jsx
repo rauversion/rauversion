@@ -143,7 +143,16 @@ export const config = {
     playlistIds: {
       type: "custom",
       render: PlaylistSelector,
-      label: "Select Playlists"
+      label: "Select Playlists",
+      ai: {
+        schema: {
+          type: "array",
+          items: {
+            type: "integer"
+          },
+          description: "List of playlist IDs."
+        }
+      }
     },
     autoPlay: {
       type: "custom",
