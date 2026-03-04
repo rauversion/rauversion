@@ -222,6 +222,6 @@ export default class extends Controller {
   }
 
   disconnect(){
-    this.editor && this.editor.cleanup()
+    this.editor && this.editor.destroy()
   }
 }

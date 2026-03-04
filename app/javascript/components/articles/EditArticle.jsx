@@ -53,7 +53,6 @@ import { ScrollGalleryBlockConfig } from "./scrollGallery";
 import { Sparkles } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { DirectUpload } from "@rails/activestorage"
-import { useDebounce } from '@/hooks/use_debounce'
 import { useDebounceCallback } from "@/hooks/use-debounce-callback"
 import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
 import { ImageUploader } from "../ui/image-uploader"
@@ -127,14 +126,7 @@ export function PlaylistBlockConfig(options = {}) {
   };
 }
 
-export function EditorComponent({ value, onChange, onUpload, readOnly = false }) {
-  const debouncedValue = useDebounce(value, 500)
-  React.useEffect(() => {
-    onChange?.(debouncedValue)
-  }, [debouncedValue])
-
-
-
+export const EditorComponent = React.memo(function EditorComponent({ value, onChange, readOnly = false }) {
   function AiEnhancerBlockConfig(options = {}) {
     return {
       icon: () => (
@@ -181,6 +173,62 @@ export function EditorComponent({ value, onChange, onUpload, readOnly = false })
     })
   }
 
+  const widgets = React.useMemo(() => ([
+    ImageBlockConfig({
+      options: {
+        upload_handler: (file, ctx) => {
+          uploadFile(file, (blob) => {
+            ctx.updateAttributes({
+              url: blob.service_url
+            })
+          })
+        }
+      }
+    }),
+    CodeBlockConfig(),
+    DividerBlockConfig(),
+    PlaceholderBlockConfig(),
+    EmbedBlockConfig({
+      options: {
+        endpoint: "/oembed?url=",
+        placeholder: "Paste a link to embed content from another site (e.g. Twitter) and press Enter"
+      },
+    }),
+    VideoBlockConfig({
+      options: {
+        endpoint: "/oembed?url=",
+        placeholder: "Paste a YouTube, Vine, Vimeo, or other video link, and press Enter",
+        caption: "Type caption for embed (optional)",
+      },
+    }),
+    GiphyBlockConfig(),
+    VideoRecorderBlockConfig({
+      options: {
+        upload_handler: (file, ctx) => {
+          uploadFile(file, (blob) => {
+            ctx.updateAttributes({
+              url: blob.service_url
+            })
+          })
+        }
+      }
+    }),
+    SpeechToTextBlockConfig(),
+    PlaylistBlockConfig(),
+    ScrollGalleryBlockConfig({
+      options: {
+        upload_handler: (file, ctx) => {
+          uploadFile(file, (blob) => {
+            ctx.updateAttributes({
+              url: blob.service_url
+            })
+          })
+        }
+      }
+    }),
+    // AiEnhancerBlockConfig(), // we need to add this to the menu bar instead
+  ]), [])
+
   return (
     <Dante
       theme={darkTheme}
@@ -193,67 +241,17 @@ export function EditorComponent({ value, onChange, onUpload, readOnly = false })
           }
         }
       }
-      widgets={[
-        ImageBlockConfig({
-          options: {
-            upload_handler: (file, ctx) => {
-              uploadFile(file, (blob) => {
-                ctx.updateAttributes({
-                  url: blob.service_url
-                })
-              })
-            }
-          }
-        }),
-        CodeBlockConfig(),
-        DividerBlockConfig(),
-        PlaceholderBlockConfig(),
-        EmbedBlockConfig({
-          options: {
-            endpoint: "/oembed?url=",
-            placeholder: "Paste a link to embed content from another site (e.g. Twitter) and press Enter"
-          },
-        }),
-        VideoBlockConfig({
-          options: {
-            endpoint: "/oembed?url=",
-            placeholder: "Paste a YouTube, Vine, Vimeo, or other video link, and press Enter",
-            caption: "Type caption for embed (optional)",
-          },
-        }),
-        GiphyBlockConfig(),
-        VideoRecorderBlockConfig({
-          options: {
-            upload_handler: (file, ctx) => {
-              uploadFile(file, (blob) => {
-                ctx.updateAttributes({
-                  url: blob.service_url
-                })
-              })
-            }
-          }
-        }),
-        SpeechToTextBlockConfig(),
-        PlaylistBlockConfig(),
-        ScrollGalleryBlockConfig({
-          options: {
-            upload_handler: (file, ctx) => {
-              uploadFile(file, (blob) => {
-                ctx.updateAttributes({
-                  url: blob.service_url
-                })
-              })
-            }
-          }
-        }),
-        // AiEnhancerBlockConfig(), // we need to add this to the menu bar instead
-      ]}
+      widgets={widgets}
       onUpdate={(editor) => {
         onChange && onChange(editor.getJSON())
       }}
     />
   )
-}
+}, (prevProps, nextProps) => (
+  prevProps.value === nextProps.value
+  && prevProps.onChange === nextProps.onChange
+  && prevProps.readOnly === nextProps.readOnly
+))
 
 export default function EditArticle() {
   const { id } = useParams()
@@ -265,7 +263,7 @@ export default function EditArticle() {
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false)
   const [dragActive, setDragActive] = React.useState(false)
   const inputRef = React.useRef(null)
-  const [changeCount, setChangeCount] = React.useState(0)
+  const hasSkippedInitialSaveRef = React.useRef(false)
 
   const handleDrag = (e) => {
     e.preventDefault()
@@ -399,42 +397,41 @@ export default function EditArticle() {
   })
 
   const handleSaveContent = React.useCallback(async (content) => {
-    setChangeCount((prev) => {
-      if (prev === 0) {
-        return prev + 1 // skip first change
-      }
-      (async () => {
-        try {
-          const response = await put(`/articles/${id}`, {
-            body: JSON.stringify({
-              post: {
-                body: content
-              }
-            }),
-            responseKind: 'json'
-          })
+    if (!hasSkippedInitialSaveRef.current) {
+      hasSkippedInitialSaveRef.current = true
+      return
+    }
 
-          if (response.ok) {
-            const { article } = await response.json
-            // setArticle(article)
-            toast({
-              description: "Contenido guardado",
-            })
+    try {
+      const response = await put(`/articles/${id}`, {
+        body: JSON.stringify({
+          post: {
+            body: content
           }
-        } catch (error) {
-          console.error('Error saving content:', error)
-          toast({
-            title: "Error",
-            description: "No se pudo guardar el contenido",
-            variant: "destructive",
-          })
-        }
-      })()
-      return prev + 1
-    })
+        }),
+        responseKind: 'json'
+      })
+
+      if (response.ok) {
+        toast({
+          description: "Contenido guardado",
+        })
+      }
+    } catch (error) {
+      console.error('Error saving content:', error)
+      toast({
+        title: "Error",
+        description: "No se pudo guardar el contenido",
+        variant: "destructive",
+      })
+    }
   }, [id, toast])
 
   const editorOnChangeHandler = useDebounceCallback(handleSaveContent, 500)
+
+  React.useEffect(() => {
+    hasSkippedInitialSaveRef.current = false
+  }, [id])
 
   React.useEffect(() => {
     const fetchArticle = async () => {
@@ -805,7 +802,6 @@ export default function EditArticle() {
               <EditorComponent
                 value={article.body}
                 onChange={editorOnChangeHandler}
-                onUpload={handleUpload}
               />
             )}
           />

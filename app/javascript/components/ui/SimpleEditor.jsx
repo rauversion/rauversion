@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react'
 import StarterKit from '@tiptap/starter-kit'
-import { Editor } from '../../../../node_modules/@tiptap/starter-kit/node_modules/@tiptap/core/dist/index.js'
+import { Editor } from '@tiptap/core'
 import { Button } from "@/components/ui/button"
 import {
   Wand2,
