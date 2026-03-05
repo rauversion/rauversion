@@ -2213,10 +2213,10 @@ d3-timer@^3.0.1:
   resolved "https://registry.yarnpkg.com/d3-timer/-/d3-timer-3.0.1.tgz#6284d2a2708285b1abb7e201eda4380af35e63b0"
   integrity sha512-ndfJ/JxxMd3nw31uyKoY2naivF+r29V+Lc0svZxe1JvvIRmi8hUsrMvdOwgS1o6uBHmiz91geQ0ylPP0aj1VUA==
 
-dante3@^1.3.9:
-  version "1.3.9"
-  resolved "https://registry.yarnpkg.com/dante3/-/dante3-1.3.9.tgz#d071d017a5e4b4404db1a63c9b39f66cdc64f227"
-  integrity sha512-geBC7wBBNWTIUo/s5QAjGGU9jJtUOxN+LcBgi2Wlhca9VeOl79aijATpMaMVYWypON67CmxZSVs0vTutzokilQ==
+dante3@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/dante3/-/dante3-1.4.0.tgz#a755aa6d2dbd0e12d40ee3ed33ff36261fd7c19c"
+  integrity sha512-pCT9L0sih4t3oKp8bLdPWsTzf1FvOk4ka9IG7V1JGQ8qkdrJZsfUXiWBGwAPCVsPnXVovIXsULWd8OPLgtbZsQ==
   dependencies:
     "@tiptap/extension-code" "^3.11.1"
     "@tiptap/extension-code-block-lowlight" "^3.11.1"

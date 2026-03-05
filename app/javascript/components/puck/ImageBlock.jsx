@@ -2,6 +2,33 @@ import React from 'react';
 import ImageUploadField from './ImageUploadField';
 import { composeSpacingClasses, createMarginField, createPaddingField } from './SpacingProps';
 
+const MAX_WIDTH_CLASSES = {
+  sm: "max-w-sm",
+  md: "max-w-md",
+  lg: "max-w-lg",
+  xl: "max-w-xl",
+  "2xl": "max-w-2xl",
+  none: "max-w-none",
+};
+
+const ROUNDED_CLASSES = {
+  none: "rounded-none",
+  sm: "rounded-sm",
+  md: "rounded-md",
+  lg: "rounded-lg",
+  xl: "rounded-xl",
+  "2xl": "rounded-2xl",
+};
+
+const SHADOW_CLASSES = {
+  none: "shadow-none",
+  sm: "shadow-sm",
+  md: "shadow-md",
+  lg: "shadow-lg",
+  xl: "shadow-xl",
+  "2xl": "shadow-2xl",
+};
+
 const ImageBlock = ({ 
   image, 
   href,
@@ -20,19 +47,23 @@ const ImageBlock = ({
   };
 
   const imageStyle = {
-    position: 'absolute',
-    height: '100%',
     width: '100%',
-    inset: '0px',
-    color: 'transparent'
+    height: '100%',
+    display: 'block',
+    color: 'transparent',
+    objectFit: 'cover'
   };
 
+  const maxWidthClass = MAX_WIDTH_CLASSES[maxWidth] || MAX_WIDTH_CLASSES["2xl"];
+  const roundedClass = ROUNDED_CLASSES[rounded] || ROUNDED_CLASSES.lg;
+  const shadowClass = SHADOW_CLASSES[shadow] || SHADOW_CLASSES.lg;
+  const wrapperClassName = `${spacingClasses} w-full`.trim();
+
   const ImageComponent = (
-    <div className={`relative w-full max-w-${maxWidth} mx-auto overflow-hidden rounded-${rounded} shadow-${shadow}`} style={containerStyle}>
+    <div className={`relative w-full ${maxWidthClass} mx-auto overflow-hidden ${roundedClass} ${shadowClass}`} style={containerStyle}>
       <img
         src={image}
         alt={alt || ''}
-        className="object-cover"
         style={imageStyle}
       />
     </div>
@@ -40,12 +71,12 @@ const ImageBlock = ({
 
   if (href) {
     return (
-      <div className={spacingClasses}>
+      <div className={wrapperClassName}>
       <a 
         href={href}
         target="_blank"
         rel="noopener noreferrer"
-        className="block"
+        className="block w-full"
       >
         {ImageComponent}
       </a>
@@ -53,7 +84,7 @@ const ImageBlock = ({
     );
   }
 
-  return <div className={spacingClasses}>{ImageComponent}</div>;
+  return <div className={wrapperClassName}>{ImageComponent}</div>;
 };
 
 export const config = {

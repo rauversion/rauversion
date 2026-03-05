@@ -2,6 +2,8 @@ import React from 'react';
 import ClassField, { mergeVariantClasses } from "./ClassField";
 import { composeSpacingClasses, createMarginField, createPaddingField } from "./SpacingProps";
 
+const DEFAULT_MIN_EMPTY_DROP_HEIGHT = 180;
+
 const Flex = ({
   direction = {},
   wrap = {},
@@ -19,15 +21,22 @@ const Flex = ({
   const ContentSlot = content;
   const spacingClasses = composeSpacingClasses({ margin, padding });
   const mergedClassName = `flex ${mergeVariantClasses(direction, v => v)} ${mergeVariantClasses(wrap, v => v)} ${mergeVariantClasses(justify, v => v)} ${mergeVariantClasses(align, v => v)} ${mergeVariantClasses(gap, v => v)} ${mergeVariantClasses(basis, v => v)} ${mergeVariantClasses(grow, v => v)} ${mergeVariantClasses(shrink, v => v)} ${spacingClasses} ${className}`;
-  const style = {
-    minHeight: '50px',
+  const slotStyle = {
     minWidth: (basis.mobile || basis) === 'basis-0' ? '100px' : 'auto'
+  };
+  const fallbackStyle = {
+    minHeight: `${DEFAULT_MIN_EMPTY_DROP_HEIGHT}px`,
+    ...slotStyle
   };
 
   return (
     ContentSlot
-      ? ContentSlot({ className: mergedClassName, style })
-      : <div className={mergedClassName} style={style} />
+      ? ContentSlot({
+          className: mergedClassName,
+          style: slotStyle,
+          minEmptyHeight: DEFAULT_MIN_EMPTY_DROP_HEIGHT,
+        })
+      : <div className={mergedClassName} style={fallbackStyle} />
   );
 };
 
