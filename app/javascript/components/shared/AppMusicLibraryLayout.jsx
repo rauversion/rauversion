@@ -1210,7 +1210,7 @@ export default function AppMusicLibraryLayout({ children }) {
         minSize={6}
         maxSize={34}
       >
-        <div className="sticky top-4 h-[calc(100svh-4rem-6.75rem-2rem)] pr-4">
+        <div className="sticky top-4 h-[calc(100svh-4rem-6.75rem-2rem)]">
           <MusicLibrarySidebar onExpand={() => sidebarPanelRef.current?.resize(24)} />
         </div>
       </ResizablePanel>
