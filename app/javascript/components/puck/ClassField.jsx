@@ -35,16 +35,39 @@ export function normalizeVariantValue(value) {
 // Helper to merge device-specific classes (mobile, tablet, desktop)
 export function mergeVariantClasses(field, map) {
   if (!field) return "";
-  let cls = "";
+  const applyResponsivePrefix = (value, prefix) => {
+    const mapped = map(value, prefix).trim();
+    if (!mapped) return "";
+
+    return mapped
+      .split(/\s+/)
+      .filter(Boolean)
+      .map((className) => `${prefix}${className}`)
+      .join(" ");
+  };
+
+  const classes = [];
+
   if (typeof field === "string") {
     // legacy: single value
-    cls += map(field, "");
+    const mapped = map(field, "").trim();
+    if (mapped) classes.push(mapped);
   } else {
-    if (field.mobile) cls += map(field.mobile, "");
-    if (field.tablet) cls += " sm:" + map(field.tablet, "");
-    if (field.desktop) cls += " md:" + map(field.desktop, "");
+    if (field.mobile) {
+      const mappedMobile = map(field.mobile, "").trim();
+      if (mappedMobile) classes.push(mappedMobile);
+    }
+    if (field.tablet) {
+      const mappedTablet = applyResponsivePrefix(field.tablet, "sm:");
+      if (mappedTablet) classes.push(mappedTablet);
+    }
+    if (field.desktop) {
+      const mappedDesktop = applyResponsivePrefix(field.desktop, "md:");
+      if (mappedDesktop) classes.push(mappedDesktop);
+    }
   }
-  return cls.trim();
+
+  return classes.join(" ").trim();
 }
 
 export default function VariantField({

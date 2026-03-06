@@ -10,7 +10,6 @@ import { Settings, Share2, Heart, Repeat, Play, Pause, ShoppingCart } from 'luci
 import { Button } from "@/components/ui/button"
 import useAuthStore from '@/stores/authStore'
 import { useToast } from "@/hooks/use-toast"
-import { useAudioPlaying, } from '@/hooks/useAudioPlaying'
 import useAudioStore from '@/stores/audioStore'
 import MusicPurchase from '@/components/shared/MusicPurchase'
 
@@ -20,12 +19,11 @@ export default function TrackShow() {
   const [loading, setLoading] = useState(true)
   const [editOpen, setEditOpen] = useState(false)
   const { isAuthenticated, currentUser } = useAuthStore()
-  const isPlaying = useAudioPlaying()
   const [likes, setLikes] = useState(0)
   const [isLiked, setIsLiked] = useState(false)
   const { toast } = useToast()
 
-  const { currentTrackId } = useAudioStore()
+  const { currentTrackId, isPlaying, play, pause } = useAudioStore()
 
   const fetchTrack = async () => {
     try {
@@ -48,15 +46,17 @@ export default function TrackShow() {
   }, [slug])
 
   const handlePlay = () => {
-    //setCurrentTrackId(track.id)
-    if (isPlaying) {
-      //audioElement.pause();
-      useAudioStore.setState({ isPlaying: false });
-      e.preventDefault();
-    } else {
-      // setTracksToStore(0);
-      useAudioStore.setState({ currentTrackId: track.id + "", isPlaying: true });
+    if (!track?.id) return
+
+    const trackId = `${track.id}`
+    const isCurrentTrack = currentTrackId !== null && `${currentTrackId}` === trackId
+
+    if (isCurrentTrack && isPlaying) {
+      pause()
+      return
     }
+
+    play(trackId)
   }
 
   const handleLike = async () => {
@@ -144,7 +144,7 @@ export default function TrackShow() {
               {track.processed && (
                 <div className="bg-card rounded-lg p-6">
                   <TrackPlayer
-                    url={track.mp3_url}
+                    url={track.audio_url || track.mp3_audio_url || track.mp3_url}
                     peaks={track.peaks}
                     height={100}
                     id={track.id}
@@ -165,7 +165,7 @@ export default function TrackShow() {
                   onClick={() => handlePlay()}
                   className="absolute inset-0 flex items-center justify-center bg-background/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
                 >
-                  {isPlaying && currentTrackId === track.id ? (
+                  {isPlaying && currentTrackId !== null && `${currentTrackId}` === `${track.id}` ? (
                     <Pause className="h-16 w-16 text-primary-foreground" />
                   ) : (
                     <Play className="h-16 w-16 text-primary-foreground" />
@@ -196,7 +196,7 @@ export default function TrackShow() {
                         className="h-12 w-12 rounded-full object-cover shadow"
                       />
                       <div>
-                        <div className="text-base font-medium text-foreground">{track.user.full_name || artist.username}</div>
+                        <div className="text-base font-medium text-foreground">{track.user.full_name || track.user.username}</div>
                       </div>
                     </Link>
                   </li>

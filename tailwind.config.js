@@ -166,23 +166,6 @@ module.exports = {
       }
     }
   },
-  safelist: [
-    { pattern: /^grid-cols-/ },
-    { pattern: /^gap-/ },
-    { pattern: /^grid-rows-/ },
-    { pattern: /^rounded(-[a-z]+)?$/ },
-    { pattern: /^bg-/ },
-    { pattern: /^max-w-/ },
-    { pattern: /^shadow-/ },
-    { pattern: /^max-/ },
-    { pattern: /^min-/ },
-    { pattern: /^flex-/ },
-    { pattern: /^basis-/ },
-    { pattern: /^grow-/ },
-    { pattern: /^shrink-/ },
-    { pattern: /^justify-/ },
-    { pattern: /^items-/ },
-  ],
   plugins: [
     require('postcss-import'),
     require('@tailwindcss/forms'),

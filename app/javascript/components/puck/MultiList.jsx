@@ -21,6 +21,12 @@ const getDefaultItemTypography = () =>
     color: "",
   });
 
+const GRID_COLS_CLASSES = {
+  "grid-cols-2": "md:grid-cols-2",
+  "grid-cols-3": "md:grid-cols-3",
+  "grid-cols-4": "md:grid-cols-4",
+};
+
 const MultiList = ({
   columns = [],
   gridCols = "grid-cols-2",
@@ -42,10 +48,11 @@ const MultiList = ({
     itemTypography
   );
   const legacyTextClasses = [textColor, textSize].filter(Boolean).join(" ");
+  const gridColsClass = GRID_COLS_CLASSES[gridCols] || GRID_COLS_CLASSES["grid-cols-2"];
 
   return (
     <div className={`${className || ""} ${spacingClasses}`.trim()}>
-      <div className={`grid md:${gridCols} grid-cols-1 gap-4 ${legacyTextClasses}`.trim()}>
+      <div className={`grid grid-cols-1 gap-4 ${gridColsClass} ${legacyTextClasses}`.trim()}>
         {columns.map((column, index) => (
           <div key={index}>
             <Typography
