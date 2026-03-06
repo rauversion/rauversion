@@ -71,6 +71,12 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 import { Textarea } from "@/components/ui/textarea"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 
 const FILTERS = [
   { id: "all", label: "Todo", icon: LibraryBig },
@@ -101,6 +107,8 @@ const VIEW_MODES = [
   { id: "grid", label: "Grilla", icon: Grid2x2 },
   { id: "compact-grid", label: "Mosaico", icon: LayoutGrid },
 ]
+
+const RAIL_BREAKPOINT = 150
 
 function formatItemMeta(item) {
   switch (item.entity_type) {
@@ -675,7 +683,46 @@ function MusicLibraryItem({ item, viewMode, isActive, isPlaying, onOpen, onPlay 
   )
 }
 
-function MusicLibrarySidebar({ onNavigate }) {
+function MusicLibraryRailItem({ item, isActive, onOpen, onPlay }) {
+  const handleClick = () => {
+    if (item.href) {
+      onOpen(item)
+      return
+    }
+
+    if (item.playable) {
+      onPlay(item)
+    }
+  }
+
+  return (
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <button
+          type="button"
+          onClick={handleClick}
+          className={cn(
+            "group flex items-center justify-center rounded-[20px] border border-transparent p-1 transition-colors hover:bg-accent/70",
+            (item.href || item.playable) && "cursor-pointer",
+            isActive && "border-emerald-300/60 bg-emerald-400/10"
+          )}
+        >
+          <SidebarArtwork
+            item={item}
+            className="h-12 w-12 shadow-sm"
+            iconClassName="h-5 w-5"
+          />
+        </button>
+      </TooltipTrigger>
+      <TooltipContent side="right" className="max-w-56">
+        <p className="font-medium">{item.title}</p>
+        <p className="mt-0.5 text-[11px] opacity-80">{formatItemMeta(item)}</p>
+      </TooltipContent>
+    </Tooltip>
+  )
+}
+
+function MusicLibrarySidebar({ onNavigate, onExpand }) {
   const navigate = useNavigate()
   const { toast } = useToast()
   const { currentUser } = useAuthStore()
@@ -691,12 +738,32 @@ function MusicLibrarySidebar({ onNavigate }) {
   const [error, setError] = useState(null)
   const [createOpen, setCreateOpen] = useState(false)
   const [reloadToken, setReloadToken] = useState(0)
+  const [sidebarWidth, setSidebarWidth] = useState(0)
+  const sidebarRef = useRef(null)
   const scrollAreaRef = useRef(null)
   const loadMoreRef = useRef(null)
 
   const scrollCollectionToTop = useCallback(() => {
     const viewport = scrollAreaRef.current?.querySelector("[data-radix-scroll-area-viewport]")
     viewport?.scrollTo({ top: 0, behavior: "auto" })
+  }, [])
+
+  useEffect(() => {
+    const element = sidebarRef.current
+    if (!element) return undefined
+
+    const observer = new ResizeObserver((entries) => {
+      const [entry] = entries
+      if (!entry) return
+
+      setSidebarWidth(entry.contentRect.width)
+    })
+
+    observer.observe(element)
+
+    return () => {
+      observer.disconnect()
+    }
   }, [])
 
   useEffect(() => {
@@ -856,6 +923,7 @@ function MusicLibrarySidebar({ onNavigate }) {
   const metadata = library?.metadata || {}
   const isGridView = viewMode === "grid" || viewMode === "compact-grid"
   const hasMore = Boolean(metadata.next_page)
+  const isRailView = sidebarWidth > 0 && sidebarWidth <= RAIL_BREAKPOINT
 
   const collectionLayoutClassName = cn(
     "p-3 sm:p-4",
@@ -866,127 +934,212 @@ function MusicLibrarySidebar({ onNavigate }) {
   )
 
   return (
-    <div className="relative flex h-full min-h-0 flex-col overflow-hidden rounded-[28px] border border-border bg-background text-foreground shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
+    <div
+      ref={sidebarRef}
+      className="relative flex h-full min-h-0 flex-col overflow-hidden rounded-[28px] border border-border bg-background text-foreground shadow-[0_24px_80px_rgba(0,0,0,0.35)]"
+    >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(34,197,94,0.18),_transparent_28%)]" />
 
-      <div className="relative border-b border-border px-4 py-4 sm:px-5">
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <p className="text-xs uppercase tracking-[0.28em] text-emerald-300/80">
-              Biblioteca
+      {isRailView ? (
+        <TooltipProvider delayDuration={80}>
+          <div className="relative flex h-full min-h-0 flex-col items-center px-2 py-3">
+            <div className="flex flex-col items-center gap-3 pb-3">
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => onExpand?.()}
+                    className="h-11 w-11 rounded-2xl border border-border bg-card/70 text-foreground hover:bg-accent hover:text-accent-foreground"
+                  >
+                    <PanelLeft className="h-5 w-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right">Abrir tu biblioteca</TooltipContent>
+              </Tooltip>
+
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    onClick={() => setCreateOpen(true)}
+                    variant="ghost"
+                    size="icon"
+                    className="h-12 w-12 rounded-full bg-muted/50 text-foreground hover:bg-accent hover:text-accent-foreground"
+                  >
+                    <Plus className="h-5 w-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right">Crear playlist</TooltipContent>
+              </Tooltip>
+            </div>
+
+            <ScrollArea ref={scrollAreaRef} className="min-h-0 w-full flex-1">
+              <div className="flex flex-col items-center gap-3 px-1 pb-3">
+                {loading && (
+                  <div className="flex min-h-20 items-center justify-center text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  </div>
+                )}
+
+                {!loading && error && (
+                  <div className="px-1 text-center text-[11px] text-red-400">
+                    Error
+                  </div>
+                )}
+
+                {!loading && !error && items.length === 0 && (
+                  <div className="px-1 text-center text-[11px] text-muted-foreground">
+                    Vacío
+                  </div>
+                )}
+
+                {!loading && !error && items.map((item) => (
+                  <MusicLibraryRailItem
+                    key={item.id}
+                    item={item}
+                    isActive={itemIsActive(item, currentTrackId)}
+                    onOpen={handleOpen}
+                    onPlay={handlePlay}
+                  />
+                ))}
+
+                {!loading && !error && loadingMore && (
+                  <div className="flex items-center justify-center py-1 text-muted-foreground">
+                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                  </div>
+                )}
+
+                {!loading && !error && hasMore && (
+                  <div ref={loadMoreRef} aria-hidden="true" className="h-2 w-full" />
+                )}
+              </div>
+            </ScrollArea>
+          </div>
+        </TooltipProvider>
+      ) : (
+        <>
+          <div className="relative border-b border-border px-4 py-4 sm:px-5">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <p className="text-xs uppercase tracking-[0.28em] text-emerald-300/80">
+                  Biblioteca
+                </p>
+                <h2 className="mt-1 text-2xl font-semibold text-foreground">
+                  Tu música
+                </h2>
+              </div>
+
+              <Button
+                type="button"
+                onClick={() => setCreateOpen(true)}
+                variant="secondary"
+                className="rounded-full"
+              >
+                <Plus className="mr-2 h-4 w-4" />
+                Crear
+              </Button>
+            </div>
+
+            <p className="mt-3 max-w-sm text-sm text-muted-foreground">
+              Playlists, álbumes, artistas y tus me gusta del usuario autenticado, todo paginado.
             </p>
-            <h2 className="mt-1 text-2xl font-semibold text-foreground">
-              Tu música
-            </h2>
           </div>
 
-          <Button
-            type="button"
-            onClick={() => setCreateOpen(true)}
-            variant="secondary"
-            className="rounded-full"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Crear
-          </Button>
-        </div>
+          <div className="relative border-b border-border px-2 py-3">
+            <FilterPills
+              counts={counts}
+              filter={filter}
+              onFilterChange={handleFilterChange}
+            />
+          </div>
 
-        <p className="mt-3 max-w-sm text-sm text-muted-foreground">
-          Playlists, álbumes, artistas y tus me gusta del usuario autenticado, todo paginado.
-        </p>
-      </div>
-
-      <div className="relative border-b border-border px-2 py-3">
-        <FilterPills
-          counts={counts}
-          filter={filter}
-          onFilterChange={handleFilterChange}
-        />
-      </div>
-
-      <div className="relative flex items-center justify-between border-b border-border px-4 py-3">
-        <div className="min-w-0">
-          <p className="truncate text-sm font-medium text-foreground">
-            {getFilterLabel(filter)}
-          </p>
-          <p className="truncate text-xs uppercase tracking-[0.18em] text-muted-foreground">
-            {metadata.total_count || 0} resultados
-          </p>
-        </div>
-
-        <LibrarySortMenu
-          sortMode={sortMode}
-          viewMode={viewMode}
-          onSortChange={handleSortChange}
-          onViewModeChange={setViewMode}
-        />
-      </div>
-
-      <ScrollArea ref={scrollAreaRef} className="relative min-h-0 flex-1">
-        <div className={collectionLayoutClassName}>
-          {loading && (
-            <div className="col-span-full flex min-h-56 items-center justify-center text-sm text-muted-foreground">
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Cargando biblioteca...
+          <div className="relative flex items-center justify-between border-b border-border px-4 py-3">
+            <div className="min-w-0">
+              <p className="truncate text-sm font-medium text-foreground">
+                {getFilterLabel(filter)}
+              </p>
+              <p className="truncate text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                {metadata.total_count || 0} resultados
+              </p>
             </div>
-          )}
 
-          {!loading && error && (
-            <div className="col-span-full rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-100">
-              {error}
-            </div>
-          )}
-
-          {!loading && !error && items.length === 0 && (
-            <div className="col-span-full rounded-3xl border border-dashed border-border bg-muted/30 p-6 text-sm text-muted-foreground">
-              No hay resultados para este filtro todavía.
-            </div>
-          )}
-
-          {!loading && !error && items.map((item) => (
-            <MusicLibraryItem
-              key={item.id}
-              item={item}
+            <LibrarySortMenu
+              sortMode={sortMode}
               viewMode={viewMode}
-              isActive={itemIsActive(item, currentTrackId)}
-              isPlaying={isPlaying}
-              onOpen={handleOpen}
-              onPlay={handlePlay}
+              onSortChange={handleSortChange}
+              onViewModeChange={setViewMode}
             />
-          ))}
+          </div>
 
-          {!loading && !error && loadingMore && (
-            <div
-              className={cn(
-                "flex items-center justify-center py-2 text-xs uppercase tracking-[0.2em] text-muted-foreground",
-                isGridView && "col-span-full"
+          <ScrollArea ref={scrollAreaRef} className="relative min-h-0 flex-1">
+            <div className={collectionLayoutClassName}>
+              {loading && (
+                <div className="col-span-full flex min-h-56 items-center justify-center text-sm text-muted-foreground">
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Cargando biblioteca...
+                </div>
               )}
-            >
-              <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
-              Cargando más
-            </div>
-          )}
 
-          {!loading && !error && hasMore && (
-            <div
-              ref={loadMoreRef}
-              aria-hidden="true"
-              className={cn("h-2", isGridView && "col-span-full")}
-            />
-          )}
-
-          {!loading && !error && !hasMore && items.length > 0 && (
-            <div
-              className={cn(
-                "flex items-center justify-center py-2 text-[11px] uppercase tracking-[0.2em] text-muted-foreground",
-                isGridView && "col-span-full"
+              {!loading && error && (
+                <div className="col-span-full rounded-2xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-100">
+                  {error}
+                </div>
               )}
-            >
-              {getSortLabel(sortMode)} · {metadata.total_count || items.length} resultados
+
+              {!loading && !error && items.length === 0 && (
+                <div className="col-span-full rounded-3xl border border-dashed border-border bg-muted/30 p-6 text-sm text-muted-foreground">
+                  No hay resultados para este filtro todavía.
+                </div>
+              )}
+
+              {!loading && !error && items.map((item) => (
+                <MusicLibraryItem
+                  key={item.id}
+                  item={item}
+                  viewMode={viewMode}
+                  isActive={itemIsActive(item, currentTrackId)}
+                  isPlaying={isPlaying}
+                  onOpen={handleOpen}
+                  onPlay={handlePlay}
+                />
+              ))}
+
+              {!loading && !error && loadingMore && (
+                <div
+                  className={cn(
+                    "flex items-center justify-center py-2 text-xs uppercase tracking-[0.2em] text-muted-foreground",
+                    isGridView && "col-span-full"
+                  )}
+                >
+                  <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                  Cargando más
+                </div>
+              )}
+
+              {!loading && !error && hasMore && (
+                <div
+                  ref={loadMoreRef}
+                  aria-hidden="true"
+                  className={cn("h-2", isGridView && "col-span-full")}
+                />
+              )}
+
+              {!loading && !error && !hasMore && items.length > 0 && (
+                <div
+                  className={cn(
+                    "flex items-center justify-center py-2 text-[11px] uppercase tracking-[0.2em] text-muted-foreground",
+                    isGridView && "col-span-full"
+                  )}
+                >
+                  {getSortLabel(sortMode)} · {metadata.total_count || items.length} resultados
+                </div>
+              )}
             </div>
-          )}
-        </div>
-      </ScrollArea>
+          </ScrollArea>
+        </>
+      )}
 
       <CreatePlaylistDialog
         open={createOpen}
@@ -1030,6 +1183,7 @@ function MobileMusicLibrary() {
 export default function AppMusicLibraryLayout({ children }) {
   const { currentUser } = useAuthStore()
   const isMobile = useIsMobile()
+  const sidebarPanelRef = useRef(null)
 
   if (!currentUser) {
     return children
@@ -1050,9 +1204,14 @@ export default function AppMusicLibraryLayout({ children }) {
       autoSaveId="app-music-library-layout"
       className="min-h-[calc(100svh-4rem-6.75rem-2rem)] w-full items-start"
     >
-      <ResizablePanel defaultSize={24} minSize={18} maxSize={34}>
+      <ResizablePanel
+        ref={sidebarPanelRef}
+        defaultSize={24}
+        minSize={6}
+        maxSize={34}
+      >
         <div className="sticky top-4 h-[calc(100svh-4rem-6.75rem-2rem)] pr-4">
-          <MusicLibrarySidebar />
+          <MusicLibrarySidebar onExpand={() => sidebarPanelRef.current?.resize(24)} />
         </div>
       </ResizablePanel>
 
