@@ -114,12 +114,17 @@ export default function TrackShow() {
     )
   }
 
+  const isCurrentTrackPlaying =
+    isPlaying &&
+    currentTrackId !== null &&
+    `${currentTrackId}` === `${track.id}`
+
   return (
     <main className="flex-1 relative z-0 overflow-y-auto focus:outline-none xl:order-last">
       <div className="bg-background">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex flex-row gap-8 items-center">
-            <div className="flex-1 w-2/3">
+          <div className="flex flex-col gap-6 md:flex-row md:items-center md:gap-8">
+            <div className="order-2 w-full md:order-1 md:w-2/3">
               <div className="flex items-center gap-4 mb-4">
                 <div className="flex-shrink-0">
                   <img
@@ -153,22 +158,25 @@ export default function TrackShow() {
                 </div>
               )}
             </div>
-            <div className="w-1/3">
-              <div className="relative group">
+            <div className="order-1 w-full md:order-2 md:w-1/3">
+              <div className="relative mx-auto w-full max-w-xs md:max-w-none">
                 <img
                   src={track.cover_url?.cropped_image || track.cover_url?.large || AlbumsHelper.default_image_sqr}
                   alt={track.title}
                   className="w-full h-auto rounded-lg shadow-lg"
                 />
+                <div className="pointer-events-none absolute inset-0 rounded-lg bg-gradient-to-t from-black/35 via-transparent to-transparent" />
 
                 <button
+                  type="button"
                   onClick={() => handlePlay()}
-                  className="absolute inset-0 flex items-center justify-center bg-background/40 opacity-0 group-hover:opacity-100 transition-opacity duration-200"
+                  aria-label={isCurrentTrackPlaying ? "Pause track" : "Play track"}
+                  className="absolute bottom-3 left-3 z-10 inline-flex h-12 w-12 items-center justify-center rounded-full bg-black/90 text-white shadow-2xl ring-2 ring-white/80 transition-all duration-200 hover:scale-105 hover:bg-black focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-500/60 dark:bg-white/90 dark:text-black dark:ring-black/40 md:bottom-4 md:left-4 md:h-14 md:w-14"
                 >
-                  {isPlaying && currentTrackId !== null && `${currentTrackId}` === `${track.id}` ? (
-                    <Pause className="h-16 w-16 text-primary-foreground" />
+                  {isCurrentTrackPlaying ? (
+                    <Pause className="h-6 w-6 md:h-7 md:w-7" />
                   ) : (
-                    <Play className="h-16 w-16 text-primary-foreground" />
+                    <Play className="h-6 w-6 translate-x-[1px] md:h-7 md:w-7" />
                   )}
                 </button>
               </div>

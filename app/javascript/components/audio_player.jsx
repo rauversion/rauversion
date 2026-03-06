@@ -12,7 +12,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "./ui/sheet"
-import { 
+import {
   List,
   Play,
   Pause,
@@ -26,42 +26,42 @@ import PlayerSidebar from "./player_sidebar"
 
 const ProgressBar = ({ progress, duration, currentTime, onSeek, formatTime }) => (
   <div className="flex items-center w-full max-w-2xl mx-auto">
-    <span className="text-xs text-white/80 w-12 text-right">{formatTime(currentTime)}</span>
+    <span className="text-xs text-foreground/80 w-12 text-right">{formatTime(currentTime)}</span>
     <div className="relative w-full mx-2 group" onClick={onSeek}>
-      <div className="h-1 bg-white/10 rounded-full overflow-hidden">
+      <div className="h-1 bg-foreground/20 rounded-full overflow-hidden">
         <div
           className="h-full bg-gradient-to-r from-primary/80 to-primary transition-transform duration-100"
           style={{ width: `${progress}%` }}
         />
       </div>
-      <div 
+      <div
         className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3 h-3 bg-primary rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
         style={{ left: `${progress}%` }}
       />
     </div>
-    <span className="text-xs text-white/80 w-12">{formatTime(duration)}</span>
+    <span className="text-xs text-foreground/80 w-12">{formatTime(duration)}</span>
   </div>
 );
 
 const VolumeControl = ({ volume, isMuted, onVolumeChange, onToggleMute }) => (
   <div className="flex items-center space-x-2">
-    <button 
+    <button
       onClick={onToggleMute}
-      className="p-2 hover:bg-white/10 rounded-full transition-colors"
+      className="p-2 text-foreground hover:bg-foreground/10 rounded-full transition-colors"
     >
       {!isMuted ? <Volume2 size={20} /> : <VolumeX size={20} />}
     </button>
     <div className="w-24 group relative">
       <input
         type="range"
-        className="w-full h-1 bg-white/10 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:opacity-0 group-hover:[&::-webkit-slider-thumb]:opacity-100 transition-opacity"
+        className="w-full h-1 bg-foreground/20 rounded-full appearance-none cursor-pointer [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-primary [&::-webkit-slider-thumb]:opacity-0 group-hover:[&::-webkit-slider-thumb]:opacity-100 transition-opacity"
         min="0"
         max="1"
         step="0.1"
         value={volume}
         onChange={onVolumeChange}
       />
-      <div 
+      <div
         className="absolute top-1/2 -translate-y-1/2 left-0 h-1 bg-primary rounded-full pointer-events-none"
         style={{ width: `${volume * 100}%` }}
       />
@@ -77,28 +77,28 @@ const TrackInfo = ({ playerData }) => (
       className="relative group"
     >
       {playerData?.track?.artwork_url ? (
-        <img 
-          alt={`${playerData.track.title} Cover Art`} 
+        <img
+          alt={`${playerData.track.title} Cover Art`}
           className="w-14 h-14 rounded-xl object-cover shadow-lg group-hover:shadow-xl transition-all duration-300"
           src={playerData.track.artwork_url}
         />
       ) : (
-        <div className="w-14 h-14 rounded-xl bg-white/5 flex items-center justify-center">
-          <Music2 className="w-6 h-6 text-white/40" />
+        <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center">
+          <Music2 className="w-6 h-6 text-muted-foreground" />
         </div>
       )}
       <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl" />
     </motion.div>
-    
+
     <div className="flex flex-col md:w-auto w-[100px]">
       <motion.div
         initial={{ y: 10, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="font-medium text-sm group overflow-hidden"
+        className="font-medium text-sm text-foreground group overflow-hidden"
       >
         <Link
           to={playerData?.track?.url}
-          className="hover:text-primary transition-colors whitespace-nowrap w-[200px] block overflow-hidden hover:overflow-visible"
+          className="text-foreground hover:text-primary transition-colors whitespace-nowrap w-[200px] block overflow-hidden hover:overflow-visible"
           style={{
             animation: playerData?.track?.title?.length > 24 ? 'marquee 10s linear infinite' : 'none'
           }}
@@ -111,11 +111,11 @@ const TrackInfo = ({ playerData }) => (
         initial={{ y: 10, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.1 }}
-        className="text-xs text-white/60"
+        className="text-xs text-muted-foreground"
       >
-        <Link 
+        <Link
           to={playerData?.track?.user_url}
-          className="hover:text-white/80 transition-colors"
+          className="hover:text-foreground transition-colors"
           data-turbo-frame="_top"
         >
           {playerData?.track?.user_username}
@@ -126,25 +126,25 @@ const TrackInfo = ({ playerData }) => (
 );
 
 const PlaybackControls = ({ onPrevious, onPlayPause, onNext, isPlaying }) => (
-  <div className="flex items-center justify-center space-x-4">
-    <button 
+  <div className="flex items-center justify-center space-x-4 text-foreground">
+    <button
       onClick={onPrevious}
-      className="p-2 hover:bg-white/10 rounded-full transition-colors"
+      className="p-2 hover:bg-foreground/10 rounded-full transition-colors"
     >
       <SkipBack size={20} />
     </button>
-    
+
     <motion.button
       whileTap={{ scale: 0.9 }}
       onClick={onPlayPause}
-      className="p-3 hover:bg-white/10 rounded-full transition-colors"
+      className="p-3 rounded-full bg-primary text-primary-foreground shadow-sm hover:opacity-90 transition-opacity"
     >
       {!isPlaying ? <Play size={22} /> : <Pause size={22} />}
     </motion.button>
-    
-    <button 
+
+    <button
       onClick={onNext}
-      className="p-2 hover:bg-white/10 rounded-full transition-colors"
+      className="p-2 hover:bg-foreground/10 rounded-full transition-colors"
     >
       <SkipForward size={20} />
     </button>
@@ -166,16 +166,16 @@ export default function AudioPlayer({ id }) {
   useEffect(() => {
     const fetchAndPlayTrack = async () => {
       if (!activeTrackId) return;
-      
+
       try {
         const response = await get(`/player.json?id=${activeTrackId}`, {
           responseKind: "json"
         });
-        
-        if(response.ok) {
+
+        if (response.ok) {
           const data = await response.json;
           setPlayerData(data);
-          useAudioStore.setState({ isPlaying: true});
+          useAudioStore.setState({ isPlaying: true });
         }
       } catch (error) {
         console.error('Error loading track:', error);
@@ -186,7 +186,7 @@ export default function AudioPlayer({ id }) {
   }, [activeTrackId]);
 
   useEffect(() => {
-    if(isPlaying) {
+    if (isPlaying) {
       setTimeout(() => {
         playAudio();
       }, 100);
@@ -284,7 +284,7 @@ export default function AudioPlayer({ id }) {
     const ev = new CustomEvent(`audio-process-${activeTrackId}`, {
       detail: {
         position: currentTime,
-        percent: parseFloat(percent.toFixed(2))/100
+        percent: parseFloat(percent.toFixed(2)) / 100
       }
     });
     document.dispatchEvent(ev);
@@ -303,7 +303,7 @@ export default function AudioPlayer({ id }) {
   const handleVolumeChange = (e) => {
     const newVolume = parseFloat(e.target.value);
     if (!audioRef.current) return;
-    
+
     audioRef.current.volume = newVolume;
     setVolume(newVolume);
     window.store?.setState({ volume: newVolume });
@@ -406,9 +406,9 @@ export default function AudioPlayer({ id }) {
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       className={cn(
-        "fixed bottom-0 w-full z-50",
-        "before:absolute before:inset-0 before:backdrop-blur-2xl before:backdrop-saturate-200 before:bg-black/30 before:-z-10",
-        "border-t border-white/5",
+        "fixed bottom-0 w-full z-50 text-foreground",
+        "border-t border-border/60 bg-background/90 backdrop-blur-2xl backdrop-saturate-150",
+        "shadow-[0_-8px_30px_rgba(0,0,0,0.12)] dark:shadow-[0_-8px_30px_rgba(0,0,0,0.45)]",
       )}
     >
       {/* Mobile View */}
@@ -427,7 +427,7 @@ export default function AudioPlayer({ id }) {
         <div className="max-w-7xl mx-auto space-y-3">
           <div className="flex items-center justify-between">
             <TrackInfo playerData={playerData} />
-            
+
             <div className="flex-1 max-w-2xl mx-8">
               <PlaybackControls
                 onPrevious={handlePrevSong}
@@ -447,11 +447,14 @@ export default function AudioPlayer({ id }) {
 
               <Sheet>
                 <SheetTrigger asChild>
-                  <button className="p-2 hover:bg-white/10 rounded-full transition-colors">
+                  <button className="p-2 text-foreground hover:bg-foreground/10 rounded-full transition-colors">
                     <List size={20} />
                   </button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-[400px] sm:w-[540px] bg-default">
+                <SheetContent
+                  side="right"
+                  className="w-[400px] sm:w-[540px] p-0 bg-background text-foreground border-l border-border/70"
+                >
                   <SheetHeader>
                     <SheetTitle>Queue</SheetTitle>
                     <SheetDescription>Your current playlist queue</SheetDescription>

@@ -8,16 +8,6 @@ const PlayerSidebar = () => {
   const [tracks, setTracks] = useState([]);
   const [loading, setLoading] = useState(true);
   const { currentTrackId, isPlaying, play } = useAudioStore();
-  const audioElement = document.getElementById("audioElement");
-
-  const audioPlaying = () => {
-    return audioElement && !audioElement.paused;
-  };
-
-  const setTracksToStore = (startIndex = 0) => {
-    const tracksToPlay = tracks.slice(startIndex).map(t => t.id) || [];
-    useAudioStore.setState({ playlist: tracksToPlay });
-  };
 
   const removeTrack = (trackId) => {
     const { playlist } = useAudioStore.getState();
@@ -54,18 +44,24 @@ const PlayerSidebar = () => {
     fetchTracks();
   }, [useAudioStore.getState().playlist]);
 
-  if (loading) return <div>Loading...</div>;
+  if (loading) {
+    return (
+      <div className="p-4 text-sm text-muted-foreground">
+        Loading queue...
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="p-4 border-b flex justify-between items-center">
-        <h2 className="text-lg font-semibold">Queue</h2>
+    <div className="flex flex-col h-full bg-background text-foreground">
+      <div className="p-4 border-b border-border/70 bg-muted/30 flex justify-between items-center">
+        <h2 className="text-lg font-semibold text-foreground">Queue</h2>
         {tracks.length > 0 && (
-          <Button 
-            variant="ghost" 
+          <Button
+            variant="ghost"
             size="sm"
             onClick={clearPlaylist}
-            className="text-destructive hover:text-destructive"
+            className="text-muted-foreground hover:text-destructive"
           >
             <Trash2 className="h-4 w-4 mr-2" />
             Clear All
@@ -75,15 +71,20 @@ const PlayerSidebar = () => {
       
       <ScrollArea className="flex-1">
         <div className="space-y-1 p-2">
-          {tracks.map((track, index) => (
+          {tracks.length === 0 && (
+            <div className="p-4 text-sm text-muted-foreground">
+              Queue is empty.
+            </div>
+          )}
+
+          {tracks.map((track) => (
             <div
               key={track.id}
-              className="flex items-center gap-2 px-2 py-1 hover:bg-accent rounded-lg group cursor-pointer"
+              className="flex items-center gap-2 px-2 py-1 hover:bg-accent/70 rounded-lg group cursor-pointer transition-colors"
             >
               <button
-                // href={`/player?id=${track.slug}&t=true`}
-                onClick={()=> play(track.id) }
-                className="flex items-center gap-2 flex-1"
+                onClick={() => play(track.id)}
+                className="flex items-center gap-2 flex-1 text-left"
               >
                 <div className="w-10 h-10 relative group">
                   <img
@@ -92,9 +93,9 @@ const PlayerSidebar = () => {
                     className="w-full h-full object-cover rounded"
                   />
                   <div className={`absolute inset-0 flex items-center justify-center bg-black/40 ${
-                    currentTrackId === track.id ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+                    `${currentTrackId}` === `${track.id}` ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
                   } transition-opacity`}>
-                    {currentTrackId === track.id && isPlaying ? (
+                    {`${currentTrackId}` === `${track.id}` && isPlaying ? (
                       <Pause size={20} className="text-white" />
                     ) : (
                       <Play size={20} className="text-white" />
@@ -104,7 +105,7 @@ const PlayerSidebar = () => {
 
                 <div className="flex flex-col min-w-0">
                   <span className={`truncate text-sm font-medium ${
-                    currentTrackId === track.id ? 'text-primary' : ''
+                    `${currentTrackId}` === `${track.id}` ? 'text-primary' : 'text-foreground'
                   }`}>
                     {track.title}
                   </span>
@@ -118,7 +119,7 @@ const PlayerSidebar = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => removeTrack(track.id)}
-                className="opacity-0 group-hover:opacity-100 text-destructive hover:text-destructive"
+                className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive"
               >
                 <X className="h-4 w-4" />
               </Button>
