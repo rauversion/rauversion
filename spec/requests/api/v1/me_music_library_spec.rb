@@ -25,6 +25,17 @@ RSpec.describe "Api::V1::Me music library", type: :request do
       )
     end
 
+    let(:unfollowed_artist) do
+      create(
+        :user,
+        confirmed_at: Time.current,
+        role: :artist,
+        username: "ignored-artist",
+        first_name: "Ignored",
+        last_name: "Artist"
+      )
+    end
+
     let!(:playlist) do
       Playlist.create!(
         user: user,
@@ -71,12 +82,36 @@ RSpec.describe "Api::V1::Me music library", type: :request do
       TrackArtist.create!(track: liked_track, user: featured_artist)
     end
 
+    let!(:unfollowed_credit) do
+      TrackArtist.create!(track: liked_track, user: unfollowed_artist)
+    end
+
     let!(:track_like) do
       Like.create!(
         liker_type: "User",
         liker_id: user.id,
         likeable_type: "Track",
         likeable_id: liked_track.id
+      )
+    end
+
+    let!(:artist_follow) do
+      Follow.create!(
+        follower_type: "User",
+        follower_id: user.id,
+        followable_type: "User",
+        followable_id: artist.id,
+        created_at: 2.days.ago
+      )
+    end
+
+    let!(:featured_artist_follow) do
+      Follow.create!(
+        follower_type: "User",
+        follower_id: user.id,
+        followable_type: "User",
+        followable_id: featured_artist.id,
+        created_at: 1.day.ago
       )
     end
 
@@ -112,7 +147,7 @@ RSpec.describe "Api::V1::Me music library", type: :request do
       expect(json["collection"].first["entity_type"]).to eq("likes")
     end
 
-    it "returns artists extracted from playlist tracks" do
+    it "returns followed artists only" do
       sign_in user
 
       get "/api/v1/me/music_library", params: { filter: "artists" }
@@ -123,7 +158,8 @@ RSpec.describe "Api::V1::Me music library", type: :request do
       titles = json["collection"].map { |entry| entry["title"] }
 
       expect(json["filter"]).to eq("artists")
-      expect(titles).to include(artist.full_name, featured_artist.full_name)
+      expect(titles).to contain_exactly(artist.full_name, featured_artist.full_name)
+      expect(titles).not_to include(unfollowed_artist.full_name)
     end
 
     it "supports sorting entries alphabetically" do

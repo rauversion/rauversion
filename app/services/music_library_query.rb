@@ -1,5 +1,3 @@
-require "set" unless defined?(Set)
-
 class MusicLibraryQuery
   FILTERS = %w[all playlists albums artists likes].freeze
   SORTS = %w[recent recently_added alphabetical creator].freeze
@@ -150,46 +148,46 @@ class MusicLibraryQuery
 
   def artist_entries
     @artist_entries ||= begin
-      artist_stats.values.map do |entry|
-        entry[:playlist_count] = entry.delete(:playlist_ids).size
-        entry[:subtitle] = entry[:username].presence
-        entry
-      end.sort_by do |entry|
-        [-entry[:playlist_count], -entry[:track_count], entry[:title].to_s.downcase]
-      end
-    end
-  end
+      followed_artist_rows = Follow
+        .where(
+          follower_type: "User",
+          follower_id: user.id,
+          followable_type: "User"
+        )
+        .order(created_at: :desc)
+        .pluck(:followable_id, :created_at)
 
-  def artist_stats
-    @artist_stats ||= begin
-      stats = {}
-      playlist_ids = library_playlists.map(&:id)
+      if followed_artist_rows.empty?
+        []
+      else
+        artists_by_id = User
+          .artists
+          .where(id: followed_artist_rows.map(&:first))
+          .includes(avatar_attachment: :blob)
+          .index_by(&:id)
 
-      library_tracks.each do |track|
-        track_playlist_ids = track.track_playlists.map(&:playlist_id) & playlist_ids
-        next if track_playlist_ids.empty?
+        seen_artist_ids = {}
 
-        ([track.user] + track.artists.to_a).compact.uniq.each do |artist|
-          stats[artist.id] ||= serialize_artist(artist)
-          stats[artist.id][:track_count] += 1
-          track_playlist_ids.each do |playlist_id|
-            stats[artist.id][:playlist_ids] << playlist_id
-          end
-          stats[artist.id][:sort_timestamp] = [stats[artist.id][:sort_timestamp], track.updated_at.to_i].max
+        followed_artist_rows.filter_map do |artist_id, followed_at|
+          next if seen_artist_ids[artist_id]
+
+          artist = artists_by_id[artist_id]
+          next unless artist
+
+          seen_artist_ids[artist_id] = true
+          serialize_artist(artist, followed_at: followed_at)
         end
       end
-
-      stats
     end
   end
 
-  def serialize_artist(artist)
+  def serialize_artist(artist, followed_at:)
     {
       id: "artist-#{artist.id}",
       entity_id: artist.id,
       entity_type: "artist",
       title: artist.full_name.presence || artist.username.presence || "Artista ##{artist.id}",
-      subtitle: nil,
+      subtitle: artist.username.presence,
       description: nil,
       href: artist.username.present? ? "/#{artist.username}" : nil,
       image_url: artist.avatar_url(:medium),
@@ -203,9 +201,8 @@ class MusicLibraryQuery
       playable: false,
       track_ids: [],
       primary_track_id: nil,
-      sort_timestamp: 0,
-      added_timestamp: 0,
-      playlist_ids: Set.new
+      sort_timestamp: followed_at.to_i,
+      added_timestamp: followed_at.to_i
     }
   end
 
@@ -256,15 +253,6 @@ class MusicLibraryQuery
       .with_attached_cover
       .includes(:track_playlists, user: { avatar_attachment: :blob })
       .order(updated_at: :desc)
-      .to_a
-  end
-
-  def library_tracks
-    @library_tracks ||= Track
-      .joins(:track_playlists)
-      .where(track_playlists: { playlist_id: library_playlists.map(&:id) })
-      .includes(:track_playlists, :artists, user: { avatar_attachment: :blob })
-      .distinct
       .to_a
   end
 

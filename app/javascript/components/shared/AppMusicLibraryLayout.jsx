@@ -2,11 +2,10 @@ import React, {
   startTransition,
   useCallback,
   useEffect,
-  useMemo,
   useRef,
   useState,
 } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { get, post } from "@rails/request.js"
 import {
   Album,
@@ -51,14 +50,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination"
 import {
   ResizableHandle,
   ResizablePanel,
@@ -111,24 +102,6 @@ const VIEW_MODES = [
   { id: "compact-grid", label: "Mosaico", icon: LayoutGrid },
 ]
 
-function buildPageWindow(currentPage, totalPages) {
-  if (!totalPages || totalPages <= 1) return [1]
-
-  let start = Math.max(1, currentPage - 1)
-  let end = Math.min(totalPages, start + 2)
-
-  if (end - start < 2) {
-    start = Math.max(1, end - 2)
-  }
-
-  const pages = []
-  for (let page = start; page <= end; page += 1) {
-    pages.push(page)
-  }
-
-  return pages
-}
-
 function formatItemMeta(item) {
   switch (item.entity_type) {
     case "playlist":
@@ -136,7 +109,7 @@ function formatItemMeta(item) {
     case "album":
       return `${(item.playlist_type || "album").toUpperCase()} · ${item.track_count || 0} tracks`
     case "artist":
-      return `Artista · ${item.playlist_count || 0} playlists`
+      return item.subtitle ? `Artista · ${item.subtitle}` : "Artista"
     case "likes":
       return `${item.track_count || 0} tracks guardados`
     default:
@@ -173,7 +146,7 @@ function SidebarArtwork({ item, className, iconClassName }) {
   return (
     <div
       className={cn(
-        "overflow-hidden bg-white/10 ring-1 ring-white/10",
+        "overflow-hidden bg-muted/40 ring-1 ring-border",
         item.artwork_style === "circle" ? "rounded-full" : "rounded-2xl",
         className
       )}
@@ -185,11 +158,11 @@ function SidebarArtwork({ item, className, iconClassName }) {
           className="h-full w-full object-cover"
         />
       ) : (
-        <div className="flex h-full w-full items-center justify-center bg-white/5">
+        <div className="flex h-full w-full items-center justify-center bg-muted/20">
           {item.entity_type === "artist" ? (
-            <UserRound className={cn("h-5 w-5 text-white/80", iconClassName)} />
+            <UserRound className={cn("h-5 w-5 text-muted-foreground", iconClassName)} />
           ) : (
-            <Disc3 className={cn("h-5 w-5 text-white/80", iconClassName)} />
+            <Disc3 className={cn("h-5 w-5 text-muted-foreground", iconClassName)} />
           )}
         </div>
       )}
@@ -254,10 +227,10 @@ function CreatePlaylistDialog({ open, onOpenChange, onCreated }) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="border-zinc-800 bg-zinc-950 text-zinc-50 sm:max-w-lg">
+      <DialogContent className="border-border bg-background text-foreground sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Crear playlist</DialogTitle>
-          <DialogDescription className="text-zinc-400">
+          <DialogDescription>
             Crea una playlist nueva sin salir del layout principal.
           </DialogDescription>
         </DialogHeader>
@@ -270,17 +243,17 @@ function CreatePlaylistDialog({ open, onOpenChange, onCreated }) {
               value={title}
               onChange={(event) => setTitle(event.target.value)}
               placeholder="Ej. Biblioteca nocturna"
-              className="border-zinc-800 bg-zinc-900 text-zinc-50"
+              className="border-border bg-background text-foreground"
             />
           </div>
 
           <div className="space-y-2">
             <Label htmlFor="playlist-type">Tipo</Label>
             <Select value={playlistType} onValueChange={setPlaylistType}>
-              <SelectTrigger id="playlist-type" className="border-zinc-800 bg-zinc-900 text-zinc-50">
+              <SelectTrigger id="playlist-type" className="border-border bg-background text-foreground">
                 <SelectValue placeholder="Selecciona un tipo" />
               </SelectTrigger>
-              <SelectContent className="border-zinc-800 bg-zinc-950 text-zinc-50">
+              <SelectContent className="border-border bg-popover text-popover-foreground">
                 {PLAYLIST_TYPES.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
@@ -297,7 +270,7 @@ function CreatePlaylistDialog({ open, onOpenChange, onCreated }) {
               value={description}
               onChange={(event) => setDescription(event.target.value)}
               placeholder="Opcional"
-              className="min-h-28 border-zinc-800 bg-zinc-900 text-zinc-50"
+              className="min-h-28 border-border bg-background text-foreground"
             />
           </div>
 
@@ -306,7 +279,7 @@ function CreatePlaylistDialog({ open, onOpenChange, onCreated }) {
               type="button"
               variant="ghost"
               onClick={() => onOpenChange(false)}
-              className="text-zinc-300 hover:bg-white/10 hover:text-white"
+              className="text-muted-foreground hover:text-foreground"
             >
               Cancelar
             </Button>
@@ -368,11 +341,11 @@ function FilterPills({ counts, filter, onFilterChange }) {
   return (
     <div className="relative">
       {canScrollLeft && (
-        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 flex items-center bg-gradient-to-r from-[#111827] via-[#111827] to-transparent pl-1 pr-5">
+        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 flex items-center bg-gradient-to-r from-background via-background to-transparent pl-1 pr-5">
           <button
             type="button"
             onClick={() => handleScroll(-1)}
-            className="pointer-events-auto rounded-full border border-white/10 bg-black/40 p-1.5 text-zinc-100 transition-colors hover:bg-white/10"
+            className="pointer-events-auto rounded-full border border-border bg-background/80 p-1.5 text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
           >
             <ChevronLeft className="h-4 w-4" />
           </button>
@@ -380,11 +353,11 @@ function FilterPills({ counts, filter, onFilterChange }) {
       )}
 
       {canScrollRight && (
-        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 flex items-center bg-gradient-to-l from-[#111827] via-[#111827] to-transparent pl-5 pr-1">
+        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 flex items-center bg-gradient-to-l from-background via-background to-transparent pl-5 pr-1">
           <button
             type="button"
             onClick={() => handleScroll(1)}
-            className="pointer-events-auto rounded-full border border-white/10 bg-black/40 p-1.5 text-zinc-100 transition-colors hover:bg-white/10"
+            className="pointer-events-auto rounded-full border border-border bg-background/80 p-1.5 text-foreground transition-colors hover:bg-accent hover:text-accent-foreground"
           >
             <ChevronRight className="h-4 w-4" />
           </button>
@@ -409,12 +382,12 @@ function FilterPills({ counts, filter, onFilterChange }) {
                   "inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm transition-colors",
                   isActive
                     ? "border-emerald-300/70 bg-emerald-300/15 text-white"
-                    : "border-white/10 bg-white/5 text-zinc-300 hover:bg-white/10 hover:text-white"
+                    : "border-border bg-muted/30 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                 )}
               >
                 <Icon className="h-4 w-4" />
                 <span>{option.label}</span>
-                <span className="rounded-full bg-black/20 px-2 py-0.5 text-xs text-zinc-200">
+                <span className="rounded-full bg-background/70 px-2 py-0.5 text-xs text-muted-foreground">
                   {counts[option.id] || 0}
                 </span>
               </button>
@@ -433,20 +406,20 @@ function LibrarySortMenu({ sortMode, viewMode, onSortChange, onViewModeChange })
         <Button
           type="button"
           variant="ghost"
-          className="rounded-full border border-white/10 bg-white/5 px-3 text-zinc-100 hover:bg-white/10 hover:text-white"
+          className="rounded-full border border-border bg-muted/30 px-3 text-foreground hover:bg-accent hover:text-accent-foreground"
         >
           <span className="truncate">{getSortLabel(sortMode)}</span>
           <SlidersHorizontal className="ml-2 h-4 w-4" />
-          <ChevronsUpDown className="ml-1 h-3.5 w-3.5 text-zinc-400" />
+          <ChevronsUpDown className="ml-1 h-3.5 w-3.5 text-muted-foreground" />
         </Button>
       </DropdownMenuTrigger>
 
       <DropdownMenuContent
         align="end"
         sideOffset={10}
-        className="w-72 rounded-[24px] border border-white/10 bg-zinc-900/95 p-3 text-zinc-50 shadow-[0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl"
+        className="w-72 rounded-[24px] border border-border bg-popover/95 p-3 text-popover-foreground shadow-[0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl"
       >
-        <div className="px-2 pb-2 text-sm font-semibold text-zinc-300">
+        <div className="px-2 pb-2 text-sm font-semibold text-muted-foreground">
           Clasificar por
         </div>
 
@@ -460,7 +433,7 @@ function LibrarySortMenu({ sortMode, viewMode, onSortChange, onViewModeChange })
                 "flex w-full items-center justify-between rounded-2xl px-2 py-2.5 text-left text-[15px] transition-colors",
                 sortMode === option.id
                   ? "bg-emerald-400/10 text-emerald-400"
-                  : "text-zinc-100 hover:bg-white/5"
+                  : "text-foreground hover:bg-accent/70"
               )}
             >
               <span>{option.label}</span>
@@ -469,13 +442,13 @@ function LibrarySortMenu({ sortMode, viewMode, onSortChange, onViewModeChange })
           ))}
         </div>
 
-        <div className="my-3 h-px bg-white/10" />
+        <div className="my-3 h-px bg-border" />
 
-        <div className="px-2 pb-2 text-sm font-semibold text-zinc-300">
+        <div className="px-2 pb-2 text-sm font-semibold text-muted-foreground">
           Ver como
         </div>
 
-        <div className="grid grid-cols-4 gap-2 rounded-2xl bg-black/20 p-1">
+        <div className="grid grid-cols-4 gap-2 rounded-2xl bg-muted/50 p-1">
           {VIEW_MODES.map((mode) => {
             const Icon = mode.icon
 
@@ -486,10 +459,10 @@ function LibrarySortMenu({ sortMode, viewMode, onSortChange, onViewModeChange })
                 onClick={() => onViewModeChange(mode.id)}
                 aria-label={mode.label}
                 className={cn(
-                  "flex h-10 items-center justify-center rounded-xl border text-zinc-200 transition-colors",
+                  "flex h-10 items-center justify-center rounded-xl border text-muted-foreground transition-colors",
                   viewMode === mode.id
                     ? "border-emerald-400/30 bg-emerald-400/15 text-emerald-400"
-                    : "border-transparent bg-white/5 hover:bg-white/10"
+                    : "border-transparent bg-background/60 hover:bg-accent"
                 )}
               >
                 <Icon className="h-4 w-4" />
@@ -516,7 +489,7 @@ function MusicLibraryListItem({
   return (
     <div
       className={cn(
-        "rounded-3xl border border-white/10 bg-white/5 transition-colors hover:bg-white/10",
+        "rounded-3xl border border-border bg-card/60 transition-colors hover:bg-accent/40",
         compact ? "p-2" : "p-3",
         isActive && "border-emerald-300/50 bg-emerald-400/10"
       )}
@@ -537,14 +510,14 @@ function MusicLibraryListItem({
             : {})}
           className={cn("min-w-0 flex-1 text-left", hasLink && "cursor-pointer")}
         >
-          <p className={cn("truncate font-medium text-white", compact ? "text-sm" : "text-base")}>
+          <p className={cn("truncate font-medium text-foreground", compact ? "text-sm" : "text-base")}>
             {item.title}
           </p>
-          <p className={cn("truncate text-zinc-400", compact ? "text-xs" : "text-sm")}>
+          <p className={cn("truncate text-muted-foreground", compact ? "text-xs" : "text-sm")}>
             {formatItemMeta(item)}
           </p>
           {item.owner_name && !compact && (
-            <p className="truncate text-xs uppercase tracking-[0.2em] text-zinc-500">
+            <p className="truncate text-xs uppercase tracking-[0.2em] text-muted-foreground">
               {item.owner_name}
             </p>
           )}
@@ -557,7 +530,7 @@ function MusicLibraryListItem({
               size="icon"
               variant="ghost"
               onClick={() => onPlay(item)}
-              className="rounded-full text-zinc-100 hover:bg-white/10 hover:text-white"
+              className="rounded-full text-foreground hover:bg-accent hover:text-accent-foreground"
             >
               {isActive && isPlaying ? (
                 <Pause className="h-4 w-4" />
@@ -573,7 +546,7 @@ function MusicLibraryListItem({
               size="icon"
               variant="ghost"
               onClick={() => onOpen(item)}
-              className="rounded-full text-zinc-100 hover:bg-white/10 hover:text-white"
+              className="rounded-full text-foreground hover:bg-accent hover:text-accent-foreground"
             >
               <ExternalLink className="h-4 w-4" />
             </Button>
@@ -582,7 +555,7 @@ function MusicLibraryListItem({
       </div>
 
       {!compact && item.description && (
-        <p className="mt-3 line-clamp-2 text-sm text-zinc-400">
+        <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">
           {item.description}
         </p>
       )}
@@ -601,7 +574,7 @@ function MusicLibraryGridItem({
   return (
     <div
       className={cn(
-        "rounded-[24px] border border-white/10 bg-white/5 p-2 transition-colors hover:bg-white/10",
+        "rounded-[24px] border border-border bg-card/60 p-2 transition-colors hover:bg-accent/40",
         compact ? "p-1.5" : "p-2.5",
         isActive && "border-emerald-300/50 bg-emerald-400/10"
       )}
@@ -622,17 +595,17 @@ function MusicLibraryGridItem({
             onClick={() => onOpen(item)}
             className="block w-full text-left"
           >
-            <p className={cn("line-clamp-2 font-medium text-white", compact ? "text-xs" : "text-sm")}>
+            <p className={cn("line-clamp-2 font-medium text-foreground", compact ? "text-xs" : "text-sm")}>
               {item.title}
             </p>
           </button>
         ) : (
-          <p className={cn("line-clamp-2 font-medium text-white", compact ? "text-xs" : "text-sm")}>
+          <p className={cn("line-clamp-2 font-medium text-foreground", compact ? "text-xs" : "text-sm")}>
             {item.title}
           </p>
         )}
 
-        <p className={cn("line-clamp-2 text-zinc-400", compact ? "text-[11px]" : "text-xs")}>
+        <p className={cn("line-clamp-2 text-muted-foreground", compact ? "text-[11px]" : "text-xs")}>
           {formatItemMeta(item)}
         </p>
       </div>
@@ -645,7 +618,7 @@ function MusicLibraryGridItem({
             variant="ghost"
             onClick={() => onPlay(item)}
             className={cn(
-              "rounded-full text-zinc-100 hover:bg-white/10 hover:text-white",
+              "rounded-full text-foreground hover:bg-accent hover:text-accent-foreground",
               compact ? "h-7 w-7" : "h-8 w-8"
             )}
           >
@@ -664,7 +637,7 @@ function MusicLibraryGridItem({
             variant="ghost"
             onClick={() => onOpen(item)}
             className={cn(
-              "rounded-full text-zinc-100 hover:bg-white/10 hover:text-white",
+              "rounded-full text-foreground hover:bg-accent hover:text-accent-foreground",
               compact ? "h-7 w-7" : "h-8 w-8"
             )}
           >
@@ -714,18 +687,31 @@ function MusicLibrarySidebar({ onNavigate }) {
   const [page, setPage] = useState(1)
   const [library, setLibrary] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState(null)
   const [createOpen, setCreateOpen] = useState(false)
   const [reloadToken, setReloadToken] = useState(0)
+  const scrollAreaRef = useRef(null)
+  const loadMoreRef = useRef(null)
+
+  const scrollCollectionToTop = useCallback(() => {
+    const viewport = scrollAreaRef.current?.querySelector("[data-radix-scroll-area-viewport]")
+    viewport?.scrollTo({ top: 0, behavior: "auto" })
+  }, [])
 
   useEffect(() => {
     if (!currentUser) return
 
     let cancelled = false
+    const initialPage = page === 1
 
     const fetchLibrary = async () => {
-      setLoading(true)
-      setError(null)
+      if (initialPage) {
+        setLoading(true)
+        setError(null)
+      } else {
+        setLoadingMore(true)
+      }
 
       try {
         const response = await get(`/api/v1/me/music_library?filter=${filter}&sort=${sortMode}&page=${page}`, {
@@ -738,20 +724,41 @@ function MusicLibrarySidebar({ onNavigate }) {
 
         const data = await response.json
         if (!cancelled) {
-          setLibrary(data)
+          setLibrary((previousLibrary) => {
+            if (initialPage || !previousLibrary) {
+              return data
+            }
+
+            const previousIds = new Set(previousLibrary.collection.map((item) => item.id))
+            const nextCollection = data.collection.filter((item) => !previousIds.has(item.id))
+
+            return {
+              ...data,
+              collection: [...previousLibrary.collection, ...nextCollection],
+            }
+          })
         }
       } catch (fetchError) {
         if (!cancelled) {
-          setError(fetchError.message)
+          if (initialPage) {
+            setError(fetchError.message)
+          } else {
+            setPage((currentPage) => Math.max(1, currentPage - 1))
+          }
+
           toast({
             title: "Error",
-            description: fetchError.message,
+            description: initialPage ? fetchError.message : "No se pudieron cargar más resultados.",
             variant: "destructive",
           })
         }
       } finally {
         if (!cancelled) {
-          setLoading(false)
+          if (initialPage) {
+            setLoading(false)
+          } else {
+            setLoadingMore(false)
+          }
         }
       }
     }
@@ -763,7 +770,42 @@ function MusicLibrarySidebar({ onNavigate }) {
     }
   }, [currentUser, filter, page, reloadToken, sortMode, toast])
 
+  useEffect(() => {
+    const viewport = scrollAreaRef.current?.querySelector("[data-radix-scroll-area-viewport]")
+    const sentinel = loadMoreRef.current
+    const hasMore = Boolean(library?.metadata?.next_page)
+
+    if (!viewport || !sentinel || loading || loadingMore || error || !hasMore) {
+      return undefined
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0]?.isIntersecting) return
+
+        setPage((currentPage) => {
+          const nextPage = library?.metadata?.next_page
+          if (!nextPage || currentPage >= nextPage) return currentPage
+
+          return nextPage
+        })
+      },
+      {
+        root: viewport,
+        rootMargin: "0px 0px 220px 0px",
+        threshold: 0.1,
+      }
+    )
+
+    observer.observe(sentinel)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [error, library?.metadata?.next_page, loading, loadingMore])
+
   const handleFilterChange = (nextFilter) => {
+    scrollCollectionToTop()
     startTransition(() => {
       setFilter(nextFilter)
       setPage(1)
@@ -771,6 +813,7 @@ function MusicLibrarySidebar({ onNavigate }) {
   }
 
   const handleSortChange = (nextSort) => {
+    scrollCollectionToTop()
     startTransition(() => {
       setSortMode(nextSort)
       setPage(1)
@@ -799,6 +842,7 @@ function MusicLibrarySidebar({ onNavigate }) {
   }
 
   const handleCreated = (nextFilter) => {
+    scrollCollectionToTop()
     startTransition(() => {
       setFilter(nextFilter)
       setSortMode("recent")
@@ -810,10 +854,8 @@ function MusicLibrarySidebar({ onNavigate }) {
   const items = library?.collection || []
   const counts = library?.counts || {}
   const metadata = library?.metadata || {}
-  const visiblePages = useMemo(
-    () => buildPageWindow(metadata.current_page || 1, metadata.total_pages || 1),
-    [metadata.current_page, metadata.total_pages]
-  )
+  const isGridView = viewMode === "grid" || viewMode === "compact-grid"
+  const hasMore = Boolean(metadata.next_page)
 
   const collectionLayoutClassName = cn(
     "p-3 sm:p-4",
@@ -824,14 +866,16 @@ function MusicLibrarySidebar({ onNavigate }) {
   )
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden rounded-[28px] border border-zinc-800 bg-[radial-gradient(circle_at_top_left,_rgba(34,197,94,0.18),_transparent_28%),linear-gradient(180deg,#09090b_0%,#111827_100%)] text-zinc-50 shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
-      <div className="border-b border-white/10 px-4 py-4 sm:px-5">
+    <div className="relative flex h-full min-h-0 flex-col overflow-hidden rounded-[28px] border border-border bg-background text-foreground shadow-[0_24px_80px_rgba(0,0,0,0.35)]">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(34,197,94,0.18),_transparent_28%)]" />
+
+      <div className="relative border-b border-border px-4 py-4 sm:px-5">
         <div className="flex items-start justify-between gap-3">
           <div>
             <p className="text-xs uppercase tracking-[0.28em] text-emerald-300/80">
               Biblioteca
             </p>
-            <h2 className="mt-1 text-2xl font-semibold text-white">
+            <h2 className="mt-1 text-2xl font-semibold text-foreground">
               Tu música
             </h2>
           </div>
@@ -839,19 +883,20 @@ function MusicLibrarySidebar({ onNavigate }) {
           <Button
             type="button"
             onClick={() => setCreateOpen(true)}
-            className="rounded-full bg-white text-zinc-950 hover:bg-emerald-200"
+            variant="secondary"
+            className="rounded-full"
           >
             <Plus className="mr-2 h-4 w-4" />
             Crear
           </Button>
         </div>
 
-        <p className="mt-3 max-w-sm text-sm text-zinc-400">
+        <p className="mt-3 max-w-sm text-sm text-muted-foreground">
           Playlists, álbumes, artistas y tus me gusta del usuario autenticado, todo paginado.
         </p>
       </div>
 
-      <div className="border-b border-white/10 px-2 py-3">
+      <div className="relative border-b border-border px-2 py-3">
         <FilterPills
           counts={counts}
           filter={filter}
@@ -859,12 +904,12 @@ function MusicLibrarySidebar({ onNavigate }) {
         />
       </div>
 
-      <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+      <div className="relative flex items-center justify-between border-b border-border px-4 py-3">
         <div className="min-w-0">
-          <p className="truncate text-sm font-medium text-white">
+          <p className="truncate text-sm font-medium text-foreground">
             {getFilterLabel(filter)}
           </p>
-          <p className="truncate text-xs uppercase tracking-[0.18em] text-zinc-500">
+          <p className="truncate text-xs uppercase tracking-[0.18em] text-muted-foreground">
             {metadata.total_count || 0} resultados
           </p>
         </div>
@@ -877,10 +922,10 @@ function MusicLibrarySidebar({ onNavigate }) {
         />
       </div>
 
-      <ScrollArea className="min-h-0 flex-1">
+      <ScrollArea ref={scrollAreaRef} className="relative min-h-0 flex-1">
         <div className={collectionLayoutClassName}>
           {loading && (
-            <div className="col-span-full flex min-h-56 items-center justify-center text-sm text-zinc-400">
+            <div className="col-span-full flex min-h-56 items-center justify-center text-sm text-muted-foreground">
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
               Cargando biblioteca...
             </div>
@@ -893,7 +938,7 @@ function MusicLibrarySidebar({ onNavigate }) {
           )}
 
           {!loading && !error && items.length === 0 && (
-            <div className="col-span-full rounded-3xl border border-dashed border-white/15 bg-white/5 p-6 text-sm text-zinc-300">
+            <div className="col-span-full rounded-3xl border border-dashed border-border bg-muted/30 p-6 text-sm text-muted-foreground">
               No hay resultados para este filtro todavía.
             </div>
           )}
@@ -909,66 +954,39 @@ function MusicLibrarySidebar({ onNavigate }) {
               onPlay={handlePlay}
             />
           ))}
+
+          {!loading && !error && loadingMore && (
+            <div
+              className={cn(
+                "flex items-center justify-center py-2 text-xs uppercase tracking-[0.2em] text-muted-foreground",
+                isGridView && "col-span-full"
+              )}
+            >
+              <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+              Cargando más
+            </div>
+          )}
+
+          {!loading && !error && hasMore && (
+            <div
+              ref={loadMoreRef}
+              aria-hidden="true"
+              className={cn("h-2", isGridView && "col-span-full")}
+            />
+          )}
+
+          {!loading && !error && !hasMore && items.length > 0 && (
+            <div
+              className={cn(
+                "flex items-center justify-center py-2 text-[11px] uppercase tracking-[0.2em] text-muted-foreground",
+                isGridView && "col-span-full"
+              )}
+            >
+              {getSortLabel(sortMode)} · {metadata.total_count || items.length} resultados
+            </div>
+          )}
         </div>
       </ScrollArea>
-
-      <div className="border-t border-white/10 px-4 py-3">
-        <div className="mb-2 flex items-center justify-between gap-3 text-xs uppercase tracking-[0.2em] text-zinc-500">
-          <span>{getSortLabel(sortMode)}</span>
-          <span>
-            Página {metadata.current_page || 1} de {metadata.total_pages || 1}
-          </span>
-        </div>
-
-        <Pagination className="justify-start">
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationPrevious
-                href="#"
-                onClick={(event) => {
-                  event.preventDefault()
-                  if (metadata.prev_page) {
-                    setPage(metadata.prev_page)
-                  }
-                }}
-                className={cn(
-                  metadata.prev_page ? "" : "pointer-events-none opacity-40"
-                )}
-              />
-            </PaginationItem>
-
-            {visiblePages.map((visiblePage) => (
-              <PaginationItem key={visiblePage}>
-                <PaginationLink
-                  href="#"
-                  isActive={visiblePage === (metadata.current_page || 1)}
-                  onClick={(event) => {
-                    event.preventDefault()
-                    setPage(visiblePage)
-                  }}
-                >
-                  {visiblePage}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-
-            <PaginationItem>
-              <PaginationNext
-                href="#"
-                onClick={(event) => {
-                  event.preventDefault()
-                  if (metadata.next_page) {
-                    setPage(metadata.next_page)
-                  }
-                }}
-                className={cn(
-                  metadata.next_page ? "" : "pointer-events-none opacity-40"
-                )}
-              />
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      </div>
 
       <CreatePlaylistDialog
         open={createOpen}
@@ -994,7 +1012,7 @@ function MobileMusicLibrary() {
 
         <SheetContent
           side="left"
-          className="w-[92vw] border-zinc-900 bg-transparent p-3 shadow-none sm:max-w-xl"
+          className="w-[92vw] border-border bg-transparent p-3 shadow-none sm:max-w-xl"
         >
           <SheetHeader className="sr-only">
             <SheetTitle>Biblioteca musical</SheetTitle>
@@ -1030,15 +1048,15 @@ export default function AppMusicLibraryLayout({ children }) {
     <ResizablePanelGroup
       direction="horizontal"
       autoSaveId="app-music-library-layout"
-      className="min-h-[calc(100vh-11rem)] w-full items-start"
+      className="min-h-[calc(100svh-4rem-6.75rem-2rem)] w-full items-start"
     >
       <ResizablePanel defaultSize={24} minSize={18} maxSize={34}>
-        <div className="sticky top-4 h-[calc(100vh-8rem)] pr-4">
+        <div className="sticky top-4 h-[calc(100svh-4rem-6.75rem-2rem)] pr-4">
           <MusicLibrarySidebar />
         </div>
       </ResizablePanel>
 
-      <ResizableHandle withHandle className="mx-1 bg-transparent" />
+      <ResizableHandle withHandle className="mx-2 bg-border/70" />
 
       <ResizablePanel minSize={60}>
         <div className="min-w-0">{children}</div>
