@@ -45,6 +45,7 @@ Rails.application.routes.draw do
   get "/page-builder", to: "application#render_blank"
   get "/search", to: "application#render_blank"
   get "/forgot-password", to: "application#render_blank"
+  get "/library/likes", to: "application#render_blank"
 
 
   # Stripe Connect routes
@@ -69,6 +70,8 @@ Rails.application.routes.draw do
   namespace :api do
     namespace :v1 do
       get 'me', to: 'me#show'
+      get 'me/music_library', to: 'me#music_library'
+      get 'me/liked_tracks', to: 'me#liked_tracks'
       resources :categories, only: [:index]
       get 'tags/popular', to: 'tags#popular'
       
