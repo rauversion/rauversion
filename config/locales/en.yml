@@ -1181,6 +1181,31 @@ en:
         subtitle: Selected collections for every mood
       featured_labels: Labels
       view_all: See All
+    mine:
+      title: My Tracks
+      subtitle: Manage and tag your public tracks
+      search_placeholder: Search tracks...
+      filter_no_tags: Without tags
+      filter_all: All tracks
+      no_tracks: No tracks found
+      no_tracks_hint: Upload your first track or adjust the filters
+      table_track: Track
+      table_tags: Tags
+      table_date: Date
+      table_actions: Actions
+      edit: Edit tags
+      play: Play
+      pause: Pause
+      no_tags_badge: No tags
+      upload_new: Upload Track
+      wizard:
+        title: Tag your tracks
+        description: Listen and add tags to your public tracks without tags
+        next: Next
+        previous: Previous
+        done: Done
+        progress: "%{current} of %{total} tracks"
+        no_more_tracks: All tracks have been tagged!
     new:
       upload:
         title: Drag and drop your tracks here

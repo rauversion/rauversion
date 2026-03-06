@@ -94,6 +94,7 @@ import AlbumShow from "./albums/AlbumShow"
 import { ServiceBookings } from "./ServiceBookings"
 import { ServiceBookingDetail } from "./ServiceBookings/ServiceBookingDetail"
 import NewTrack from "./tracks/NewTrack"
+import TracksAdminPage from "./tracks/TracksAdminPage"
 import CategoryView from "./store/CategoryView"
 import { InterestAlertDemo } from "./shared/alerts"
 
@@ -262,6 +263,7 @@ function AppContent() {
 
           <Route path="/turn" element={<SpinningVideo />} />
           <Route path="/tracks" element={<TracksIndex />} />
+          <Route path="/tracks/mine" element={<RequireAuth><TracksAdminPage /></RequireAuth>} />
           <Route path="/tracks/new" element={<NewTrack />} />
           <Route path="/tracks/:slug" element={<TrackShow />} />
           <Route path="/playlists" element={<PlaylistsIndex />} />

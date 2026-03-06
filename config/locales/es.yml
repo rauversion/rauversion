@@ -1215,6 +1215,31 @@ es:
         subtitle: Colecciones seleccionadas para cada estado de ánimo
       featured_labels: Sellos
       view_all: Ver Todo
+    mine:
+      title: Mis Pistas
+      subtitle: Gestiona y etiqueta tus pistas públicas
+      search_placeholder: Buscar pistas...
+      filter_no_tags: Sin etiquetas
+      filter_all: Todas las pistas
+      no_tracks: No se encontraron pistas
+      no_tracks_hint: Sube tu primera pista o ajusta los filtros
+      table_track: Pista
+      table_tags: Etiquetas
+      table_date: Fecha
+      table_actions: Acciones
+      edit: Editar etiquetas
+      play: Reproducir
+      pause: Pausar
+      no_tags_badge: Sin etiquetas
+      upload_new: Subir Pista
+      wizard:
+        title: Etiquetar tus pistas
+        description: Escucha y agrega etiquetas a tus pistas públicas sin etiquetar
+        next: Siguiente
+        previous: Anterior
+        done: Listo
+        progress: "%{current} de %{total} pistas"
+        no_more_tracks: "¡Todas las pistas han sido etiquetadas!"
     edit:
       dialog:
         loading: Cargando...

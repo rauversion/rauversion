@@ -4,6 +4,25 @@ class TracksController < ApplicationController
 
   layout :layout_by_resource
 
+  def mine
+    @tracks = current_user.tracks
+      .published
+      .with_attached_cover
+      .includes(user: { avatar_attachment: :blob })
+
+    @tracks = @tracks.where("tags = '{}'") if params[:no_tags] == "true"
+
+    if params[:q].present?
+      @tracks = @tracks.where("title ILIKE ?", "%#{params[:q]}%")
+    end
+
+    @tracks = @tracks.order(created_at: :desc).page(params[:page]).per(20)
+
+    respond_to do |format|
+      format.json { render :mine }
+    end
+  end
+
   def by_id
     ids = params[:ids].to_s.split(",")
     @tracks = Track
