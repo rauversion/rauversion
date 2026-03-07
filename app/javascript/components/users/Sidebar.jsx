@@ -5,7 +5,7 @@ import { Newspaper } from 'lucide-react'
 
 export default function Sidebar({ user }) {
   return (
-    <div className="hidden w-1/3 xl:block xl:col-span-4 bg-default rounded-md">
+    <div className="hidden min-w-0 bg-default rounded-md xl:block xl:w-1/3 xl:pl-8">
       <div className="sticky top-4 space-y-4 p-4">
         {/*<div className="p-4 border-l-1 border-l-gray-50 dark:border-l-gray-800">
           <div className="grid grid-cols-3 divide-x dark:divide-gray-700">

@@ -4,14 +4,12 @@ class UsersController < ApplicationController
 
   def index
     @title = "Tracks"
-    @artists = User.where(role: "artist")
-      .where.not(username: nil)
-      .order("id desc")
+    @artists = artist_directory_scope.order("id desc")
     q = params[:q]
     if q.present?
       @artists = @artists.where("username ILIKE :q OR email ILIKE :q OR first_name ILIKE :q OR last_name ILIKE :q", q: "%#{q}%")
     end
-    @artists = @artists.page(params[:page]).per(5)
+    @artists = @artists.page(params[:page]).per(6)
 
     respond_to do |format|
       format.html
@@ -286,6 +284,40 @@ class UsersController < ApplicationController
   end
 
   private
+
+  def artist_directory_scope
+    User.where(role: "artist")
+      .where.not(username: nil)
+      .with_attached_avatar
+      .select(
+        "users.*",
+        "#{artist_tracks_count_sql} AS tracks_count",
+        "#{artist_followers_count_sql} AS followers_count"
+      )
+  end
+
+  def artist_tracks_count_sql
+    <<~SQL.squish
+      (
+        SELECT COUNT(*)
+        FROM tracks
+        WHERE tracks.user_id = users.id
+          AND tracks.private = FALSE
+      )
+    SQL
+  end
+
+  def artist_followers_count_sql
+    <<~SQL.squish
+      (
+        SELECT COUNT(*)
+        FROM follows
+        WHERE follows.followable_type = 'User'
+          AND follows.followable_id = users.id
+          AND follows.follower_type = 'User'
+      )
+    SQL
+  end
 
   def get_meta_tags
     set_meta_tags(

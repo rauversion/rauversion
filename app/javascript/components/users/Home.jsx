@@ -61,10 +61,10 @@ export default function UserHome() {
          
       {/* Articles Section */}
       {articles.length > 0 && (
-        <div>
+        <section className="min-w-0 overflow-hidden">
           <h2 className="text-2xl font-bold mb-6">Recent Articles</h2>
           <ArticleSide articles={articles} />
-        </div>
+        </section>
       )}
 
 

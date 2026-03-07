@@ -3,37 +3,128 @@ import I18n from '@/stores/locales'
 import useAuthStore from '@/stores/authStore'
 import { Card } from "@/components/ui/card"
 import { Link } from 'react-router-dom'
+import { Disc3, MapPin, Sparkles, Users } from 'lucide-react'
+
+function artistDisplayName(artist) {
+  return artist.full_name?.trim() || artist.username
+}
+
+function artistLocation(artist) {
+  return [artist.city, artist.country].filter(Boolean).join(', ')
+}
+
+function memberSinceYear(artist) {
+  if (!artist.created_at) return null
+
+  const date = new Date(artist.created_at)
+  return Number.isNaN(date.getTime()) ? null : date.getFullYear()
+}
 
 
 export default function UserCard({ artist, username, variant = 'default' }) {
   if (variant === 'rounded') {
+    const currentUsername = useAuthStore.getState().currentUser?.username
+    const canImpersonate = username && currentUsername === username
+    const displayName = artistDisplayName(artist)
+    const location = artistLocation(artist)
+    const joinedYear = memberSinceYear(artist)
+
     return (
-      <Card className="group relative overflow-hidden border-0 bg-transparent hover:bg-black/5 transition-colors p-4">
-        <div className="flex flex-col items-center space-y-4">
-          <Link to={`/${artist.username}`} className="relative w-40 h-40 rounded-full overflow-hidden block">
-            {artist.avatar_url ? (
-              <img
-                src={artist.avatar_url.medium}
-                alt=""
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <div className="h-full w-full bg-gradient-to-br from-gray-800 to-gray-900" />
-            )}
-          </Link>
+      <Card className="group relative h-full overflow-hidden rounded-[28px] border border-border/60 bg-card/95 shadow-[0_18px_50px_rgba(15,23,42,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_28px_80px_rgba(15,23,42,0.16)]">
+        <div className="absolute inset-x-0 top-0 h-28 bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.18),_transparent_58%),linear-gradient(135deg,rgba(15,23,42,0.06),transparent)]" />
 
-          <div className="text-center">
-            <h3 className="font-bold text-base text-foreground">
-              {artist.full_name}
-            </h3>
-            {/*<p className="text-sm text-muted-foreground">
-              {I18n.t('users.artist_page.artist')}
-            </p>*/}
+        <div className="relative flex h-full flex-col p-5">
+          <div className="flex items-start gap-4">
+            <Link
+              to={`/${artist.username}`}
+              className="h-20 w-20 shrink-0 overflow-hidden rounded-[24px] ring-1 ring-border/70"
+            >
+              {artist.avatar_url ? (
+                <img
+                  src={artist.avatar_url.medium}
+                  alt={displayName}
+                  className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                />
+              ) : (
+                <div className="h-full w-full bg-gradient-to-br from-gray-800 to-gray-900" />
+              )}
+            </Link>
 
-            {username && useAuthStore.getState().currentUser?.username === username && (
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap gap-2">
+                {artist.featured && (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-brand-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-600 dark:text-brand-300">
+                    <Sparkles className="h-3 w-3" />
+                    {I18n.t('artists.featured_badge')}
+                  </span>
+                )}
+
+                {artist.label && (
+                  <span className="inline-flex rounded-full border border-border/70 bg-background/80 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                    {I18n.t('artists.label_badge')}
+                  </span>
+                )}
+              </div>
+
+              <h3 className="mt-3 truncate text-lg font-black tracking-tight text-foreground">
+                <Link
+                  to={`/${artist.username}`}
+                  className="transition-colors hover:text-brand-500"
+                >
+                  {displayName}
+                </Link>
+              </h3>
+              <p className="truncate text-sm text-muted-foreground">
+                <Link
+                  to={`/${artist.username}`}
+                  className="transition-colors hover:text-foreground"
+                >
+                  @{artist.username}
+                </Link>
+              </p>
+
+              {location && (
+                <div className="mt-3 inline-flex max-w-full items-center gap-1.5 rounded-full bg-black/5 px-2.5 py-1 text-xs text-muted-foreground dark:bg-white/5">
+                  <MapPin className="h-3.5 w-3.5 shrink-0" />
+                  <span className="truncate">{location}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {artist.bio && (
+            <p className="mt-5 line-clamp-3 min-h-[4.5rem] text-sm leading-6 text-muted-foreground">
+              {artist.bio}
+            </p>
+          )}
+
+          <div className="mt-5 flex flex-wrap gap-2">
+            <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-black/5 px-3 py-2 text-sm dark:bg-white/5">
+              <Disc3 className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="font-black text-foreground">{artist.tracks_count || 0}</span>
+              <span className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                {I18n.t('profile.tracks')}
+              </span>
+            </div>
+
+            <div className="inline-flex items-center gap-2 rounded-full border border-border/60 bg-black/5 px-3 py-2 text-sm dark:bg-white/5">
+              <Users className="h-3.5 w-3.5 text-muted-foreground" />
+              <span className="font-black text-foreground">{artist.followers_count || 0}</span>
+              <span className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">
+                {I18n.t('profile.followers')}
+              </span>
+            </div>
+          </div>
+
+          <div className="mt-auto flex flex-wrap items-center justify-between gap-3 border-t border-border/60 pt-5">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              {joinedYear ? I18n.t('artists.member_since', { year: joinedYear }) : ''}
+            </p>
+
+            {canImpersonate && (
               <a
                 href={`/account_connections/impersonate?username=${artist.username}`}
-                className="text-link"
+                className="inline-flex h-9 items-center justify-center rounded-full border border-border/70 px-4 text-sm font-semibold text-foreground transition hover:border-brand-400 hover:text-brand-500"
                 target="_blank"
                 rel="noopener noreferrer"
               >

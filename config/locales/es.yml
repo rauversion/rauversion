@@ -2222,6 +2222,17 @@ es:
     no_albums:  No se encontraron artistas
     featured: Artistas Destacados
     title: Artistas
+    featured_badge: Destacado
+    label_badge: Sello
+    loading_more: Cargando más artistas...
+    view_profile: Ver perfil
+    member_since: "Desde %{year}"
+    track_count:
+      one: "%{count} pista"
+      other: "%{count} pistas"
+    follower_count:
+      one: "%{count} seguidor"
+      other: "%{count} seguidores"
     new_connection: "Nueva Conexión"
     new_artist: "Nuevo Artista"
     existing_artist:  "Artista Existente"

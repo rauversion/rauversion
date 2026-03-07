@@ -2171,7 +2171,19 @@ en:
   artists:
     title: Artists
     description: Explore the most recent artists in the community
+    no_artists: No artists were found
     no_albums: No artists were found
+    featured_badge: Featured
+    label_badge: Label
+    loading_more: Loading more artists...
+    view_profile: View profile
+    member_since: "Since %{year}"
+    track_count:
+      one: "%{count} track"
+      other: "%{count} tracks"
+    follower_count:
+      one: "%{count} follower"
+      other: "%{count} followers"
     new_connection: New Connection
     new_artist: New Artist
     existing_artist: Existing Artist

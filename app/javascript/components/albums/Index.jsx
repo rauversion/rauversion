@@ -1,8 +1,11 @@
 import React, { useState } from 'react'
 import { useInfiniteScroll } from '../../hooks/useInfiniteScroll'
 import { motion } from 'framer-motion'
-import PlaylistCard from '../playlists/PlaylistCard'
 import I18n from '@/stores/locales'
+import {
+  PlaylistShowcaseCard,
+  PlaylistShowcaseSkeleton,
+} from '@/components/playlists/PlaylistShowcaseCard'
 
 const ALBUM_TYPES = [
   { id: 'all', label: 'All' },
@@ -19,14 +22,8 @@ export default function AlbumsIndex() {
     loading,
     lastElementRef
   } = useInfiniteScroll(`/playlists.json?type=${selectedType === 'all' ? '' : selectedType}`)
-
-  if (loading && albums.length === 0) {
-    return (
-      <div className="flex justify-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500" aria-label={I18n.t('loading')}></div>
-      </div>
-    )
-  }
+  const showInitialSkeletons = loading && albums.length === 0
+  const showLoadingMoreSkeletons = loading && albums.length > 0
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -55,23 +52,30 @@ export default function AlbumsIndex() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
         {albums.map((album, index) => (
           <motion.div
             key={album.id}
+            className="h-full"
             ref={index === albums.length - 1 ? lastElementRef : null}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: index * 0.1 }}
           >
-            <PlaylistCard playlist={album} />
+            <PlaylistShowcaseCard playlist={album} />
           </motion.div>
+        ))}
+
+        {showInitialSkeletons && Array.from({ length: 6 }).map((_, index) => (
+          <PlaylistShowcaseSkeleton key={`album-skeleton-${index}`} />
         ))}
       </div>
 
-      {loading && albums.length > 0 && (
-        <div className="flex justify-center py-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500"></div>
+      {showLoadingMoreSkeletons && (
+        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3" aria-hidden="true">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <PlaylistShowcaseSkeleton key={`album-loading-more-${index}`} />
+          ))}
         </div>
       )}
 

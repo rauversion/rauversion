@@ -1,9 +1,11 @@
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import PlaylistCard from './PlaylistCard'
 import { useInfiniteScroll } from '../../hooks/useInfiniteScroll'
 import I18n from '@/stores/locales'
+import {
+  PlaylistShowcaseCard,
+  PlaylistShowcaseSkeleton,
+} from '@/components/playlists/PlaylistShowcaseCard'
 
 const PLAYLIST_TYPES = [
   { id: 'all', label: 'All' },
@@ -21,14 +23,8 @@ export default function PlaylistsIndex() {
     loading,
     lastElementRef
   } = useInfiniteScroll(`/playlists.json${selectedType !== 'all' ? `?type=${selectedType}` : ''}`)
-
-  if (loading && playlists.length === 0) {
-    return (
-      <div className="flex justify-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500" aria-label={I18n.t('loading')}></div>
-      </div>
-    )
-  }
+  const showInitialSkeletons = loading && playlists.length === 0
+  const showLoadingMoreSkeletons = loading && playlists.length > 0
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -57,23 +53,30 @@ export default function PlaylistsIndex() {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3">
         {playlists.map((playlist, index) => (
           <motion.div
             key={playlist.id}
+            className="h-full"
             ref={index === playlists.length - 1 ? lastElementRef : null}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: index * 0.1 }}
           >
-            <PlaylistCard playlist={playlist} />
+            <PlaylistShowcaseCard playlist={playlist} />
           </motion.div>
+        ))}
+
+        {showInitialSkeletons && Array.from({ length: 6 }).map((_, index) => (
+          <PlaylistShowcaseSkeleton key={`playlist-skeleton-${index}`} />
         ))}
       </div>
 
-      {loading && playlists.length > 0 && (
-        <div className="flex justify-center py-4">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500"></div>
+      {showLoadingMoreSkeletons && (
+        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2 xl:grid-cols-3" aria-hidden="true">
+          {Array.from({ length: 3 }).map((_, index) => (
+            <PlaylistShowcaseSkeleton key={`playlist-loading-more-${index}`} />
+          ))}
         </div>
       )}
 
