@@ -8,6 +8,7 @@ const useAudioStore = create(
       volume: 0.9,
       playlist: [],
       currentTrackId: null,
+      currentTrackMeta: null,
       isPlaying: false,
       currentTime: 0,
       duration: 0,
@@ -15,6 +16,7 @@ const useAudioStore = create(
 
       // Store state setters
       setCurrentTrack: (trackId) => set({ currentTrackId: trackId }),
+      setCurrentTrackMeta: (trackMeta) => set({ currentTrackMeta: trackMeta }),
       setIsPlaying: (isPlaying) => set({ isPlaying }),
       setVolume: (volume) => {
         if (get().audioElement) {

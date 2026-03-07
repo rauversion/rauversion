@@ -7,7 +7,11 @@ class PlayerController < ApplicationController
 
   def show
     id = params[:id]
-    @track = Track.friendly.find(id)
+    @track = Track
+      .friendly
+      .with_attached_cover
+      .includes(:artists, :playlists, user: { avatar_attachment: :blob })
+      .find(id)
 
     render status: :ok and return if @track.blank? 
 

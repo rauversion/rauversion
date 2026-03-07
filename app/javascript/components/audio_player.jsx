@@ -159,13 +159,24 @@ export default function AudioPlayer({ id }) {
   const [isMuted, setIsMuted] = useState(false);
   const [hasHalfwayEventFired, setHasHalfwayEventFired] = useState(false);
   const debounceTimeoutRef = useRef(null);
-  const { currentTrackId, isPlaying, playNext, playPrevious } = useAudioStore();
+  const {
+    currentTrackId,
+    currentTrackMeta,
+    isPlaying,
+    playNext,
+    playPrevious,
+    setCurrentTrackMeta,
+  } = useAudioStore();
   const [playerData, setPlayerData] = useState(null);
   const activeTrackId = currentTrackId ?? id;
 
   useEffect(() => {
     const fetchAndPlayTrack = async () => {
-      if (!activeTrackId) return;
+      if (!activeTrackId) {
+        setPlayerData(null);
+        setCurrentTrackMeta(null);
+        return;
+      }
 
       try {
         const response = await get(`/player.json?id=${activeTrackId}`, {
@@ -175,6 +186,7 @@ export default function AudioPlayer({ id }) {
         if (response.ok) {
           const data = await response.json;
           setPlayerData(data);
+          setCurrentTrackMeta(data.track || null);
           useAudioStore.setState({ isPlaying: true });
         }
       } catch (error) {
@@ -183,7 +195,7 @@ export default function AudioPlayer({ id }) {
     };
 
     fetchAndPlayTrack();
-  }, [activeTrackId]);
+  }, [activeTrackId, setCurrentTrackMeta]);
 
   useEffect(() => {
     if (isPlaying) {
@@ -398,6 +410,123 @@ export default function AudioPlayer({ id }) {
     }
     debounceTimeoutRef.current = setTimeout(func, delay);
   };
+
+  useEffect(() => {
+    if (typeof navigator === "undefined" || !("mediaSession" in navigator)) return;
+
+    const mediaSession = navigator.mediaSession;
+
+    if (!currentTrackMeta || typeof MediaMetadata === "undefined") {
+      mediaSession.metadata = null;
+      mediaSession.playbackState = "none";
+      return;
+    }
+
+    const artwork = [
+      currentTrackMeta.artwork_urls?.small && { src: currentTrackMeta.artwork_urls.small, sizes: "96x96" },
+      currentTrackMeta.artwork_urls?.medium && { src: currentTrackMeta.artwork_urls.medium, sizes: "256x256" },
+      currentTrackMeta.artwork_urls?.large && { src: currentTrackMeta.artwork_urls.large, sizes: "512x512" },
+      currentTrackMeta.artwork_urls?.original && { src: currentTrackMeta.artwork_urls.original, sizes: "1024x1024" },
+    ].filter(Boolean);
+
+    mediaSession.metadata = new MediaMetadata({
+      title: currentTrackMeta.title,
+      artist: currentTrackMeta.artist_name || currentTrackMeta.user_username || "",
+      album: currentTrackMeta.album_title || "Rauversion",
+      artwork,
+    });
+  }, [currentTrackMeta]);
+
+  useEffect(() => {
+    if (typeof navigator === "undefined" || !("mediaSession" in navigator)) return;
+
+    navigator.mediaSession.playbackState = activeTrackId
+      ? (isPlaying ? "playing" : "paused")
+      : "none";
+  }, [activeTrackId, isPlaying]);
+
+  useEffect(() => {
+    if (typeof navigator === "undefined" || !("mediaSession" in navigator)) return;
+
+    const mediaSession = navigator.mediaSession;
+    const setHandler = (action, handler) => {
+      try {
+        mediaSession.setActionHandler(action, handler);
+      } catch (error) {}
+    };
+
+    setHandler("play", () => {
+      if (!activeTrackId) return;
+      useAudioStore.getState().setIsPlaying(true);
+    });
+
+    setHandler("pause", () => {
+      useAudioStore.getState().pause();
+    });
+
+    setHandler("previoustrack", () => {
+      handlePrevSong();
+    });
+
+    setHandler("nexttrack", () => {
+      handleNextSong();
+    });
+
+    setHandler("seekto", (details) => {
+      if (!audioRef.current || typeof details.seekTime !== "number") return;
+
+      audioRef.current.currentTime = details.seekTime;
+      setCurrentTime(details.seekTime);
+      useAudioStore.setState({ currentTime: details.seekTime });
+    });
+
+    setHandler("seekbackward", (details) => {
+      if (!audioRef.current) return;
+
+      const offset = details?.seekOffset || 10;
+      const nextTime = Math.max((audioRef.current.currentTime || 0) - offset, 0);
+      audioRef.current.currentTime = nextTime;
+      setCurrentTime(nextTime);
+      useAudioStore.setState({ currentTime: nextTime });
+    });
+
+    setHandler("seekforward", (details) => {
+      if (!audioRef.current) return;
+
+      const offset = details?.seekOffset || 10;
+      const nextTime = Math.min((audioRef.current.currentTime || 0) + offset, duration || audioRef.current.duration || 0);
+      audioRef.current.currentTime = nextTime;
+      setCurrentTime(nextTime);
+      useAudioStore.setState({ currentTime: nextTime });
+    });
+
+    return () => {
+      ["play", "pause", "previoustrack", "nexttrack", "seekto", "seekbackward", "seekforward"].forEach((action) => {
+        try {
+          mediaSession.setActionHandler(action, null);
+        } catch (error) {}
+      });
+    };
+  }, [activeTrackId, duration]);
+
+  useEffect(() => {
+    if (
+      typeof navigator === "undefined" ||
+      !("mediaSession" in navigator) ||
+      typeof navigator.mediaSession.setPositionState !== "function" ||
+      !duration
+    ) {
+      return;
+    }
+
+    try {
+      navigator.mediaSession.setPositionState({
+        duration,
+        playbackRate: audioRef.current?.playbackRate || 1,
+        position: Math.min(currentTime, duration),
+      });
+    } catch (error) {}
+  }, [currentTime, duration, currentTrackMeta?.id]);
 
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
