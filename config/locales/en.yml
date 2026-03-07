@@ -1363,6 +1363,19 @@ en:
       albums: albums
       bio: Biography
       view_profile: View Profile
+      discography:
+        badge: Discography
+        title: Albums and playlists
+        subtitle: An editorial showcase for releases, EPs, compilations, and featured playlists on the profile.
+        pause_playlist: Pause playlist
+        play_playlist: Play playlist
+        track_count:
+          one: "%{count} track"
+          other: "%{count} tracks"
+        fallback_description: Open the release page to listen and explore the full tracklist.
+        open_release: "Open %{title}"
+        empty_title: No releases found
+        empty_description: Try another filter or clear the current selection.
       name: "%{name}"
       username: "@%{username}"
       tracks_count: "%{count} pistas"

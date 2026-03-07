@@ -1,14 +1,11 @@
 json.collection @playlists do |playlist|
-  json.extract! playlist, :id, :title, :description, :playlist_type, :private, :slug, :created_at
-  json.cover_url do
-    json.small playlist.cover_url(:small)
-    json.medium playlist.cover_url(:medium)
-    json.large playlist.cover_url(:large)
-  end
-  json.tracks_count playlist.tracks.count
-  json.user do
-    json.partial! 'users/user', user: playlist.user, show_full_name: true
-  end
+  json.partial! "playlists/playlist",
+    playlist: playlist,
+    show_details: true,
+    show_tracks: true,
+    show_large: true,
+    show_tracks_count: true,
+    show_user_bio: true
 end
 
 json.filter do

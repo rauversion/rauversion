@@ -365,7 +365,7 @@ function FilterPills({ counts, filter, onFilterChange }) {
       )}
 
       {canScrollRight && (
-        <div className="pointer-events-none absolute inset-y-0 right-0 z-10 flex items-center bg-gradient-to-l from-background via-background to-transparent pl-5 pr-1">
+        <div className="pointer-events-none absolute inset-y-0 right-0 z-5 flex items-center bg-gradient-to-l from-background via-background to-transparent pl-5 pr-1">
           <button
             type="button"
             onClick={() => handleScroll(1)}

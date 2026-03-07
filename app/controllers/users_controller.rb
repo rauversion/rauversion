@@ -75,11 +75,13 @@ class UsersController < ApplicationController
   def playlists_filter
 
     @kind = params[:kind].present? ? params[:kind].split(",") : Category.playlist_types
-    
-    @playlists = Playlist
+
+    ownership_scope = Playlist
+      .where(user_id: @user.id)
+      .or(Playlist.where(label_id: @user.id))
+
+    @playlists = ownership_scope
       .where(playlist_type: @kind)
-      .where(user_id: @user.id).or(Playlist.where(label_id: @user.id))
-      .where(private: false)
       .with_attached_cover
         .includes(
           user: { avatar_attachment: :blob },
@@ -92,13 +94,14 @@ class UsersController < ApplicationController
             ]
           }
         )
+      .order(created_at: :desc)
 
       #.with_attached_cover
       #.includes(user: {avatar_attachment: :blob})
       #.includes(tracks: {cover_attachment: :blob})
 
     if current_user.blank? || current_user != @user
-      @playlists = @playlists.where(private: false)
+      @playlists = @playlists.where(private: [false, nil])
     end
 
     @render_empty = true if params[:kind].blank? && @playlists.empty?
