@@ -1296,6 +1296,107 @@ es:
 
   home:
     artists: Artistas que deberías conocer
+    personalized:
+      tabs:
+        all: Todo
+        music: Música
+        podcasts: Podcasts
+        events: Eventos
+      stats:
+        recent_listens_count: escuchas recientes
+        liked_tracks_count: tracks guardados
+        followed_artists_count: artistas seguidos
+        upcoming_events_count: eventos próximos
+      greetings:
+        morning: Buen día
+        afternoon: Buenas tardes
+        evening: Buenas noches
+      actions:
+        view_all: Mostrar todo
+        retry: Reintentar
+      state:
+        label: Inicio
+        load_error_title: No se pudo cargar tu home personalizada
+        load_error_message: No se pudo cargar tu home personalizada.
+      header:
+        badge: Inicio personalizado
+        activity_badge: Basado en tu actividad
+        description: Playlists seleccionadas por editor, tus tracks más escuchados, podcasts relacionados y listening events que vale la pena tener a mano.
+      quick_access:
+        title: Vuelve a donde estabas
+        subtitle: Accesos rápidos a favoritos, reproducciones recientes y recomendaciones inmediatas.
+      sections:
+        recently_played:
+          title: Escuchado recientemente
+          subtitle: Retoma tracks, playlists y podcasts que ya venías escuchando.
+        magazine_articles:
+          title: Desde la revista
+          subtitle: Una banda editorial rápida con lecturas recientes de Rauversion.
+        latest_releases:
+          title: Últimos lanzamientos
+          subtitle: Álbumes, EPs, sencillos y compilaciones recién publicados por la comunidad.
+        community_latest_tracks:
+          title: Tracks recientes de la comunidad
+          subtitle: Lo más nuevo que se ha publicado en Rauversion.
+        recommended_playlists:
+          title: Recomendado para ti
+          subtitle: Playlists y lanzamientos sugeridos a partir de tus listening events recientes.
+        editor_choices:
+          title: Selección editorial
+          subtitle: Playlists elegidas por el equipo para descubrir algo nuevo.
+        most_played_tracks:
+          title: Tus tracks más escuchados
+          subtitle: Una lectura directa de las canciones que más repites.
+        podcasts_for_you:
+          title: Podcasts para ti
+          subtitle: Episodios y creadores alineados con lo que vienes escuchando.
+        upcoming_events:
+          title: Listening events y próximos shows
+          subtitle: Eventos públicos cercanos a tu escucha reciente y a los artistas que sigues.
+      library:
+        likes:
+          title: Tus me gusta
+          saved_tracks:
+            one: "%{count} track guardado"
+            other: "%{count} tracks guardados"
+          description: Tus canciones favoritas listas para volver a sonar.
+      badges:
+        collection: Colección
+        playlist: Playlist
+        track: Track
+        podcast: Podcast
+        event: Evento
+        article: Artículo
+      playlist_types:
+        album: Álbum
+        ep: EP
+        single: Sencillo
+        compilation: Compilación
+      reasons:
+        your_favorites: Tus favoritos
+        recently_played: Escuchado recientemente
+        curated_by_team: Curada por el equipo
+        discover_new: Para descubrir algo nuevo
+        editor_choice: Selección editorial
+        on_repeat: Lo que más repites
+        because_you_listen_to_this_podcast: Porque ya escuchas este podcast
+        recommended_to_keep_listening: Recomendado para seguir escuchando
+        from_artists_you_follow: De artistas que sigues
+        upcoming_on_rauversion: Próximo en Rauversion
+        new_release: Recién publicado
+        because_listening_tags: "Porque vienes escuchando %{terms}"
+        because_listening_genre: "Porque escuchas %{genre}"
+      meta:
+        tracks:
+          one: "%{count} track"
+          other: "%{count} tracks"
+        plays:
+          one: "%{count} reproducción"
+          other: "%{count} reproducciones"
+        new_track: Nuevo track
+        playlist_summary:
+          one: "%{type} · %{count} track"
+          other: "%{type} · %{count} tracks"
     podcasts:
       title: Podcasts
       subtitle: Escucha los podcasts de la comunidad

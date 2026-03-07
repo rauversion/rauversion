@@ -1235,6 +1235,107 @@ en:
     podcasts:
       title: Podcasts
       subtitle: Escucha los podcasts de la comunidad
+    personalized:
+      tabs:
+        all: All
+        music: Music
+        podcasts: Podcasts
+        events: Events
+      stats:
+        recent_listens_count: recent listens
+        liked_tracks_count: saved tracks
+        followed_artists_count: followed artists
+        upcoming_events_count: upcoming events
+      greetings:
+        morning: Good morning
+        afternoon: Good afternoon
+        evening: Good evening
+      actions:
+        view_all: View all
+        retry: Retry
+      state:
+        label: Home
+        load_error_title: Your personalized home could not be loaded
+        load_error_message: Your personalized home could not be loaded.
+      header:
+        badge: Personalized home
+        activity_badge: Based on your activity
+        description: Editor-curated playlists, your most-played tracks, related podcasts, and listening events worth keeping close.
+      quick_access:
+        title: Pick up where you left off
+        subtitle: Fast access to favorites, recent plays, and immediate recommendations.
+      sections:
+        recently_played:
+          title: Recently played
+          subtitle: Jump back into tracks, playlists, and podcasts you were already listening to.
+        magazine_articles:
+          title: From the magazine
+          subtitle: A quick editorial row with recent reads from Rauversion.
+        latest_releases:
+          title: Latest releases
+          subtitle: Fresh albums, EPs, singles, and compilations from the community.
+        community_latest_tracks:
+          title: Latest community tracks
+          subtitle: The most recent tracks published across Rauversion.
+        recommended_playlists:
+          title: Recommended for you
+          subtitle: Playlists and releases suggested from your recent listening events.
+        editor_choices:
+          title: Editor's picks
+          subtitle: Hand-selected playlists from the team to discover something new.
+        most_played_tracks:
+          title: Your most-played tracks
+          subtitle: A direct read of the tracks you repeat the most.
+        podcasts_for_you:
+          title: Podcasts for you
+          subtitle: Episodes and creators aligned with what you have been hearing lately.
+        upcoming_events:
+          title: Listening events and upcoming shows
+          subtitle: Public events near your recent listening and the artists you follow.
+      library:
+        likes:
+          title: Your likes
+          saved_tracks:
+            one: "%{count} saved track"
+            other: "%{count} saved tracks"
+          description: Your favorite songs, ready to play again.
+      badges:
+        collection: Collection
+        playlist: Playlist
+        track: Track
+        podcast: Podcast
+        event: Event
+        article: Article
+      playlist_types:
+        album: Album
+        ep: EP
+        single: Single
+        compilation: Compilation
+      reasons:
+        your_favorites: Your favorites
+        recently_played: Recently played
+        curated_by_team: Curated by the team
+        discover_new: Discover something new
+        editor_choice: Editor's pick
+        on_repeat: On repeat
+        because_you_listen_to_this_podcast: Because you already listen to this podcast
+        recommended_to_keep_listening: Recommended to keep listening
+        from_artists_you_follow: From artists you follow
+        upcoming_on_rauversion: Coming up on Rauversion
+        new_release: New release
+        because_listening_tags: "Because you've been listening to %{terms}"
+        because_listening_genre: "Because you listen to %{genre}"
+      meta:
+        tracks:
+          one: "%{count} track"
+          other: "%{count} tracks"
+        plays:
+          one: "%{count} play"
+          other: "%{count} plays"
+        new_track: New track
+        playlist_summary:
+          one: "%{type} · %{count} track"
+          other: "%{type} · %{count} tracks"
     events:
       title: Upcoming Events
       subtitle: Discover events from our community
