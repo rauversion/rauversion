@@ -1,12 +1,16 @@
 FactoryBot.define do
   factory :post do
-    user { nil }
-    body { "" }
-    settings { "" }
+    association :user
+    body { { "content" => [] } }
+    settings { {} }
     private { false }
     excerpt { "MyText" }
-    title { "MyString" }
-    slug { "MyString" }
-    state { "MyString" }
+    sequence(:title) { |n| "Post Title #{n}" }
+    state { "draft" }
+
+    trait :published do
+      state { "published" }
+      private { false }
+    end
   end
 end
