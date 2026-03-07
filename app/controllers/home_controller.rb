@@ -155,7 +155,7 @@ class HomeController < ApplicationController
         user: { avatar_attachment: :blob },
         artists: { avatar_attachment: :blob }
       )
-      .where.not(podcast: true)
+      .where(podcast: [false, nil])
       .page(params[:page])
       .per(10)
   end

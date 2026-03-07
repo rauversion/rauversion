@@ -3,6 +3,7 @@ class PersonalizedHomeQuery
   SECTION_ITEM_LIMIT = 8
   PODCAST_LIMIT = 8
   EVENT_LIMIT = 4
+  ARTICLE_LIMIT = 6
   RECENT_EVENT_LIMIT = 24
   PLAYLIST_CANDIDATE_LIMIT = 40
   PLAYLIST_FALLBACK_LIMIT = 16
@@ -37,6 +38,33 @@ class PersonalizedHomeQuery
         category: "all",
         layout: "media",
         items: recently_played_items
+      ),
+      section_payload(
+        id: "magazine_articles",
+        title: t("sections.magazine_articles.title"),
+        subtitle: t("sections.magazine_articles.subtitle"),
+        category: "all",
+        layout: "article",
+        href: "/articles",
+        items: magazine_articles
+      ),
+      section_payload(
+        id: "latest_releases",
+        title: t("sections.latest_releases.title"),
+        subtitle: t("sections.latest_releases.subtitle"),
+        category: "music",
+        layout: "media",
+        href: "/albums",
+        items: latest_releases
+      ),
+      section_payload(
+        id: "community_latest_tracks",
+        title: t("sections.community_latest_tracks.title"),
+        subtitle: t("sections.community_latest_tracks.subtitle"),
+        category: "music",
+        layout: "media",
+        href: "/tracks",
+        items: community_latest_tracks
       ),
       section_payload(
         id: "recommended_playlists",
@@ -166,13 +194,13 @@ class PersonalizedHomeQuery
         payload = serialize_playlist(
           playlist,
           reason: recommendation_reason_for(playlist),
-          timestamp: playlist.release_date || playlist.updated_at
+          timestamp: playlist_timestamp(playlist)
         )
 
         payload.merge(
           _score: score,
           _editor_rank: playlist.editor_choice_position || 99_999,
-          _timestamp_rank: (playlist.release_date || playlist.updated_at || playlist.created_at)&.to_i.to_i
+          _timestamp_rank: playlist_timestamp_rank(playlist)
         )
       end
 
@@ -181,7 +209,7 @@ class PersonalizedHomeQuery
           serialize_playlist(
             playlist,
             reason: playlist.editor_choice_position.present? ? t("reasons.curated_by_team") : t("reasons.discover_new"),
-            timestamp: playlist.release_date || playlist.updated_at
+            timestamp: playlist_timestamp(playlist)
           )
         end
       else
@@ -191,6 +219,39 @@ class PersonalizedHomeQuery
           .map { |item| item.except(:_score, :_editor_rank, :_timestamp_rank) }
       end
     end
+  end
+
+  def magazine_articles
+    @magazine_articles ||= Post.published
+      .with_attached_cover
+      .includes(:category, user: { avatar_attachment: :blob })
+      .latests
+      .limit(ARTICLE_LIMIT)
+      .map do |post|
+        serialize_post(post)
+      end
+  end
+
+  def latest_releases
+    @latest_releases ||= Playlist.published
+      .where(playlist_type: Playlist::Types.plain - ["playlist"])
+      .with_attached_cover
+      .includes(:track_playlists, user: { avatar_attachment: :blob })
+      .limit(PLAYLIST_FALLBACK_LIMIT)
+      .to_a
+      .sort_by { |playlist| [-playlist_timestamp_rank(playlist), -playlist.id.to_i] }
+      .first(SECTION_ITEM_LIMIT)
+      .map do |playlist|
+        serialize_playlist(
+          playlist,
+          reason: t("reasons.new_release"),
+          timestamp: playlist_timestamp(playlist)
+        )
+      end
+  end
+
+  def community_latest_tracks
+    @community_latest_tracks ||= latest_music_tracks
   end
 
   def editor_choice_items
@@ -203,7 +264,7 @@ class PersonalizedHomeQuery
         serialize_playlist(
           playlist,
           reason: t("reasons.editor_choice"),
-          timestamp: playlist.release_date || playlist.updated_at
+          timestamp: playlist_timestamp(playlist)
         )
       end
     end
@@ -318,7 +379,7 @@ class PersonalizedHomeQuery
 
   def latest_music_tracks
     Track.published
-      .where.not(podcast: true)
+      .where(podcast: [false, nil])
       .with_attached_cover
       .includes(
         user: { avatar_attachment: :blob },
@@ -439,10 +500,27 @@ class PersonalizedHomeQuery
       [
         playlist.editor_choice_position.nil? ? 1 : 0,
         playlist.editor_choice_position || 99_999,
-        -((playlist.release_date || playlist.updated_at || playlist.created_at)&.to_i || 0),
+        -playlist_timestamp_rank(playlist),
         -playlist.id.to_i
       ]
     end
+  end
+
+  def playlist_timestamp(playlist)
+    normalize_timestamp(playlist.release_date) || playlist.updated_at || playlist.created_at
+  end
+
+  def playlist_timestamp_rank(playlist)
+    playlist_timestamp(playlist)&.to_i || 0
+  end
+
+  def normalize_timestamp(value)
+    return if value.blank?
+
+    return value if value.is_a?(Time) || value.is_a?(ActiveSupport::TimeWithZone)
+    return value.in_time_zone if value.is_a?(Date)
+
+    value.respond_to?(:in_time_zone) ? value.in_time_zone : value
   end
 
   def preference_signals_present?
@@ -579,6 +657,30 @@ class PersonalizedHomeQuery
     }
   end
 
+  def serialize_post(post)
+    {
+      id: "post-#{post.id}",
+      entity_id: post.id,
+      entity_type: "article",
+      title: post.title,
+      subtitle: owner_name_for(post.user),
+      description: post.excerpt,
+      href: "/articles/#{post.slug}",
+      image_url: post.cover_url(:horizontal),
+      image_style: "landscape",
+      badge: t("badges.article"),
+      meta: article_date_label(post),
+      secondary_meta: post.category&.name,
+      reason: nil,
+      timestamp: post.created_at&.iso8601,
+      categories: ["all"],
+      playable: false,
+      primary_track_id: nil,
+      track_ids: [],
+      author_avatar_url: post.user&.avatar_url(:small)
+    }
+  end
+
   def owner_name_for(owner)
     return unless owner
 
@@ -625,6 +727,14 @@ class PersonalizedHomeQuery
     I18n.l(event.event_start, format: "%d %b · %H:%M")
   rescue I18n::ArgumentError
     event.event_start.strftime("%d %b · %H:%M")
+  end
+
+  def article_date_label(post)
+    return if post.created_at.blank?
+
+    I18n.l(post.created_at, format: "%d %b %Y")
+  rescue I18n::ArgumentError
+    post.created_at.strftime("%d %b %Y")
   end
 
   def plays_label(count)

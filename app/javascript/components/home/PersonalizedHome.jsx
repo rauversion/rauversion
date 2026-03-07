@@ -330,6 +330,64 @@ function EventCard({ entity, onOpen }) {
   )
 }
 
+function ArticleCard({ entity, onOpen }) {
+  return (
+    <button
+      type="button"
+      onClick={() => onOpen(entity)}
+      className="group w-[18.5rem] shrink-0 overflow-hidden rounded-[30px] border border-border bg-card/85 text-left transition-all hover:-translate-y-1 hover:bg-accent/50 sm:w-[20rem]"
+    >
+      <div className="relative">
+        <EntityArtwork entity={entity} className="aspect-[16/9] w-full" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/10 to-transparent" />
+
+        <div className="absolute left-4 top-4 flex items-center gap-2">
+          <span className="rounded-full border border-white/20 bg-white/90 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-900 shadow-sm dark:border-white/10 dark:bg-black/35 dark:text-white/80">
+            {entity.badge}
+          </span>
+          {entity.secondary_meta ? (
+            <span className="rounded-full border border-white/20 bg-emerald-300 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-950 shadow-sm">
+              {entity.secondary_meta}
+            </span>
+          ) : null}
+        </div>
+      </div>
+
+      <div className="space-y-3 p-4">
+        <div className="space-y-2">
+          <p className="text-xs uppercase tracking-[0.18em] text-muted-foreground/80">
+            {entity.meta}
+          </p>
+          <h3 className="line-clamp-2 text-xl font-semibold leading-tight text-foreground">
+            {entity.title}
+          </h3>
+          <p className="line-clamp-3 text-sm text-muted-foreground">
+            {entity.description}
+          </p>
+        </div>
+
+        <div className="flex items-center gap-3 border-t border-border/70 pt-3">
+          {entity.author_avatar_url ? (
+            <img
+              src={entity.author_avatar_url}
+              alt={entity.subtitle}
+              className="h-9 w-9 rounded-full object-cover"
+            />
+          ) : (
+            <div className="h-9 w-9 rounded-full bg-muted/70" />
+          )}
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium text-foreground">{entity.subtitle}</p>
+            {entity.secondary_meta ? (
+              <p className="truncate text-xs text-muted-foreground">{entity.secondary_meta}</p>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </button>
+  )
+}
+
 export default function PersonalizedHome({ currentUser }) {
   const navigate = useNavigate()
   const { currentTrackId, isPlaying, play, pause } = useAudioStore()
@@ -572,6 +630,16 @@ export default function PersonalizedHome({ currentUser }) {
               <div className="scrollbar-hide -mx-4 overflow-x-auto px-4 pb-2">
                 <div className="flex gap-4">
                   {section.items.map((entity) => {
+                    if (section.layout === "article") {
+                      return (
+                        <ArticleCard
+                          key={entity.id}
+                          entity={entity}
+                          onOpen={handleOpen}
+                        />
+                      )
+                    }
+
                     if (section.layout === "event") {
                       return (
                         <EventCard

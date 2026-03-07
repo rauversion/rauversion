@@ -73,6 +73,29 @@ RSpec.describe "Personalized home", type: :request do
       TrackPlaylist.create!(playlist: recommended_playlist, track: recent_track, position: 1)
     end
 
+    let!(:latest_release_playlist) do
+      Playlist.create!(
+        user: artist,
+        title: "Aurora EP",
+        description: "A new release from the community",
+        playlist_type: "ep",
+        release_date: 1.day.ago
+      )
+    end
+
+    let!(:latest_release_track_link) do
+      TrackPlaylist.create!(playlist: latest_release_playlist, track: recent_track, position: 1)
+    end
+
+    let!(:community_track) do
+      Track.create!(
+        user: artist,
+        title: "Community Pulse",
+        private: false,
+        created_at: 10.minutes.ago
+      )
+    end
+
     let!(:event) do
       create(
         :event,
@@ -131,6 +154,21 @@ RSpec.describe "Personalized home", type: :request do
       )
     end
 
+    let!(:article_category) do
+      create(:category, name: "Entrevistas", slug: "entrevistas")
+    end
+
+    let!(:article) do
+      create(
+        :post,
+        :published,
+        user: artist,
+        category: article_category,
+        title: "Inside the New Editorial Wave",
+        excerpt: "A closer look at the new editorial direction in Rauversion."
+      )
+    end
+
     it "requires authentication" do
       get "/home/personalized.json"
 
@@ -163,6 +201,9 @@ RSpec.describe "Personalized home", type: :request do
 
       expect(section_ids).to include(
         "recently_played",
+        "magazine_articles",
+        "latest_releases",
+        "community_latest_tracks",
         "recommended_playlists",
         "editor_choices",
         "most_played_tracks",
@@ -172,9 +213,15 @@ RSpec.describe "Personalized home", type: :request do
 
       recommended = json.fetch("sections").find { |section| section["id"] == "recommended_playlists" }
       events = json.fetch("sections").find { |section| section["id"] == "upcoming_events" }
+      articles = json.fetch("sections").find { |section| section["id"] == "magazine_articles" }
+      latestReleases = json.fetch("sections").find { |section| section["id"] == "latest_releases" }
+      latestTracks = json.fetch("sections").find { |section| section["id"] == "community_latest_tracks" }
 
       expect(recommended.fetch("items").map { |item| item.fetch("title") }).to include("Deep Drift")
       expect(events.fetch("items").map { |item| item.fetch("title") }).to include("Sunrise Session")
+      expect(articles.fetch("items").map { |item| item.fetch("title") }).to include("Inside the New Editorial Wave")
+      expect(latestReleases.fetch("items").map { |item| item.fetch("title") }).to include("Aurora EP")
+      expect(latestTracks.fetch("items").map { |item| item.fetch("title") }).to include("Community Pulse")
     end
   end
 end

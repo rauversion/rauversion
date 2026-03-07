@@ -1268,6 +1268,15 @@ en:
         recently_played:
           title: Recently played
           subtitle: Jump back into tracks, playlists, and podcasts you were already listening to.
+        magazine_articles:
+          title: From the magazine
+          subtitle: A quick editorial row with recent reads from Rauversion.
+        latest_releases:
+          title: Latest releases
+          subtitle: Fresh albums, EPs, singles, and compilations from the community.
+        community_latest_tracks:
+          title: Latest community tracks
+          subtitle: The most recent tracks published across Rauversion.
         recommended_playlists:
           title: Recommended for you
           subtitle: Playlists and releases suggested from your recent listening events.
@@ -1296,6 +1305,7 @@ en:
         track: Track
         podcast: Podcast
         event: Event
+        article: Article
       playlist_types:
         album: Album
         ep: EP
