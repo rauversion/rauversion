@@ -1,5 +1,5 @@
 class TracksController < ApplicationController
-  before_action :authenticate_user!, except: [:index, :show, :private_access]
+  before_action :authenticate_user!, except: [:index, :show, :private_access, :appears_on]
   before_action :check_activated_account, only: [:new, :create, :update, :delete]
 
   layout :layout_by_resource
@@ -144,19 +144,20 @@ class TracksController < ApplicationController
   end
 
   def show
-    track = Track.friendly.find(params[:id])
-    @user = track.user
-    
-    
-    @track = User.track_preloaded_by_user(
-      current_user_id: current_user&.id, 
-      user: @user
-    ).friendly.find(params[:id])
-
+    load_track_for_show
     get_meta_tags
 
     respond_to do |format|
       format.html {render_blank}
+      format.json
+    end
+  end
+
+  def appears_on
+    load_track_for_show
+    @playlists = visible_playlists_for(@track)
+
+    respond_to do |format|
       format.json
     end
   end
@@ -194,6 +195,44 @@ class TracksController < ApplicationController
       :  private_oembed_track_url(track_id: @track.signed_id, format: :json)
 
 
+  end
+
+  private
+
+  def load_track_for_show
+    track = Track.friendly.find(params[:id])
+    @user = track.user
+    @track = User.track_preloaded_by_user(
+      current_user_id: current_user&.id,
+      user: @user
+    ).friendly.find(params[:id])
+  end
+
+  def visible_playlists_for(track)
+    playlists = track.playlists
+      .includes(:user, :track_playlists, cover_attachment: :blob)
+
+    playlists = if current_user.present?
+      playlists.where(
+        "playlists.private = ? OR playlists.private IS NULL OR playlists.user_id = ?",
+        false,
+        current_user.id
+      )
+    else
+      playlists.where(private: [false, nil])
+    end
+
+    release_types = %w[album ep single compilation]
+
+    playlists.to_a
+      .uniq(&:id)
+      .sort_by do |playlist|
+        [
+          release_types.include?(playlist.playlist_type.to_s) ? 0 : 1,
+          playlist.release_date.present? ? -playlist.release_date.to_date.jd : Float::INFINITY,
+          -playlist.created_at.to_i
+        ]
+      end
   end
 
   def track_params

@@ -6,19 +6,42 @@ import { Comments } from "@/components/comments/Comments"
 import { ShareDialog } from "@/components/ui/share-dialog"
 import TrackEdit from './TrackEdit'
 import TrackSkeleton from './TrackSkeleton'
-import { Settings, Share2, Heart, Repeat, Play, Pause, ShoppingCart } from 'lucide-react'
+import { Settings, Share2, Heart, Repeat, Play, Pause } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import useAuthStore from '@/stores/authStore'
 import { useToast } from "@/hooks/use-toast"
 import useAudioStore from '@/stores/audioStore'
 import MusicPurchase from '@/components/shared/MusicPurchase'
 
+function playlistTypeLabel(playlistType) {
+  switch (playlistType) {
+    case 'album':
+      return I18n.t('tracks.show.playlist_types.album')
+    case 'ep':
+      return I18n.t('tracks.show.playlist_types.ep')
+    case 'single':
+      return I18n.t('tracks.show.playlist_types.single')
+    case 'compilation':
+      return I18n.t('tracks.show.playlist_types.compilation')
+    default:
+      return I18n.t('tracks.show.playlist_types.playlist')
+  }
+}
+
+function releaseYear(releaseDate) {
+  if (!releaseDate) return null
+
+  const date = new Date(releaseDate)
+  return Number.isNaN(date.getTime()) ? null : date.getFullYear()
+}
+
 export default function TrackShow() {
   const { slug } = useParams()
   const [track, setTrack] = useState(null)
+  const [appearsOnPlaylists, setAppearsOnPlaylists] = useState([])
   const [loading, setLoading] = useState(true)
   const [editOpen, setEditOpen] = useState(false)
-  const { isAuthenticated, currentUser } = useAuthStore()
+  const { currentUser } = useAuthStore()
   const [likes, setLikes] = useState(0)
   const [isLiked, setIsLiked] = useState(false)
   const { toast } = useToast()
@@ -26,16 +49,33 @@ export default function TrackShow() {
   const { currentTrackId, isPlaying, play, pause } = useAudioStore()
 
   const fetchTrack = async () => {
+    setLoading(true)
+
     try {
-      const response = await get(`/tracks/${slug}.json`)
-      if (response.ok) {
-        const data = await response.json
+      const [trackResponse, appearsOnResponse] = await Promise.all([
+        get(`/tracks/${slug}.json`),
+        get(`/tracks/${slug}/appears_on.json`)
+      ])
+
+      if (trackResponse.ok) {
+        const data = await trackResponse.json
         setTrack(data.track)
         setLikes(data.track.likes_count || 0)
         setIsLiked(data.track.like_id != null)
+      } else {
+        setTrack(null)
+      }
+
+      if (appearsOnResponse.ok) {
+        const data = await appearsOnResponse.json
+        setAppearsOnPlaylists(Array.isArray(data.playlists) ? data.playlists : [])
+      } else {
+        setAppearsOnPlaylists([])
       }
     } catch (error) {
       console.error('Error fetching track:', error)
+      setTrack(null)
+      setAppearsOnPlaylists([])
     } finally {
       setLoading(false)
     }
@@ -184,11 +224,11 @@ export default function TrackShow() {
           </div>
 
           <div className="mt-4">
-            <div className="flex items-center space-x-4">
+            <div className="space-y-8">
 
 
               {/* Artists Section */}
-              <div className="mt-8">
+              <div>
                 <h2 className="text-lg font-bold text-foreground mb-4">
                   {I18n.t('profile.artists')}
                 </h2>
@@ -227,6 +267,62 @@ export default function TrackShow() {
                   ))}
                 </ul>
               </div>
+
+              {appearsOnPlaylists.length > 0 && (
+                <div>
+                  <h2 className="mb-4 text-lg font-bold text-foreground">
+                    {I18n.t('tracks.show.appears_on')}
+                  </h2>
+
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                    {appearsOnPlaylists.map((playlist) => {
+                      const year = releaseYear(playlist.release_date)
+
+                      return (
+                        <Link
+                          key={playlist.id}
+                          to={`/playlists/${playlist.slug}`}
+                          className="group flex items-center gap-4 rounded-2xl border border-border/60 bg-card/70 p-3 transition-colors hover:border-primary/40 hover:bg-card"
+                        >
+                          <img
+                            src={playlist.cover_url?.cropped_image || playlist.cover_url?.medium}
+                            alt={playlist.title}
+                            className="h-16 w-16 shrink-0 rounded-xl object-cover shadow"
+                          />
+
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="inline-flex rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
+                                {playlistTypeLabel(playlist.playlist_type)}
+                              </span>
+
+                              {year && (
+                                <span className="text-xs text-muted-foreground">
+                                  {year}
+                                </span>
+                              )}
+
+                              {playlist.private && (
+                                <span className="inline-flex rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
+                                  {I18n.t('tracks.private_label')}
+                                </span>
+                              )}
+                            </div>
+
+                            <p className="mt-2 truncate text-sm font-semibold text-foreground transition-colors group-hover:text-primary">
+                              {playlist.title}
+                            </p>
+
+                            <p className="truncate text-sm text-muted-foreground">
+                              {playlist.user?.full_name || playlist.user?.username}
+                            </p>
+                          </div>
+                        </Link>
+                      )
+                    })}
+                  </div>
+                </div>
+              )}
 
             </div>
           </div>

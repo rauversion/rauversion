@@ -1201,6 +1201,14 @@ es:
     public_label: Público 
     public_hint: Acceso público para todos
     pending_state_message: "Espera, esta pista está en estado %{state}"
+    show:
+      appears_on: Aparece en
+      playlist_types:
+        album: Álbum
+        ep: EP
+        single: Sencillo
+        compilation: Compilación
+        playlist: Playlist
 
     index:
       new_release: Nuevo Lanzamiento

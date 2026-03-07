@@ -319,6 +319,7 @@ Rails.application.routes.draw do
     resource :embed, only: :show
     resource :sharer, controller: "sharer"
     member do
+      get :appears_on
       get :private, to: "tracks#private_access"
     end
     resources :track_purchases do
