@@ -109,6 +109,10 @@ const VIEW_MODES = [
 ]
 
 const RAIL_BREAKPOINT = 150
+const SIDEBAR_FIXED_TOP = 16
+const SIDEBAR_RESERVED_SPACE = 204
+const SIDEBAR_HEIGHT_CLASS = "h-[calc(100svh-4rem-6.75rem-2rem)]"
+const SIDEBAR_MIN_HEIGHT_CLASS = "min-h-[calc(100svh-4rem-6.75rem-2rem)]"
 
 function formatItemMeta(item) {
   switch (item.entity_type) {
@@ -389,13 +393,20 @@ function FilterPills({ counts, filter, onFilterChange }) {
                 className={cn(
                   "inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm transition-colors",
                   isActive
-                    ? "border-emerald-300/70 bg-emerald-300/15 text-white"
+                    ? "border-emerald-400/60 bg-emerald-400/20 text-emerald-950 dark:text-emerald-50"
                     : "border-border bg-muted/30 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                 )}
               >
                 <Icon className="h-4 w-4" />
                 <span>{option.label}</span>
-                <span className="rounded-full bg-background/70 px-2 py-0.5 text-xs text-muted-foreground">
+                <span
+                  className={cn(
+                    "rounded-full px-2 py-0.5 text-xs",
+                    isActive
+                      ? "bg-emerald-950/10 text-emerald-950 dark:bg-emerald-50/10 dark:text-emerald-50"
+                      : "bg-background/70 text-muted-foreground"
+                  )}
+                >
                   {counts[option.id] || 0}
                 </span>
               </button>
@@ -722,7 +733,7 @@ function MusicLibraryRailItem({ item, isActive, onOpen, onPlay }) {
   )
 }
 
-function MusicLibrarySidebar({ onNavigate, onExpand }) {
+function MusicLibrarySidebar({ onNavigate, onExpand, elevated = false }) {
   const navigate = useNavigate()
   const { toast } = useToast()
   const { currentUser } = useAuthStore()
@@ -936,7 +947,10 @@ function MusicLibrarySidebar({ onNavigate, onExpand }) {
   return (
     <div
       ref={sidebarRef}
-      className="relative flex h-full min-h-0 flex-col overflow-hidden rounded-[28px] border border-border bg-background text-foreground shadow-[0_24px_80px_rgba(0,0,0,0.35)]"
+      className={cn(
+        "relative flex h-full min-h-0 flex-col overflow-hidden rounded-[28px] border border-border bg-background text-foreground",
+        elevated && "shadow-[0_24px_80px_rgba(0,0,0,0.35)]"
+      )}
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(34,197,94,0.18),_transparent_28%)]" />
 
@@ -1184,6 +1198,97 @@ export default function AppMusicLibraryLayout({ children }) {
   const { currentUser } = useAuthStore()
   const isMobile = useIsMobile()
   const sidebarPanelRef = useRef(null)
+  const sidebarSlotRef = useRef(null)
+  const [sidebarDock, setSidebarDock] = useState({
+    height: 0,
+    left: 0,
+    mode: "static",
+    width: 0,
+  })
+
+  const syncSidebarDock = useCallback(() => {
+    const element = sidebarSlotRef.current
+    if (!element) return
+
+    const rect = element.getBoundingClientRect()
+    const scrollTop = window.scrollY || window.pageYOffset || 0
+    const slotTop = rect.top + scrollTop
+    const slotHeight = element.offsetHeight
+    const height = Math.max(window.innerHeight - SIDEBAR_RESERVED_SPACE, 320)
+    const maxFixedScroll = slotTop + slotHeight - height - SIDEBAR_FIXED_TOP
+
+    let mode = "static"
+
+    if (scrollTop >= slotTop - SIDEBAR_FIXED_TOP) {
+      mode = maxFixedScroll > slotTop ? (scrollTop >= maxFixedScroll ? "bottom" : "fixed") : "fixed"
+    }
+
+    const nextDock = {
+      height,
+      left: Math.round(rect.left),
+      mode,
+      width: Math.round(rect.width),
+    }
+
+    setSidebarDock((currentDock) => (
+      currentDock.height === nextDock.height &&
+      currentDock.left === nextDock.left &&
+      currentDock.mode === nextDock.mode &&
+      currentDock.width === nextDock.width
+    ) ? currentDock : nextDock)
+  }, [])
+
+  useEffect(() => {
+    if (!currentUser || isMobile) return undefined
+
+    const element = sidebarSlotRef.current
+    if (!element) return undefined
+
+    let frameId = null
+    const runSync = () => {
+      if (frameId !== null) {
+        cancelAnimationFrame(frameId)
+      }
+
+      frameId = requestAnimationFrame(() => {
+        syncSidebarDock()
+      })
+    }
+
+    const resizeObserver = new ResizeObserver(runSync)
+    resizeObserver.observe(element)
+
+    runSync()
+    window.addEventListener("resize", runSync)
+    window.addEventListener("scroll", runSync, { passive: true })
+
+    return () => {
+      if (frameId !== null) {
+        cancelAnimationFrame(frameId)
+      }
+
+      resizeObserver.disconnect()
+      window.removeEventListener("resize", runSync)
+      window.removeEventListener("scroll", runSync)
+    }
+  }, [currentUser, isMobile, syncSidebarDock])
+
+  const sidebarDockClassName = cn(
+    SIDEBAR_HEIGHT_CLASS,
+    sidebarDock.mode === "fixed" && "fixed top-4 z-30",
+    sidebarDock.mode === "bottom" && "absolute bottom-0 left-0 w-full",
+    sidebarDock.mode === "static" && "relative"
+  )
+
+  const sidebarDockStyle = sidebarDock.mode === "fixed"
+    ? {
+        height: `${sidebarDock.height}px`,
+        left: `${sidebarDock.left}px`,
+        width: `${sidebarDock.width}px`,
+      }
+    : {
+        height: `${Math.max(sidebarDock.height, 320)}px`,
+      }
 
   if (!currentUser) {
     return children
@@ -1202,7 +1307,7 @@ export default function AppMusicLibraryLayout({ children }) {
     <ResizablePanelGroup
       direction="horizontal"
       autoSaveId="app-music-library-layout"
-      className="min-h-[calc(100svh-4rem-6.75rem-2rem)] w-full items-start"
+      className="min-h-[calc(100svh-4rem-6.75rem-2rem)] w-full"
     >
       <ResizablePanel
         ref={sidebarPanelRef}
@@ -1210,8 +1315,13 @@ export default function AppMusicLibraryLayout({ children }) {
         minSize={6}
         maxSize={34}
       >
-        <div className="sticky top-4 h-[calc(100svh-4rem-6.75rem-2rem)]">
-          <MusicLibrarySidebar onExpand={() => sidebarPanelRef.current?.resize(24)} />
+        <div ref={sidebarSlotRef} className={cn("relative", SIDEBAR_MIN_HEIGHT_CLASS)}>
+          <div className={sidebarDockClassName} style={sidebarDockStyle}>
+            <MusicLibrarySidebar
+              elevated={sidebarDock.mode === "fixed"}
+              onExpand={() => sidebarPanelRef.current?.resize(24)}
+            />
+          </div>
         </div>
       </ResizablePanel>
 
