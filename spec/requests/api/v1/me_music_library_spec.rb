@@ -221,7 +221,8 @@ RSpec.describe "Api::V1::Me music library", type: :request do
       expect(json["liked_playlist"]).to include(
         "title" => "Tus me gusta",
         "username" => user.username,
-        "tracks_count" => 1
+        "tracks_count" => 1,
+        "track_ids" => [track.id]
       )
       expect(json["collection"].first).to include(
         "title" => "Cancion favorita",

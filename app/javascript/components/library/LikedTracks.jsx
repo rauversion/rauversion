@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react"
+import React, { useCallback, useEffect, useRef, useState } from "react"
 import { Link } from "react-router-dom"
 import { get } from "@rails/request.js"
 import {
@@ -17,14 +17,6 @@ import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination"
-import {
   Table,
   TableBody,
   TableCell,
@@ -32,24 +24,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-
-function buildPageWindow(currentPage, totalPages) {
-  if (!totalPages || totalPages <= 1) return [1]
-
-  let start = Math.max(1, currentPage - 1)
-  let end = Math.min(totalPages, start + 2)
-
-  if (end - start < 2) {
-    start = Math.max(1, end - 2)
-  }
-
-  const pages = []
-  for (let page = start; page <= end; page += 1) {
-    pages.push(page)
-  }
-
-  return pages
-}
 
 function formatDuration(seconds) {
   if (!seconds) return "--:--"
@@ -76,14 +50,27 @@ export default function LikedTracks() {
   const [page, setPage] = useState(1)
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState(null)
+  const loadMoreRef = useRef(null)
+
+  const syncLikedQueue = useCallback((trackIds) => {
+    if (!trackIds.length) return
+
+    useAudioStore.setState({ playlist: trackIds })
+  }, [])
 
   useEffect(() => {
     let cancelled = false
+    const initialPage = page === 1
 
     const fetchLikedTracks = async () => {
-      setLoading(true)
-      setError(null)
+      if (initialPage) {
+        setLoading(true)
+        setError(null)
+      } else {
+        setLoadingMore(true)
+      }
 
       try {
         const response = await get(`/api/v1/me/liked_tracks?page=${page}`, {
@@ -96,20 +83,45 @@ export default function LikedTracks() {
 
         const nextData = await response.json
         if (!cancelled) {
-          setData(nextData)
+          setData((previousData) => {
+            if (initialPage || !previousData) {
+              return nextData
+            }
+
+            const previousIds = new Set(previousData.collection.map((track) => track.id))
+            const appendedTracks = nextData.collection.filter((track) => !previousIds.has(track.id))
+
+            return {
+              ...nextData,
+              collection: [...previousData.collection, ...appendedTracks],
+            }
+          })
+
+          if (initialPage && Array.isArray(nextData?.liked_playlist?.track_ids)) {
+            syncLikedQueue(nextData.liked_playlist.track_ids.map((trackId) => `${trackId}`))
+          }
         }
       } catch (fetchError) {
         if (!cancelled) {
-          setError(fetchError.message)
+          if (initialPage) {
+            setError(fetchError.message)
+          } else {
+            setPage((currentPage) => Math.max(1, currentPage - 1))
+          }
+
           toast({
             title: "Error",
-            description: fetchError.message,
+            description: initialPage ? fetchError.message : "No se pudieron cargar más tracks.",
             variant: "destructive",
           })
         }
       } finally {
         if (!cancelled) {
-          setLoading(false)
+          if (initialPage) {
+            setLoading(false)
+          } else {
+            setLoadingMore(false)
+          }
         }
       }
     }
@@ -119,42 +131,78 @@ export default function LikedTracks() {
     return () => {
       cancelled = true
     }
-  }, [page, toast])
+  }, [page, syncLikedQueue, toast])
+
+  const metadata = data?.metadata || {}
+
+  useEffect(() => {
+    const sentinel = loadMoreRef.current
+    const hasMore = Boolean(metadata.next_page)
+
+    if (!sentinel || loading || loadingMore || error || !hasMore) {
+      return undefined
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (!entries[0]?.isIntersecting) return
+
+        setPage((currentPage) => {
+          const nextPage = metadata.next_page
+          if (!nextPage || currentPage >= nextPage) return currentPage
+
+          return nextPage
+        })
+      },
+      {
+        root: null,
+        rootMargin: "0px 0px 320px 0px",
+        threshold: 0.1,
+      }
+    )
+
+    observer.observe(sentinel)
+
+    return () => {
+      observer.disconnect()
+    }
+  }, [error, loading, loadingMore, metadata.next_page])
 
   const tracks = data?.collection || []
-  const metadata = data?.metadata || {}
-  const visiblePages = useMemo(
-    () => buildPageWindow(metadata.current_page || 1, metadata.total_pages || 1),
-    [metadata.current_page, metadata.total_pages]
-  )
+  const queueTrackIds = data?.liked_playlist?.track_ids?.map((trackId) => `${trackId}`) || tracks.map((track) => `${track.id}`)
+  const isLikedPlaylistActive = queueTrackIds.includes(`${currentTrackId}`)
 
   const playAll = () => {
     if (!tracks.length) return
 
-    const trackIds = tracks.map((track) => `${track.id}`)
-    useAudioStore.setState({ playlist: trackIds })
-    play(tracks[0].id)
+    if (isPlaying && isLikedPlaylistActive) {
+      pause()
+      return
+    }
+
+    syncLikedQueue(queueTrackIds)
+    play(queueTrackIds[0] || tracks[0].id)
   }
 
   const playShuffle = () => {
-    if (!tracks.length) return
+    if (!queueTrackIds.length) return
 
-    const shuffledTracks = [...tracks].sort(() => Math.random() - 0.5)
-    const trackIds = shuffledTracks.map((track) => `${track.id}`)
-    useAudioStore.setState({ playlist: trackIds })
-    play(shuffledTracks[0].id)
+    const shuffledTrackIds = [...queueTrackIds].sort(() => Math.random() - 0.5)
+    syncLikedQueue(shuffledTrackIds)
+    play(shuffledTrackIds[0])
   }
 
   const handleTrackPlay = (trackId) => {
     const active = `${currentTrackId}` === `${trackId}`
 
-    useAudioStore.setState({ playlist: tracks.map((track) => `${track.id}`) })
+    syncLikedQueue(queueTrackIds)
 
     if (active && isPlaying) {
       pause()
       return
     }
 
+    pause()
     play(trackId)
   }
 
@@ -190,7 +238,7 @@ export default function LikedTracks() {
               disabled={!tracks.length}
               className="h-14 w-14 rounded-full bg-emerald-500 text-black hover:bg-emerald-400"
             >
-              {isPlaying && tracks.some((track) => `${track.id}` === `${currentTrackId}`) ? (
+              {isPlaying && isLikedPlaylistActive ? (
                 <Pause className="h-6 w-6" />
               ) : (
                 <Play className="ml-0.5 h-6 w-6" />
@@ -258,7 +306,7 @@ export default function LikedTracks() {
                       <TableRow
                         key={track.id}
                         className={cn(
-                          "border-white/5 hover:bg-white/5",
+                          "group border-white/5 hover:bg-white/5",
                           isCurrent && "bg-emerald-500/10"
                         )}
                       >
@@ -325,52 +373,23 @@ export default function LikedTracks() {
               <p className="text-sm text-muted-foreground">
                 {metadata.total_count || 0} tracks guardados
               </p>
-
-              <Pagination className="justify-end">
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious
-                      href="#"
-                      onClick={(event) => {
-                        event.preventDefault()
-                        if (metadata.prev_page) {
-                          setPage(metadata.prev_page)
-                        }
-                      }}
-                      className={cn(!metadata.prev_page && "pointer-events-none opacity-40")}
-                    />
-                  </PaginationItem>
-
-                  {visiblePages.map((visiblePage) => (
-                    <PaginationItem key={visiblePage}>
-                      <PaginationLink
-                        href="#"
-                        isActive={visiblePage === (metadata.current_page || 1)}
-                        onClick={(event) => {
-                          event.preventDefault()
-                          setPage(visiblePage)
-                        }}
-                      >
-                        {visiblePage}
-                      </PaginationLink>
-                    </PaginationItem>
-                  ))}
-
-                  <PaginationItem>
-                    <PaginationNext
-                      href="#"
-                      onClick={(event) => {
-                        event.preventDefault()
-                        if (metadata.next_page) {
-                          setPage(metadata.next_page)
-                        }
-                      }}
-                      className={cn(!metadata.next_page && "pointer-events-none opacity-40")}
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
+              <p className="text-sm text-muted-foreground">
+                {metadata.total_pages > 1
+                  ? `Página ${metadata.current_page || 1} de ${metadata.total_pages}`
+                  : "Lista"}
+              </p>
             </div>
+
+            {loadingMore && (
+              <div className="mt-4 flex items-center justify-center text-sm text-muted-foreground">
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Cargando más tracks...
+              </div>
+            )}
+
+            {metadata.next_page && (
+              <div ref={loadMoreRef} aria-hidden="true" className="h-4" />
+            )}
           </>
         )}
       </div>

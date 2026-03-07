@@ -12,6 +12,7 @@ class LikedTracksQuery
   def call
     paginated_likes = likes_scope.page(page).per(per)
     ordered_track_ids = paginated_likes.pluck(:likeable_id)
+    all_track_ids = likes_scope.pluck(:likeable_id)
 
     tracks_by_id = Track
       .where(id: ordered_track_ids)
@@ -32,7 +33,8 @@ class LikedTracksQuery
         title: "Tus me gusta",
         description: "Tus canciones favoritas guardadas en Rauversion.",
         username: user.username,
-        tracks_count: likes_scope.count
+        tracks_count: likes_scope.count,
+        track_ids: all_track_ids
       },
       collection: ordered_tracks.map { |track| serialize_track(track, liked_at_by_track_id[track.id]) },
       metadata: pagination_metadata(paginated_likes)
