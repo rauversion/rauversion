@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import I18n from "stores/locales";
 import { Skeleton } from "../ui/skeleton";
+import useAuthStore from "@/stores/authStore";
 import Header from "./Header";
 import HomeEvents from "./HomeEvents";
 import MainArticles from "./MainArticles";
@@ -11,6 +12,7 @@ import AlbumReleases from "./AlbumReleases";
 import FeaturedArtists from "./FeaturedArtists";
 import CuratedPlaylists from "./CuratedPlaylists";
 import LatestReleases from "./LatestReleases";
+import PersonalizedHome from "./PersonalizedHome";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
@@ -44,6 +46,7 @@ function LoadingSkeleton() {
 }
 
 export default function Home() {
+  const { currentUser: authenticatedUser, loading: authLoading } = useAuthStore()
   const [data, setData] = useState({
     currentUser: null,
     artists: [],
@@ -96,6 +99,8 @@ export default function Home() {
   };
 
   useEffect(() => {
+    if (authLoading || authenticatedUser) return
+
     // Fetch initial app data
     const fetchInitialData = async () => {
       try {
@@ -123,9 +128,11 @@ export default function Home() {
     fetchSectionData("playlists");
     fetchSectionData("podcasts");
     fetchSectionData("latest_releases");
-  }, []);
+  }, [authLoading, authenticatedUser]);
 
   const isFullyLoaded = !Object.values(loading).some(Boolean);
+  if (authLoading) return <LoadingSkeleton />;
+  if (authenticatedUser) return <PersonalizedHome currentUser={authenticatedUser} />;
   if (loading.posts) return <LoadingSkeleton />;
 
   const {

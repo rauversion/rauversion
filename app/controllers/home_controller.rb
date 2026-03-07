@@ -11,6 +11,10 @@ class HomeController < ApplicationController
     section = params[:section]
 
     case section
+    when 'personalized'
+      return render json: { error: "Authentication required" }, status: :unauthorized unless current_user
+
+      render json: PersonalizedHomeQuery.new(user: current_user).call and return
     when 'artists'
       @artists = fetch_artists
       render "users/index" and return
@@ -136,7 +140,7 @@ class HomeController < ApplicationController
     Track.published
     .latests
     .with_attached_cover
-    .where(podcast: "podcast")
+    .where(podcast: true)
     .includes(user: { avatar_attachment: :blob })
     .page(params[:page])
     .per(10)
@@ -151,7 +155,7 @@ class HomeController < ApplicationController
         user: { avatar_attachment: :blob },
         artists: { avatar_attachment: :blob }
       )
-      .where.not(podcast: "podcast")
+      .where.not(podcast: true)
       .page(params[:page])
       .per(10)
   end
