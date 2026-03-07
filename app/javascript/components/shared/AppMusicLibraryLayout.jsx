@@ -523,9 +523,9 @@ function MusicLibraryListItem({
         <BodyTag
           {...(hasLink
             ? {
-                type: "button",
-                onClick: () => onOpen(item),
-              }
+              type: "button",
+              onClick: () => onOpen(item),
+            }
             : {})}
           className={cn("min-w-0 flex-1 text-left", hasLink && "cursor-pointer")}
         >
@@ -1056,9 +1056,6 @@ function MusicLibrarySidebar({ onNavigate, onExpand, elevated = false }) {
               </Button>
             </div>
 
-            <p className="mt-3 max-w-sm text-sm text-muted-foreground">
-              Playlists, álbumes, artistas y tus me gusta del usuario autenticado, todo paginado.
-            </p>
           </div>
 
           <div className="relative border-b border-border px-2 py-3">
@@ -1282,13 +1279,13 @@ export default function AppMusicLibraryLayout({ children }) {
 
   const sidebarDockStyle = sidebarDock.mode === "fixed"
     ? {
-        height: `${sidebarDock.height}px`,
-        left: `${sidebarDock.left}px`,
-        width: `${sidebarDock.width}px`,
-      }
+      height: `${sidebarDock.height}px`,
+      left: `${sidebarDock.left}px`,
+      width: `${sidebarDock.width}px`,
+    }
     : {
-        height: `${Math.max(sidebarDock.height, 320)}px`,
-      }
+      height: `${Math.max(sidebarDock.height, 320)}px`,
+    }
 
   if (!currentUser) {
     return children
