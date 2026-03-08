@@ -1,6 +1,30 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+const normalizeTrackId = (trackId) => {
+  if (trackId === null || trackId === undefined) return null
+
+  return `${trackId}`
+}
+
+const normalizePlaylist = (playlist) => {
+  if (!Array.isArray(playlist)) return []
+
+  return playlist
+    .map((trackId) => normalizeTrackId(trackId))
+    .filter(Boolean)
+}
+
+const findCurrentTrackIndex = (state) => {
+  const playlist = normalizePlaylist(state.playlist)
+  const currentTrackId = normalizeTrackId(state.currentTrackId)
+
+  return {
+    playlist,
+    currentIndex: playlist.indexOf(currentTrackId),
+  }
+}
+
 const useAudioStore = create(
   persist(
     (set, get) => ({
@@ -15,7 +39,7 @@ const useAudioStore = create(
       audioElement: null,
 
       // Store state setters
-      setCurrentTrack: (trackId) => set({ currentTrackId: trackId }),
+      setCurrentTrack: (trackId) => set({ currentTrackId: normalizeTrackId(trackId) }),
       setCurrentTrackMeta: (trackMeta) => set({ currentTrackMeta: trackMeta }),
       setIsPlaying: (isPlaying) => set({ isPlaying }),
       setVolume: (volume) => {
@@ -24,7 +48,7 @@ const useAudioStore = create(
         }
         set({ volume })
       },
-      setPlaylist: (playlist) => set({ playlist }),
+      setPlaylist: (playlist) => set({ playlist: normalizePlaylist(playlist) }),
       setCurrentTime: (time) => set({ currentTime: time }),
       setDuration: (duration) => set({ duration }),
       setAudioElement: (element) => set({ audioElement: element }),
@@ -32,10 +56,11 @@ const useAudioStore = create(
       // Audio actions
       play: (trackId) => {
         const state = get()
+        const normalizedTrackId = normalizeTrackId(trackId)
         if (state.audioElement) {
           state.audioElement.play()
         }
-        set({ currentTrackId: trackId, isPlaying: true })
+        set({ currentTrackId: normalizedTrackId, isPlaying: true })
       },
       
       pause: () => {
@@ -58,9 +83,10 @@ const useAudioStore = create(
       finish: () => {
         set({ isPlaying: false, currentTime: 0 })
         const state = get()
-        const currentIndex = state.playlist.indexOf(state.currentTrackId)
-        if (currentIndex < state.playlist.length - 1) {
-          state.play(state.playlist[currentIndex + 1])
+        const { playlist, currentIndex } = findCurrentTrackIndex(state)
+
+        if (currentIndex >= 0 && currentIndex < playlist.length - 1) {
+          state.play(playlist[currentIndex + 1])
         }
       },
 
@@ -80,41 +106,54 @@ const useAudioStore = create(
       // Playlist management
       addToPlaylist: (track) => {
         const state = get()
-        if (!state.playlist.find(t => t === track.id)) {
-          set({ playlist: [...state.playlist, track.id] })
+        const trackId = normalizeTrackId(track?.id ?? track)
+
+        if (!trackId) return
+
+        const playlist = normalizePlaylist(state.playlist)
+
+        if (!playlist.includes(trackId)) {
+          set({ playlist: [...playlist, trackId] })
         }
       },
 
       removeFromPlaylist: (trackId) => {
         const state = get()
-        set({ playlist: state.playlist.filter(id => id !== trackId) })
+        const normalizedTrackId = normalizeTrackId(trackId)
+        const playlist = normalizePlaylist(state.playlist)
+
+        set({ playlist: playlist.filter((id) => id !== normalizedTrackId) })
       },
 
       clearPlaylist: () => set({ playlist: [] }),
 
       playNext: () => {
         const state = get()
-        const currentIndex = state.playlist.indexOf(state.currentTrackId)
-        if (currentIndex < state.playlist.length - 1) {
-          state.play(state.playlist[currentIndex + 1])
+        const { playlist, currentIndex } = findCurrentTrackIndex(state)
+
+        if (currentIndex >= 0 && currentIndex < playlist.length - 1) {
+          state.play(playlist[currentIndex + 1])
         }
       },
 
       playPrevious: () => {
         const state = get()
-        const currentIndex = state.playlist.indexOf(state.currentTrackId)
+        const { playlist, currentIndex } = findCurrentTrackIndex(state)
+
         if (currentIndex > 0) {
-          state.play(state.playlist[currentIndex - 1])
+          state.play(playlist[currentIndex - 1])
         }
       },
 
       addMultipleToPlaylist: (tracks) => {
         const state = get()
+        const playlist = normalizePlaylist(state.playlist)
         const uniqueTrackIds = tracks
-          .map(track => track.id)
-          .filter(trackId => !state.playlist.includes(trackId))
+          .map((track) => normalizeTrackId(track?.id ?? track))
+          .filter((trackId) => trackId && !playlist.includes(trackId))
+
         if (uniqueTrackIds.length > 0) {
-          set({ playlist: [...state.playlist, ...uniqueTrackIds] })
+          set({ playlist: [...playlist, ...uniqueTrackIds] })
         }
       }
     }),
@@ -127,8 +166,19 @@ const useAudioStore = create(
 
 const { getState, setState, subscribe, destroy } = useAudioStore
 
-if (!Array.isArray(useAudioStore.getState().playlist)) {
-  useAudioStore.setState({ playlist: [] })
+const persistedState = useAudioStore.getState()
+const normalizedPlaylist = normalizePlaylist(persistedState.playlist)
+const normalizedCurrentTrackId = normalizeTrackId(persistedState.currentTrackId)
+
+if (
+  !Array.isArray(persistedState.playlist) ||
+  normalizedPlaylist.length !== persistedState.playlist.length ||
+  normalizedCurrentTrackId !== persistedState.currentTrackId
+) {
+  useAudioStore.setState({
+    playlist: normalizedPlaylist,
+    currentTrackId: normalizedCurrentTrackId,
+  })
 }
 
 subscribe((state) => {
