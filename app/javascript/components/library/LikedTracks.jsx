@@ -3,7 +3,9 @@ import { Link } from "react-router-dom"
 import { get } from "@rails/request.js"
 import {
   Clock3,
+  Grid2x2,
   Heart,
+  LayoutGrid,
   List,
   Loader2,
   Pause,
@@ -25,11 +27,23 @@ import {
   TableRow,
 } from "@/components/ui/table"
 
+const VIEW_MODES = [
+  { id: "list", label: "Lista", icon: List },
+  { id: "grid", label: "Grilla", icon: Grid2x2 },
+  { id: "compact-grid", label: "Mosaico", icon: LayoutGrid },
+]
+
 function formatDuration(seconds) {
   if (!seconds) return "--:--"
   const minutes = Math.floor(seconds / 60)
   const remainingSeconds = Math.floor(seconds % 60)
   return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`
+}
+
+function formatLikedDate(value) {
+  if (!value) return "--"
+
+  return new Date(value).toLocaleDateString()
 }
 
 function trackArtistsLabel(track) {
@@ -42,6 +56,104 @@ function trackArtistsLabel(track) {
   return track.user?.full_name || track.user?.username || ""
 }
 
+function getViewModeLabel(viewMode) {
+  return VIEW_MODES.find((mode) => mode.id === viewMode)?.label || "Lista"
+}
+
+function LikedTrackViewToggle({ viewMode, onChange }) {
+  return (
+    <div className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 p-1">
+      {VIEW_MODES.map((mode) => {
+        const Icon = mode.icon
+        const active = viewMode === mode.id
+
+        return (
+          <button
+            key={mode.id}
+            type="button"
+            onClick={() => onChange(mode.id)}
+            aria-label={mode.label}
+            title={mode.label}
+            className={cn(
+              "inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors",
+              active
+                ? "bg-white text-black"
+                : "text-muted-foreground hover:bg-white/10 hover:text-white"
+            )}
+          >
+            <Icon className="h-4 w-4" />
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
+function LikedTrackGridCard({ track, isCurrent, isPlaying, compact, onPlay }) {
+  return (
+    <article
+      className={cn(
+        "group rounded-[24px] border border-white/10 bg-white/5 transition-colors hover:bg-white/[0.08]",
+        compact ? "p-2" : "p-3"
+      )}
+    >
+      <div className="relative overflow-hidden rounded-[18px] bg-white/5">
+        <img
+          src={track.cover_url?.large || track.cover_url?.medium || track.cover_url?.small}
+          alt={track.title}
+          className={cn(
+            "aspect-square w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]",
+            compact ? "rounded-[16px]" : "rounded-[18px]"
+          )}
+        />
+
+        <button
+          type="button"
+          onClick={() => onPlay(track.id)}
+          className={cn(
+            "absolute bottom-3 right-3 inline-flex items-center justify-center rounded-full bg-emerald-500 text-black shadow-lg transition-all hover:scale-[1.03] hover:bg-emerald-400",
+            compact ? "h-10 w-10" : "h-11 w-11"
+          )}
+        >
+          {isCurrent && isPlaying ? (
+            <Pause className="h-4 w-4" />
+          ) : (
+            <Play className="ml-0.5 h-4 w-4" />
+          )}
+        </button>
+      </div>
+
+      <div className={cn("min-w-0", compact ? "mt-2 space-y-1" : "mt-3 space-y-1.5")}>
+        <Link
+          to={track.url}
+          className={cn(
+            "block font-medium transition-colors hover:text-white",
+            compact ? "line-clamp-2 text-sm" : "truncate text-base",
+            isCurrent ? "text-emerald-400" : "text-foreground"
+          )}
+        >
+          {track.title}
+        </Link>
+
+        <p className={cn("text-muted-foreground", compact ? "line-clamp-2 text-xs" : "truncate text-sm")}>
+          {trackArtistsLabel(track)}
+        </p>
+
+        <div className={cn("text-muted-foreground", compact ? "space-y-1 text-[11px]" : "space-y-1 text-xs")}>
+          <p className="truncate">{track.album_title || "Single"}</p>
+          {!compact && (
+            <div className="flex items-center justify-between gap-3">
+              <span className="truncate">{formatLikedDate(track.liked_at)}</span>
+              <span>{formatDuration(track.duration)}</span>
+            </div>
+          )}
+          {compact && <p>{formatDuration(track.duration)}</p>}
+        </div>
+      </div>
+    </article>
+  )
+}
+
 export default function LikedTracks() {
   const { toast } = useToast()
   const { currentUser } = useAuthStore()
@@ -52,6 +164,12 @@ export default function LikedTracks() {
   const [loading, setLoading] = useState(true)
   const [loadingMore, setLoadingMore] = useState(false)
   const [error, setError] = useState(null)
+  const [viewMode, setViewMode] = useState(() => {
+    if (typeof window === "undefined") return "list"
+
+    const persistedViewMode = window.localStorage.getItem("liked-tracks-view-mode")
+    return VIEW_MODES.some((mode) => mode.id === persistedViewMode) ? persistedViewMode : "list"
+  })
   const loadMoreRef = useRef(null)
 
   const syncLikedQueue = useCallback((trackIds) => {
@@ -59,6 +177,12 @@ export default function LikedTracks() {
 
     useAudioStore.setState({ playlist: trackIds })
   }, [])
+
+  useEffect(() => {
+    if (typeof window === "undefined") return
+
+    window.localStorage.setItem("liked-tracks-view-mode", viewMode)
+  }, [viewMode])
 
   useEffect(() => {
     let cancelled = false
@@ -257,10 +381,7 @@ export default function LikedTracks() {
             </Button>
           </div>
 
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-2 text-sm text-muted-foreground">
-            <span>Lista</span>
-            <List className="h-4 w-4" />
-          </div>
+          <LikedTrackViewToggle viewMode={viewMode} onChange={setViewMode} />
         </div>
 
         {loading && (
@@ -284,90 +405,116 @@ export default function LikedTracks() {
 
         {!loading && !error && tracks.length > 0 && (
           <>
-            <div className="overflow-hidden rounded-[28px] border border-white/10 bg-white/5">
-              <Table>
-                <TableHeader>
-                  <TableRow className="border-white/10 hover:bg-transparent">
-                    <TableHead className="w-12 px-4 text-center">#</TableHead>
-                    <TableHead>Título</TableHead>
-                    <TableHead className="hidden md:table-cell">Álbum</TableHead>
-                    <TableHead className="hidden lg:table-cell">Agregado</TableHead>
-                    <TableHead className="w-20 text-right">
-                      <Clock3 className="ml-auto h-4 w-4" />
-                    </TableHead>
-                  </TableRow>
-                </TableHeader>
+            {viewMode === "list" ? (
+              <div className="overflow-hidden rounded-[28px] border border-white/10 bg-white/5">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="border-white/10 hover:bg-transparent">
+                      <TableHead className="w-12 px-4 text-center">#</TableHead>
+                      <TableHead>Título</TableHead>
+                      <TableHead className="hidden md:table-cell">Álbum</TableHead>
+                      <TableHead className="hidden lg:table-cell">Agregado</TableHead>
+                      <TableHead className="w-20 text-right">
+                        <Clock3 className="ml-auto h-4 w-4" />
+                      </TableHead>
+                    </TableRow>
+                  </TableHeader>
 
-                <TableBody>
-                  {tracks.map((track, index) => {
-                    const isCurrent = `${currentTrackId}` === `${track.id}`
+                  <TableBody>
+                    {tracks.map((track, index) => {
+                      const isCurrent = `${currentTrackId}` === `${track.id}`
 
-                    return (
-                      <TableRow
-                        key={track.id}
-                        className={cn(
-                          "group border-white/5 hover:bg-white/5",
-                          isCurrent && "bg-emerald-500/10"
-                        )}
-                      >
-                        <TableCell className="px-4 text-center">
-                          <button
-                            type="button"
-                            onClick={() => handleTrackPlay(track.id)}
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-white/10 hover:text-white"
-                          >
-                            {isCurrent && isPlaying ? (
-                              <Pause className="h-4 w-4" />
-                            ) : (
-                              <>
-                                <span className="group-hover:hidden">{index + 1}</span>
-                                <Play className="hidden h-4 w-4 group-hover:block" />
-                              </>
-                            )}
-                          </button>
-                        </TableCell>
+                      return (
+                        <TableRow
+                          key={track.id}
+                          className={cn(
+                            "group border-white/5 hover:bg-white/5",
+                            isCurrent && "bg-emerald-500/10"
+                          )}
+                        >
+                          <TableCell className="px-4 text-center">
+                            <button
+                              type="button"
+                              onClick={() => handleTrackPlay(track.id)}
+                              className="inline-flex h-8 w-8 items-center justify-center rounded-full text-muted-foreground transition-colors hover:bg-white/10 hover:text-white"
+                            >
+                              {isCurrent && isPlaying ? (
+                                <Pause className="h-4 w-4" />
+                              ) : (
+                                <>
+                                  <span className="group-hover:hidden">{index + 1}</span>
+                                  <Play className="hidden h-4 w-4 group-hover:block" />
+                                </>
+                              )}
+                            </button>
+                          </TableCell>
 
-                        <TableCell>
-                          <div className="flex items-center gap-3">
-                            <img
-                              src={track.cover_url?.small || track.cover_url?.medium}
-                              alt={track.title}
-                              className="h-11 w-11 rounded-lg object-cover"
-                            />
-                            <div className="min-w-0">
-                              <Link
-                                to={track.url}
-                                className={cn(
-                                  "block truncate font-medium transition-colors hover:text-white",
-                                  isCurrent ? "text-emerald-400" : "text-foreground"
-                                )}
-                              >
-                                {track.title}
-                              </Link>
-                              <p className="truncate text-sm text-muted-foreground">
-                                {trackArtistsLabel(track)}
-                              </p>
+                          <TableCell>
+                            <div className="flex items-center gap-3">
+                              <img
+                                src={track.cover_url?.small || track.cover_url?.medium}
+                                alt={track.title}
+                                className="h-11 w-11 rounded-lg object-cover"
+                              />
+                              <div className="min-w-0">
+                                <Link
+                                  to={track.url}
+                                  className={cn(
+                                    "block truncate font-medium transition-colors hover:text-white",
+                                    isCurrent ? "text-emerald-400" : "text-foreground"
+                                  )}
+                                >
+                                  {track.title}
+                                </Link>
+                                <p className="truncate text-sm text-muted-foreground">
+                                  {trackArtistsLabel(track)}
+                                </p>
+                              </div>
                             </div>
-                          </div>
-                        </TableCell>
+                          </TableCell>
 
-                        <TableCell className="hidden md:table-cell text-muted-foreground">
-                          {track.album_title || "Single"}
-                        </TableCell>
+                          <TableCell className="hidden md:table-cell text-muted-foreground">
+                            {track.album_title || "Single"}
+                          </TableCell>
 
-                        <TableCell className="hidden lg:table-cell text-muted-foreground">
-                          {track.liked_at ? new Date(track.liked_at).toLocaleDateString() : "--"}
-                        </TableCell>
+                          <TableCell className="hidden lg:table-cell text-muted-foreground">
+                            {formatLikedDate(track.liked_at)}
+                          </TableCell>
 
-                        <TableCell className="text-right text-muted-foreground">
-                          {formatDuration(track.duration)}
-                        </TableCell>
-                      </TableRow>
-                    )
-                  })}
-                </TableBody>
-              </Table>
-            </div>
+                          <TableCell className="text-right text-muted-foreground">
+                            {formatDuration(track.duration)}
+                          </TableCell>
+                        </TableRow>
+                      )
+                    })}
+                  </TableBody>
+                </Table>
+              </div>
+            ) : (
+              <div
+                className={cn(
+                  "grid",
+                  viewMode === "grid"
+                    ? "grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4"
+                    : "grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5 xl:grid-cols-6"
+                )}
+              >
+                {tracks.map((track) => {
+                  const isCurrent = `${currentTrackId}` === `${track.id}`
+
+                  return (
+                    <LikedTrackGridCard
+                      key={track.id}
+                      track={track}
+                      isCurrent={isCurrent}
+                      isPlaying={isCurrent && isPlaying}
+                      compact={viewMode === "compact-grid"}
+                      onPlay={handleTrackPlay}
+                    />
+                  )
+                })}
+              </div>
+            )}
 
             <div className="mt-6 flex items-center justify-between gap-4">
               <p className="text-sm text-muted-foreground">
@@ -376,7 +523,7 @@ export default function LikedTracks() {
               <p className="text-sm text-muted-foreground">
                 {metadata.total_pages > 1
                   ? `Página ${metadata.current_page || 1} de ${metadata.total_pages}`
-                  : "Lista"}
+                  : getViewModeLabel(viewMode)}
               </p>
             </div>
 
