@@ -15,7 +15,7 @@ export default function UserTracks() {
   } = useInfiniteScroll(`/${username}/tracks.json`)
 
   const handlePlay = (trackId) => {
-    if (currentTrackId === trackId && isPlaying) {
+    if (`${currentTrackId}` === `${trackId}` && isPlaying) {
       pause()
     } else {
       play(trackId)

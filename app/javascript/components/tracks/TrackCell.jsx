@@ -39,7 +39,7 @@ const PauseIcon = ({ className }) => (
 // Classic style with circular play button
 export function ClassicTrackCell({ track }) {
   const { play, pause, currentTrackId, isPlaying } = useAudioStore()
-  const isCurrentTrack = currentTrackId === track.id
+  const isCurrentTrack = `${currentTrackId}` === `${track.id}`
   const shouldShowPause = isCurrentTrack && isPlaying
 
   const handlePlay = (e) => {
@@ -94,7 +94,7 @@ export function ClassicTrackCell({ track }) {
 // Modern style with overlay play button
 export function ModernTrackCell({ track }) {
   const { play, pause, currentTrackId, isPlaying } = useAudioStore()
-  const isCurrentTrack = currentTrackId === track.id
+  const isCurrentTrack = `${currentTrackId}` === `${track.id}`
   const shouldShowPause = isCurrentTrack && isPlaying
 
   const handlePlay = (e) => {
@@ -144,7 +144,7 @@ export function ModernTrackCell({ track }) {
 // Minimal brutalist style
 export function MinimalTrackCell({ track }) {
   const { play, pause, currentTrackId, isPlaying } = useAudioStore()
-  const isCurrentTrack = currentTrackId === track.id
+  const isCurrentTrack = `${currentTrackId}` === `${track.id}`
   const shouldShowPause = isCurrentTrack && isPlaying
 
   const handlePlay = (e) => {

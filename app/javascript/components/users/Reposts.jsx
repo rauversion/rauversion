@@ -31,7 +31,7 @@ export default function UserReposts() {
   }, [username])
 
   const handlePlay = (trackId) => {
-    if (currentTrackId === trackId && isPlaying) {
+    if (`${currentTrackId}` === `${trackId}` && isPlaying) {
       pause()
     } else {
       play(trackId)

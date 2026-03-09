@@ -62,7 +62,7 @@ export default function UserShow() {
   }, [username, resetArtists]);
 
   const handlePlay = (trackId) => {
-    if (currentTrackId === trackId && isPlaying) {
+    if (`${currentTrackId}` === `${trackId}` && isPlaying) {
       pause();
     } else {
       play(trackId);
