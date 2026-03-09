@@ -11,7 +11,7 @@ const normalizePlaylist = (playlist) => {
   if (!Array.isArray(playlist)) return []
 
   return playlist
-    .map((trackId) => normalizeTrackId(trackId))
+    .map((trackId) => normalizeTrackId(trackId?.id ?? trackId))
     .filter(Boolean)
 }
 

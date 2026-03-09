@@ -23,8 +23,10 @@ export default function PlaylistShow() {
   const [editOpen, setEditOpen] = useState(false);
   const [likes, setLikes] = useState(0);
   const [isLiked, setIsLiked] = useState(false);
+  const [likingTrackIds, setLikingTrackIds] = useState([]);
   const {
     currentTrackId,
+    currentTrackMeta,
     isPlaying,
     audioPlaying,
     play,
@@ -45,7 +47,7 @@ export default function PlaylistShow() {
         setLikes(data.playlist.likes_count || 0);
         setIsLiked(Boolean(data.playlist.like_id));
         // Set the playlist in the audio store
-        setAudioPlaylist(data.playlist.tracks);
+        setAudioPlaylist(data.playlist.tracks.map((track) => track.id));
       }
     } catch (error) {
       console.error("Error fetching playlist:", error);
@@ -71,11 +73,81 @@ export default function PlaylistShow() {
   };
 
   const handleTrackPlay = (trackId) => {
-    if (currentTrackId === trackId && isPlaying) {
+    if (`${currentTrackId}` === `${trackId}` && isPlaying) {
       pause();
     } else {
       pause();
       play(trackId);
+    }
+  };
+
+  const handleTrackLike = async (track) => {
+    if (!currentUser) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to like tracks",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!track?.slug || likingTrackIds.includes(track.id)) return;
+
+    setLikingTrackIds((currentIds) => [...currentIds, track.id]);
+
+    try {
+      const response = await post(`/tracks/${track.slug}/likes`, {
+        responseKind: "json",
+      });
+
+      if (!response.ok) {
+        const error = await response.json;
+        throw new Error(error.message || error.error || "Error liking track");
+      }
+
+      const { liked, resource } = await response.json;
+
+      setPlaylist((currentPlaylist) => {
+        if (!currentPlaylist) return currentPlaylist;
+
+        return {
+          ...currentPlaylist,
+          tracks: currentPlaylist.tracks.map((currentTrack) =>
+            currentTrack.id === track.id
+              ? {
+                ...currentTrack,
+                like_id: liked,
+                liked_by_current_user: liked,
+                likes_count: resource.likes_count || 0,
+              }
+              : currentTrack
+          ),
+        };
+      });
+
+      if (`${currentTrackMeta?.id}` === `${track.id}`) {
+        useAudioStore.setState((state) => ({
+          currentTrackMeta: {
+            ...state.currentTrackMeta,
+            like_id: liked,
+            liked_by_current_user: liked,
+            likes_count: resource.likes_count || 0,
+          },
+        }));
+      }
+
+      toast({
+        title: "Success",
+        description: liked ? "Track liked!" : "Unliked track!",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error.message || "Error liking track",
+        variant: "destructive",
+      });
+    } finally {
+      setLikingTrackIds((currentIds) => currentIds.filter((id) => id !== track.id));
     }
   };
 
@@ -376,6 +448,8 @@ export default function PlaylistShow() {
               currentTrackId={currentTrackId}
               isPlaying={isPlaying}
               onPlay={() => handleTrackPlay(track.id)}
+              onLike={handleTrackLike}
+              liking={likingTrackIds.includes(track.id)}
             />
           ))}
         </div>

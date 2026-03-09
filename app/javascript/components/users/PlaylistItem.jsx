@@ -1,5 +1,5 @@
 import React from 'react'
-import { Play, Pause } from 'lucide-react'
+import { Heart, Play, Pause } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { cn } from "@/lib/utils"
 import { Link } from "react-router"
@@ -12,8 +12,17 @@ export function formatDuration(seconds) {
   return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`
 }
 
-export default function PlaylistListItem({ track, index, currentTrackId, isPlaying, onPlay }) {
-  const isCurrentTrack = currentTrackId === track.id
+export default function PlaylistListItem({
+  track,
+  index,
+  currentTrackId,
+  isPlaying,
+  onPlay,
+  onLike,
+  liking = false,
+}) {
+  const isCurrentTrack = `${currentTrackId}` === `${track.id}`
+  const isLiked = Boolean(track.like_id || track.liked_by_current_user)
 
   return (
     <motion.div
@@ -102,6 +111,25 @@ export default function PlaylistListItem({ track, index, currentTrackId, isPlayi
       </div>
 
       <div className="flex items-center gap-4 pl-4">
+        {onLike && (
+          <motion.button
+            type="button"
+            onClick={() => onLike(track)}
+            disabled={liking}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className={cn(
+              "inline-flex h-9 w-9 items-center justify-center rounded-full border transition-colors",
+              isLiked
+                ? "border-brand-500/20 bg-brand-500/10 text-brand-500"
+                : "border-white/10 text-muted-foreground hover:bg-white/10 hover:text-white",
+              liking && "cursor-wait opacity-70"
+            )}
+          >
+            <Heart className={cn("h-4 w-4", isLiked && "fill-current")} />
+          </motion.button>
+        )}
+
         {track.duration && (
           <motion.span
             className="text-muted-foreground group-hover:text-muted-foreground tabular-nums font-medium"

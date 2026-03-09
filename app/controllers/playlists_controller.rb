@@ -50,6 +50,18 @@ class PlaylistsController < ApplicationController
 
     @playlist ||= Playlist.published.friendly.find(params[:id])
     @track = @playlist.tracks.first
+    @liked_track_ids = if current_user.present?
+      Like
+        .where(
+          liker_type: "User",
+          liker_id: current_user.id,
+          likeable_type: "Track",
+          likeable_id: @playlist.tracks.select(:id)
+        )
+        .pluck(:likeable_id)
+    else
+      []
+    end
 
     render status: 404, plain: "This playlist is private or not found" and return unless @playlist
 
