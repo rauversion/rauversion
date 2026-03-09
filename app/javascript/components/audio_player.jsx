@@ -1,9 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import useAudioStore from '../stores/audioStore';
-import { get } from '@rails/request.js';
+import useAuthStore from '@/stores/authStore';
+import { get, post } from '@rails/request.js';
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
 import { Link } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast"
 import {
   Sheet,
   SheetContent,
@@ -13,6 +15,7 @@ import {
   SheetTrigger,
 } from "./ui/sheet"
 import {
+  Heart,
   List,
   Play,
   Pause,
@@ -69,61 +72,87 @@ const VolumeControl = ({ volume, isMuted, onVolumeChange, onToggleMute }) => (
   </div>
 );
 
-const TrackInfo = ({ playerData }) => (
-  <div className="flex items-center space-x-4">
-    <motion.div
-      initial={{ scale: 0.9, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      className="relative group"
-    >
-      {playerData?.track?.artwork_url ? (
-        <img
-          alt={`${playerData.track.title} Cover Art`}
-          className="w-14 h-14 rounded-xl object-cover shadow-lg group-hover:shadow-xl transition-all duration-300"
-          src={playerData.track.artwork_url}
-        />
-      ) : (
-        <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center">
-          <Music2 className="w-6 h-6 text-muted-foreground" />
-        </div>
-      )}
-      <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl" />
-    </motion.div>
+const TrackInfo = ({ playerData, onToggleLike, isLiking }) => {
+  const track = playerData?.track
+  const isLiked = Boolean(track?.like_id || track?.liked_by_current_user)
 
-    <div className="flex flex-col md:w-auto w-[100px]">
+  return (
+    <div className="flex items-center space-x-4">
       <motion.div
-        initial={{ y: 10, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        className="font-medium text-sm text-foreground group overflow-hidden"
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        className="relative group"
       >
-        <Link
-          to={playerData?.track?.url}
-          className="text-foreground hover:text-primary transition-colors whitespace-nowrap w-[200px] block overflow-hidden hover:overflow-visible"
-          style={{
-            animation: playerData?.track?.title?.length > 24 ? 'marquee 10s linear infinite' : 'none'
-          }}
-          data-turbo-frame="_top"
-        >
-          {playerData?.track?.title}
-        </Link>
+        {track?.artwork_url ? (
+          <img
+            alt={`${track.title} Cover Art`}
+            className="w-14 h-14 rounded-xl object-cover shadow-lg group-hover:shadow-xl transition-all duration-300"
+            src={track.artwork_url}
+          />
+        ) : (
+          <div className="w-14 h-14 rounded-xl bg-muted flex items-center justify-center">
+            <Music2 className="w-6 h-6 text-muted-foreground" />
+          </div>
+        )}
+        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl" />
       </motion.div>
-      <motion.div
-        initial={{ y: 10, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.1 }}
-        className="text-xs text-muted-foreground"
-      >
-        <Link
-          to={playerData?.track?.user_url}
-          className="hover:text-foreground transition-colors"
-          data-turbo-frame="_top"
-        >
-          {playerData?.track?.user_username}
-        </Link>
-      </motion.div>
+
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="flex flex-col md:w-auto w-[100px] min-w-0">
+          <motion.div
+            initial={{ y: 10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="font-medium text-sm text-foreground group overflow-hidden"
+          >
+            <Link
+              to={track?.url}
+              className="text-foreground hover:text-primary transition-colors whitespace-nowrap w-[200px] block overflow-hidden hover:overflow-visible"
+              style={{
+                animation: track?.title?.length > 24 ? 'marquee 10s linear infinite' : 'none'
+              }}
+              data-turbo-frame="_top"
+            >
+              {track?.title}
+            </Link>
+          </motion.div>
+          <motion.div
+            initial={{ y: 10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.1 }}
+            className="text-xs text-muted-foreground"
+          >
+            <Link
+              to={track?.user_url}
+              className="hover:text-foreground transition-colors"
+              data-turbo-frame="_top"
+            >
+              {track?.user_username}
+            </Link>
+          </motion.div>
+        </div>
+
+        {track?.id && (
+          <button
+            type="button"
+            onClick={onToggleLike}
+            disabled={isLiking}
+            aria-label={isLiked ? I18n.t("audio_player.unlike") : I18n.t("audio_player.like")}
+            title={isLiked ? I18n.t("audio_player.unlike") : I18n.t("audio_player.like")}
+            className={cn(
+              "shrink-0 inline-flex h-10 w-10 items-center justify-center rounded-full border transition-colors",
+              isLiked
+                ? "border-rose-500/30 bg-rose-500/10 text-rose-500"
+                : "border-border bg-background/60 text-muted-foreground hover:bg-accent hover:text-foreground",
+              isLiking && "cursor-wait opacity-70"
+            )}
+          >
+            <Heart className={cn("h-4 w-4", isLiked && "fill-current")} />
+          </button>
+        )}
+      </div>
     </div>
-  </div>
-);
+  )
+};
 
 const PlaybackControls = ({ onPrevious, onPlayPause, onNext, isPlaying }) => (
   <div className="flex items-center justify-center space-x-4 text-foreground">
@@ -152,12 +181,15 @@ const PlaybackControls = ({ onPrevious, onPlayPause, onNext, isPlaying }) => (
 );
 
 export default function AudioPlayer({ id }) {
+  const { currentUser } = useAuthStore()
+  const { toast } = useToast()
   const audioRef = useRef(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(window.store?.getState()?.volume || 1);
   const [isMuted, setIsMuted] = useState(false);
   const [hasHalfwayEventFired, setHasHalfwayEventFired] = useState(false);
+  const [isLiking, setIsLiking] = useState(false);
   const debounceTimeoutRef = useRef(null);
   const {
     currentTrackId,
@@ -169,6 +201,31 @@ export default function AudioPlayer({ id }) {
   } = useAudioStore();
   const [playerData, setPlayerData] = useState(null);
   const activeTrackId = currentTrackId ?? id;
+
+  const patchCurrentTrack = (patch) => {
+    setPlayerData((previousData) => {
+      if (!previousData?.track) return previousData
+
+      return {
+        ...previousData,
+        track: {
+          ...previousData.track,
+          ...patch,
+        },
+      }
+    })
+
+    useAudioStore.setState((state) => {
+      if (!state.currentTrackMeta) return state
+
+      return {
+        currentTrackMeta: {
+          ...state.currentTrackMeta,
+          ...patch,
+        },
+      }
+    })
+  }
 
   useEffect(() => {
     const fetchAndPlayTrack = async () => {
@@ -187,6 +244,7 @@ export default function AudioPlayer({ id }) {
           const data = await response.json;
           setPlayerData(data);
           setCurrentTrackMeta(data.track || null);
+          setIsLiking(false);
           useAudioStore.setState({ isPlaying: true });
         }
       } catch (error) {
@@ -196,6 +254,57 @@ export default function AudioPlayer({ id }) {
 
     fetchAndPlayTrack();
   }, [activeTrackId, setCurrentTrackMeta]);
+
+  const handleToggleLike = async () => {
+    const track = playerData?.track
+    if (!track?.id || !track?.slug) return
+
+    if (!currentUser) {
+      toast({
+        title: I18n.t("audio_player.auth_required_title"),
+        description: I18n.t("audio_player.auth_required_description"),
+        variant: "destructive"
+      })
+      return
+    }
+
+    if (isLiking) return
+
+    setIsLiking(true)
+
+    try {
+      const response = await post(`/tracks/${track.slug}/likes`, {
+        responseKind: "json"
+      })
+
+      if (!response.ok) {
+        const error = await response.json
+        throw new Error(error?.message || I18n.t("audio_player.like_error"))
+      }
+
+      const { liked, resource } = await response.json
+      patchCurrentTrack({
+        like_id: liked,
+        liked_by_current_user: liked,
+        likes_count: resource?.likes_count || 0,
+      })
+
+      toast({
+        title: I18n.t("audio_player.like_success_title"),
+        description: liked
+          ? I18n.t("audio_player.like_success_description")
+          : I18n.t("audio_player.unlike_success_description"),
+      })
+    } catch (error) {
+      toast({
+        title: I18n.t("audio_player.like_error_title"),
+        description: error.message || I18n.t("audio_player.like_error"),
+        variant: "destructive"
+      })
+    } finally {
+      setIsLiking(false)
+    }
+  }
 
   useEffect(() => {
     if (isPlaying) {
@@ -542,7 +651,11 @@ export default function AudioPlayer({ id }) {
     >
       {/* Mobile View */}
       <div className="flex sm:hidden items-center p-3 space-x-3">
-        <TrackInfo playerData={playerData} />
+        <TrackInfo
+          playerData={playerData}
+          onToggleLike={handleToggleLike}
+          isLiking={isLiking}
+        />
         <PlaybackControls
           onPrevious={handlePrevSong}
           onPlayPause={handlePlayPause}
@@ -555,7 +668,11 @@ export default function AudioPlayer({ id }) {
       <div className="hidden sm:block p-4">
         <div className="max-w-7xl mx-auto space-y-3">
           <div className="flex items-center justify-between">
-            <TrackInfo playerData={playerData} />
+            <TrackInfo
+              playerData={playerData}
+              onToggleLike={handleToggleLike}
+              isLiking={isLiking}
+            />
 
             <div className="flex-1 max-w-2xl mx-8">
               <PlaybackControls

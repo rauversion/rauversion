@@ -57,6 +57,16 @@ es:
   view_all: "Ver todo"
   view: Ver
   add_to_cart: "Agregar al carrito"
+  audio_player:
+    like: Marcar me gusta
+    unlike: Quitar me gusta
+    auth_required_title: Autenticación requerida
+    auth_required_description: Inicia sesión para marcar tracks con me gusta.
+    like_success_title: Actualizado
+    like_success_description: El track se agregó a tus me gusta.
+    unlike_success_description: El track se quitó de tus me gusta.
+    like_error_title: Error
+    like_error: No pudimos actualizar el me gusta.
   common:
     go_back: Go back
   menu:

@@ -61,6 +61,16 @@ en:
   view_all: See all
   view: See
   add_to_cart: Add to cart
+  audio_player:
+    like: Like track
+    unlike: Remove like
+    auth_required_title: Authentication required
+    auth_required_description: Please sign in to like tracks.
+    like_success_title: Updated
+    like_success_description: Track added to your likes.
+    unlike_success_description: Track removed from your likes.
+    like_error_title: Error
+    like_error: We couldn't update the like.
   menu:
     store: Store
     profile: Profile

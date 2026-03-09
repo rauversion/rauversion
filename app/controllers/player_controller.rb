@@ -6,12 +6,7 @@ class PlayerController < ApplicationController
   end
 
   def show
-    id = params[:id]
-    @track = Track
-      .friendly
-      .with_attached_cover
-      .includes(:artists, :playlists, user: { avatar_attachment: :blob })
-      .find(id)
+    @track = load_track_for_player
 
     render status: :ok and return if @track.blank? 
 
@@ -60,5 +55,24 @@ class PlayerController < ApplicationController
     Track.where("id < ?", id).order(id: :desc).first
       .with_attached_cover
       .includes(user: {avatar_attachment: :blob})
+  end
+
+  private
+
+  def load_track_for_player
+    base_track = Track
+      .friendly
+      .with_attached_cover
+      .includes(:artists, :playlists, user: { avatar_attachment: :blob })
+      .find(params[:id])
+
+    if current_user.present?
+      User.track_preloaded_by_user(
+        current_user_id: current_user.id,
+        user: base_track.user
+      ).find(base_track.id)
+    else
+      User.track_preloaded_by_user_n(user: base_track.user).find(base_track.id)
+    end
   end
 end

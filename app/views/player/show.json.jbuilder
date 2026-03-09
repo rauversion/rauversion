@@ -1,11 +1,15 @@
 json.track do
   json.id @track.id
+  json.slug @track.slug
   json.title @track.title
   json.url track_path(@track)
   json.audio_url @track.mp3_audio&.url if @track.mp3_audio.attached?
   json.artwork_url @track.cover_url(:small)
   json.artist_name @track.artists.any? ? @track.artists.map { |artist| artist.full_name.presence || artist.username }.join(", ") : (@track.artist.presence || @track.user.username)
   json.album_title @track.album_title.presence || @track.release_title.presence || @track.playlists.find { |playlist| %w[album ep single compilation].include?(playlist.playlist_type.to_s) }&.title || "Rauversion"
+  json.likes_count @track.respond_to?(:likes_count) ? @track.likes_count.to_i : @track.likes.count
+  json.like_id @track.respond_to?(:like_id) && @track.like_id.present?
+  json.liked_by_current_user @track.respond_to?(:like_id) && @track.like_id.present?
   json.artwork_urls do
     json.small @track.cover_url(:small)
     json.medium @track.cover_url(:medium)
