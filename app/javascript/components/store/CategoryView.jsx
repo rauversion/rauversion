@@ -135,11 +135,11 @@ const CategoryView = () => {
   if (!categoryConfig) return null
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex flex-col gap-8 sm:flex-row ">
+    <div className="@container/store-category container mx-auto px-4 py-8">
+      <div className="flex flex-col gap-8 @4xl/store-category:flex-row">
         {/* Sidebar for desktop */}
-        <div className="w-64 flex-shrink-0 hidden md:block">
-          <h2 className="text-2xl font-bold mb-6">{categoryConfig.title}</h2>
+        <div className="hidden w-64 flex-shrink-0 @4xl/store-category:block">
+          <h2 className="mb-6 text-2xl font-bold">{categoryConfig.title}</h2>
           <ScrollArea className="h-[calc(100vh-200px)]">
             <div className="pr-4 space-y-1">
               {categoryConfig.subcategories.map(subcategory => (
@@ -157,7 +157,7 @@ const CategoryView = () => {
         </div>
 
         {/* Mobile menu button */}
-        <div className="md:hidden flex flex-col w-full">
+        <div className="flex w-full flex-col @4xl/store-category:hidden">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-2xl font-bold">{categoryConfig.title}</h2>
             <Button
@@ -201,8 +201,8 @@ const CategoryView = () => {
         </div>
 
         {/* Main Content */}
-        <div className="flex-1">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 min-h-[300px]">
+        <div className="@container/store-category-content flex-1">
+          <div className="grid min-h-[300px] grid-cols-1 gap-6 @2xl/store-category-content:grid-cols-2 @5xl/store-category-content:grid-cols-3">
             {loading && products.length === 0 ? (
               Array(6).fill().map((_, i) => (
                 <LoadingSkeleton key={i} />
