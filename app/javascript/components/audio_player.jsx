@@ -1,11 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import useAudioStore from '../stores/audioStore';
-import useAuthStore from '@/stores/authStore';
-import { get, post } from '@rails/request.js';
+import { get } from '@rails/request.js';
 import { cn } from "@/lib/utils"
 import { motion } from "framer-motion"
 import { Link } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast"
 import {
   Heart,
   Play,
@@ -17,6 +15,7 @@ import {
   Music2
 } from "lucide-react"
 import PlayerQueueSheet from "./player_queue_sheet"
+import useTrackLikeAction from "@/hooks/useTrackLikeAction"
 
 const ProgressBar = ({ progress, duration, currentTime, onSeek, formatTime }) => (
   <div className="flex items-center w-full max-w-2xl mx-auto">
@@ -76,7 +75,7 @@ const TrackInfo = ({ playerData, onToggleLike, isLiking }) => {
       >
         {track?.artwork_url ? (
           <img
-            alt={`${track.title} Cover Art`}
+            alt={I18n.t("audio_player.cover_art_alt", { title: track.title })}
             className="w-14 h-14 rounded-xl object-cover shadow-lg group-hover:shadow-xl transition-all duration-300"
             src={track.artwork_url}
           />
@@ -172,16 +171,14 @@ const PlaybackControls = ({ onPrevious, onPlayPause, onNext, isPlaying }) => (
 );
 
 export default function AudioPlayer({ id }) {
-  const { currentUser } = useAuthStore()
-  const { toast } = useToast()
   const audioRef = useRef(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(window.store?.getState()?.volume || 1);
   const [isMuted, setIsMuted] = useState(false);
   const [hasHalfwayEventFired, setHasHalfwayEventFired] = useState(false);
-  const [isLiking, setIsLiking] = useState(false);
   const debounceTimeoutRef = useRef(null);
+  const { isPending: isLiking, toggleLike } = useTrackLikeAction()
   const {
     currentTrackId,
     currentTrackMeta,
@@ -235,7 +232,6 @@ export default function AudioPlayer({ id }) {
           const data = await response.json;
           setPlayerData(data);
           setCurrentTrackMeta(data.track || null);
-          setIsLiking(false);
           useAudioStore.setState({ isPlaying: true });
         }
       } catch (error) {
@@ -247,54 +243,10 @@ export default function AudioPlayer({ id }) {
   }, [activeTrackId, setCurrentTrackMeta]);
 
   const handleToggleLike = async () => {
-    const track = playerData?.track
-    if (!track?.id || !track?.slug) return
-
-    if (!currentUser) {
-      toast({
-        title: I18n.t("audio_player.auth_required_title"),
-        description: I18n.t("audio_player.auth_required_description"),
-        variant: "destructive"
-      })
-      return
-    }
-
-    if (isLiking) return
-
-    setIsLiking(true)
-
-    try {
-      const response = await post(`/tracks/${track.slug}/likes`, {
-        responseKind: "json"
-      })
-
-      if (!response.ok) {
-        const error = await response.json
-        throw new Error(error?.message || I18n.t("audio_player.like_error"))
-      }
-
-      const { liked, resource } = await response.json
-      patchCurrentTrack({
-        like_id: liked,
-        liked_by_current_user: liked,
-        likes_count: resource?.likes_count || 0,
-      })
-
-      toast({
-        title: I18n.t("audio_player.like_success_title"),
-        description: liked
-          ? I18n.t("audio_player.like_success_description")
-          : I18n.t("audio_player.unlike_success_description"),
-      })
-    } catch (error) {
-      toast({
-        title: I18n.t("audio_player.like_error_title"),
-        description: error.message || I18n.t("audio_player.like_error"),
-        variant: "destructive"
-      })
-    } finally {
-      setIsLiking(false)
-    }
+    await toggleLike({
+      track: playerData?.track,
+      onPatch: patchCurrentTrack,
+    })
   }
 
   useEffect(() => {

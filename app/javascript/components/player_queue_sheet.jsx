@@ -13,6 +13,10 @@ import {
 } from "@/components/ui/sheet"
 import { cn } from "@/lib/utils"
 
+function t(key, options = {}) {
+  return I18n.t(`player_queue.${key}`, options)
+}
+
 export default function PlayerQueueSheet({
   triggerClassName,
   contentClassName,
@@ -25,8 +29,8 @@ export default function PlayerQueueSheet({
       <SheetTrigger asChild>
         <button
           type="button"
-          aria-label="Abrir fila de reproducción"
-          title="Abrir fila de reproducción"
+          aria-label={t("open")}
+          title={t("open")}
           className={cn("rounded-full p-2 hover:bg-accent", triggerClassName)}
         >
           <List size={20} />
@@ -41,8 +45,8 @@ export default function PlayerQueueSheet({
         )}
       >
         <SheetHeader>
-          <SheetTitle>Queue</SheetTitle>
-          <SheetDescription>Your current playlist queue</SheetDescription>
+          <SheetTitle>{t("title")}</SheetTitle>
+          <SheetDescription>{t("description")}</SheetDescription>
         </SheetHeader>
 
         <div className="h-[calc(100vh-120px)]">

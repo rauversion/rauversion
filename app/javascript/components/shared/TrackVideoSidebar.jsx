@@ -19,10 +19,19 @@ import usePlayerQueueSheetStore from "@/stores/playerQueueSheetStore"
 import useTrackVideoSidebarStore from "@/stores/trackVideoSidebarStore"
 import { Button } from "@/components/ui/button"
 import usePlayerQueueTracks from "@/hooks/usePlayerQueueTracks"
+import useTrackLikeAction from "@/hooks/useTrackLikeAction"
 import { useToast } from "@/hooks/use-toast"
 import { ShareDialog } from "@/components/ui/share-dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
+
+function t(key, options = {}) {
+  return I18n.t(`track_video_sidebar.${key}`, options)
+}
+
+function currentLocale() {
+  return I18n.locale?.startsWith("es") ? "es-CL" : "en-US"
+}
 
 function normalizeArtist(data) {
   if (!data?.user) return null
@@ -37,7 +46,7 @@ function normalizeArtist(data) {
 }
 
 function formatCompactCount(value) {
-  return new Intl.NumberFormat("es-CL", {
+  return new Intl.NumberFormat(currentLocale(), {
     notation: "compact",
     maximumFractionDigits: 1,
   }).format(Number(value) || 0)
@@ -59,11 +68,11 @@ export default function TrackVideoSidebar({
   const toggleExpanded = useTrackVideoSidebarStore((state) => state.toggleExpanded)
   const openPlayerQueue = usePlayerQueueSheetStore((state) => state.open)
   const { loading: queueLoading, nextTrack } = usePlayerQueueTracks()
+  const { isPending: isLikePending, toggleLike } = useTrackLikeAction()
   const sourceTrack = providedTrack || currentTrackMeta
   const videoRef = useRef(null)
   const [artistProfile, setArtistProfile] = useState(null)
   const [trackState, setTrackState] = useState(sourceTrack)
-  const [isLikePending, setIsLikePending] = useState(false)
   const [isFollowPending, setIsFollowPending] = useState(false)
 
   useEffect(() => {
@@ -149,7 +158,7 @@ export default function TrackVideoSidebar({
     return null
   }
 
-  const sidebarLabel = track.has_video ? "Video del track" : "Reproduciendo ahora"
+  const sidebarLabel = track.has_video ? t("video_label") : t("now_playing_label")
   const artistAvatar =
     artistProfile?.avatar_url?.medium ||
     track?.user?.avatar_url?.medium ||
@@ -178,6 +187,16 @@ export default function TrackVideoSidebar({
     nextTrack?.user?.name ||
     nextTrack?.user?.username ||
     null
+  const statusLabel = isCurrentTrackPlaying ? t("status_playing") : t("status_queued")
+  const followLabel = isFollowing ? t("following") : t("follow")
+  const likeLabel = I18n.t(isLiked ? "audio_player.unlike" : "audio_player.like")
+  const shareDescription = t("share_description", {
+    title: track.title,
+    artist: artistName,
+  })
+  const likesBadgeLabel = t("likes_badge", {
+    count: formatCompactCount(track.likes_count),
+  })
 
   const patchTrack = (patch) => {
     setTrackState((previousTrack) => (
@@ -200,56 +219,24 @@ export default function TrackVideoSidebar({
 
   const requireAuth = (description) => {
     toast({
-      title: "Autenticación requerida",
+      title: I18n.t("audio_player.auth_required_title"),
       description,
       variant: "destructive",
     })
   }
 
   const handleToggleLike = async () => {
-    if (!track?.slug) return
-
-    if (!currentUser) {
-      requireAuth("Inicia sesión para dar me gusta")
-      return
-    }
-
-    if (isLikePending) return
-
-    setIsLikePending(true)
-
-    try {
-      const response = await post(`/tracks/${track.slug}/likes`, {
-        responseKind: "json",
-      })
-
-      if (!response.ok) {
-        throw new Error("Unable to update like")
-      }
-
-      const { liked, resource } = await response.json
-
-      patchTrack({
-        like_id: liked ? true : null,
-        liked_by_current_user: liked,
-        likes_count: resource?.likes_count || 0,
-      })
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "No se pudo actualizar el like",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLikePending(false)
-    }
+    await toggleLike({
+      track,
+      onPatch: patchTrack,
+    })
   }
 
   const handleToggleFollow = async () => {
     if (!artistUsername) return
 
     if (!currentUser) {
-      requireAuth("Inicia sesión para seguir artistas")
+      requireAuth(t("auth_follow_required_description"))
       return
     }
 
@@ -294,8 +281,8 @@ export default function TrackVideoSidebar({
       ))
     } catch (error) {
       toast({
-        title: "Error",
-        description: "No se pudo actualizar el follow",
+        title: t("error_title"),
+        description: t("follow_error"),
         variant: "destructive",
       })
     } finally {
@@ -318,8 +305,8 @@ export default function TrackVideoSidebar({
           size="icon"
           onClick={handleToggleLike}
           disabled={isLikePending}
-          aria-label={isLiked ? "Quitar me gusta" : "Dar me gusta"}
-          title={isLiked ? "Quitar me gusta" : "Dar me gusta"}
+          aria-label={likeLabel}
+          title={likeLabel}
           className={cn(
             buttonClassName,
             isLiked && (overlay ? "text-rose-300" : "text-rose-500")
@@ -335,14 +322,14 @@ export default function TrackVideoSidebar({
         <ShareDialog
           url={shareUrl}
           title={track.title}
-          description={`Listen to ${track.title} by ${artistName} on Rauversion`}
+          description={shareDescription}
         >
           <Button
             type="button"
             variant="ghost"
             size="icon"
-            aria-label="Compartir track"
-            title="Compartir track"
+            aria-label={t("share_track")}
+            title={t("share_track")}
             className={buttonClassName}
           >
             <Share2 className="h-4 w-4" />
@@ -354,8 +341,8 @@ export default function TrackVideoSidebar({
           variant="ghost"
           size="icon"
           onClick={toggleExpanded}
-          aria-label={isExpanded ? "Contraer panel" : "Expandir panel"}
-          title={isExpanded ? "Contraer panel" : "Expandir panel"}
+          aria-label={isExpanded ? t("collapse_panel") : t("expand_panel")}
+          title={isExpanded ? t("collapse_panel") : t("expand_panel")}
           className={buttonClassName}
         >
           {isExpanded ? (
@@ -370,7 +357,8 @@ export default function TrackVideoSidebar({
           variant="ghost"
           size="icon"
           onClick={close}
-          aria-label="Ocultar panel del track"
+          aria-label={t("hide_panel")}
+          title={t("hide_panel")}
           className={buttonClassName}
         >
           <PanelRightClose className="h-4 w-4" />
@@ -427,7 +415,7 @@ export default function TrackVideoSidebar({
                   : "bg-muted text-muted-foreground"
               )}
             >
-              {isCurrentTrackPlaying ? "Reproduciendo" : "En espera"}
+              {statusLabel}
             </span>
 
             {track.album_title && (
@@ -439,7 +427,7 @@ export default function TrackVideoSidebar({
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <span className="inline-flex rounded-full border border-border/60 bg-muted/50 px-3 py-1.5 text-xs font-medium text-muted-foreground">
-              {formatCompactCount(track.likes_count)} me gusta
+              {likesBadgeLabel}
             </span>
 
             {track.album_title && (
@@ -464,7 +452,7 @@ export default function TrackVideoSidebar({
                 ) : (
                   <UserPlus className="mr-2 h-4 w-4" />
                 )}
-                {isFollowing ? "Siguiendo" : "Seguir"}
+                {followLabel}
               </Button>
             )}
           </div>
@@ -509,11 +497,11 @@ export default function TrackVideoSidebar({
                                     : "border-white/15 bg-black/30 text-white/75"
                                 )}
                               >
-                                {isCurrentTrackPlaying ? "Reproduciendo" : "En espera"}
+                                {statusLabel}
                               </span>
 
                               <span className="inline-flex rounded-full border border-white/15 bg-black/30 px-3 py-1 text-xs font-medium text-white/75 backdrop-blur-sm">
-                                {formatCompactCount(track.likes_count)} me gusta
+                                {likesBadgeLabel}
                               </span>
 
                               {track.album_title && (
@@ -538,7 +526,7 @@ export default function TrackVideoSidebar({
                                   ) : (
                                     <UserPlus className="mr-2 h-4 w-4" />
                                   )}
-                                  {isFollowing ? "Siguiendo" : "Seguir"}
+                                  {followLabel}
                                 </Button>
                               )}
                             </div>
@@ -581,11 +569,11 @@ export default function TrackVideoSidebar({
                                     : "border-white/15 bg-black/30 text-white/75"
                                 )}
                               >
-                                {isCurrentTrackPlaying ? "Reproduciendo" : "En espera"}
+                                {statusLabel}
                               </span>
 
                               <span className="inline-flex rounded-full border border-white/15 bg-black/30 px-3 py-1 text-xs font-medium text-white/75 backdrop-blur-sm">
-                                {formatCompactCount(track.likes_count)} me gusta
+                                {likesBadgeLabel}
                               </span>
 
                               {track.album_title && (
@@ -610,7 +598,7 @@ export default function TrackVideoSidebar({
                                   ) : (
                                     <UserPlus className="mr-2 h-4 w-4" />
                                   )}
-                                  {isFollowing ? "Siguiendo" : "Seguir"}
+                                  {followLabel}
                                 </Button>
                               )}
                             </div>
@@ -659,7 +647,7 @@ export default function TrackVideoSidebar({
 
                 <div className="mt-4 flex flex-wrap items-center gap-2 text-xs text-white/65">
                   <span className="rounded-full bg-white/10 px-2.5 py-1">
-                    {formatCompactCount(track.likes_count)} me gusta
+                    {likesBadgeLabel}
                   </span>
                   {track.album_title && (
                     <span className="rounded-full bg-white/10 px-2.5 py-1">
@@ -667,7 +655,7 @@ export default function TrackVideoSidebar({
                     </span>
                   )}
                   <span className="rounded-full bg-white/10 px-2.5 py-1">
-                    {track.has_video ? "Video" : "Audio"}
+                    {track.has_video ? t("media_type_video") : t("media_type_audio")}
                   </span>
                 </div>
                 </div>
@@ -677,7 +665,7 @@ export default function TrackVideoSidebar({
             <div className="space-y-4">
               <section className="rounded-[24px] border border-border/60 bg-background/60 p-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                  Artista
+                  {t("artist")}
                 </p>
 
                 <div className="mt-4 flex items-center gap-3">
@@ -724,7 +712,7 @@ export default function TrackVideoSidebar({
                             {artistProfile.stats.followers_count || 0}
                           </p>
                           <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                            Seguidores
+                            {t("followers")}
                           </p>
                         </div>
 
@@ -733,7 +721,7 @@ export default function TrackVideoSidebar({
                             {artistProfile.stats.following_count || 0}
                           </p>
                           <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                            Siguiendo
+                            {t("following_count")}
                           </p>
                         </div>
 
@@ -742,7 +730,7 @@ export default function TrackVideoSidebar({
                             {artistProfile.stats.tracks_count || 0}
                           </p>
                           <p className="text-[11px] uppercase tracking-[0.18em] text-muted-foreground">
-                            Tracks
+                            {t("tracks_count")}
                           </p>
                         </div>
                       </div>
@@ -759,33 +747,33 @@ export default function TrackVideoSidebar({
 
               <section className="rounded-[24px] border border-border/60 bg-background/60 p-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-                  Detalle del track
+                  {t("track_details")}
                 </p>
 
                 <div className="mt-4 space-y-3">
                   <div className="flex items-center justify-between gap-3 rounded-2xl bg-muted/60 px-4 py-3">
-                    <span className="text-sm text-muted-foreground">Título</span>
+                    <span className="text-sm text-muted-foreground">{t("title_label")}</span>
                     <span className="max-w-[60%] truncate text-right text-sm font-medium text-foreground">
                       {track.title}
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between gap-3 rounded-2xl bg-muted/60 px-4 py-3">
-                    <span className="text-sm text-muted-foreground">Álbum</span>
+                    <span className="text-sm text-muted-foreground">{t("album_label")}</span>
                     <span className="max-w-[60%] truncate text-right text-sm font-medium text-foreground">
-                      {track.album_title || "Single"}
+                      {track.album_title || t("single_fallback")}
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between gap-3 rounded-2xl bg-muted/60 px-4 py-3">
-                    <span className="text-sm text-muted-foreground">Formato</span>
+                    <span className="text-sm text-muted-foreground">{t("format_label")}</span>
                     <span className="text-sm font-medium text-foreground">
-                      {track.has_video ? "Video + audio" : "Audio"}
+                      {track.has_video ? t("format_video_audio") : t("format_audio_only")}
                     </span>
                   </div>
 
                   <div className="flex items-center justify-between gap-3 rounded-2xl bg-muted/60 px-4 py-3">
-                    <span className="text-sm text-muted-foreground">Likes</span>
+                    <span className="text-sm text-muted-foreground">{t("likes_label")}</span>
                     <span className="text-sm font-medium text-foreground">
                       {track.likes_count || 0}
                     </span>
@@ -797,7 +785,7 @@ export default function TrackVideoSidebar({
             <section className="rounded-[24px] border border-border/60 bg-background/60 p-4">
               <div className="flex items-center justify-between gap-4">
                 <p className="text-base font-semibold text-foreground">
-                  Siguiente en la fila...
+                  {t("next_in_queue")}
                 </p>
 
                 <Button
@@ -807,14 +795,14 @@ export default function TrackVideoSidebar({
                   onClick={openPlayerQueue}
                   className="h-auto p-0 text-sm font-semibold text-muted-foreground hover:bg-transparent hover:text-foreground"
                 >
-                  Abrir la fila de reproducción
+                  {t("open_queue")}
                 </Button>
               </div>
 
               <div className="mt-4">
                 {queueLoading ? (
                   <p className="text-sm text-muted-foreground">
-                    Cargando fila...
+                    {t("loading_queue")}
                   </p>
                 ) : nextTrack ? (
                   <div className="flex items-center gap-3 rounded-2xl bg-muted/60 p-3">
@@ -843,7 +831,7 @@ export default function TrackVideoSidebar({
                   </div>
                 ) : (
                   <p className="text-sm text-muted-foreground">
-                    No hay más canciones en la fila.
+                    {t("empty_queue")}
                   </p>
                 )}
               </div>
