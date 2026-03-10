@@ -1,5 +1,4 @@
 class TurnController < ApplicationController
-
   before_action :authenticate_user!
   before_action :guard_artist
 
@@ -9,31 +8,24 @@ class TurnController < ApplicationController
 
   # POST /turn/generate_video
   def generate_video
-    # Handle file uploads
     cover_image_file = params[:cover_image]
     audio_file = params[:audio_file]
-    # mask_image_file = params[:mask_image]
+    return render_missing_files_error if cover_image_file.blank? || audio_file.blank?
 
-    # Save uploaded files to temp files
-    cover_image_path = cover_image_file ? save_uploaded_file(cover_image_file, "cover_image") : nil
-    audio_file_path = audio_file ? save_uploaded_file(audio_file, "audio_file") : nil
-    # mask_image_path = mask_image_file ? save_uploaded_file(mask_image_file, "mask_image") : nil
+    cover_image_blob = upload_source_blob!(cover_image_file)
+    audio_file_blob = upload_source_blob!(audio_file)
 
-    # Extract other options
     duration = params[:duration] || 5
     loop_speed = params[:loop_speed] || 1
     audio_start = params[:audio_start]
     audio_end = params[:audio_end]
     bg_color = params[:bg_color] || "red"
-    format = params[:format] || "mp4"
     disc_size = params[:disc_size]
-    output_file = Rails.root.join("public", "output.mp4").to_s
 
-    # Enqueue background job for video generation
     GenerateVideoJob.perform_later(
       user_id: current_user.id,
-      cover_image_path: cover_image_path,
-      audio_file_path: audio_file_path,
+      cover_image_blob_id: cover_image_blob.id,
+      audio_file_blob_id: audio_file_blob.id,
       options: {
         audio_start: audio_start,
         audio_end: audio_end,
@@ -44,18 +36,28 @@ class TurnController < ApplicationController
       }
     )
 
-    # Respond immediately
     render json: { success: true, message: "Video generation started. You will receive an email with the download link when it's ready." }
   rescue => e
+    cover_image_blob&.purge
+    audio_file_blob&.purge
     render json: { success: false, error: e.message }, status: 422
   end
 
   private
 
-  def save_uploaded_file(uploaded_file, prefix)
-    ext = File.extname(uploaded_file.original_filename)
-    path = Rails.root.join("tmp", "#{prefix}_#{SecureRandom.hex(8)}#{ext}")
-    File.open(path, "wb") { |f| f.write(uploaded_file.read) }
-    path.to_s
+  def render_missing_files_error
+    render json: { success: false, error: "cover_image and audio_file are required" }, status: :unprocessable_entity
+  end
+
+  def upload_source_blob!(uploaded_file)
+    raise ArgumentError, "Uploaded file is invalid" unless uploaded_file.respond_to?(:tempfile)
+
+    uploaded_file.tempfile.rewind
+
+    ActiveStorage::Blob.create_and_upload!(
+      io: uploaded_file.tempfile,
+      filename: uploaded_file.original_filename,
+      content_type: uploaded_file.content_type
+    )
   end
 end
