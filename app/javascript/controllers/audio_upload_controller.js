@@ -10,10 +10,10 @@ export default class extends Controller {
   }
 
   uploadFile() {
-    this.totalUploads = this.inputTarget.files.length;  // Set the total number of files to be uploaded
+    const selectedFiles = Array.from(this.inputTarget.files)
     this.maxSizeValue = 200 * 1024 * 1024  // 200 MB in bytes
 
-    if(this.totalUploads > 5){
+    if(selectedFiles.length > 5){
       alert(`You can only select ${5} files.`);
       return
     }
@@ -24,7 +24,7 @@ export default class extends Controller {
 
     this.validFiles = []
 
-    Array.from(this.inputTarget.files).forEach((file, index) => {
+    selectedFiles.forEach((file, index) => {
 
       // Check the file count
       if (index >= this.limitValue) {
@@ -32,9 +32,9 @@ export default class extends Controller {
         return;
       }
 
-      // Check the file format
-      if (!file.type.startsWith("audio/")) {
-        errors.push(`File ${file.name} is not an audio file.`);
+      // Accept direct audio uploads and videos that will be processed server-side.
+      if (!file.type.startsWith("audio/") && !file.type.startsWith("video/")) {
+        errors.push(`File ${file.name} is not an audio or video file.`);
         return;
       }
 
@@ -49,6 +49,12 @@ export default class extends Controller {
 
     if(errors.length > 0) {
       alert(JSON.stringify(errors))
+    }
+
+    this.totalUploads = this.validFiles.length;
+
+    if (this.totalUploads === 0) {
+      return;
     }
 
     // hide submit button

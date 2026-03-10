@@ -72,4 +72,51 @@ RSpec.describe "Tracks", type: :request do
       )
     end
   end
+
+  describe "GET /tracks/:id.json" do
+    let(:artist) { create(:user, confirmed_at: Time.current) }
+    let(:track) { create(:track, user: artist) }
+
+    before do
+      attach_image(artist, :avatar)
+      attach_image(track, :cover)
+
+      track.video.attach(
+        io: StringIO.new("fake-video"),
+        filename: "clip.mp4",
+        content_type: "video/mp4"
+      )
+      track.audio.attach(
+        io: StringIO.new("fake-wav"),
+        filename: "clip.wav",
+        content_type: "audio/wav"
+      )
+      track.mp3_audio.attach(
+        io: StringIO.new("fake-mp3"),
+        filename: "clip.mp3",
+        content_type: "audio/mpeg"
+      )
+    end
+
+    it "includes video and playback assets for video tracks" do
+      get track_path(track, format: :json)
+
+      expect(response).to have_http_status(:ok)
+      payload = JSON.parse(response.body).fetch("track")
+
+      expect(payload["has_video"]).to eq(true)
+      expect(payload["video_url"]).to be_present
+      expect(payload["audio_url"]).to be_present
+      expect(payload["mp3_url"]).to be_present
+      expect(payload["playback_url"]).to eq(payload["mp3_url"])
+    end
+
+    def attach_image(record, attachment_name)
+      record.public_send(attachment_name).attach(
+        io: File.open(Rails.root.join("spec/fixtures/files/sample.jpg")),
+        filename: "sample.jpg",
+        content_type: "image/jpeg"
+      )
+    end
+  end
 end

@@ -46,12 +46,23 @@ json.track do
 
   if @track.audio.attached?
     json.audio_url Rails.application.routes.url_helpers.rails_storage_proxy_url(@track.audio)
-    json.duration @track.audio.metadata["duration"] if @track.audio.metadata
   end
 
   if @track.mp3_audio.attached?
     json.mp3_url Rails.application.routes.url_helpers.rails_storage_proxy_url(@track.mp3_audio)
   end
+
+  if @track.video.attached?
+    json.video_url Rails.application.routes.url_helpers.rails_storage_proxy_url(@track.video)
+  end
+
+  playback_media = @track.playback_media
+  if playback_media&.attached?
+    json.playback_url Rails.application.routes.url_helpers.rails_storage_proxy_url(playback_media)
+  end
+
+  json.has_video @track.has_video?
+  json.duration @track.duration if @track.duration.present?
 
   if @track.track_peak
     json.peaks @track.track_peak.data

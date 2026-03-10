@@ -23,6 +23,7 @@ import {
   List,
   Loader2,
   PanelLeft,
+  PanelRightOpen,
   Pause,
   Play,
   Plus,
@@ -32,10 +33,12 @@ import {
 
 import useAuthStore from "@/stores/authStore"
 import useAudioStore from "@/stores/audioStore"
+import useTrackVideoSidebarStore from "@/stores/trackVideoSidebarStore"
 import { useToast } from "@/hooks/use-toast"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import TrackVideoSidebar from "@/components/shared/TrackVideoSidebar"
 import {
   Dialog,
   DialogContent,
@@ -78,34 +81,38 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"
 
+function t(key, options = {}) {
+  return I18n.t(`music_library_layout.${key}`, options)
+}
+
 const FILTERS = [
-  { id: "all", label: "Todo", icon: LibraryBig },
-  { id: "playlists", label: "Playlists", icon: Disc3 },
-  { id: "albums", label: "Álbumes", icon: Album },
-  { id: "artists", label: "Artistas", icon: UserRound },
-  { id: "likes", label: "Me gusta", icon: Heart },
+  { id: "all", labelKey: "filters.all", icon: LibraryBig },
+  { id: "playlists", labelKey: "filters.playlists", icon: Disc3 },
+  { id: "albums", labelKey: "filters.albums", icon: Album },
+  { id: "artists", labelKey: "filters.artists", icon: UserRound },
+  { id: "likes", labelKey: "filters.likes", icon: Heart },
 ]
 
 const PLAYLIST_TYPES = [
-  { value: "playlist", label: "Playlist" },
-  { value: "album", label: "Álbum" },
-  { value: "ep", label: "EP" },
-  { value: "single", label: "Single" },
-  { value: "compilation", label: "Compilación" },
+  { value: "playlist", labelKey: "playlist_types.playlist" },
+  { value: "album", labelKey: "playlist_types.album" },
+  { value: "ep", labelKey: "playlist_types.ep" },
+  { value: "single", labelKey: "playlist_types.single" },
+  { value: "compilation", labelKey: "playlist_types.compilation" },
 ]
 
 const SORT_OPTIONS = [
-  { id: "recent", label: "Recientes" },
-  { id: "recently_added", label: "Agregados recientemente" },
-  { id: "alphabetical", label: "Alfabéticamente" },
-  { id: "creator", label: "Creador" },
+  { id: "recent", labelKey: "sort_options.recent" },
+  { id: "recently_added", labelKey: "sort_options.recently_added" },
+  { id: "alphabetical", labelKey: "sort_options.alphabetical" },
+  { id: "creator", labelKey: "sort_options.creator" },
 ]
 
 const VIEW_MODES = [
-  { id: "list", label: "Lista", icon: List },
-  { id: "compact-list", label: "Compacta", icon: AlignJustify },
-  { id: "grid", label: "Grilla", icon: Grid2x2 },
-  { id: "compact-grid", label: "Mosaico", icon: LayoutGrid },
+  { id: "list", labelKey: "view_modes.list", icon: List },
+  { id: "compact-list", labelKey: "view_modes.compact_list", icon: AlignJustify },
+  { id: "grid", labelKey: "view_modes.grid", icon: Grid2x2 },
+  { id: "compact-grid", labelKey: "view_modes.compact_grid", icon: LayoutGrid },
 ]
 
 const RAIL_BREAKPOINT = 150
@@ -113,28 +120,141 @@ const SIDEBAR_FIXED_TOP = 16
 const SIDEBAR_RESERVED_SPACE = 204
 const SIDEBAR_HEIGHT_CLASS = "h-[calc(100svh-4rem-6.75rem-2rem)]"
 const SIDEBAR_MIN_HEIGHT_CLASS = "min-h-[calc(100svh-4rem-6.75rem-2rem)]"
+const DEFAULT_VIDEO_PANEL_SIZE = 29
+const MAX_MANUAL_VIDEO_PANEL_SIZE = 29
+
+function defaultDockState() {
+  return {
+    height: 0,
+    mode: "static",
+    offset: 0,
+    width: 0,
+  }
+}
+
+function useSidebarDock({ enabled, side, slotRef }) {
+  const [dock, setDock] = useState(defaultDockState)
+
+  const syncDock = useCallback(() => {
+    if (!enabled) return
+
+    const element = slotRef.current
+    if (!element) return
+
+    const rect = element.getBoundingClientRect()
+    const scrollTop = window.scrollY || window.pageYOffset || 0
+    const slotTop = rect.top + scrollTop
+    const slotHeight = element.offsetHeight
+    const height = Math.max(window.innerHeight - SIDEBAR_RESERVED_SPACE, 320)
+    const maxFixedScroll = slotTop + slotHeight - height - SIDEBAR_FIXED_TOP
+
+    let mode = "static"
+
+    if (scrollTop >= slotTop - SIDEBAR_FIXED_TOP) {
+      mode = maxFixedScroll > slotTop ? (scrollTop >= maxFixedScroll ? "bottom" : "fixed") : "fixed"
+    }
+
+    const nextDock = {
+      height,
+      mode,
+      offset: side === "left" ? Math.round(rect.left) : Math.round(window.innerWidth - rect.right),
+      width: Math.round(rect.width),
+    }
+
+    setDock((currentDock) => (
+      currentDock.height === nextDock.height &&
+      currentDock.mode === nextDock.mode &&
+      currentDock.offset === nextDock.offset &&
+      currentDock.width === nextDock.width
+    ) ? currentDock : nextDock)
+  }, [enabled, side, slotRef])
+
+  useEffect(() => {
+    if (!enabled) {
+      setDock(defaultDockState())
+      return undefined
+    }
+
+    const element = slotRef.current
+    if (!element) return undefined
+
+    let frameId = null
+    const runSync = () => {
+      if (frameId !== null) {
+        cancelAnimationFrame(frameId)
+      }
+
+      frameId = requestAnimationFrame(() => {
+        syncDock()
+      })
+    }
+
+    const resizeObserver = new ResizeObserver(runSync)
+    resizeObserver.observe(element)
+
+    runSync()
+    window.addEventListener("resize", runSync)
+    window.addEventListener("scroll", runSync, { passive: true })
+
+    return () => {
+      if (frameId !== null) {
+        cancelAnimationFrame(frameId)
+      }
+
+      resizeObserver.disconnect()
+      window.removeEventListener("resize", runSync)
+      window.removeEventListener("scroll", runSync)
+    }
+  }, [enabled, slotRef, syncDock])
+
+  const dockClassName = cn(
+    SIDEBAR_HEIGHT_CLASS,
+    dock.mode === "fixed" && "fixed top-4 z-30",
+    dock.mode === "bottom" && cn("absolute bottom-0 w-full", side === "left" ? "left-0" : "right-0"),
+    dock.mode === "static" && "relative"
+  )
+
+  const dockStyle = dock.mode === "fixed"
+    ? {
+      height: `${dock.height}px`,
+      width: `${dock.width}px`,
+      [side]: `${dock.offset}px`,
+    }
+    : {
+      height: `${Math.max(dock.height, 320)}px`,
+    }
+
+  return { dock, dockClassName, dockStyle }
+}
 
 function formatItemMeta(item) {
   switch (item.entity_type) {
     case "playlist":
-      return `Playlist · ${item.track_count || 0} tracks`
+      return t("item_meta.playlist", { count: item.track_count || 0 })
     case "album":
-      return `${(item.playlist_type || "album").toUpperCase()} · ${item.track_count || 0} tracks`
+      return t("item_meta.album", {
+        type: t(`playlist_types.${item.playlist_type || "album"}`),
+        count: item.track_count || 0,
+      })
     case "artist":
-      return item.subtitle ? `Artista · ${item.subtitle}` : "Artista"
+      return item.subtitle
+        ? t("item_meta.artist_with_subtitle", { subtitle: item.subtitle })
+        : t("item_meta.artist")
     case "likes":
-      return `${item.track_count || 0} tracks guardados`
+      return t("item_meta.likes", { count: item.track_count || 0 })
     default:
       return item.subtitle || ""
   }
 }
 
 function getSortLabel(sortMode) {
-  return SORT_OPTIONS.find((option) => option.id === sortMode)?.label || "Recientes"
+  const option = SORT_OPTIONS.find((entry) => entry.id === sortMode)
+  return option ? t(option.labelKey) : t("sort_options.recent")
 }
 
 function getFilterLabel(filter) {
-  return FILTERS.find((option) => option.id === filter)?.label || "Todo"
+  const option = FILTERS.find((entry) => entry.id === filter)
+  return option ? t(option.labelKey) : t("filters.all")
 }
 
 function itemIsActive(item, currentTrackId) {
@@ -214,12 +334,12 @@ function CreatePlaylistDialog({ open, onOpenChange, onCreated }) {
       })
 
       if (!response.ok) {
-        throw new Error("No se pudo crear la playlist")
+        throw new Error(t("create_playlist.error_description"))
       }
 
       toast({
-        title: "Playlist creada",
-        description: "La biblioteca se actualizó con tu nueva playlist.",
+        title: t("create_playlist.success_title"),
+        description: t("create_playlist.success_description"),
       })
 
       const nextFilter = playlistType === "playlist" ? "playlists" : "albums"
@@ -228,8 +348,8 @@ function CreatePlaylistDialog({ open, onOpenChange, onCreated }) {
       onCreated(nextFilter)
     } catch (error) {
       toast({
-        title: "Error",
-        description: error.message || "No se pudo crear la playlist.",
+        title: t("error_title"),
+        description: error.message || t("create_playlist.error_description"),
         variant: "destructive",
       })
     } finally {
@@ -241,34 +361,34 @@ function CreatePlaylistDialog({ open, onOpenChange, onCreated }) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="border-border bg-background text-foreground sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Crear playlist</DialogTitle>
+          <DialogTitle>{t("create_playlist.title")}</DialogTitle>
           <DialogDescription>
-            Crea una playlist nueva sin salir del layout principal.
+            {t("create_playlist.description")}
           </DialogDescription>
         </DialogHeader>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div className="space-y-2">
-            <Label htmlFor="playlist-title">Nombre</Label>
+            <Label htmlFor="playlist-title">{t("create_playlist.name_label")}</Label>
             <Input
               id="playlist-title"
               value={title}
               onChange={(event) => setTitle(event.target.value)}
-              placeholder="Ej. Biblioteca nocturna"
+              placeholder={t("create_playlist.name_placeholder")}
               className="border-border bg-background text-foreground"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="playlist-type">Tipo</Label>
+            <Label htmlFor="playlist-type">{t("create_playlist.type_label")}</Label>
             <Select value={playlistType} onValueChange={setPlaylistType}>
               <SelectTrigger id="playlist-type" className="border-border bg-background text-foreground">
-                <SelectValue placeholder="Selecciona un tipo" />
+                <SelectValue placeholder={t("create_playlist.type_placeholder")} />
               </SelectTrigger>
               <SelectContent className="border-border bg-popover text-popover-foreground">
                 {PLAYLIST_TYPES.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
-                    {option.label}
+                    {t(option.labelKey)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -276,12 +396,12 @@ function CreatePlaylistDialog({ open, onOpenChange, onCreated }) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="playlist-description">Descripción</Label>
+            <Label htmlFor="playlist-description">{t("create_playlist.description_label")}</Label>
             <Textarea
               id="playlist-description"
               value={description}
               onChange={(event) => setDescription(event.target.value)}
-              placeholder="Opcional"
+              placeholder={t("create_playlist.description_placeholder")}
               className="min-h-28 border-border bg-background text-foreground"
             />
           </div>
@@ -293,11 +413,11 @@ function CreatePlaylistDialog({ open, onOpenChange, onCreated }) {
               onClick={() => onOpenChange(false)}
               className="text-muted-foreground hover:text-foreground"
             >
-              Cancelar
+              {t("create_playlist.cancel")}
             </Button>
             <Button type="submit" disabled={submitting || !title.trim()}>
               {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Crear
+              {t("create_playlist.submit")}
             </Button>
           </div>
         </form>
@@ -398,7 +518,7 @@ function FilterPills({ counts, filter, onFilterChange }) {
                 )}
               >
                 <Icon className="h-4 w-4" />
-                <span>{option.label}</span>
+                <span>{t(option.labelKey)}</span>
                 <span
                   className={cn(
                     "rounded-full px-2 py-0.5 text-xs",
@@ -439,7 +559,7 @@ function LibrarySortMenu({ sortMode, viewMode, onSortChange, onViewModeChange })
         className="w-72 rounded-[24px] border border-border bg-popover/95 p-3 text-popover-foreground shadow-[0_24px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl"
       >
         <div className="px-2 pb-2 text-sm font-semibold text-muted-foreground">
-          Clasificar por
+          {t("sort_by")}
         </div>
 
         <div className="space-y-1">
@@ -455,7 +575,7 @@ function LibrarySortMenu({ sortMode, viewMode, onSortChange, onViewModeChange })
                   : "text-foreground hover:bg-accent/70"
               )}
             >
-              <span>{option.label}</span>
+              <span>{t(option.labelKey)}</span>
               {sortMode === option.id && <Check className="h-4 w-4" />}
             </button>
           ))}
@@ -464,7 +584,7 @@ function LibrarySortMenu({ sortMode, viewMode, onSortChange, onViewModeChange })
         <div className="my-3 h-px bg-border" />
 
         <div className="px-2 pb-2 text-sm font-semibold text-muted-foreground">
-          Ver como
+          {t("view_as")}
         </div>
 
         <div className="grid grid-cols-4 gap-2 rounded-2xl bg-muted/50 p-1">
@@ -476,7 +596,7 @@ function LibrarySortMenu({ sortMode, viewMode, onSortChange, onViewModeChange })
                 key={mode.id}
                 type="button"
                 onClick={() => onViewModeChange(mode.id)}
-                aria-label={mode.label}
+                aria-label={t(mode.labelKey)}
                 className={cn(
                   "flex h-10 items-center justify-center rounded-xl border text-muted-foreground transition-colors",
                   viewMode === mode.id
@@ -797,7 +917,7 @@ function MusicLibrarySidebar({ onNavigate, onExpand, elevated = false }) {
         })
 
         if (!response.ok) {
-          throw new Error("No se pudo cargar la biblioteca.")
+          throw new Error(t("library_load_error"))
         }
 
         const data = await response.json
@@ -825,8 +945,8 @@ function MusicLibrarySidebar({ onNavigate, onExpand, elevated = false }) {
           }
 
           toast({
-            title: "Error",
-            description: initialPage ? fetchError.message : "No se pudieron cargar más resultados.",
+            title: t("error_title"),
+            description: initialPage ? fetchError.message : t("library_load_more_error"),
             variant: "destructive",
           })
         }
@@ -970,7 +1090,7 @@ function MusicLibrarySidebar({ onNavigate, onExpand, elevated = false }) {
                     <PanelLeft className="h-5 w-5" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent side="right">Abrir tu biblioteca</TooltipContent>
+                <TooltipContent side="right">{t("open_library")}</TooltipContent>
               </Tooltip>
 
               <Tooltip>
@@ -985,7 +1105,7 @@ function MusicLibrarySidebar({ onNavigate, onExpand, elevated = false }) {
                     <Plus className="h-5 w-5" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent side="right">Crear playlist</TooltipContent>
+                <TooltipContent side="right">{t("create_playlist_tooltip")}</TooltipContent>
               </Tooltip>
             </div>
 
@@ -999,13 +1119,13 @@ function MusicLibrarySidebar({ onNavigate, onExpand, elevated = false }) {
 
                 {!loading && error && (
                   <div className="px-1 text-center text-[11px] text-red-400">
-                    Error
+                    {t("error_title")}
                   </div>
                 )}
 
                 {!loading && !error && items.length === 0 && (
                   <div className="px-1 text-center text-[11px] text-muted-foreground">
-                    Vacío
+                    {t("empty_short")}
                   </div>
                 )}
 
@@ -1038,10 +1158,10 @@ function MusicLibrarySidebar({ onNavigate, onExpand, elevated = false }) {
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-xs uppercase tracking-[0.28em] text-emerald-300/80">
-                  Biblioteca
+                  {t("library_label")}
                 </p>
                 <h2 className="mt-1 text-2xl font-semibold text-foreground">
-                  Tu música
+                  {t("my_music")}
                 </h2>
               </div>
 
@@ -1052,7 +1172,7 @@ function MusicLibrarySidebar({ onNavigate, onExpand, elevated = false }) {
                 className="rounded-full"
               >
                 <Plus className="mr-2 h-4 w-4" />
-                Crear
+                {t("create")}
               </Button>
             </div>
 
@@ -1072,7 +1192,7 @@ function MusicLibrarySidebar({ onNavigate, onExpand, elevated = false }) {
                 {getFilterLabel(filter)}
               </p>
               <p className="truncate text-xs uppercase tracking-[0.18em] text-muted-foreground">
-                {metadata.total_count || 0} resultados
+                {t("results_count", { count: metadata.total_count || 0 })}
               </p>
             </div>
 
@@ -1089,7 +1209,7 @@ function MusicLibrarySidebar({ onNavigate, onExpand, elevated = false }) {
               {loading && (
                 <div className="col-span-full flex min-h-56 items-center justify-center text-sm text-muted-foreground">
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Cargando biblioteca...
+                  {t("loading_library")}
                 </div>
               )}
 
@@ -1101,7 +1221,7 @@ function MusicLibrarySidebar({ onNavigate, onExpand, elevated = false }) {
 
               {!loading && !error && items.length === 0 && (
                 <div className="col-span-full rounded-3xl border border-dashed border-border bg-muted/30 p-6 text-sm text-muted-foreground">
-                  No hay resultados para este filtro todavía.
+                  {t("empty_filter")}
                 </div>
               )}
 
@@ -1125,7 +1245,7 @@ function MusicLibrarySidebar({ onNavigate, onExpand, elevated = false }) {
                   )}
                 >
                   <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
-                  Cargando más
+                  {t("loading_more")}
                 </div>
               )}
 
@@ -1144,7 +1264,10 @@ function MusicLibrarySidebar({ onNavigate, onExpand, elevated = false }) {
                     isGridView && "col-span-full"
                   )}
                 >
-                  {getSortLabel(sortMode)} · {metadata.total_count || items.length} resultados
+                  {t("footer_summary", {
+                    sort: getSortLabel(sortMode),
+                    count: metadata.total_count || items.length,
+                  })}
                 </div>
               )}
             </div>
@@ -1170,7 +1293,7 @@ function MobileMusicLibrary() {
         <SheetTrigger asChild>
           <Button type="button" variant="outline" className="rounded-full">
             <PanelLeft className="mr-2 h-4 w-4" />
-            Abrir biblioteca
+            {t("open_library_button")}
           </Button>
         </SheetTrigger>
 
@@ -1179,7 +1302,7 @@ function MobileMusicLibrary() {
           className="w-[92vw] border-border bg-transparent p-3 shadow-none sm:max-w-xl"
         >
           <SheetHeader className="sr-only">
-            <SheetTitle>Biblioteca musical</SheetTitle>
+            <SheetTitle>{t("sheet_title")}</SheetTitle>
           </SheetHeader>
 
           <div className="h-full pb-4 pt-8">
@@ -1194,139 +1317,237 @@ function MobileMusicLibrary() {
 export default function AppMusicLibraryLayout({ children }) {
   const { currentUser } = useAuthStore()
   const isMobile = useIsMobile()
+  const currentTrackMeta = useAudioStore((state) => state.currentTrackMeta)
+  const isPlaying = useAudioStore((state) => state.isPlaying)
+  const mainPanelRef = useRef(null)
   const sidebarPanelRef = useRef(null)
+  const videoPanelRef = useRef(null)
+  const lastVideoPanelSizeRef = useRef(DEFAULT_VIDEO_PANEL_SIZE)
   const sidebarSlotRef = useRef(null)
-  const [sidebarDock, setSidebarDock] = useState({
-    height: 0,
-    left: 0,
-    mode: "static",
-    width: 0,
+  const videoSidebarSlotRef = useRef(null)
+  const isVideoPanelOpen = useTrackVideoSidebarStore((state) => state.isOpen)
+  const isVideoPanelExpanded = useTrackVideoSidebarStore((state) => state.isExpanded)
+  const openVideoPanel = useTrackVideoSidebarStore((state) => state.open)
+  const activeTrack = currentTrackMeta?.id ? currentTrackMeta : null
+  const hasTrackSidebarContent = !!activeTrack
+  const shouldShowVideoPanel = hasTrackSidebarContent && isVideoPanelOpen
+  const shouldShowMusicLibrary = !!currentUser && !isMobile
+  const sidebarDock = useSidebarDock({
+    enabled: shouldShowMusicLibrary && !(shouldShowVideoPanel && isVideoPanelExpanded),
+    side: "left",
+    slotRef: sidebarSlotRef,
   })
-
-  const syncSidebarDock = useCallback(() => {
-    const element = sidebarSlotRef.current
-    if (!element) return
-
-    const rect = element.getBoundingClientRect()
-    const scrollTop = window.scrollY || window.pageYOffset || 0
-    const slotTop = rect.top + scrollTop
-    const slotHeight = element.offsetHeight
-    const height = Math.max(window.innerHeight - SIDEBAR_RESERVED_SPACE, 320)
-    const maxFixedScroll = slotTop + slotHeight - height - SIDEBAR_FIXED_TOP
-
-    let mode = "static"
-
-    if (scrollTop >= slotTop - SIDEBAR_FIXED_TOP) {
-      mode = maxFixedScroll > slotTop ? (scrollTop >= maxFixedScroll ? "bottom" : "fixed") : "fixed"
-    }
-
-    const nextDock = {
-      height,
-      left: Math.round(rect.left),
-      mode,
-      width: Math.round(rect.width),
-    }
-
-    setSidebarDock((currentDock) => (
-      currentDock.height === nextDock.height &&
-      currentDock.left === nextDock.left &&
-      currentDock.mode === nextDock.mode &&
-      currentDock.width === nextDock.width
-    ) ? currentDock : nextDock)
-  }, [])
+  const videoSidebarDock = useSidebarDock({
+    enabled: !isMobile && shouldShowVideoPanel,
+    side: "right",
+    slotRef: videoSidebarSlotRef,
+  })
+  const lastTrackIdRef = useRef(null)
+  const lastIsPlayingRef = useRef(false)
 
   useEffect(() => {
-    if (!currentUser || isMobile) return undefined
+    const nextTrackId = activeTrack?.id ? `${activeTrack.id}` : null
+    const previousTrackId = lastTrackIdRef.current
 
-    const element = sidebarSlotRef.current
-    if (!element) return undefined
+    if (
+      nextTrackId &&
+      nextTrackId !== previousTrackId &&
+      (previousTrackId !== null || isPlaying)
+    ) {
+      openVideoPanel()
+    }
 
-    let frameId = null
-    const runSync = () => {
-      if (frameId !== null) {
-        cancelAnimationFrame(frameId)
+    lastTrackIdRef.current = nextTrackId
+  }, [activeTrack?.id, isPlaying, openVideoPanel])
+
+  useEffect(() => {
+    if (isPlaying && !lastIsPlayingRef.current && activeTrack?.id) {
+      openVideoPanel()
+    }
+
+    lastIsPlayingRef.current = isPlaying
+  }, [activeTrack?.id, isPlaying, openVideoPanel])
+
+  useEffect(() => {
+    if (isMobile) return
+
+    const mainPanel = mainPanelRef.current
+    const panel = videoPanelRef.current
+    if (!mainPanel || !panel) return
+
+    const syncPanel = () => {
+      if (shouldShowVideoPanel) {
+        if (panel.isCollapsed?.()) {
+          panel.expand?.()
+        }
+
+        if (isVideoPanelExpanded) {
+          if (!mainPanel.isCollapsed?.()) {
+            mainPanel.collapse?.()
+          }
+
+          const expandedSize = 100
+          const currentExpandedSize = panel.getSize?.()
+          if (!currentExpandedSize || Math.abs(currentExpandedSize - expandedSize) > 0.5) {
+            panel.resize?.(expandedSize)
+          }
+          return
+        }
+
+        if (mainPanel.isCollapsed?.()) {
+          mainPanel.expand?.()
+        }
+
+        const targetSize = Math.min(
+          Math.max(lastVideoPanelSizeRef.current, DEFAULT_VIDEO_PANEL_SIZE),
+          MAX_MANUAL_VIDEO_PANEL_SIZE
+        )
+        const currentSize = panel.getSize?.()
+        if (!currentSize || Math.abs(currentSize - targetSize) > 0.5) {
+          panel.resize?.(targetSize)
+        }
+        return
       }
 
-      frameId = requestAnimationFrame(() => {
-        syncSidebarDock()
-      })
-    }
-
-    const resizeObserver = new ResizeObserver(runSync)
-    resizeObserver.observe(element)
-
-    runSync()
-    window.addEventListener("resize", runSync)
-    window.addEventListener("scroll", runSync, { passive: true })
-
-    return () => {
-      if (frameId !== null) {
-        cancelAnimationFrame(frameId)
+      if (!panel.isCollapsed?.()) {
+        panel.collapse?.()
       }
 
-      resizeObserver.disconnect()
-      window.removeEventListener("resize", runSync)
-      window.removeEventListener("scroll", runSync)
-    }
-  }, [currentUser, isMobile, syncSidebarDock])
-
-  const sidebarDockClassName = cn(
-    SIDEBAR_HEIGHT_CLASS,
-    sidebarDock.mode === "fixed" && "fixed top-4 z-30",
-    sidebarDock.mode === "bottom" && "absolute bottom-0 left-0 w-full",
-    sidebarDock.mode === "static" && "relative"
-  )
-
-  const sidebarDockStyle = sidebarDock.mode === "fixed"
-    ? {
-      height: `${sidebarDock.height}px`,
-      left: `${sidebarDock.left}px`,
-      width: `${sidebarDock.width}px`,
-    }
-    : {
-      height: `${Math.max(sidebarDock.height, 320)}px`,
+      if (mainPanel.isCollapsed?.()) {
+        mainPanel.expand?.()
+      }
     }
 
-  if (!currentUser) {
-    return children
-  }
+    const frameId = requestAnimationFrame(syncPanel)
+    return () => cancelAnimationFrame(frameId)
+  }, [isMobile, isVideoPanelExpanded, shouldShowVideoPanel])
 
   if (isMobile) {
-    return (
+    return currentUser ? (
       <div>
         <MobileMusicLibrary />
         <div>{children}</div>
       </div>
+    ) : (
+      children
     )
   }
 
   return (
-    <ResizablePanelGroup
-      direction="horizontal"
-      autoSaveId="app-music-library-layout"
-      className="min-h-[calc(100svh-4rem-6.75rem-2rem)] w-full"
-    >
-      <ResizablePanel
-        ref={sidebarPanelRef}
-        defaultSize={24}
-        minSize={6}
-        maxSize={34}
-      >
-        <div ref={sidebarSlotRef} className={cn("relative", SIDEBAR_MIN_HEIGHT_CLASS)}>
-          <div className={sidebarDockClassName} style={sidebarDockStyle}>
-            <MusicLibrarySidebar
-              elevated={sidebarDock.mode === "fixed"}
-              onExpand={() => sidebarPanelRef.current?.resize(24)}
-            />
-          </div>
+    <>
+      {hasTrackSidebarContent && !shouldShowVideoPanel && (
+        <div className="fixed right-6 top-20 z-40">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={openVideoPanel}
+            className="rounded-full border border-border/60 bg-card/95 px-4 shadow-lg backdrop-blur"
+          >
+            <PanelRightOpen className="mr-2 h-4 w-4" />
+            {t("open_panel")}
+          </Button>
         </div>
-      </ResizablePanel>
+      )}
 
-      <ResizableHandle withHandle className="mx-2 bg-border/70" />
+      <ResizablePanelGroup
+        id="app-track-shell-layout"
+        direction="horizontal"
+        autoSaveId="app-track-shell-layout"
+        className="min-h-[calc(100svh-4rem-6.75rem-2rem)] w-full"
+      >
+        <ResizablePanel
+          id="app-track-shell-main-panel"
+          ref={mainPanelRef}
+          order={1}
+          defaultSize={shouldShowMusicLibrary ? 78 : 100}
+          minSize={26}
+          collapsible={isVideoPanelExpanded}
+          collapsedSize={0}
+        >
+          {shouldShowMusicLibrary ? (
+            <ResizablePanelGroup
+              id="app-music-library-layout-group"
+              direction="horizontal"
+              autoSaveId="app-music-library-layout"
+              className="min-h-[calc(100svh-4rem-6.75rem-2rem)] w-full"
+            >
+              <ResizablePanel
+                id="music-library-sidebar-panel"
+                ref={sidebarPanelRef}
+                order={1}
+                defaultSize={24}
+                minSize={10}
+                maxSize={34}
+              >
+                <div ref={sidebarSlotRef} className={cn("relative", SIDEBAR_MIN_HEIGHT_CLASS)}>
+                  <div className={sidebarDock.dockClassName} style={sidebarDock.dockStyle}>
+                    <MusicLibrarySidebar
+                      elevated={sidebarDock.dock.mode === "fixed"}
+                      onExpand={() => sidebarPanelRef.current?.resize(24)}
+                    />
+                  </div>
+                </div>
+              </ResizablePanel>
 
-      <ResizablePanel minSize={60}>
-        <div className="min-w-0">{children}</div>
-      </ResizablePanel>
-    </ResizablePanelGroup>
+              <ResizableHandle
+                id="music-library-main-handle"
+                withHandle
+                className="mx-2 bg-border/70"
+              />
+
+              <ResizablePanel
+                id="music-library-content-panel"
+                order={2}
+                defaultSize={76}
+                minSize={60}
+              >
+                <div className="min-w-0 pb-28">{children}</div>
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          ) : (
+            <div className="min-w-0 pb-28">{children}</div>
+          )}
+        </ResizablePanel>
+
+        <ResizableHandle
+          id="track-video-sidebar-handle"
+          withHandle
+          disabled={!shouldShowVideoPanel || isVideoPanelExpanded}
+          className={cn(
+            "bg-border/70",
+            shouldShowVideoPanel && !isVideoPanelExpanded
+              ? "mx-2"
+              : "mx-0 w-0 border-0 bg-transparent opacity-0 after:hidden"
+          )}
+        />
+
+        <ResizablePanel
+          id="track-video-sidebar-panel"
+          ref={videoPanelRef}
+          order={2}
+          defaultSize={DEFAULT_VIDEO_PANEL_SIZE}
+          minSize={27}
+          maxSize={isVideoPanelExpanded ? 100 : MAX_MANUAL_VIDEO_PANEL_SIZE}
+          onResize={(size) => {
+            if (!isVideoPanelExpanded && size > 0) {
+              lastVideoPanelSizeRef.current = size
+            }
+          }}
+          collapsible
+          collapsedSize={0}
+        >
+          <div ref={videoSidebarSlotRef} className={cn("relative", SIDEBAR_MIN_HEIGHT_CLASS)}>
+            <div className={videoSidebarDock.dockClassName} style={videoSidebarDock.dockStyle}>
+              <TrackVideoSidebar
+                elevated={videoSidebarDock.dock.mode === "fixed"}
+                fillHeight
+                showShellControls
+                track={activeTrack}
+              />
+            </div>
+          </div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
+    </>
   )
 }

@@ -31,12 +31,14 @@ class Track < ApplicationRecord
 
   has_one_attached :cover
   has_one_attached :audio
+  has_one_attached :video
   has_one_attached :mp3_audio
   has_one_attached :zip
 
   validates :cover, presence: false, blob: {content_type: :web_image} # supported options: :web_image, :image, :audio, :video, :text
 
-  validates :audio, presence: false, blob: {content_type: :audio, size_range: 1..(400.megabytes)} # supported options: :web_image, :image, :audio, :video, :text
+  validates :audio, presence: false, blob: {content_type: :audio, size_range: 1..(400.megabytes)}, unless: -> { video.attached? } # supported options: :web_image, :image, :audio, :video, :text
+  validates :video, presence: false, blob: {content_type: :video, size_range: 1..(400.megabytes)}
 
   acts_as_likeable
 
@@ -231,9 +233,38 @@ class Track < ApplicationRecord
   end
 
   def reprocess!
-    return if audio.blob.blank?
-    update_mp3
+    if video.attached?
+      video.open do |file|
+        update_audio_from_video(file)
+        update_mp3(file)
+      end
+    else
+      return if audio.blob.blank?
+      update_mp3
+    end
+
     update_peaks
+  end
+
+  def has_video?
+    video.attached?
+  end
+
+  def playback_media
+    return mp3_audio if mp3_audio.attached?
+    return audio if audio.attached?
+    return video if video.attached?
+  end
+
+  def downloadable_media
+    return audio if audio.attached?
+    return video if video.attached?
+    return mp3_audio if mp3_audio.attached?
+  end
+
+  def analyzable_audio_media
+    return audio if audio.attached?
+    return mp3_audio if mp3_audio.attached?
   end
 
   def process_with_mp3
@@ -251,58 +282,46 @@ class Track < ApplicationRecord
     end
   end
 
-  def update_mp3(temp_file = nil)
-    created_tempfile = false
-    if temp_file.nil?
-      temp_file = Tempfile.new(["audio", ".mp3"], binmode: true)
-      created_tempfile = true
+  def update_mp3(source_file = nil)
+    with_file_path(source_file, fallback_attachment: audio) do |path|
+      mp3_path = Mp3Converter.new(path).run
+
       begin
-        audio.download do |chunk|
-          temp_file.write(chunk)
-        end
-        temp_file.rewind
-        # Use the path of the temp file in the Mp3Converter
-        mp3_path = Mp3Converter.new(temp_file.path).run
-        File.open(mp3_path, "rb") do |mp3_file|
-          mp3_audio.attach(io: mp3_file, filename: "converted_audio.mp3", content_type: "audio/mpeg")
-        end
-        FileUtils.remove_entry mp3_path
+        attach_generated_media(
+          attachment_name: :mp3_audio,
+          path: mp3_path,
+          filename: "#{source_media_basename}.mp3",
+          content_type: "audio/mpeg"
+        )
       ensure
-        temp_file.close
-        temp_file.unlink
+        cleanup_generated_path(mp3_path)
       end
-    else
-      mp3_path = Mp3Converter.new(temp_file.path).run
-      File.open(mp3_path, "rb") do |mp3_file|
-        mp3_audio.attach(io: mp3_file, filename: "converted_audio.mp3", content_type: "audio/mpeg")
-      end
-      FileUtils.remove_entry mp3_path
-      temp_file.close
-      temp_file.unlink
     end
   end
 
-  def process_audio_peaks(temp_file = nil)
-    # Create a temp file
-    if temp_file.nil?
-      temp_file = Tempfile.new(["audio", ".mp3"], binmode: true)
+  def update_audio_from_video(source_file = nil)
+    with_file_path(source_file, fallback_attachment: video) do |path|
+      wav_path = WavConverter.new(path).run
 
-      # Download the blob to the temp file in chunks
-      audio.download do |chunk|
-        temp_file.write(chunk)
+      begin
+        attach_generated_media(
+          attachment_name: :audio,
+          path: wav_path,
+          filename: "#{source_media_basename}.wav",
+          content_type: "audio/wav"
+        )
+      ensure
+        cleanup_generated_path(wav_path)
       end
+    end
+  end
 
-      temp_file.rewind
+  def process_audio_peaks(source_file = nil)
+    with_file_path(source_file, fallback_attachment: analyzable_audio_media) do |path|
+      return PeaksGenerator.new(path).run
     end
 
-    # Use the path of the temp file in the PeaksGeneratorService
-    peaks = PeaksGenerator.new(temp_file.path).run
-
-    # Ensure the temp file is removed after the PeaksGeneratorService has finished
-    temp_file.close
-    temp_file.unlink
-
-    peaks
+    []
   end
 
   def self.top_tracks(profile_id)
@@ -368,7 +387,14 @@ class Track < ApplicationRecord
   end
 
   def duration
-    "xx;xx"
+    [playback_media, audio, video].uniq.each do |attachment|
+      next unless attachment&.attached?
+
+      media_duration = attachment.metadata&.fetch("duration", nil)
+      return media_duration if media_duration.present?
+    end
+
+    nil
   end
 
   def podcast_summarizer
@@ -419,5 +445,51 @@ class Track < ApplicationRecord
       title: 'New Release',
       message: 'Check out the latest release!'
     })
+  end
+
+  private
+
+  def with_file_path(source_file = nil, fallback_attachment:)
+    if source_file.present?
+      path = source_file.respond_to?(:path) ? source_file.path : source_file.to_s
+      return yield(path)
+    end
+
+    return unless fallback_attachment&.attached?
+
+    fallback_attachment.open do |file|
+      yield(file.path)
+    end
+  end
+
+  def attach_generated_media(attachment_name:, path:, filename:, content_type:)
+    File.open(path, "rb") do |file|
+      public_send(attachment_name).attach(
+        io: file,
+        filename: filename,
+        content_type: content_type
+      )
+    end
+  end
+
+  def cleanup_generated_path(path)
+    return if path.blank?
+
+    dir = File.dirname(path)
+    FileUtils.remove_entry(dir) if dir.start_with?(Dir.tmpdir) && Dir.exist?(dir)
+  end
+
+  def source_media_basename
+    attachment = if video.attached?
+      video
+    elsif audio.attached?
+      audio
+    else
+      nil
+    end
+
+    return "track-#{id}" unless attachment&.attached?
+
+    File.basename(attachment.filename.to_s, File.extname(attachment.filename.to_s))
   end
 end

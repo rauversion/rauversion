@@ -1,12 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import useAudioStore from "../stores/audioStore";
 import { ScrollArea } from "./ui/scroll-area";
 import { Play, Pause, X, Trash2 } from "lucide-react";
 import { Button } from "./ui/button";
+import usePlayerQueueTracks from "@/hooks/usePlayerQueueTracks";
+
+function t(key, options = {}) {
+  return I18n.t(`player_queue.${key}`, options)
+}
 
 const PlayerSidebar = () => {
-  const [tracks, setTracks] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { tracks, loading } = usePlayerQueueTracks();
   const { currentTrackId, isPlaying, play } = useAudioStore();
 
   const removeTrack = (trackId) => {
@@ -19,35 +23,10 @@ const PlayerSidebar = () => {
     useAudioStore.setState({ playlist: [] });
   };
 
-  useEffect(() => {
-    const fetchTracks = async () => {
-      try {
-        const { playlist } = useAudioStore.getState();
-        if (!playlist || playlist.length === 0) {
-          setTracks([]);
-          return;
-        }
-        
-        const queryParams = new URLSearchParams();
-        playlist.forEach(id => queryParams.append('ids[]', id));
-        
-        const response = await fetch(`/player/tracklist.json?${queryParams.toString()}`);
-        const data = await response.json();
-        setTracks(data.tracks);
-      } catch (error) {
-        console.error("Error fetching tracks:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTracks();
-  }, [useAudioStore.getState().playlist]);
-
   if (loading) {
     return (
       <div className="p-4 text-sm text-muted-foreground">
-        Loading queue...
+        {t("loading")}
       </div>
     );
   }
@@ -55,7 +34,7 @@ const PlayerSidebar = () => {
   return (
     <div className="flex flex-col h-full bg-background text-foreground">
       <div className="p-4 border-b border-border/70 bg-muted/30 flex justify-between items-center">
-        <h2 className="text-lg font-semibold text-foreground">Queue</h2>
+        <h2 className="text-lg font-semibold text-foreground">{t("title")}</h2>
         {tracks.length > 0 && (
           <Button
             variant="ghost"
@@ -64,7 +43,7 @@ const PlayerSidebar = () => {
             className="text-muted-foreground hover:text-destructive"
           >
             <Trash2 className="h-4 w-4 mr-2" />
-            Clear All
+            {t("clear_all")}
           </Button>
         )}
       </div>
@@ -73,7 +52,7 @@ const PlayerSidebar = () => {
         <div className="space-y-1 p-2">
           {tracks.length === 0 && (
             <div className="p-4 text-sm text-muted-foreground">
-              Queue is empty.
+              {t("empty")}
             </div>
           )}
 
@@ -119,6 +98,8 @@ const PlayerSidebar = () => {
                 variant="ghost"
                 size="sm"
                 onClick={() => removeTrack(track.id)}
+                aria-label={t("remove_track")}
+                title={t("remove_track")}
                 className="opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive"
               >
                 <X className="h-4 w-4" />

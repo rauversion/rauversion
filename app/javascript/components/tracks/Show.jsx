@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import TrackPlayer from './TrackPlayer'
-import { get, post } from '@rails/request.js'
+import { get } from '@rails/request.js'
 import { Comments } from "@/components/comments/Comments"
 import { ShareDialog } from "@/components/ui/share-dialog"
 import TrackEdit from './TrackEdit'
@@ -9,9 +9,17 @@ import TrackSkeleton from './TrackSkeleton'
 import { Settings, Share2, Heart, Repeat, Play, Pause } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import useAuthStore from '@/stores/authStore'
-import { useToast } from "@/hooks/use-toast"
 import useAudioStore from '@/stores/audioStore'
 import MusicPurchase from '@/components/shared/MusicPurchase'
+import useTrackLikeAction from "@/hooks/useTrackLikeAction"
+
+function t(key, options = {}) {
+  return I18n.t(`tracks.show.${key}`, options)
+}
+
+function currentLocale() {
+  return I18n.locale?.startsWith("es") ? "es-CL" : "en-US"
+}
 
 function playlistTypeLabel(playlistType) {
   switch (playlistType) {
@@ -42,9 +50,7 @@ export default function TrackShow() {
   const [loading, setLoading] = useState(true)
   const [editOpen, setEditOpen] = useState(false)
   const { currentUser } = useAuthStore()
-  const [likes, setLikes] = useState(0)
-  const [isLiked, setIsLiked] = useState(false)
-  const { toast } = useToast()
+  const { isPending: isLikePending, toggleLike } = useTrackLikeAction()
 
   const { currentTrackId, isPlaying, play, pause } = useAudioStore()
 
@@ -60,8 +66,6 @@ export default function TrackShow() {
       if (trackResponse.ok) {
         const data = await trackResponse.json
         setTrack(data.track)
-        setLikes(data.track.likes_count || 0)
-        setIsLiked(data.track.like_id != null)
       } else {
         setTrack(null)
       }
@@ -100,44 +104,20 @@ export default function TrackShow() {
   }
 
   const handleLike = async () => {
-    if (!currentUser) {
-      toast({
-        title: "Authentication required",
-        description: "Please sign in to like tracks",
-        variant: "destructive"
-      })
-      return
-    }
-
-    try {
-      const response = await post(`/tracks/${track.slug}/likes`, {
-        responseKind: "json"
-      })
-
-      if (response.ok) {
-        const { liked, resource } = await response.json
-        setLikes(resource.likes_count)
-        setIsLiked(liked)
-        toast({
-          title: "Success",
-          description: !liked ? "Unliked track!" : "Track liked!"
-        })
-      } else {
-        const error = await response.json
-        toast({
-          title: "Error",
-          description: error.message || "Error liking track",
-          variant: "destructive"
-        })
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Error liking track",
-        variant: "destructive"
-      })
-    }
+    await toggleLike({
+      track,
+      onPatch: (patch) => {
+        setTrack((previousTrack) => (
+          previousTrack ? { ...previousTrack, ...patch } : previousTrack
+        ))
+      },
+    })
   }
+
+  const isCurrentTrackPlaying =
+    isPlaying &&
+    currentTrackId !== null &&
+    `${currentTrackId}` === `${track?.id}`
 
   if (loading) {
     return <TrackSkeleton />
@@ -146,85 +126,81 @@ export default function TrackShow() {
   if (!track) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
-        <h1 className="text-2xl font-bold mb-4">Track not found</h1>
+        <h1 className="text-2xl font-bold mb-4">{t("not_found_title")}</h1>
         <Link to="/tracks" className="text-primary hover:underline">
-          Back to tracks
+          {t("back_to_tracks")}
         </Link>
       </div>
     )
   }
-
-  const isCurrentTrackPlaying =
-    isPlaying &&
-    currentTrackId !== null &&
-    `${currentTrackId}` === `${track.id}`
+  const likes = track.likes_count || 0
+  const isLiked = Boolean(track.like_id || track.liked_by_current_user)
+  const shareDescription = t("share_description", {
+    title: track.title,
+    artist: track.user.full_name || track.user.username,
+  })
 
   return (
     <main className="flex-1 relative z-0 overflow-y-auto focus:outline-none xl:order-last">
       <div className="bg-background">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex flex-col gap-6 md:flex-row md:items-center md:gap-8">
-            <div className="order-2 w-full md:order-1 md:w-2/3">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="flex-shrink-0">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="min-w-0 max-w-5xl">
+            <div className="flex flex-col gap-6 md:flex-row md:items-center md:gap-8">
+              <div className="order-2 w-full md:order-1 md:w-2/3">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="flex-shrink-0">
+                    <img
+                      src={track.user.avatar_url?.medium}
+                      alt={track.user.username}
+                      className="h-10 w-10 rounded-full shadow-md"
+                    />
+                  </div>
+                  <div>
+                    <h1 className="text-xl font-bold text-foreground">
+                      {track.title}
+                    </h1>
+                  </div>
+                </div>
+
+                {track.processed && (
+                  <div className="bg-card rounded-lg p-6">
+                    <TrackPlayer
+                      url={track.playback_url || track.mp3_audio_url || track.mp3_url || track.audio_url}
+                      peaks={track.peaks}
+                      height={100}
+                      id={track.id}
+                      urlLink={`/player?id=${track.id}?t=true`}
+                    />
+                  </div>
+                )}
+              </div>
+              <div className="order-1 w-full md:order-2 md:w-1/3">
+                <div className="relative mx-auto w-full max-w-xs md:max-w-none">
                   <img
-                    src={track.user.avatar_url?.medium}
-                    alt={track.user.username}
-                    className="h-10 w-10 rounded-full shadow-md"
+                    src={track.cover_url?.cropped_image || track.cover_url?.large || AlbumsHelper.default_image_sqr}
+                    alt={track.title}
+                    className="w-full h-auto rounded-lg shadow-lg"
                   />
-                </div>
-                <div>
-                  {/*<Link
-                    to={`/${track.user.username}`}
-                    className="text-sm font-medium text-muted-foreground hover:text-primary"
+                  <div className="pointer-events-none absolute inset-0 rounded-lg bg-gradient-to-t from-black/35 via-transparent to-transparent" />
+
+                  <button
+                    type="button"
+                    onClick={() => handlePlay()}
+                    aria-label={isCurrentTrackPlaying ? t("pause_track") : t("play_track")}
+                    className="absolute bottom-3 left-3 z-10 inline-flex h-12 w-12 items-center justify-center rounded-full bg-black/90 text-white shadow-2xl ring-2 ring-white/80 transition-all duration-200 hover:scale-105 hover:bg-black focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-500/60 dark:bg-white/90 dark:text-black dark:ring-black/40 md:bottom-4 md:left-4 md:h-14 md:w-14"
                   >
-                    {track.user.username}
-                  </Link>*/}
-                  <h1 className="text-xl font-bold text-foreground">
-                    {track.title}
-                  </h1>
+                    {isCurrentTrackPlaying ? (
+                      <Pause className="h-6 w-6 md:h-7 md:w-7" />
+                    ) : (
+                      <Play className="h-6 w-6 translate-x-[1px] md:h-7 md:w-7" />
+                    )}
+                  </button>
                 </div>
               </div>
-
-              {track.processed && (
-                <div className="bg-card rounded-lg p-6">
-                  <TrackPlayer
-                    url={track.audio_url || track.mp3_audio_url || track.mp3_url}
-                    peaks={track.peaks}
-                    height={100}
-                    id={track.id}
-                    urlLink={`/player?id=${track.id}?t=true`}
-                  />
-                </div>
-              )}
             </div>
-            <div className="order-1 w-full md:order-2 md:w-1/3">
-              <div className="relative mx-auto w-full max-w-xs md:max-w-none">
-                <img
-                  src={track.cover_url?.cropped_image || track.cover_url?.large || AlbumsHelper.default_image_sqr}
-                  alt={track.title}
-                  className="w-full h-auto rounded-lg shadow-lg"
-                />
-                <div className="pointer-events-none absolute inset-0 rounded-lg bg-gradient-to-t from-black/35 via-transparent to-transparent" />
 
-                <button
-                  type="button"
-                  onClick={() => handlePlay()}
-                  aria-label={isCurrentTrackPlaying ? "Pause track" : "Play track"}
-                  className="absolute bottom-3 left-3 z-10 inline-flex h-12 w-12 items-center justify-center rounded-full bg-black/90 text-white shadow-2xl ring-2 ring-white/80 transition-all duration-200 hover:scale-105 hover:bg-black focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-500/60 dark:bg-white/90 dark:text-black dark:ring-black/40 md:bottom-4 md:left-4 md:h-14 md:w-14"
-                >
-                  {isCurrentTrackPlaying ? (
-                    <Pause className="h-6 w-6 md:h-7 md:w-7" />
-                  ) : (
-                    <Play className="h-6 w-6 translate-x-[1px] md:h-7 md:w-7" />
-                  )}
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-4">
-            <div className="space-y-8">
+            <div className="mt-4">
+              <div className="space-y-8">
 
 
               {/* Artists Section */}
@@ -324,8 +300,9 @@ export default function TrackShow() {
                 </div>
               )}
 
-            </div>
           </div>
+        </div>
+      </div>
         </div>
       </div>
 
@@ -337,11 +314,11 @@ export default function TrackShow() {
           <ShareDialog
             url={`${window.location.origin}/${track.user.username}/tracks/${track.slug}`}
             title={track.title}
-            description={`Listen to ${track.title} by ${track.user.username} on Rauversion`}
+            description={shareDescription}
           >
             <Button variant="ghost" size="icon">
               <Share2 className="h-4 w-4" />
-              <span className="sr-only">Share</span>
+              <span className="sr-only">{t("share")}</span>
             </Button>
           </ShareDialog>
 
@@ -350,17 +327,18 @@ export default function TrackShow() {
             variant="ghost"
             size="icon"
             onClick={handleLike}
-            className={`flex items-center gap-1 ${isLiked ? 'text-brand-500' : 'text-muted-foreground'}`}
+            disabled={isLikePending}
+            className={`flex items-center gap-1 ${isLiked ? 'text-brand-500' : 'text-muted-foreground'} ${isLikePending ? 'cursor-wait opacity-70' : ''}`}
           >
             <Heart className={`h-4 w-4 ${isLiked ? 'fill-current' : ''}`} />
             <span className="text-sm">{likes}</span>
-            <span className="sr-only">Like</span>
+            <span className="sr-only">{I18n.t(isLiked ? "audio_player.unlike" : "audio_player.like")}</span>
           </Button>
 
           {/* Repost Button */}
           <Button variant="ghost" size="icon">
             <Repeat className="h-4 w-4" />
-            <span className="sr-only">Repost</span>
+            <span className="sr-only">{t("repost")}</span>
           </Button>
 
           {/* Edit Button */}
@@ -372,7 +350,7 @@ export default function TrackShow() {
               className="text-muted-foreground hover:text-foreground"
             >
               <Settings className="h-4 w-4" />
-              <span className="sr-only">Edit track</span>
+              <span className="sr-only">{t("edit_track")}</span>
             </Button>
           )}
         </div>
@@ -399,7 +377,7 @@ export default function TrackShow() {
               {track.description && (
                 <>
                   <dt className="text-sm font-medium text-muted-foreground">
-                    About
+                    {t("about")}
                   </dt>
                   <dd
                     className="whitespace-pre-line mt-1 mb-4 max-w-prose text-lg text-foreground space-y-5 prose lg:prose-xl dark:prose-invert"
@@ -411,7 +389,7 @@ export default function TrackShow() {
               {/* Buy Link */}
               {track.buy_link && (
                 <Link to={track.buy_link} className="text-primary hover:text-primary/80 underline" target="_blank" rel="noopener noreferrer">
-                  Buy Link
+                  {t("buy_link")}
                 </Link>
               )}
             </div>
@@ -420,10 +398,10 @@ export default function TrackShow() {
             {track.created_at && (
               <div className="sm:col-span-1">
                 <dt className="text-sm font-medium text-muted-foreground">
-                  Created at
+                  {t("created_at")}
                 </dt>
                 <dd className="mt-1 text-sm text-foreground">
-                  {new Date(track.created_at).toLocaleDateString('en-US', {
+                  {new Date(track.created_at).toLocaleDateString(currentLocale(), {
                     year: 'numeric',
                     month: 'long',
                     day: 'numeric'
@@ -436,7 +414,7 @@ export default function TrackShow() {
             {track.genre && (
               <div className="sm:col-span-1">
                 <dt className="text-sm font-medium text-muted-foreground">
-                  Genre
+                  {t("genre")}
                 </dt>
                 <dd className="mt-1 text-sm text-foreground">
                   {track.genre}
@@ -450,7 +428,7 @@ export default function TrackShow() {
           <dl className="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
             {track.description && (
               <div className="sm:col-span-2">
-                <dt className="text-sm font-medium text-muted-foreground">Description</dt>
+                <dt className="text-sm font-medium text-muted-foreground">{t("description")}</dt>
                 <dd
                   className="mt-1 max-w-prose text-sm text-foreground space-y-5"
                   dangerouslySetInnerHTML={{ __html: track.description }}
@@ -460,7 +438,7 @@ export default function TrackShow() {
 
             {track.label && (
               <div>
-                <dt className="text-sm font-medium text-muted-foreground">Label</dt>
+                <dt className="text-sm font-medium text-muted-foreground">{t("label")}</dt>
                 <dd className="mt-1 text-sm text-foreground">
                   <Link to={`/labels/${track.label.slug}`} className="hover:underline">
                     {track.label.name}
@@ -471,14 +449,14 @@ export default function TrackShow() {
 
             {track.genre && (
               <div>
-                <dt className="text-sm font-medium text-muted-foreground">Genre</dt>
+                <dt className="text-sm font-medium text-muted-foreground">{t("genre")}</dt>
                 <dd className="mt-1 text-sm text-foreground">{track.genre}</dd>
               </div>
             )}
 
             {track.tags && track.tags.length > 0 && (
               <div className="sm:col-span-2">
-                <dt className="text-sm font-medium text-muted-foreground">Tags</dt>
+                <dt className="text-sm font-medium text-muted-foreground">{t("tags")}</dt>
                 <dd className="mt-1 text-sm text-foreground">
                   <div className="flex flex-wrap gap-2">
                     {track.tags.map((tag) => (
@@ -502,7 +480,7 @@ export default function TrackShow() {
       <div className="mt-12 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="border-t border-gray-200 dark:border-gray-800 pt-8">
           <h2 className="text-xl font-bold text-foreground mb-6">
-            Comments
+            {t("comments")}
           </h2>
           <Comments
             resourceType="track"

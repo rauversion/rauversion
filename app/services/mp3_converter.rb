@@ -1,4 +1,5 @@
 require "tempfile"
+require "open3"
 
 class Mp3Converter
   def initialize(file)
@@ -12,15 +13,24 @@ class Mp3Converter
 
     output_file = "#{dir}/#{filename}.mp3"
 
-    output = `#{ffmpeg_path} -i #{@file} -vn -ar 44100 -ac 2 -b:a 192k #{output_file}`
+    args = [
+      ffmpeg_path,
+      "-i", @file,
+      "-vn",
+      "-ar", "44100",
+      "-ac", "2",
+      "-b:a", "192k",
+      output_file
+    ]
 
-    puts output
+    stdout, stderr, status = Open3.capture3(*args)
 
-    puts "OUTPUT EXISTS? #{File.exist?(output_file)}"
+    Rails.logger.info("Mp3Converter stdout=#{stdout}") if stdout.present?
+    Rails.logger.warn("Mp3Converter stderr=#{stderr}") if stderr.present?
+
+    raise "ffmpeg failed to generate mp3" unless status.success? && File.exist?(output_file)
 
     output_file
-    # ensure
-    # FileUtils.remove_entry dir
   end
 
   private

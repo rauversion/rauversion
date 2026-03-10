@@ -5,8 +5,8 @@
   <div class="uploader flex justify-center my-10">
     <div class="flex-col">
       <div class="text-center">
-        <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100">Drag and drop your tracks &amp; albums here</h3>
-        <p class="mt-1 max-w-2xl text-sm text-gray-500">Provide FLAC, WAV, ALAC, or AIFF for highest audio quality.</p>
+        <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100">Drag and drop your tracks or videos here</h3>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">Provide WAV, AIFF, FLAC, or a video file and we'll extract the audio automatically.</p>
       </div>
         
       <div class="mt-6 sm:mt-5 space-y-6 sm:space-y-5">
@@ -38,12 +38,12 @@
                         </div>
                       </template>
 
-                      <%= form.label :audio, "Upload a Audio file", class: "relative cursor-pointer rounded-md font-medium text-brand-600 hover:text-brand-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-brand-500" %>
+                      <%= form.label :audio, "Upload an audio or video file", class: "relative cursor-pointer rounded-md font-medium text-brand-600 hover:text-brand-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-brand-500" %>
 
                       <p class="pl-1">or drag and drop</p>
                       <%= form.file_field :audio, direct_upload: true,
                         multiple: true,
-                        accept: 'audio/*',
+                        accept: 'audio/*,video/*',
                         class: "hidden",
                         data: { "audio-upload-target": "input",
                                 action:        "change->audio-upload#uploadFile",
@@ -60,7 +60,7 @@
 
                   <div>
                   </div>
-                  <p class="text-xs text-gray-500"> Audio, up to 200MB </p>
+                  <p class="text-xs text-gray-500"> Audio or video, up to 200MB </p>
                 </div>
 
               </div>
