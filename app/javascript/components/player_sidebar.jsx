@@ -1,12 +1,12 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import useAudioStore from "../stores/audioStore";
 import { ScrollArea } from "./ui/scroll-area";
 import { Play, Pause, X, Trash2 } from "lucide-react";
 import { Button } from "./ui/button";
+import usePlayerQueueTracks from "@/hooks/usePlayerQueueTracks";
 
 const PlayerSidebar = () => {
-  const [tracks, setTracks] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { tracks, loading } = usePlayerQueueTracks();
   const { currentTrackId, isPlaying, play } = useAudioStore();
 
   const removeTrack = (trackId) => {
@@ -18,31 +18,6 @@ const PlayerSidebar = () => {
   const clearPlaylist = () => {
     useAudioStore.setState({ playlist: [] });
   };
-
-  useEffect(() => {
-    const fetchTracks = async () => {
-      try {
-        const { playlist } = useAudioStore.getState();
-        if (!playlist || playlist.length === 0) {
-          setTracks([]);
-          return;
-        }
-        
-        const queryParams = new URLSearchParams();
-        playlist.forEach(id => queryParams.append('ids[]', id));
-        
-        const response = await fetch(`/player/tracklist.json?${queryParams.toString()}`);
-        const data = await response.json();
-        setTracks(data.tracks);
-      } catch (error) {
-        console.error("Error fetching tracks:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchTracks();
-  }, [useAudioStore.getState().playlist]);
 
   if (loading) {
     return (

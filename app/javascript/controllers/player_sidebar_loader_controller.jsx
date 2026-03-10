@@ -1,16 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 import React from "react"
 import { createRoot } from "react-dom/client"
-import PlayerSidebar from "../components/player_sidebar"
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "../components/ui/sheet"
-import { List } from "lucide-react"
+import PlayerQueueSheet from "../components/player_queue_sheet"
 
 export default class extends Controller {
   static targets = ["container"]
@@ -23,24 +14,7 @@ export default class extends Controller {
     const root = createRoot(this.containerTarget)
     
     root.render(
-      <Sheet>
-        <SheetTrigger asChild>
-          <button className="rounded-full p-2 hover:bg-accent">
-            <List className="h-5 w-5" />
-          </button>
-        </SheetTrigger>
-        <SheetContent side="right" className="w-[400px] sm:w-[540px] bg-default">
-          <SheetHeader>
-            <SheetTitle>Queue</SheetTitle>
-            <SheetDescription>
-              Your current playlist queue
-            </SheetDescription>
-          </SheetHeader>
-          <div className="h-[calc(100vh-120px)]">
-            <PlayerSidebar />
-          </div>
-        </SheetContent>
-      </Sheet>
+      <PlayerQueueSheet />
     )
   }
 

@@ -1,17 +1,14 @@
-require "tempfile"
 require "open3"
 
-class Mp3Converter
+class WavConverter
   def initialize(file)
     @file = file
   end
 
   def run
-    dir = Dir.mktmpdir("my-dir")
-
+    dir = Dir.mktmpdir("wav-converter")
     filename = File.basename(@file, File.extname(@file))
-
-    output_file = "#{dir}/#{filename}.mp3"
+    output_file = File.join(dir, "#{filename}.wav")
 
     args = [
       ffmpeg_path,
@@ -19,16 +16,15 @@ class Mp3Converter
       "-vn",
       "-ar", "44100",
       "-ac", "2",
-      "-b:a", "192k",
+      "-c:a", "pcm_s16le",
       output_file
     ]
 
     stdout, stderr, status = Open3.capture3(*args)
+    Rails.logger.info("WavConverter stdout=#{stdout}") if stdout.present?
+    Rails.logger.warn("WavConverter stderr=#{stderr}") if stderr.present?
 
-    Rails.logger.info("Mp3Converter stdout=#{stdout}") if stdout.present?
-    Rails.logger.warn("Mp3Converter stderr=#{stderr}") if stderr.present?
-
-    raise "ffmpeg failed to generate mp3" unless status.success? && File.exist?(output_file)
+    raise "ffmpeg failed to generate wav" unless status.success? && File.exist?(output_file)
 
     output_file
   end

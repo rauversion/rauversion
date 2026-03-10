@@ -53,18 +53,18 @@ export default function NewTrack() {
   };
 
   const handleFiles = (newFiles) => {
-    // Filter for audio files
-    const audioFiles = newFiles.filter((file) =>
-      file.type.startsWith("audio/")
+    debugger
+    const mediaFiles = newFiles.filter((file) =>
+      file.type.startsWith("audio/") || file.type.startsWith("video/")
     );
-    if (audioFiles.length !== newFiles.length) {
+    if (mediaFiles.length !== newFiles.length) {
       toast({
         title: I18n.t("tracks.new.messages.invalid_files"),
-        description: I18n.t("tracks.new.messages.audio_only"),
+        description: "Only audio or video files are allowed.",
         variant: "destructive",
       });
     }
-    setFiles((prev) => [...prev, ...audioFiles]);
+    setFiles((prev) => [...prev, ...mediaFiles]);
   };
 
   const uploadFile = async (file, type = "audio") => {
@@ -515,7 +515,7 @@ export default function NewTrack() {
               id="audio-upload"
               type="file"
               multiple
-              accept="audio/*"
+              accept="audio/*,video/*"
               onChange={handleFileSelect}
               ref={fileInputRef}
               className="hidden"

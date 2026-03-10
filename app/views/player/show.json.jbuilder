@@ -4,7 +4,12 @@ json.track do
   json.title @track.title
   json.url track_path(@track)
   json.audio_url @track.mp3_audio&.url if @track.mp3_audio.attached?
+  json.description @track.description
   json.artwork_url @track.cover_url(:small)
+  json.has_video @track.video.attached?
+  if @track.video.attached?
+    json.video_url Rails.application.routes.url_helpers.rails_storage_proxy_url(@track.video)
+  end
   json.artist_name @track.artists.any? ? @track.artists.map { |artist| artist.full_name.presence || artist.username }.join(", ") : (@track.artist.presence || @track.user.username)
   json.album_title @track.album_title.presence || @track.release_title.presence || @track.playlists.find { |playlist| %w[album ep single compilation].include?(playlist.playlist_type.to_s) }&.title || "Rauversion"
   json.likes_count @track.respond_to?(:likes_count) ? @track.likes_count.to_i : @track.likes.count
@@ -17,8 +22,15 @@ json.track do
     json.original @track.cover_url(:original)
   end
   
+  json.user_id @track.user.id
+  json.user_full_name @track.user.full_name
   json.user_username @track.user.username
   json.user_url user_path(@track.user.username)
+  json.user_avatar_url do
+    json.small @track.user.avatar_url(:small)
+    json.medium @track.user.avatar_url(:medium)
+    json.large @track.user.avatar_url(:large)
+  end
 end
 
 # Get the playlist from the store if available

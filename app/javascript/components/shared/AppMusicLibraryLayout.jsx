@@ -23,6 +23,7 @@ import {
   List,
   Loader2,
   PanelLeft,
+  PanelRightOpen,
   Pause,
   Play,
   Plus,
@@ -32,10 +33,12 @@ import {
 
 import useAuthStore from "@/stores/authStore"
 import useAudioStore from "@/stores/audioStore"
+import useTrackVideoSidebarStore from "@/stores/trackVideoSidebarStore"
 import { useToast } from "@/hooks/use-toast"
 import { useIsMobile } from "@/hooks/use-mobile"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import TrackVideoSidebar from "@/components/shared/TrackVideoSidebar"
 import {
   Dialog,
   DialogContent,
@@ -113,6 +116,110 @@ const SIDEBAR_FIXED_TOP = 16
 const SIDEBAR_RESERVED_SPACE = 204
 const SIDEBAR_HEIGHT_CLASS = "h-[calc(100svh-4rem-6.75rem-2rem)]"
 const SIDEBAR_MIN_HEIGHT_CLASS = "min-h-[calc(100svh-4rem-6.75rem-2rem)]"
+
+function defaultDockState() {
+  return {
+    height: 0,
+    mode: "static",
+    offset: 0,
+    width: 0,
+  }
+}
+
+function useSidebarDock({ enabled, side, slotRef }) {
+  const [dock, setDock] = useState(defaultDockState)
+
+  const syncDock = useCallback(() => {
+    if (!enabled) return
+
+    const element = slotRef.current
+    if (!element) return
+
+    const rect = element.getBoundingClientRect()
+    const scrollTop = window.scrollY || window.pageYOffset || 0
+    const slotTop = rect.top + scrollTop
+    const slotHeight = element.offsetHeight
+    const height = Math.max(window.innerHeight - SIDEBAR_RESERVED_SPACE, 320)
+    const maxFixedScroll = slotTop + slotHeight - height - SIDEBAR_FIXED_TOP
+
+    let mode = "static"
+
+    if (scrollTop >= slotTop - SIDEBAR_FIXED_TOP) {
+      mode = maxFixedScroll > slotTop ? (scrollTop >= maxFixedScroll ? "bottom" : "fixed") : "fixed"
+    }
+
+    const nextDock = {
+      height,
+      mode,
+      offset: side === "left" ? Math.round(rect.left) : Math.round(window.innerWidth - rect.right),
+      width: Math.round(rect.width),
+    }
+
+    setDock((currentDock) => (
+      currentDock.height === nextDock.height &&
+      currentDock.mode === nextDock.mode &&
+      currentDock.offset === nextDock.offset &&
+      currentDock.width === nextDock.width
+    ) ? currentDock : nextDock)
+  }, [enabled, side, slotRef])
+
+  useEffect(() => {
+    if (!enabled) {
+      setDock(defaultDockState())
+      return undefined
+    }
+
+    const element = slotRef.current
+    if (!element) return undefined
+
+    let frameId = null
+    const runSync = () => {
+      if (frameId !== null) {
+        cancelAnimationFrame(frameId)
+      }
+
+      frameId = requestAnimationFrame(() => {
+        syncDock()
+      })
+    }
+
+    const resizeObserver = new ResizeObserver(runSync)
+    resizeObserver.observe(element)
+
+    runSync()
+    window.addEventListener("resize", runSync)
+    window.addEventListener("scroll", runSync, { passive: true })
+
+    return () => {
+      if (frameId !== null) {
+        cancelAnimationFrame(frameId)
+      }
+
+      resizeObserver.disconnect()
+      window.removeEventListener("resize", runSync)
+      window.removeEventListener("scroll", runSync)
+    }
+  }, [enabled, slotRef, syncDock])
+
+  const dockClassName = cn(
+    SIDEBAR_HEIGHT_CLASS,
+    dock.mode === "fixed" && "fixed top-4 z-30",
+    dock.mode === "bottom" && cn("absolute bottom-0 w-full", side === "left" ? "left-0" : "right-0"),
+    dock.mode === "static" && "relative"
+  )
+
+  const dockStyle = dock.mode === "fixed"
+    ? {
+      height: `${dock.height}px`,
+      width: `${dock.width}px`,
+      [side]: `${dock.offset}px`,
+    }
+    : {
+      height: `${Math.max(dock.height, 320)}px`,
+    }
+
+  return { dock, dockClassName, dockStyle }
+}
 
 function formatItemMeta(item) {
   switch (item.entity_type) {
@@ -1194,98 +1301,82 @@ function MobileMusicLibrary() {
 export default function AppMusicLibraryLayout({ children }) {
   const { currentUser } = useAuthStore()
   const isMobile = useIsMobile()
+  const currentTrackMeta = useAudioStore((state) => state.currentTrackMeta)
+  const isPlaying = useAudioStore((state) => state.isPlaying)
   const sidebarPanelRef = useRef(null)
+  const videoPanelRef = useRef(null)
   const sidebarSlotRef = useRef(null)
-  const [sidebarDock, setSidebarDock] = useState({
-    height: 0,
-    left: 0,
-    mode: "static",
-    width: 0,
+  const videoSidebarSlotRef = useRef(null)
+  const isVideoPanelOpen = useTrackVideoSidebarStore((state) => state.isOpen)
+  const isVideoPanelExpanded = useTrackVideoSidebarStore((state) => state.isExpanded)
+  const openVideoPanel = useTrackVideoSidebarStore((state) => state.open)
+  const activeTrack = currentTrackMeta?.id ? currentTrackMeta : null
+  const hasTrackSidebarContent = !!activeTrack
+  const shouldShowVideoPanel = hasTrackSidebarContent && isVideoPanelOpen
+  const sidebarDock = useSidebarDock({
+    enabled: !!currentUser && !isMobile,
+    side: "left",
+    slotRef: sidebarSlotRef,
   })
-
-  const syncSidebarDock = useCallback(() => {
-    const element = sidebarSlotRef.current
-    if (!element) return
-
-    const rect = element.getBoundingClientRect()
-    const scrollTop = window.scrollY || window.pageYOffset || 0
-    const slotTop = rect.top + scrollTop
-    const slotHeight = element.offsetHeight
-    const height = Math.max(window.innerHeight - SIDEBAR_RESERVED_SPACE, 320)
-    const maxFixedScroll = slotTop + slotHeight - height - SIDEBAR_FIXED_TOP
-
-    let mode = "static"
-
-    if (scrollTop >= slotTop - SIDEBAR_FIXED_TOP) {
-      mode = maxFixedScroll > slotTop ? (scrollTop >= maxFixedScroll ? "bottom" : "fixed") : "fixed"
-    }
-
-    const nextDock = {
-      height,
-      left: Math.round(rect.left),
-      mode,
-      width: Math.round(rect.width),
-    }
-
-    setSidebarDock((currentDock) => (
-      currentDock.height === nextDock.height &&
-      currentDock.left === nextDock.left &&
-      currentDock.mode === nextDock.mode &&
-      currentDock.width === nextDock.width
-    ) ? currentDock : nextDock)
-  }, [])
+  const videoSidebarDock = useSidebarDock({
+    enabled: !!currentUser && !isMobile && shouldShowVideoPanel,
+    side: "right",
+    slotRef: videoSidebarSlotRef,
+  })
+  const lastTrackIdRef = useRef(null)
+  const lastIsPlayingRef = useRef(false)
 
   useEffect(() => {
-    if (!currentUser || isMobile) return undefined
+    const nextTrackId = activeTrack?.id ? `${activeTrack.id}` : null
+    const previousTrackId = lastTrackIdRef.current
 
-    const element = sidebarSlotRef.current
-    if (!element) return undefined
+    if (
+      nextTrackId &&
+      nextTrackId !== previousTrackId &&
+      (previousTrackId !== null || isPlaying)
+    ) {
+      openVideoPanel()
+    }
 
-    let frameId = null
-    const runSync = () => {
-      if (frameId !== null) {
-        cancelAnimationFrame(frameId)
+    lastTrackIdRef.current = nextTrackId
+  }, [activeTrack?.id, isPlaying, openVideoPanel])
+
+  useEffect(() => {
+    if (isPlaying && !lastIsPlayingRef.current && activeTrack?.id) {
+      openVideoPanel()
+    }
+
+    lastIsPlayingRef.current = isPlaying
+  }, [activeTrack?.id, isPlaying, openVideoPanel])
+
+  useEffect(() => {
+    if (!currentUser || isMobile) return
+
+    const panel = videoPanelRef.current
+    if (!panel) return
+
+    const syncPanel = () => {
+      if (shouldShowVideoPanel) {
+        if (panel.isCollapsed?.()) {
+          panel.expand?.()
+        }
+
+        const targetSize = isVideoPanelExpanded ? 58 : 22
+        const currentSize = panel.getSize?.()
+        if (!currentSize || Math.abs(currentSize - targetSize) > 0.5) {
+          panel.resize?.(targetSize)
+        }
+        return
       }
 
-      frameId = requestAnimationFrame(() => {
-        syncSidebarDock()
-      })
-    }
-
-    const resizeObserver = new ResizeObserver(runSync)
-    resizeObserver.observe(element)
-
-    runSync()
-    window.addEventListener("resize", runSync)
-    window.addEventListener("scroll", runSync, { passive: true })
-
-    return () => {
-      if (frameId !== null) {
-        cancelAnimationFrame(frameId)
+      if (!panel.isCollapsed?.()) {
+        panel.collapse?.()
       }
-
-      resizeObserver.disconnect()
-      window.removeEventListener("resize", runSync)
-      window.removeEventListener("scroll", runSync)
     }
-  }, [currentUser, isMobile, syncSidebarDock])
 
-  const sidebarDockClassName = cn(
-    SIDEBAR_HEIGHT_CLASS,
-    sidebarDock.mode === "fixed" && "fixed top-4 z-30",
-    sidebarDock.mode === "bottom" && "absolute bottom-0 left-0 w-full",
-    sidebarDock.mode === "static" && "relative"
-  )
-
-  const sidebarDockStyle = sidebarDock.mode === "fixed"
-    ? {
-      height: `${sidebarDock.height}px`,
-      left: `${sidebarDock.left}px`,
-      width: `${sidebarDock.width}px`,
-    }
-    : {
-      height: `${Math.max(sidebarDock.height, 320)}px`,
-    }
+    const frameId = requestAnimationFrame(syncPanel)
+    return () => cancelAnimationFrame(frameId)
+  }, [currentUser, isMobile, isVideoPanelExpanded, shouldShowVideoPanel])
 
   if (!currentUser) {
     return children
@@ -1301,32 +1392,108 @@ export default function AppMusicLibraryLayout({ children }) {
   }
 
   return (
-    <ResizablePanelGroup
-      direction="horizontal"
-      autoSaveId="app-music-library-layout"
-      className="min-h-[calc(100svh-4rem-6.75rem-2rem)] w-full"
-    >
-      <ResizablePanel
-        ref={sidebarPanelRef}
-        defaultSize={24}
-        minSize={6}
-        maxSize={34}
-      >
-        <div ref={sidebarSlotRef} className={cn("relative", SIDEBAR_MIN_HEIGHT_CLASS)}>
-          <div className={sidebarDockClassName} style={sidebarDockStyle}>
-            <MusicLibrarySidebar
-              elevated={sidebarDock.mode === "fixed"}
-              onExpand={() => sidebarPanelRef.current?.resize(24)}
-            />
-          </div>
+    <>
+      {hasTrackSidebarContent && !shouldShowVideoPanel && (
+        <div className="fixed right-6 top-20 z-40">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={openVideoPanel}
+            className="rounded-full border border-border/60 bg-card/95 px-4 shadow-lg backdrop-blur"
+          >
+            <PanelRightOpen className="mr-2 h-4 w-4" />
+            Abrir panel
+          </Button>
         </div>
-      </ResizablePanel>
+      )}
 
-      <ResizableHandle withHandle className="mx-2 bg-border/70" />
+      <ResizablePanelGroup
+        id="app-track-shell-layout"
+        direction="horizontal"
+        autoSaveId="app-track-shell-layout"
+        className="min-h-[calc(100svh-4rem-6.75rem-2rem)] w-full"
+      >
+        <ResizablePanel
+          id="app-track-shell-main-panel"
+          order={1}
+          defaultSize={78}
+          minSize={24}
+        >
+          <ResizablePanelGroup
+            id="app-music-library-layout-group"
+            direction="horizontal"
+            autoSaveId="app-music-library-layout"
+            className="min-h-[calc(100svh-4rem-6.75rem-2rem)] w-full"
+          >
+            <ResizablePanel
+              id="music-library-sidebar-panel"
+              ref={sidebarPanelRef}
+              order={1}
+              defaultSize={24}
+              minSize={7}
+              maxSize={34}
+            >
+              <div ref={sidebarSlotRef} className={cn("relative", SIDEBAR_MIN_HEIGHT_CLASS)}>
+                <div className={sidebarDock.dockClassName} style={sidebarDock.dockStyle}>
+                  <MusicLibrarySidebar
+                    elevated={sidebarDock.dock.mode === "fixed"}
+                    onExpand={() => sidebarPanelRef.current?.resize(24)}
+                  />
+                </div>
+              </div>
+            </ResizablePanel>
 
-      <ResizablePanel minSize={60}>
-        <div className="min-w-0">{children}</div>
-      </ResizablePanel>
-    </ResizablePanelGroup>
+            <ResizableHandle
+              id="music-library-main-handle"
+              withHandle
+              className="mx-2 bg-border/70"
+            />
+
+            <ResizablePanel
+              id="music-library-content-panel"
+              order={2}
+              defaultSize={76}
+              minSize={60}
+            >
+              <div className="min-w-0 pb-28">{children}</div>
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        </ResizablePanel>
+
+        <ResizableHandle
+          id="track-video-sidebar-handle"
+          withHandle
+          disabled={!shouldShowVideoPanel}
+          className={cn(
+            "bg-border/70",
+            shouldShowVideoPanel
+              ? "mx-2"
+              : "mx-0 w-0 border-0 bg-transparent opacity-0 after:hidden"
+          )}
+        />
+
+        <ResizablePanel
+          id="track-video-sidebar-panel"
+          ref={videoPanelRef}
+          order={2}
+          defaultSize={22}
+          minSize={18}
+          maxSize={68}
+          collapsible
+          collapsedSize={0}
+        >
+          <div ref={videoSidebarSlotRef} className={cn("relative", SIDEBAR_MIN_HEIGHT_CLASS)}>
+            <div className={videoSidebarDock.dockClassName} style={videoSidebarDock.dockStyle}>
+              <TrackVideoSidebar
+                elevated={videoSidebarDock.dock.mode === "fixed"}
+                fillHeight
+                showShellControls
+                track={activeTrack}
+              />
+            </div>
+          </div>
+        </ResizablePanel>
+      </ResizablePanelGroup>
+    </>
   )
 }

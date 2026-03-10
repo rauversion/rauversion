@@ -163,6 +163,7 @@ class User < ApplicationRecord
       result = Track
         .includes(:audio_blob, :cover_blob, :track_peak, artists: { avatar_attachment: :blob }, user: { avatar_attachment: :blob })
         .with_attached_mp3_audio
+        .with_attached_video
         .left_outer_joins(:track_artists)
         .left_outer_joins(:likes)
         .joins(reposts_join, likes_join)
@@ -180,6 +181,7 @@ class User < ApplicationRecord
       result = Track
                     .includes(:audio_blob, :cover_blob, :track_peak, artists: { avatar_attachment: :blob }, user: { avatar_attachment: :blob })
                     .with_attached_mp3_audio
+                    .with_attached_video
                     .left_outer_joins(:likes)
                     .joins(reposts_join, likes_join)
                     .where(tracks[:user_id].eq(user.id).or(tracks[:label_id].in(user.id)))
@@ -198,6 +200,7 @@ class User < ApplicationRecord
       result = Track
         .includes(:audio_blob, :cover_blob, :track_peak, artists: { avatar_attachment: :blob }, user: { avatar_attachment: :blob })
         .with_attached_mp3_audio
+        .with_attached_video
         .left_outer_joins(:likes)
         .distinct
         .select('tracks.*, COUNT(likes.id) OVER (PARTITION BY tracks.id) AS likes_count')
@@ -209,6 +212,7 @@ class User < ApplicationRecord
       result = Track
         .includes(:audio_blob, :cover_blob, :track_peak, artists: { avatar_attachment: :blob }, user: { avatar_attachment: :blob })
         .with_attached_mp3_audio
+        .with_attached_video
         .left_outer_joins(:likes)
         .distinct
         .select('tracks.*, COUNT(likes.id) OVER (PARTITION BY tracks.id) AS likes_count')

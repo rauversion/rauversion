@@ -7,16 +7,7 @@ import { motion } from "framer-motion"
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast"
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "./ui/sheet"
-import {
   Heart,
-  List,
   Play,
   Pause,
   SkipBack,
@@ -25,7 +16,7 @@ import {
   VolumeX,
   Music2
 } from "lucide-react"
-import PlayerSidebar from "./player_sidebar"
+import PlayerQueueSheet from "./player_queue_sheet"
 
 const ProgressBar = ({ progress, duration, currentTime, onSeek, formatTime }) => (
   <div className="flex items-center w-full max-w-2xl mx-auto">
@@ -691,25 +682,7 @@ export default function AudioPlayer({ id }) {
                 onToggleMute={handleToggleMute}
               />
 
-              <Sheet>
-                <SheetTrigger asChild>
-                  <button className="p-2 text-foreground hover:bg-foreground/10 rounded-full transition-colors">
-                    <List size={20} />
-                  </button>
-                </SheetTrigger>
-                <SheetContent
-                  side="right"
-                  className="w-[400px] sm:w-[540px] p-0 bg-background text-foreground border-l border-border/70"
-                >
-                  <SheetHeader>
-                    <SheetTitle>Queue</SheetTitle>
-                    <SheetDescription>Your current playlist queue</SheetDescription>
-                  </SheetHeader>
-                  <div className="h-[calc(100vh-120px)]">
-                    <PlayerSidebar />
-                  </div>
-                </SheetContent>
-              </Sheet>
+              <PlayerQueueSheet triggerClassName="p-2 text-foreground hover:bg-foreground/10 transition-colors" />
             </div>
           </div>
 

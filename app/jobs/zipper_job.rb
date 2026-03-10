@@ -44,31 +44,27 @@ class ZipperJob < ApplicationJob
   private
 
   def track_zip(record)
-    # Ensure the audio is attached
-    unless record.audio.attached?
-      Rails.logger.warn "Track #{record.id} has no attached audio."
+    attachment = downloadable_attachment_for(record)
+    unless attachment&.attached?
+      Rails.logger.warn "Track #{record.id} has no downloadable media."
       return
     end
 
-    # Download the audio in chunks and save to a temp file
-    audio_path = Rails.root.join("tmp", record.audio.filename.to_s)
-    record.audio.download do |chunk|
-      File.open(audio_path, "ab") do |file|
+    media_path = Rails.root.join("tmp", attachment.filename.to_s)
+    attachment.download do |chunk|
+      File.open(media_path, "ab") do |file|
         file.write(chunk)
       end
     end
 
-    # Zip the audio
-    zipfile_path = Rails.root.join("tmp", "#{record.audio.filename.base}.zip")
+    zipfile_path = Rails.root.join("tmp", "#{attachment.filename.base}.zip")
     Zip::File.open(zipfile_path, Zip::File::CREATE) do |zipfile|
-      zipfile.add(record.audio.filename.to_s, audio_path)
+      zipfile.add(attachment.filename.to_s, media_path)
     end
 
-    # Attach the zipped file to the record
-    record.zip.attach(io: File.open(zipfile_path), filename: "#{record.audio.filename.base}.zip", content_type: "application/zip")
+    record.zip.attach(io: File.open(zipfile_path), filename: "#{attachment.filename.base}.zip", content_type: "application/zip")
 
-    # Clean up temporary files
-    File.delete(audio_path)
+    File.delete(media_path)
     File.delete(zipfile_path)
   rescue => e
     Rails.logger.error "Error zipping track #{record.id}: #{e.message}"
@@ -81,13 +77,12 @@ class ZipperJob < ApplicationJob
     begin
       Zip::File.open(zip_file.path, Zip::File::CREATE) do |zipfile|
         playlist.tracks.each do |track|
-          next unless track.audio.attached?
+          attachment = downloadable_attachment_for(track)
+          next unless attachment&.attached?
   
           begin
-            track.audio.open do |file|
-              # Use the original filename from the blob
-              filename = track.audio.filename.to_s
-              # Add the file directly to the zip without creating a separate temp file
+            attachment.open do |file|
+              filename = attachment.filename.to_s
               zipfile.get_output_stream(filename) do |os|
                 IO.copy_stream(file, os)
               end
@@ -130,6 +125,14 @@ class ZipperJob < ApplicationJob
       zip_file.close
       zip_file.unlink
     end
+  end
+
+  def downloadable_attachment_for(record)
+    return record.downloadable_media if record.respond_to?(:downloadable_media)
+
+    return record.audio if record.respond_to?(:audio) && record.audio.attached?
+    return record.video if record.respond_to?(:video) && record.video.attached?
+    return record.mp3_audio if record.respond_to?(:mp3_audio) && record.mp3_audio.attached?
   end
 
 end

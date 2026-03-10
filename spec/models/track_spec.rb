@@ -13,6 +13,7 @@ RSpec.describe Track, type: :model do
 
   it { should have_one_attached(:cover) }
   it { should have_one_attached(:audio) }
+  it { should have_one_attached(:video) }
   it { should have_one_attached(:mp3_audio) }
   it { should have_one_attached(:zip) }
 
@@ -130,6 +131,7 @@ RSpec.describe Track, type: :model do
     let(:track) { FactoryBot.create(:track, user: user) }
 
     before do
+      track.audio.attach(audio_file)
       allow(PeaksGenerator).to receive(:new).and_return(peaks_processor)
       allow(peaks_processor).to receive(:run).and_return([1, 2, 3, 4, 5])
     end
@@ -161,10 +163,17 @@ RSpec.describe Track, type: :model do
 
     describe "#update_mp3" do
       let(:mp3_converter) { instance_double(Mp3Converter) }
+      let(:mp3_output_dir) { Dir.mktmpdir("track-spec-mp3") }
+      let(:mp3_output_path) { File.join(mp3_output_dir, "converted.mp3") }
 
       before do
+        File.binwrite(mp3_output_path, "fake-mp3")
         allow(Mp3Converter).to receive(:new).and_return(mp3_converter)
-        allow(mp3_converter).to receive(:run).and_return(audio_file)
+        allow(mp3_converter).to receive(:run).and_return(mp3_output_path)
+      end
+
+      after do
+        FileUtils.remove_entry(mp3_output_dir) if Dir.exist?(mp3_output_dir)
       end
 
       it "converts the audio file to mp3" do
@@ -172,7 +181,64 @@ RSpec.describe Track, type: :model do
         expect(mp3_converter).to receive(:run)
 
         track.update_mp3
+
+        expect(track.mp3_audio).to be_attached
       end
+    end
+  end
+
+  describe "#reprocess! with video" do
+    let(:track) { FactoryBot.create(:track, user: user) }
+    let(:wav_converter) { instance_double(WavConverter, run: wav_output_path) }
+    let(:mp3_converter) { instance_double(Mp3Converter, run: mp3_output_path) }
+    let(:peaks_processor) { instance_double(PeaksGenerator, run: [0.1, 0.3, 0.6]) }
+    let(:wav_output_dir) { Dir.mktmpdir("track-spec-wav") }
+    let(:mp3_output_dir) { Dir.mktmpdir("track-spec-video-mp3") }
+    let(:wav_output_path) { File.join(wav_output_dir, "converted.wav") }
+    let(:mp3_output_path) { File.join(mp3_output_dir, "converted.mp3") }
+
+    before do
+      track.video.attach(
+        io: StringIO.new("fake-video"),
+        filename: "clip.mp4",
+        content_type: "video/mp4"
+      )
+
+      File.binwrite(wav_output_path, "fake-wav")
+      File.binwrite(mp3_output_path, "fake-mp3")
+
+      allow(WavConverter).to receive(:new).and_return(wav_converter)
+      allow(Mp3Converter).to receive(:new).and_return(mp3_converter)
+      allow(PeaksGenerator).to receive(:new).and_return(peaks_processor)
+    end
+
+    after do
+      FileUtils.remove_entry(wav_output_dir) if Dir.exist?(wav_output_dir)
+      FileUtils.remove_entry(mp3_output_dir) if Dir.exist?(mp3_output_dir)
+    end
+
+    it "extracts wav and mp3 assets and marks the track as processed" do
+      track.reprocess!
+
+      expect(track.audio).to be_attached
+      expect(track.mp3_audio).to be_attached
+      expect(track.state).to eq("processed")
+      expect(track.peaks).to eq([0.1, 0.3, 0.6])
+      expect(track).to be_has_video
+      expect(track.playback_media).to eq(track.mp3_audio)
+      expect(track.downloadable_media).to eq(track.audio)
+      expect(track.duration).to be_nil
+    end
+  end
+
+  describe "#duration" do
+    let(:track) { FactoryBot.create(:track, user: user) }
+
+    it "reads duration from the playback media metadata when present" do
+      playback_media = instance_double("PlaybackMedia", attached?: true, metadata: { "duration" => 123.45 })
+      allow(track).to receive(:playback_media).and_return(playback_media)
+
+      expect(track.duration).to eq(123.45)
     end
   end
 end

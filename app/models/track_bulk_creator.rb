@@ -14,6 +14,7 @@ class TrackBulkCreator
 
   # Initialize the tracks_attributes with an empty array
   def initialize(attributes = {})
+    super(attributes)
     self.private = ActiveRecord::Type::Boolean.new.cast(attributes[:private])
     self.tracks_attributes ||= []
   end
@@ -38,11 +39,13 @@ class TrackBulkCreator
 
   def tracks
     @tracks ||= tracks_attributes.map do |attributes|
-      blob = ActiveStorage::Blob.find_signed(attributes[:audio])
-      t = Track.new(attributes)
+      track_attributes = attributes.to_h.symbolize_keys
+      blob = ActiveStorage::Blob.find_signed(track_attributes[:audio])
+      t = Track.new(track_attributes.except(:audio))
       t.title = File.basename(blob.filename.to_s, File.extname(blob.filename.to_s)) unless t.title.present?
       t.user = user
-      t.private = ActiveRecord::Type::Boolean.new.cast(attributes[:private])
+      t.private = ActiveRecord::Type::Boolean.new.cast(track_attributes[:private])
+      attach_source_blob(track: t, blob: blob)
       t
     end
   end
@@ -56,5 +59,10 @@ class TrackBulkCreator
         errors.add(:base, "#{track.title}: #{message}")
       end
     end
+  end
+
+  def attach_source_blob(track:, blob:)
+    attachment_name = blob.content_type.to_s.start_with?("video/") ? :video : :audio
+    track.public_send(attachment_name).attach(blob)
   end
 end

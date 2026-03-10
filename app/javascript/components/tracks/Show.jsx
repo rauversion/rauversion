@@ -11,7 +11,9 @@ import { Button } from "@/components/ui/button"
 import useAuthStore from '@/stores/authStore'
 import { useToast } from "@/hooks/use-toast"
 import useAudioStore from '@/stores/audioStore'
+import { useIsMobile } from "@/hooks/use-mobile"
 import MusicPurchase from '@/components/shared/MusicPurchase'
+import TrackVideoSidebar from '@/components/shared/TrackVideoSidebar'
 
 function playlistTypeLabel(playlistType) {
   switch (playlistType) {
@@ -45,6 +47,7 @@ export default function TrackShow() {
   const [likes, setLikes] = useState(0)
   const [isLiked, setIsLiked] = useState(false)
   const { toast } = useToast()
+  const isMobile = useIsMobile()
 
   const { currentTrackId, isPlaying, play, pause } = useAudioStore()
 
@@ -139,6 +142,11 @@ export default function TrackShow() {
     }
   }
 
+  const isCurrentTrackPlaying =
+    isPlaying &&
+    currentTrackId !== null &&
+    `${currentTrackId}` === `${track?.id}`
+
   if (loading) {
     return <TrackSkeleton />
   }
@@ -154,77 +162,78 @@ export default function TrackShow() {
     )
   }
 
-  const isCurrentTrackPlaying =
-    isPlaying &&
-    currentTrackId !== null &&
-    `${currentTrackId}` === `${track.id}`
+  const shouldShowInlineVideoSidebar =
+    (!currentUser || isMobile) &&
+    track.has_video &&
+    track.video_url
 
   return (
     <main className="flex-1 relative z-0 overflow-y-auto focus:outline-none xl:order-last">
       <div className="bg-background">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="flex flex-col gap-6 md:flex-row md:items-center md:gap-8">
-            <div className="order-2 w-full md:order-1 md:w-2/3">
-              <div className="flex items-center gap-4 mb-4">
-                <div className="flex-shrink-0">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="min-w-0 max-w-5xl">
+            <div className="flex flex-col gap-6 md:flex-row md:items-center md:gap-8">
+              <div className="order-2 w-full md:order-1 md:w-2/3">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="flex-shrink-0">
+                    <img
+                      src={track.user.avatar_url?.medium}
+                      alt={track.user.username}
+                      className="h-10 w-10 rounded-full shadow-md"
+                    />
+                  </div>
+                  <div>
+                    <h1 className="text-xl font-bold text-foreground">
+                      {track.title}
+                    </h1>
+                  </div>
+                </div>
+
+                {track.processed && (
+                  <div className="bg-card rounded-lg p-6">
+                    <TrackPlayer
+                      url={track.playback_url || track.mp3_audio_url || track.mp3_url || track.audio_url}
+                      peaks={track.peaks}
+                      height={100}
+                      id={track.id}
+                      urlLink={`/player?id=${track.id}?t=true`}
+                    />
+                  </div>
+                )}
+              </div>
+              <div className="order-1 w-full md:order-2 md:w-1/3">
+                <div className="relative mx-auto w-full max-w-xs md:max-w-none">
                   <img
-                    src={track.user.avatar_url?.medium}
-                    alt={track.user.username}
-                    className="h-10 w-10 rounded-full shadow-md"
+                    src={track.cover_url?.cropped_image || track.cover_url?.large || AlbumsHelper.default_image_sqr}
+                    alt={track.title}
+                    className="w-full h-auto rounded-lg shadow-lg"
                   />
-                </div>
-                <div>
-                  {/*<Link
-                    to={`/${track.user.username}`}
-                    className="text-sm font-medium text-muted-foreground hover:text-primary"
+                  <div className="pointer-events-none absolute inset-0 rounded-lg bg-gradient-to-t from-black/35 via-transparent to-transparent" />
+
+                  <button
+                    type="button"
+                    onClick={() => handlePlay()}
+                    aria-label={isCurrentTrackPlaying ? "Pause track" : "Play track"}
+                    className="absolute bottom-3 left-3 z-10 inline-flex h-12 w-12 items-center justify-center rounded-full bg-black/90 text-white shadow-2xl ring-2 ring-white/80 transition-all duration-200 hover:scale-105 hover:bg-black focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-500/60 dark:bg-white/90 dark:text-black dark:ring-black/40 md:bottom-4 md:left-4 md:h-14 md:w-14"
                   >
-                    {track.user.username}
-                  </Link>*/}
-                  <h1 className="text-xl font-bold text-foreground">
-                    {track.title}
-                  </h1>
+                    {isCurrentTrackPlaying ? (
+                      <Pause className="h-6 w-6 md:h-7 md:w-7" />
+                    ) : (
+                      <Play className="h-6 w-6 translate-x-[1px] md:h-7 md:w-7" />
+                    )}
+                  </button>
                 </div>
               </div>
-
-              {track.processed && (
-                <div className="bg-card rounded-lg p-6">
-                  <TrackPlayer
-                    url={track.audio_url || track.mp3_audio_url || track.mp3_url}
-                    peaks={track.peaks}
-                    height={100}
-                    id={track.id}
-                    urlLink={`/player?id=${track.id}?t=true`}
-                  />
-                </div>
-              )}
             </div>
-            <div className="order-1 w-full md:order-2 md:w-1/3">
-              <div className="relative mx-auto w-full max-w-xs md:max-w-none">
-                <img
-                  src={track.cover_url?.cropped_image || track.cover_url?.large || AlbumsHelper.default_image_sqr}
-                  alt={track.title}
-                  className="w-full h-auto rounded-lg shadow-lg"
-                />
-                <div className="pointer-events-none absolute inset-0 rounded-lg bg-gradient-to-t from-black/35 via-transparent to-transparent" />
 
-                <button
-                  type="button"
-                  onClick={() => handlePlay()}
-                  aria-label={isCurrentTrackPlaying ? "Pause track" : "Play track"}
-                  className="absolute bottom-3 left-3 z-10 inline-flex h-12 w-12 items-center justify-center rounded-full bg-black/90 text-white shadow-2xl ring-2 ring-white/80 transition-all duration-200 hover:scale-105 hover:bg-black focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-500/60 dark:bg-white/90 dark:text-black dark:ring-black/40 md:bottom-4 md:left-4 md:h-14 md:w-14"
-                >
-                  {isCurrentTrackPlaying ? (
-                    <Pause className="h-6 w-6 md:h-7 md:w-7" />
-                  ) : (
-                    <Play className="h-6 w-6 translate-x-[1px] md:h-7 md:w-7" />
-                  )}
-                </button>
+            {shouldShowInlineVideoSidebar && (
+              <div className="mt-8 max-w-sm">
+                <TrackVideoSidebar track={track} />
               </div>
-            </div>
-          </div>
+            )}
 
-          <div className="mt-4">
-            <div className="space-y-8">
+            <div className="mt-4">
+              <div className="space-y-8">
 
 
               {/* Artists Section */}
@@ -324,8 +333,9 @@ export default function TrackShow() {
                 </div>
               )}
 
-            </div>
           </div>
+        </div>
+      </div>
         </div>
       </div>
 
