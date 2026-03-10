@@ -3,14 +3,7 @@ import { Play, Pause } from 'lucide-react'
 import useAudioStore from '../../stores/audioStore'
 
 export default function PlayButton({ track }) {
-
-  const { 
-    currentTrackId, 
-    isPlaying, 
-    play,
-    pause,
-    setPlaylist
-  } = useAudioStore()
+  const { currentTrackId, isPlaying } = useAudioStore()
 
   const handlePlay = () => {
     if(isPlaying) {
@@ -30,17 +23,17 @@ export default function PlayButton({ track }) {
     <button
       type="button"
       onClick={handlePlay}
-      className="flex items-center gap-2 text-sm font-bold leading-6 text-brand-500 hover:text-brand-700 active:text-brand-900 group"
+      className="group inline-flex items-center gap-3 text-sm font-bold leading-6 text-default transition-colors hover:text-default/80"
     >
       <span className="sr-only">{isPlaying ? 'Pause' : 'Play'}</span>
-      <div className="h-10 w-10 rounded-full bg-white/10 ring-1 ring-inset ring-white/20 group-hover:bg-white/20 group-hover:ring-white/30 flex items-center justify-center">
+      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-black text-white ring-1 ring-inset ring-black/10 transition-all group-hover:scale-[1.02] group-hover:bg-black/85 dark:bg-white dark:text-black dark:ring-white/20 dark:group-hover:bg-white/85">
         {isPlaying && isCurrent() ? (
           <Pause className="h-5 w-5" />
         ) : (
           <Play className="h-5 w-5 translate-x-0.5" />
         )}
       </div>
-      <span className="ml-2">{isPlaying && isCurrent() ? 'Pause' : 'Play'}</span>
+      <span>{isPlaying && isCurrent() ? 'Pause' : 'Play'}</span>
     </button>
   )
 }

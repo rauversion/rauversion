@@ -204,6 +204,8 @@ function AppContent() {
 
   console.info("LOCATION: ", location)
 
+  const isPodcastRoute = /^\/[^/]+\/podcasts(\/|$)/.test(location.pathname)
+
   const shouldShowMusicLibraryLayout =
     !!currentUser &&
     !location.pathname.includes("/users/sign_in") &&
@@ -367,6 +369,7 @@ function AppContent() {
         !location.pathname.includes('editor') &&
         !location.pathname.includes('preview') &&
         !location.pathname.includes('albums') &&
+        !isPodcastRoute &&
         !location.pathname.includes('page-builder') &&
         !location.pathname.includes('conversations') &&
         !location.pathname.includes('press-kit') &&

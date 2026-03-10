@@ -4,6 +4,19 @@ import { get } from '@rails/request.js'
 import { ArrowLeft } from 'lucide-react'
 import PlayButton from './PlayButton'
 
+function formatPodcastDate(value) {
+  if (!value) return null
+
+  const parsedDate = new Date(value)
+  if (Number.isNaN(parsedDate.getTime())) return null
+
+  return parsedDate.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+}
+
 export default function PodcastShow() {
   const { username, id } = useParams()
   const { user } = useOutletContext()
@@ -36,60 +49,67 @@ export default function PodcastShow() {
     )
   }
 
+  const coverImageUrl =
+    podcast.image_url ||
+    podcast.cover_url?.cropped_image ||
+    podcast.cover_url ||
+    null
+  const formattedDate = formatPodcastDate(podcast.created_at)
+
   return (
-    <div className="relative">
+    <div className="relative w-full">
       <div className="pb-12 pt-16 sm:pb-4 lg:pt-12">
-        <div className="lg:px-8">
-          <div className="lg:max-w-4xl">
-            <div className="mx-auto px-4 sm:px-6 md:max-w-2xl md:px-4 lg:px-0">
-              <Link to={`/${username}/podcasts`} className="inline-flex items-center gap-2 text-sm font-medium text-brand-500 hover:text-brand-700 mb-8">
-                <ArrowLeft className="h-4 w-4" />
-                Back to Episodes
-              </Link>
+        <div className="px-4 sm:px-6 lg:px-10 xl:px-16">
+          <div className="w-full">
+            <Link to={`/${username}/podcasts`} className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-brand-500 hover:text-brand-700">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Episodes
+            </Link>
 
-              <div className="mt-4">
+            <div className="mt-4">
+              {formattedDate && (
                 <time dateTime={podcast.created_at} className="font-mono text-sm leading-7 text-muted">
-                  {new Date(podcast.created_at).toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'long',
-                    day: 'numeric'
-                  })}
+                  {formattedDate}
                 </time>
-                <h1 className="mt-2 text-3xl font-bold text-default">{podcast.title}</h1>
-                
-                <div className="mt-4">
-                  <PlayButton
-                    track={{
-                      id: podcast.id,
-                      url: podcast.audio_url,
-                      title: podcast.title,
-                      artist: user?.username,
-                      artwork: podcast.image_url
-                    }}
-                  />
-                </div>
-
-                {podcast.image_url && (
-                  <img
-                    src={podcast.image_url}
-                    alt={podcast.title}
-                    className="mt-6 rounded-lg object-cover w-full"
-                  />
-                )}
-
-                <div className="mt-6 text-base leading-7 text-subtle prose prose-invert max-w-none">
-                  {podcast.description}
-                </div>
-
-                {user?.id === podcast.user_id && (
-                  <Link
-                    to={`/${username}/podcasts/${id}/edit`}
-                    className="mt-6 inline-block text-sm font-medium text-brand-500 hover:text-brand-700"
-                  >
-                    Edit Episode
-                  </Link>
-                )}
+              )}
+              <h1 className="mt-2 text-3xl font-bold text-default">{podcast.title}</h1>
+              
+              <div className="mt-4">
+                <PlayButton
+                  track={{
+                    id: podcast.id,
+                    url: podcast.audio_url,
+                    title: podcast.title,
+                    artist: user?.username,
+                    artwork: coverImageUrl
+                  }}
+                />
               </div>
+
+              {coverImageUrl && (
+                <div className="mt-6 w-full overflow-hidden rounded-lg">
+                  <div className="relative aspect-[16/9] w-full">
+                    <img
+                      src={coverImageUrl}
+                      alt={podcast.title}
+                      className="absolute inset-0 h-full w-full object-cover"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="prose prose-invert mt-6 max-w-none text-base leading-7 text-subtle">
+                {podcast.description}
+              </div>
+
+              {user?.id === podcast.user_id && (
+                <Link
+                  to={`/${username}/podcasts/${id}/edit`}
+                  className="mt-6 inline-block text-sm font-medium text-brand-500 hover:text-brand-700"
+                >
+                  Edit Episode
+                </Link>
+              )}
             </div>
           </div>
         </div>

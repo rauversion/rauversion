@@ -53,16 +53,12 @@ export default function PodcastsIndex() {
   }
 
   return (
-    <div className="relative">
+    <div className="relative w-full">
       <div className="pb-12 pt-16 sm:pb-4 lg:pt-12">
-        <div className="lg:px-8">
-          <div className="lg:max-w-4xl">
-            <div className="mx-auto px-4 sm:px-6 md:max-w-2xl md:px-4 lg:px-0">
-              <h1 className="text-2xl font-bold leading-7 text-default">
-                Episodes
-              </h1>
-            </div>
-          </div>
+        <div className="px-4 sm:px-6 lg:px-10 xl:px-16">
+          <h1 className="text-2xl font-bold leading-7 text-default">
+            Episodes
+          </h1>
         </div>
         <div className="divide-y divide-muted sm:mt-4 lg:mt-8 lg:border-t lg:border-subtle">
           {data?.collection?.map((track) => (
@@ -71,55 +67,55 @@ export default function PodcastsIndex() {
               aria-labelledby={`episode-${track.id}`}
               className="py-10 sm:py-12"
             >
-              <div className="lg:px-8">
-                <div className="lg:max-w-4xl">
-                  <div className="mx-auto px-4 sm:px-6 md:max-w-2xl md:px-4 lg:px-0">
-                    <div className="flex flex-col items-start">
-                      <h2
-                        id={`episode-${track.id}`}
-                        className="mt-2 text-lg font-bold text-default"
-                      >
-                        <Link to={`/${username}/podcasts/${track.slug}`}>
-                          {track.title}
-                        </Link>
-                      </h2>
+              <div className="px-4 sm:px-6 lg:px-10 xl:px-16">
+                <div className="flex w-full flex-col items-start">
+                  <h2
+                    id={`episode-${track.id}`}
+                    className="mt-2 text-lg font-bold text-default"
+                  >
+                    <Link to={`/${username}/podcasts/${track.slug}`}>
+                      {track.title}
+                    </Link>
+                  </h2>
 
+                  <div className="my-2 w-full overflow-hidden rounded-lg">
+                    <div className="relative aspect-[16/9] w-full">
                       <img
                         src={track.cover_url.cropped_image}
                         alt=""
-                        className="my-2 rounded-lg object-cover w-full group-hover:scale-105 transition-transform duration-500"
+                        className="absolute inset-0 h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
-
-                      <time
-                        dateTime={track.created_at}
-                        className="order-first font-mono text-sm leading-7 text-muted"
-                      >
-                        {new Date(track.created_at).toLocaleDateString(
-                          "default",
-                          {
-                            year: "numeric",
-                            month: "long",
-                            day: "numeric",
-                          }
-                        )}
-                      </time>
-
-                      <p className="mt-1 text-base leading-7 text-subtle">
-                        {track.description}
-                      </p>
-
-                      <div className="mt-4">
-                        <PlayButton
-                          track={{
-                            id: track.id,
-                            url: track.audio_url,
-                            title: track.title,
-                            artist: user?.username,
-                            artwork: track.cover_url,
-                          }}
-                        />
-                      </div>
                     </div>
+                  </div>
+
+                  <time
+                    dateTime={track.created_at}
+                    className="order-first font-mono text-sm leading-7 text-muted"
+                  >
+                    {new Date(track.created_at).toLocaleDateString(
+                      "default",
+                      {
+                        year: "numeric",
+                        month: "long",
+                        day: "numeric",
+                      }
+                    )}
+                  </time>
+
+                  <p className="mt-1 text-base leading-7 text-subtle">
+                    {track.description}
+                  </p>
+
+                  <div className="mt-4">
+                    <PlayButton
+                      track={{
+                        id: track.id,
+                        url: track.audio_url,
+                        title: track.title,
+                        artist: user?.username,
+                        artwork: track.cover_url,
+                      }}
+                    />
                   </div>
                 </div>
               </div>

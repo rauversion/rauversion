@@ -40,45 +40,49 @@ export default function PodcastLayout() {
 
   return (
     <div className="w-full">
-      <Header data={data} currentUser={data?.current_user} />
-      
-      <main className="border-t border-subtle lg:relative lg:mb-28 lg:ml-112 lg:border-t-0 xl:ml-120">
-                <svg aria-hidden="true" className="absolute left-0 top-0 h-20 w-full">
-          <defs>
-            <linearGradient id="podcast-gradient" x1="0" x2="0" y1="0" y2="1">
-              <stop offset="40%" stopColor="white"></stop>
-              <stop offset="100%" stopColor="black"></stop>
-            </linearGradient>
-            <linearGradient id="podcast-gradient-color">
-              <stop offset="0%" stopColor="#4989E8"></stop>
-              <stop offset="50%" stopColor="#6159DA"></stop>
-              <stop offset="100%" stopColor="#FF54AD"></stop>
-            </linearGradient>
-            <mask id="podcast-mask">
-              <rect width="100%" height="100%" fill="url(#podcast-pattern)"></rect>
-            </mask>
-            <pattern id="podcast-pattern" width="400" height="100%" patternUnits="userSpaceOnUse">
-              {Array.from({ length: 50 }).map((_, i) => (
-                <rect
-                  key={i}
-                  width="2"
-                  height={`${40 + Math.random() * 60}%`}
-                  x={i * 4}
-                  fill="url(#podcast-gradient)"
-                />
-              ))}
-            </pattern>
-          </defs>
-          <rect
-            width="100%"
-            height="100%"
-            fill="url(#podcast-gradient-color)"
-            mask="url(#podcast-mask)"
-            opacity="0.25"
-          ></rect>
-        </svg>
-        <Outlet context={{ user: data?.user, podcasterInfo: data?.podcaster_info }} />
-      </main>
+      <div className="lg:flex lg:items-stretch">
+        <div className="lg:flex lg:w-112 lg:flex-none xl:w-120">
+          <Header data={data} currentUser={data?.current_user} />
+        </div>
+
+        <main className="relative min-w-0 flex-1 border-t border-subtle lg:mb-28 lg:border-t-0">
+          <svg aria-hidden="true" className="absolute left-0 top-0 h-20 w-full">
+            <defs>
+              <linearGradient id="podcast-gradient" x1="0" x2="0" y1="0" y2="1">
+                <stop offset="40%" stopColor="white"></stop>
+                <stop offset="100%" stopColor="black"></stop>
+              </linearGradient>
+              <linearGradient id="podcast-gradient-color">
+                <stop offset="0%" stopColor="#4989E8"></stop>
+                <stop offset="50%" stopColor="#6159DA"></stop>
+                <stop offset="100%" stopColor="#FF54AD"></stop>
+              </linearGradient>
+              <mask id="podcast-mask">
+                <rect width="100%" height="100%" fill="url(#podcast-pattern)"></rect>
+              </mask>
+              <pattern id="podcast-pattern" width="400" height="100%" patternUnits="userSpaceOnUse">
+                {Array.from({ length: 50 }).map((_, i) => (
+                  <rect
+                    key={i}
+                    width="2"
+                    height={`${40 + Math.random() * 60}%`}
+                    x={i * 4}
+                    fill="url(#podcast-gradient)"
+                  />
+                ))}
+              </pattern>
+            </defs>
+            <rect
+              width="100%"
+              height="100%"
+              fill="url(#podcast-gradient-color)"
+              mask="url(#podcast-mask)"
+              opacity="0.25"
+            ></rect>
+          </svg>
+          <Outlet context={{ user: data?.user, podcasterInfo: data?.podcaster_info }} />
+        </main>
+      </div>
     </div>
   )
 }
