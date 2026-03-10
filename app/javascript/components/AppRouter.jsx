@@ -205,8 +205,11 @@ function AppContent() {
   console.info("LOCATION: ", location)
 
   const isPodcastRoute = /^\/[^/]+\/podcasts(\/|$)/.test(location.pathname)
+  const isEventShowRoute = /^\/events\/[^/]+$/.test(location.pathname)
 
   const shouldShowMusicLibraryLayout =
+    !isEventShowRoute &&
+    !isPodcastRoute &&
     !location.pathname.includes("/users/sign_in") &&
     !location.pathname.includes("/users/sign_up") &&
     !location.pathname.includes("/forgot-password") &&

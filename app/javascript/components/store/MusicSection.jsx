@@ -19,12 +19,12 @@ const EcoFriendlySection = () => {
   } = useInfiniteScroll("/store/music.json");
 
   return (
-    <div className="bg-default py-24">
-      <div className="max-w-7xl mx-auto px-4">
+    <div className="@container/store-music bg-default py-20 @4xl/store-music:py-24">
+      <div className="mx-auto max-w-7xl px-4 @sm/store-music:px-6">
         <div className="mb-16">
-          <div className="flex items-end justify-between mb-12">
+          <div className="mb-12 flex flex-col gap-6 @4xl/store-music:flex-row @4xl/store-music:items-end @4xl/store-music:justify-between">
             <div>
-              <h2 className="text-2xl sm:text-6xl font-medium leading-tight">
+              <h2 className="text-2xl font-medium leading-tight @md/store-music:text-3xl @2xl/store-music:text-4xl @4xl/store-music:text-5xl @6xl/store-music:text-6xl">
                 CD, cassettes y Vinilos.
                 <br />
                 Ediciones limitadas para coleccionistas{" "}
@@ -41,7 +41,7 @@ const EcoFriendlySection = () => {
               </Link>
             </div>
 
-            <div className="hidden flex items-center gap-4">
+            <div className="hidden items-center gap-4">
               <div className="flex -space-x-2">
                 {[1, 2, 3].map((i) => (
                   <div
@@ -80,7 +80,7 @@ const EcoFriendlySection = () => {
             {products.map((product) => (
               <CarouselItem
                 key={product.id}
-                className="basis-full md:basis-1/2 lg:basis-1/4"
+                className="basis-[82%] @sm/store-music:basis-[68%] @2xl/store-music:basis-1/2 @4xl/store-music:basis-1/3 @6xl/store-music:basis-1/4"
               >
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -111,7 +111,7 @@ const EcoFriendlySection = () => {
                       </div>*/}
 
                       <div className="mt-auto">
-                        <h3 className="text-2xl font-medium max-w-[200px] leading-tight text-white">
+                        <h3 className="max-w-[200px] text-xl font-medium leading-tight text-white @2xl/store-music:text-2xl">
                           {product.title}
                         </h3>
                       </div>

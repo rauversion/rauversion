@@ -69,13 +69,13 @@ const features = [
 
 const ProductHeader = () => {
   return (
-    <div className="bg-default py-16">
-      <div className="max-w-7xl mx-auto px-4">
+    <div className="@container/store-hero bg-default py-12 @4xl/store-hero:py-16">
+      <div className="mx-auto max-w-7xl px-4 @sm/store-hero:px-6">
         <motion.div
           variants={container}
           initial="hidden"
           animate="show"
-          className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center"
+          className="grid grid-cols-1 items-center gap-8 @4xl/store-hero:grid-cols-2 @4xl/store-hero:gap-12 @6xl/store-hero:gap-16"
         >
           {/* Left Content */}
           <motion.div variants={item} className="space-y-8">
@@ -85,13 +85,13 @@ const ProductHeader = () => {
             </div>*/}
 
             <div>
-              <h1 className="text-5xl font-bold mb-2">
+              <h1 className="mb-2 text-3xl font-bold @md/store-hero:text-4xl @3xl/store-hero:text-5xl @6xl/store-hero:text-6xl">
                 Mercado Rauversion, conecta{" "}
                 <span className="text-muted-foreground">
                   con nuestro marketplace musical
                 </span>
               </h1>
-              <p className="text-xl text-muted-foreground">
+              <p className="text-base text-muted-foreground @md/store-hero:text-lg @3xl/store-hero:text-xl">
                 El punto de encuentro para músicos, coleccionistas y amantes de
                 la música
               </p>
@@ -121,17 +121,19 @@ const ProductHeader = () => {
               <CarouselContent>
                 {images.map((item, index) => (
                   <CarouselItem key={index}>
-                    <div className="relative">
+                    <div className="relative overflow-hidden rounded-3xl">
                       <img
                         src={item.image}
                         alt={`Slide ${index}`}
-                        className="w-full h-full object-cover"
+                        className="aspect-[4/3] w-full object-cover @4xl/store-hero:aspect-[5/4]"
                       />
                       <div className="absolute inset-0 flex flex-col items-center justify-center text-white bg-black/50">
-                        <h2 className="text-4xl font-extrabold">
+                        <h2 className="text-2xl font-extrabold @md/store-hero:text-3xl @3xl/store-hero:text-4xl">
                           {item.title}
                         </h2>
-                        <p className="text-lg mt-2">{item.title}</p>
+                        <p className="mt-2 text-sm @md/store-hero:text-base @3xl/store-hero:text-lg">
+                          {item.title}
+                        </p>
                       </div>
                     </div>
                   </CarouselItem>

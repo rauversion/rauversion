@@ -49,17 +49,17 @@ export default function ArtistsIndex() {
   const showLoadingMoreSkeletons = loading && artists.length > 0
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <div className="@container/artists-page mx-auto max-w-7xl px-4 py-8 @sm/artists-page:px-6 @lg/artists-page:px-8">
       <div className="mb-8">
-        <h1 className="text-4xl font-extrabold tracking-tight text-white">
+        <h1 className="text-3xl font-extrabold tracking-tight text-white @3xl/artists-page:text-4xl">
           {I18n.t('artists.title')}
         </h1>
-        <p className="mt-2 text-lg text-muted-foreground">
+        <p className="mt-2 text-base text-muted-foreground @3xl/artists-page:text-lg">
           {I18n.t('artists.description')}
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid grid-cols-1 gap-5 @4xl/artists-page:grid-cols-2 @6xl/artists-page:grid-cols-3">
         {artists.map((artist, index) => (
           <motion.div
             key={artist.id}
@@ -79,7 +79,7 @@ export default function ArtistsIndex() {
       </div>
 
       {showLoadingMoreSkeletons && (
-        <div className="mt-6 grid grid-cols-1 gap-5 md:grid-cols-2 xl:grid-cols-3" aria-hidden="true">
+        <div className="mt-6 grid grid-cols-1 gap-5 @4xl/artists-page:grid-cols-2 @6xl/artists-page:grid-cols-3" aria-hidden="true">
           {Array.from({ length: 3 }).map((_, index) => (
             <ArtistCardSkeleton key={`artist-loading-more-${index}`} />
           ))}

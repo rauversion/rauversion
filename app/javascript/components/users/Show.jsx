@@ -297,9 +297,9 @@ export default function UserShow() {
       </nav>
 
       {/* Content */}
-      <div className="mx-auto min-h-[400px] max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="flex min-w-0 flex-col xl:flex-row">
-          <div className="min-w-0 w-full bg-default text-default xl:w-2/3">
+      <div className="mx-auto min-h-[400px] max-w-7xl px-4 py-8 sm:px-6 lg:px-8 @container/profile">
+        <div className="flex min-w-0 flex-col @5xl/profile:flex-row">
+          <div className="min-w-0 w-full bg-default text-default @5xl/profile:w-2/3">
             <Outlet context={{ user, handlePlay, currentTrackId, isPlaying }} />
           </div>
 

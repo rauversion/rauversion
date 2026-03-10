@@ -196,7 +196,7 @@ export default function PlaylistShow() {
   }
 
   return (
-    <div className="bg-background text-foreground min-h-screen">
+    <div className="@container/playlist-page min-h-screen bg-background text-foreground">
       {/* Header Section */}
       <motion.div
         className="relative bg-gradient-to-b from-secondary to-background p-8"
@@ -204,11 +204,11 @@ export default function PlaylistShow() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.6 }}
       >
-        <div className="max-w-7xl mx-auto">
-          <div className="flex flex-col md:flex-row gap-8">
+        <div className="mx-auto max-w-7xl @container/playlist-hero">
+          <div className="flex items-start gap-4 @sm/playlist-hero:gap-5 @3xl/playlist-hero:gap-6 @4xl/playlist-hero:gap-8">
             {/* Cover Art */}
             <motion.div
-              className="w-full md:w-[340px] flex-shrink-0 relative group"
+              className="relative w-[112px] flex-shrink-0 group @sm/playlist-hero:w-[128px] @md/playlist-hero:w-[144px] @lg/playlist-hero:w-[168px] @2xl/playlist-hero:w-[180px] @3xl/playlist-hero:w-[220px] @4xl/playlist-hero:w-[280px] @5xl/playlist-hero:w-[340px]"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5, delay: 0.2 }}
@@ -224,19 +224,19 @@ export default function PlaylistShow() {
             </motion.div>
 
             {/* Playlist Info */}
-            <div className="flex-grow">
+            <div className="min-w-0 flex-grow">
               <motion.div
                 className="mb-6"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.3 }}
               >
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h2 className="text-sm uppercase text-brand-500 font-medium mb-2">
+                <div className="flex items-start justify-between gap-3 @sm/playlist-hero:gap-4">
+                  <div className="min-w-0">
+                    <h2 className="mb-1 text-[11px] font-medium uppercase tracking-[0.18em] text-brand-500 @sm/playlist-hero:mb-2 @sm/playlist-hero:text-sm">
                       {playlist.playlist_type}
                     </h2>
-                    <h1 className="text-4xl font-bold mb-3 tracking-tight">
+                    <h1 className="mb-2 line-clamp-3 text-2xl font-bold tracking-tight @sm/playlist-hero:mb-3 @sm/playlist-hero:text-3xl @lg/playlist-hero:text-4xl @5xl/playlist-hero:text-5xl">
                       {playlist.title}
                     </h1>
                   </div>
@@ -245,20 +245,20 @@ export default function PlaylistShow() {
                     <motion.div
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className="ml-4"
+                      className="@sm/playlist-hero:ml-4"
                     >
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => setEditOpen(true)}
-                        className="text-muted-foreground hover:text-foreground hover:bg-white/10"
+                        className="h-9 w-9 shrink-0 text-muted-foreground hover:bg-white/10 hover:text-foreground"
                       >
                         <Settings className="h-5 w-5" />
                       </Button>
                     </motion.div>
                   )}
                 </div>
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-muted-foreground">
+                <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted-foreground @sm/playlist-hero:text-base">
                   <Link
                     to={`/${playlist.user.username}`}
                     className="hover:text-foreground transition-colors flex items-center gap-2 group"
@@ -276,7 +276,7 @@ export default function PlaylistShow() {
                   {/* Label info */}
                   {playlist.label && (
                     <>
-                      <span className="hidden sm:block text-muted-foreground">•</span>
+                      <span className="text-muted-foreground">•</span>
                       <Link
                         to={`/${playlist.label.username}`}
                         className="hover:text-foreground transition-colors flex items-center gap-2 group"
@@ -291,7 +291,7 @@ export default function PlaylistShow() {
                       </Link>
                     </>
                   )}
-                  <span className="hidden sm:block text-muted-foreground">•</span>
+                  <span className="text-muted-foreground">•</span>
                   <span>
                     {format(
                       new Date(playlist.release_date || new Date()),
@@ -302,7 +302,7 @@ export default function PlaylistShow() {
               </motion.div>
 
               <motion.div
-                className="flex flex-wrap gap-4"
+                className="flex flex-wrap items-center gap-3 @sm/playlist-hero:gap-4"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
@@ -364,7 +364,7 @@ export default function PlaylistShow() {
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        className="w-5 h-5"
+                        className="h-5 w-5"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -373,7 +373,7 @@ export default function PlaylistShow() {
                         <polyline points="16 6 12 2 8 6"></polyline>
                         <line x1="12" y1="2" x2="12" y2="15"></line>
                       </svg>
-                      <span className="hidden sm:inline">Share</span>
+                      <span className="inline">Share</span>
                     </motion.button>
                   </ShareDialog>
 
@@ -391,7 +391,7 @@ export default function PlaylistShow() {
                     whileTap={{ scale: 0.95 }}
                   >
                     <Heart size={20} className={isLiked ? "fill-current" : ""} />
-                    <span className="hidden sm:inline">{likes} Me gusta</span>
+                    <span className="inline">{likes} Me gusta</span>
                     <span className="sr-only">Like playlist</span>
                   </motion.button>
                 </div>
@@ -404,7 +404,7 @@ export default function PlaylistShow() {
       {/* Description Section */}
       {playlist.description && (
         <motion.div
-          className="max-w-7xl mx-auto px-8 pb-8"
+          className="mx-auto max-w-7xl px-6 pb-8 @sm/playlist-page:px-8"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.2 }}
@@ -415,12 +415,12 @@ export default function PlaylistShow() {
 
       {/* Tracks Section */}
       <motion.div
-        className="max-w-7xl mx-auto p-8 pt-4"
+        className="mx-auto max-w-7xl p-6 pt-4 @sm/playlist-page:p-8 @sm/playlist-page:pt-4"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
-        <div className="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="mb-6 flex flex-col items-start justify-between gap-4 @md/playlist-page:flex-row @md/playlist-page:items-center">
           <div className="flex items-center gap-3">
             <h2 className="text-xl font-bold">Tracks</h2>
             {playlist.private && (
@@ -457,7 +457,7 @@ export default function PlaylistShow() {
 
       {/* Comments Section */}
       <motion.div
-        className="max-w-7xl mx-auto p-8 border-t border-white/5"
+        className="mx-auto max-w-7xl border-t border-white/5 p-6 @sm/playlist-page:p-8"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.4, delay: 0.3 }}
@@ -495,7 +495,7 @@ export default function PlaylistShow() {
       )}
 
       {/* Bottom Padding for Mobile */}
-      <div className="h-20 md:h-0" />
+      <div className="h-20 @md/playlist-page:h-0" />
     </div>
   );
 }

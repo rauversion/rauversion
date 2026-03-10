@@ -41,13 +41,13 @@ const GearSection = () => {
   };
 
   return (
-    <div className="bg-default py-16">
-      <div className="max-w-7xl mx-auto px-4">
+    <div className="@container/store-gear bg-default py-16">
+      <div className="mx-auto max-w-7xl px-4 @sm/store-gear:px-6">
         <div className="mb-16">
-          <h2 className="text-4xl font-medium mb-4">
+          <h2 className="mb-4 text-3xl font-medium @md/store-gear:text-4xl @4xl/store-gear:text-5xl">
             Instrumentos musicales Nuevos y usados
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl">
+          <p className="max-w-2xl text-base text-muted-foreground @md/store-gear:text-lg">
             Encuentra los mejores instrumentos musicales para tu banda o
             proyecto musical
           </p>
@@ -73,7 +73,7 @@ const GearSection = () => {
             {products.map((product) => (
               <CarouselItem
                 key={product.id}
-                className="basis-full md:basis-1/2 lg:basis-1/4"
+                className="basis-[82%] @sm/store-gear:basis-[68%] @2xl/store-gear:basis-1/2 @4xl/store-gear:basis-1/3 @6xl/store-gear:basis-1/4"
               >
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
@@ -127,7 +127,7 @@ const GearSection = () => {
                       </div>
 
                       <CardHeader className="space-y-1 p-4">
-                        <CardTitle className="text-xl">
+                        <CardTitle className="text-lg @2xl/store-gear:text-xl">
                           {product.title}
                         </CardTitle>
                         {/*<CardDescription className="text-sm line-clamp-2">

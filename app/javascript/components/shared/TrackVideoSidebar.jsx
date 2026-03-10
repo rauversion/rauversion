@@ -384,7 +384,7 @@ export default function TrackVideoSidebar({
   return (
     <div
       className={cn(
-        "overflow-hidden rounded-[28px] border border-border/60 bg-card/90 backdrop-blur",
+        "@container/track-sidebar overflow-hidden rounded-[28px] border border-border/60 bg-card/90 backdrop-blur",
         elevated && "shadow-[0_24px_60px_rgba(0,0,0,0.22)]",
         fillHeight && "h-full",
         className
@@ -478,10 +478,10 @@ export default function TrackVideoSidebar({
                   {isExpanded && (
                     <>
                       <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/85 via-black/45 to-transparent" />
-                      <div className="absolute inset-x-0 top-0 z-10 p-5 sm:p-6">
+                      <div className="absolute inset-x-0 top-0 z-10 p-5 @sm/track-sidebar:p-6">
                         <div className="flex items-start justify-between gap-4">
                           <div className="min-w-0">
-                            <p className="truncate text-xl font-semibold text-white sm:text-2xl">
+                            <p className="truncate text-xl font-semibold text-white @sm/track-sidebar:text-2xl">
                               {track.title}
                             </p>
                             <p className="mt-1 truncate text-sm text-white/70">
@@ -550,10 +550,10 @@ export default function TrackVideoSidebar({
                     <>
                       <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/85 via-black/45 to-transparent" />
                       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/70 via-black/15 to-transparent" />
-                      <div className="absolute inset-x-0 top-0 z-10 p-5 sm:p-6">
+                      <div className="absolute inset-x-0 top-0 z-10 p-5 @sm/track-sidebar:p-6">
                         <div className="flex items-start justify-between gap-4">
                           <div className="min-w-0">
-                            <p className="truncate text-xl font-semibold text-white sm:text-2xl">
+                            <p className="truncate text-xl font-semibold text-white @sm/track-sidebar:text-2xl">
                               {track.title}
                             </p>
                             <p className="mt-1 truncate text-sm text-white/70">
@@ -617,10 +617,10 @@ export default function TrackVideoSidebar({
                   <Music2 className="h-10 w-10" />
 
                   {isExpanded && (
-                    <div className="absolute inset-x-0 top-0 z-10 p-5 sm:p-6">
+                    <div className="absolute inset-x-0 top-0 z-10 p-5 @sm/track-sidebar:p-6">
                       <div className="flex items-start justify-between gap-4">
                         <div className="min-w-0">
-                          <p className="truncate text-xl font-semibold text-white sm:text-2xl">
+                          <p className="truncate text-xl font-semibold text-white @sm/track-sidebar:text-2xl">
                             {track.title}
                           </p>
                           <p className="mt-1 truncate text-sm text-white/70">
@@ -706,7 +706,7 @@ export default function TrackVideoSidebar({
                 {(artistProfile?.stats || artistProfile?.bio) && (
                   <div className="mt-4 space-y-3">
                     {artistProfile?.stats && (
-                      <div className="grid grid-cols-3 gap-2 text-center">
+                      <div className="grid grid-cols-1 gap-2 text-center @sm/track-sidebar:grid-cols-3">
                         <div className="rounded-2xl bg-muted/60 px-3 py-3">
                           <p className="text-lg font-semibold text-foreground">
                             {artistProfile.stats.followers_count || 0}
@@ -805,7 +805,7 @@ export default function TrackVideoSidebar({
                     {t("loading_queue")}
                   </p>
                 ) : nextTrack ? (
-                  <div className="flex items-center gap-3 rounded-2xl bg-muted/60 p-3">
+                  <div className="flex flex-col items-start gap-3 rounded-2xl bg-muted/60 p-3 @sm/track-sidebar:flex-row @sm/track-sidebar:items-center">
                     {nextTrackArtwork ? (
                       <img
                         src={nextTrackArtwork}

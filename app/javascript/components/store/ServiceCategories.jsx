@@ -38,16 +38,17 @@ const ServiceCategories = () => {
   } = useInfiniteScroll("/store/services.json");
 
   return (
-    <div className="py-16 bg-default relative">
-      <div className="max-w-[90%]-- mx-auto--">
-        <div className="mb-16">
+    <div className="@container/store-services relative bg-default py-16">
+      <div className="mx-auto">
+        <div className="mb-10 flex flex-col gap-6 @4xl/store-services:mb-16 @4xl/store-services:flex-row @4xl/store-services:items-start @4xl/store-services:justify-between">
+          <div>
           <span className="text-sm uppercase tracking-wider mb-4 block">
             Coaching, Clases, Feedback y servicios personalizados
           </span>
-          <h2 className="text-6xl font-extrabold mb-4 leading-tight">
+          <h2 className="mb-4 text-4xl font-extrabold leading-tight @2xl/store-services:text-5xl @4xl/store-services:text-6xl">
             RAU ADVISOR
           </h2>
-          <h3 className="text-5xl font-bold mb-2 text-muted">
+          <h3 className="mb-2 text-2xl font-bold text-muted @sm/store-services:text-3xl @2xl/store-services:text-4xl @4xl/store-services:text-5xl">
 
             {[
               "Recibe feedback y tutorías directas de profesionales de la música electrónica en un par de clics."][Math.floor(Math.random() * 0)
@@ -59,8 +60,8 @@ const ServiceCategories = () => {
             Ver más
           </Link>
         </div>
-
-        <div className="absolute right-8 top-16 flex gap-2">
+        
+        <div className="flex items-center gap-2 self-start @4xl/store-services:pt-4">
           <Button
             variant="outline"
             size="icon"
@@ -86,6 +87,7 @@ const ServiceCategories = () => {
             <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
+        </div>
 
         <div
           id="services-container"
@@ -96,7 +98,7 @@ const ServiceCategories = () => {
             <motion.div
               key={index}
               variants={item}
-              className="flex-none w-[400px]"
+              className="w-[280px] flex-none @md/store-services:w-[320px] @2xl/store-services:w-[360px] @5xl/store-services:w-[400px]"
               style={{ scrollSnapAlign: "start" }}
             >
               <Link to={`/${service.user.username}/products/${service.id}`}>
@@ -116,7 +118,7 @@ const ServiceCategories = () => {
                     </span>
 
                     <h3
-                      className={`text-4xl ${CARD_COLORS[service.category]?.text || "text-black"
+                      className={`text-2xl @md/store-services:text-3xl @4xl/store-services:text-4xl ${CARD_COLORS[service.category]?.text || "text-black"
                         } font-bold mb-4 whitespace-pre-line leading-tight`}
                     >
                       {service.title}

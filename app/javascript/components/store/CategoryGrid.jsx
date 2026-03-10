@@ -62,10 +62,10 @@ const CategoryGrid = () => {
   const navigate = useNavigate()
 
   return (
-    <div className="mb-16">
+    <div className="@container/store-category-grid mb-16">
       <div className="flex flex-col items-center mb-12">
-        <h1 className="text-5xl font-bold mb-4">Rau Store.</h1>
-        <p className="text-2xl text-muted-foreground">
+        <h1 className="mb-4 text-3xl font-bold @md/store-category-grid:text-4xl @4xl/store-category-grid:text-5xl">Rau Store.</h1>
+        <p className="text-lg text-muted-foreground @md/store-category-grid:text-xl @4xl/store-category-grid:text-2xl">
           The best way to buy the products you love.
         </p>
       </div>
@@ -74,7 +74,7 @@ const CategoryGrid = () => {
         variants={container}
         initial="hidden"
         animate="show"
-        className="grid grid-cols-2 md:grid-cols-5 gap-6"
+        className="grid grid-cols-2 gap-6 @3xl/store-category-grid:grid-cols-3 @5xl/store-category-grid:grid-cols-5"
       >
         {CATEGORY_ICONS.map((category) => {
           const Icon = category.icon
