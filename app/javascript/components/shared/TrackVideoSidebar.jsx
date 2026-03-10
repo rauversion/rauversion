@@ -155,6 +155,11 @@ export default function TrackVideoSidebar({
     track?.user?.avatar_url?.medium ||
     track?.user_avatar_url?.medium ||
     null
+  const artistHeaderUrl =
+    artistProfile?.profile_header_url?.large ||
+    artistProfile?.profile_header_url?.medium ||
+    artistProfile?.profile_header_url?.small ||
+    null
   const isLiked = Boolean(track?.like_id || track?.liked_by_current_user)
   const isFollowing = Boolean(artistProfile?.is_following)
   const shareUrl = track?.url
@@ -298,6 +303,96 @@ export default function TrackVideoSidebar({
     }
   }
 
+  const renderShellControls = ({ overlay = false } = {}) => {
+    if (!showShellControls) return null
+
+    const buttonClassName = overlay
+      ? "h-9 w-9 rounded-full border border-white/15 bg-black/35 text-white backdrop-blur-sm hover:bg-black/50 hover:text-white"
+      : "h-8 w-8 rounded-full"
+
+    return (
+      <div className="flex shrink-0 items-center gap-2">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={handleToggleLike}
+          disabled={isLikePending}
+          aria-label={isLiked ? "Quitar me gusta" : "Dar me gusta"}
+          title={isLiked ? "Quitar me gusta" : "Dar me gusta"}
+          className={cn(
+            buttonClassName,
+            isLiked && (overlay ? "text-rose-300" : "text-rose-500")
+          )}
+        >
+          {isLikePending ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Heart className={cn("h-4 w-4", isLiked && "fill-current")} />
+          )}
+        </Button>
+
+        <ShareDialog
+          url={shareUrl}
+          title={track.title}
+          description={`Listen to ${track.title} by ${artistName} on Rauversion`}
+        >
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            aria-label="Compartir track"
+            title="Compartir track"
+            className={buttonClassName}
+          >
+            <Share2 className="h-4 w-4" />
+          </Button>
+        </ShareDialog>
+
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={toggleExpanded}
+          aria-label={isExpanded ? "Contraer panel" : "Expandir panel"}
+          title={isExpanded ? "Contraer panel" : "Expandir panel"}
+          className={buttonClassName}
+        >
+          {isExpanded ? (
+            <Minimize2 className="h-4 w-4" />
+          ) : (
+            <Maximize2 className="h-4 w-4" />
+          )}
+        </Button>
+
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon"
+          onClick={close}
+          aria-label="Ocultar panel del track"
+          className={buttonClassName}
+        >
+          <PanelRightClose className="h-4 w-4" />
+        </Button>
+      </div>
+    )
+  }
+
+  const heroMediaClassName = cn(
+    "relative overflow-hidden bg-black",
+    track.has_video && track.video_url
+      ? isExpanded
+        ? "aspect-[16/9]"
+        : fillHeight
+          ? "aspect-[10/14]"
+          : "aspect-[9/16]"
+      : isExpanded
+        ? "aspect-[16/9]"
+        : "aspect-square"
+  )
+  const heroImageUrl = isExpanded ? (artistHeaderUrl || artworkUrl) : artworkUrl
+
   return (
     <div
       className={cn(
@@ -308,7 +403,8 @@ export default function TrackVideoSidebar({
       )}
     >
       <div className={cn("flex flex-col", fillHeight && "h-full")}>
-        <div className="border-b border-border/60 px-4 py-4">
+        {!isExpanded && (
+          <div className="border-b border-border/60 px-4 py-4">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
               <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-muted-foreground">
@@ -319,73 +415,7 @@ export default function TrackVideoSidebar({
               </p>
             </div>
 
-            {showShellControls && (
-              <div className="flex shrink-0 items-center gap-2">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={handleToggleLike}
-                  disabled={isLikePending}
-                  aria-label={isLiked ? "Quitar me gusta" : "Dar me gusta"}
-                  title={isLiked ? "Quitar me gusta" : "Dar me gusta"}
-                  className={cn(
-                    "h-8 w-8 rounded-full",
-                    isLiked && "text-rose-500"
-                  )}
-                >
-                  {isLikePending ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    <Heart className={cn("h-4 w-4", isLiked && "fill-current")} />
-                  )}
-                </Button>
-
-                <ShareDialog
-                  url={shareUrl}
-                  title={track.title}
-                  description={`Listen to ${track.title} by ${artistName} on Rauversion`}
-                >
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Compartir track"
-                    title="Compartir track"
-                    className="h-8 w-8 rounded-full"
-                  >
-                    <Share2 className="h-4 w-4" />
-                  </Button>
-                </ShareDialog>
-
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={toggleExpanded}
-                  aria-label={isExpanded ? "Contraer panel" : "Expandir panel"}
-                  title={isExpanded ? "Contraer panel" : "Expandir panel"}
-                  className="h-8 w-8 rounded-full"
-                >
-                  {isExpanded ? (
-                    <Minimize2 className="h-4 w-4" />
-                  ) : (
-                    <Maximize2 className="h-4 w-4" />
-                  )}
-                </Button>
-
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="icon"
-                  onClick={close}
-                  aria-label="Ocultar panel del track"
-                  className="h-8 w-8 rounded-full"
-                >
-                  <PanelRightClose className="h-4 w-4" />
-                </Button>
-              </div>
-            )}
+            {renderShellControls()}
           </div>
 
           <div className="mt-3 flex items-center gap-2">
@@ -438,18 +468,14 @@ export default function TrackVideoSidebar({
               </Button>
             )}
           </div>
-        </div>
+          </div>
+        )}
 
         <ScrollArea className={cn("min-h-0", fillHeight && "flex-1")}>
           <div className="space-y-4 p-3">
             <section className="overflow-hidden rounded-[24px] border border-border/50 bg-black">
               {track.has_video && track.video_url ? (
-                <div
-                  className={cn(
-                    "bg-black",
-                    isExpanded ? "aspect-[16/9]" : fillHeight ? "aspect-[10/14]" : "aspect-[9/16]"
-                  )}
-                >
+                <div className={heroMediaClassName}>
                   <video
                     ref={videoRef}
                     src={track.video_url}
@@ -460,23 +486,169 @@ export default function TrackVideoSidebar({
                     playsInline
                     preload="metadata"
                   />
+
+                  {isExpanded && (
+                    <>
+                      <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/85 via-black/45 to-transparent" />
+                      <div className="absolute inset-x-0 top-0 z-10 p-5 sm:p-6">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="min-w-0">
+                            <p className="truncate text-xl font-semibold text-white sm:text-2xl">
+                              {track.title}
+                            </p>
+                            <p className="mt-1 truncate text-sm text-white/70">
+                              {artistName}
+                            </p>
+
+                            <div className="mt-3 flex flex-wrap items-center gap-2">
+                              <span
+                                className={cn(
+                                  "inline-flex rounded-full border px-3 py-1 text-xs font-medium backdrop-blur-sm",
+                                  isCurrentTrackPlaying
+                                    ? "border-emerald-300/20 bg-emerald-500/20 text-emerald-100"
+                                    : "border-white/15 bg-black/30 text-white/75"
+                                )}
+                              >
+                                {isCurrentTrackPlaying ? "Reproduciendo" : "En espera"}
+                              </span>
+
+                              <span className="inline-flex rounded-full border border-white/15 bg-black/30 px-3 py-1 text-xs font-medium text-white/75 backdrop-blur-sm">
+                                {formatCompactCount(track.likes_count)} me gusta
+                              </span>
+
+                              {track.album_title && (
+                                <span className="inline-flex rounded-full border border-white/15 bg-black/30 px-3 py-1 text-xs font-medium text-white/75 backdrop-blur-sm">
+                                  {track.album_title}
+                                </span>
+                              )}
+
+                              {artistUsername && (
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={handleToggleFollow}
+                                  disabled={isFollowPending}
+                                  className="h-8 rounded-full border border-white/15 bg-black/30 px-3 text-white backdrop-blur-sm hover:bg-black/45 hover:text-white"
+                                >
+                                  {isFollowPending ? (
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                  ) : isFollowing ? (
+                                    <UserCheck className="mr-2 h-4 w-4" />
+                                  ) : (
+                                    <UserPlus className="mr-2 h-4 w-4" />
+                                  )}
+                                  {isFollowing ? "Siguiendo" : "Seguir"}
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+
+                          {renderShellControls({ overlay: true })}
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
-              ) : artworkUrl ? (
-                <div className="relative aspect-square overflow-hidden">
+              ) : heroImageUrl ? (
+                <div className={heroMediaClassName}>
                   <img
-                    src={artworkUrl}
+                    src={heroImageUrl}
                     alt={track.title}
                     className="h-full w-full object-cover"
                   />
-                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/5 to-transparent" />
+
+                  {isExpanded ? (
+                    <>
+                      <div className="pointer-events-none absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/85 via-black/45 to-transparent" />
+                      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-black/70 via-black/15 to-transparent" />
+                      <div className="absolute inset-x-0 top-0 z-10 p-5 sm:p-6">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="min-w-0">
+                            <p className="truncate text-xl font-semibold text-white sm:text-2xl">
+                              {track.title}
+                            </p>
+                            <p className="mt-1 truncate text-sm text-white/70">
+                              {artistName}
+                            </p>
+
+                            <div className="mt-3 flex flex-wrap items-center gap-2">
+                              <span
+                                className={cn(
+                                  "inline-flex rounded-full border px-3 py-1 text-xs font-medium backdrop-blur-sm",
+                                  isCurrentTrackPlaying
+                                    ? "border-emerald-300/20 bg-emerald-500/20 text-emerald-100"
+                                    : "border-white/15 bg-black/30 text-white/75"
+                                )}
+                              >
+                                {isCurrentTrackPlaying ? "Reproduciendo" : "En espera"}
+                              </span>
+
+                              <span className="inline-flex rounded-full border border-white/15 bg-black/30 px-3 py-1 text-xs font-medium text-white/75 backdrop-blur-sm">
+                                {formatCompactCount(track.likes_count)} me gusta
+                              </span>
+
+                              {track.album_title && (
+                                <span className="inline-flex rounded-full border border-white/15 bg-black/30 px-3 py-1 text-xs font-medium text-white/75 backdrop-blur-sm">
+                                  {track.album_title}
+                                </span>
+                              )}
+
+                              {artistUsername && (
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={handleToggleFollow}
+                                  disabled={isFollowPending}
+                                  className="h-8 rounded-full border border-white/15 bg-black/30 px-3 text-white backdrop-blur-sm hover:bg-black/45 hover:text-white"
+                                >
+                                  {isFollowPending ? (
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                  ) : isFollowing ? (
+                                    <UserCheck className="mr-2 h-4 w-4" />
+                                  ) : (
+                                    <UserPlus className="mr-2 h-4 w-4" />
+                                  )}
+                                  {isFollowing ? "Siguiendo" : "Seguir"}
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+
+                          {renderShellControls({ overlay: true })}
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/5 to-transparent" />
+                  )}
                 </div>
               ) : (
-                <div className="flex aspect-square items-center justify-center bg-muted/20 text-muted-foreground">
+                <div className={cn(heroMediaClassName, "flex items-center justify-center bg-muted/20 text-muted-foreground")}>
                   <Music2 className="h-10 w-10" />
+
+                  {isExpanded && (
+                    <div className="absolute inset-x-0 top-0 z-10 p-5 sm:p-6">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="min-w-0">
+                          <p className="truncate text-xl font-semibold text-white sm:text-2xl">
+                            {track.title}
+                          </p>
+                          <p className="mt-1 truncate text-sm text-white/70">
+                            {artistName}
+                          </p>
+                        </div>
+
+                        {renderShellControls({ overlay: true })}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
-              <div className="border-t border-white/10 bg-neutral-950 px-4 py-4 text-white">
+              {!isExpanded && (
+                <div className="border-t border-white/10 bg-neutral-950 px-4 py-4 text-white">
                 <p className="truncate text-base font-semibold">{track.title}</p>
                 <p className="truncate text-sm text-white/70">{artistName}</p>
                 {track.description && (
@@ -498,10 +670,11 @@ export default function TrackVideoSidebar({
                     {track.has_video ? "Video" : "Audio"}
                   </span>
                 </div>
-              </div>
+                </div>
+              )}
             </section>
 
-            <div className={cn("space-y-4", isExpanded && "grid gap-4 xl:grid-cols-2 xl:space-y-0")}>
+            <div className="space-y-4">
               <section className="rounded-[24px] border border-border/60 bg-background/60 p-4">
                 <p className="text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
                   Artista

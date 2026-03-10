@@ -116,6 +116,8 @@ const SIDEBAR_FIXED_TOP = 16
 const SIDEBAR_RESERVED_SPACE = 204
 const SIDEBAR_HEIGHT_CLASS = "h-[calc(100svh-4rem-6.75rem-2rem)]"
 const SIDEBAR_MIN_HEIGHT_CLASS = "min-h-[calc(100svh-4rem-6.75rem-2rem)]"
+const DEFAULT_VIDEO_PANEL_SIZE = 29
+const MAX_MANUAL_VIDEO_PANEL_SIZE = 29
 
 function defaultDockState() {
   return {
@@ -1303,8 +1305,10 @@ export default function AppMusicLibraryLayout({ children }) {
   const isMobile = useIsMobile()
   const currentTrackMeta = useAudioStore((state) => state.currentTrackMeta)
   const isPlaying = useAudioStore((state) => state.isPlaying)
+  const mainPanelRef = useRef(null)
   const sidebarPanelRef = useRef(null)
   const videoPanelRef = useRef(null)
+  const lastVideoPanelSizeRef = useRef(DEFAULT_VIDEO_PANEL_SIZE)
   const sidebarSlotRef = useRef(null)
   const videoSidebarSlotRef = useRef(null)
   const isVideoPanelOpen = useTrackVideoSidebarStore((state) => state.isOpen)
@@ -1313,13 +1317,14 @@ export default function AppMusicLibraryLayout({ children }) {
   const activeTrack = currentTrackMeta?.id ? currentTrackMeta : null
   const hasTrackSidebarContent = !!activeTrack
   const shouldShowVideoPanel = hasTrackSidebarContent && isVideoPanelOpen
+  const shouldShowMusicLibrary = !!currentUser && !isMobile
   const sidebarDock = useSidebarDock({
-    enabled: !!currentUser && !isMobile,
+    enabled: shouldShowMusicLibrary && !(shouldShowVideoPanel && isVideoPanelExpanded),
     side: "left",
     slotRef: sidebarSlotRef,
   })
   const videoSidebarDock = useSidebarDock({
-    enabled: !!currentUser && !isMobile && shouldShowVideoPanel,
+    enabled: !isMobile && shouldShowVideoPanel,
     side: "right",
     slotRef: videoSidebarSlotRef,
   })
@@ -1350,10 +1355,11 @@ export default function AppMusicLibraryLayout({ children }) {
   }, [activeTrack?.id, isPlaying, openVideoPanel])
 
   useEffect(() => {
-    if (!currentUser || isMobile) return
+    if (isMobile) return
 
+    const mainPanel = mainPanelRef.current
     const panel = videoPanelRef.current
-    if (!panel) return
+    if (!mainPanel || !panel) return
 
     const syncPanel = () => {
       if (shouldShowVideoPanel) {
@@ -1361,7 +1367,27 @@ export default function AppMusicLibraryLayout({ children }) {
           panel.expand?.()
         }
 
-        const targetSize = isVideoPanelExpanded ? 58 : 22
+        if (isVideoPanelExpanded) {
+          if (!mainPanel.isCollapsed?.()) {
+            mainPanel.collapse?.()
+          }
+
+          const expandedSize = 100
+          const currentExpandedSize = panel.getSize?.()
+          if (!currentExpandedSize || Math.abs(currentExpandedSize - expandedSize) > 0.5) {
+            panel.resize?.(expandedSize)
+          }
+          return
+        }
+
+        if (mainPanel.isCollapsed?.()) {
+          mainPanel.expand?.()
+        }
+
+        const targetSize = Math.min(
+          Math.max(lastVideoPanelSizeRef.current, DEFAULT_VIDEO_PANEL_SIZE),
+          MAX_MANUAL_VIDEO_PANEL_SIZE
+        )
         const currentSize = panel.getSize?.()
         if (!currentSize || Math.abs(currentSize - targetSize) > 0.5) {
           panel.resize?.(targetSize)
@@ -1372,22 +1398,24 @@ export default function AppMusicLibraryLayout({ children }) {
       if (!panel.isCollapsed?.()) {
         panel.collapse?.()
       }
+
+      if (mainPanel.isCollapsed?.()) {
+        mainPanel.expand?.()
+      }
     }
 
     const frameId = requestAnimationFrame(syncPanel)
     return () => cancelAnimationFrame(frameId)
-  }, [currentUser, isMobile, isVideoPanelExpanded, shouldShowVideoPanel])
-
-  if (!currentUser) {
-    return children
-  }
+  }, [isMobile, isVideoPanelExpanded, shouldShowVideoPanel])
 
   if (isMobile) {
-    return (
+    return currentUser ? (
       <div>
         <MobileMusicLibrary />
         <div>{children}</div>
       </div>
+    ) : (
+      children
     )
   }
 
@@ -1415,58 +1443,65 @@ export default function AppMusicLibraryLayout({ children }) {
       >
         <ResizablePanel
           id="app-track-shell-main-panel"
+          ref={mainPanelRef}
           order={1}
-          defaultSize={78}
-          minSize={24}
+          defaultSize={shouldShowMusicLibrary ? 78 : 100}
+          minSize={26}
+          collapsible={isVideoPanelExpanded}
+          collapsedSize={0}
         >
-          <ResizablePanelGroup
-            id="app-music-library-layout-group"
-            direction="horizontal"
-            autoSaveId="app-music-library-layout"
-            className="min-h-[calc(100svh-4rem-6.75rem-2rem)] w-full"
-          >
-            <ResizablePanel
-              id="music-library-sidebar-panel"
-              ref={sidebarPanelRef}
-              order={1}
-              defaultSize={24}
-              minSize={7}
-              maxSize={34}
+          {shouldShowMusicLibrary ? (
+            <ResizablePanelGroup
+              id="app-music-library-layout-group"
+              direction="horizontal"
+              autoSaveId="app-music-library-layout"
+              className="min-h-[calc(100svh-4rem-6.75rem-2rem)] w-full"
             >
-              <div ref={sidebarSlotRef} className={cn("relative", SIDEBAR_MIN_HEIGHT_CLASS)}>
-                <div className={sidebarDock.dockClassName} style={sidebarDock.dockStyle}>
-                  <MusicLibrarySidebar
-                    elevated={sidebarDock.dock.mode === "fixed"}
-                    onExpand={() => sidebarPanelRef.current?.resize(24)}
-                  />
+              <ResizablePanel
+                id="music-library-sidebar-panel"
+                ref={sidebarPanelRef}
+                order={1}
+                defaultSize={24}
+                minSize={10}
+                maxSize={34}
+              >
+                <div ref={sidebarSlotRef} className={cn("relative", SIDEBAR_MIN_HEIGHT_CLASS)}>
+                  <div className={sidebarDock.dockClassName} style={sidebarDock.dockStyle}>
+                    <MusicLibrarySidebar
+                      elevated={sidebarDock.dock.mode === "fixed"}
+                      onExpand={() => sidebarPanelRef.current?.resize(24)}
+                    />
+                  </div>
                 </div>
-              </div>
-            </ResizablePanel>
+              </ResizablePanel>
 
-            <ResizableHandle
-              id="music-library-main-handle"
-              withHandle
-              className="mx-2 bg-border/70"
-            />
+              <ResizableHandle
+                id="music-library-main-handle"
+                withHandle
+                className="mx-2 bg-border/70"
+              />
 
-            <ResizablePanel
-              id="music-library-content-panel"
-              order={2}
-              defaultSize={76}
-              minSize={60}
-            >
-              <div className="min-w-0 pb-28">{children}</div>
-            </ResizablePanel>
-          </ResizablePanelGroup>
+              <ResizablePanel
+                id="music-library-content-panel"
+                order={2}
+                defaultSize={76}
+                minSize={60}
+              >
+                <div className="min-w-0 pb-28">{children}</div>
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          ) : (
+            <div className="min-w-0 pb-28">{children}</div>
+          )}
         </ResizablePanel>
 
         <ResizableHandle
           id="track-video-sidebar-handle"
           withHandle
-          disabled={!shouldShowVideoPanel}
+          disabled={!shouldShowVideoPanel || isVideoPanelExpanded}
           className={cn(
             "bg-border/70",
-            shouldShowVideoPanel
+            shouldShowVideoPanel && !isVideoPanelExpanded
               ? "mx-2"
               : "mx-0 w-0 border-0 bg-transparent opacity-0 after:hidden"
           )}
@@ -1476,9 +1511,14 @@ export default function AppMusicLibraryLayout({ children }) {
           id="track-video-sidebar-panel"
           ref={videoPanelRef}
           order={2}
-          defaultSize={22}
-          minSize={18}
-          maxSize={68}
+          defaultSize={DEFAULT_VIDEO_PANEL_SIZE}
+          minSize={27}
+          maxSize={isVideoPanelExpanded ? 100 : MAX_MANUAL_VIDEO_PANEL_SIZE}
+          onResize={(size) => {
+            if (!isVideoPanelExpanded && size > 0) {
+              lastVideoPanelSizeRef.current = size
+            }
+          }}
           collapsible
           collapsedSize={0}
         >

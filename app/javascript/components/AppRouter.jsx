@@ -207,7 +207,6 @@ function AppContent() {
   const isPodcastRoute = /^\/[^/]+\/podcasts(\/|$)/.test(location.pathname)
 
   const shouldShowMusicLibraryLayout =
-    !!currentUser &&
     !location.pathname.includes("/users/sign_in") &&
     !location.pathname.includes("/users/sign_up") &&
     !location.pathname.includes("/forgot-password") &&
