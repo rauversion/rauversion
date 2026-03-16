@@ -53,7 +53,10 @@ class EventPurchasesController < ApplicationController
         return
       end
     end
-    render "show"
+    respond_to do |format|
+      format.html{ render_blank}
+      format.json
+    end
   end
 
   def create
@@ -216,7 +219,10 @@ class EventPurchasesController < ApplicationController
       @purchase.complete_purchase! if decoded_purchase.id = @purchase.id
     end
 
-    render "show"
+    respond_to do |format|
+      format.html{ render_blank}
+      format.json{ render "show" }
+    end
   end
 
   def failure

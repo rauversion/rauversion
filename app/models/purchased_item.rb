@@ -1,4 +1,6 @@
 class PurchasedItem < ApplicationRecord
+  class CheckInError < StandardError; end
+
   belongs_to :purchase
   belongs_to :purchased_item, polymorphic: true
 
@@ -42,10 +44,22 @@ class PurchasedItem < ApplicationRecord
   end
   
   def toggle_check_in!
-    if checked_in?
-      update({checked_in: false, checked_in_at: nil})
+    set_checked_in!(!checked_in?)
+  end
+
+  def set_checked_in!(desired_checked_in)
+    desired_checked_in = ActiveRecord::Type::Boolean.new.cast(desired_checked_in)
+    return self if checked_in? == desired_checked_in
+
+    if desired_checked_in
+      raise CheckInError, "Refunded tickets cannot be checked in" if refunded?
+      raise CheckInError, "Only paid tickets can be checked in" unless paid?
+
+      update!(checked_in: true, checked_in_at: Time.zone.now)
     else
-      update({checked_in: true, checked_in_at: Time.zone.now})
+      update!(checked_in: false, checked_in_at: nil)
     end
+
+    self
   end
 end

@@ -27,7 +27,6 @@ export default function EventTicketModal({ selectedTicket, selectedPurchase, tic
     },
     enabled: !!ticketId && open
   })
-  console.log(data)
 
   // Determine if QR code should be displayed
   const shouldShowQrCode = data?.event_ticket?.purchased_item?.paid && !data?.event_ticket?.settings?.disable_qr
@@ -123,19 +122,28 @@ export default function EventTicketModal({ selectedTicket, selectedPurchase, tic
                             try {
                               const response = await put(
                                 `/events/${selectedTicket?.purchased_item?.event?.slug}/event_tickets/${ticketId}.json`, {
+                                contentType: "application/json",
                                 body: JSON.stringify({
                                   checked_in: !data.event_ticket.purchased_item?.checked_in
                                 })
                               })
 
+                              const result = await response.json
+
                               if (response.ok) {
-                                const result = await response.json
                                 // Update the cache with new data
                                 queryClient.setQueryData(['event_ticket', ticketId], result)
                                 onUpdate?.(result)
                                 toast({
                                   title: "Success",
                                   description: `Ticket ${result.event_ticket.purchased_item?.checked_in ? "checked in" : "unchecked"} successfully`,
+                                })
+                              } else {
+                                const errorMessage = result?.errors?.join(", ") || result?.error || "Failed to update ticket status"
+                                toast({
+                                  variant: "destructive",
+                                  title: "Error",
+                                  description: errorMessage,
                                 })
                               }
                             } catch (error) {
