@@ -40,7 +40,7 @@ json.playlist do
   json.tracks @playlist.track_playlists.order("position asc") do |track_playlist|
     track = track_playlist.track
     json.partial! 'tracks/track', track: track
-    liked_by_current_user = @liked_track_ids.include?(track.id)
+    liked_by_current_user = @liked_track_ids&.include?(track.id)
     json.like_id liked_by_current_user
     json.liked_by_current_user liked_by_current_user
   end
