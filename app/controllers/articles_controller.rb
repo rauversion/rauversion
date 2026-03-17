@@ -111,7 +111,7 @@ class ArticlesController < ApplicationController
         format.json { render json: { article: { id: @article.id, slug: @article.slug } }, status: :created }
       else
         format.html { render :new, status: :unprocessable_entity }
-        format.json { render json: { errors: @article.errors }, status: :unprocessable_entity }
+        format.json { render_validation_errors(@article) }
       end
     end
   end
@@ -134,13 +134,11 @@ class ArticlesController < ApplicationController
     end
 
     if @article.update(article_params)
-      render json: { 
-        article: @article.as_json.merge(
-          cover_url: @article.cover.attached? ? url_for(@article.cover) : nil
-        ) 
+      render json: {
+        article: serialized_article(@article)
       }
     else
-      render json: { errors: @article.errors }, status: :unprocessable_entity
+      render_validation_errors(@article)
     end
   end
 
@@ -207,6 +205,23 @@ class ArticlesController < ApplicationController
       :category_id,
       tags: [],
       body: {}
+    )
+  end
+
+  def render_validation_errors(record)
+    render json: {
+      errors: record.errors.to_hash,
+      full_errors: record.errors.full_messages
+    }, status: :unprocessable_entity
+  end
+
+  def serialized_article(record)
+    record.as_json(
+      only: [:id, :title, :body, :state, :private, :excerpt, :tags, :slug]
+    ).merge(
+      "signed_id" => record.signed_id,
+      "cover_url" => record.cover.attached? ? url_for(record.cover) : nil,
+      "category" => record.category&.as_json(only: [:id, :name])
     )
   end
 end
