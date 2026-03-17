@@ -32,6 +32,7 @@ class Track < ApplicationRecord
   has_one_attached :cover
   has_one_attached :audio
   has_one_attached :video
+  has_one_attached :video_web
   has_one_attached :mp3_audio
   has_one_attached :zip
 
@@ -236,6 +237,7 @@ class Track < ApplicationRecord
     if video.attached?
       video.open do |file|
         update_audio_from_video(file)
+        update_video_web(file)
         update_mp3(file)
       end
     else
@@ -248,6 +250,13 @@ class Track < ApplicationRecord
 
   def has_video?
     video.attached?
+  end
+
+  def video_playback_media
+    return video_web if video_web.attached?
+    return video if video.attached?
+
+    nil
   end
 
   def playback_media
@@ -312,6 +321,23 @@ class Track < ApplicationRecord
         )
       ensure
         cleanup_generated_path(wav_path)
+      end
+    end
+  end
+
+  def update_video_web(source_file = nil)
+    with_file_path(source_file, fallback_attachment: video) do |path|
+      video_web_path = VideoWebConverter.new(path).run
+
+      begin
+        attach_generated_media(
+          attachment_name: :video_web,
+          path: video_web_path,
+          filename: "#{source_media_basename}-web.mp4",
+          content_type: "video/mp4"
+        )
+      ensure
+        cleanup_generated_path(video_web_path)
       end
     end
   end

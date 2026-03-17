@@ -86,6 +86,11 @@ RSpec.describe "Tracks", type: :request do
         filename: "clip.mp4",
         content_type: "video/mp4"
       )
+      track.video_web.attach(
+        io: StringIO.new("fake-video-web"),
+        filename: "clip-web.mp4",
+        content_type: "video/mp4"
+      )
       track.audio.attach(
         io: StringIO.new("fake-wav"),
         filename: "clip.wav",
@@ -106,6 +111,7 @@ RSpec.describe "Tracks", type: :request do
 
       expect(payload["has_video"]).to eq(true)
       expect(payload["video_url"]).to be_present
+      expect(payload["video_url"]).to include("clip-web.mp4")
       expect(payload["audio_url"]).to be_present
       expect(payload["mp3_url"]).to be_present
       expect(payload["playback_url"]).to eq(payload["mp3_url"])

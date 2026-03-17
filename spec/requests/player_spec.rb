@@ -14,6 +14,19 @@ RSpec.describe "Players", type: :request do
       )
     end
 
+    before do
+      track.video.attach(
+        io: StringIO.new("fake-video"),
+        filename: "player-clip.mp4",
+        content_type: "video/mp4"
+      )
+      track.video_web.attach(
+        io: StringIO.new("fake-video-web"),
+        filename: "player-clip-web.mp4",
+        content_type: "video/mp4"
+      )
+    end
+
     it "returns public player metadata for guests without user like state" do
       get "/player.json", params: { id: track.id }
 
@@ -28,6 +41,7 @@ RSpec.describe "Players", type: :request do
         "like_id" => false,
         "liked_by_current_user" => false
       )
+      expect(json.dig("track", "video_url")).to include("player-clip-web.mp4")
     end
 
     it "returns player metadata with the current user's like state" do

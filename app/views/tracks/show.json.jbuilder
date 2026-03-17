@@ -52,8 +52,9 @@ json.track do
     json.mp3_url Rails.application.routes.url_helpers.rails_storage_proxy_url(@track.mp3_audio)
   end
 
-  if @track.video.attached?
-    json.video_url Rails.application.routes.url_helpers.rails_storage_proxy_url(@track.video)
+  video_media = @track.video_playback_media
+  if video_media&.attached?
+    json.video_url Rails.application.routes.url_helpers.rails_storage_proxy_url(video_media)
   end
 
   playback_media = @track.playback_media

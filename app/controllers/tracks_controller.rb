@@ -118,6 +118,7 @@ class TracksController < ApplicationController
   def update
     @track = current_user.tracks.friendly.find(params[:id])
     @tab = params[:track][:tab] || "basic-info-tab"
+    media_reprocess_requested = params[:track][:audio].present? || params[:track][:video].present?
     @track.assign_attributes(track_params)
     if params[:track][:artist_ids]
       @track.artist_ids = params[:track][:artist_ids].reject(&:blank?)
@@ -128,6 +129,7 @@ class TracksController < ApplicationController
     else
       @track.label_id = label_user.id if !label_user.blank? && @track.enable_label
       if @track.save
+        @track.reprocess_async if media_reprocess_requested
         flash.now[:notice] = "Track was successfully updated."
       else
         flash.now[:error] = @track.errors.full_messages

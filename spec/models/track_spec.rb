@@ -14,6 +14,7 @@ RSpec.describe Track, type: :model do
   it { should have_one_attached(:cover) }
   it { should have_one_attached(:audio) }
   it { should have_one_attached(:video) }
+  it { should have_one_attached(:video_web) }
   it { should have_one_attached(:mp3_audio) }
   it { should have_one_attached(:zip) }
 
@@ -190,11 +191,14 @@ RSpec.describe Track, type: :model do
   describe "#reprocess! with video" do
     let(:track) { FactoryBot.create(:track, user: user) }
     let(:wav_converter) { instance_double(WavConverter, run: wav_output_path) }
+    let(:video_web_converter) { instance_double(VideoWebConverter, run: video_web_output_path) }
     let(:mp3_converter) { instance_double(Mp3Converter, run: mp3_output_path) }
     let(:peaks_processor) { instance_double(PeaksGenerator, run: [0.1, 0.3, 0.6]) }
     let(:wav_output_dir) { Dir.mktmpdir("track-spec-wav") }
+    let(:video_web_output_dir) { Dir.mktmpdir("track-spec-video-web") }
     let(:mp3_output_dir) { Dir.mktmpdir("track-spec-video-mp3") }
     let(:wav_output_path) { File.join(wav_output_dir, "converted.wav") }
+    let(:video_web_output_path) { File.join(video_web_output_dir, "converted-web.mp4") }
     let(:mp3_output_path) { File.join(mp3_output_dir, "converted.mp3") }
 
     before do
@@ -205,26 +209,31 @@ RSpec.describe Track, type: :model do
       )
 
       File.binwrite(wav_output_path, "fake-wav")
+      File.binwrite(video_web_output_path, "fake-video-web")
       File.binwrite(mp3_output_path, "fake-mp3")
 
       allow(WavConverter).to receive(:new).and_return(wav_converter)
+      allow(VideoWebConverter).to receive(:new).and_return(video_web_converter)
       allow(Mp3Converter).to receive(:new).and_return(mp3_converter)
       allow(PeaksGenerator).to receive(:new).and_return(peaks_processor)
     end
 
     after do
       FileUtils.remove_entry(wav_output_dir) if Dir.exist?(wav_output_dir)
+      FileUtils.remove_entry(video_web_output_dir) if Dir.exist?(video_web_output_dir)
       FileUtils.remove_entry(mp3_output_dir) if Dir.exist?(mp3_output_dir)
     end
 
-    it "extracts wav and mp3 assets and marks the track as processed" do
+    it "extracts wav, web video and mp3 assets and marks the track as processed" do
       track.reprocess!
 
       expect(track.audio).to be_attached
+      expect(track.video_web).to be_attached
       expect(track.mp3_audio).to be_attached
       expect(track.state).to eq("processed")
       expect(track.peaks).to eq([0.1, 0.3, 0.6])
       expect(track).to be_has_video
+      expect(track.video_playback_media).to eq(track.video_web)
       expect(track.playback_media).to eq(track.mp3_audio)
       expect(track.downloadable_media).to eq(track.audio)
       expect(track.duration).to be_nil

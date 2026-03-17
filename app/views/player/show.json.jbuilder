@@ -7,8 +7,9 @@ json.track do
   json.description @track.description
   json.artwork_url @track.cover_url(:small)
   json.has_video @track.video.attached?
-  if @track.video.attached?
-    json.video_url Rails.application.routes.url_helpers.rails_storage_proxy_url(@track.video)
+  video_media = @track.video_playback_media
+  if video_media&.attached?
+    json.video_url Rails.application.routes.url_helpers.rails_storage_proxy_url(video_media)
   end
   json.artist_name @track.artists.any? ? @track.artists.map { |artist| artist.full_name.presence || artist.username }.join(", ") : (@track.artist.presence || @track.user.username)
   json.album_title @track.album_title.presence || @track.release_title.presence || @track.playlists.find { |playlist| %w[album ep single compilation].include?(playlist.playlist_type.to_s) }&.title || "Rauversion"
