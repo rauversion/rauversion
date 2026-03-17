@@ -48,6 +48,7 @@ export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenCh
   const { toast } = useToast()
   const { isDarkMode } = useThemeStore()
   const navigate = useNavigate()
+  const ownerHomePath = playlist?.user?.username ? `/${playlist.user.username}` : "/"
 
   const fetchPlaylist = async () => {
     setLoading(true)
@@ -161,7 +162,7 @@ export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenCh
           description: I18n.t('playlists.edit.messages.delete_success')
         })
         onOpenChange(false)
-        navigate('/')
+        navigate(ownerHomePath)
       } else {
         const error = await response.json()
         toast({

@@ -1157,6 +1157,11 @@ en:
         title: Title
         tags: Labels
         description: Description
+        video: Video
+        video_hint: Upload a video file to attach it to this track.
+        video_uploading: Uploading video...
+        video_selected: "Ready to save: %{name}"
+        current_video: Open current video
         private: Private
         podcast: Podcast
       delete:
@@ -1168,6 +1173,8 @@ en:
         cancel: Cancel
       messages:
         cover_success: Cover image successfully updated
+        video_success: Video uploaded successfully. Save changes to apply it.
+        video_upload_error: Error uploading the video
         update_success: Track successfully updated
         update_error: Error updating the track
         delete_success: Track successfully deleted

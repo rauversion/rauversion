@@ -258,51 +258,54 @@ export default function PlaylistShow() {
                     </motion.div>
                   )}
                 </div>
-                <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-sm text-muted-foreground @sm/playlist-hero:text-base">
-                  <Link
-                    to={`/${playlist.user.username}`}
-                    className="hover:text-foreground transition-colors flex items-center gap-2 group"
-                  >
-                    <motion.img
-                      src={playlist.user.avatar_url?.small}
-                      alt={playlist.user.username}
-                      className="w-6 h-6 rounded-full ring-2 ring-transparent group-hover:ring-brand-500 transition-all"
-                      whileHover={{ scale: 1.1 }}
-                    />
-                    <span className="group-hover:text-brand-500 transition-colors">
-                      {playlist.user.username}
-                    </span>
-                  </Link>
-                  {/* Label info */}
-                  {playlist.label && (
-                    <>
-                      <span className="text-muted-foreground">•</span>
-                      <Link
-                        to={`/${playlist.label.username}`}
-                        className="hover:text-foreground transition-colors flex items-center gap-2 group"
-                      >
-                        <span className="font-semibold group-hover:text-brand-500 transition-colors">
-                          {playlist.label.name}
-                        </span>
-                        <span className="text-xs text-muted-foreground group-hover:text-brand-400">
-                          @{playlist.label.username}
-
-                        </span>
-                      </Link>
-                    </>
-                  )}
-                  <span className="text-muted-foreground">•</span>
-                  <span>
-                    {format(
-                      new Date(playlist.release_date || new Date()),
-                      "MMMM d, yyyy"
+                <div className="space-y-1.5 text-sm text-muted-foreground @sm/playlist-hero:space-y-2 @sm/playlist-hero:text-base">
+                  <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+                    <Link
+                      to={`/${playlist.user.username}`}
+                      className="hover:text-foreground transition-colors flex items-center gap-2 group"
+                    >
+                      <motion.img
+                        src={playlist.user.avatar_url?.small}
+                        alt={playlist.user.username}
+                        className="w-6 h-6 rounded-full ring-2 ring-transparent group-hover:ring-brand-500 transition-all"
+                        whileHover={{ scale: 1.1 }}
+                      />
+                      <span className="group-hover:text-brand-500 transition-colors">
+                        {playlist.user.username}
+                      </span>
+                    </Link>
+                    {playlist.label && (
+                      <>
+                        <span className="text-muted-foreground">•</span>
+                        <Link
+                          to={`/${playlist.label.username}`}
+                          className="hover:text-foreground transition-colors flex items-center gap-2 group"
+                        >
+                          <span className="font-semibold group-hover:text-brand-500 transition-colors">
+                            {playlist.label.name}
+                          </span>
+                          <span className="text-xs text-muted-foreground group-hover:text-brand-400">
+                            @{playlist.label.username}
+                          </span>
+                        </Link>
+                      </>
                     )}
-                  </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">•</span>
+                    <span>
+                      {format(
+                        new Date(playlist.release_date || new Date()),
+                        "MMMM d, yyyy"
+                      )}
+                    </span>
+                  </div>
                 </div>
               </motion.div>
 
               <motion.div
-                className="flex flex-wrap items-center gap-3 @sm/playlist-hero:gap-4"
+                className="flex items-center gap-2.5 @sm/playlist-hero:gap-4"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.4 }}
@@ -315,7 +318,7 @@ export default function PlaylistShow() {
                   }
                   className={cn(
                     "relative flex items-center justify-center",
-                    "w-14 h-14 rounded-full",
+                    "h-11 w-11 shrink-0 rounded-full @sm/playlist-hero:h-14 @sm/playlist-hero:w-14",
                     "bg-brand-500 text-white",
                     "transition-all duration-300",
                     "hover:bg-brand-400 hover:shadow-lg hover:shadow-brand-500/25",
@@ -331,7 +334,7 @@ export default function PlaylistShow() {
                       animate={{ scale: 1 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <Pause className="w-7 h-7" />
+                      <Pause className="h-5 w-5 @sm/playlist-hero:h-7 @sm/playlist-hero:w-7" />
                     </motion.div>
                   ) : (
                     <motion.div
@@ -339,12 +342,12 @@ export default function PlaylistShow() {
                       animate={{ scale: 1, rotate: 0 }}
                       transition={{ duration: 0.2 }}
                     >
-                      <Play className="w-7 h-7 ml-1" />
+                      <Play className="ml-0.5 h-5 w-5 @sm/playlist-hero:h-7 @sm/playlist-hero:w-7" />
                     </motion.div>
                   )}
                 </motion.button>
 
-                <div className="flex flex-wrap gap-2">
+                <div className="flex min-w-0 flex-1 gap-2">
                   <ShareDialog
                     url={`${window.location.origin}/${playlist.user.username}/playlists/${playlist.slug}`}
                     title={playlist.title}
@@ -352,10 +355,9 @@ export default function PlaylistShow() {
                   >
                     <motion.button
                       className={cn(
-                        "px-4 py-2 rounded-full",
+                        "flex min-w-0 flex-1 items-center justify-center gap-2 rounded-full px-3 py-2 text-sm @sm/playlist-hero:flex-none @sm/playlist-hero:px-4 @sm/playlist-hero:text-base",
                         "border border-white/10",
                         "text-foreground",
-                        "flex items-center gap-2",
                         "transition-all duration-300",
                         "hover:bg-white/10 hover:border-white/20"
                       )}
@@ -373,17 +375,16 @@ export default function PlaylistShow() {
                         <polyline points="16 6 12 2 8 6"></polyline>
                         <line x1="12" y1="2" x2="12" y2="15"></line>
                       </svg>
-                      <span className="inline">Share</span>
+                      <span className="truncate">Share</span>
                     </motion.button>
                   </ShareDialog>
 
                   <motion.button
                     onClick={handleLike}
                     className={cn(
-                      "px-4 py-2 rounded-full",
+                      "flex min-w-0 flex-1 items-center justify-center gap-1.5 rounded-full px-3 py-2 text-sm @sm/playlist-hero:flex-none @sm/playlist-hero:gap-2 @sm/playlist-hero:px-4 @sm/playlist-hero:text-base",
                       "border border-white/10",
                       isLiked ? "text-brand-500 border-brand-500/20 bg-brand-500/10" : "text-foreground",
-                      "flex items-center gap-2",
                       "transition-all duration-300",
                       isLiked ? "hover:bg-brand-500/20" : "hover:bg-white/10 hover:border-white/20"
                     )}
@@ -391,7 +392,8 @@ export default function PlaylistShow() {
                     whileTap={{ scale: 0.95 }}
                   >
                     <Heart size={20} className={isLiked ? "fill-current" : ""} />
-                    <span className="inline">{likes} Me gusta</span>
+                    <span className="truncate">{likes}</span>
+                    <span className="hidden @2xl/playlist-hero:inline">Me gusta</span>
                     <span className="sr-only">Like playlist</span>
                   </motion.button>
                 </div>

@@ -1250,6 +1250,11 @@ es:
         title: Título
         tags: Etiquetas
         description: Descripción
+        video: Video
+        video_hint: Sube un archivo de video para adjuntarlo a esta pista.
+        video_uploading: Subiendo video...
+        video_selected: "Listo para guardar: %{name}"
+        current_video: Abrir video actual
         private: Privado
         podcast: Podcast
       delete:
@@ -1259,6 +1264,8 @@ es:
         cancel: Cancelar
       messages:
         cover_success: Imagen de portada actualizada exitosamente
+        video_success: Video subido exitosamente. Guarda los cambios para aplicarlo.
+        video_upload_error: Error al subir el video
         update_success: Pista actualizada exitosamente
         update_error: Error al actualizar la pista
         delete_success: Pista eliminada exitosamente

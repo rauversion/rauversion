@@ -248,7 +248,7 @@ class TracksController < ApplicationController
       :direct_download, :display_embed, :enable_comments,
       :display_comments, :display_stats, :include_in_rss,
       :offline_listening, :enable_app_playblack,
-      :cover,
+      :cover, :video,
       :podcast,
       :copyright, :attribution, :noncommercial, :copies,
       crop_data: [:x, :y, :width, :height],

@@ -20,6 +20,7 @@ import { Category, permissionDefinitions } from "@/lib/constants"
 import { useToast } from "@/hooks/use-toast"
 import { useThemeStore } from '@/stores/theme'
 import { put, destroy } from "@rails/request.js"
+import { DirectUpload } from "@rails/activestorage"
 import { Check, Copy, Facebook, Twitter, Link2, Code2 } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { ImageUploader } from "@/components/ui/image-uploader"
@@ -51,6 +52,8 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
   const [track, setTrack] = useState(initialTrack)
   const [loading, setLoading] = useState(false)
   const [cropUploadMode, setCropUploadMode] = useState("original_with_coords") // "crop" or "original_with_coords"
+  const [videoUploading, setVideoUploading] = useState(false)
+  const [queuedVideoName, setQueuedVideoName] = useState("")
 
   const { control, handleSubmit, setValue, watch, form } = useForm({
     defaultValues: {
@@ -84,6 +87,7 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
       name_your_price: track.name_your_price || false,
       tags: track.tags || [],
       cover: track.cover || "",
+      video: "",
       artist_ids: track.artists || [],
     }
   })
@@ -116,6 +120,8 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
 
   useEffect(() => {
     if (!open) return
+    setQueuedVideoName("")
+    setValue("video", "")
     fetchTrack()
   }, [open])
 
@@ -134,11 +140,55 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
     })
   }
 
+  const uploadFile = async (file) => {
+    return new Promise((resolve, reject) => {
+      const upload = new DirectUpload(file, "/rails/active_storage/direct_uploads")
+
+      upload.create((error, blob) => {
+        if (error) {
+          reject(error)
+        } else {
+          resolve(blob)
+        }
+      })
+    })
+  }
+
+  const handleVideoUpload = async (event) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    setVideoUploading(true)
+
+    try {
+      const blob = await uploadFile(file)
+      setValue("video", blob.signed_id)
+      setQueuedVideoName(file.name)
+
+      toast({
+        description: I18n.t("tracks.edit.messages.video_success"),
+      })
+    } catch (error) {
+      console.error("Video upload error:", error)
+      toast({
+        title: "Error",
+        description: I18n.t("tracks.edit.messages.video_upload_error"),
+        variant: "destructive",
+      })
+    } finally {
+      event.target.value = ""
+      setVideoUploading(false)
+    }
+  }
+
   const onSubmit = async (data) => {
     try {
       const payload = { ...data }
       if (!payload.cover) {
         delete payload.cover
+      }
+      if (!payload.video) {
+        delete payload.video
       }
       // Convert artist_ids from array of objects to array of IDs
       if (payload.artist_ids && Array.isArray(payload.artist_ids)) {
@@ -317,6 +367,38 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
                             />
                           )}
                         />
+                      </div>
+
+                      <div>
+                        <Label htmlFor="video-upload">{I18n.t("tracks.edit.form.video")}</Label>
+                        <Input
+                          id="video-upload"
+                          type="file"
+                          accept="video/*"
+                          className="mt-2 cursor-pointer"
+                          onChange={handleVideoUpload}
+                          disabled={videoUploading}
+                        />
+                        <p className="mt-2 text-sm text-muted-foreground">
+                          {videoUploading
+                            ? I18n.t("tracks.edit.form.video_uploading")
+                            : I18n.t("tracks.edit.form.video_hint")}
+                        </p>
+                        {queuedVideoName && (
+                          <p className="mt-2 text-sm font-medium text-foreground">
+                            {I18n.t("tracks.edit.form.video_selected", { name: queuedVideoName })}
+                          </p>
+                        )}
+                        {!queuedVideoName && track.video_url && (
+                          <a
+                            href={track.video_url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="mt-2 inline-flex text-sm text-primary underline underline-offset-4"
+                          >
+                            {I18n.t("tracks.edit.form.current_video")}
+                          </a>
+                        )}
                       </div>
 
                       <div className="flex items-center space-x-2">

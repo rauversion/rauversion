@@ -27,12 +27,11 @@ export default function PlaylistSkeleton() {
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-3 @sm/playlist-hero:gap-4">
-                <Skeleton className="w-16 h-16 rounded-full" />
-                <div className="flex flex-wrap gap-2">
-                  <Skeleton className="w-10 h-10 rounded-lg" />
-                  <Skeleton className="w-24 h-10 rounded-lg" />
-                  <Skeleton className="w-32 h-10 rounded-lg" />
+              <div className="flex items-center gap-2.5 @sm/playlist-hero:gap-4">
+                <Skeleton className="h-11 w-11 shrink-0 rounded-full @sm/playlist-hero:h-14 @sm/playlist-hero:w-14" />
+                <div className="flex min-w-0 flex-1 gap-2">
+                  <Skeleton className="h-10 flex-1 rounded-full" />
+                  <Skeleton className="h-10 flex-1 rounded-full" />
                 </div>
               </div>
             </div>
