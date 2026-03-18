@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Play, Pause, MoreHorizontal } from 'lucide-react';
+import { Play, Pause } from 'lucide-react';
 
 interface Track {
   id: number;
   title: string;
   description: string;
-  duration: number;
+  duration: number | string | null;
   audio_url: string;
   cover_url: string;
   position: number;
@@ -51,6 +51,21 @@ interface Playlist {
 
 interface PlaylistProps {
   playlistId: string | number;
+}
+
+function formatTrackDuration(duration: number | string | null | undefined) {
+  if (duration === null || duration === undefined || duration === "") {
+    return "";
+  }
+
+  const parsedDuration =
+    typeof duration === "number" ? duration : Number.parseFloat(duration);
+
+  if (Number.isNaN(parsedDuration)) {
+    return "";
+  }
+
+  return Math.trunc(parsedDuration).toString();
 }
 
 export default function PlaylistComponent({ playlistId }: PlaylistProps) {
@@ -183,7 +198,9 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
                 </div>
               </div>
               <div className="flex items-center gap-4">
-                <span className="text-muted-foreground">{track.duration}</span>
+                <span className="text-muted-foreground">
+                  {formatTrackDuration(track.duration)}
+                </span>
 
               </div>
             </div>
