@@ -12,7 +12,7 @@ interface Track {
   title: string;
   slug: string;
   description: string;
-  duration: string;
+  duration: string | number | null;
   audio_url: string;
   cover_url: string;
   position: number;
@@ -68,6 +68,24 @@ interface PlaylistProps {
     tablet?: string;
     desktop?: string;
   } | string;
+}
+
+function formatTrackDuration(duration: string | number | null | undefined) {
+  if (duration === null || duration === undefined || duration === "" || duration === "xx;xx") {
+    return "";
+  }
+
+  const parsedDuration = typeof duration === "number" ? duration : Number(duration);
+
+  if (Number.isNaN(parsedDuration)) {
+    return "";
+  }
+
+  const totalSeconds = Math.floor(parsedDuration);
+  const minutes = Math.floor(totalSeconds / 60);
+  const remainingSeconds = totalSeconds % 60;
+
+  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
 }
 
 export default function PlaylistComponent({
@@ -215,82 +233,84 @@ export default function PlaylistComponent({
   
         <div className="mt-4">
           <div className="space-y-1 bg-black/10 p-4 rounded-lg">
-            {playlist.tracks && playlist.tracks.map((track, index) => (
-              <div 
-                key={`${track.id}-${index}`}
-                className={`flex items-center 
-                  justify-between p-2 
-                  rounded hover:bg-secondary/10 
-                  group ${
-                    audioPlaying() && currentTrackId === track.id + "" ? 
-                    'bg-secondary/20 text-[color:var(--accent-color)]' : 'text-[color:var(--player-color)]'
-                }`}
-              >
-                <div className="flex items-center gap-4">
-                  <span className={"w-6"}>
-                    {index + 1}
-                  </span>
-                  
-                  <a 
-                    onClick={async (e) => {
-                      e.preventDefault();
+            {playlist.tracks && playlist.tracks.map((track, index) => {
+              const formattedDuration = formatTrackDuration(track.duration);
+
+              return (
+                <div 
+                  key={`${track.id}-${index}`}
+                  className={`flex items-center 
+                    justify-between p-2 
+                    rounded hover:bg-secondary/10 
+                    group ${
+                      audioPlaying() && currentTrackId === track.id + "" ? 
+                      'bg-secondary/20 text-[color:var(--accent-color)]' : 'text-[color:var(--player-color)]'
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <span className={"w-6"}>
+                      {index + 1}
+                    </span>
+                    
+                    <a 
+                      onClick={async (e) => {
+                        e.preventDefault();
+                        
+                        if(audioPlaying()) {
+                          audioElement.pause();
+                          useAudioStore.setState({ currentTrackId: track.id + "", isPlaying: false });
+                        } else {
+                          setTracksToStore(0)
+                          useAudioStore.setState({ currentTrackId: track.id + "", isPlaying: true });
+                        }
+
+                        // Set the track in the store
+                      }}
+                      className="cursor-pointer"
+                    >
+                      {currentTrackId === track.id+ ""  + "" && isPlaying ? 
+                        <Pause size={20} /> : 
+                        <Play size={20} />
+                      }
+                    </a>
+    
+                    <div className="flex flex-col">
                       
-                      if(audioPlaying()) {
-                        audioElement.pause();
-                        useAudioStore.setState({ currentTrackId: track.id + "", isPlaying: false });
-                      } else {
-                        setTracksToStore(0)
-                        useAudioStore.setState({ currentTrackId: track.id + "", isPlaying: true });
-                      }
+                      <span className={`font-medium  my-1`}>
+                        {track.title}
+                      </span>
 
-                      // Set the track in the store
-                    }}
-                    className="cursor-pointer"
-                  >
-                    {currentTrackId === track.id+ ""  + "" && isPlaying ? 
-                      <Pause size={20} /> : 
-                      <Play size={20} />
-                    }
-                  </a>
-  
-                  <div className="flex flex-col">
-                    
-                    <span className={`font-medium  my-1`}>
-                      {track.title}
-                    </span>
+                      <span className="text-sm space-x-2 my-1">
+                      
+                        {track?.user?.username && 
+                          <Link to={`/${track.user?.username}`} className="hover:underline">
+                          {track.user?.full_name}
+                        </Link>
+                        }
 
-                    <span className="text-sm space-x-2 my-1">
-                    
-                      {track?.user?.username && 
-                        <Link to={`/${track.user?.username}`} className="hover:underline">
-                        {track.user?.full_name}
-                      </Link>
-                      }
+                        {track.artists && track.artists.length > 0 && (
+                          <>
+                            {track.artists.map((artist) =>
+                              <Link to={`/${artist.username}`} className="hover:underline">
+                                {artist.full_name || artist.username}
+                              </Link>
+                            )}
+                          </>
+                        )}
 
-                      {track.artists && track.artists.length > 0 && (
-                        <>
-                          {track.artists.map((artist) =>
-                            <Link to={`/${artist.username}`} className="hover:underline">
-                              {artist.full_name || artist.username}
-                            </Link>
-                          )}
-                        </>
-                      )}
-
-                    </span>
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-4">
+                    {formattedDuration && (
+                      <span className="text-default text-sm">
+                        {formattedDuration}
+                      </span>
+                    )}
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  {
-                    track.duration !== "xx;xx" && (
-                      <span className="text-default text-sm">
-                        {track.duration}
-                      </span>
-                    )
-                  }
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
   
