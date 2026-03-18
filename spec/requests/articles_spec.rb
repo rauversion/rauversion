@@ -1,6 +1,24 @@
 require "rails_helper"
 
 RSpec.describe "Articles", type: :request do
+  describe "GET /articles/:id.json" do
+    let(:article) { create(:post, :published, settings: nil) }
+
+    it "renders even when settings is nil" do
+      get "/articles/#{article.slug}.json"
+
+      expect(response).to have_http_status(:ok)
+
+      payload = JSON.parse(response.body)
+
+      expect(payload).to include(
+        "id" => article.id,
+        "slug" => article.slug,
+        "reading_time" => nil
+      )
+    end
+  end
+
   describe "PUT /articles/:id.json" do
     let(:user) { create(:user, confirmed_at: Time.current) }
     let(:article) { create(:post, user: user) }

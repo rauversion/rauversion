@@ -7,7 +7,7 @@ json.body_html serialized_to_html(@post.body.with_indifferent_access)&.html_safe
 json.created_at @post.created_at
 json.updated_at @post.updated_at
 json.state @post.state
-json.reading_time @post.settings["reading_time"]
+json.reading_time @post.reading_time
 json.cover_url do
   json.medium @post.cover_url(:medium)
   json.small @post.cover_url(:small)
