@@ -19,6 +19,7 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import I18n from "stores/locales"
+import { getUserDisplayName } from "@/utils/userDisplayName"
 
 const HOME_TABS = [
   { id: "all", labelKey: "home.personalized.tabs.all", icon: Sparkles },
@@ -523,14 +524,14 @@ export default function PersonalizedHome({ currentUser }) {
               <div className="mt-5 flex items-center gap-4">
                 <img
                   src={currentUser?.avatar_url?.medium}
-                  alt={currentUser?.username}
+                  alt={getUserDisplayName(currentUser)}
                   className="h-14 w-14 rounded-2xl border border-background/70 object-cover shadow-lg shadow-black/10 dark:border-white/10 dark:shadow-black/30"
                 />
 
                 <div className="min-w-0">
                   <p className="text-sm uppercase tracking-[0.22em] text-foreground/58 dark:text-white/58">{getGreeting()}</p>
                   <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl xl:text-5xl dark:text-white">
-                    {currentUser?.first_name || currentUser?.username}
+                    {getUserDisplayName(currentUser)}
                   </h1>
                 </div>
               </div>

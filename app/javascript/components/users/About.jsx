@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { get } from '@rails/request.js'
 import { Plus } from 'lucide-react'
 import useAuthStore from '../../stores/authStore'
+import { getUserDisplayName } from '@/utils/userDisplayName'
 
 export default function UserAbout() {
   const { username } = useParams()
@@ -37,6 +38,7 @@ export default function UserAbout() {
   }
 
   const { user, stats } = data
+  const displayName = getUserDisplayName(user)
 
   return (
     <div className="relative mx-auto max-w-7xl px-4 sm:static sm:px-6 lg:px-8">
@@ -65,9 +67,12 @@ export default function UserAbout() {
         <div className="sm:max-w-lg py-5">
           <h1 className="text-4xl font-bold tracking-tight text-default sm:text-6xl">
             <Link to={`/${user.username}`} className="text-brand-500 hover:underline">
-              {user.username}
+              {displayName}
             </Link>
           </h1>
+          {!user.hide_username_from_profile && (
+            <p className="text-sm text-muted py-2">@{user.username}</p>
+          )}
           <p className="text-muted py-4">
             {user.country && user.city ? `${user.country}, ${user.city}` : null}
           </p>

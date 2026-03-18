@@ -3,6 +3,7 @@ import { Heart, Play, Pause } from 'lucide-react'
 import { motion } from 'framer-motion'
 import { cn } from "@/lib/utils"
 import { Link } from "react-router"
+import { getUserDisplayName } from '@/utils/userDisplayName'
 
 export function formatDuration(seconds) {
   const n = Number(seconds)
@@ -98,13 +99,13 @@ export default function PlaylistListItem({
           </motion.p>
           <p className="text-muted-foreground text-sm truncate-- group-hover:text-muted-foreground space-x-2">
             <Link to={`/${track.user.username}`} className="hover:underline">
-              {track.user.full_name}
+              {getUserDisplayName(track.user)}
             </Link>
             {track.artists && track.artists.length > 0 && (
               <>
                 {track.artists.map((artist) =>
                   <Link to={`/${artist.username}`} className="hover:underline">
-                    {artist.full_name || artist.username}
+                    {getUserDisplayName(artist)}
                   </Link>
                 )}
               </>

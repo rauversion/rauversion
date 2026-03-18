@@ -20,6 +20,7 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
+import { getUserDisplayName } from "@/utils/userDisplayName"
 
 function SortableTrackItem({ track, onRemove }) {
   const {
@@ -63,7 +64,7 @@ function SortableTrackItem({ track, onRemove }) {
           {track.title}
         </p>
         <p className="text-sm text-muted-foreground truncate">
-          {track.user?.username}
+          {getUserDisplayName(track.user)}
         </p>
       </div>
 

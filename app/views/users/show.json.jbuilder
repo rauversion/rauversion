@@ -1,6 +1,7 @@
 json.user do
   json.extract! @user, :id, :username, :first_name, :last_name, :country, :city, 
                 :bio, :hide_username_from_profile, :role, :created_at, :updated_at
+  json.display_name @user.display_name
   
   json.avatar_url do
     json.small @user.avatar_url(:small)

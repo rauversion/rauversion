@@ -17,6 +17,7 @@ import clsx from "clsx";
 import Sidebar from "./Sidebar";
 import I18n from "@/stores/locales";
 import { InterestAlert } from "../shared/alerts";
+import { getUserDisplayName } from "@/utils/userDisplayName";
 
 export default function UserShow() {
   const { username } = useParams();
@@ -132,6 +133,8 @@ export default function UserShow() {
     return null;
   }
 
+  const displayName = getUserDisplayName(user);
+
   return (
     <div className="bg-default text-default min-h-screen">
       {/* Profile Header */}
@@ -153,14 +156,12 @@ export default function UserShow() {
 
             <div>
               <h1 className="sm:text-4xl text-2xl font-bold text-white">
-                {user.hide_username_from_profile
-                  ? `${user.first_name} ${user.last_name}`
-                  : user.username}
+                {displayName}
               </h1>
 
               {!user.hide_username_from_profile && (
                 <p className="text-lg text-muted-foreground">
-                  {user.first_name} {user.last_name}
+                  @{user.username}
                 </p>
               )}
 

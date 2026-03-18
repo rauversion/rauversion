@@ -4,6 +4,7 @@ import { ArrowUpRight, Lock, Pause, Play } from 'lucide-react'
 
 import { cn } from "@/lib/utils"
 import useAudioStore from '@/stores/audioStore'
+import { getUserDisplayName } from '@/utils/userDisplayName'
 
 function showcaseText(key, options = {}) {
   return I18n.t(`users.artist_page.discography.${key}`, options)
@@ -120,7 +121,7 @@ export function PlaylistShowcaseCard({ playlist, className }) {
             </Link>
           </h3>
           <p className="mt-1 text-sm text-white/80">
-            {playlist.user?.full_name || playlist.user?.username}
+            {getUserDisplayName(playlist.user)}
           </p>
         </div>
       </div>
@@ -138,7 +139,7 @@ export function PlaylistShowcaseCard({ playlist, className }) {
         <div className="flex items-center justify-between border-t border-border/60 pt-4">
           <div className="min-w-0">
             <p className="text-sm font-medium text-foreground">
-              {playlist.user?.full_name || playlist.user?.username}
+              {getUserDisplayName(playlist.user)}
             </p>
             <p className="line-clamp-1 text-xs uppercase tracking-[0.18em] text-muted-foreground">
               {playlistTypeLabel(playlist.playlist_type)}

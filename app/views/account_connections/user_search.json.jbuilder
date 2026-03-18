@@ -1,5 +1,6 @@
 json.collection @artists do |artist|
   json.extract! artist, :id, :username, :full_name
+  json.display_name artist.display_name
 
   json.avatar_url do
     json.small artist.avatar_url(:small)

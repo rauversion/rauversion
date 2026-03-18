@@ -6,12 +6,12 @@
       </div>
       <div class="text-default sm:mt-6 space-y-1 sm:space-y-2 flex flex-col justify-start items-start">
         <p class="sm:text-3xl text-sm font-extrabold bg-default p-1 inline-block mt-2"> 
-          <%= @user.hide_username_from_profile ? "#{@user.first_name} #{@user.last_name}" : @user.username %> 
+          <%= @user.display_name %> 
         </p>
 
 
         <% if !@user.hide_username_from_profile %>
-          <p class="sm:text-lg text-xs font-light bg-default p-1 inline-block"> <%= @user.first_name %> <%= @user.last_name%> </p>
+          <p class="sm:text-lg text-xs font-light bg-default p-1 inline-block">@<%= @user.username %></p>
         <% end %>
         <p class="sm:text-lg text-xs font-light bg-default p-1 inline-block"> <%= @user.country %> <%= @user.city %> </p>
       </div>

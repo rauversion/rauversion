@@ -11,7 +11,7 @@ json.track do
   if video_media&.attached?
     json.video_url Rails.application.routes.url_helpers.rails_storage_proxy_url(video_media)
   end
-  json.artist_name @track.artists.any? ? @track.artists.map { |artist| artist.full_name.presence || artist.username }.join(", ") : (@track.artist.presence || @track.user.username)
+  json.artist_name @track.artists.any? ? @track.artists.map(&:display_name).reject(&:blank?).join(", ") : (@track.artist.presence || @track.user.display_name)
   json.album_title @track.album_title.presence || @track.release_title.presence || @track.playlists.find { |playlist| %w[album ep single compilation].include?(playlist.playlist_type.to_s) }&.title || "Rauversion"
   json.likes_count @track.respond_to?(:likes_count) ? @track.likes_count.to_i : @track.likes.count
   json.like_id @track.respond_to?(:like_id) && @track.like_id.present?
@@ -24,7 +24,7 @@ json.track do
   end
   
   json.user_id @track.user.id
-  json.user_full_name @track.user.full_name
+  json.user_full_name @track.user.display_name
   json.user_username @track.user.username
   json.user_url user_path(@track.user.username)
   json.user_avatar_url do

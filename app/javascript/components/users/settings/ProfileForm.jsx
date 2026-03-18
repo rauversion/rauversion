@@ -23,6 +23,7 @@ export default function ProfileForm() {
   const { register, handleSubmit, reset, getValues } = useForm({
     defaultValues: {
       username: "",
+      display_name: "",
       hide_username_from_profile: false,
       first_name: "",
       last_name: "",
@@ -40,6 +41,7 @@ export default function ProfileForm() {
       // Reset form with user data
       reset({
         username: data.user.username,
+        display_name: data.user.display_name,
         hide_username_from_profile: data.user.hide_username_from_profile,
         first_name: data.user.first_name,
         last_name: data.user.last_name,
@@ -51,9 +53,6 @@ export default function ProfileForm() {
       setUser(data.user)
       setAvatarBlobId(data.user.avatar_blob_id)
       setHeaderBlobId(data.user.profile_header_blob_id)
-
-      console.log("DATA USER")
-      console.log(data.user)
     }
   }
 
@@ -117,7 +116,6 @@ export default function ProfileForm() {
 
   if (!user) return null
 
-  { console.log(register("bio")) }
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
       <Card>
@@ -154,6 +152,19 @@ export default function ProfileForm() {
                 {I18n.t('user_settings.profile.form.username.hide')}
               </Label>
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="display_name">
+              {I18n.t('user_settings.profile.form.display_name.label')}
+            </Label>
+            <Input
+              id="display_name"
+              {...register("display_name")}
+            />
+            <p className="text-sm text-muted-foreground">
+              {I18n.t('user_settings.profile.form.display_name.help')}
+            </p>
           </div>
 
           <div className="grid grid-cols-2 gap-4">

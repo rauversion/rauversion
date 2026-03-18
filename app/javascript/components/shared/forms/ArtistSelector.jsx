@@ -8,6 +8,7 @@ import { X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useDebounce } from "@/hooks/use_debounce";
 import { get } from "@rails/request.js";
+import { getUserDisplayName } from "@/utils/userDisplayName";
 
 export default function ArtistSelector({ control, setValue, watch, name = "artist_ids" }) {
   const { toast } = useToast();
@@ -80,13 +81,13 @@ export default function ArtistSelector({ control, setValue, watch, name = "artis
                 {artist.avatar_url?.medium && (
                   <img
                     src={artist.avatar_url.medium}
-                    alt={artist.username}
+                    alt={getUserDisplayName(artist)}
                     className="h-8 w-8 rounded-full object-cover"
                   />
                 )}
                 <div>
-                  <div className="font-medium">{artist.username}</div>
-                  <div className="text-xs text-muted-foreground">{artist.full_name || artist.email}</div>
+                  <div className="font-medium">{getUserDisplayName(artist)}</div>
+                  <div className="text-xs text-muted-foreground">@{artist.username}</div>
                 </div>
               </div>
               <Checkbox
@@ -104,11 +105,11 @@ export default function ArtistSelector({ control, setValue, watch, name = "artis
             {artist.avatar_url?.small && (
               <img
                 src={artist.avatar_url.small}
-                alt={artist.username}
+                alt={getUserDisplayName(artist)}
                 className="h-5 w-5 rounded-full object-cover mr-1"
               />
             )}
-            <span>{artist.username}</span>
+            <span>{getUserDisplayName(artist)}</span>
             <Button
               size="icon"
               variant="ghost"

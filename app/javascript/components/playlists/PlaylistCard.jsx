@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { ShareDialog } from "@/components/ui/share-dialog";
 import { cn } from "@/lib/utils";
+import { getUserDisplayName } from "@/utils/userDisplayName";
 
 export default function PlaylistCard({ playlist, skipCover, children }) {
   const shareUrl = `${window.location.origin}/playlists/${playlist.slug}`;
@@ -23,7 +24,7 @@ export default function PlaylistCard({ playlist, skipCover, children }) {
           <ShareDialog
             url={shareUrl}
             title={playlist.title}
-            description={`Listen to ${playlist.title} by ${playlist.user.username} on Rauversion`}
+            description={`Listen to ${playlist.title} by ${getUserDisplayName(playlist.user)} on Rauversion`}
           />
         </div>
       </div>
@@ -33,7 +34,7 @@ export default function PlaylistCard({ playlist, skipCover, children }) {
           {playlist.title}
         </h3>
         <p className="text-sm text-muted-foreground">
-          By {playlist.user.username} • {playlist.tracks_count} tracks
+          By {getUserDisplayName(playlist.user)} • {playlist.tracks_count} tracks
         </p>
       </Link>
     </div>

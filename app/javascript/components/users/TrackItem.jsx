@@ -4,6 +4,7 @@ import { Play, Pause } from 'lucide-react'
 import TrackPlayer from '../tracks/TrackPlayer'
 import TrackItemMenu from './TrackItemMenu'
 import MusicPurchase from '@/components/shared/MusicPurchase'
+import { getUserDisplayName } from '@/utils/userDisplayName'
 
 export default function TrackItem({
   track,
@@ -73,7 +74,7 @@ export default function TrackItem({
                   target={embed ? "_blank" : "_self"}
                   className="text-sm text-muted-foreground hover:text-default"
                 >
-                  {track.user.full_name}
+                  {getUserDisplayName(track.user)}
                 </Link>
 
                 {track.artists && track.artists.length > 0 && (
@@ -81,7 +82,7 @@ export default function TrackItem({
                     {track.artists.map((artist) =>
                       <Link to={`/${artist.username}`}
                         className="text-sm text-muted-foreground hover:text-default">
-                        {artist.full_name || artist.username}
+                        {getUserDisplayName(artist)}
                       </Link>
                     )}
                   </>

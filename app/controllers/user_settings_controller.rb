@@ -64,6 +64,7 @@ class UserSettingsController < ApplicationController
   def user_attributes
     attrs = params.require(:user).permit(
       :username,
+      :display_name,
       :email,
       :first_name,
       :last_name,

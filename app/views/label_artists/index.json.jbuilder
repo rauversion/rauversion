@@ -1,5 +1,6 @@
 json.collection @artists do |artist|
   json.extract! artist, :id, :username, :full_name, :bio
+  json.display_name artist.display_name
 
   json.partial! 'users/user', user: artist, show_full_name: true
 

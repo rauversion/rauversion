@@ -9,6 +9,7 @@ RSpec.describe "Api::V1::Me music library", type: :request do
         confirmed_at: Time.current,
         role: :artist,
         username: "guest-artist",
+        display_name: "Guest Display",
         first_name: "Guest",
         last_name: "Artist"
       )
@@ -20,6 +21,7 @@ RSpec.describe "Api::V1::Me music library", type: :request do
         confirmed_at: Time.current,
         role: :artist,
         username: "featured-artist",
+        display_name: "Featured Display",
         first_name: "Featured",
         last_name: "Artist"
       )
@@ -31,6 +33,7 @@ RSpec.describe "Api::V1::Me music library", type: :request do
         confirmed_at: Time.current,
         role: :artist,
         username: "ignored-artist",
+        display_name: "Ignored Display",
         first_name: "Ignored",
         last_name: "Artist"
       )
@@ -158,8 +161,8 @@ RSpec.describe "Api::V1::Me music library", type: :request do
       titles = json["collection"].map { |entry| entry["title"] }
 
       expect(json["filter"]).to eq("artists")
-      expect(titles).to contain_exactly(artist.full_name, featured_artist.full_name)
-      expect(titles).not_to include(unfollowed_artist.full_name)
+      expect(titles).to contain_exactly(artist.display_name, featured_artist.display_name)
+      expect(titles).not_to include(unfollowed_artist.display_name)
     end
 
     it "supports sorting entries alphabetically" do
@@ -173,7 +176,7 @@ RSpec.describe "Api::V1::Me music library", type: :request do
 
       expect(json["sort"]).to eq("alphabetical")
       expect(json["collection"].map { |entry| entry["title"] }).to eq(
-        [featured_artist.full_name, artist.full_name]
+        [featured_artist.display_name, artist.display_name]
       )
     end
   end
@@ -186,6 +189,7 @@ RSpec.describe "Api::V1::Me music library", type: :request do
         confirmed_at: Time.current,
         role: :artist,
         username: "liked-artist",
+        display_name: "Liked Display",
         first_name: "Liked",
         last_name: "Artist"
       )
@@ -229,6 +233,7 @@ RSpec.describe "Api::V1::Me music library", type: :request do
         "album_title" => "Album favorito",
         "url" => "/tracks/#{track.slug}"
       )
+      expect(json.dig("collection", 0, "user", "display_name")).to eq("Liked Display")
       expect(json["metadata"]).to include(
         "current_page" => 1,
         "total_count" => 1

@@ -6,6 +6,7 @@ import ColorPicker from './ColorPicker';
 import PlaylistSelector from './PlaylistSelectorSingle';
 import { get } from '@rails/request.js';
 import { composeSpacingClasses, createMarginField, createPaddingField } from './SpacingProps';
+import { getUserDisplayName } from '@/utils/userDisplayName';
 
 interface Track {
   id: number;
@@ -21,6 +22,7 @@ interface Track {
 interface User {
   id: number;
   username: string;
+  display_name?: string;
   full_name: string;
   avatar_url: string;
 }
@@ -194,7 +196,7 @@ export default function PlaylistComponent({
 
             <span className="text-[color:var(--player-color)]/80 mb-4 block">
               <Link to={`/${playlist.user.username}`} className="hover:underline">
-                {playlist.user.full_name}
+                {getUserDisplayName(playlist.user)}
               </Link>
             </span>
 
@@ -284,7 +286,7 @@ export default function PlaylistComponent({
                       
                         {track?.user?.username && 
                           <Link to={`/${track.user?.username}`} className="hover:underline">
-                          {track.user?.full_name}
+                          {getUserDisplayName(track.user)}
                         </Link>
                         }
 
@@ -292,7 +294,7 @@ export default function PlaylistComponent({
                           <>
                             {track.artists.map((artist) =>
                               <Link to={`/${artist.username}`} className="hover:underline">
-                                {artist.full_name || artist.username}
+                                {getUserDisplayName(artist)}
                               </Link>
                             )}
                           </>

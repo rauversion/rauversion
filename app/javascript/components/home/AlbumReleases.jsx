@@ -5,6 +5,7 @@ import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
 import I18n from 'stores/locales'
 import { cn } from '../../lib/utils'
+import { getUserDisplayName, getUserInitials } from '@/utils/userDisplayName'
 
 const ContentCard = ({ content, variant = 'default', className }) => {
   const [isHovered, setIsHovered] = useState(false)
@@ -100,19 +101,19 @@ const ContentCard = ({ content, variant = 'default', className }) => {
                   {content?.user?.avatar_url ? (
                     <img
                       src={content.user.avatar_url.small}
-                      alt={content.user.username}
+                      alt={getUserDisplayName(content.user)}
                       className="w-8 h-8 rounded-full object-cover ring-2 ring-background/20"
                     />
                   ) : (
                     <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
                       <span className="text-sm font-medium text-primary">
-                        {content?.user?.username?.charAt(0)?.toUpperCase()}
+                        {getUserInitials(content?.user)}
                       </span>
                     </div>
                   )}
                   <div>
                     <p className="text-sm font-medium text-foreground">
-                      {content?.user?.username}
+                      {getUserDisplayName(content?.user)}
                     </p>
                   </div>
                 </div>
@@ -183,19 +184,19 @@ const ContentCard = ({ content, variant = 'default', className }) => {
                   {content?.user?.avatar_url ? (
                     <img
                       src={content.user.avatar_url.small}
-                      alt={content.user.username}
+                      alt={getUserDisplayName(content.user)}
                       className="w-8 h-8 rounded-full object-cover ring-2 ring-background/20"
                     />
                   ) : (
                     <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center">
                       <span className="text-sm font-medium text-primary">
-                        {content?.user?.username?.charAt(0)?.toUpperCase()}
+                        {getUserInitials(content?.user)}
                       </span>
                     </div>
                   )}
                   <div>
                     <p className="text-sm font-medium text-foreground">
-                      {content?.user?.username}
+                      {getUserDisplayName(content?.user)}
                     </p>
                   </div>
                 </div>

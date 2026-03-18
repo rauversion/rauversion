@@ -9,6 +9,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel"
 import { Card, CardContent } from "@/components/ui/card"
+import { getUserDisplayName } from '@/utils/userDisplayName'
 
 export default function ArticleSide({ articles }) {
   if (!articles || articles.length === 0) return null
@@ -70,11 +71,11 @@ export default function ArticleSide({ articles }) {
                             >
                               <img
                                 src={article.user.avatar_url.small}
-                                alt={`${article.user.first_name} ${article.user.last_name}`}
+                                alt={getUserDisplayName(article.user)}
                                 className="h-6 w-6 flex-none rounded-full bg-muted"
                               />
                               <span className="truncate">
-                                {article.user.first_name} {article.user.last_name}
+                                {getUserDisplayName(article.user)}
                               </span>
                             </Link>
                           </div>

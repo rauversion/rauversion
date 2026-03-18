@@ -52,6 +52,7 @@ RSpec.describe "Artists directory", type: :request do
       artist_payload = payload.fetch("collection").find { |item| item["id"] == artist.id }
 
       expect(artist_payload["username"]).to eq("synth-hero")
+      expect(artist_payload["display_name"]).to eq("synth-hero")
       expect(artist_payload["full_name"]).to eq("Synth Hero")
       expect(artist_payload["city"]).to eq("Santiago")
       expect(artist_payload["country"]).to eq("Chile")

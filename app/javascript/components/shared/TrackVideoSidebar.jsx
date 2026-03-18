@@ -24,6 +24,7 @@ import { useToast } from "@/hooks/use-toast"
 import { ShareDialog } from "@/components/ui/share-dialog"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { cn } from "@/lib/utils"
+import { getUserDisplayName } from "@/utils/userDisplayName"
 
 function t(key, options = {}) {
   return I18n.t(`track_video_sidebar.${key}`, options)
@@ -37,11 +38,10 @@ function normalizeArtist(data) {
   if (!data?.user) return null
 
   const user = data.user
-  const fullName = [user.first_name, user.last_name].filter(Boolean).join(" ").trim()
 
   return {
     ...user,
-    full_name: fullName || user.username,
+    display_name: getUserDisplayName(user),
   }
 }
 
@@ -83,8 +83,8 @@ export default function TrackVideoSidebar({
 
   const artistUsername = track?.user?.username || track?.user_username || null
   const artistName =
-    artistProfile?.full_name ||
-    track?.user?.full_name ||
+    getUserDisplayName(artistProfile) ||
+    getUserDisplayName(track?.user) ||
     track?.user_full_name ||
     artistUsername
 
@@ -183,9 +183,7 @@ export default function TrackVideoSidebar({
     nextTrack?.user?.avatar_url?.small ||
     null
   const nextTrackArtist =
-    nextTrack?.user?.full_name ||
-    nextTrack?.user?.name ||
-    nextTrack?.user?.username ||
+    getUserDisplayName(nextTrack?.user) ||
     null
   const statusLabel = isCurrentTrackPlaying ? t("status_playing") : t("status_queued")
   const followLabel = isFollowing ? t("following") : t("follow")
@@ -269,7 +267,7 @@ export default function TrackVideoSidebar({
           }
           : {
             username: artistUsername,
-            full_name: artistName,
+            display_name: artistName,
             avatar_url: artistAvatar ? { medium: artistAvatar } : null,
             is_following: data.is_following,
             stats: {

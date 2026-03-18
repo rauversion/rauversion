@@ -1,6 +1,7 @@
 json.user do
   json.id @user.id
   json.username @user.username
+  json.display_name @user.display_name
   json.first_name @user.first_name
   json.last_name @user.last_name
   json.bio @user.bio
@@ -22,4 +23,3 @@ json.user do
 end
 
 json.errors @user.errors
-

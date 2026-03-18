@@ -12,6 +12,7 @@ import useAuthStore from '@/stores/authStore'
 import useAudioStore from '@/stores/audioStore'
 import MusicPurchase from '@/components/shared/MusicPurchase'
 import useTrackLikeAction from "@/hooks/useTrackLikeAction"
+import { getUserDisplayName } from "@/utils/userDisplayName"
 
 function t(key, options = {}) {
   return I18n.t(`tracks.show.${key}`, options)
@@ -137,7 +138,7 @@ export default function TrackShow() {
   const isLiked = Boolean(track.like_id || track.liked_by_current_user)
   const shareDescription = t("share_description", {
     title: track.title,
-    artist: track.user.full_name || track.user.username,
+    artist: getUserDisplayName(track.user),
   })
 
   return (
@@ -220,7 +221,7 @@ export default function TrackShow() {
                         className="h-12 w-12 rounded-full object-cover shadow"
                       />
                       <div>
-                        <div className="text-base font-medium text-foreground">{track.user.full_name || track.user.username}</div>
+                        <div className="text-base font-medium text-foreground">{getUserDisplayName(track.user)}</div>
                       </div>
                     </Link>
                   </li>
@@ -236,7 +237,7 @@ export default function TrackShow() {
                           className="h-12 w-12 rounded-full object-cover shadow"
                         />
                         <div>
-                          <div className="text-base font-medium text-foreground">{artist.full_name || artist.username}</div>
+                          <div className="text-base font-medium text-foreground">{getUserDisplayName(artist)}</div>
                         </div>
                       </Link>
                     </li>
@@ -290,7 +291,7 @@ export default function TrackShow() {
                             </p>
 
                             <p className="truncate text-sm text-muted-foreground">
-                              {playlist.user?.full_name || playlist.user?.username}
+                              {getUserDisplayName(playlist.user)}
                             </p>
                           </div>
                         </Link>

@@ -26,7 +26,7 @@
           <div class="flex lg:border-t lg:border-default/10 lg:pt-8">
             <%= link_to user_path(first.user.username), class: "flex gap-x-2.5 text-sm font-semibold leading-6 text-default" do %>
               <%= image_tag first.user.avatar_url(:small), class: "h-6 w-6 flex-none rounded-full bg-gray-50" %>
-              <%= first.user.first_name %> <%= first.user.last_name %>
+              <%= first.user.display_name %>
             <% end %>
           </div>
         </div>
@@ -54,7 +54,7 @@
             <div class="mt-4 flex">
               <%= link_to article_path(article), class: "relative flex gap-x-2.5 text-sm font-semibold leading-6 text-default" do %>
                 <%= image_tag article.user.avatar_url(:small), class: "h-6 w-6 flex-none rounded-full bg-gray-50" %>
-                <%= article.user.first_name %> <%= article.user.last_name %>
+                <%= article.user.display_name %>
               <% end %>
             </div>
           </article>

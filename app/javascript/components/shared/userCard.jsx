@@ -4,9 +4,10 @@ import useAuthStore from '@/stores/authStore'
 import { Card } from "@/components/ui/card"
 import { Link } from 'react-router-dom'
 import { Disc3, MapPin, Sparkles, Users } from 'lucide-react'
+import { getUserDisplayName } from '@/utils/userDisplayName'
 
 function artistDisplayName(artist) {
-  return artist.full_name?.trim() || artist.username
+  return getUserDisplayName(artist)
 }
 
 function artistLocation(artist) {
@@ -22,10 +23,11 @@ function memberSinceYear(artist) {
 
 
 export default function UserCard({ artist, username, variant = 'default' }) {
+  const displayName = artistDisplayName(artist)
+
   if (variant === 'rounded') {
     const currentUsername = useAuthStore.getState().currentUser?.username
     const canImpersonate = username && currentUsername === username
-    const displayName = artistDisplayName(artist)
     const location = artistLocation(artist)
     const joinedYear = memberSinceYear(artist)
 
@@ -155,8 +157,8 @@ export default function UserCard({ artist, username, variant = 'default' }) {
       {/* Content Overlay */}
       <div className="relative h-full flex flex-col justify-between p-6">
         <div className="space-y-4">
-          <h3 className="text-4xl font-black tracking-tight text-white uppercase" title={I18n.t('users.artist_page.name', { name: artist.full_name })}>
-            {artist.full_name}
+          <h3 className="text-4xl font-black tracking-tight text-white uppercase" title={I18n.t('users.artist_page.name', { name: displayName })}>
+            {displayName}
           </h3>
           <p className="text-xl font-mono text-muted-foreground" title={I18n.t('users.artist_page.username', { username: artist.username })}>@{artist.username}</p>
         </div>

@@ -2,7 +2,7 @@
   <div class="mx-auto max-w-7xl px-6 lg:px-8">
     <div class="mx-auto max-w-2xl">
       <h2 class="text-3xl font-bold tracking-tight text-default sm:text-4xl">
-        <%= @user.first_name.humanize %> <%= @user.last_name.humanize %>'s Blog
+        <%= @user.display_name %>'s Blog
       </h2>
       <p class="mt-2 text-lg leading-8 text-muted">
         <%= link_to user_path(@user.username), class: "flex items-center text-sm font-semibold leading-6 text-brand-600" do %>

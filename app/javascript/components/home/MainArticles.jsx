@@ -2,6 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { format } from 'date-fns'
 import I18n from 'stores/locales'
+import { getUserDisplayName } from '@/utils/userDisplayName'
 
 export default function MainArticles({ posts }) {
   if (!posts || posts.length === 0) return null
@@ -91,12 +92,12 @@ export default function MainArticles({ posts }) {
                       <div className="flex items-center gap-3">
                         <img
                           src={mainPost.author.avatar_url.medium}
-                          alt={mainPost.author.username}
+                          alt={getUserDisplayName(mainPost.author)}
                           className="w-10 h-10 rounded-full object-cover"
                         />
                         <div>
                           <span className="block font-medium text-foreground">
-                            {mainPost.author.username}
+                            {getUserDisplayName(mainPost.author)}
                           </span>
                           <span className="text-sm text-muted-foreground">
                             {format(new Date(mainPost.created_at), 'MMMM d, yyyy')}

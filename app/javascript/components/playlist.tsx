@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Play, Pause, MoreHorizontal } from 'lucide-react';
+import { Play, Pause } from 'lucide-react';
+import { getUserDisplayName } from "@/utils/userDisplayName";
 
 interface Track {
   id: number;
   title: string;
   description: string;
-  duration: number;
+  duration: number | string | null;
   audio_url: string;
   cover_url: string;
   position: number;
@@ -15,6 +16,7 @@ interface Track {
 interface User {
   id: number;
   username: string;
+  display_name?: string;
   full_name: string;
   avatar_url: string;
 }
@@ -51,6 +53,24 @@ interface Playlist {
 
 interface PlaylistProps {
   playlistId: string | number;
+}
+
+function formatTrackDuration(duration: number | string | null | undefined) {
+  if (duration === null || duration === undefined || duration === "") {
+    return "";
+  }
+
+  const parsedDuration = typeof duration === "number" ? duration : Number(duration);
+
+  if (Number.isNaN(parsedDuration)) {
+    return "";
+  }
+
+  const totalSeconds = Math.floor(parsedDuration);
+  const minutes = Math.floor(totalSeconds / 60);
+  const remainingSeconds = totalSeconds % 60;
+
+  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
 }
 
 export default function PlaylistComponent({ playlistId }: PlaylistProps) {
@@ -139,7 +159,7 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
         
         <div className="flex-1">
           <h2 className="text-foreground font-bold text-3xl mb-2">{playlist.title}</h2>
-          <p className="text-muted-foreground mb-4">{playlist.user.full_name}</p>
+          <p className="text-muted-foreground mb-4">{getUserDisplayName(playlist.user)}</p>
           <div className="flex items-center gap-4">
             <button 
               onClick={togglePlayPause}
@@ -156,38 +176,42 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
 
       <div className="mt-8">
         <div className="space-y-1 h-[calc(100vh-211px)] overflow-y-auto">
-          {playlist.tracks.map((track, index) => (
-            <div 
-              key={track.id}
-              className="flex items-center justify-between p-2 rounded hover:bg-muted group"
-            >
-              <div className="flex items-center gap-4">
-                <span className="text-muted-foreground w-6">{index + 1}</span>
-                
-                <button 
-                  className="text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-foreground transition"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleTrackPlay(index);
-                  }}
-                >
-                  {currentTrackIndex === index && isPlaying ? 
-                    <Pause size={20} /> : 
-                    <Play size={20} />
-                  }
-                </button>
+          {playlist.tracks.map((track, index) => {
+            const formattedDuration = formatTrackDuration(track.duration);
 
-                <div>
-                  <p className="text-foreground font-medium">{track.title}</p>
-                  <p className="text-muted-foreground text-sm">{track.author.full_name}</p>
+            return (
+              <div 
+                key={track.id}
+                className="flex items-center justify-between p-2 rounded hover:bg-muted group"
+              >
+                <div className="flex items-center gap-4">
+                  <span className="text-muted-foreground w-6">{index + 1}</span>
+                  
+                  <button 
+                    className="text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-foreground transition"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleTrackPlay(index);
+                    }}
+                  >
+                    {currentTrackIndex === index && isPlaying ? 
+                      <Pause size={20} /> : 
+                      <Play size={20} />
+                    }
+                  </button>
+
+                  <div>
+                    <p className="text-foreground font-medium">{track.title}</p>
+                    <p className="text-muted-foreground text-sm">{getUserDisplayName(track.author)}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <span className="text-muted-foreground">{formattedDuration}</span>
+
                 </div>
               </div>
-              <div className="flex items-center gap-4">
-                <span className="text-muted-foreground">{track.duration}</span>
-
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 

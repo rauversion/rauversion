@@ -18,7 +18,7 @@
         
         <div class="flex-grow">
           <h2 class="text-lg font-semibold text-white">
-            <%= link_to (artist.full_name.present? ? artist.full_name : artist.username), user_path(artist.username), data: {turbo_frame: "_top"} %>
+            <%= link_to artist.display_name, user_path(artist.username), data: {turbo_frame: "_top"} %>
           </h2>
           <!--<p class="text-sm text-gray-400">Indie Pop</p>-->
         </div>

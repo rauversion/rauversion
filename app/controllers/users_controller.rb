@@ -7,7 +7,7 @@ class UsersController < ApplicationController
     @artists = artist_directory_scope.order("id desc")
     q = params[:q]
     if q.present?
-      @artists = @artists.where("username ILIKE :q OR email ILIKE :q OR first_name ILIKE :q OR last_name ILIKE :q", q: "%#{q}%")
+      @artists = @artists.where("username ILIKE :q OR display_name ILIKE :q OR email ILIKE :q OR first_name ILIKE :q OR last_name ILIKE :q", q: "%#{q}%")
     end
     @artists = @artists.page(params[:page]).per(6)
 

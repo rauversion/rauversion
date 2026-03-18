@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '../ui/tabs'
 import { useDebounce } from '@/hooks/use_debounce'
 import { get, post } from '@rails/request.js'
 import I18n from '@/stores/locales'
+import { getUserDisplayName } from '@/utils/userDisplayName'
 
 export default function AccountConnectionForm() {
   const navigate = useNavigate()
@@ -237,13 +238,13 @@ export default function AccountConnectionForm() {
                     <div className="flex items-center space-x-3">
                       <img
                         src={artist.avatar_url?.medium}
-                        alt={artist.username}
+                        alt={getUserDisplayName(artist)}
                         className="h-10 w-10 rounded-full"
                       />
                       <div>
-                        <p className="font-medium">{artist.username}</p>
+                        <p className="font-medium">{getUserDisplayName(artist)}</p>
                         <p className="text-sm text-muted-foreground">
-                          {artist.full_name}
+                          @{artist.username}
                         </p>
                       </div>
                     </div>

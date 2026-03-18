@@ -7,6 +7,7 @@ import { format } from "date-fns";
 import { Play, Pause, Settings, Lock, Heart } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { getUserDisplayName } from "@/utils/userDisplayName";
 import PlaylistListItem from "../users/PlaylistItem";
 import PlaylistEdit from "./PlaylistEdit";
 import PlaylistSkeleton from "./PlaylistSkeleton";
@@ -266,12 +267,12 @@ export default function PlaylistShow() {
                     >
                       <motion.img
                         src={playlist.user.avatar_url?.small}
-                        alt={playlist.user.username}
+                        alt={getUserDisplayName(playlist.user)}
                         className="w-6 h-6 rounded-full ring-2 ring-transparent group-hover:ring-brand-500 transition-all"
                         whileHover={{ scale: 1.1 }}
                       />
                       <span className="group-hover:text-brand-500 transition-colors">
-                        {playlist.user.username}
+                        {getUserDisplayName(playlist.user)}
                       </span>
                     </Link>
                     {playlist.label && (
@@ -282,7 +283,7 @@ export default function PlaylistShow() {
                           className="hover:text-foreground transition-colors flex items-center gap-2 group"
                         >
                           <span className="font-semibold group-hover:text-brand-500 transition-colors">
-                            {playlist.label.name}
+                            {getUserDisplayName(playlist.label)}
                           </span>
                           <span className="text-xs text-muted-foreground group-hover:text-brand-400">
                             @{playlist.label.username}
@@ -351,7 +352,7 @@ export default function PlaylistShow() {
                   <ShareDialog
                     url={`${window.location.origin}/${playlist.user.username}/playlists/${playlist.slug}`}
                     title={playlist.title}
-                    description={`Listen to ${playlist.title} by ${playlist.user.username} on Rauversion`}
+                    description={`Listen to ${playlist.title} by ${getUserDisplayName(playlist.user)} on Rauversion`}
                   >
                     <motion.button
                       className={cn(

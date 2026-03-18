@@ -1599,6 +1599,10 @@ es:
         success: Perfil actualizado exitosamente
         error: No se pudo actualizar el perfil
       form:
+        display_name:
+          label: Nombre para Mostrar
+          placeholder: El nombre que se mostrará en tu perfil y en la plataforma
+          help: Este no tiene que ser tu nombre real, puede ser un nombre artístico o alias
         username:
           label: Nombre de Usuario
           prefix: Rauversion

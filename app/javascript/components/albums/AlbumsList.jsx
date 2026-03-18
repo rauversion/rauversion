@@ -4,6 +4,7 @@ import { useInfiniteScroll } from "@/hooks/useInfiniteScroll"
 import { Button } from "@/components/ui/button"
 import { Plus, Play } from "lucide-react"
 import { format } from "date-fns"
+import { getUserDisplayName } from "@/utils/userDisplayName"
 
 export default function AlbumsList() {
   const {
@@ -57,7 +58,7 @@ export default function AlbumsList() {
                 <div className="mt-2">
                   <h3 className="text-sm font-medium text-default">{album.title}</h3>
                   <p className="text-sm text-muted-foreground">
-                    {album.user.full_name || album.user.username}
+                    {getUserDisplayName(album.user)}
                   </p>
                   <p className="mt-1 text-sm text-muted-foreground">
                     {format(new Date(album.created_at), "MMM d, yyyy")}

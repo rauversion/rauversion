@@ -684,7 +684,7 @@ class PersonalizedHomeQuery
   def owner_name_for(owner)
     return unless owner
 
-    owner.full_name.presence || owner.username
+    owner.display_name
   end
 
   def artist_names_for(track)

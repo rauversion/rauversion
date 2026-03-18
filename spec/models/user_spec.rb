@@ -69,6 +69,42 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe "#display_name" do
+    it "returns the persisted display_name when present" do
+      user = build(:user, username: "artist-one", display_name: "Artist One")
+
+      expect(user.display_name).to eq("Artist One")
+    end
+
+    it "falls back to username when display_name is blank" do
+      user = build(:user, username: "artist-one", display_name: nil)
+
+      expect(user.display_name).to eq("artist-one")
+    end
+
+    it "falls back to full_name when display_name and username are blank" do
+      user = described_class.new(first_name: "Ayla", last_name: "Artist")
+
+      expect(user.display_name).to eq("Ayla Artist")
+    end
+
+    it "keeps display_name in sync with username when it was not customized" do
+      user = create(:user, username: "artist-one")
+
+      user.update!(username: "artist-two")
+
+      expect(user.reload.display_name).to eq("artist-two")
+    end
+
+    it "does not overwrite a custom display_name when username changes" do
+      user = create(:user, username: "artist-one", display_name: "Artist One")
+
+      user.update!(username: "artist-two")
+
+      expect(user.reload.display_name).to eq("Artist One")
+    end
+  end
+
   describe "#unread_messages_count" do
     it "returns 0 when user has no conversations" do
       user = FactoryBot.create(:user)

@@ -61,7 +61,7 @@
                 <% end %>
                 <div class="relative h-full p-6 flex flex-col justify-end">
                   <h3 class="text-2xl font-bold text-white mb-2"><%= product.title %></h3>
-                  <p class="text-gray-300 mb-4"><%= product.user.full_name %></p>
+                  <p class="text-gray-300 mb-4"><%= product.user.display_name %></p>
                   <div class="flex items-center gap-4">
                     <span class="text-primary font-bold"><%= number_to_currency(product.price) %></span>
                     <span class="text-gray-400"><%= product.format&.titleize %></span>
@@ -91,7 +91,7 @@
 
                 <div class="p-4">
                   <h3 class="font-semibold mb-1 line-clamp-1"><%= product.title %></h3>
-                  <p class="text-sm text-gray-500 mb-2"><%= product.user.full_name %></p>
+                  <p class="text-sm text-gray-500 mb-2"><%= product.user.display_name %></p>
                   
                   <div class="flex items-center justify-between">
                     <span class="text-primary font-bold"><%= number_to_currency(product.price) %></span>

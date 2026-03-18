@@ -8,10 +8,10 @@ class SearchController < ApplicationController
       return
     end
 
-    # Users: search username, first_name, last_name, bio, city, country
+    # Users: search username, display_name, first_name, last_name, bio, city, country
     users_search = User.where(role: ["admin", "artist"]).ransack(
       {
-        username_or_first_name_or_last_name_or_bio_or_city_or_country_cont: query
+        username_or_display_name_or_first_name_or_last_name_or_bio_or_city_or_country_cont: query
       }
     )
     users = users_search.result.limit(10)

@@ -3,9 +3,11 @@ import { Link } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '../ui/button'
 import I18n from 'stores/locales'
+import { getUserDisplayName } from '@/utils/userDisplayName'
 
 const ArtistCard = ({ artist }) => {
   const [isHovered, setIsHovered] = useState(false)
+  const displayName = getUserDisplayName(artist)
 
   return (
     <motion.div
@@ -59,17 +61,17 @@ const ArtistCard = ({ artist }) => {
                 } : {}}
                 transition={{ duration: 0.2, repeat: isHovered ? Infinity : 0 }}
               >
-                {artist.username}
+                {displayName}
               </motion.h3>
 
               {/* Artist Full Name */}
-              {artist.full_name && (
+              {artist.username && (
                 <motion.p 
                   className="text-lg text-default font-medium"
                   animate={isHovered ? { x: [-1, 1, -1] } : {}}
                   transition={{ duration: 0.1, repeat: isHovered ? Infinity : 0 }}
                 >
-                  {artist.full_name}
+                  @{artist.username}
                 </motion.p>
               )}
 

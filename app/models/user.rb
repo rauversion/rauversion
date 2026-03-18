@@ -63,9 +63,12 @@ class User < ApplicationRecord
   acts_as_mentionable
 
   normalizes :username, with: -> username { username.parameterize }
+  normalizes :display_name, with: -> display_name { display_name&.strip }
   validates :username, uniqueness: { message: "Username already exists" }
 
   validates_presence_of :username, on: :update, message: "can't be blank"
+
+  before_validation :sync_display_name_from_username
 
   include User::OmniAuthExtension
 
@@ -108,7 +111,11 @@ class User < ApplicationRecord
   
   
   def full_name
-    [first_name, last_name].compact.join(" ")
+    [first_name, last_name].compact.join(" ").strip
+  end
+
+  def display_name
+    self[:display_name].presence || username.presence || full_name.presence
   end
   # Ex:- scope :active, -> {where(:active => true)}
   def has_invitations_left?
@@ -292,7 +299,7 @@ class User < ApplicationRecord
   end
 
   def to_combobox_display
-    self.username
+    display_name
   end
 
   def find_artists_excluding_children(q = nil)
@@ -307,14 +314,14 @@ class User < ApplicationRecord
   
     # Apply search filter if 'q' is provided
     if q.present?
-      artists = artists.where("username ILIKE :q OR email ILIKE :q", q: "%#{q}%")
+      artists = artists.where("username ILIKE :q OR display_name ILIKE :q OR email ILIKE :q", q: "%#{q}%")
     end
   
     artists
   end
 
   def self.ransackable_attributes(auth_object = nil)
-    ["username", "first_name", "last_name", "bio", "city", "country"]
+    ["username", "display_name", "first_name", "last_name", "bio", "city", "country"]
   end
 
   scope :featured_artists, -> { 
@@ -378,5 +385,18 @@ class User < ApplicationRecord
       )
       .distinct
       .count
+  end
+
+  private
+
+  def sync_display_name_from_username
+    return if username.blank?
+
+    raw_display_name = self[:display_name]
+    previous_username = username_in_database
+
+    if raw_display_name.blank? || (will_save_change_to_username? && raw_display_name == previous_username)
+      self[:display_name] = username
+    end
   end
 end

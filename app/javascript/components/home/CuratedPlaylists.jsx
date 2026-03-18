@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { Button } from "../ui/button";
 import { Badge } from "../ui/badge";
 import I18n from "stores/locales";
+import { getUserDisplayName } from "@/utils/userDisplayName";
 
 const PlaylistCard = ({ playlist, namespace }) => {
   return (
@@ -76,7 +77,7 @@ const PlaylistCard = ({ playlist, namespace }) => {
                   </h3>
                   <p className="text-default font-medium">
                     {I18n.t("home.curated_playlists.by")}{" "}
-                    {playlist.user.username}
+                    {getUserDisplayName(playlist.user)}
                   </p>
                 </div>
               </div>

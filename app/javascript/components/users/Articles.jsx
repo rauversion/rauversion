@@ -3,6 +3,7 @@ import { useParams, Link } from 'react-router-dom'
 import { useInfiniteScroll } from '../../hooks/useInfiniteScroll'
 import { ChevronLeft } from 'lucide-react'
 import I18n from '@/stores/locales'
+import { getUserDisplayName } from '@/utils/userDisplayName'
 
 export default function UserArticles() {
   const { username } = useParams()
@@ -17,7 +18,7 @@ export default function UserArticles() {
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="mx-auto max-w-2xl">
           <h2 className="text-3xl font-bold tracking-tight text-default sm:text-4xl">
-            {I18n.t('articles.blog_title', { name: `${articles[0]?.user?.first_name} ${articles[0]?.user?.last_name}` })}
+            {I18n.t('articles.blog_title', { name: getUserDisplayName(articles[0]?.user) })}
           </h2>
           
           <p className="mt-2 text-lg leading-8 text-muted">
@@ -69,7 +70,7 @@ export default function UserArticles() {
                     <p className="font-semibold text-default">
                       <Link to={`/${article.user.username}`}>
                         <span className="absolute inset-0"></span>
-                        {article.user.username}
+                        {getUserDisplayName(article.user)}
                       </Link>
                     </p>
                   </div>

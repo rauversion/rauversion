@@ -1538,6 +1538,9 @@ en:
           label: Username
           prefix: Rauversion
           hide: Hide username on profile page
+        display_name:
+          label: Display name
+          help: Public name shown on profile pages and cards
         name:
           first: Name
           last: Last name

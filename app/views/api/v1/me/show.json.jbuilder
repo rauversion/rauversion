@@ -1,6 +1,7 @@
 if current_user
   json.current_user do
     json.extract! current_user, :id, :email, :username, :full_name, :first_name, :last_name, :bio, :label, :created_at, :updated_at
+    json.display_name current_user.display_name
     json.avatar_url do 
       json.small current_user.avatar_url(:small)
       json.medium current_user.avatar_url(:medium)

@@ -26,6 +26,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { getUserDisplayName } from "@/utils/userDisplayName"
 
 const VIEW_MODES = [
   { id: "list", label: "Lista", icon: List },
@@ -49,11 +50,11 @@ function formatLikedDate(value) {
 function trackArtistsLabel(track) {
   if (track.artists?.length) {
     return track.artists
-      .map((artist) => artist.full_name || artist.username)
+      .map((artist) => getUserDisplayName(artist))
       .join(", ")
   }
 
-  return track.user?.full_name || track.user?.username || ""
+  return getUserDisplayName(track.user)
 }
 
 function getViewModeLabel(viewMode) {
@@ -346,7 +347,7 @@ export default function LikedTracks() {
               Tus me gusta
             </h1>
             <p className="mt-4 text-sm text-white/75 md:text-base">
-              {currentUser?.username} · {data?.liked_playlist?.tracks_count || 0} canciones
+              {getUserDisplayName(currentUser)} · {data?.liked_playlist?.tracks_count || 0} canciones
             </p>
           </div>
         </div>

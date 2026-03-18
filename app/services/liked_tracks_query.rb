@@ -76,6 +76,7 @@ class LikedTracksQuery
       user: {
         id: track.user.id,
         username: track.user.username,
+        display_name: track.user.display_name,
         full_name: track.user.full_name,
         avatar_url: {
           small: track.user.avatar_url(:small),
@@ -86,6 +87,7 @@ class LikedTracksQuery
         {
           id: artist.id,
           username: artist.username,
+          display_name: artist.display_name,
           full_name: artist.full_name,
           avatar_url: {
             small: artist.avatar_url(:small),
