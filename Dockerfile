@@ -48,7 +48,6 @@ RUN chown -R docker:docker /usr/src/app
 WORKDIR /tmp
 COPY Gemfile Gemfile.lock /tmp/
 
-COPY ./backstage /tmp/backstage
 # RUN bundle config set force_ruby_platform true
 RUN bundle install -j ${BUNDLE_JOBS} --retry ${BUNDLE_RETRY}
 
