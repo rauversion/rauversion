@@ -25,6 +25,7 @@ RSpec.describe "Admin API", type: :request do
       expect(response).to have_http_status(:ok)
       expect(json_response["navigation"].map { |item| item["key"] }).to include(
         "commerce",
+        "listening",
         "pages",
         "users",
         "categories",
@@ -234,6 +235,84 @@ RSpec.describe "Admin API", type: :request do
       expect(json_response.dig("summary", "items_sold")).to eq(2)
       expect(json_response["top_products"].first["title"]).to eq("Synth Pack")
       expect(json_response["top_sellers"].first["name"]).to eq(seller.display_name)
+    end
+  end
+
+  describe "GET /api/admin/listening" do
+    let(:artist) do
+      create(
+        :user,
+        email: "artist@rauversion.com",
+        username: "listener-artist",
+        role: :artist,
+        confirmed_at: Time.current
+      )
+    end
+
+    let(:listener) do
+      create(
+        :user,
+        email: "listener@rauversion.com",
+        username: "listener-one",
+        confirmed_at: Time.current
+      )
+    end
+
+    let!(:track) do
+      create(
+        :track,
+        user: artist,
+        title: "Peak Hour",
+        state: "processed",
+        private: false
+      )
+    end
+
+    let!(:playlist) do
+      create(
+        :playlist,
+        user: artist,
+        title: "Late Night Set",
+        private: false,
+        playlist_type: "playlist"
+      )
+    end
+
+    let!(:top_track_listens) do
+      create_list(
+        :listening_event,
+        3,
+        user: listener,
+        track: track,
+        playlist: playlist,
+        country: "CL",
+        created_at: Date.new(2026, 3, 10).in_time_zone.noon
+      )
+    end
+
+    let!(:other_listen) do
+      create(
+        :listening_event,
+        country: "AR",
+        created_at: Date.new(2026, 3, 1).in_time_zone.noon
+      )
+    end
+
+    it "returns listening aggregates" do
+      get "/api/admin/listening", params: { from: "2026-03-08", to: "2026-03-12" }
+
+      expect(response).to have_http_status(:ok)
+      expect(json_response.dig("range", "from")).to eq("2026-03-08")
+      expect(json_response.dig("range", "to")).to eq("2026-03-12")
+      expect(json_response.dig("summary", "total_plays")).to eq(3)
+      expect(json_response.dig("summary", "accounts_count")).to eq(1)
+      expect(json_response.dig("summary", "tracks_count")).to eq(1)
+      expect(json_response["top_tracks"].first["title"]).to eq("Peak Hour")
+      expect(json_response["top_tracks"].first["plays_count"]).to eq(3)
+      expect(json_response["top_accounts"].first["name"]).to eq(listener.display_name)
+      expect(json_response["top_playlists"].first["title"]).to eq("Late Night Set")
+      expect(json_response["top_countries"].first["country"]).to eq("CL")
+      expect(json_response["plays_series"].find { |entry| entry["date"] == "2026-03-10" }["plays_count"]).to eq(3)
     end
   end
 

@@ -12,6 +12,7 @@ import {
   Disc3,
   FileText,
   FolderTree,
+  Headphones,
   LayoutDashboard,
   Menu,
   Newspaper,
@@ -29,6 +30,7 @@ const icons: Record<string, React.ComponentType<any>> = {
   Bell,
   Disc3,
   CalendarDays,
+  Headphones,
 }
 
 function NavItems({ navigation, pathname, onNavigate }: { navigation: AdminNavItem[]; pathname: string; onNavigate?: () => void }) {

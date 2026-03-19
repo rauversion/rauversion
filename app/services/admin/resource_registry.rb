@@ -13,6 +13,13 @@ module Admin
             path: "/admin/commerce"
           },
           {
+            key: "listening",
+            label: "Listening",
+            kind: "dashboard",
+            icon: "Headphones",
+            path: "/admin/listening"
+          },
+          {
             key: "pages",
             label: "Pages",
             kind: "resource",

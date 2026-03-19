@@ -148,3 +148,63 @@ export type CommerceDashboardData = {
     archived?: boolean
   }>
 }
+
+export type ListeningDashboardData = {
+  range: {
+    from: string
+    to: string
+    days: number
+  }
+  summary: {
+    total_plays: number
+    accounts_count: number
+    tracks_count: number
+    playlists_count: number
+    countries_count: number
+    latest_play_at?: string | null
+  }
+  plays_series: Array<{
+    date: string
+    label: string
+    plays_count: number
+  }>
+  top_tracks: Array<{
+    id: number
+    title: string
+    artist_name: string
+    artist_username?: string
+    artist_path?: string
+    plays_count: number
+    track_path?: string
+    private?: boolean
+    missing?: boolean
+  }>
+  top_countries: Array<{
+    country: string
+    plays_count: number
+    accounts_count: number
+    flag_url?: string | null
+  }>
+  top_accounts: Array<{
+    id: number
+    name: string
+    username?: string
+    user_path?: string
+    plays_count: number
+    tracks_count: number
+    playlists_count: number
+    missing?: boolean
+  }>
+  top_playlists: Array<{
+    id: number
+    title: string
+    playlist_type: string
+    owner_name: string
+    owner_username?: string
+    owner_path?: string
+    plays_count: number
+    playlist_path?: string
+    private?: boolean
+    missing?: boolean
+  }>
+}
