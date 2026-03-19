@@ -11,6 +11,14 @@ module Admin
             kind: "dashboard",
             icon: "ShoppingCart",
             path: "/admin/commerce"
+          },
+          {
+            key: "pages",
+            label: "Pages",
+            kind: "resource",
+            icon: "FileText",
+            path: "/admin/pages",
+            creatable: true
           }
         ] + all.map do |key, resource|
           {

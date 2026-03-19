@@ -7,7 +7,7 @@ class PagesController < ApplicationController
     @pages = Page.all
     respond_to do |format|
       format.json { render :index }
-      format.html { render_blank }
+      format.html { redirect_to "/admin/pages" }
     end
   end
 
@@ -25,7 +25,7 @@ class PagesController < ApplicationController
   def edit
     respond_to do |format|
       format.json { render :show }
-      format.html { render_blank }
+      format.html { redirect_to "/admin/pages/#{params[:id]}/edit" }
     end
   end
 

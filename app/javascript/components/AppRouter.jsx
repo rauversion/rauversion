@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { BrowserRouter, Routes, Route, Outlet, Navigate, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Outlet, Navigate, useLocation, useParams } from 'react-router-dom'
 import SalesProductShow from './sales/ProductShow'
 import PagesTable from './pages/PagesTable'
 import PagesEditor from './pages/PagesEditor'
@@ -157,6 +157,16 @@ function RequireAdmin({ children }) {
   return children
 }
 
+function LegacyPagesIndexRedirect() {
+  return <Navigate to="/admin/pages" replace />
+}
+
+function LegacyPagesEditorRedirect() {
+  const { id } = useParams()
+
+  return <Navigate to={`/admin/pages/${id}/edit`} replace />
+}
+
 function AppContent() {
   const { currentUser } = useAuthStore()
   const { subscribe, unsubscribe, subscription } = useActionCable()
@@ -250,13 +260,15 @@ function AppContent() {
       <Route path="/admin" element={<RequireAdmin><AdminLayout /></RequireAdmin>}>
         <Route index element={<Navigate to="commerce" replace />} />
         <Route path="commerce" element={<AdminDashboardPage />} />
+        <Route path="pages" element={<PagesTable />} />
+        <Route path="pages/:id/edit" element={<PagesEditor />} />
         <Route path=":resourceKey" element={<AdminResourceListPage />} />
         <Route path=":resourceKey/new" element={<AdminResourceFormPage createMode={true} />} />
         <Route path=":resourceKey/:id" element={<AdminResourceFormPage />} />
       </Route>
 
-      <Route path="/pages" element={<RequireAuth> <PagesTable /></RequireAuth>} />
-      <Route path="/pages/:id/edit" element={<RequireAuth> <PagesEditor /></RequireAuth>} />
+      <Route path="/pages" element={<RequireAdmin><LegacyPagesIndexRedirect /></RequireAdmin>} />
+      <Route path="/pages/:id/edit" element={<RequireAdmin><LegacyPagesEditorRedirect /></RequireAdmin>} />
       <Route path="/pages/:slug" element={<PagesShow />} />
 
       <Route path="/users/sign_in" element={<Login />} />

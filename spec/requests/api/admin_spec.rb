@@ -25,6 +25,7 @@ RSpec.describe "Admin API", type: :request do
       expect(response).to have_http_status(:ok)
       expect(json_response["navigation"].map { |item| item["key"] }).to include(
         "commerce",
+        "pages",
         "users",
         "categories",
         "tracks",
