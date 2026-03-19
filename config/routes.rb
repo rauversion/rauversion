@@ -98,7 +98,23 @@ Rails.application.routes.draw do
   resources :terms_and_conditions, only: [:index, :show]
 
 
-  mount Backstage::Engine => "/admin"
+  get "/backstage(/*path)", to: redirect("/admin")
+
+  namespace :api do
+    namespace :admin do
+      get "meta", to: "meta#show"
+      get "dashboard", to: "dashboard#show"
+      get ":resource_key", to: "resources#index"
+      post ":resource_key", to: "resources#create"
+      get ":resource_key/:id", to: "resources#show"
+      patch ":resource_key/:id", to: "resources#update"
+      put ":resource_key/:id", to: "resources#update"
+      delete ":resource_key/:id", to: "resources#destroy"
+      post ":resource_key/:id/actions/:action_key", to: "resources#action"
+    end
+  end
+
+  get "/admin(/*path)", to: "application#render_blank"
 
   #namespace :admin do
   #  root to: 'dashboard#index'
