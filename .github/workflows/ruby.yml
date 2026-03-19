@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     services:
       db:
-        image: postgres:16
+        image: pgvector/pgvector:pg16
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -43,10 +43,6 @@ jobs:
           node-version: 22
           cache: "yarn"
 
-      - name: Install pgvector
-        run: |
-          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
-          sudo apt-get install postgresql-16-pgvector
       - name: Build and precompile
         run: |
           sudo apt-get -yqq install libpq-dev curl
