@@ -118,20 +118,15 @@ class AccountConnectionsController < ApplicationController
   def impersonate
     if params[:username]
       user = User.find_by(username: params[:username])
-      if current_user.child_accounts.find(user.id)
-        session[:parent_user] = current_user.id
-        Current.label_user = current_user
-        flash[:notice] = "signed as #{user.username}"
-        sign_in(:user, user)
-        redirect_to user_path(user.username)
-      end
+      return unless user && current_user.child_accounts.exists?(user.id)
+
+      start_impersonation(actor: current_user, user: user)
+      flash[:notice] = "signed as #{user.username}"
+      redirect_to user_path(user.username)
     else
-      if session[:parent_user].present?
-        user = User.find(session[:parent_user])
-        session[:parent_user] = nil
-        Current.label_user = nil
+      user = stop_impersonation
+      if user
         flash[:notice] = "signed as #{user.username}"
-        sign_in(:user, user)
         redirect_to user_path(user.username)
       end
     end

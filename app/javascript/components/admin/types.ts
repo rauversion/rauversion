@@ -43,8 +43,9 @@ export type AdminResourceDefinition = {
 export type AdminAction = {
   key: string
   label: string
-  kind: "navigate" | "link" | "delete" | "custom"
+  kind: "navigate" | "link" | "href" | "delete" | "custom"
   to?: string
+  href?: string
   endpoint?: string
 }
 

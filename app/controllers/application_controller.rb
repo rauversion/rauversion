@@ -51,13 +51,18 @@ class ApplicationController < ActionController::Base
   end
 
   def become
-    if current_user.is_admin?
-      user = User.find_by(username: params[:id])
-      sign_in(:user, user)
-      redirect_to root_url, notice: "logged in as #{user.username}"
-    else
-      redirect_to root_url, error: "not allowed"
+    actor = label_user.presence || current_user
+
+    unless actor&.is_admin?
+      return redirect_to(root_url, alert: "not allowed")
     end
+
+    user = User.find_by(username: params[:id])
+    return redirect_to(root_url, alert: "user not found") if user.blank?
+    return redirect_to(user_path(user.username)) if user.id == actor.id
+
+    start_impersonation(actor: actor, user: user)
+    redirect_to user_path(user.username), notice: "signed as #{user.username}"
   end
 
   def change_locale
@@ -70,5 +75,23 @@ class ApplicationController < ActionController::Base
 
   def disable_footer
     @disable_footer = true
+  end
+
+  protected
+
+  def start_impersonation(actor:, user:)
+    session[:parent_user] ||= actor.id
+    Current.label_user = actor
+    sign_in(:user, user)
+  end
+
+  def stop_impersonation
+    return if session[:parent_user].blank?
+
+    user = User.find(session[:parent_user])
+    session[:parent_user] = nil
+    Current.label_user = nil
+    sign_in(:user, user)
+    user
   end
 end

@@ -94,7 +94,7 @@ en:
     settings: Settings
     log_out: Sign out
     acting_on_behalf: Acting on behalf of
-    back_to_label: "volver a: sello %{username}"
+    back_to_label: "back to: %{username}"
     language: Language
     dark_mode: Dark mode
     light_mode: Light mode

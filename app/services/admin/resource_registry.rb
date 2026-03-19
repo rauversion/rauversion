@@ -76,12 +76,23 @@ module Admin
             ],
             permitted_fields: %i[email username role seller editor],
             row_actions: lambda { |user|
-              default_actions(
+              actions = default_actions(
                 key: :users,
                 record: user,
                 editable: true,
                 destroyable: true
               )
+              if user.username.present?
+                actions.unshift(
+                  {
+                    key: "impersonate",
+                    label: "Impersonate",
+                    kind: "href",
+                    href: "/become/#{user.username}"
+                  }
+                )
+              end
+              actions
             }
           },
           categories: {

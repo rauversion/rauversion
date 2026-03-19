@@ -222,6 +222,14 @@ export default function AdminResourceListPage() {
                               )
                             }
 
+                            if (action.kind === "href" && action.href) {
+                              return (
+                                <DropdownMenuItem key={action.key} asChild>
+                                  <a href={action.href}>{action.label}</a>
+                                </DropdownMenuItem>
+                              )
+                            }
+
                             return (
                               <DropdownMenuItem key={action.key} onClick={() => runAction(action)}>
                                 {action.label}

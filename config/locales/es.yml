@@ -93,7 +93,7 @@ es:
     log_out: Cerrar sesión
     profile: Mi Página
     acting_on_behalf: Actuando en nombre de
-    back_to_label: "volver a: sello %{username}"
+    back_to_label: "volver a: %{username}"
     language: Idioma
     dark_mode: Modo oscuro
     light_mode: Modo claro
