@@ -89,7 +89,7 @@ export default function PagesTable() {
                     <TableCell>{page.menu}</TableCell>
                     <TableCell>{new Date(page.updated_at).toLocaleString()}</TableCell>
                     <TableCell>
-                      <Link to={`/pages/${page.slug}/edit`}>
+                      <Link to={`/admin/pages/${page.slug}/edit`}>
                         <Button size="sm" variant="outline">Edit</Button>
                       </Link>
                     </TableCell>

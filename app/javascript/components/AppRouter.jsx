@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { BrowserRouter, Routes, Route, Outlet, Navigate, useLocation } from 'react-router-dom'
+import { BrowserRouter, Routes, Route, Outlet, Navigate, useLocation, useParams } from 'react-router-dom'
 import SalesProductShow from './sales/ProductShow'
 import PagesTable from './pages/PagesTable'
 import PagesEditor from './pages/PagesEditor'
@@ -118,6 +118,10 @@ import { Footer, ScrollRestoration, LoadingSpinner } from '@/components/shared'
 
 import { useLocaleStore } from "@/stores/locales"
 import { cn } from "@/lib/utils"
+import AdminLayout from "./admin/AdminLayout"
+import AdminDashboardPage from "./admin/AdminDashboardPage"
+import AdminResourceListPage from "./admin/AdminResourceListPage"
+import AdminResourceFormPage from "./admin/AdminResourceFormPage"
 
 function RequireAuth({ children }) {
   const { currentUser, loading: currentUserLoading } = useAuthStore()
@@ -132,6 +136,35 @@ function RequireAuth({ children }) {
   }
 
   return children
+}
+
+function RequireAdmin({ children }) {
+  const { currentUser, loading: currentUserLoading } = useAuthStore()
+  const location = useLocation()
+
+  if (currentUserLoading) {
+    return <LoadingSpinner />
+  }
+
+  if (!currentUser) {
+    return <Navigate to="/users/sign_in" state={{ from: location }} replace />
+  }
+
+  if (!currentUser.is_admin) {
+    return <Navigate to="/" replace />
+  }
+
+  return children
+}
+
+function LegacyPagesIndexRedirect() {
+  return <Navigate to="/admin/pages" replace />
+}
+
+function LegacyPagesEditorRedirect() {
+  const { id } = useParams()
+
+  return <Navigate to={`/admin/pages/${id}/edit`} replace />
 }
 
 function AppContent() {
@@ -206,8 +239,10 @@ function AppContent() {
 
   const isPodcastRoute = /^\/[^/]+\/podcasts(\/|$)/.test(location.pathname)
   const isEventShowRoute = /^\/events\/[^/]+$/.test(location.pathname)
+  const isAdminRoute = location.pathname === "/admin" || location.pathname.startsWith("/admin/")
 
   const shouldShowMusicLibraryLayout =
+    !isAdminRoute &&
     !isEventShowRoute &&
     !isPodcastRoute &&
     !location.pathname.includes("/users/sign_in") &&
@@ -222,8 +257,18 @@ function AppContent() {
 
   const routes = (
     <Routes>
-      <Route path="/pages" element={<RequireAuth> <PagesTable /></RequireAuth>} />
-      <Route path="/pages/:id/edit" element={<RequireAuth> <PagesEditor /></RequireAuth>} />
+      <Route path="/admin" element={<RequireAdmin><AdminLayout /></RequireAdmin>}>
+        <Route index element={<Navigate to="commerce" replace />} />
+        <Route path="commerce" element={<AdminDashboardPage />} />
+        <Route path="pages" element={<PagesTable />} />
+        <Route path="pages/:id/edit" element={<PagesEditor />} />
+        <Route path=":resourceKey" element={<AdminResourceListPage />} />
+        <Route path=":resourceKey/new" element={<AdminResourceFormPage createMode={true} />} />
+        <Route path=":resourceKey/:id" element={<AdminResourceFormPage />} />
+      </Route>
+
+      <Route path="/pages" element={<RequireAdmin><LegacyPagesIndexRedirect /></RequireAdmin>} />
+      <Route path="/pages/:id/edit" element={<RequireAdmin><LegacyPagesEditorRedirect /></RequireAdmin>} />
       <Route path="/pages/:slug" element={<PagesShow />} />
 
       <Route path="/users/sign_in" element={<Login />} />
@@ -353,8 +398,8 @@ function AppContent() {
 
   return (
     <>
-      <UserMenu />
-      <div className={cn("pb-24", shouldShowMusicLibraryLayout && "px-4 py-4 sm:px-6 lg:px-8")}>
+      {!isAdminRoute && <UserMenu />}
+      <div className={cn(!isAdminRoute && "pb-24", shouldShowMusicLibraryLayout && "px-4 py-4 sm:px-6 lg:px-8")}>
         {shouldShowMusicLibraryLayout ? (
           <AppMusicLibraryLayout>{routes}</AppMusicLibraryLayout>
         ) : (
@@ -363,9 +408,10 @@ function AppContent() {
       </div>
 
       <Toaster />
-      <AudioPlayer />
+      {!isAdminRoute && <AudioPlayer />}
 
       {
+        !isAdminRoute &&
         !location.pathname.includes('edit') &&
         !location.pathname.includes('new') &&
         !location.pathname.includes('editor') &&

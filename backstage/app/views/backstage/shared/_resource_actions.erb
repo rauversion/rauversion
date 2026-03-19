@@ -1,8 +1,0 @@
-<% resource_config = Backstage::Config.resources[controller_name.to_sym] %>
-<% resource_config.custom_actions.each do |action| %>
-  <%= link_to action[:options][:label] || action[:name].to_s.titleize, 
-              [action[:name].to_sym, controller_name.singularize.to_sym],
-              # send("#{action[:name]}_backstage_#{controller_name.singularize}_path", resource), 
-              method: :post, 
-              class: 'btn btn-secondary' %>
-<% end %>
