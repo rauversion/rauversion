@@ -26,6 +26,7 @@ RSpec.describe "Admin API", type: :request do
       expect(json_response["navigation"].map { |item| item["key"] }).to include(
         "commerce",
         "listening",
+        "event_sales",
         "pages",
         "users",
         "categories",
@@ -313,6 +314,99 @@ RSpec.describe "Admin API", type: :request do
       expect(json_response["top_playlists"].first["title"]).to eq("Late Night Set")
       expect(json_response["top_countries"].first["country"]).to eq("CL")
       expect(json_response["plays_series"].find { |entry| entry["date"] == "2026-03-10" }["plays_count"]).to eq(3)
+    end
+  end
+
+  describe "GET /api/admin/event_sales" do
+    let(:organizer) do
+      create(
+        :user,
+        email: "organizer@rauversion.com",
+        username: "top-organizer",
+        role: :artist,
+        confirmed_at: Time.current
+      )
+    end
+
+    let!(:event) do
+      create(
+        :event,
+        user: organizer,
+        title: "Warehouse Session",
+        state: "published",
+        visibility: "public"
+      )
+    end
+
+    let!(:ticket) do
+      create(
+        :event_ticket,
+        event: event,
+        title: "General Admission",
+        price: 25,
+        qty: 7
+      )
+    end
+
+    let!(:purchase) do
+      create(
+        :purchase,
+        user: organizer,
+        purchasable: event,
+        state: "paid",
+        currency: "usd"
+      )
+    end
+
+    let!(:paid_item) do
+      create(
+        :purchased_item,
+        purchase: purchase,
+        purchased_item: ticket,
+        state: "paid",
+        price: 25,
+        currency: "usd",
+        created_at: Date.new(2026, 3, 10).in_time_zone.noon
+      )
+    end
+
+    let!(:refunded_item) do
+      create(
+        :purchased_item,
+        purchase: purchase,
+        purchased_item: ticket,
+        state: "refunded",
+        price: 25,
+        currency: "usd",
+        created_at: Date.new(2026, 3, 11).in_time_zone.noon
+      )
+    end
+
+    let!(:old_paid_item) do
+      create(
+        :purchased_item,
+        purchase: purchase,
+        purchased_item: ticket,
+        state: "paid",
+        price: 25,
+        currency: "usd",
+        created_at: Date.new(2026, 2, 28).in_time_zone.noon
+      )
+    end
+
+    it "returns event ticket sales metrics" do
+      get "/api/admin/event_sales", params: { from: "2026-03-08", to: "2026-03-12" }
+
+      expect(response).to have_http_status(:ok)
+      expect(json_response.dig("range", "from")).to eq("2026-03-08")
+      expect(json_response.dig("range", "to")).to eq("2026-03-12")
+      expect(json_response.dig("summary", "sold_tickets")).to eq(1)
+      expect(json_response.dig("summary", "remaining_tickets")).to eq(7)
+      expect(json_response.dig("summary", "refunded_tickets")).to eq(1)
+      expect(json_response["top_events"].first["title"]).to eq("Warehouse Session")
+      expect(json_response["top_events"].first["sold_tickets"]).to eq(1)
+      expect(json_response["top_ticket_types"].first["title"]).to eq("General Admission")
+      expect(json_response["refunded_revenue_by_currency"].first["amount"].to_f).to eq(25.0)
     end
   end
 

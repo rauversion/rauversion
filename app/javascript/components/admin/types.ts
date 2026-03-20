@@ -208,3 +208,48 @@ export type ListeningDashboardData = {
     missing?: boolean
   }>
 }
+
+export type EventSalesDashboardData = {
+  range: {
+    from: string
+    to: string
+    days: number
+  }
+  summary: {
+    sold_tickets: number
+    remaining_tickets: number
+    refunded_tickets: number
+    events_with_sales: number
+    latest_sale_at?: string | null
+  }
+  paid_revenue_by_currency: Array<{ currency: string; amount: number }>
+  refunded_revenue_by_currency: Array<{ currency: string; amount: number }>
+  top_events: Array<{
+    id: number
+    title: string
+    state: string
+    visibility: string
+    event_start?: string | null
+    sold_tickets: number
+    remaining_tickets: number
+    refunded_tickets: number
+    currency: string
+    revenue: number
+    organizer_name: string
+    organizer_username?: string
+    organizer_path?: string
+    event_path?: string
+  }>
+  top_ticket_types: Array<{
+    id: number
+    title: string
+    sold_tickets: number
+    remaining_tickets: number
+    refunded_tickets: number
+    currency: string
+    revenue: number
+    event_title: string
+    archived?: boolean
+    event_path?: string
+  }>
+}

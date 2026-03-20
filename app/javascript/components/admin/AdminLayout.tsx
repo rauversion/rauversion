@@ -17,6 +17,7 @@ import {
   Menu,
   Newspaper,
   ShoppingCart,
+  Ticket,
   Users,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
@@ -31,6 +32,7 @@ const icons: Record<string, React.ComponentType<any>> = {
   Disc3,
   CalendarDays,
   Headphones,
+  Ticket,
 }
 
 function NavItems({ navigation, pathname, onNavigate }: { navigation: AdminNavItem[]; pathname: string; onNavigate?: () => void }) {

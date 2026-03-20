@@ -105,6 +105,7 @@ Rails.application.routes.draw do
       get "meta", to: "meta#show"
       get "dashboard", to: "dashboard#show"
       get "listening", to: "listening#show"
+      get "event_sales", to: "event_sales#show"
       get ":resource_key", to: "resources#index"
       post ":resource_key", to: "resources#create"
       get ":resource_key/:id", to: "resources#show"

@@ -20,6 +20,13 @@ module Admin
             path: "/admin/listening"
           },
           {
+            key: "event_sales",
+            label: "Event Sales",
+            kind: "dashboard",
+            icon: "Ticket",
+            path: "/admin/event-sales"
+          },
+          {
             key: "pages",
             label: "Pages",
             kind: "resource",
