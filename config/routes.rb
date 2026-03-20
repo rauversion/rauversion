@@ -72,6 +72,7 @@ Rails.application.routes.draw do
       get 'me', to: 'me#show'
       get 'me/music_library', to: 'me#music_library'
       get 'me/liked_tracks', to: 'me#liked_tracks'
+      resources :track_analyses, only: [:create]
       resources :categories, only: [:index]
       get 'tags/popular', to: 'tags#popular'
       
