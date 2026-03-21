@@ -225,8 +225,7 @@ class TrackAudioAnalysisService
   end
 
   def persist_analysis!(result)
-    track.update!(
-      genre: result[:genre],
+    attributes = {
       bpm: result[:bpm],
       subgenres: result[:subgenres],
       bpm_range: result[:bpm_range],
@@ -247,7 +246,11 @@ class TrackAudioAnalysisService
       analysis_source_metadata: result[:source_metadata],
       analysis_model: result[:model],
       analyzed_at: Time.current
-    )
+    }
+
+    attributes[:genre] = result[:genre] if track.genre.to_s.strip.blank?
+
+    track.update!(attributes)
   end
 
   def system_prompt
