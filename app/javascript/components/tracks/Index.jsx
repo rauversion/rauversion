@@ -171,7 +171,6 @@ function buildTrackSummary(track) {
   const parts = [];
   const mood = track.mood?.[0];
   const subgenre = track.subgenres?.[0];
-  const referenceArtist = track.reference_artists?.[0];
 
   if (track.genre) {
     parts.push(track.genre);
@@ -187,10 +186,6 @@ function buildTrackSummary(track) {
 
   if (track.bpm) {
     parts.push(`${track.bpm} BPM`);
-  }
-
-  if (referenceArtist) {
-    parts.push(t("summary.riyl", { artist: referenceArtist }));
   }
 
   if (parts.length > 0) {

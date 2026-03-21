@@ -1296,7 +1296,6 @@ en:
         title: Labels
         subtitle: Check the labels behind these releases.
       summary:
-        riyl: "Sounds like %{artist}"
         fallback: Available on Rauversion.
       player:
         play_track: "Play %{title}"

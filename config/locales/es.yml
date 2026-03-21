@@ -1323,7 +1323,6 @@ es:
         title: Sellos
         subtitle: Mira los sellos detrás de estos releases.
       summary:
-        riyl: Suena a %{artist}
         fallback: Disponible en Rauversion.
       player:
         play_track: "Reproducir %{title}"
