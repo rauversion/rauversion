@@ -95,6 +95,49 @@ RSpec.describe "Tracks", type: :request do
       expect(payload.dig("discovery_sections", "genres", "items")).to eq([])
     end
 
+    it "applies newest sorting to both the main results and discovery shelves" do
+      newest_techno_track = create(
+        :track,
+        user: artist,
+        title: "After Hours",
+        genre: "Techno",
+        bpm: 132,
+        mood: ["Dark"],
+        subgenres: ["Peak Time Techno"],
+        language: "en",
+        instrumental: false,
+        analysis_accuracy: 0.84,
+        tags: ["warehouse"]
+      )
+      attach_image(newest_techno_track, :cover)
+
+      get tracks_path(format: :json, sort: "latest")
+
+      expect(response).to have_http_status(:ok)
+
+      payload = JSON.parse(response.body)
+      techno_section = payload.dig("discovery_sections", "genres", "items").find do |section|
+        section["value"] == "Techno"
+      end
+
+      expect(payload.fetch("tracks").first["title"]).to eq("After Hours")
+      expect(techno_section.fetch("tracks").first["title"]).to eq("After Hours")
+      expect(payload.fetch("active_filters")).to include("sort" => "latest")
+    end
+
+    it "supports stable random ordering with a seed" do
+      get tracks_path(format: :json, sort: "random", seed: "mix-1")
+      first_payload = JSON.parse(response.body)
+      first_titles = first_payload.fetch("tracks").map { |track| track["title"] }
+
+      get tracks_path(format: :json, sort: "random", seed: "mix-1")
+      second_payload = JSON.parse(response.body)
+      second_titles = second_payload.fetch("tracks").map { |track| track["title"] }
+
+      expect(second_titles).to eq(first_titles)
+      expect(second_payload.fetch("active_filters")).to include("sort" => "random")
+    end
+
     def attach_image(record, attachment_name)
       record.public_send(attachment_name).attach(
         io: File.open(Rails.root.join("spec/fixtures/files/sample.jpg")),

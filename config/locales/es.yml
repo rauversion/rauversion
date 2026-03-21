@@ -1243,6 +1243,7 @@ es:
       sort_options:
         featured: Destacados
         latest: Nuevos
+        random: Random
         most_confident: Mejor analizados
         bpm_low: BPM asc
         bpm_high: BPM desc

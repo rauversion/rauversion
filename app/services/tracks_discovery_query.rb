@@ -4,7 +4,7 @@ class TracksDiscoveryQuery
   SECTION_TRACK_LIMIT = 6
   DEFAULT_PER_PAGE = 15
   MAX_PER_PAGE = 30
-  SORT_OPTIONS = %w[featured latest bpm_low bpm_high most_confident].freeze
+  SORT_OPTIONS = %w[featured latest random bpm_low bpm_high most_confident].freeze
   TEMPO_BANDS = [
     { key: "under-100", translation_key: "under_100", min: nil, max: 99 },
     { key: "100-119", translation_key: "between_100_119", min: 100, max: 119 },
@@ -149,6 +149,8 @@ class TracksDiscoveryQuery
     case sort
     when "latest"
       relation.order(created_at: :desc)
+    when "random"
+      relation.order(Arel.sql(random_sort_sql))
     when "bpm_low"
       relation.order(Arel.sql("#{bpm_numeric_sql} ASC NULLS LAST, tracks.created_at DESC"))
     when "bpm_high"
@@ -194,9 +196,9 @@ class TracksDiscoveryQuery
         {
           value: term[:value],
           count: term[:count],
-          tracks: preload_tracks(
-            relation.where("tracks.metadata ->> '#{key}' = ?", term[:value]).limit(SECTION_TRACK_LIMIT)
-          )
+          tracks: preload_tracks(sorted_section_relation(
+            relation.where("tracks.metadata ->> '#{key}' = ?", term[:value])
+          ).limit(SECTION_TRACK_LIMIT))
         }
       end
     }
@@ -211,9 +213,9 @@ class TracksDiscoveryQuery
         {
           value: term[:value],
           count: term[:count],
-          tracks: preload_tracks(
-            apply_array_term_filter(relation, key, term[:value]).limit(SECTION_TRACK_LIMIT)
-          )
+          tracks: preload_tracks(sorted_section_relation(
+            apply_array_term_filter(relation, key, term[:value])
+          ).limit(SECTION_TRACK_LIMIT))
         }
       end
     }
@@ -314,6 +316,10 @@ class TracksDiscoveryQuery
     @analysis_accuracy_numeric_sql ||= metadata_numeric_sql("analysis_accuracy")
   end
 
+  def sorted_section_relation(relation)
+    apply_sort(relation)
+  end
+
   def empty_sections
     {
       genres: { title: section_title(:genres), items: [] },
@@ -353,6 +359,15 @@ class TracksDiscoveryQuery
 
   def section_title(key)
     I18n.t("tracks.discovery.sections.#{key}")
+  end
+
+  def random_sort_sql
+    seed = ActiveRecord::Base.connection.quote(random_seed)
+    "md5(tracks.id::text || #{seed}) ASC"
+  end
+
+  def random_seed
+    @random_seed ||= params["seed"].to_s.presence || "tracks-default"
   end
 
   def sort

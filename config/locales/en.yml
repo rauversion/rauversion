@@ -1216,6 +1216,7 @@ en:
       sort_options:
         featured: Featured
         latest: Newest
+        random: Random
         most_confident: Best analyzed
         bpm_low: BPM asc
         bpm_high: BPM desc

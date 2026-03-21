@@ -46,10 +46,17 @@ function t(key, options = {}) {
 const SORT_OPTIONS = [
   { value: "featured", labelKey: "sort_options.featured" },
   { value: "latest", labelKey: "sort_options.latest" },
+  { value: "random", labelKey: "sort_options.random" },
   { value: "most_confident", labelKey: "sort_options.most_confident" },
   { value: "bpm_low", labelKey: "sort_options.bpm_low" },
   { value: "bpm_high", labelKey: "sort_options.bpm_high" },
 ];
+
+const RANDOM_SORT = "random";
+
+function buildRandomSeed() {
+  return Math.random().toString(36).slice(2, 10);
+}
 
 const VOCAL_MODES = [
   { value: "", labelKey: "vocal_modes.all" },
@@ -421,6 +428,22 @@ export default function TracksIndex() {
     });
   };
 
+  const setSort = (value) => {
+    updateSearchParams((next) => {
+      if (value === null || value === undefined || value === "") {
+        next.delete("sort");
+      } else {
+        next.set("sort", value);
+      }
+
+      if (value === RANDOM_SORT) {
+        next.set("seed", buildRandomSeed());
+      } else {
+        next.delete("seed");
+      }
+    });
+  };
+
   const toggleFilter = (key, value) => {
     const currentValue = searchParams.get(key) || "";
     setFilter(key, currentValue === value ? "" : value);
@@ -483,7 +506,7 @@ export default function TracksIndex() {
 
                   <select
                     value={activeFilters.sort || "featured"}
-                    onChange={(event) => setFilter("sort", event.target.value)}
+                    onChange={(event) => setSort(event.target.value)}
                     className="h-12 rounded-full border border-border bg-card px-4 text-sm text-foreground outline-none dark:border-white/10 dark:bg-white/5 dark:text-white"
                   >
                     {SORT_OPTIONS.map((option) => (
