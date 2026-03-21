@@ -31,8 +31,8 @@ RSpec.describe TracksDiscoveryQuery do
         described_class.new(scope: Track.where(id: [ambient_track.id, techno_track.id]), params: {}).call
       end
 
-      expect(result.dig(:discovery_sections, :genres, :title)).to eq("Géneros en rotación")
-      expect(result.dig(:discovery_sections, :moods, :title)).to eq("Moods para explorar")
+      expect(result.dig(:discovery_sections, :genres, :title)).to eq("Géneros")
+      expect(result.dig(:discovery_sections, :moods, :title)).to eq("Moods")
       expect(result.dig(:facets, :tempo_bands)).to include(
         include(key: "under-100", label: "Menos de 100 BPM"),
         include(key: "120-129", label: "120-129 BPM")
@@ -44,8 +44,8 @@ RSpec.describe TracksDiscoveryQuery do
         described_class.new(scope: Track.where(id: [ambient_track.id, techno_track.id]), params: {}).call
       end
 
-      expect(result.dig(:discovery_sections, :genres, :title)).to eq("Genres in rotation")
-      expect(result.dig(:discovery_sections, :moods, :title)).to eq("Moods to dive into")
+      expect(result.dig(:discovery_sections, :genres, :title)).to eq("Genres")
+      expect(result.dig(:discovery_sections, :moods, :title)).to eq("Moods")
       expect(result.dig(:facets, :tempo_bands)).to include(
         include(key: "under-100", label: "Under 100 BPM"),
         include(key: "120-129", label: "120-129 BPM")
