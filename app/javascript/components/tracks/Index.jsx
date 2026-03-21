@@ -282,7 +282,7 @@ function DiscoveryTrackCard({ track, onBeforePlay = null }) {
   );
 }
 
-function DiscoveryShelf({ section, filterKey, activeValue, onSelect }) {
+function DiscoveryShelf({ section, filterKey, activeValue, onSelect, onPrepareQueue }) {
   if (!section?.items?.length) return null;
 
   return (
@@ -327,10 +327,7 @@ function DiscoveryShelf({ section, filterKey, activeValue, onSelect }) {
                   <DiscoveryTrackCard
                     key={`${filterKey}-${item.value}-${track.id}`}
                     track={track}
-                    onBeforePlay={() => {
-                      queueContextRef.current = "shelf";
-                      setPlaylist(queueTrackIds);
-                    }}
+                    onBeforePlay={() => onPrepareQueue?.(queueTrackIds)}
                   />
                 ))}
               </div>
@@ -772,12 +769,20 @@ export default function TracksIndex() {
             filterKey="genre"
             activeValue={activeFilters.genre}
             onSelect={toggleFilter}
+            onPrepareQueue={(queueTrackIds) => {
+              queueContextRef.current = "shelf";
+              setPlaylist(queueTrackIds);
+            }}
           />
           <DiscoveryShelf
             section={discoverySections.moods}
             filterKey="mood"
             activeValue={activeFilters.mood}
             onSelect={toggleFilter}
+            onPrepareQueue={(queueTrackIds) => {
+              queueContextRef.current = "shelf";
+              setPlaylist(queueTrackIds);
+            }}
           />
         </div>
       ) : null}
