@@ -84,7 +84,7 @@ class PlaylistsController < ApplicationController
           render partial: "playlist_widget", locals: { playlist: @playlist, viewer: current_user }
         else
           get_meta_tags
-          render "show"
+          render_blank
         end
       end
       format.json
