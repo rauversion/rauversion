@@ -1,4 +1,4 @@
-import React, { startTransition, useEffect, useState } from "react";
+import React, { startTransition, useEffect, useRef, useState } from "react";
 import { get } from "@rails/request.js";
 import { Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -195,7 +195,7 @@ function buildTrackSummary(track) {
   return t("summary.fallback");
 }
 
-function DiscoveryTrackCard({ track }) {
+function DiscoveryTrackCard({ track, onBeforePlay = null }) {
   const { play, pause, currentTrackId, isPlaying } = useAudioStore();
   const mood = track.mood?.[0];
   const subgenres = Array.isArray(track.subgenres) ? track.subgenres.slice(0, 2) : [];
@@ -209,6 +209,9 @@ function DiscoveryTrackCard({ track }) {
     if (shouldShowPause) {
       pause();
     } else {
+      if (typeof onBeforePlay === "function") {
+        onBeforePlay();
+      }
       play(track.id);
     }
   };
@@ -295,34 +298,45 @@ function DiscoveryShelf({ section, filterKey, activeValue, onSelect }) {
       </div>
 
       <div className="space-y-8">
-        {section.items.map((item) => (
-          <div key={`${filterKey}-${item.value}`} className="space-y-4">
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-              <div>
-                <h3 className="text-2xl font-bold text-foreground dark:text-white">{item.value}</h3>
-                <p className="text-sm text-muted-foreground dark:text-white/50">{t("shelf.item_count", { count: item.count })}</p>
-              </div>
-              <Button
-                variant={activeValue === item.value ? "default" : "outline"}
-                className={cn(
-                  "w-fit rounded-full",
-                  activeValue === item.value
-                    ? "bg-[#f5c451] text-black hover:bg-[#f5c451]/90"
-                    : "border-border bg-transparent text-foreground hover:bg-muted hover:text-foreground dark:border-white/15 dark:text-white dark:hover:bg-white dark:hover:text-black"
-                )}
-                onClick={() => onSelect(filterKey, item.value)}
-              >
-                {activeValue === item.value ? t("shelf.selected") : t("shelf.explore", { value: item.value })}
-              </Button>
-            </div>
+        {section.items.map((item) => {
+          const queueTrackIds = item.tracks.map((track) => track.id);
 
-            <div className="flex gap-4 overflow-x-auto pb-2">
-              {item.tracks.map((track) => (
-                <DiscoveryTrackCard key={`${filterKey}-${item.value}-${track.id}`} track={track} />
-              ))}
+          return (
+            <div key={`${filterKey}-${item.value}`} className="space-y-4">
+              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <div>
+                  <h3 className="text-2xl font-bold text-foreground dark:text-white">{item.value}</h3>
+                  <p className="text-sm text-muted-foreground dark:text-white/50">{t("shelf.item_count", { count: item.count })}</p>
+                </div>
+                <Button
+                  variant={activeValue === item.value ? "default" : "outline"}
+                  className={cn(
+                    "w-fit rounded-full",
+                    activeValue === item.value
+                      ? "bg-[#f5c451] text-black hover:bg-[#f5c451]/90"
+                      : "border-border bg-transparent text-foreground hover:bg-muted hover:text-foreground dark:border-white/15 dark:text-white dark:hover:bg-white dark:hover:text-black"
+                  )}
+                  onClick={() => onSelect(filterKey, item.value)}
+                >
+                  {activeValue === item.value ? t("shelf.selected") : t("shelf.explore", { value: item.value })}
+                </Button>
+              </div>
+
+              <div className="flex gap-4 overflow-x-auto pb-2">
+                {item.tracks.map((track) => (
+                  <DiscoveryTrackCard
+                    key={`${filterKey}-${item.value}-${track.id}`}
+                    track={track}
+                    onBeforePlay={() => {
+                      queueContextRef.current = "shelf";
+                      setPlaylist(queueTrackIds);
+                    }}
+                  />
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
@@ -343,9 +357,13 @@ export default function TracksIndex() {
   const [activeFilters, setActiveFilters] = useState({});
   const [meta, setMeta] = useState({ total_count: 0, current_page: 1, total_pages: 1 });
   const [draftQuery, setDraftQuery] = useState(searchParams.get("q") || "");
+  const queueContextRef = useRef(null);
+  const setPlaylist = useAudioStore((state) => state.setPlaylist);
+  const currentTrackId = useAudioStore((state) => state.currentTrackId);
 
   const requestKey = searchParams.toString();
   const currentPage = Number(searchParams.get("page") || 1);
+  const resultQueueTrackIds = tracks.map((track) => track.id);
   const hasActiveFilters = Object.entries(activeFilters || {}).some(
     ([key, value]) => key !== "sort" && value !== null && value !== undefined && value !== ""
   );
@@ -353,6 +371,14 @@ export default function TracksIndex() {
   useEffect(() => {
     setDraftQuery(searchParams.get("q") || "");
   }, [searchParams]);
+
+  useEffect(() => {
+    if (queueContextRef.current !== "results") return;
+    if (!currentTrackId || resultQueueTrackIds.length === 0) return;
+    if (!resultQueueTrackIds.some((trackId) => `${trackId}` === `${currentTrackId}`)) return;
+
+    setPlaylist(resultQueueTrackIds);
+  }, [currentTrackId, resultQueueTrackIds, setPlaylist]);
 
   useEffect(() => {
     let cancelled = false;
@@ -788,7 +814,14 @@ export default function TracksIndex() {
           <>
             <div className="mt-8 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
               {tracks.map((track) => (
-                <DiscoveryTrackCard key={track.id} track={track} />
+                <DiscoveryTrackCard
+                  key={track.id}
+                  track={track}
+                  onBeforePlay={() => {
+                    queueContextRef.current = "results";
+                    setPlaylist(resultQueueTrackIds);
+                  }}
+                />
               ))}
             </div>
 
