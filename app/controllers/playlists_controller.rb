@@ -49,14 +49,27 @@ class PlaylistsController < ApplicationController
     end
 
     @playlist ||= Playlist.published.friendly.find(params[:id])
-    @track = @playlist.tracks.first
+    @visible_track_playlists = @playlist
+      .visible_track_playlists_for(current_user)
+      .includes(
+        track: [
+          { user: { avatar_attachment: :blob } },
+          { artists: { avatar_attachment: :blob } },
+          { cover_attachment: :blob },
+          { mp3_audio_attachment: :blob }
+        ]
+      )
+    @visible_tracks = @playlist.visible_tracks_for(current_user)
+    @track = @visible_track_playlists.first&.track
     @liked_track_ids = if current_user.present?
+      visible_track_ids = @visible_track_playlists.map(&:track_id)
+
       Like
         .where(
           liker_type: "User",
           liker_id: current_user.id,
           likeable_type: "Track",
-          likeable_id: @playlist.tracks.select(:id)
+          likeable_id: visible_track_ids
         )
         .pluck(:likeable_id)
     else
@@ -68,7 +81,7 @@ class PlaylistsController < ApplicationController
     respond_to do |format|
       format.html do
         if turbo_frame_request?
-          render partial: "playlist_widget", locals: { playlist: @playlist }
+          render partial: "playlist_widget", locals: { playlist: @playlist, viewer: current_user }
         else
           get_meta_tags
           render "show"
@@ -239,7 +252,7 @@ class PlaylistsController < ApplicationController
       twitter: {
         card: "player",
         player: {
-          stream: @playlist&.tracks&.first&.mp3_audio&.url,
+          stream: @track&.mp3_audio&.url,
           "stream:content_type": "audio/mpeg",
           width: 290,
           height: 58

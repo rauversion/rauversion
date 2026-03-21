@@ -18,8 +18,18 @@ RSpec.describe "Playlists", type: :request do
         private: false
       )
     end
+    let!(:private_track) do
+      Track.create!(
+        user: artist,
+        title: "Private track inside playlist",
+        private: true
+      )
+    end
     let!(:track_playlist) do
       TrackPlaylist.create!(playlist: playlist, track: track, position: 1)
+    end
+    let!(:private_track_playlist) do
+      TrackPlaylist.create!(playlist: playlist, track: private_track, position: 2)
     end
     let!(:track_like) do
       Like.create!(
@@ -60,6 +70,29 @@ RSpec.describe "Playlists", type: :request do
         "like_id" => true,
         "liked_by_current_user" => true
       )
+      expect(json.fetch("playlist").fetch("tracks").map { |item| item["id"] }).to eq([track.id])
+    end
+
+    it "does not list private tracks for public visitors" do
+      get "/playlists/#{playlist.slug}.json"
+
+      expect(response).to have_http_status(:ok)
+
+      json = JSON.parse(response.body)
+
+      expect(json.fetch("playlist").fetch("tracks").map { |item| item["id"] }).to eq([track.id])
+    end
+
+    it "lists private tracks when the playlist owner visits" do
+      sign_in artist
+
+      get "/playlists/#{playlist.slug}.json"
+
+      expect(response).to have_http_status(:ok)
+
+      json = JSON.parse(response.body)
+
+      expect(json.fetch("playlist").fetch("tracks").map { |item| item["id"] }).to eq([track.id, private_track.id])
     end
   end
 end

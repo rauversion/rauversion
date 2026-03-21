@@ -1,7 +1,9 @@
+<% tracks ||= playlist.ordered_tracks(local_assigns[:viewer]) %>
+
 <div>
   <h2 class="text-xl font-semibold mb-4" data-id="25">Tracks</h2>
   <div class="<%= local_assigns[:class] || "space-y-2" %>">
-    <% playlist.ordered_tracks.each do |track| %>
+    <% tracks.each do |track| %>
       <a
         data-action="click->track-player#play"
         data-track-id="<%= track.id %>"

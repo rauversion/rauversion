@@ -41,7 +41,7 @@
                   <div class="space-y-2">
                     <ul role="list" class="divide-y divide-subtle">
                       
-                      <% @playlist.ordered_tracks.each do |track| %>
+                      <% @playlist.ordered_tracks(current_user).each do |track| %>
                         <li>
                           <a 
                             href="<%= player_path(id: track, t: true) %>"

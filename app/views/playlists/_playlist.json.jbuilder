@@ -1,3 +1,7 @@
+visible_track_playlists = playlist.visible_track_playlists_for(current_user)
+first_tp = visible_track_playlists.min_by(&:position)
+first_track = first_tp&.track
+
 json.id playlist.id
 json.title playlist.title
 json.slug playlist.slug
@@ -16,8 +20,6 @@ end
 json.name_your_price playlist.name_your_price
 
 
-first_tp = playlist.track_playlists.min_by(&:position)
-first_track = first_tp&.track
 json.mp3_audio_url url_for(first_track.mp3_audio) if first_track&.mp3_audio&.attached?
 json.url playlist_path(playlist)
 
@@ -35,10 +37,10 @@ json.cover_url do
   end
 end
 
-json.tracks_count playlist.track_playlists.size if defined?(show_tracks_count) && show_tracks_count
+json.tracks_count visible_track_playlists.size if defined?(show_tracks_count) && show_tracks_count
 
 if defined?(show_tracks) && show_tracks
-  json.tracks playlist.track_playlists.sort_by(&:position) do |track_playlist|
+  json.tracks visible_track_playlists do |track_playlist|
     track = track_playlist.track
     json.partial! 'tracks/track', track: track
   end

@@ -1,5 +1,6 @@
 <%= turbo_frame_tag "player_widget" do %>
 
+<% tracks = playlist.ordered_tracks(local_assigns[:viewer]) %>
 
 <div class="bg-white/10 p-6 rounded-lg space-y-4 animate-in fade-in slide-in-from-top-4 my-4">
   <div class="flex justify-between items-center border-b border-white/20 pb-4">
@@ -7,7 +8,7 @@
   </div>
   <div class="space-y-2">
 
-    <% playlist.tracks.each do |track| %>
+    <% tracks.each do |track| %>
       <%= link_to player_path(id: track, t: true), data: { 
           track_id: track.id, 
           track_detector_target: "track"

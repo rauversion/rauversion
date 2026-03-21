@@ -37,7 +37,7 @@ json.playlist do
   end
 
 
-  json.tracks @playlist.track_playlists.order("position asc") do |track_playlist|
+  json.tracks @visible_track_playlists do |track_playlist|
     track = track_playlist.track
     json.partial! 'tracks/track', track: track
     liked_by_current_user = @liked_track_ids&.include?(track.id)

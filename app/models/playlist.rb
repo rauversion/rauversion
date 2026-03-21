@@ -159,10 +159,22 @@ class Playlist < ApplicationRecord
       .group("playlists.id")
   end
 
-  def ordered_tracks
-   
-    tracks.joins(:track_playlists).select('tracks.*, track_playlists.position').distinct.order('track_playlists.position')
+  def visible_track_playlists_for(viewer = nil)
+    scope = track_playlists.joins(:track).includes(:track).order("track_playlists.position ASC")
+    return scope if owner_viewing?(viewer)
 
+    scope.where(tracks: { private: [false, nil] })
+  end
+
+  def visible_tracks_for(viewer = nil)
+    scope = tracks.joins(:track_playlists).distinct.order("track_playlists.position")
+    return scope if owner_viewing?(viewer)
+
+    scope.where(tracks: { private: [false, nil] })
+  end
+
+  def ordered_tracks(viewer = nil)
+    visible_tracks_for(viewer).select("tracks.*, track_playlists.position")
   end
 
   def iframe_code_string(url)
@@ -174,5 +186,11 @@ class Playlist < ApplicationRecord
         <a href="#{url}" title="#{title}" target="_blank" style="color: #cccccc; text-decoration: none;">#{title}</a>
       </div>
     HTML
+  end
+
+  private
+
+  def owner_viewing?(viewer)
+    viewer.present? && [user_id, label_id].compact.include?(viewer.id)
   end
 end
