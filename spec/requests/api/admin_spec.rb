@@ -101,6 +101,142 @@ RSpec.describe "Admin API", type: :request do
     end
   end
 
+  describe "GET /api/admin/tracks/:id" do
+    let(:artist) do
+      create(
+        :user,
+        email: "detail-track@rauversion.com",
+        username: "detail-track",
+        role: :artist,
+        confirmed_at: Time.current
+      )
+    end
+
+    let!(:track) do
+      create(
+        :track,
+        user: artist,
+        title: "Insight Track",
+        metadata: {
+          genre: "House",
+          bpm: 126,
+          musical_key: "F minor",
+          subgenres: ["Deep House"],
+          reference_artists: ["Kerri Chandler"]
+        }
+      )
+    end
+
+    it "returns detailed track values for the admin show page" do
+      get "/api/admin/tracks/#{track.id}"
+
+      expect(response).to have_http_status(:ok)
+      expect(json_response.dig("resource", "editable")).to eq(true)
+      expect(json_response.dig("record", "form_values", "title")).to eq("Insight Track")
+      expect(json_response.dig("record", "form_values", "genre")).to eq("House")
+      expect(json_response.dig("record", "form_values", "bpm")).to eq(126)
+      expect(json_response.dig("record", "form_values", "subgenres")).to eq(["Deep House"])
+      expect(json_response.dig("record", "form_values", "reference_artists")).to eq(["Kerri Chandler"])
+    end
+  end
+
+  describe "PATCH /api/admin/tracks/:id" do
+    let(:artist) do
+      create(
+        :user,
+        email: "patch-track@rauversion.com",
+        username: "patch-track",
+        role: :artist,
+        confirmed_at: Time.current
+      )
+    end
+
+    let!(:track) do
+      create(
+        :track,
+        user: artist,
+        title: "Patch Me",
+        genre: "Techno"
+      )
+    end
+
+    it "updates editable analysis metadata fields" do
+      patch "/api/admin/tracks/#{track.id}", params: {
+        record: {
+          genre: "House",
+          bpm: 125,
+          musical_key: "A minor",
+          subgenres: ["Deep House", "Soulful House"],
+          mood: ["Warm", "Late-night"],
+          bpm_range: { min: 123, max: 127 },
+          reference_artists: ["Moodymann"],
+          tags: ["house", "warm"]
+        }
+      }, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(track.reload.genre).to eq("House")
+      expect(track.bpm).to eq(125)
+      expect(track.musical_key).to eq("A minor")
+      expect(track.subgenres).to eq(["Deep House", "Soulful House"])
+      expect(track.mood).to eq(["Warm", "Late-night"])
+      expect(track.bpm_range).to eq({ "min" => 123, "max" => 127 })
+      expect(track.reference_artists).to eq(["Moodymann"])
+      expect(track.tags).to eq(["house", "warm"])
+    end
+  end
+
+  describe "POST /api/admin/tracks/:id/actions/analyze" do
+    let(:artist) do
+      create(
+        :user,
+        email: "analyze-track@rauversion.com",
+        username: "analyze-track",
+        role: :artist,
+        confirmed_at: Time.current
+      )
+    end
+
+    let!(:track) do
+      create(
+        :track,
+        user: artist,
+        title: "Analyze Me",
+        state: "processed"
+      )
+    end
+
+    it "passes the action payload into the analyzer service" do
+      analyzer = instance_double(
+        TrackAudioAnalysisService,
+        call: {
+          genre: "House",
+          bpm: 126,
+          reference_artists: ["Kerri Chandler"]
+        }
+      )
+
+      expect(TrackAudioAnalysisService).to receive(:new).with(
+        track: track,
+        start_seconds: 8,
+        duration_seconds: 45,
+        persist: true
+      ).and_return(analyzer)
+
+      post "/api/admin/tracks/#{track.id}/actions/analyze", params: {
+        payload: {
+          start_seconds: 8,
+          duration_seconds: 45,
+          persist: true
+        }
+      }, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(json_response.dig("result", "genre")).to eq("House")
+      expect(json_response.dig("result", "bpm")).to eq(126)
+    end
+  end
+
   describe "GET /api/admin/events" do
     let(:organizer) do
       create(

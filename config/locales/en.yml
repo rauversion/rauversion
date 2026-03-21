@@ -1206,6 +1206,100 @@ en:
         subtitle: Selected collections for every mood
       featured_labels: Labels
       view_all: See All
+    discovery:
+      hero:
+        badge: Explore
+        title: Find tracks by genre, vibe or BPM.
+        description: Filter fast and hit play.
+        search_placeholder: Search tracks, artists or tags
+        search_button: Search
+      sort_options:
+        featured: Featured
+        latest: Newest
+        most_confident: Best analyzed
+        bpm_low: BPM asc
+        bpm_high: BPM desc
+      vocal_modes:
+        all: All
+        instrumental: Instrumental
+        vocal: With vocals
+      filters:
+        eyebrow: Filters
+        title: Narrow it down fast.
+        any_language: Any language
+        reset_all: Clear
+        genre: Genre
+        mood: Mood
+        tempo: BPM
+        subgenre: Subgenre
+        language: Language
+        vocal_mode: Voice
+        tag: Tag
+        search: Search
+        min_bpm: Min BPM
+        max_bpm: Max BPM
+      tempo_bands:
+        under_100: Under 100 BPM
+        between_100_119: 100-119 BPM
+        between_120_129: 120-129 BPM
+        between_130_139: 130-139 BPM
+        plus_140: 140+ BPM
+      sections:
+        genres: Genres
+        moods: Moods
+      stats:
+        results_label: Results
+        results_filtered_hint: Matching your filters
+        results_default_hint: Public tracks to browse
+        analyzed_label: Analyzed
+        analyzed_hint: With detected genre, mood and BPM
+        tempo_label: BPM range
+        tempo_hint: In the current results
+        not_available: N/A
+      highlighted_playlist:
+        eyebrow: Featured
+        fallback_description: Featured release.
+        open_release: Open release
+      fallback_panel:
+        eyebrow: Filters
+        title: Pick a few filters.
+        genre_mood_title: Genre and mood
+        genre_mood_description: Use the chips below.
+        ranking_title: Sort order
+        ranking_description: Featured puts the best analyzed tracks first.
+      shelf:
+        eyebrow: Browse
+        description: A quick selection by category.
+        item_count: "%{count} tracks here"
+        selected: Selected
+        explore: Explore %{value}
+      results:
+        eyebrow: Results
+        filtered_title: Results
+        default_title: All tracks
+        summary: "%{count} public tracks"
+        load_more: Load more tracks
+        loading_more: Loading more...
+      empty:
+        title: No tracks found.
+        description: Try removing a filter or changing the BPM.
+        reset: Reset filters
+      featured_albums:
+        title: Albums
+        subtitle: Longer releases worth checking.
+      curated_playlists:
+        title: Playlists
+        subtitle: Good routes if you want to keep listening.
+      labels:
+        eyebrow: Labels
+        title: Labels
+        subtitle: Check the labels behind these releases.
+      summary:
+        riyl: "Sounds like %{artist}"
+        fallback: Available on Rauversion.
+      player:
+        play_track: "Play %{title}"
+        pause_track: "Pause %{title}"
     new:
       upload:
         title: Drag and drop your tracks here

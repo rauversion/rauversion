@@ -22,10 +22,11 @@ class TrackAudioAnalysisService
     production_traits
   ].freeze
 
-  def initialize(track:, start_seconds: 0, duration_seconds: DEFAULT_ANALYSIS_DURATION_SECONDS, client: nil)
+  def initialize(track:, start_seconds: 0, duration_seconds: DEFAULT_ANALYSIS_DURATION_SECONDS, persist: false, client: nil)
     @track = track
     @start_seconds = normalize_float(start_seconds)
     @duration_seconds = normalize_duration(duration_seconds)
+    @persist = ActiveModel::Type::Boolean.new.cast(persist)
     @client = client || OpenAI::Client.new(access_token: ENV["OPENAI_API_KEY"], log_errors: true)
     @model = ENV.fetch("OPENAI_TRACK_ANALYSIS_MODEL", DEFAULT_MODEL)
   end
@@ -38,10 +39,14 @@ class TrackAudioAnalysisService
       clip_path = build_analysis_clip(source_file.path)
       analysis = request_analysis(clip_path, source_metadata)
 
-      normalize_analysis(
+      result = normalize_analysis(
         analysis: analysis,
         source_metadata: source_metadata
       )
+
+      persist_analysis!(result) if persist?
+
+      result
     ensure
       cleanup_generated_path(clip_path)
     end
@@ -217,6 +222,32 @@ class TrackAudioAnalysisService
       source_metadata: source_metadata,
       model: model
     }.compact
+  end
+
+  def persist_analysis!(result)
+    track.update!(
+      genre: result[:genre],
+      bpm: result[:bpm],
+      subgenres: result[:subgenres],
+      bpm_range: result[:bpm_range],
+      musical_key: result[:key],
+      mood: result[:mood],
+      energy: result[:energy],
+      danceability: result[:danceability],
+      instrumental: result[:instrumental],
+      vocal_presence: result[:vocal_presence],
+      language: result[:language],
+      primary_instruments: result[:primary_instruments],
+      reference_artists: result[:reference_artists],
+      production_traits: result[:production_traits],
+      analysis_accuracy: result[:accuracy],
+      analysis_notes: result[:analysis_notes],
+      confidence_breakdown: result[:confidence_breakdown],
+      analysis_window: result[:analysis_window],
+      analysis_source_metadata: result[:source_metadata],
+      analysis_model: result[:model],
+      analyzed_at: Time.current
+    )
   end
 
   def system_prompt
@@ -431,6 +462,10 @@ class TrackAudioAnalysisService
         attachment if attachment&.attached?
       end
     end
+  end
+
+  def persist?
+    @persist
   end
 
   def analysis_attachment_name

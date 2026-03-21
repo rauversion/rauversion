@@ -142,6 +142,111 @@ RSpec.describe TrackAudioAnalysisService do
       expect(attachment).to have_received(:download)
     end
 
+    it "updates the track metadata when persist is true" do
+      allow(Open3).to receive(:capture3) do |*args|
+        case args.first
+        when "ffprobe"
+          [
+            {
+              format: {
+                duration: "61.8",
+                bit_rate: "192000",
+                format_name: "mp3"
+              },
+              streams: [
+                {
+                  codec_type: "audio",
+                  codec_name: "mp3",
+                  sample_rate: "44100",
+                  channels: 2
+                }
+              ]
+            }.to_json,
+            "",
+            instance_double(Process::Status, success?: true)
+          ]
+        when "ffmpeg"
+          [
+            "",
+            "",
+            instance_double(Process::Status, success?: true)
+          ]
+        else
+          raise "Unexpected command: #{args.inspect}"
+        end
+      end
+
+      allow(Dir).to receive(:mktmpdir).and_return("/tmp/generated-analysis")
+      allow(File).to receive(:exist?).and_call_original
+      allow(File).to receive(:exist?).with("/tmp/generated-analysis/analysis_fragment.mp3").and_return(true)
+      allow(File).to receive(:binread).with("/tmp/generated-analysis/analysis_fragment.mp3").and_return("fake-mp3-data")
+      allow(FileUtils).to receive(:remove_entry)
+
+      allow(client).to receive(:chat).and_return(
+        {
+          "choices" => [
+            {
+              "message" => {
+                "tool_calls" => [
+                  {
+                    "function" => {
+                      "name" => "submit_track_analysis",
+                      "arguments" => {
+                        genre: "House",
+                        subgenres: ["Deep house"],
+                        bpm: 126,
+                        bpm_range: { min: 124, max: 128 },
+                        key: "F minor",
+                        mood: ["Warm"],
+                        energy: 0.71,
+                        danceability: 0.88,
+                        instrumental: false,
+                        vocal_presence: 0.61,
+                        language: "en",
+                        primary_instruments: ["Drums", "Bass"],
+                        reference_artists: ["Kerri Chandler"],
+                        production_traits: ["Swing groove"],
+                        confidence_breakdown: {
+                          genre: 0.9,
+                          bpm: 0.9,
+                          mood: 0.8,
+                          reference_artists: 0.7,
+                          language: 0.8,
+                          key: 0.6,
+                          production_traits: 0.75
+                        },
+                        analysis_notes: "Groovy house track with vocal presence."
+                      }.to_json
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      )
+
+      allow(track).to receive(:update!)
+
+      described_class.new(
+        track: track,
+        persist: true,
+        client: client
+      ).call
+
+      expect(track).to have_received(:update!).with(
+        hash_including(
+          genre: "House",
+          bpm: 126,
+          subgenres: ["Deep house"],
+          musical_key: "F minor",
+          analysis_accuracy: 0.78,
+          analysis_model: "gpt-audio",
+          analyzed_at: kind_of(ActiveSupport::TimeWithZone)
+        )
+      )
+    end
+
     it "raises a domain error when OpenAI returns no function call" do
       allow(Open3).to receive(:capture3) do |*args|
         case args.first

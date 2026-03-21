@@ -20,23 +20,18 @@ class TracksController < ApplicationController
   end
 
   def index
-    @tracks = Track.published
-      .with_attached_cover
-      .includes(user: {avatar_attachment: :blob})
+    discovery = TracksDiscoveryQuery.new(
+      scope: Track.published,
+      params: discovery_params
+    ).call
 
-    # Filter by tag if present
-    @tracks = @tracks.where('? = ANY(tags)', params[:tag]) if params[:tag].present?
-    
-    @tracks = @tracks.page(params[:page]).per(15)
-    @tracks = @tracks.order("RANDOM()") unless params[:tag].present?
-    
-    @popular_tags = Track.published
-      .where.not(tags: [])
-      .select('unnest(tags) as tag, count(*) as count')
-      .group('unnest(tags)')
-      .order('count DESC')
-      .limit(10)
-    
+    @tracks = discovery[:tracks]
+    @facets = discovery[:facets]
+    @discovery_sections = discovery[:discovery_sections]
+    @active_filters = discovery[:active_filters]
+    @meta = discovery[:meta]
+    @popular_tags = @facets[:tags]
+
     @labels = User.where(label: true).order("id desc").limit(10)
 
     @artists = User.featured_artists.limit(5)
@@ -46,17 +41,6 @@ class TracksController < ApplicationController
       .where(playlist_type: ["ep", "album"])
       .order("editor_choice_position asc, release_date desc")
       .first
-
-    @q = Track.ransack(params[:q])
-    @q.sorts = 'created_at desc' if @q.sorts.empty?
-
-    if params[:q].present?
-      @tracks = @q.result(distinct: true)
-        .published
-        .includes(:user)
-        .page(params[:page])
-        .per(12)
-    end
       
     respond_to do |format|
       format.html {render_blank}
@@ -273,6 +257,24 @@ class TracksController < ApplicationController
       tracks_attributes: [
         :audio, :cover, :title, :description, :private, tags: []
       ]
+    )
+  end
+
+  def discovery_params
+    params.permit(
+      :q,
+      :tag,
+      :genre,
+      :mood,
+      :subgenre,
+      :language,
+      :vocal_mode,
+      :tempo_band,
+      :min_bpm,
+      :max_bpm,
+      :sort,
+      :page,
+      :per_page
     )
   end
 end

@@ -1233,6 +1233,100 @@ es:
         subtitle: Colecciones seleccionadas para cada estado de ánimo
       featured_labels: Sellos
       view_all: Ver Todo
+    discovery:
+      hero:
+        badge: Explorar
+        title: Busca tracks por género, vibe o BPM.
+        description: Filtra rápido y dale play.
+        search_placeholder: Busca tracks, artistas o tags
+        search_button: Buscar
+      sort_options:
+        featured: Destacados
+        latest: Nuevos
+        most_confident: Mejor analizados
+        bpm_low: BPM asc
+        bpm_high: BPM desc
+      vocal_modes:
+        all: Todas
+        instrumental: Instrumental
+        vocal: Con voz
+      filters:
+        eyebrow: Filtros
+        title: Encuentra algo rápido.
+        any_language: Cualquier idioma
+        reset_all: Limpiar
+        genre: Género
+        mood: Mood
+        tempo: BPM
+        subgenre: Subgéneros
+        language: Idioma
+        vocal_mode: Voz
+        tag: Tag
+        search: Buscar
+        min_bpm: BPM mín.
+        max_bpm: BPM máx.
+      tempo_bands:
+        under_100: Menos de 100 BPM
+        between_100_119: 100-119 BPM
+        between_120_129: 120-129 BPM
+        between_130_139: 130-139 BPM
+        plus_140: 140+ BPM
+      sections:
+        genres: Géneros
+        moods: Moods
+      stats:
+        results_label: Resultados
+        results_filtered_hint: Según tus filtros
+        results_default_hint: Tracks públicos
+        analyzed_label: Analizados
+        analyzed_hint: Con género, mood y BPM detectados
+        tempo_label: Rango BPM
+        tempo_hint: En estos resultados
+        not_available: N/D
+      highlighted_playlist:
+        eyebrow: Destacado
+        fallback_description: Release destacado.
+        open_release: Abrir release
+      fallback_panel:
+        eyebrow: Filtros
+        title: Elige algunos filtros.
+        genre_mood_title: Género y mood
+        genre_mood_description: Usa los chips de abajo.
+        ranking_title: Orden
+        ranking_description: Destacados pone arriba los tracks mejor analizados.
+      shelf:
+        eyebrow: Explorar
+        description: Una selección rápida por categoría.
+        item_count: "%{count} tracks acá"
+        selected: Seleccionado
+        explore: Ver %{value}
+      results:
+        eyebrow: Resultados
+        filtered_title: Resultados
+        default_title: Todos los tracks
+        summary: "%{count} tracks públicos"
+        load_more: Cargar más tracks
+        loading_more: Cargando más...
+      empty:
+        title: No encontramos tracks.
+        description: Prueba quitando un filtro o cambiando el BPM.
+        reset: Limpiar filtros
+      featured_albums:
+        title: Álbumes
+        subtitle: Releases largos para seguir.
+      curated_playlists:
+        title: Playlists
+        subtitle: Buenas rutas para seguir escuchando.
+      labels:
+        eyebrow: Sellos
+        title: Sellos
+        subtitle: Mira los sellos detrás de estos releases.
+      summary:
+        riyl: Suena a %{artist}
+        fallback: Disponible en Rauversion.
+      player:
+        play_track: "Reproducir %{title}"
+        pause_track: "Pausar %{title}"
     edit:
       dialog:
         loading: Cargando...

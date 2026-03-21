@@ -1,6 +1,109 @@
 require "rails_helper"
 
 RSpec.describe "Tracks", type: :request do
+  describe "GET /tracks.json" do
+    let(:artist) { create(:user, confirmed_at: Time.current) }
+    let!(:techno_track) do
+      create(
+        :track,
+        user: artist,
+        title: "Night Pulse",
+        genre: "Techno",
+        bpm: 128,
+        mood: ["Dark", "Driving"],
+        subgenres: ["Peak Time Techno"],
+        language: "en",
+        instrumental: false,
+        analysis_accuracy: 0.92,
+        tags: ["warehouse", "peak-time"]
+      )
+    end
+    let!(:ambient_track) do
+      create(
+        :track,
+        user: artist,
+        title: "Cloud Memory",
+        genre: "Ambient",
+        bpm: 94,
+        mood: ["Meditative"],
+        subgenres: ["Drone"],
+        language: "",
+        instrumental: true,
+        analysis_accuracy: 0.87,
+        tags: ["deep-listening"]
+      )
+    end
+    let!(:private_track) do
+      create(
+        :track,
+        user: artist,
+        private: true,
+        title: "Hidden Signal",
+        genre: "Techno",
+        bpm: 130,
+        mood: ["Dark"],
+        analysis_accuracy: 0.95
+      )
+    end
+
+    before do
+      attach_image(artist, :avatar)
+      attach_image(techno_track, :cover)
+      attach_image(ambient_track, :cover)
+      attach_image(private_track, :cover)
+    end
+
+    it "returns facets and grouped discovery shelves for public tracks" do
+      get tracks_path(format: :json)
+
+      expect(response).to have_http_status(:ok)
+
+      payload = JSON.parse(response.body)
+
+      expect(payload.dig("facets", "genres")).to include(
+        include("value" => "Techno", "count" => 1),
+        include("value" => "Ambient", "count" => 1)
+      )
+      expect(payload.dig("facets", "moods")).to include(include("value" => "Dark"))
+      expect(payload.dig("discovery_sections", "genres", "items")).to include(
+        include("value" => "Techno", "tracks" => include(include("title" => "Night Pulse")))
+      )
+      expect(payload.fetch("tracks")).to all(include("bpm"))
+      expect(payload.dig("meta", "total_count")).to eq(2)
+    end
+
+    it "filters by metadata facets" do
+      get tracks_path(
+        format: :json,
+        genre: "Techno",
+        mood: "Dark",
+        tempo_band: "120-129",
+        vocal_mode: "vocal"
+      )
+
+      expect(response).to have_http_status(:ok)
+
+      payload = JSON.parse(response.body)
+
+      expect(payload.fetch("tracks").map { |track| track["title"] }).to eq(["Night Pulse"])
+      expect(payload.fetch("active_filters")).to include(
+        "genre" => "Techno",
+        "mood" => "Dark",
+        "tempo_band" => "120-129",
+        "vocal_mode" => "vocal"
+      )
+      expect(payload.dig("discovery_sections", "genres", "items")).to eq([])
+    end
+
+    def attach_image(record, attachment_name)
+      record.public_send(attachment_name).attach(
+        io: File.open(Rails.root.join("spec/fixtures/files/sample.jpg")),
+        filename: "sample.jpg",
+        content_type: "image/jpeg"
+      )
+    end
+  end
+
   describe "GET /tracks/:id/appears_on.json" do
     let(:artist) { create(:user, confirmed_at: Time.current) }
     let(:track) { create(:track, user: artist) }

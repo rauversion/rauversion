@@ -77,7 +77,12 @@ module Api
         action_definition = Array(@resource[:custom_actions]).find { |candidate| candidate[:key].to_s == params[:action_key].to_s }
         return render json: { error: "Unknown action" }, status: :not_found if action_definition.blank?
 
-        result = action_definition[:run].call(@record)
+        result = if action_definition[:run].arity == 1
+          action_definition[:run].call(@record)
+        else
+          action_definition[:run].call(@record, action_payload)
+        end
+
         render json: {
           resource: serialize_resource_definition,
           result: result || {},
@@ -139,6 +144,10 @@ module Api
 
       def permitted_attributes
         params.fetch(:record, {}).permit(*Array(@resource[:permitted_fields]))
+      end
+
+      def action_payload
+        params.fetch(:payload, ActionController::Parameters.new).permit!.to_h
       end
 
       def serialize_resource_definition

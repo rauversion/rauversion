@@ -77,6 +77,17 @@ class Track < ApplicationRecord
   store_attribute :metadata, :contains_explicit_content, :boolean
   store_attribute :metadata, :copyright, :string
   store_attribute :metadata, :genre, :string
+  store_attribute :metadata, :bpm, :integer
+  store_attribute :metadata, :musical_key, :string
+  store_attribute :metadata, :energy, :float
+  store_attribute :metadata, :danceability, :float
+  store_attribute :metadata, :instrumental, :boolean
+  store_attribute :metadata, :vocal_presence, :float
+  store_attribute :metadata, :language, :string
+  store_attribute :metadata, :analysis_accuracy, :float
+  store_attribute :metadata, :analysis_notes, :string
+  store_attribute :metadata, :analysis_model, :string
+  store_attribute :metadata, :analyzed_at, :datetime
   store_attribute :metadata, :direct_download, :boolean
   store_attribute :metadata, :display_embed, :boolean
   store_attribute :metadata, :enable_comments, :boolean, default: true
@@ -133,6 +144,78 @@ class Track < ApplicationRecord
 
   def presicion_for_currency
     0
+  end
+
+  def subgenres
+    read_metadata_array(:subgenres)
+  end
+
+  def subgenres=(value)
+    write_metadata_value(:subgenres, normalize_metadata_array(value))
+  end
+
+  def mood
+    read_metadata_array(:mood)
+  end
+
+  def mood=(value)
+    write_metadata_value(:mood, normalize_metadata_array(value))
+  end
+
+  def bpm_range
+    read_metadata_hash(:bpm_range)
+  end
+
+  def bpm_range=(value)
+    write_metadata_value(:bpm_range, normalize_metadata_hash(value))
+  end
+
+  def primary_instruments
+    read_metadata_array(:primary_instruments)
+  end
+
+  def primary_instruments=(value)
+    write_metadata_value(:primary_instruments, normalize_metadata_array(value))
+  end
+
+  def reference_artists
+    read_metadata_array(:reference_artists)
+  end
+
+  def reference_artists=(value)
+    write_metadata_value(:reference_artists, normalize_metadata_array(value))
+  end
+
+  def production_traits
+    read_metadata_array(:production_traits)
+  end
+
+  def production_traits=(value)
+    write_metadata_value(:production_traits, normalize_metadata_array(value))
+  end
+
+  def confidence_breakdown
+    read_metadata_hash(:confidence_breakdown)
+  end
+
+  def confidence_breakdown=(value)
+    write_metadata_value(:confidence_breakdown, normalize_metadata_hash(value))
+  end
+
+  def analysis_window
+    read_metadata_hash(:analysis_window)
+  end
+
+  def analysis_window=(value)
+    write_metadata_value(:analysis_window, normalize_metadata_hash(value))
+  end
+
+  def analysis_source_metadata
+    read_metadata_hash(:analysis_source_metadata)
+  end
+
+  def analysis_source_metadata=(value)
+    write_metadata_value(:analysis_source_metadata, normalize_metadata_hash(value))
   end
 
   def cover_url(size = nil)
@@ -474,6 +557,38 @@ class Track < ApplicationRecord
   end
 
   private
+
+  def read_metadata_array(key)
+    value = metadata&.[](key.to_s)
+    value.is_a?(Array) ? value : []
+  end
+
+  def read_metadata_hash(key)
+    value = metadata&.[](key.to_s)
+    value.is_a?(Hash) ? value : {}
+  end
+
+  def write_metadata_value(key, value)
+    next_metadata = (metadata || {}).deep_dup
+    next_metadata[key.to_s] = value
+    self.metadata = next_metadata
+  end
+
+  def normalize_metadata_array(value)
+    Array(value)
+      .map { |item| item.to_s.strip }
+      .reject(&:blank?)
+      .uniq
+  end
+
+  def normalize_metadata_hash(value)
+    case value
+    when Hash
+      value.deep_stringify_keys
+    else
+      {}
+    end
+  end
 
   def with_file_path(source_file = nil, fallback_attachment:)
     if source_file.present?

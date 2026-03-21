@@ -9,7 +9,8 @@ module Api
         render json: TrackAudioAnalysisService.new(
           track: current_user.tracks.find(params[:track_id]),
           start_seconds: params[:start_seconds],
-          duration_seconds: params[:duration_seconds]
+          duration_seconds: params[:duration_seconds],
+          persist: persist_requested?
         ).call
       rescue ActiveRecord::RecordNotFound
         render json: { error: "Track not found" }, status: :not_found
@@ -21,6 +22,10 @@ module Api
 
       def render_authentication_error
         render json: { error: "Authentication required" }, status: :unauthorized
+      end
+
+      def persist_requested?
+        ActiveModel::Type::Boolean.new.cast(params[:persist] || params[:perist])
       end
     end
   end

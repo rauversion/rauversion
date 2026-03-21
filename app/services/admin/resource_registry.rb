@@ -145,9 +145,9 @@ module Admin
             label: "Tracks",
             icon: "Disc3",
             model: Track,
-            description: "Review track uploads, moderation state, and recent releases.",
+            description: "Review every track, inspect attachments, run AI analysis, and adjust metadata.",
             creatable: false,
-            editable: false,
+            editable: true,
             destroyable: true,
             search_fields: %w[title caption description genre slug],
             order: ->(relation) { relation.includes(:user).order(id: :desc) },
@@ -167,15 +167,175 @@ module Admin
                 type: "text",
                 value: ->(track) { track.user&.display_name.presence || track.user&.username }
               },
+              { key: "genre", label: "Genre", type: "text", value: ->(track) { track.genre } },
+              { key: "bpm", label: "BPM", type: "text", value: ->(track) { track.bpm } },
               { key: "state", label: "State", type: "badge", value: ->(track) { track.state } },
               { key: "private", label: "Private", type: "boolean", value: ->(track) { track.private? } },
               { key: "podcast", label: "Podcast", type: "boolean", value: ->(track) { track.podcast? } },
               { key: "created_at", label: "Created", type: "datetime", value: ->(track) { track.created_at } }
             ],
-            form_fields: [],
-            permitted_fields: [],
+            form_fields: [
+              { key: "id", label: "ID", type: "text", readonly: true, value: ->(track) { track.id } },
+              { key: "title", label: "Title", type: "text", required: true },
+              { key: "slug", label: "Slug", type: "text", readonly: true, value: ->(track) { track.slug } },
+              {
+                key: "artist_name",
+                label: "Artist",
+                type: "text",
+                readonly: true,
+                value: ->(track) { track.user&.display_name.presence || track.user&.username }
+              },
+              {
+                key: "artist_username",
+                label: "Artist username",
+                type: "text",
+                readonly: true,
+                value: ->(track) { track.user&.username }
+              },
+              {
+                key: "artist_email",
+                label: "Artist email",
+                type: "text",
+                readonly: true,
+                value: ->(track) { track.user&.email }
+              },
+              { key: "state", label: "State", type: "text", readonly: true },
+              { key: "private", label: "Private", type: "boolean" },
+              { key: "podcast", label: "Podcast", type: "boolean" },
+              { key: "description", label: "Description", type: "textarea" },
+              { key: "genre", label: "Genre", type: "text" },
+              { key: "bpm", label: "BPM", type: "text" },
+              { key: "musical_key", label: "Key", type: "text" },
+              { key: "subgenres", label: "Subgenres", type: "textarea", value: ->(track) { track.subgenres } },
+              { key: "mood", label: "Mood", type: "textarea", value: ->(track) { track.mood } },
+              { key: "primary_instruments", label: "Primary instruments", type: "textarea", value: ->(track) { track.primary_instruments } },
+              { key: "reference_artists", label: "Reference artists", type: "textarea", value: ->(track) { track.reference_artists } },
+              { key: "production_traits", label: "Production traits", type: "textarea", value: ->(track) { track.production_traits } },
+              { key: "language", label: "Language", type: "text" },
+              { key: "energy", label: "Energy", type: "text" },
+              { key: "danceability", label: "Danceability", type: "text" },
+              { key: "instrumental", label: "Instrumental", type: "boolean" },
+              { key: "vocal_presence", label: "Vocal presence", type: "text" },
+              { key: "analysis_accuracy", label: "Analysis accuracy", type: "text" },
+              { key: "analysis_notes", label: "Analysis notes", type: "textarea" },
+              { key: "bpm_range", label: "BPM range", type: "textarea", readonly: true, value: ->(track) { track.bpm_range } },
+              { key: "confidence_breakdown", label: "Confidence breakdown", type: "textarea", readonly: true, value: ->(track) { track.confidence_breakdown } },
+              { key: "analysis_source_metadata", label: "Analysis source metadata", type: "textarea", readonly: true, value: ->(track) { track.analysis_source_metadata } },
+              { key: "analysis_window", label: "Analysis window", type: "textarea", readonly: true, value: ->(track) { track.analysis_window } },
+              { key: "analysis_model", label: "Analysis model", type: "text", readonly: true },
+              { key: "analyzed_at", label: "Analyzed at", type: "datetime", readonly: true },
+              { key: "tags", label: "Tags", type: "textarea", value: ->(track) { track.tags } },
+              { key: "duration", label: "Duration", type: "text", readonly: true, value: ->(track) { track.duration } },
+              {
+                key: "cover_url",
+                label: "Cover URL",
+                type: "text",
+                readonly: true,
+                value: ->(track) {
+                  next unless track.cover.attached?
+                  Rails.application.routes.url_helpers.rails_storage_proxy_path(track.cover, only_path: true)
+                }
+              },
+              {
+                key: "playback_url",
+                label: "Playback URL",
+                type: "text",
+                readonly: true,
+                value: ->(track) {
+                  media = track.playback_media
+                  next unless media&.attached?
+                  Rails.application.routes.url_helpers.rails_storage_proxy_path(media, only_path: true)
+                }
+              },
+              {
+                key: "audio_url",
+                label: "Audio URL",
+                type: "text",
+                readonly: true,
+                value: ->(track) {
+                  next unless track.audio.attached?
+                  Rails.application.routes.url_helpers.rails_storage_proxy_path(track.audio, only_path: true)
+                }
+              },
+              {
+                key: "mp3_url",
+                label: "MP3 URL",
+                type: "text",
+                readonly: true,
+                value: ->(track) {
+                  next unless track.mp3_audio.attached?
+                  Rails.application.routes.url_helpers.rails_storage_proxy_path(track.mp3_audio, only_path: true)
+                }
+              },
+              {
+                key: "video_url",
+                label: "Video URL",
+                type: "text",
+                readonly: true,
+                value: ->(track) {
+                  media = track.video_playback_media
+                  next unless media&.attached?
+                  Rails.application.routes.url_helpers.rails_storage_proxy_path(media, only_path: true)
+                }
+              },
+              {
+                key: "public_url",
+                label: "Public URL",
+                type: "text",
+                readonly: true,
+                value: ->(track) {
+                  next if track.private?
+                  "/tracks/#{track.slug.presence || track.id}"
+                }
+              },
+              { key: "created_at", label: "Created at", type: "datetime", readonly: true },
+              { key: "updated_at", label: "Updated at", type: "datetime", readonly: true }
+            ],
+            permitted_fields: [
+              :title,
+              :description,
+              :private,
+              :podcast,
+              :genre,
+              :bpm,
+              :musical_key,
+              :language,
+              :energy,
+              :danceability,
+              :instrumental,
+              :vocal_presence,
+              :analysis_accuracy,
+              :analysis_notes,
+              { bpm_range: %i[min max] },
+              { subgenres: [] },
+              { mood: [] },
+              { primary_instruments: [] },
+              { reference_artists: [] },
+              { production_traits: [] },
+              { tags: [] }
+            ],
+            custom_actions: [
+              {
+                key: "analyze",
+                label: "Analyze",
+                run: lambda { |track, payload|
+                  TrackAudioAnalysisService.new(
+                    track: track,
+                    start_seconds: payload["start_seconds"],
+                    duration_seconds: payload["duration_seconds"],
+                    persist: payload["persist"]
+                  ).call
+                }
+              }
+            ],
             row_actions: lambda { |track|
               actions = []
+              actions << {
+                key: "review",
+                label: "Review",
+                kind: "navigate",
+                to: "/admin/tracks/#{track.id}"
+              }
               unless track.private?
                 actions << {
                   key: "view",

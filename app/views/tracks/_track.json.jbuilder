@@ -18,6 +18,17 @@ json.like_id track.respond_to?(:like_id) && track&.like_id.present?
 json.reposts_count track.reposts_count
 json.state track.state
 json.genre track.genre
+json.bpm track.bpm
+json.musical_key track.musical_key
+json.subgenres track.subgenres
+json.mood track.mood
+json.energy track.energy
+json.danceability track.danceability
+json.instrumental track.instrumental
+json.vocal_presence track.vocal_presence
+json.language track.language
+json.reference_artists track.reference_artists
+json.analysis_accuracy track.analysis_accuracy
 json.tags track.tags
 json.podcast track.podcast
 json.created_at track.created_at

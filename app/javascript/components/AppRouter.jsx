@@ -124,6 +124,7 @@ import AdminEventSalesPage from "./admin/AdminEventSalesPage"
 import AdminListeningPage from "./admin/AdminListeningPage"
 import AdminResourceListPage from "./admin/AdminResourceListPage"
 import AdminResourceFormPage from "./admin/AdminResourceFormPage"
+import AdminTrackShowPage from "./admin/AdminTrackShowPage"
 
 function RequireAuth({ children }) {
   const { currentUser, loading: currentUserLoading } = useAuthStore()
@@ -268,6 +269,7 @@ function AppContent() {
         <Route path="pages/:id/edit" element={<PagesEditor />} />
         <Route path=":resourceKey" element={<AdminResourceListPage />} />
         <Route path=":resourceKey/new" element={<AdminResourceFormPage createMode={true} />} />
+        <Route path="tracks/:id" element={<AdminTrackShowPage />} />
         <Route path=":resourceKey/:id" element={<AdminResourceFormPage />} />
       </Route>
 

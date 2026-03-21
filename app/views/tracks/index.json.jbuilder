@@ -3,9 +3,76 @@ json.tracks @tracks do |track|
 end
 
 json.popular_tags @popular_tags do |tag|
-  json.tag tag.tag
-  json.count tag.count
+  json.tag tag[:value]
+  json.count tag[:count]
 end unless @popular_tags.nil?
+
+json.active_filters @active_filters || {}
+
+json.facets do
+  json.genres Array(@facets&.dig(:genres)) do |genre|
+    json.value genre[:value]
+    json.count genre[:count]
+  end
+
+  json.moods Array(@facets&.dig(:moods)) do |mood|
+    json.value mood[:value]
+    json.count mood[:count]
+  end
+
+  json.subgenres Array(@facets&.dig(:subgenres)) do |subgenre|
+    json.value subgenre[:value]
+    json.count subgenre[:count]
+  end
+
+  json.languages Array(@facets&.dig(:languages)) do |language|
+    json.value language[:value]
+    json.count language[:count]
+  end
+
+  json.tags Array(@facets&.dig(:tags)) do |tag|
+    json.value tag[:value]
+    json.count tag[:count]
+  end
+
+  json.tempo_bands Array(@facets&.dig(:tempo_bands)) do |band|
+    json.key band[:key]
+    json.label band[:label]
+    json.min band[:min]
+    json.max band[:max]
+    json.count band[:count]
+  end
+
+  json.stats do
+    json.analyzed_count @facets&.dig(:stats, :analyzed_count)
+    json.bpm_min @facets&.dig(:stats, :bpm_min)
+    json.bpm_max @facets&.dig(:stats, :bpm_max)
+  end
+end
+
+json.discovery_sections do
+  json.genres do
+    json.title @discovery_sections&.dig(:genres, :title)
+    json.items Array(@discovery_sections&.dig(:genres, :items)) do |section|
+      json.value section[:value]
+      json.count section[:count]
+      json.tracks section[:tracks] do |track|
+        json.partial! "tracks/track", track: track
+      end
+    end
+  end
+
+  json.moods do
+    json.title @discovery_sections&.dig(:moods, :title)
+    json.items Array(@discovery_sections&.dig(:moods, :items)) do |section|
+      json.value section[:value]
+      json.count section[:count]
+      json.tracks section[:tracks] do |track|
+        json.partial! "tracks/track", track: track
+      end
+    end
+  end
+end
 
 json.artists @artists do |user|
   json.partial! 'users/user', user: user, show_full_name: true
@@ -62,7 +129,8 @@ if @highlighted_playlist
 end unless @highlighted_playlist.nil?
 
 json.meta do
-  json.total_pages @tracks.total_pages
-  json.current_page @tracks.current_page
-  json.total_count @tracks.total_count
+  json.total_pages @meta&.dig(:total_pages) || @tracks.total_pages
+  json.current_page @meta&.dig(:current_page) || @tracks.current_page
+  json.total_count @meta&.dig(:total_count) || @tracks.total_count
+  json.per_page @meta&.dig(:per_page)
 end

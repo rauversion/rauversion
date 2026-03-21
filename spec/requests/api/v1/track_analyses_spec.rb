@@ -51,12 +51,13 @@ RSpec.describe "Api::V1::TrackAnalyses", type: :request do
 
       allow(TrackAudioAnalysisService).to receive(:new).and_return(analyzer)
 
-      post "/api/v1/track_analyses", params: { track_id: track.id, duration_seconds: 45 }
+      post "/api/v1/track_analyses", params: { track_id: track.id, duration_seconds: 45, persist: true }
 
       expect(TrackAudioAnalysisService).to have_received(:new).with(
         track: track,
         start_seconds: nil,
-        duration_seconds: "45"
+        duration_seconds: "45",
+        persist: true
       )
       expect(response).to have_http_status(:ok)
       expect(JSON.parse(response.body)).to include(
@@ -65,6 +66,25 @@ RSpec.describe "Api::V1::TrackAnalyses", type: :request do
         "bpm" => 126,
         "reference_artists" => ["Kerri Chandler", "Moodymann"]
       )
+    end
+
+    it "accepts the perist alias for persist" do
+      sign_in user
+
+      track = create(:track, user: user)
+      allow(TrackAudioAnalysisService).to receive(:new).and_return(
+        instance_double(TrackAudioAnalysisService, call: { accuracy: 0.5 })
+      )
+
+      post "/api/v1/track_analyses", params: { track_id: track.id, perist: "true" }
+
+      expect(TrackAudioAnalysisService).to have_received(:new).with(
+        track: track,
+        start_seconds: nil,
+        duration_seconds: nil,
+        persist: true
+      )
+      expect(response).to have_http_status(:ok)
     end
   end
 end

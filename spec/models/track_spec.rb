@@ -250,4 +250,34 @@ RSpec.describe Track, type: :model do
       expect(track.duration).to eq(123.45)
     end
   end
+
+  describe "analysis metadata accessors" do
+    let(:track) { build(:track, user: user) }
+
+    it "stores structured analysis fields in metadata" do
+      track.bpm = 124
+      track.musical_key = "A minor"
+      track.subgenres = ["Melodic Techno", "Melodic Techno", " Progressive House "]
+      track.mood = ["Hypnotic", "Dark"]
+      track.bpm_range = { min: 122, max: 126 }
+      track.primary_instruments = ["Kick", "Pads"]
+      track.reference_artists = ["Anyma", "ARTBAT"]
+      track.production_traits = ["Wide pads"]
+      track.confidence_breakdown = { genre: 0.9 }
+      track.analysis_window = { start_seconds: 0.0, duration_seconds: 60.0 }
+      track.analysis_source_metadata = { filename: "clip.mp3" }
+
+      expect(track.bpm).to eq(124)
+      expect(track.musical_key).to eq("A minor")
+      expect(track.subgenres).to eq(["Melodic Techno", "Progressive House"])
+      expect(track.mood).to eq(["Hypnotic", "Dark"])
+      expect(track.bpm_range).to eq({ "min" => 122, "max" => 126 })
+      expect(track.primary_instruments).to eq(["Kick", "Pads"])
+      expect(track.reference_artists).to eq(["Anyma", "ARTBAT"])
+      expect(track.production_traits).to eq(["Wide pads"])
+      expect(track.confidence_breakdown).to eq({ "genre" => 0.9 })
+      expect(track.analysis_window).to eq({ "start_seconds" => 0.0, "duration_seconds" => 60.0 })
+      expect(track.analysis_source_metadata).to eq({ "filename" => "clip.mp3" })
+    end
+  end
 end
