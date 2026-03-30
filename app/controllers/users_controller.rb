@@ -249,7 +249,7 @@ class UsersController < ApplicationController
     @section = "tracks/track_item"
 
     respond_to do |format|
-      format.html 
+      format.html { render_blank }
       format.json { render "tracks" }
     end
   end
