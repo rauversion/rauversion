@@ -25,6 +25,10 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Switch } from "@/components/ui/switch"
+
+const AUTO_SCAN_RESUME_DELAY_MS = 1400
+const AUTO_MODE_STORAGE_KEY = "event-admission-auto-mode"
 
 function currentLocale() {
   return I18n.locale?.startsWith("es") ? "es-CL" : "en-US"
@@ -59,6 +63,13 @@ function vibrate(pattern) {
   if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
     navigator.vibrate(pattern)
   }
+}
+
+function createAudioContext() {
+  if (typeof window === "undefined") return null
+
+  const AudioContextClass = window.AudioContext || window.webkitAudioContext
+  return AudioContextClass ? new AudioContextClass() : null
 }
 
 const STATUS_CONFIG = {
@@ -118,6 +129,9 @@ export default function EventAdmission() {
   const scannerPausedRef = React.useRef(false)
   const lookupPendingRef = React.useRef(false)
   const lastDecodedRef = React.useRef({ value: "", at: 0 })
+  const lookupTicketRef = React.useRef(null)
+  const nextScanTimeoutRef = React.useRef(null)
+  const audioContextRef = React.useRef(null)
 
   const [eventInfo, setEventInfo] = React.useState(null)
   const [summary, setSummary] = React.useState(null)
@@ -131,6 +145,12 @@ export default function EventAdmission() {
   const [isLookupPending, setIsLookupPending] = React.useState(false)
   const [isUpdating, setIsUpdating] = React.useState(false)
   const [isUnauthorized, setIsUnauthorized] = React.useState(false)
+  const [autoMode, setAutoMode] = React.useState(() => {
+    if (typeof window === "undefined") return true
+
+    const storedValue = window.localStorage.getItem(AUTO_MODE_STORAGE_KEY)
+    return storedValue === null ? true : storedValue === "true"
+  })
 
   const applyPayload = React.useCallback((payload) => {
     if (payload?.event) setEventInfo(payload.event)
@@ -138,6 +158,73 @@ export default function EventAdmission() {
     if (Array.isArray(payload?.recent_activity)) setRecentActivity(payload.recent_activity)
     if (payload && Object.prototype.hasOwnProperty.call(payload, "ticket")) {
       setTicketResult(payload.ticket)
+    }
+  }, [])
+
+  const clearNextScanTimeout = React.useCallback(() => {
+    if (nextScanTimeoutRef.current) {
+      window.clearTimeout(nextScanTimeoutRef.current)
+      nextScanTimeoutRef.current = null
+    }
+  }, [])
+
+  const primeAudioContext = React.useCallback(async () => {
+    try {
+      if (!audioContextRef.current) {
+        audioContextRef.current = createAudioContext()
+      }
+
+      if (audioContextRef.current?.state === "suspended") {
+        await audioContextRef.current.resume()
+      }
+    } catch (error) {
+      console.error("Error priming admission audio:", error)
+    }
+  }, [])
+
+  const playSuccessTone = React.useCallback(async () => {
+    try {
+      if (!audioContextRef.current) {
+        audioContextRef.current = createAudioContext()
+      }
+
+      const context = audioContextRef.current
+      if (!context) return
+
+      if (context.state === "suspended") {
+        await context.resume()
+      }
+
+      const now = context.currentTime
+      const masterGain = context.createGain()
+      masterGain.gain.setValueAtTime(0.0001, now)
+      masterGain.gain.exponentialRampToValueAtTime(0.16, now + 0.015)
+      masterGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.42)
+      masterGain.connect(context.destination)
+
+      const primaryOscillator = context.createOscillator()
+      primaryOscillator.type = "triangle"
+      primaryOscillator.frequency.setValueAtTime(1318.5, now)
+      primaryOscillator.frequency.exponentialRampToValueAtTime(1760, now + 0.16)
+      primaryOscillator.connect(masterGain)
+      primaryOscillator.start(now)
+      primaryOscillator.stop(now + 0.26)
+
+      const sparkleGain = context.createGain()
+      sparkleGain.gain.setValueAtTime(0.0001, now + 0.025)
+      sparkleGain.gain.exponentialRampToValueAtTime(0.09, now + 0.05)
+      sparkleGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.24)
+      sparkleGain.connect(context.destination)
+
+      const sparkleOscillator = context.createOscillator()
+      sparkleOscillator.type = "sine"
+      sparkleOscillator.frequency.setValueAtTime(2093, now + 0.025)
+      sparkleOscillator.frequency.exponentialRampToValueAtTime(2637, now + 0.18)
+      sparkleOscillator.connect(sparkleGain)
+      sparkleOscillator.start(now + 0.025)
+      sparkleOscillator.stop(now + 0.24)
+    } catch (error) {
+      console.error("Error playing admission success tone:", error)
     }
   }, [])
 
@@ -181,48 +268,6 @@ export default function EventAdmission() {
     setCameraState("paused")
   }, [stopScanner])
 
-  const lookupTicket = React.useCallback(async (code, source = "scanner") => {
-    if (!code?.trim()) return
-
-    lookupPendingRef.current = true
-    setIsLookupPending(true)
-    setLookupError("")
-
-    if (source === "scanner") {
-      await pauseScanner()
-    }
-
-    try {
-      const response = await post(`/events/${slug}/admission/scan.json`, {
-        body: JSON.stringify({ code }),
-        contentType: "application/json",
-      })
-      const payload = await response.json
-
-      applyPayload(payload)
-
-      if (response.ok) {
-        if (payload.ticket?.admission_status === "valid") {
-          vibrate([80])
-        } else {
-          vibrate([40, 40, 40])
-        }
-        return
-      }
-
-      setTicketResult(null)
-      setLookupError(payload.error || payload.errors?.join(", ") || I18n.t("events.admission.errors.lookup", { defaultValue: "No pudimos validar este codigo" }))
-      vibrate([60, 40, 60])
-    } catch (error) {
-      console.error("Error validating admission QR:", error)
-      setTicketResult(null)
-      setLookupError(I18n.t("events.admission.errors.network", { defaultValue: "No pudimos validar el QR. Revisa tu conexion e intenta otra vez." }))
-    } finally {
-      setIsLookupPending(false)
-      lookupPendingRef.current = false
-    }
-  }, [applyPayload, pauseScanner, slug])
-
   const startScanner = React.useCallback(async () => {
     if (scannerStartedRef.current && !scannerPausedRef.current) return
 
@@ -258,7 +303,7 @@ export default function EventAdmission() {
           }
 
           lastDecodedRef.current = { value: decodedText, at: now }
-          void lookupTicket(decodedText, "scanner")
+          void lookupTicketRef.current?.(decodedText, "scanner")
         },
         () => {}
       )
@@ -273,7 +318,7 @@ export default function EventAdmission() {
       setCameraState("error")
       setCameraError(I18n.t("events.admission.errors.camera", { defaultValue: "No pudimos acceder a la camara. Puedes validar pegando el enlace del ticket manualmente." }))
     }
-  }, [lookupTicket, scannerElementId])
+  }, [scannerElementId])
 
   const resumeScanner = React.useCallback(async () => {
     const scanner = scannerRef.current
@@ -289,6 +334,167 @@ export default function EventAdmission() {
 
     await startScanner()
   }, [startScanner])
+
+  const queueNextScan = React.useCallback((delay = AUTO_SCAN_RESUME_DELAY_MS) => {
+    clearNextScanTimeout()
+    nextScanTimeoutRef.current = window.setTimeout(() => {
+      nextScanTimeoutRef.current = null
+      setTicketResult(null)
+      setLookupError("")
+      void resumeScanner()
+    }, delay)
+  }, [clearNextScanTimeout, resumeScanner])
+
+  const handleToggleCheckIn = React.useCallback(async (ticket = ticketResult, options = {}) => {
+    if (!ticket) return false
+
+    const { autoAdvance = false } = options
+
+    clearNextScanTimeout()
+    setIsUpdating(true)
+
+    try {
+      const response = await patch(`/events/${slug}/admission.json`, {
+        body: JSON.stringify({
+          signed_ticket_id: ticket.signed_ticket_id,
+          checked_in: !ticket.checked_in,
+        }),
+        contentType: "application/json",
+      })
+      const payload = await response.json
+
+      applyPayload(payload)
+
+      if (response.ok) {
+        const nextCheckedIn = payload.ticket?.checked_in
+
+        if (nextCheckedIn) {
+          await playSuccessTone()
+        }
+
+        toast({
+          title: nextCheckedIn
+            ? I18n.t("events.admission.toast.checked_in", { defaultValue: "Ingreso registrado" })
+            : I18n.t("events.admission.toast.unchecked", { defaultValue: "Registro revertido" }),
+          description: payload.ticket?.attendee_email,
+          variant: nextCheckedIn ? "success" : undefined,
+        })
+
+        vibrate(nextCheckedIn ? [90] : [40, 50, 40])
+
+        if (autoAdvance && nextCheckedIn) {
+          queueNextScan()
+        }
+
+        return true
+      }
+
+      toast({
+        title: I18n.t("events.admission.toast.error_title", { defaultValue: "No se pudo actualizar" }),
+        description: payload.errors?.join(", ") || payload.error || I18n.t("events.admission.toast.error_description", { defaultValue: "Intenta nuevamente" }),
+        variant: "destructive",
+      })
+      return false
+    } catch (error) {
+      console.error("Error updating admission:", error)
+      toast({
+        title: I18n.t("events.admission.toast.error_title", { defaultValue: "No se pudo actualizar" }),
+        description: I18n.t("events.admission.toast.network_error", { defaultValue: "La conexion fallo mientras cambiabamos el estado del ticket" }),
+        variant: "destructive",
+      })
+      return false
+    } finally {
+      setIsUpdating(false)
+    }
+  }, [applyPayload, clearNextScanTimeout, playSuccessTone, queueNextScan, slug, ticketResult, toast])
+
+  const lookupTicket = React.useCallback(async (code, source = "scanner") => {
+    if (!code?.trim()) return
+
+    clearNextScanTimeout()
+    lookupPendingRef.current = true
+    setIsLookupPending(true)
+    setLookupError("")
+
+    if (source === "scanner") {
+      await pauseScanner()
+    }
+
+    try {
+      const response = await post(`/events/${slug}/admission/scan.json`, {
+        body: JSON.stringify({ code }),
+        contentType: "application/json",
+      })
+      const payload = await response.json
+
+      applyPayload(payload)
+
+      if (response.ok) {
+        const scannedTicket = payload.ticket
+
+        if (
+          autoMode &&
+          scannedTicket?.admission_status === "valid" &&
+          scannedTicket?.can_toggle_check_in &&
+          !scannedTicket?.checked_in
+        ) {
+          await handleToggleCheckIn(scannedTicket, {
+            autoAdvance: true,
+          })
+          return
+        }
+
+        if (scannedTicket?.admission_status === "valid") {
+          await playSuccessTone()
+          toast({
+            title: I18n.t("events.admission.toast.validated", { defaultValue: "Ticket válido" }),
+            description: scannedTicket.attendee_email,
+            variant: "success",
+          })
+          vibrate([80])
+        } else {
+          vibrate([40, 40, 40])
+        }
+        return
+      }
+
+      setTicketResult(null)
+      setLookupError(payload.error || payload.errors?.join(", ") || I18n.t("events.admission.errors.lookup", { defaultValue: "No pudimos validar este codigo" }))
+      vibrate([60, 40, 60])
+    } catch (error) {
+      console.error("Error validating admission QR:", error)
+      setTicketResult(null)
+      setLookupError(I18n.t("events.admission.errors.network", { defaultValue: "No pudimos validar el QR. Revisa tu conexion e intenta otra vez." }))
+    } finally {
+      setIsLookupPending(false)
+      lookupPendingRef.current = false
+    }
+  }, [applyPayload, autoMode, clearNextScanTimeout, handleToggleCheckIn, pauseScanner, slug])
+
+  React.useEffect(() => {
+    lookupTicketRef.current = lookupTicket
+  }, [lookupTicket])
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") return
+    window.localStorage.setItem(AUTO_MODE_STORAGE_KEY, autoMode ? "true" : "false")
+  }, [autoMode])
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") return undefined
+
+    const activateAudio = () => {
+      void primeAudioContext()
+    }
+
+    window.addEventListener("pointerdown", activateAudio)
+    window.addEventListener("keydown", activateAudio)
+
+    return () => {
+      window.removeEventListener("pointerdown", activateAudio)
+      window.removeEventListener("keydown", activateAudio)
+    }
+  }, [primeAudioContext])
 
   React.useEffect(() => {
     let cancelled = false
@@ -334,6 +540,16 @@ export default function EventAdmission() {
   }, [applyPayload, slug])
 
   React.useEffect(() => {
+    return () => {
+      clearNextScanTimeout()
+
+      if (audioContextRef.current && typeof audioContextRef.current.close === "function") {
+        void audioContextRef.current.close()
+      }
+    }
+  }, [clearNextScanTimeout])
+
+  React.useEffect(() => {
     if (loadingPage || isUnauthorized) return undefined
 
     void startScanner()
@@ -348,53 +564,8 @@ export default function EventAdmission() {
     await lookupTicket(manualCode, "manual")
   }
 
-  const handleToggleCheckIn = async () => {
-    if (!ticketResult) return
-
-    setIsUpdating(true)
-
-    try {
-      const response = await patch(`/events/${slug}/admission.json`, {
-        body: JSON.stringify({
-          signed_ticket_id: ticketResult.signed_ticket_id,
-          checked_in: !ticketResult.checked_in,
-        }),
-        contentType: "application/json",
-      })
-      const payload = await response.json
-
-      applyPayload(payload)
-
-      if (response.ok) {
-        const nextCheckedIn = payload.ticket?.checked_in
-        toast({
-          title: nextCheckedIn
-            ? I18n.t("events.admission.toast.checked_in", { defaultValue: "Ingreso registrado" })
-            : I18n.t("events.admission.toast.unchecked", { defaultValue: "Registro revertido" }),
-          description: payload.ticket?.attendee_email,
-        })
-        vibrate(nextCheckedIn ? [90] : [40, 50, 40])
-        return
-      }
-
-      toast({
-        title: I18n.t("events.admission.toast.error_title", { defaultValue: "No se pudo actualizar" }),
-        description: payload.errors?.join(", ") || payload.error || I18n.t("events.admission.toast.error_description", { defaultValue: "Intenta nuevamente" }),
-        variant: "destructive",
-      })
-    } catch (error) {
-      console.error("Error updating admission:", error)
-      toast({
-        title: I18n.t("events.admission.toast.error_title", { defaultValue: "No se pudo actualizar" }),
-        description: I18n.t("events.admission.toast.network_error", { defaultValue: "La conexion fallo mientras cambiabamos el estado del ticket" }),
-        variant: "destructive",
-      })
-    } finally {
-      setIsUpdating(false)
-    }
-  }
-
   const handleNextScan = async () => {
+    clearNextScanTimeout()
     setTicketResult(null)
     setLookupError("")
     await resumeScanner()
@@ -547,6 +718,32 @@ export default function EventAdmission() {
                 </div>
               </div>
 
+              <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <div className="text-sm font-medium text-white">
+                    {I18n.t("events.admission.auto_mode.title", { defaultValue: "Modo automático" })}
+                  </div>
+                  <div className="mt-1 text-xs text-zinc-400">
+                    {I18n.t("events.admission.auto_mode.description", { defaultValue: "Si el QR es válido, registra el ingreso, hace sonar un pling y vuelve solo a escanear." })}
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-zinc-300">
+                    {autoMode
+                      ? I18n.t("events.admission.auto_mode.on", { defaultValue: "Activado" })
+                      : I18n.t("events.admission.auto_mode.off", { defaultValue: "Manual" })}
+                  </span>
+                  <Switch
+                    checked={autoMode}
+                    onCheckedChange={(checked) => {
+                      void primeAudioContext()
+                      setAutoMode(checked)
+                    }}
+                  />
+                </div>
+              </div>
+
               <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
                 <form onSubmit={handleManualSubmit} className="flex flex-col gap-3 sm:flex-row">
                   <Input
@@ -678,7 +875,7 @@ export default function EventAdmission() {
                       type="button"
                       className="h-12 flex-1"
                       disabled={!ticketResult.can_toggle_check_in || isUpdating}
-                      onClick={handleToggleCheckIn}
+                      onClick={() => void handleToggleCheckIn()}
                     >
                       {isUpdating ? (
                         <Loader2 className="mr-2 h-4 w-4 animate-spin" />
