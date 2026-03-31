@@ -12,6 +12,7 @@ import { Ticket, ShoppingCart, AlertCircle, Info, LogIn, Mail } from "lucide-rea
 import I18n from "@/stores/locales"
 import { Badge } from "../ui/badge"
 import useAuthStore from "@/stores/authStore"
+import { cn } from "@/lib/utils"
 
 interface Ticket {
   id: string
@@ -41,6 +42,38 @@ interface PurchaseFormProps {
 type TicketFormValues = {
   guest_email?: string
 } & Record<string, any>
+
+function currentLocale() {
+  return I18n.locale?.startsWith("es") ? "es-CL" : "en-US"
+}
+
+function formatNumberAmount(amount: number) {
+  const numericAmount = Number(amount) || 0
+  const hasDecimals = !Number.isInteger(numericAmount)
+
+  return new Intl.NumberFormat(currentLocale(), {
+    minimumFractionDigits: hasDecimals ? 2 : 0,
+    maximumFractionDigits: hasDecimals ? 2 : 0,
+  }).format(numericAmount)
+}
+
+function formatCurrencyAmount(amount: number, currency?: string) {
+  const normalizedCurrency = (currency || "CLP").toUpperCase()
+  const numericAmount = Number(amount) || 0
+  const hasDecimals = !Number.isInteger(numericAmount)
+
+  try {
+    return new Intl.NumberFormat(currentLocale(), {
+      style: "currency",
+      currency: normalizedCurrency,
+      currencyDisplay: "code",
+      minimumFractionDigits: hasDecimals ? 2 : 0,
+      maximumFractionDigits: hasDecimals ? 2 : 0,
+    }).format(numericAmount)
+  } catch {
+    return `${normalizedCurrency} ${formatNumberAmount(numericAmount)}`
+  }
+}
 
 export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps) {
   const { toast } = useToast()
@@ -326,6 +359,8 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
                 const isPWYW = ticket.pay_what_you_want === true
                 const quantityFieldName = isPWYW ? `${ticket.id}_quantity` : ticket.id.toString()
                 const priceFieldName = `${ticket.id}_custom_price`
+                const ticketCurrency = event?.ticket_currency?.toUpperCase() || "CLP"
+                const minimumPrice = ticket.minimum_price || 0
                 
                 const quantity = watch(quantityFieldName) ?? 0
                 const numericQuantity = Number(quantity)
@@ -341,6 +376,22 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
                     : "events.purchase_form.validation.max_tickets"
 
                 const customPrice = isPWYW ? (watch(priceFieldName) ?? ticket.minimum_price ?? 0) : null
+                const numericCustomPrice = Number(customPrice)
+                const isCustomPriceBelowMinimum =
+                  isPWYW && Number.isFinite(numericCustomPrice) && numericCustomPrice < minimumPrice
+                const minimumPriceMessage = I18n.t("events.purchase_form.minimum_price_error", {
+                  currency: ticketCurrency,
+                  min_price: formatNumberAmount(minimumPrice),
+                })
+                const priceFieldRegistration = isPWYW
+                  ? register(priceFieldName, {
+                      valueAsNumber: true,
+                      min: {
+                        value: minimumPrice,
+                        message: minimumPriceMessage,
+                      },
+                    })
+                  : undefined
 
                 return (
                   <motion.div
@@ -358,19 +409,13 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
                         <p className="text-sm text-muted-foreground">
                           {ticket.short_description}
                         </p>
-                        {isPWYW && (
-                          <p className="text-xs text-primary font-medium">
-                            {I18n.t("events.purchase_form.pay_what_you_want_min", { 
-                              currency: event?.ticket_currency?.toUpperCase(), 
-                              min_price: ticket.minimum_price || 0 
-                            })}
-                          </p>
-                        )}
                       </div>
                       <div className="text-right">
                         <div className="text-xl font-bold text-primary">
                           {isPWYW ? (
-                            <span className="text-sm">{I18n.t("events.purchase_form.pay_what_you_want_label")}</span>
+                            <span className="inline-flex rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-primary">
+                              {I18n.t("events.purchase_form.pay_what_you_want_label")}
+                            </span>
                           ) : (
                             I18n.t("events.purchase_form.price", { 
                               price: `${event?.ticket_currency?.toUpperCase()} ${ticket.price}` 
@@ -387,34 +432,113 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
 
                     {/* Custom Price Input for PWYW */}
                     {isPWYW && (
-                      <div className="space-y-2">
-                        <Label className="text-sm text-muted-foreground">
-                          {I18n.t("events.purchase_form.your_price_label", { 
-                            currency: event?.ticket_currency?.toUpperCase() 
-                          })}
-                        </Label>
-                        <Input
-                          type="number"
-                          step="0.01"
-                          min={ticket.minimum_price || 0}
-                          className="text-center font-medium text-lg"
-                          {...register(priceFieldName, {
-                            valueAsNumber: true,
-                            min: {
-                              value: ticket.minimum_price || 0,
-                              message: I18n.t("events.purchase_form.minimum_price_error", { 
-                                currency: event?.ticket_currency?.toUpperCase(), 
-                                min_price: ticket.minimum_price || 0 
-                              }),
-                            },
-                          })}
-                          defaultValue={ticket.minimum_price || 0}
-                        />
+                      <div
+                        className={cn(
+                          "space-y-3 rounded-xl border p-4 shadow-sm transition-colors",
+                          isCustomPriceBelowMinimum
+                            ? "border-destructive/60 bg-destructive/10"
+                            : "border-primary/25 bg-primary/5"
+                        )}
+                      >
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="space-y-1">
+                            <Label
+                              htmlFor={priceFieldName}
+                              className="text-sm font-semibold text-foreground"
+                            >
+                              {I18n.t("events.purchase_form.your_price_label", {
+                                currency: ticketCurrency,
+                              })}
+                            </Label>
+                            <p
+                              className={cn(
+                                "text-xs",
+                                isCustomPriceBelowMinimum
+                                  ? "text-destructive-foreground/90"
+                                  : "text-muted-foreground"
+                              )}
+                            >
+                              {I18n.t("events.purchase_form.pay_what_you_want_min", {
+                                currency: ticketCurrency,
+                                min_price: formatNumberAmount(minimumPrice),
+                              })}
+                            </p>
+                          </div>
+
+                          <Badge
+                            variant="secondary"
+                            className={cn(
+                              "border px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.12em]",
+                              isCustomPriceBelowMinimum
+                                ? "border-destructive/60 bg-destructive/25 text-destructive-foreground"
+                                : "border-primary/20 bg-primary/10 text-primary"
+                            )}
+                          >
+                            {formatCurrencyAmount(minimumPrice, ticketCurrency)}
+                          </Badge>
+                        </div>
+
+                        <div
+                          className={cn(
+                            "flex overflow-hidden rounded-xl border bg-background shadow-sm transition-all focus-within:ring-2",
+                            isCustomPriceBelowMinimum
+                              ? "border-destructive/70 focus-within:ring-destructive/35"
+                              : "border-primary/30 focus-within:ring-primary/20"
+                          )}
+                        >
+                          <div
+                            className={cn(
+                              "flex min-w-24 items-center justify-center px-4 text-sm font-semibold",
+                              isCustomPriceBelowMinimum
+                                ? "bg-destructive/25 text-destructive-foreground"
+                                : "bg-primary/10 text-primary"
+                            )}
+                          >
+                            {ticketCurrency}
+                          </div>
+
+                          <Input
+                            id={priceFieldName}
+                            type="number"
+                            step="0.01"
+                            min={minimumPrice}
+                            inputMode="decimal"
+                            className="h-14 rounded-none border-0 bg-transparent px-4 text-left text-2xl font-semibold tracking-tight shadow-none focus-visible:ring-0"
+                            {...priceFieldRegistration}
+                            onBlur={(inputEvent) => {
+                              priceFieldRegistration?.onBlur(inputEvent)
+
+                              const nextValue = Number(inputEvent.target.value)
+
+                              if (!Number.isFinite(nextValue) || nextValue < minimumPrice) {
+                                setValue(priceFieldName, minimumPrice, {
+                                  shouldDirty: true,
+                                  shouldTouch: true,
+                                  shouldValidate: true,
+                                })
+                              }
+                            }}
+                            defaultValue={minimumPrice}
+                          />
+                        </div>
+
+                        <div
+                          className={cn(
+                            "flex items-start gap-2 rounded-lg px-3 py-2 text-xs",
+                            isCustomPriceBelowMinimum
+                              ? "border border-destructive/40 bg-destructive/20 text-destructive-foreground"
+                              : "bg-background/70 text-muted-foreground"
+                          )}
+                        >
+                          <Info className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                          <span>{minimumPriceMessage}</span>
+                        </div>
+
                         {errors[priceFieldName] && (
                           <motion.div
                             initial={{ opacity: 0, y: -10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="flex items-center gap-2 text-sm text-destructive"
+                            className="flex items-center gap-2 text-sm text-destructive-foreground"
                           >
                             <AlertCircle className="w-4 h-4" />
                             <span>{errors[priceFieldName]?.message as string}</span>
