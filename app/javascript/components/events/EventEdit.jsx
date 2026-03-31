@@ -20,6 +20,9 @@ import {
   LayoutDashboard,
   BarChart3,
   Mail,
+  ChevronDown,
+  ExternalLink,
+  ScanLine,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -30,13 +33,24 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import MobileSheetMenu from "@/components/shared/MobileSheetMenu";
 
 export default function EventEdit() {
   const { slug } = useParams();
+  const location = useLocation();
   const [event, setEvent] = React.useState(null);
   const [errors, setErrors] = React.useState(null);
   const { i18n } = useLocaleStore;
+  const eventViewPath = `/events/${slug}`;
+  const eventAdmissionPath = `/events/${slug}/admission`;
 
   const menuItems = [
     {
@@ -104,6 +118,15 @@ export default function EventEdit() {
     // TODO: Fetch event data
   }, [slug]);
 
+  const isSelectedMenuItem = (item, currentLocation = location) => {
+    if (item.path === "") {
+      return currentLocation.pathname === eventViewPath ||
+        currentLocation.pathname === `${eventViewPath}/edit`;
+    }
+
+    return currentLocation.pathname.endsWith(`/${item.path}`);
+  };
+
   return (
     <div className="container mx-auto py-6">
       {errors && (
@@ -132,19 +155,42 @@ export default function EventEdit() {
           </BreadcrumbItem>
         </Breadcrumb>
 
-        {/* Mobile Menu Button */}
-        <MobileSheetMenu
-          menuItems={menuItems}
-          basePath={`/events/${slug}`}
-          menuTitle={i18n.t("events.edit.breadcrumb.events")}
-          isSelectedFn={(item, location) => {
-            if (item.path === "") {
-              return location.pathname === `/events/${slug}` ||
-                location.pathname === `/events/${slug}/edit`;
-            }
-            return location.pathname.endsWith(`/${item.path}`);
-          }}
-        />
+        <div className="flex items-center gap-2">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" className="shrink-0">
+                {i18n.t("events.edit.quick_links.label", { defaultValue: "Accesos" })}
+                <ChevronDown className="h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-52">
+              <DropdownMenuLabel>
+                {i18n.t("events.edit.quick_links.title", { defaultValue: "Ir a" })}
+              </DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link to={eventViewPath}>
+                  <ExternalLink className="h-4 w-4" />
+                  {i18n.t("events.edit.quick_links.view_event", { defaultValue: "Ver evento" })}
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to={eventAdmissionPath}>
+                  <ScanLine className="h-4 w-4" />
+                  {i18n.t("events.admission.title", { defaultValue: "Admisión" })}
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Mobile Menu Button */}
+          <MobileSheetMenu
+            menuItems={menuItems}
+            basePath={eventViewPath}
+            menuTitle={i18n.t("events.edit.breadcrumb.events")}
+            isSelectedFn={isSelectedMenuItem}
+          />
+        </div>
       </div>
 
       <div className="flex gap-6">
@@ -153,12 +199,7 @@ export default function EventEdit() {
           <nav className="space-y-1">
             {menuItems.map((item) => {
               const Icon = item.icon;
-              const location = useLocation();
-              const isSelected =
-                item.path === ""
-                  ? location.pathname === `/events/${slug}` ||
-                  location.pathname === `/events/${slug}/edit`
-                  : location.pathname.endsWith(`/${item.path}`);
+              const isSelected = isSelectedMenuItem(item);
 
               return (
                 <Button
