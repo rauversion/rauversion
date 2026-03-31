@@ -7,7 +7,7 @@ class MessageMailer < ApplicationMailer
 
     mail(
       to: @recipient.email,
-      subject: t('mailers.message.new_message.subject', sender: @sender.username)
+      subject: t('notification_mailer.new_message.subject', sender: @sender.username)
     )
   end
 end
