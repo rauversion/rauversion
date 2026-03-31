@@ -172,23 +172,23 @@ const PlaybackControls = ({ onPrevious, onPlayPause, onNext, isPlaying }) => (
 
 export default function AudioPlayer({ id }) {
   const audioRef = useRef(null);
+  const previousVolumeRef = useRef(1);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(window.store?.getState()?.volume || 1);
-  const [isMuted, setIsMuted] = useState(false);
   const [hasHalfwayEventFired, setHasHalfwayEventFired] = useState(false);
   const debounceTimeoutRef = useRef(null);
   const { isPending: isLiking, toggleLike } = useTrackLikeAction()
-  const {
-    currentTrackId,
-    currentTrackMeta,
-    isPlaying,
-    playNext,
-    playPrevious,
-    setCurrentTrackMeta,
-  } = useAudioStore();
+  const currentTrackId = useAudioStore((state) => state.currentTrackId);
+  const currentTrackMeta = useAudioStore((state) => state.currentTrackMeta);
+  const isPlaying = useAudioStore((state) => state.isPlaying);
+  const volume = useAudioStore((state) => state.volume);
+  const playNext = useAudioStore((state) => state.playNext);
+  const playPrevious = useAudioStore((state) => state.playPrevious);
+  const setCurrentTrackMeta = useAudioStore((state) => state.setCurrentTrackMeta);
+  const setStoredVolume = useAudioStore((state) => state.setVolume);
   const [playerData, setPlayerData] = useState(null);
   const activeTrackId = currentTrackId ?? id;
+  const isMuted = volume === 0;
 
   const patchCurrentTrack = (patch) => {
     setPlayerData((previousData) => {
@@ -220,8 +220,16 @@ export default function AudioPlayer({ id }) {
       if (!activeTrackId) {
         setPlayerData(null);
         setCurrentTrackMeta(null);
+        setCurrentTime(0);
+        setDuration(0);
+        useAudioStore.setState({ currentTime: 0, duration: 0 });
         return;
       }
+
+      setHasHalfwayEventFired(false);
+      setCurrentTime(0);
+      setDuration(0);
+      useAudioStore.setState({ currentTime: 0, duration: 0 });
 
       try {
         const response = await get(`/player.json?id=${activeTrackId}`, {
@@ -232,10 +240,10 @@ export default function AudioPlayer({ id }) {
           const data = await response.json;
           setPlayerData(data);
           setCurrentTrackMeta(data.track || null);
-          useAudioStore.setState({ isPlaying: true });
         }
       } catch (error) {
         console.error('Error loading track:', error);
+        useAudioStore.setState({ isPlaying: false });
       }
     };
 
@@ -250,14 +258,33 @@ export default function AudioPlayer({ id }) {
   }
 
   useEffect(() => {
+    if (volume > 0) {
+      previousVolumeRef.current = volume;
+    }
+  }, [volume]);
+
+  useEffect(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    audio.volume = volume;
+    audio.muted = isMuted;
+  }, [volume, isMuted, playerData?.track?.audio_url]);
+
+  useEffect(() => {
     if (isPlaying) {
+      if (
+        !playerData?.track?.audio_url ||
+        `${playerData.track.id}` !== `${activeTrackId}`
+      ) return;
+
       setTimeout(() => {
         playAudio();
       }, 100);
     } else {
       audioRef.current?.pause();
     }
-  }, [isPlaying]);
+  }, [activeTrackId, isPlaying, playerData?.track?.audio_url, playerData?.track?.id]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -281,17 +308,12 @@ export default function AudioPlayer({ id }) {
     };
 
     const handleLoadedData = () => {
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            useAudioStore.setState({ isPlaying: true });
-          })
-          .catch((error) => {
-            console.error("Playback failed:", error);
-            useAudioStore.setState({ isPlaying: false });
-          });
-      }
+      audio.volume = volume;
+      audio.muted = volume === 0;
+
+      if (!useAudioStore.getState().isPlaying) return;
+
+      playAudio();
     };
 
     const handleEnded = () => {
@@ -310,7 +332,7 @@ export default function AudioPlayer({ id }) {
       audio.removeEventListener("loadeddata", handleLoadedData);
       audio.removeEventListener("ended", handleEnded);
     };
-  }, [activeTrackId]);
+  }, [activeTrackId, volume]);
 
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
@@ -366,27 +388,14 @@ export default function AudioPlayer({ id }) {
 
   const handleVolumeChange = (e) => {
     const newVolume = parseFloat(e.target.value);
-    if (!audioRef.current) return;
-
-    audioRef.current.volume = newVolume;
-    setVolume(newVolume);
-    window.store?.setState({ volume: newVolume });
-    setIsMuted(newVolume === 0);
+    setStoredVolume(newVolume);
   };
 
   const handleToggleMute = () => {
-    if (!audioRef.current) return;
-
-    if (audioRef.current.volume > 0) {
-      audioRef.current.volume = 0;
-      setVolume(0);
-      setIsMuted(true);
-      window.store?.setState({ volume: 0 });
+    if (volume > 0) {
+      setStoredVolume(0);
     } else {
-      audioRef.current.volume = 1;
-      setVolume(1);
-      setIsMuted(false);
-      window.store?.setState({ volume: 1 });
+      setStoredVolume(previousVolumeRef.current > 0 ? previousVolumeRef.current : 1);
     }
   };
 
@@ -426,7 +435,11 @@ export default function AudioPlayer({ id }) {
   };
 
   const playAudio = async () => {
-    if (!audioRef.current) return;
+    if (
+      !audioRef.current ||
+      !playerData?.track?.audio_url ||
+      `${playerData.track.id}` !== `${activeTrackId}`
+    ) return;
 
     try {
       const playPromise = audioRef.current.play();

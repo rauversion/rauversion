@@ -1,10 +1,20 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+const DEFAULT_VOLUME = 0.9
+
 const normalizeTrackId = (trackId) => {
   if (trackId === null || trackId === undefined) return null
 
   return `${trackId}`
+}
+
+const normalizeVolume = (volume) => {
+  const parsedVolume = typeof volume === 'string' ? parseFloat(volume) : volume
+
+  if (!Number.isFinite(parsedVolume)) return DEFAULT_VOLUME
+
+  return Math.min(Math.max(parsedVolume, 0), 1)
 }
 
 const normalizePlaylist = (playlist) => {
@@ -25,11 +35,17 @@ const findCurrentTrackIndex = (state) => {
   }
 }
 
+const extractPersistedAudioState = (persistedState = {}) => ({
+  volume: normalizeVolume(persistedState.volume),
+  playlist: normalizePlaylist(persistedState.playlist),
+  currentTrackId: normalizeTrackId(persistedState.currentTrackId),
+})
+
 const useAudioStore = create(
   persist(
     (set, get) => ({
       // Audio state
-      volume: 0.9,
+      volume: DEFAULT_VOLUME,
       playlist: [],
       currentTrackId: null,
       currentTrackMeta: null,
@@ -43,10 +59,13 @@ const useAudioStore = create(
       setCurrentTrackMeta: (trackMeta) => set({ currentTrackMeta: trackMeta }),
       setIsPlaying: (isPlaying) => set({ isPlaying }),
       setVolume: (volume) => {
+        const normalizedVolume = normalizeVolume(volume)
+
         if (get().audioElement) {
-          get().audioElement.volume = volume
+          get().audioElement.volume = normalizedVolume
         }
-        set({ volume })
+
+        set({ volume: normalizedVolume })
       },
       setPlaylist: (playlist) => set({ playlist: normalizePlaylist(playlist) }),
       setCurrentTime: (time) => set({ currentTime: time }),
@@ -159,7 +178,17 @@ const useAudioStore = create(
     }),
     {
       name: 'rau-ror-storage',
-      getStorage: () => localStorage
+      getStorage: () => localStorage,
+      partialize: (state) => extractPersistedAudioState(state),
+      merge: (persistedState, currentState) => ({
+        ...currentState,
+        ...extractPersistedAudioState(persistedState),
+        currentTrackMeta: null,
+        isPlaying: false,
+        currentTime: 0,
+        duration: 0,
+        audioElement: null,
+      }),
     }
   )
 )
@@ -167,15 +196,18 @@ const useAudioStore = create(
 const { getState, setState, subscribe, destroy } = useAudioStore
 
 const persistedState = useAudioStore.getState()
+const normalizedVolume = normalizeVolume(persistedState.volume)
 const normalizedPlaylist = normalizePlaylist(persistedState.playlist)
 const normalizedCurrentTrackId = normalizeTrackId(persistedState.currentTrackId)
 
 if (
+  normalizedVolume !== persistedState.volume ||
   !Array.isArray(persistedState.playlist) ||
   normalizedPlaylist.length !== persistedState.playlist.length ||
   normalizedCurrentTrackId !== persistedState.currentTrackId
 ) {
   useAudioStore.setState({
+    volume: normalizedVolume,
     playlist: normalizedPlaylist,
     currentTrackId: normalizedCurrentTrackId,
   })
