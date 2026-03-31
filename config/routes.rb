@@ -294,6 +294,9 @@ Rails.application.routes.draw do
 
     resources :event_hosts
     resources :event_recordings
+    resource :admission, only: [:show, :update], controller: :event_admissions do
+      post :scan
+    end
     resources :event_tickets do
       member do
         get :secret_link

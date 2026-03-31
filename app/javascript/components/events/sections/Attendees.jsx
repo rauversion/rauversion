@@ -1,5 +1,5 @@
 import React from "react"
-import { useParams } from "react-router-dom"
+import { Link, useParams } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
@@ -42,7 +42,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Loader2, Download, Search, UserPlus, RotateCcw } from "lucide-react"
+import { Loader2, Download, Search, UserPlus, RotateCcw, ScanLine } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import {
   AlertDialog,
@@ -233,6 +233,12 @@ export default function Attendees() {
           </p>
         </div>
         <div className="flex gap-2">
+          <Button asChild variant="outline">
+            <Link to={`/events/${slug}/admission`}>
+              <ScanLine className="h-4 w-4 mr-2" />
+              {I18n.t("events.admission.title", { defaultValue: "Admisión" })}
+            </Link>
+          </Button>
           <Dialog open={isInviteDialogOpen} onOpenChange={setIsInviteDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="default">

@@ -20,8 +20,12 @@ class PurchasedItem < ApplicationRecord
     end
   end
 
+  def signed_url
+    Rails.application.routes.url_helpers.event_event_ticket_url(purchase.purchasable, signed_id)
+  end
+
   def qr
-    url = Rails.application.routes.url_helpers.event_event_ticket_url(purchase.purchasable, signed_id)
+    url = signed_url
     qrcode = RQRCode::QRCode.new(url)
     
     # Generate PNG data

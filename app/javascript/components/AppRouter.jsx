@@ -24,6 +24,7 @@ import UserShow from './users/Show'
 import UserTracks from './users/Tracks'
 import EventShow from './events/Show'
 import EventsIndex from './events/Index'
+import EventAdmission from './events/EventAdmission'
 import EventTicketShow from './event_tickets/EventTicketShow'
 import UserPlaylists from './users/Playlists'
 import UserArticles from './users/Articles'
@@ -242,10 +243,12 @@ function AppContent() {
 
   const isPodcastRoute = /^\/[^/]+\/podcasts(\/|$)/.test(location.pathname)
   const isEventShowRoute = /^\/events\/[^/]+$/.test(location.pathname)
+  const isAdmissionRoute = /^\/events\/[^/]+\/admission$/.test(location.pathname)
   const isAdminRoute = location.pathname === "/admin" || location.pathname.startsWith("/admin/")
 
   const shouldShowMusicLibraryLayout =
     !isAdminRoute &&
+    !isAdmissionRoute &&
     !isEventShowRoute &&
     !isPodcastRoute &&
     !location.pathname.includes("/users/sign_in") &&
@@ -310,6 +313,7 @@ function AppContent() {
       <Route path="/events" element={<EventsIndex />} />
       <Route path="/events/mine" element={<RequireAuth><MyEvents /></RequireAuth>} />
       <Route path="/events/:slug" element={<EventShow />} />
+      <Route path="/events/:slug/admission" element={<RequireAuth><EventAdmission /></RequireAuth>} />
       <Route path="/events/:slug/edit" element={<RequireAuth><EventEdit /></RequireAuth>}>
         <Route index element={<Overview />} />
         <Route path="schedule" element={<Schedule />} />
@@ -404,8 +408,8 @@ function AppContent() {
 
   return (
     <>
-      {!isAdminRoute && <UserMenu />}
-      <div className={cn(!isAdminRoute && "pb-24", shouldShowMusicLibraryLayout && "px-4 py-4 sm:px-6 lg:px-8")}>
+      {!isAdminRoute && !isAdmissionRoute && <UserMenu />}
+      <div className={cn(!isAdminRoute && !isAdmissionRoute && "pb-24", shouldShowMusicLibraryLayout && "px-4 py-4 sm:px-6 lg:px-8")}>
         {shouldShowMusicLibraryLayout ? (
           <AppMusicLibraryLayout>{routes}</AppMusicLibraryLayout>
         ) : (
@@ -414,7 +418,7 @@ function AppContent() {
       </div>
 
       <Toaster />
-      {!isAdminRoute && <AudioPlayer />}
+      {!isAdminRoute && !isAdmissionRoute && <AudioPlayer />}
 
       {
         !isAdminRoute &&
@@ -427,6 +431,7 @@ function AppContent() {
         !location.pathname.includes('page-builder') &&
         !location.pathname.includes('conversations') &&
         !location.pathname.includes('press-kit') &&
+        !isAdmissionRoute &&
         (
           <Footer />
         )
