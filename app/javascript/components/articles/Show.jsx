@@ -173,7 +173,7 @@ export default function ArticleShow({ preview }) {
                 By {article.author.name}
               </span>
             </Link>
-            <span className="mt-2 block text-3xl text-center leading-8 font-extrabold tracking-tight text-foreground dark:text-muted sm:text-4xl">
+            <span className="mt-2 block text-3xl text-center leading-8 font-extrabold tracking-tight text-foreground sm:text-4xl">
               {article.title}
             </span>
           </h1>
