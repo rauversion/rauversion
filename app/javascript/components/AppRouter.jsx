@@ -244,12 +244,14 @@ function AppContent() {
   const isPodcastRoute = /^\/[^/]+\/podcasts(\/|$)/.test(location.pathname)
   const isEventShowRoute = /^\/events\/[^/]+$/.test(location.pathname)
   const isAdmissionRoute = /^\/events\/[^/]+\/admission$/.test(location.pathname)
+  const isArticleEditRoute = /^\/articles\/[^/]+\/edit$/.test(location.pathname)
   const isAdminRoute = location.pathname === "/admin" || location.pathname.startsWith("/admin/")
 
   const shouldShowMusicLibraryLayout =
     !isAdminRoute &&
     !isAdmissionRoute &&
     !isEventShowRoute &&
+    !isArticleEditRoute &&
     !isPodcastRoute &&
     !location.pathname.includes("/users/sign_in") &&
     !location.pathname.includes("/users/sign_up") &&

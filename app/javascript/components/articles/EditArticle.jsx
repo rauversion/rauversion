@@ -58,6 +58,7 @@ import { RadioGroup, RadioGroupItem } from "../ui/radio-group"
 import { ImageUploader } from "../ui/image-uploader"
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { createDanteEditorProps } from "@/lib/dante_editor_props"
 
 
 const formSchema = z.object({
@@ -348,18 +349,14 @@ export const EditorComponent = React.memo(function EditorComponent({ value, onCh
     // AiEnhancerBlockConfig(), // we need to add this to the menu bar instead
   ]), [])
 
+  const editorProps = React.useMemo(() => createDanteEditorProps(), [])
+
   return (
     <Dante
       theme={darkTheme}
       content={value}
       readOnly={readOnly}
-      editorProps={
-        {
-          attributes: {
-            class: 'flex flex-col',
-          }
-        }
-      }
+      editorProps={editorProps}
       widgets={widgets}
       onUpdate={(editor) => {
         onChange && onChange(editor.getJSON())

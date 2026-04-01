@@ -547,6 +547,11 @@
   resolved "https://registry.yarnpkg.com/@opentelemetry/api/-/api-1.9.0.tgz#d03eba68273dc0f7509e2a3d5cba21eae10379fe"
   integrity sha512-3giAOQvZiH5F9bMlMiv8+GSPMeqg0dbaeo58/0SlA9sxSqZhnUtxzX9/2FzyhS9sWQf5S0GJE0AKBrFqjpeYcg==
 
+"@popperjs/core@^2.11.5":
+  version "2.11.8"
+  resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.8.tgz#6b79032e760a0899cd4204710beede972a3a185f"
+  integrity sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==
+
 "@preact/signals-core@^1.10.0":
   version "1.13.0"
   resolved "https://registry.yarnpkg.com/@preact/signals-core/-/signals-core-1.13.0.tgz#ed770df2855701e7b42828fae5a348edeee9a3df"
@@ -1507,6 +1512,11 @@
   resolved "https://registry.yarnpkg.com/@tiptap/extension-document/-/extension-document-3.20.0.tgz#e10f92139c97354ab917f3095d4011d6703528f6"
   integrity sha512-oJfLIG3vAtZo/wg29WiBcyWt22KUgddpP8wqtCE+kY5Dw8znLR9ehNmVWlSWJA5OJUMO0ntAHx4bBT+I2MBd5w==
 
+"@tiptap/extension-dropcursor@^3.11.1":
+  version "3.22.0"
+  resolved "https://registry.yarnpkg.com/@tiptap/extension-dropcursor/-/extension-dropcursor-3.22.0.tgz#f8f4739099fa18563cf34bc55b6271a1380636ff"
+  integrity sha512-yI0aMD4szbNdy/dlglPbZ9Ddc2UucRatJSifmtenCLg7YWyIIYton0T6Uym+FXAEUZ6KsaoNqEKiUbK5cRzZMQ==
+
 "@tiptap/extension-dropcursor@^3.20.0":
   version "3.20.0"
   resolved "https://registry.yarnpkg.com/@tiptap/extension-dropcursor/-/extension-dropcursor-3.20.0.tgz#459d6c5d7e5f4dc1152246901387e000596fbb40"
@@ -2213,13 +2223,15 @@ d3-timer@^3.0.1:
   resolved "https://registry.yarnpkg.com/d3-timer/-/d3-timer-3.0.1.tgz#6284d2a2708285b1abb7e201eda4380af35e63b0"
   integrity sha512-ndfJ/JxxMd3nw31uyKoY2naivF+r29V+Lc0svZxe1JvvIRmi8hUsrMvdOwgS1o6uBHmiz91geQ0ylPP0aj1VUA==
 
-dante3@^1.4.1:
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/dante3/-/dante3-1.4.1.tgz#ed36d45b00553de49a01ec6c6eecac04923fef59"
-  integrity sha512-vhao0BnEyWi4S3yj+//KtEV1uqALg+BZk8/MhqRTaWBkAVd4vV6T5BtYmu0hB5pvCnA1SJ0RoXUP5jtLGw9y0A==
+dante3@^1.4.2:
+  version "1.4.2"
+  resolved "https://registry.yarnpkg.com/dante3/-/dante3-1.4.2.tgz#a75f2ed6fb614a38f9da4fffe9adcef45a1ad3d8"
+  integrity sha512-7F6HeunTZueT+1X680S1VaZejIXLu4IfipgnKBVKtmk00t5iS4C2wzxX4ryg58x+ah3o+JPee0JmtfZ+y1dqSA==
   dependencies:
+    "@tiptap/core" "^3.11.1"
     "@tiptap/extension-code" "^3.11.1"
     "@tiptap/extension-code-block-lowlight" "^3.11.1"
+    "@tiptap/extension-dropcursor" "^3.11.1"
     "@tiptap/extension-floating-menu" "^3.11.1"
     "@tiptap/extension-focus" "^3.11.1"
     "@tiptap/extension-link" "^3.11.1"
@@ -2243,6 +2255,7 @@ dante3@^1.4.1:
     medium-zoom "^1.0.8"
     polished "^4.2.2"
     react-colorful "^5.6.1"
+    react-popper-tooltip "^4.4.2"
     use-countdown-timer "^1.3.2"
 
 date-fns@^4.1.0:
@@ -3627,6 +3640,11 @@ react-dom@^18.2.0:
     loose-envify "^1.1.0"
     scheduler "^0.23.2"
 
+react-fast-compare@^3.0.1:
+  version "3.2.2"
+  resolved "https://registry.yarnpkg.com/react-fast-compare/-/react-fast-compare-3.2.2.tgz#929a97a532304ce9fee4bcae44234f1ce2c21d49"
+  integrity sha512-nsO+KSNgo1SbJqJEYRE9ERzo7YtYbou/OqjSQKxV7jcKox7+usiUVZOAC+XnDOABXggQTno0Y1CpVnuWEc1boQ==
+
 react-hook-form@^7.54.2:
   version "7.71.2"
   resolved "https://registry.yarnpkg.com/react-hook-form/-/react-hook-form-7.71.2.tgz#a5f1d2b855be9ecf1af6e74df9b80f54beae7e35"
@@ -3668,6 +3686,23 @@ react-markdown@^10.1.0:
     unified "^11.0.0"
     unist-util-visit "^5.0.0"
     vfile "^6.0.0"
+
+react-popper-tooltip@^4.4.2:
+  version "4.4.2"
+  resolved "https://registry.yarnpkg.com/react-popper-tooltip/-/react-popper-tooltip-4.4.2.tgz#0dc4894b8e00ba731f89bd2d30584f6032ec6163"
+  integrity sha512-y48r0mpzysRTZAIh8m2kpZ8S1YPNqGtQPDrlXYSGvDS1c1GpG/NUXbsbIdfbhXfmSaRJuTcaT6N1q3CKuHRVbg==
+  dependencies:
+    "@babel/runtime" "^7.18.3"
+    "@popperjs/core" "^2.11.5"
+    react-popper "^2.3.0"
+
+react-popper@^2.3.0:
+  version "2.3.0"
+  resolved "https://registry.yarnpkg.com/react-popper/-/react-popper-2.3.0.tgz#17891c620e1320dce318bad9fede46a5f71c70ba"
+  integrity sha512-e1hj8lL3uM+sgSR4Lxzn5h1GxBlpa4CQz0XLF8kx4MDrDRWY0Ena4c97PUeSX9i5W3UAfDP0z0FXCTQkoXUl3Q==
+  dependencies:
+    react-fast-compare "^3.0.1"
+    warning "^4.0.2"
 
 react-remove-scroll-bar@^2.3.3, react-remove-scroll-bar@^2.3.7:
   version "2.3.8"
@@ -4241,6 +4276,13 @@ w3c-keyname@^2.2.0:
   version "2.2.8"
   resolved "https://registry.yarnpkg.com/w3c-keyname/-/w3c-keyname-2.2.8.tgz#7b17c8c6883d4e8b86ac8aba79d39e880f8869c5"
   integrity sha512-dpojBhNsCNN7T82Tm7k26A6G9ML3NkhDsnw9n/eoxSRlVBB4CEtIQ/KTCLI2Fwf3ataSXRhYFkQi3SlnFwPvPQ==
+
+warning@^4.0.2:
+  version "4.0.3"
+  resolved "https://registry.yarnpkg.com/warning/-/warning-4.0.3.tgz#16e9e077eb8a86d6af7d64aa1e05fd85b4678ca3"
+  integrity sha512-rpJyN222KWIvHJ/F53XSZv0Zl/accqHR8et1kpaMTD/fLCRxtV8iX8czMzY7sVZupTI3zcUTg8eycS2kNF9l6w==
+  dependencies:
+    loose-envify "^1.0.0"
 
 wavesurfer.js@7.0.3:
   version "7.0.3"

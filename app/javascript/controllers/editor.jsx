@@ -19,6 +19,7 @@ import { DirectUpload } from "@rails/activestorage";
 import { get, post, put, patch, destroy } from '@rails/request.js'
 
 import {useDebounce} from '../hooks/use_debounce'
+import { createDanteEditorProps } from '../lib/dante_editor_props'
 
 
 export default class extends Controller {
@@ -100,6 +101,7 @@ export default class extends Controller {
 function EditorComponent({callback, ctx, upload, initialValue}){
   const [value, setValue] = React.useState(initialValue)
   const debouncedValue = useDebounce(value, 500)
+  const editorProps = React.useMemo(() => createDanteEditorProps(), [])
   
   // Fetch API (optional)
   React.useEffect(() => {
@@ -108,9 +110,10 @@ function EditorComponent({callback, ctx, upload, initialValue}){
   }, [debouncedValue])
 
   return (
-    <Dante 
+      <Dante 
         theme={darkTheme}
         content={value}
+        editorProps={editorProps}
         widgets={[
           ImageBlockConfig({
             options: {
