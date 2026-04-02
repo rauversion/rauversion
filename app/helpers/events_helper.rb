@@ -12,16 +12,15 @@ module EventsHelper
   # @return [String] Formatted date range
   def event_dates_formatted(event_start, event_ends, timezone)
     return nil if event_start.nil?
-    
-    # Convert to event's timezone
-    start_time = event_start.in_time_zone(timezone)
+
+    start_time = event_time_in_zone(event_start, timezone)
     
     # If no end date, just show the start date
     if event_ends.nil?
       return I18n.l(start_time.to_date, format: :long)
     end
     
-    end_time = event_ends.in_time_zone(timezone)
+    end_time = event_time_in_zone(event_ends, timezone)
     
     # If same day, just show the date
     if start_time.to_date == end_time.to_date
@@ -42,7 +41,24 @@ module EventsHelper
     end
   end
   
+  def event_time_in_zone(value, timezone)
+    return nil if value.nil?
+
+    value.in_time_zone(resolved_event_timezone(timezone))
+  end
+
+  def event_time_formatted(value, timezone, format:)
+    zoned_time = event_time_in_zone(value, timezone)
+    return nil if zoned_time.nil?
+
+    format.is_a?(Symbol) ? I18n.l(zoned_time, format: format) : zoned_time.strftime(format)
+  end
+
   private
+
+  def resolved_event_timezone(timezone)
+    Time.find_zone(timezone).presence || Time.zone || ActiveSupport::TimeZone["UTC"]
+  end
   
   # Format for events ending in early morning (e.g., "12 de diciembre desde las 21:00 hasta las 01:00")
   def format_same_day_with_times(start_time, end_time)

@@ -117,6 +117,28 @@ RSpec.describe PurchasesMailer, type: :mailer do
       end
     end
 
+    context 'with ticket after purchase message' do
+      let(:custom_ticket_message) { "Llega 30 minutos antes\nEntrada por acceso norte" }
+
+      before do
+        event_ticket.update!(after_purchase_message: custom_ticket_message)
+      end
+
+      it 'includes the ticket custom text in HTML' do
+        html_body = mail.html_part.body.encoded
+
+        expect(html_body).to include('Llega 30 minutos antes')
+        expect(html_body).to include('Entrada por acceso norte')
+      end
+
+      it 'includes the ticket custom text in text format' do
+        text_body = mail.text_part.body.encoded
+
+        expect(text_body).to include('Llega 30 minutos antes')
+        expect(text_body).to include('Entrada por acceso norte')
+      end
+    end
+
     context 'QR code attachments' do
       it 'includes QR code attachments for each purchased item' do
         expect(mail.attachments.size).to eq(1)

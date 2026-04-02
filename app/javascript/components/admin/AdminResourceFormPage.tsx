@@ -165,7 +165,11 @@ export default function AdminResourceFormPage({ createMode = false }: AdminResou
             disabled={disabled}
             onChange={(event) => setFormData((current) => ({ ...current, [field.key]: event.target.checked }))}
           />
-          <span className="text-sm text-foreground/80">{field.label}</span>
+          <span className="flex-1 text-sm text-foreground/80">
+            <span className="font-medium text-foreground">{field.label}</span>
+            {field.description && <span className="mt-1 block text-xs text-muted-foreground">{field.description}</span>}
+          </span>
+          {field.readonly && <Badge variant="secondary">Read only</Badge>}
         </label>
       )
     }
@@ -234,18 +238,35 @@ export default function AdminResourceFormPage({ createMode = false }: AdminResou
           )}
 
           <form className="space-y-6" onSubmit={submit}>
-            {resource.form_fields.map((field) => (
-              <div key={field.key} className="space-y-2">
-                {field.type !== "boolean" && (
-                  <label htmlFor={field.key} className="text-sm font-medium text-foreground/80">
-                    {field.label}
-                    {field.required ? " *" : ""}
-                    {field.readonly && <Badge variant="secondary" className="ml-2">Read only</Badge>}
-                  </label>
-                )}
-                {renderField(field)}
-              </div>
-            ))}
+            {resource.form_fields.map((field, index) => {
+              const showSection = field.section && field.section !== resource.form_fields[index - 1]?.section
+
+              return (
+                <React.Fragment key={field.key}>
+                  {showSection && (
+                    <div className={index === 0 ? "pb-1" : "border-t border-border pt-6 pb-1"}>
+                      <h2 className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+                        {field.section}
+                      </h2>
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    {field.type !== "boolean" && (
+                      <>
+                        <label htmlFor={field.key} className="text-sm font-medium text-foreground/80">
+                          {field.label}
+                          {field.required ? " *" : ""}
+                          {field.readonly && <Badge variant="secondary" className="ml-2">Read only</Badge>}
+                        </label>
+                        {field.description && <p className="text-xs text-muted-foreground">{field.description}</p>}
+                      </>
+                    )}
+                    {renderField(field)}
+                  </div>
+                </React.Fragment>
+              )
+            })}
 
             <div className="flex justify-end gap-3">
               <Button type="button" variant="outline" asChild>

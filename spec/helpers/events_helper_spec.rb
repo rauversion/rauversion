@@ -118,5 +118,20 @@ RSpec.describe EventsHelper, type: :helper do
         expect(result).to be_present
       end
     end
+
+    context "with blank or invalid timezone" do
+      let(:start_time) { base_date + 21.hours }
+      let(:end_time) { base_date + 1.day + 1.hour }
+
+      it "falls back safely when timezone is blank" do
+        expect { helper.event_dates_formatted(start_time, end_time, "") }.not_to raise_error
+        expect(helper.event_dates_formatted(start_time, end_time, "")).to be_present
+      end
+
+      it "falls back safely when timezone is invalid" do
+        expect { helper.event_dates_formatted(start_time, end_time, "Invalid/Timezone") }.not_to raise_error
+        expect(helper.event_dates_formatted(start_time, end_time, "Invalid/Timezone")).to be_present
+      end
+    end
   end
 end

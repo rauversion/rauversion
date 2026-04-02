@@ -99,6 +99,9 @@ export default function EventShow() {
     )
   }
 
+  const visibleHosts = event.event_hosts?.filter((host) => host.listed_on_page) || []
+  const hasVisibleHosts = visibleHosts.length > 0
+
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
       {/* HEADER: main event info with square image */}
@@ -193,7 +196,7 @@ export default function EventShow() {
       />
 
       <main className="flex-1">
-        {event.event_hosts?.length > 0 && (
+        {hasVisibleHosts && (
           <section className="w-full py-16">
             <div className="container mx-auto px-4">
               {/* Header */}
@@ -206,10 +209,8 @@ export default function EventShow() {
 
               {/* Grid */}
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {event.event_hosts.map((host, index) => (
-                  host.listed_on_page && (
-                    <ArtistCard key={host.id} artist={host} />
-                  )
+                {visibleHosts.map((host) => (
+                  <ArtistCard key={host.id} artist={host} />
                 ))}
               </div>
             </div>

@@ -24,6 +24,8 @@ export type AdminFormField = {
   type: string
   readonly?: boolean
   required?: boolean
+  section?: string
+  description?: string
   options?: AdminFieldOption[]
 }
 

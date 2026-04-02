@@ -56,7 +56,7 @@ module Admin
             creatable: false,
             editable: true,
             destroyable: true,
-            search_fields: %w[email username display_name],
+            search_fields: %w[email username display_name first_name last_name country city stripe_account_id],
             order: ->(relation) { relation.order(created_at: :desc) },
             scopes: [
               { key: "all", label: "All", apply: ->(relation) { relation } },
@@ -66,29 +66,9 @@ module Admin
               { key: "artists", label: "Artists", apply: ->(relation) { relation.where(role: "artist") } },
               { key: "recent", label: "Recent", apply: ->(relation) { relation.where("created_at > ?", 1.week.ago) } }
             ],
-            columns: [
-              { key: "id", label: "ID", type: "number", value: ->(user) { user.id } },
-              { key: "email", label: "Email", type: "text", value: ->(user) { user.email } },
-              { key: "username", label: "Username", type: "text", value: ->(user) { user.username } },
-              { key: "role", label: "Role", type: "badge", value: ->(user) { user.role } },
-              { key: "seller", label: "Seller", type: "boolean", value: ->(user) { user.seller? } },
-              { key: "editor", label: "Editor", type: "boolean", value: ->(user) { user.editor? } },
-              { key: "created_at", label: "Created", type: "datetime", value: ->(user) { user.created_at } }
-            ],
-            form_fields: [
-              { key: "email", label: "Email", type: "email", required: true },
-              { key: "username", label: "Username", type: "text", required: true },
-              {
-                key: "role",
-                label: "Role",
-                type: "select",
-                required: true,
-                options: -> { User.roles.keys.map { |role| { label: role.humanize, value: role } } }
-              },
-              { key: "seller", label: "Seller", type: "boolean" },
-              { key: "editor", label: "Editor", type: "boolean" }
-            ],
-            permitted_fields: %i[email username role seller editor],
+            columns: user_columns,
+            form_fields: user_form_fields,
+            permitted_fields: user_permitted_fields,
             row_actions: lambda { |user|
               actions = default_actions(
                 key: :users,
@@ -612,6 +592,8 @@ module Admin
           type: field[:type] || "text",
           readonly: field[:readonly] || false,
           required: field[:required] || false,
+          section: field[:section],
+          description: field[:description],
           options: resolve_options(field[:options])
         }
       end
@@ -627,6 +609,235 @@ module Admin
             { label: entry.to_s.humanize, value: entry }
           end
         end
+      end
+
+      def user_columns
+        [
+          { key: "id", label: "ID", type: "number", value: ->(user) { user.id } },
+          { key: "email", label: "Email", type: "text", value: ->(user) { user.email } },
+          { key: "username", label: "Username", type: "text", value: ->(user) { user.username } },
+          { key: "display_name", label: "Name", type: "text", value: ->(user) { user.display_name } },
+          { key: "role", label: "Role", type: "badge", value: ->(user) { user.role } },
+          { key: "label", label: "Label", type: "boolean", value: ->(user) { user.label? } },
+          { key: "seller", label: "Seller", type: "boolean", value: ->(user) { user.seller? } },
+          { key: "editor", label: "Editor", type: "boolean", value: ->(user) { user.editor? } },
+          { key: "stripe_active", label: "Stripe", type: "boolean", value: ->(user) { user.stripe_account_id.present? } },
+          { key: "created_at", label: "Created", type: "datetime", value: ->(user) { user.created_at } }
+        ]
+      end
+
+      def user_form_fields
+        [
+          { key: "email", label: "Email", type: "email", required: true, section: "Identity" },
+          { key: "username", label: "Username", type: "text", required: true, section: "Identity" },
+          { key: "display_name", label: "Display name", type: "text", section: "Identity" },
+          { key: "first_name", label: "First name", type: "text", section: "Identity" },
+          { key: "last_name", label: "Last name", type: "text", section: "Identity" },
+          { key: "country", label: "Country", type: "text", section: "Identity" },
+          { key: "city", label: "City", type: "text", section: "Identity" },
+          { key: "bio", label: "Bio", type: "textarea", section: "Identity" },
+          {
+            key: "role",
+            label: "Role",
+            type: "select",
+            required: true,
+            section: "Permissions",
+            options: -> { User.roles.keys.map { |role| { label: role.humanize, value: role } } }
+          },
+          { key: "label", label: "Label account", type: "boolean", section: "Permissions" },
+          { key: "seller", label: "Seller", type: "boolean", section: "Permissions" },
+          { key: "editor", label: "Editor", type: "boolean", section: "Permissions" },
+          { key: "featured", label: "Featured", type: "boolean", section: "Permissions" },
+          { key: "support_link", label: "Support link", type: "text", section: "Permissions" },
+          {
+            key: "stripe_active",
+            label: "Stripe activated",
+            type: "boolean",
+            readonly: true,
+            section: "Payments",
+            description: "Derived from the connected Stripe account.",
+            value: ->(user) { user.stripe_account_id.present? }
+          },
+          {
+            key: "stripe_account_id",
+            label: "Stripe account ID",
+            type: "text",
+            readonly: true,
+            section: "Payments",
+            value: ->(user) { user.stripe_account_id }
+          },
+          {
+            key: "tbk_commerce_code",
+            label: "Transbank commerce code",
+            type: "text",
+            section: "Payments"
+          },
+          {
+            key: "tbk_test_mode",
+            label: "Transbank test mode",
+            type: "boolean",
+            section: "Payments"
+          },
+          {
+            key: "hide_username_from_profile",
+            label: "Hide username from profile",
+            type: "boolean",
+            section: "Profile settings"
+          },
+          {
+            key: "pst_enabled",
+            label: "PST enabled",
+            type: "boolean",
+            section: "Profile settings"
+          },
+          {
+            key: "email_sign_up",
+            label: "Email sign-up enabled",
+            type: "boolean",
+            section: "Profile settings"
+          },
+          {
+            key: "google_analytics_id",
+            label: "Google Analytics ID",
+            type: "text",
+            section: "Profile settings"
+          },
+          {
+            key: "facebook_pixel_id",
+            label: "Facebook Pixel ID",
+            type: "text",
+            section: "Profile settings"
+          },
+          { key: "social_title", label: "Social title", type: "text", section: "Profile settings" },
+          {
+            key: "social_description",
+            label: "Social description",
+            type: "textarea",
+            section: "Profile settings"
+          },
+          {
+            key: "sensitive_content",
+            label: "Sensitive content",
+            type: "boolean",
+            section: "Profile settings"
+          },
+          {
+            key: "age_restriction",
+            label: "Age restriction",
+            type: "select",
+            section: "Profile settings",
+            options: user_age_restriction_options
+          },
+          { key: "new_follower_email", label: "New follower email", type: "boolean", section: "Notifications" },
+          { key: "new_follower_app", label: "New follower in app", type: "boolean", section: "Notifications" },
+          { key: "repost_of_your_post_email", label: "Repost email", type: "boolean", section: "Notifications" },
+          { key: "repost_of_your_post_app", label: "Repost in app", type: "boolean", section: "Notifications" },
+          {
+            key: "new_post_by_followed_user_email",
+            label: "Followed user post email",
+            type: "boolean",
+            section: "Notifications"
+          },
+          {
+            key: "new_post_by_followed_user_app",
+            label: "Followed user post in app",
+            type: "boolean",
+            section: "Notifications"
+          },
+          {
+            key: "like_and_plays_on_your_post_email",
+            label: "Likes and plays email",
+            type: "boolean",
+            section: "Notifications"
+          },
+          {
+            key: "like_and_plays_on_your_post_app",
+            label: "Likes and plays in app",
+            type: "boolean",
+            section: "Notifications"
+          },
+          {
+            key: "comment_on_your_post_email",
+            label: "Comment email",
+            type: "boolean",
+            section: "Notifications"
+          },
+          {
+            key: "comment_on_your_post_app",
+            label: "Comment in app",
+            type: "boolean",
+            section: "Notifications"
+          },
+          {
+            key: "suggested_content_email",
+            label: "Suggested content email",
+            type: "boolean",
+            section: "Notifications"
+          },
+          {
+            key: "suggested_content_app",
+            label: "Suggested content in app",
+            type: "boolean",
+            section: "Notifications"
+          },
+          { key: "new_message_email", label: "New message email", type: "boolean", section: "Notifications" },
+          { key: "new_message_app", label: "New message in app", type: "boolean", section: "Notifications" }
+        ]
+      end
+
+      def user_permitted_fields
+        %i[
+          email
+          username
+          display_name
+          first_name
+          last_name
+          country
+          city
+          bio
+          role
+          label
+          seller
+          editor
+          featured
+          support_link
+          tbk_commerce_code
+          tbk_test_mode
+          hide_username_from_profile
+          pst_enabled
+          email_sign_up
+          google_analytics_id
+          facebook_pixel_id
+          social_title
+          social_description
+          sensitive_content
+          age_restriction
+          new_follower_email
+          new_follower_app
+          repost_of_your_post_email
+          repost_of_your_post_app
+          new_post_by_followed_user_email
+          new_post_by_followed_user_app
+          like_and_plays_on_your_post_email
+          like_and_plays_on_your_post_app
+          comment_on_your_post_email
+          comment_on_your_post_app
+          suggested_content_email
+          suggested_content_app
+          new_message_email
+          new_message_app
+        ]
+      end
+
+      def user_age_restriction_options
+        [
+          { label: "All ages", value: "all" },
+          { label: "13+", value: "13" },
+          { label: "14+", value: "14" },
+          { label: "16+", value: "16" },
+          { label: "18+", value: "18" },
+          { label: "21+", value: "21" }
+        ]
       end
 
       def default_actions(key:, record:, editable:, destroyable:)

@@ -1,13 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api'
+import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
-import { Search } from "lucide-react"
+import { MapPin, Search } from "lucide-react"
 import { useDebounce } from "@/hooks/use_debounce"
-
-const containerStyle = {
-  width: '100%',
-  height: '400px'
-}
 
 const defaultCenter = {
   lat: -33.4489,
@@ -19,13 +15,23 @@ const getGoogleMapsApiKey = () => {
   return meta ? meta.content : ''
 }
 
-export function MapPicker({ value, onChange }) {
+export function MapPicker({
+  value,
+  onChange,
+  className,
+  mapHeight = 320,
+  searchPlaceholder = "Busca una direccion o haz click en el mapa",
+}) {
   const [map, setMap] = useState(null)
   const [marker, setMarker] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [center, setCenter] = useState(defaultCenter)
   const [apiKey] = useState(getGoogleMapsApiKey())
   const debouncedSearch = useDebounce(searchQuery, 500)
+  const containerStyle = {
+    width: '100%',
+    height: `${mapHeight}px`
+  }
 
   useEffect(() => {
     if (value?.lat && value?.lng) {
@@ -35,7 +41,13 @@ export function MapPicker({ value, onChange }) {
   }, [value])
 
   useEffect(() => {
-    if (debouncedSearch) {
+    if (value?.address) {
+      setSearchQuery((current) => current === value.address ? current : value.address)
+    }
+  }, [value?.address])
+
+  useEffect(() => {
+    if (debouncedSearch && window.google?.maps) {
       const geocoder = new window.google.maps.Geocoder()
       geocoder.geocode({ address: debouncedSearch }, (results, status) => {
         if (status === 'OK' && results[0]) {
@@ -55,6 +67,8 @@ export function MapPicker({ value, onChange }) {
   }, [debouncedSearch, map, onChange])
 
   const onMapClick = (e) => {
+    if (!window.google?.maps) return
+
     const newPosition = {
       lat: e.latLng.lat(),
       lng: e.latLng.lng()
@@ -72,10 +86,21 @@ export function MapPicker({ value, onChange }) {
   }
 
   if (!apiKey) {
-    console.error('Google Maps API key not found in meta tags')
     return (
-      <div className="p-4 text-sm text-red-500 bg-red-50 rounded">
-        Google Maps API key not configured. Please check your environment variables.
+      <div className={cn("rounded-xl border border-dashed bg-muted/40 p-4", className)}>
+        <div className="flex items-start gap-3">
+          <div className="rounded-full bg-background p-2">
+            <MapPin className="h-4 w-4 text-muted-foreground" />
+          </div>
+          <div className="space-y-1">
+            <p className="text-sm font-medium text-foreground">
+              El mapa no esta disponible ahora
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Puedes seguir editando el texto de ubicacion manualmente y guardar el evento sin coordenadas.
+            </p>
+          </div>
+        </div>
       </div>
     )
   }
@@ -83,11 +108,11 @@ export function MapPicker({ value, onChange }) {
 
   return (
     <LoadScript googleMapsApiKey={apiKey}>
-      <div className="space-y-4">
+      <div className={cn("space-y-4", className)}>
         <div className="relative">
           <Input
             type="text"
-            placeholder="Search for a location..."
+            placeholder={searchPlaceholder}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pr-10"
@@ -95,15 +120,17 @@ export function MapPicker({ value, onChange }) {
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
         </div>
         
-        <GoogleMap
-          mapContainerStyle={containerStyle}
-          center={center}
-          zoom={13}
-          onClick={onMapClick}
-          onLoad={setMap}
-        >
-          {marker && <Marker position={marker} />}
-        </GoogleMap>
+        <div className="overflow-hidden rounded-xl border border-border">
+          <GoogleMap
+            mapContainerStyle={containerStyle}
+            center={center}
+            zoom={13}
+            onClick={onMapClick}
+            onLoad={setMap}
+          >
+            {marker && <Marker position={marker} />}
+          </GoogleMap>
+        </div>
       </div>
     </LoadScript>
   )

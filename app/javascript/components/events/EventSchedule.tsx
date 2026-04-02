@@ -137,6 +137,20 @@ function ScheduleDay({ schedule }: { schedule: Scheduling }) {
 }
 
 export default function EventSchedule({ description, schedulings }: EventScheduleProps) {
+  const visibleSchedules = (schedulings || []).filter((schedule) =>
+    Boolean(
+      schedule &&
+      (schedule.name ||
+        schedule.description ||
+        schedule.start_date_formatted ||
+        schedule.end_date_formatted ||
+        schedule.schedulings?.length > 0)
+    )
+  )
+
+  if (visibleSchedules.length === 0) {
+    return null
+  }
   
   return (
     <div className="min-h-screen bg-background">
@@ -151,7 +165,7 @@ export default function EventSchedule({ description, schedulings }: EventSchedul
         </div>
 
         <div className="space-y-6">
-          {schedulings.map((schedule) => (
+          {visibleSchedules.map((schedule) => (
             <ScheduleDay key={schedule.id} schedule={schedule} />
           ))}
         </div>

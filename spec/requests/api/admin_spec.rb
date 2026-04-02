@@ -56,8 +56,43 @@ RSpec.describe "Admin API", type: :request do
 
       expect(response).to have_http_status(:ok)
       expect(json_response.dig("resource", "label")).to eq("Users")
+      expect(json_response.dig("resource", "columns").map { |column| column["key"] }).to include("display_name", "stripe_active")
       expect(json_response["records"].map { |record| record.dig("values", "email") }).to include("artist@rauversion.com")
       expect(json_response["scope"]).to eq("sellers")
+    end
+  end
+
+  describe "GET /api/admin/users/:id" do
+    let!(:artist) do
+      create(
+        :user,
+        email: "creator@rauversion.com",
+        username: "creator-one",
+        role: :artist,
+        seller: true,
+        stripe_account_id: "acct_123",
+        tbk_commerce_code: "597055555532",
+        tbk_test_mode: true,
+        email_sign_up: true,
+        google_analytics_id: "G-ABC123DEF4",
+        age_restriction: "18",
+        new_message_email: false,
+        confirmed_at: Time.current
+      )
+    end
+
+    it "returns extended form values for store attributes and stripe state" do
+      get "/api/admin/users/#{artist.id}"
+
+      expect(response).to have_http_status(:ok)
+      expect(json_response.dig("record", "form_values", "stripe_active")).to eq(true)
+      expect(json_response.dig("record", "form_values", "stripe_account_id")).to eq("acct_123")
+      expect(json_response.dig("record", "form_values", "tbk_commerce_code")).to eq("597055555532")
+      expect(json_response.dig("record", "form_values", "tbk_test_mode")).to eq(true)
+      expect(json_response.dig("record", "form_values", "email_sign_up")).to eq(true)
+      expect(json_response.dig("record", "form_values", "google_analytics_id")).to eq("G-ABC123DEF4")
+      expect(json_response.dig("record", "form_values", "age_restriction")).to eq("18")
+      expect(json_response.dig("record", "form_values", "new_message_email")).to eq(false)
     end
   end
 
