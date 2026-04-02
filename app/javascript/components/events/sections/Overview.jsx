@@ -304,23 +304,37 @@ export default function Overview() {
     setErrors(null)
   }
 
-  const handleMapChange = (location) => {
-    const nextAddress = location.address ?? form.getValues("location") ?? ""
+  const handleMapChange = React.useCallback((location) => {
+    const currentAddress = form.getValues("location") ?? ""
+    const currentLat = form.getValues("lat") ?? ""
+    const currentLng = form.getValues("lng") ?? ""
 
-    form.setValue("location", nextAddress, {
-      shouldDirty: true,
-      shouldTouch: true,
-      shouldValidate: true,
-    })
-    form.setValue("lat", location.lat != null ? location.lat.toString() : "", {
-      shouldDirty: true,
-      shouldTouch: true,
-    })
-    form.setValue("lng", location.lng != null ? location.lng.toString() : "", {
-      shouldDirty: true,
-      shouldTouch: true,
-    })
-  }
+    const nextAddress = location.address ?? currentAddress
+    const nextLat = location.lat != null ? location.lat.toString() : ""
+    const nextLng = location.lng != null ? location.lng.toString() : ""
+
+    if (currentAddress !== nextAddress) {
+      form.setValue("location", nextAddress, {
+        shouldDirty: true,
+        shouldTouch: true,
+        shouldValidate: true,
+      })
+    }
+
+    if (currentLat !== nextLat) {
+      form.setValue("lat", nextLat, {
+        shouldDirty: true,
+        shouldTouch: true,
+      })
+    }
+
+    if (currentLng !== nextLng) {
+      form.setValue("lng", nextLng, {
+        shouldDirty: true,
+        shouldTouch: true,
+      })
+    }
+  }, [form])
 
   const onSubmit = async (values) => {
     try {

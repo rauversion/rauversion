@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { GoogleMap, LoadScript, Marker } from '@react-google-maps/api'
 import { cn } from "@/lib/utils"
 import { Input } from "@/components/ui/input"
@@ -27,44 +27,94 @@ export function MapPicker({
   const [searchQuery, setSearchQuery] = useState('')
   const [center, setCenter] = useState(defaultCenter)
   const [apiKey] = useState(getGoogleMapsApiKey())
+  const onChangeRef = useRef(onChange)
+  const skipNextGeocodeRef = useRef(false)
+  const inFlightGeocodeQueryRef = useRef(null)
+  const lastResolvedGeocodeQueryRef = useRef('')
   const debouncedSearch = useDebounce(searchQuery, 500)
   const containerStyle = {
     width: '100%',
     height: `${mapHeight}px`
   }
 
-  useEffect(() => {
-    if (value?.lat && value?.lng) {
-      setCenter({ lat: parseFloat(value.lat), lng: parseFloat(value.lng) })
-      setMarker({ lat: parseFloat(value.lat), lng: parseFloat(value.lng) })
-    }
-  }, [value])
+  const geocodeAddress = React.useCallback((rawQuery) => {
+    const query = rawQuery.trim()
+
+    if (!query || !window.google?.maps) return
+    if (inFlightGeocodeQueryRef.current === query) return
+    if (lastResolvedGeocodeQueryRef.current === query) return
+
+    inFlightGeocodeQueryRef.current = query
+
+    const geocoder = new window.google.maps.Geocoder()
+    geocoder.geocode({ address: query }, (results, status) => {
+      if (inFlightGeocodeQueryRef.current === query) {
+        inFlightGeocodeQueryRef.current = null
+      }
+
+      if (status === 'OK' && results[0]) {
+        const { lat, lng } = results[0].geometry.location
+        const newPosition = {
+          lat: lat(),
+          lng: lng(),
+          address: results[0].formatted_address
+        }
+
+        lastResolvedGeocodeQueryRef.current = query
+        setCenter(newPosition)
+        setMarker(newPosition)
+        onChangeRef.current(newPosition)
+        map?.panTo(newPosition)
+      }
+    })
+  }, [map])
 
   useEffect(() => {
-    if (value?.address) {
-      setSearchQuery((current) => current === value.address ? current : value.address)
-    }
+    onChangeRef.current = onChange
+  }, [onChange])
+
+  useEffect(() => {
+    if (!value?.lat || !value?.lng) return
+
+    const nextLat = parseFloat(value.lat)
+    const nextLng = parseFloat(value.lng)
+
+    if (Number.isNaN(nextLat) || Number.isNaN(nextLng)) return
+
+    const nextPosition = { lat: nextLat, lng: nextLng }
+
+    setCenter((current) =>
+      current.lat === nextPosition.lat && current.lng === nextPosition.lng ? current : nextPosition
+    )
+    setMarker((current) =>
+      current?.lat === nextPosition.lat && current?.lng === nextPosition.lng ? current : nextPosition
+    )
+  }, [value?.lat, value?.lng])
+
+  useEffect(() => {
+    const nextAddress = value?.address ?? ''
+
+    setSearchQuery((current) => {
+      if (current === nextAddress) return current
+
+      // Mirror parent state into the input without turning that sync into a new billable geocode request.
+      skipNextGeocodeRef.current = true
+      return nextAddress
+    })
+
+    lastResolvedGeocodeQueryRef.current = nextAddress.trim()
   }, [value?.address])
 
   useEffect(() => {
-    if (debouncedSearch && window.google?.maps) {
-      const geocoder = new window.google.maps.Geocoder()
-      geocoder.geocode({ address: debouncedSearch }, (results, status) => {
-        if (status === 'OK' && results[0]) {
-          const { lat, lng } = results[0].geometry.location
-          const newPosition = { 
-            lat: lat(), 
-            lng: lng(),
-            address: results[0].formatted_address 
-          }
-          setCenter(newPosition)
-          setMarker(newPosition)
-          onChange(newPosition)
-          map?.panTo(newPosition)
-        }
-      })
+    if (!debouncedSearch || !window.google?.maps) return
+
+    if (skipNextGeocodeRef.current) {
+      skipNextGeocodeRef.current = false
+      return
     }
-  }, [debouncedSearch, map, onChange])
+
+    geocodeAddress(debouncedSearch)
+  }, [debouncedSearch, geocodeAddress])
 
   const onMapClick = (e) => {
     if (!window.google?.maps) return
@@ -80,7 +130,7 @@ export function MapPicker({
     geocoder.geocode({ location: newPosition }, (results, status) => {
       if (status === 'OK' && results[0]) {
         const address = results[0].formatted_address
-        onChange({ ...newPosition, address })
+        onChangeRef.current({ ...newPosition, address })
       }
     })
   }
@@ -114,7 +164,18 @@ export function MapPicker({
             type="text"
             placeholder={searchPlaceholder}
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              skipNextGeocodeRef.current = false
+              lastResolvedGeocodeQueryRef.current = ''
+              setSearchQuery(e.target.value)
+            }}
+            onKeyDown={(e) => {
+              if (e.key !== 'Enter') return
+
+              e.preventDefault()
+              skipNextGeocodeRef.current = false
+              geocodeAddress(searchQuery)
+            }}
             className="pr-10"
           />
           <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
