@@ -147,15 +147,6 @@ export default function EventShow() {
               {/* Stats + ticket button */}
               <div className="mt-2 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
                 <dl className="grid grid-cols-2 gap-y-4 gap-x-8 text-sm sm:text-base">
-                  <div>
-                    <dt className="font-mono text-xs uppercase tracking-wide text-brand-500">
-                      {event.participant_label || I18n.t('events.show.speakers')}
-                    </dt>
-                    <dd className="mt-1 text-xl font-semibold tracking-tight text-brand-100">
-                      {event.event_hosts_count}
-                    </dd>
-                  </div>
-
                   {event.venue && (
                     <div>
                       <dt className="font-mono text-xs uppercase tracking-wide text-brand-500">
