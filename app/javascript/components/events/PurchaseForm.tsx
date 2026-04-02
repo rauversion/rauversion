@@ -18,6 +18,7 @@ interface Ticket {
   id: string
   title: string
   price: number
+  formatted_price?: string
   short_description: string
   quantity: number
   min_tickets_per_order?: number
@@ -418,7 +419,7 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
                             </span>
                           ) : (
                             I18n.t("events.purchase_form.price", { 
-                              price: `${event?.ticket_currency?.toUpperCase()} ${ticket.price}` 
+                              price: ticket.formatted_price || formatCurrencyAmount(ticket.price, event?.ticket_currency)
                             })
                           )}
                         </div>

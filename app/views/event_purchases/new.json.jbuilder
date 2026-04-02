@@ -2,6 +2,7 @@ json.tickets @tickets do |ticket|
   json.id ticket.id
   json.title ticket.title
   json.price ticket.price
+  json.formatted_price formatted_event_ticket_price(ticket.price, @event.ticket_currency)
   json.short_description ticket.short_description
   json.quantity ticket.qty.to_i
   json.pay_what_you_want ticket.pay_what_you_want?

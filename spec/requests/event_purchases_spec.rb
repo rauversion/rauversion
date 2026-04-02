@@ -9,6 +9,30 @@ RSpec.describe "EventPurchases", type: :request do
     sign_in user
   end
 
+  describe "GET /new" do
+    let!(:paid_ticket) do
+      FactoryBot.create(
+        :event_ticket,
+        event: event,
+        qty: 10,
+        price: 10,
+        selling_start: 1.day.ago
+      )
+    end
+
+    it "includes a formatted price for tickets in the payload" do
+      get new_event_event_purchase_path(event, format: :json)
+
+      expect(response).to have_http_status(:success)
+
+      json = JSON.parse(response.body)
+      ticket = json.fetch("tickets").find { |item| item["id"] == paid_ticket.id }
+
+      expect(ticket["formatted_price"]).to include("USD")
+      expect(ticket["formatted_price"]).to include("10")
+    end
+  end
+
   describe "POST /create with free tickets" do
     let!(:free_ticket) { FactoryBot.create(:event_ticket, event: event, qty: 10, price: 0, selling_start: 1.day.ago) }
 
