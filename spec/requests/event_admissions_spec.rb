@@ -45,6 +45,7 @@ RSpec.describe "EventAdmissions", type: :request do
       json = JSON.parse(response.body)
 
       expect(json.dig("event", "slug")).to eq(event.slug)
+      expect(json["viewer_role"]).to eq("manager")
       expect(json.dig("summary", "total_paid_count")).to eq(1)
       expect(json.dig("summary", "checked_in_count")).to eq(0)
     end

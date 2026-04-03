@@ -1,7 +1,7 @@
 class EventReportsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_event
-  before_action :authorize_event_owner!
+  before_action :authorize_manager!
 
   # GET /events/:event_id/reports/:id
   # id can be: general_stats, orders_distribution, revenue_over_time, etc.
@@ -24,10 +24,18 @@ class EventReportsController < ApplicationController
     @event = Event.find_by!(slug: params[:event_id])
   end
 
-  def authorize_event_owner!
-    unless @event.user_id == current_user.id
-      render json: { error: 'Unauthorized' }, status: :unauthorized
-    end
+  def authorize_manager!
+    return if manager_for_event?
+
+    render json: { error: 'Unauthorized' }, status: :unauthorized
+  end
+
+  def manager_for_event?
+    current_user.present? && (@event.user_id == current_user.id || event_manager_ids.include?(current_user.id))
+  end
+
+  def event_manager_ids
+    @event_manager_ids ||= @event.event_hosts.where(event_manager: true).pluck(:user_id)
   end
 
   def general_stats

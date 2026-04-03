@@ -112,10 +112,15 @@ class EventAdmissionsController < ApplicationController
 
   def base_payload
     {
+      viewer_role: viewer_role,
       event: event_payload,
       summary: summary_payload,
       recent_activity: recent_activity_payload
     }
+  end
+
+  def viewer_role
+    @event.user_id == current_user.id ? "owner" : "manager"
   end
 
   def ticket_payload(item)

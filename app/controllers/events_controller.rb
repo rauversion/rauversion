@@ -1,6 +1,7 @@
 class EventsController < ApplicationController
   before_action :authenticate_user!, except: [:index, :show]
-  before_action :set_event, only: [:schedule, :team, :tickets, :streaming, :attendees, :recordings, :settings, :edit, :update]
+  before_action :set_owned_event, only: [:schedule, :team, :tickets, :streaming, :attendees, :recordings, :settings, :update]
+  before_action :set_edit_event, only: [:edit]
 
   def index
     @q = Event.ransack(params[:q])
@@ -107,10 +108,15 @@ class EventsController < ApplicationController
 
   def edit
     @section = params[:section]
-    @event = current_user.events.friendly.find(params[:id])
     respond_to do |format|
       format.html { render_blank }
-      format.json{ render "edit" }
+      format.json do
+        if event_owned_by_current_user?(@event)
+          render "edit"
+        else
+          render json: { error: "Unauthorized" }, status: :unauthorized
+        end
+      end
     end
   end
 
@@ -140,21 +146,20 @@ class EventsController < ApplicationController
   end
 
   def mine
-    @tab = params[:tab] || "drafts"
+    @tab = params[:tab] || "all"
     @events = case @tab
     when "all"
-      current_user.events.page(params[:page]).per(10)
+      all_accessible_events.page(params[:page]).per(10)
+    when "owned"
+      owned_events.page(params[:page]).per(10)
     when "drafts"
-      current_user.events.drafts.page(params[:page]).per(10)
+      owned_events.drafts.page(params[:page]).per(10)
     when "published"
-      current_user.events.published.page(params[:page]).per(10)
+      owned_events.published.page(params[:page]).per(10)
     when "manager"
-      Event.joins(:event_hosts)
-        .where(event_hosts: {user_id: current_user.id})
-        .includes(:user)
-        .page(params[:page]).per(10)
+      managed_events.page(params[:page]).per(10)
     else
-      current_user.events.page(params[:page]).per(10)
+      all_accessible_events.page(params[:page]).per(10)
     end
   end
 
@@ -182,8 +187,52 @@ class EventsController < ApplicationController
 
   private
 
-  def set_event
+  def set_owned_event
     @event = current_user.events.friendly.find(params[:id])
+  end
+
+  def set_edit_event
+    @event = Event.friendly.find(params[:id])
+    raise ActiveRecord::RecordNotFound unless manager_for_event?(@event)
+  end
+
+  def event_owned_by_current_user?(event)
+    event.user_id == current_user.id
+  end
+
+  def manager_for_event?(event)
+    return false unless current_user.present?
+    return true if event_owned_by_current_user?(event)
+
+    event.event_hosts.where(event_manager: true, user_id: current_user.id).exists?
+  end
+
+  def owned_events
+    owned_events_scope.includes(:user).order(updated_at: :desc)
+  end
+
+  def managed_events
+    managed_events_scope
+      .includes(:user)
+      .distinct
+      .order(updated_at: :desc)
+  end
+
+  def all_accessible_events
+    Event.where(id: owned_events_scope.select(:id))
+      .or(Event.where(id: managed_events_scope.select(:id)))
+      .includes(:user)
+      .distinct
+      .order(updated_at: :desc)
+  end
+
+  def owned_events_scope
+    current_user.events
+  end
+
+  def managed_events_scope
+    Event.joins(:event_hosts)
+      .where(event_hosts: { user_id: current_user.id, event_manager: true })
   end
 
   def event_params

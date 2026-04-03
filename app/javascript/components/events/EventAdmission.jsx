@@ -3,6 +3,7 @@ import { get, patch, post } from "@rails/request.js"
 import { Link, useParams } from "react-router-dom"
 import {
   ArrowLeft,
+  BarChart3,
   Camera,
   CameraOff,
   CheckCircle2,
@@ -12,6 +13,7 @@ import {
   QrCode,
   RefreshCcw,
   ScanLine,
+  Settings2,
   ShieldX,
   Ticket,
   UserRound,
@@ -26,6 +28,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Switch } from "@/components/ui/switch"
+import { Drawer, DrawerContent, DrawerDescription, DrawerHeader, DrawerTitle } from "@/components/ui/drawer"
 
 const AUTO_SCAN_RESUME_DELAY_MS = 1400
 const AUTO_MODE_STORAGE_KEY = "event-admission-auto-mode"
@@ -119,6 +122,299 @@ function SummaryStat({ label, value, tone = "default" }) {
   )
 }
 
+function SummaryStatsGrid({ summary, className, compact = false }) {
+  return (
+    <div
+      className={cn(
+        "grid gap-3",
+        compact ? "grid-cols-2" : "sm:grid-cols-2 xl:grid-cols-4",
+        className
+      )}
+    >
+      <SummaryStat
+        label={I18n.t("events.admission.summary.checked_in", { defaultValue: "Registrados" })}
+        value={summary?.checked_in_count}
+        tone="success"
+      />
+      <SummaryStat
+        label={I18n.t("events.admission.summary.remaining", { defaultValue: "Por ingresar" })}
+        value={summary?.remaining_count}
+        tone="warning"
+      />
+      <SummaryStat
+        label={I18n.t("events.admission.summary.total_paid", { defaultValue: "Pagados" })}
+        value={summary?.total_paid_count}
+      />
+      <SummaryStat
+        label={I18n.t("events.admission.summary.refunded", { defaultValue: "Reembolsados" })}
+        value={summary?.refunded_count}
+      />
+    </div>
+  )
+}
+
+function SettingsPanelContent({
+  autoMode,
+  cameraError,
+  cameraState,
+  isLookupPending,
+  manualCode,
+  onAutoModeChange,
+  onManualCodeChange,
+  onManualSubmit,
+  onNextScan,
+  onToggleCamera,
+  showCameraControl = false,
+}) {
+  return (
+    <div className="space-y-4">
+      {showCameraControl && (
+        <Button
+          type="button"
+          variant="outline"
+          className="h-12 w-full border-white/10 bg-white/5 text-white hover:bg-white/10"
+          onClick={onToggleCamera}
+        >
+          {cameraState === "active" ? (
+            <>
+              <CameraOff className="mr-2 h-4 w-4" />
+              {I18n.t("events.admission.actions.pause_camera", { defaultValue: "Pausar camara" })}
+            </>
+          ) : (
+            <>
+              <Camera className="mr-2 h-4 w-4" />
+              {I18n.t("events.admission.actions.resume_camera", { defaultValue: "Activar camara" })}
+            </>
+          )}
+        </Button>
+      )}
+
+      <div className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <div className="text-sm font-medium text-white">
+            {I18n.t("events.admission.auto_mode.title", { defaultValue: "Modo automático" })}
+          </div>
+          <div className="mt-1 text-xs text-zinc-400">
+            {I18n.t("events.admission.auto_mode.description", { defaultValue: "Si el QR es válido, registra el ingreso, hace sonar un pling y vuelve solo a escanear." })}
+          </div>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <span className="text-sm text-zinc-300">
+            {autoMode
+              ? I18n.t("events.admission.auto_mode.on", { defaultValue: "Activado" })
+              : I18n.t("events.admission.auto_mode.off", { defaultValue: "Manual" })}
+          </span>
+          <Switch checked={autoMode} onCheckedChange={onAutoModeChange} />
+        </div>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
+        <form onSubmit={onManualSubmit} className="flex flex-col gap-3 sm:flex-row">
+          <Input
+            value={manualCode}
+            onChange={onManualCodeChange}
+            placeholder={I18n.t("events.admission.manual.placeholder", { defaultValue: "Pega el enlace del ticket o el codigo firmado" })}
+            className="h-12 border-white/10 bg-white/5 text-white placeholder:text-zinc-500"
+          />
+          <Button type="submit" disabled={isLookupPending} className="h-12 whitespace-nowrap">
+            {isLookupPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {I18n.t("events.admission.manual.submit", { defaultValue: "Validar codigo" })}
+          </Button>
+        </form>
+
+        <Button
+          type="button"
+          variant="outline"
+          className="h-12 border-emerald-400/30 bg-emerald-400/10 text-emerald-50 hover:bg-emerald-400/15"
+          onClick={onNextScan}
+        >
+          <RefreshCcw className="mr-2 h-4 w-4" />
+          {I18n.t("events.admission.actions.scan_next", { defaultValue: "Escanear siguiente" })}
+        </Button>
+      </div>
+
+      {cameraError && (
+        <Alert className="border-amber-500/30 bg-amber-500/10 text-amber-50">
+          <CircleAlert className="h-4 w-4 text-amber-300" />
+          <AlertTitle>{I18n.t("events.admission.errors.camera_title", { defaultValue: "Camara no disponible" })}</AlertTitle>
+          <AlertDescription>{cameraError}</AlertDescription>
+        </Alert>
+      )}
+    </div>
+  )
+}
+
+function ValidationPanelContent({
+  lookupError,
+  ticketResult,
+  statusConfig,
+  isUpdating,
+  onNextScan,
+  onToggleCheckIn,
+  nextButtonClassName,
+}) {
+  return (
+    <div className="space-y-4">
+      {lookupError && !ticketResult && (
+        <Alert variant="destructive" className="border-destructive/40 bg-destructive/15 text-destructive-foreground">
+          <CircleAlert className="h-4 w-4" />
+          <AlertTitle>{I18n.t("events.admission.errors.invalid_title", { defaultValue: "No valido" })}</AlertTitle>
+          <AlertDescription>{lookupError}</AlertDescription>
+        </Alert>
+      )}
+
+      {!ticketResult && !lookupError && (
+        <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.03] p-6 text-sm text-zinc-400">
+          <div className="flex items-center gap-3 text-zinc-200">
+            <QrCode className="h-5 w-5 text-emerald-300" />
+            <span className="font-medium">
+              {I18n.t("events.admission.empty.title", { defaultValue: "Listo para recibir tickets" })}
+            </span>
+          </div>
+          <p className="mt-3 leading-6">
+            {I18n.t("events.admission.empty.description", { defaultValue: "Escanea el QR desde el movil del asistente. Tambien puedes pegar manualmente el enlace del ticket si la camara falla." })}
+          </p>
+        </div>
+      )}
+
+      {ticketResult && statusConfig && (
+        <div className="space-y-4">
+          <div className={cn("rounded-3xl border p-5 shadow-lg", statusConfig.surfaceClassName)}>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="space-y-2">
+                <Badge variant={statusConfig.badgeVariant} className="shadow-none">
+                  {statusConfig.label}
+                </Badge>
+                <div className="text-2xl font-semibold tracking-tight">
+                  {ticketResult.attendee_name || ticketResult.attendee_email}
+                </div>
+                <div className="text-sm opacity-90">{ticketResult.attendee_email}</div>
+              </div>
+
+              <div className={cn("text-right text-sm font-medium", statusConfig.accentClassName)}>
+                <div>{ticketResult.ticket_title}</div>
+                {ticketResult.ticket_price != null && (
+                  <div className="mt-1 opacity-90">
+                    {formatMoney(ticketResult.ticket_price, ticketResult.ticket_currency)}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-4 rounded-2xl border border-white/10 bg-black/15 p-4 text-sm">
+              <div className="font-medium">
+                {ticketResult.admission_message}
+              </div>
+              {ticketResult.checked_in_at && (
+                <div className="mt-2 flex items-center gap-2 opacity-90">
+                  <Clock3 className="h-4 w-4" />
+                  <span>
+                    {I18n.t("events.admission.checked_in_at", { defaultValue: "Registrado" })}: {formatDateTime(ticketResult.checked_in_at)}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+              <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-zinc-500">
+                <UserRound className="h-4 w-4" />
+                {I18n.t("events.admission.details.attendee", { defaultValue: "Asistente" })}
+              </div>
+              <div className="mt-3 text-sm text-zinc-200">{ticketResult.attendee_email}</div>
+            </div>
+            <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
+              <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-zinc-500">
+                <Ticket className="h-4 w-4" />
+                {I18n.t("events.admission.details.purchase_state", { defaultValue: "Estado" })}
+              </div>
+              <div className="mt-3 text-sm capitalize text-zinc-200">{ticketResult.purchase_state}</div>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <Button
+              type="button"
+              className="h-12 flex-1"
+              disabled={!ticketResult.can_toggle_check_in || isUpdating}
+              onClick={onToggleCheckIn}
+            >
+              {isUpdating ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : ticketResult.checked_in ? (
+                <RefreshCcw className="mr-2 h-4 w-4" />
+              ) : (
+                <CheckCircle2 className="mr-2 h-4 w-4" />
+              )}
+              {statusConfig.buttonLabel || I18n.t("events.admission.actions.disabled", { defaultValue: "No disponible" })}
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              className={cn(
+                "h-12 border-emerald-400/30 bg-emerald-400/10 text-emerald-50 hover:bg-emerald-400/15",
+                nextButtonClassName
+              )}
+              onClick={onNextScan}
+            >
+              <ScanLine className="mr-2 h-4 w-4" />
+              {I18n.t("events.admission.actions.scan_next", { defaultValue: "Escanear siguiente" })}
+            </Button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function RecentActivityPanel({ recentActivity, className }) {
+  return (
+    <div className={cn("rounded-3xl border border-white/10 bg-white/[0.03] p-4", className)}>
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <div className="text-xs uppercase tracking-[0.18em] text-zinc-500">
+            {I18n.t("events.admission.recent.label", { defaultValue: "Actividad" })}
+          </div>
+          <h3 className="mt-1 text-lg font-semibold">
+            {I18n.t("events.admission.recent.title", { defaultValue: "Ultimos ingresos" })}
+          </h3>
+        </div>
+        <Badge variant="secondary" className="border-white/10 bg-white/10 text-white">
+          {recentActivity.length}
+        </Badge>
+      </div>
+
+      <div className="mt-4 space-y-3">
+        {recentActivity.length === 0 && (
+          <div className="rounded-2xl border border-dashed border-white/10 px-4 py-6 text-sm text-zinc-500">
+            {I18n.t("events.admission.recent.empty", { defaultValue: "Todavia no hay ingresos registrados en esta sesion." })}
+          </div>
+        )}
+
+        {recentActivity.map((activity) => (
+          <div
+            key={`${activity.id}-${activity.checked_in_at}`}
+            className="flex items-start justify-between gap-3 rounded-2xl border border-white/8 bg-black/20 px-4 py-3"
+          >
+            <div className="min-w-0">
+              <div className="truncate font-medium text-zinc-100">
+                {activity.attendee_name || activity.attendee_email}
+              </div>
+              <div className="truncate text-sm text-zinc-400">{activity.ticket_title}</div>
+            </div>
+            <div className="shrink-0 text-right text-xs text-zinc-500">
+              {formatDateTime(activity.checked_in_at)}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 export default function EventAdmission() {
   const { slug } = useParams()
   const { toast } = useToast()
@@ -145,6 +441,9 @@ export default function EventAdmission() {
   const [isLookupPending, setIsLookupPending] = React.useState(false)
   const [isUpdating, setIsUpdating] = React.useState(false)
   const [isUnauthorized, setIsUnauthorized] = React.useState(false)
+  const [mobileStatsOpen, setMobileStatsOpen] = React.useState(false)
+  const [mobileSettingsOpen, setMobileSettingsOpen] = React.useState(false)
+  const [mobileResultOpen, setMobileResultOpen] = React.useState(false)
   const [autoMode, setAutoMode] = React.useState(() => {
     if (typeof window === "undefined") return true
 
@@ -481,6 +780,18 @@ export default function EventAdmission() {
   }, [autoMode])
 
   React.useEffect(() => {
+    const hasFeedback = Boolean(ticketResult || lookupError)
+
+    if (hasFeedback) {
+      setMobileSettingsOpen(false)
+      setMobileResultOpen(true)
+      return
+    }
+
+    setMobileResultOpen(false)
+  }, [lookupError, ticketResult])
+
+  React.useEffect(() => {
     if (typeof window === "undefined") return undefined
 
     const activateAudio = () => {
@@ -559,17 +870,34 @@ export default function EventAdmission() {
     }
   }, [isUnauthorized, loadingPage, startScanner, stopScanner])
 
-  const handleManualSubmit = async (event) => {
+  const handleManualSubmit = React.useCallback(async (event) => {
     event.preventDefault()
     await lookupTicket(manualCode, "manual")
-  }
+  }, [lookupTicket, manualCode])
 
-  const handleNextScan = async () => {
+  const handleNextScan = React.useCallback(async () => {
     clearNextScanTimeout()
     setTicketResult(null)
     setLookupError("")
     await resumeScanner()
-  }
+  }, [clearNextScanTimeout, resumeScanner])
+
+  const handleCameraToggle = React.useCallback(() => {
+    if (cameraState === "active") {
+      void pauseScanner()
+      return
+    }
+
+    void resumeScanner()
+  }, [cameraState, pauseScanner, resumeScanner])
+
+  const handleMobileResultOpenChange = React.useCallback((open) => {
+    setMobileResultOpen(open)
+
+    if (!open && (ticketResult || lookupError)) {
+      void handleNextScan()
+    }
+  }, [handleNextScan, lookupError, ticketResult])
 
   if (loadingPage) {
     return (
@@ -609,20 +937,45 @@ export default function EventAdmission() {
   return (
     <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.08),_transparent_35%),linear-gradient(180deg,_#111827_0%,_#09090b_100%)] px-4 py-4 text-zinc-100 sm:px-6 lg:px-8">
       <div className="mx-auto flex max-w-7xl flex-col gap-4">
-        <div className="flex flex-col gap-4 rounded-3xl border border-white/10 bg-white/5 p-4 shadow-2xl backdrop-blur sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-zinc-400">
-              <ScanLine className="h-4 w-4" />
-              {I18n.t("events.admission.label", { defaultValue: "Modo admision" })}
+        <div className="flex flex-col gap-4 rounded-3xl border border-white/10 bg-white/5 p-4 shadow-2xl backdrop-blur sm:p-5">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0 space-y-1">
+              <div className="flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-zinc-400">
+                <ScanLine className="h-4 w-4" />
+                {I18n.t("events.admission.label", { defaultValue: "Modo admision" })}
+              </div>
+              <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{eventInfo?.title}</h1>
+              <div className="text-sm text-zinc-400">
+                {[eventInfo?.event_dates, eventInfo?.location].filter(Boolean).join(" • ")}
+              </div>
             </div>
-            <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{eventInfo?.title}</h1>
-            <div className="text-sm text-zinc-400">
-              {[eventInfo?.event_dates, eventInfo?.location].filter(Boolean).join(" • ")}
+
+            <div className="flex shrink-0 items-center gap-2 lg:hidden">
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="border-white/15 bg-white/5 text-white hover:bg-white/10"
+                onClick={() => setMobileStatsOpen(true)}
+                aria-label={I18n.t("events.admission.summary.title", { defaultValue: "Ver estadísticas" })}
+              >
+                <BarChart3 className="h-4 w-4" />
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon"
+                className="border-white/15 bg-white/5 text-white hover:bg-white/10"
+                onClick={() => setMobileSettingsOpen(true)}
+                aria-label={I18n.t("events.admission.settings.title", { defaultValue: "Abrir ajustes" })}
+              >
+                <Settings2 className="h-4 w-4" />
+              </Button>
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <Button asChild variant="secondary" className="bg-white/10 text-white hover:bg-white/15">
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+            <Button asChild variant="secondary" className="w-full bg-white/10 text-white hover:bg-white/15 sm:w-auto">
               <Link to={`/events/${slug}/edit/attendees`}>
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 {I18n.t("events.admission.back_to_attendees", { defaultValue: "Volver a asistentes" })}
@@ -631,14 +984,8 @@ export default function EventAdmission() {
             <Button
               type="button"
               variant="outline"
-              className="border-white/15 bg-transparent text-white hover:bg-white/10"
-              onClick={() => {
-                if (cameraState === "active") {
-                  void pauseScanner()
-                } else {
-                  void resumeScanner()
-                }
-              }}
+              className="hidden border-white/15 bg-transparent text-white hover:bg-white/10 lg:inline-flex"
+              onClick={handleCameraToggle}
             >
               {cameraState === "active" ? (
                 <>
@@ -655,30 +1002,11 @@ export default function EventAdmission() {
           </div>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-          <SummaryStat
-            label={I18n.t("events.admission.summary.checked_in", { defaultValue: "Registrados" })}
-            value={summary?.checked_in_count}
-            tone="success"
-          />
-          <SummaryStat
-            label={I18n.t("events.admission.summary.remaining", { defaultValue: "Por ingresar" })}
-            value={summary?.remaining_count}
-            tone="warning"
-          />
-          <SummaryStat
-            label={I18n.t("events.admission.summary.total_paid", { defaultValue: "Pagados" })}
-            value={summary?.total_paid_count}
-          />
-          <SummaryStat
-            label={I18n.t("events.admission.summary.refunded", { defaultValue: "Reembolsados" })}
-            value={summary?.refunded_count}
-          />
-        </div>
+        <SummaryStatsGrid summary={summary} className="hidden lg:grid" />
 
         <Card className="overflow-hidden border-white/10 bg-zinc-950/75 text-zinc-100 shadow-2xl">
-          <CardContent className="grid gap-0 p-0 lg:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)]">
-            <div className="border-b border-white/10 p-4 sm:p-6 lg:border-b-0 lg:border-r">
+          <CardContent className="p-0 lg:grid lg:grid-cols-[minmax(0,1.1fr)_minmax(360px,0.9fr)]">
+            <div className="p-4 sm:p-6 lg:border-r lg:border-white/10">
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">
@@ -701,88 +1029,62 @@ export default function EventAdmission() {
               </div>
 
               <div className="mt-4 overflow-hidden rounded-[28px] border border-white/10 bg-black shadow-[0_30px_90px_rgba(0,0,0,0.45)]">
-                <div className="relative aspect-[4/5] min-h-[360px] bg-zinc-950">
+                <div className="relative aspect-[3/4] min-h-[300px] bg-zinc-950 sm:aspect-[4/5] sm:min-h-[360px]">
                   <div
                     id={scannerElementId}
                     className="h-full w-full [&_video]:h-full [&_video]:w-full [&_video]:object-cover"
                   />
 
                   <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(9,9,11,0.18),rgba(9,9,11,0.28))]" />
-                  <div className="pointer-events-none absolute inset-6 rounded-[24px] border border-white/8">
-                    <div className="absolute left-0 top-0 h-14 w-14 rounded-tl-[24px] border-l-4 border-t-4 border-emerald-400" />
-                    <div className="absolute right-0 top-0 h-14 w-14 rounded-tr-[24px] border-r-4 border-t-4 border-emerald-400" />
-                    <div className="absolute bottom-0 left-0 h-14 w-14 rounded-bl-[24px] border-b-4 border-l-4 border-emerald-400" />
-                    <div className="absolute bottom-0 right-0 h-14 w-14 rounded-br-[24px] border-b-4 border-r-4 border-emerald-400" />
-                    <div className="absolute left-6 right-6 top-1/2 h-px -translate-y-1/2 bg-emerald-400/70 shadow-[0_0_18px_rgba(52,211,153,0.55)]" />
+                  <div className="pointer-events-none absolute inset-4 rounded-[24px] border border-white/8 sm:inset-6">
+                    <div className="absolute left-0 top-0 h-12 w-12 rounded-tl-[24px] border-l-4 border-t-4 border-emerald-400 sm:h-14 sm:w-14" />
+                    <div className="absolute right-0 top-0 h-12 w-12 rounded-tr-[24px] border-r-4 border-t-4 border-emerald-400 sm:h-14 sm:w-14" />
+                    <div className="absolute bottom-0 left-0 h-12 w-12 rounded-bl-[24px] border-b-4 border-l-4 border-emerald-400 sm:h-14 sm:w-14" />
+                    <div className="absolute bottom-0 right-0 h-12 w-12 rounded-br-[24px] border-b-4 border-r-4 border-emerald-400 sm:h-14 sm:w-14" />
+                    <div className="absolute left-4 right-4 top-1/2 h-px -translate-y-1/2 bg-emerald-400/70 shadow-[0_0_18px_rgba(52,211,153,0.55)] sm:left-6 sm:right-6" />
                   </div>
                 </div>
-              </div>
-
-              <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-white/10 bg-white/[0.04] p-4 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <div className="text-sm font-medium text-white">
-                    {I18n.t("events.admission.auto_mode.title", { defaultValue: "Modo automático" })}
-                  </div>
-                  <div className="mt-1 text-xs text-zinc-400">
-                    {I18n.t("events.admission.auto_mode.description", { defaultValue: "Si el QR es válido, registra el ingreso, hace sonar un pling y vuelve solo a escanear." })}
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <span className="text-sm text-zinc-300">
-                    {autoMode
-                      ? I18n.t("events.admission.auto_mode.on", { defaultValue: "Activado" })
-                      : I18n.t("events.admission.auto_mode.off", { defaultValue: "Manual" })}
-                  </span>
-                  <Switch
-                    checked={autoMode}
-                    onCheckedChange={(checked) => {
-                      void primeAudioContext()
-                      setAutoMode(checked)
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div className="mt-4 grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto]">
-                <form onSubmit={handleManualSubmit} className="flex flex-col gap-3 sm:flex-row">
-                  <Input
-                    value={manualCode}
-                    onChange={(event) => setManualCode(event.target.value)}
-                    placeholder={I18n.t("events.admission.manual.placeholder", { defaultValue: "Pega el enlace del ticket o el codigo firmado" })}
-                    className="h-12 border-white/10 bg-white/5 text-white placeholder:text-zinc-500"
-                  />
-                  <Button type="submit" disabled={isLookupPending} className="h-12 whitespace-nowrap">
-                    {isLookupPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    {I18n.t("events.admission.manual.submit", { defaultValue: "Validar codigo" })}
-                  </Button>
-                </form>
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="h-12 border-white/10 bg-transparent text-white hover:bg-white/10"
-                  onClick={() => {
-                    setLookupError("")
-                    setTicketResult(null)
-                    void resumeScanner()
-                  }}
-                >
-                  <RefreshCcw className="mr-2 h-4 w-4" />
-                  {I18n.t("events.admission.actions.scan_next", { defaultValue: "Escanear siguiente" })}
-                </Button>
               </div>
 
               {cameraError && (
-                <Alert className="mt-4 border-amber-500/30 bg-amber-500/10 text-amber-50">
+                <Alert className="mt-4 border-amber-500/30 bg-amber-500/10 text-amber-50 lg:hidden">
                   <CircleAlert className="h-4 w-4 text-amber-300" />
                   <AlertTitle>{I18n.t("events.admission.errors.camera_title", { defaultValue: "Camara no disponible" })}</AlertTitle>
                   <AlertDescription>{cameraError}</AlertDescription>
                 </Alert>
               )}
+
+              <div className="mt-4 lg:hidden">
+                <Button
+                  type="button"
+                  className="h-14 w-full rounded-2xl bg-emerald-400 text-base font-semibold text-zinc-950 shadow-[0_18px_45px_rgba(52,211,153,0.22)] hover:bg-emerald-300"
+                  onClick={() => void handleNextScan()}
+                >
+                  <ScanLine className="mr-2 h-5 w-5" />
+                  {I18n.t("events.admission.actions.scan_next", { defaultValue: "Escanear siguiente" })}
+                </Button>
+              </div>
+
+              <div className="mt-4 hidden lg:block">
+                <SettingsPanelContent
+                  autoMode={autoMode}
+                  cameraError={cameraError}
+                  cameraState={cameraState}
+                  isLookupPending={isLookupPending}
+                  manualCode={manualCode}
+                  onAutoModeChange={(checked) => {
+                    void primeAudioContext()
+                    setAutoMode(checked)
+                  }}
+                  onManualCodeChange={(event) => setManualCode(event.target.value)}
+                  onManualSubmit={handleManualSubmit}
+                  onNextScan={() => void handleNextScan()}
+                  onToggleCamera={handleCameraToggle}
+                />
+              </div>
             </div>
 
-            <div className="flex flex-col gap-4 bg-zinc-900/60 p-4 sm:p-6">
+            <div className="hidden flex-col gap-4 bg-zinc-900/60 p-4 sm:p-6 lg:flex">
               <div>
                 <div className="text-xs uppercase tracking-[0.2em] text-zinc-500">
                   {I18n.t("events.admission.validation.label", { defaultValue: "Validacion" })}
@@ -792,157 +1094,87 @@ export default function EventAdmission() {
                 </h2>
               </div>
 
-              {lookupError && !ticketResult && (
-                <Alert variant="destructive" className="border-destructive/40 bg-destructive/15 text-destructive-foreground">
-                  <CircleAlert className="h-4 w-4" />
-                  <AlertTitle>{I18n.t("events.admission.errors.invalid_title", { defaultValue: "No valido" })}</AlertTitle>
-                  <AlertDescription>{lookupError}</AlertDescription>
-                </Alert>
-              )}
+              <ValidationPanelContent
+                lookupError={lookupError}
+                ticketResult={ticketResult}
+                statusConfig={statusConfig}
+                isUpdating={isUpdating}
+                onNextScan={() => void handleNextScan()}
+                onToggleCheckIn={() => void handleToggleCheckIn()}
+              />
 
-              {!ticketResult && !lookupError && (
-                <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.03] p-6 text-sm text-zinc-400">
-                  <div className="flex items-center gap-3 text-zinc-200">
-                    <QrCode className="h-5 w-5 text-emerald-300" />
-                    <span className="font-medium">
-                      {I18n.t("events.admission.empty.title", { defaultValue: "Listo para recibir tickets" })}
-                    </span>
-                  </div>
-                  <p className="mt-3 leading-6">
-                    {I18n.t("events.admission.empty.description", { defaultValue: "Escanea el QR desde el movil del asistente. Tambien puedes pegar manualmente el enlace del ticket si la camara falla." })}
-                  </p>
-                </div>
-              )}
-
-              {ticketResult && statusConfig && (
-                <div className="space-y-4">
-                  <div className={cn("rounded-3xl border p-5 shadow-lg", statusConfig.surfaceClassName)}>
-                    <div className="flex flex-wrap items-start justify-between gap-3">
-                      <div className="space-y-2">
-                        <Badge variant={statusConfig.badgeVariant} className="shadow-none">
-                          {statusConfig.label}
-                        </Badge>
-                        <div className="text-2xl font-semibold tracking-tight">
-                          {ticketResult.attendee_name || ticketResult.attendee_email}
-                        </div>
-                        <div className="text-sm opacity-90">{ticketResult.attendee_email}</div>
-                      </div>
-
-                      <div className={cn("text-right text-sm font-medium", statusConfig.accentClassName)}>
-                        <div>{ticketResult.ticket_title}</div>
-                        {ticketResult.ticket_price != null && (
-                          <div className="mt-1 opacity-90">
-                            {formatMoney(ticketResult.ticket_price, ticketResult.ticket_currency)}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="mt-4 rounded-2xl border border-white/10 bg-black/15 p-4 text-sm">
-                      <div className="font-medium">
-                        {ticketResult.admission_message}
-                      </div>
-                      {ticketResult.checked_in_at && (
-                        <div className="mt-2 flex items-center gap-2 opacity-90">
-                          <Clock3 className="h-4 w-4" />
-                          <span>
-                            {I18n.t("events.admission.checked_in_at", { defaultValue: "Registrado" })}: {formatDateTime(ticketResult.checked_in_at)}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                      <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-zinc-500">
-                        <UserRound className="h-4 w-4" />
-                        {I18n.t("events.admission.details.attendee", { defaultValue: "Asistente" })}
-                      </div>
-                      <div className="mt-3 text-sm text-zinc-200">{ticketResult.attendee_email}</div>
-                    </div>
-                    <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4">
-                      <div className="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-zinc-500">
-                        <Ticket className="h-4 w-4" />
-                        {I18n.t("events.admission.details.purchase_state", { defaultValue: "Estado" })}
-                      </div>
-                      <div className="mt-3 text-sm capitalize text-zinc-200">{ticketResult.purchase_state}</div>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col gap-3 sm:flex-row">
-                    <Button
-                      type="button"
-                      className="h-12 flex-1"
-                      disabled={!ticketResult.can_toggle_check_in || isUpdating}
-                      onClick={() => void handleToggleCheckIn()}
-                    >
-                      {isUpdating ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      ) : ticketResult.checked_in ? (
-                        <RefreshCcw className="mr-2 h-4 w-4" />
-                      ) : (
-                        <CheckCircle2 className="mr-2 h-4 w-4" />
-                      )}
-                      {statusConfig.buttonLabel || I18n.t("events.admission.actions.disabled", { defaultValue: "No disponible" })}
-                    </Button>
-
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="h-12 border-white/10 bg-transparent text-white hover:bg-white/10"
-                      onClick={handleNextScan}
-                    >
-                      <ScanLine className="mr-2 h-4 w-4" />
-                      {I18n.t("events.admission.actions.scan_next", { defaultValue: "Escanear siguiente" })}
-                    </Button>
-                  </div>
-                </div>
-              )}
-
-              <div className="rounded-3xl border border-white/10 bg-white/[0.03] p-4">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <div className="text-xs uppercase tracking-[0.18em] text-zinc-500">
-                      {I18n.t("events.admission.recent.label", { defaultValue: "Actividad" })}
-                    </div>
-                    <h3 className="mt-1 text-lg font-semibold">
-                      {I18n.t("events.admission.recent.title", { defaultValue: "Ultimos ingresos" })}
-                    </h3>
-                  </div>
-                  <Badge variant="secondary" className="border-white/10 bg-white/10 text-white">
-                    {recentActivity.length}
-                  </Badge>
-                </div>
-
-                <div className="mt-4 space-y-3">
-                  {recentActivity.length === 0 && (
-                    <div className="rounded-2xl border border-dashed border-white/10 px-4 py-6 text-sm text-zinc-500">
-                      {I18n.t("events.admission.recent.empty", { defaultValue: "Todavia no hay ingresos registrados en esta sesion." })}
-                    </div>
-                  )}
-
-                  {recentActivity.map((activity) => (
-                    <div
-                      key={`${activity.id}-${activity.checked_in_at}`}
-                      className="flex items-start justify-between gap-3 rounded-2xl border border-white/8 bg-black/20 px-4 py-3"
-                    >
-                      <div className="min-w-0">
-                        <div className="truncate font-medium text-zinc-100">
-                          {activity.attendee_name || activity.attendee_email}
-                        </div>
-                        <div className="truncate text-sm text-zinc-400">{activity.ticket_title}</div>
-                      </div>
-                      <div className="shrink-0 text-right text-xs text-zinc-500">
-                        {formatDateTime(activity.checked_in_at)}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
+              <RecentActivityPanel recentActivity={recentActivity} />
             </div>
           </CardContent>
         </Card>
+
+        <Drawer open={mobileStatsOpen} onOpenChange={setMobileStatsOpen}>
+          <DrawerContent className="max-h-[85vh] overflow-hidden rounded-t-[28px] border-white/10 bg-zinc-950 text-zinc-100">
+            <DrawerHeader className="text-left">
+              <DrawerTitle>{I18n.t("events.admission.summary.title", { defaultValue: "Estadísticas" })}</DrawerTitle>
+              <DrawerDescription className="text-zinc-400">
+                {I18n.t("events.admission.summary.description", { defaultValue: "Resumen de admisión y actividad sin tapar el visor." })}
+              </DrawerDescription>
+            </DrawerHeader>
+            <div className="space-y-4 overflow-y-auto px-4 pb-6">
+              <SummaryStatsGrid summary={summary} compact />
+              <RecentActivityPanel recentActivity={recentActivity} />
+            </div>
+          </DrawerContent>
+        </Drawer>
+
+        <Drawer open={mobileSettingsOpen} onOpenChange={setMobileSettingsOpen}>
+          <DrawerContent className="max-h-[85vh] overflow-hidden rounded-t-[28px] border-white/10 bg-zinc-950 text-zinc-100">
+            <DrawerHeader className="text-left">
+              <DrawerTitle>{I18n.t("events.admission.settings.title", { defaultValue: "Ajustes de admisión" })}</DrawerTitle>
+              <DrawerDescription className="text-zinc-400">
+                {I18n.t("events.admission.settings.description", { defaultValue: "Controla la cámara, el modo automático y la validación manual." })}
+              </DrawerDescription>
+            </DrawerHeader>
+            <div className="overflow-y-auto px-4 pb-6">
+              <SettingsPanelContent
+                autoMode={autoMode}
+                cameraError={cameraError}
+                cameraState={cameraState}
+                isLookupPending={isLookupPending}
+                manualCode={manualCode}
+                onAutoModeChange={(checked) => {
+                  void primeAudioContext()
+                  setAutoMode(checked)
+                }}
+                onManualCodeChange={(event) => setManualCode(event.target.value)}
+                onManualSubmit={handleManualSubmit}
+                onNextScan={() => void handleNextScan()}
+                onToggleCamera={handleCameraToggle}
+                showCameraControl
+              />
+            </div>
+          </DrawerContent>
+        </Drawer>
+
+        <Drawer open={mobileResultOpen} onOpenChange={handleMobileResultOpenChange}>
+          <DrawerContent className="max-h-[85vh] overflow-hidden rounded-t-[28px] border-white/10 bg-zinc-950 text-zinc-100">
+            <DrawerHeader className="text-left">
+              <DrawerTitle>{I18n.t("events.admission.validation.title", { defaultValue: "Resultado del ultimo QR" })}</DrawerTitle>
+              <DrawerDescription className="text-zinc-400">
+                {ticketResult
+                  ? ticketResult.ticket_title
+                  : I18n.t("events.admission.validation.description", { defaultValue: "Revisa el estado y cierra la hoja para seguir escaneando." })}
+              </DrawerDescription>
+            </DrawerHeader>
+            <div className="overflow-y-auto px-4 pb-6">
+              <ValidationPanelContent
+                lookupError={lookupError}
+                ticketResult={ticketResult}
+                statusConfig={statusConfig}
+                isUpdating={isUpdating}
+                onNextScan={() => void handleNextScan()}
+                onToggleCheckIn={() => void handleToggleCheckIn()}
+                nextButtonClassName="border-transparent bg-emerald-400 text-zinc-950 shadow-[0_16px_36px_rgba(52,211,153,0.22)] hover:bg-emerald-300"
+              />
+            </div>
+          </DrawerContent>
+        </Drawer>
       </div>
     </div>
   )

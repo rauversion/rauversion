@@ -88,6 +88,13 @@ export default function MyEvents() {
   const [open, setOpen] = React.useState(false)
   const { register, handleSubmit, formState: { errors } } = useForm()
   const { toast } = useToast()
+  const tabLabels = {
+    all: I18n.t('events.my_events.tabs.all'),
+    owned: I18n.t('events.my_events.tabs.owned', { defaultValue: 'Propios' }),
+    drafts: I18n.t('events.my_events.tabs.drafts'),
+    published: I18n.t('events.my_events.tabs.published'),
+    manager: I18n.t('events.my_events.tabs.manager'),
+  }
 
   const onSubmit = async (data) => {
     try {
@@ -132,12 +139,13 @@ export default function MyEvents() {
   return (
     <div className="px-4 sm:px-6 lg:px-8">
       <div className="mb-6 my-4">
-        <Tabs defaultValue={tab} onValueChange={setTab}>
+        <Tabs value={tab} onValueChange={setTab}>
           <TabsList>
-            <TabsTrigger value="all">{I18n.t('events.my_events.tabs.all')}</TabsTrigger>
-            <TabsTrigger value="drafts">{I18n.t('events.my_events.tabs.drafts')}</TabsTrigger>
-            <TabsTrigger value="published">{I18n.t('events.my_events.tabs.published')}</TabsTrigger>
-            <TabsTrigger value="manager">{I18n.t('events.my_events.tabs.manager')}</TabsTrigger>
+            <TabsTrigger value="all">{tabLabels.all}</TabsTrigger>
+            <TabsTrigger value="owned">{tabLabels.owned}</TabsTrigger>
+            <TabsTrigger value="drafts">{tabLabels.drafts}</TabsTrigger>
+            <TabsTrigger value="published">{tabLabels.published}</TabsTrigger>
+            <TabsTrigger value="manager">{tabLabels.manager}</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
@@ -145,7 +153,7 @@ export default function MyEvents() {
       <div className="sm:flex sm:items-center">
         <div className="sm:flex-auto">
           <h1 className="text-xl font-semibold text-default">
-            {I18n.t('events.my_events.title', { tab: tab.charAt(0).toUpperCase() + tab.slice(1) })}
+            {I18n.t('events.my_events.title', { tab: tabLabels[tab] || tabLabels.all })}
           </h1>
           <p className="mt-2 text-sm text-muted">
             {I18n.t('events.my_events.subtitle')}
