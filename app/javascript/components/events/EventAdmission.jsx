@@ -106,6 +106,64 @@ const STATUS_CONFIG = {
   },
 }
 
+function buildProcessingOperation(key) {
+  switch (key) {
+    case "lookup_manual":
+      return {
+        key,
+        title: I18n.t("events.admission.processing.lookup_manual.title", { defaultValue: "Validando codigo" }),
+        description: I18n.t("events.admission.processing.lookup_manual.description", { defaultValue: "Estamos revisando el ticket y preparando el resultado. Espera un momento antes de intentar otra accion." }),
+      }
+    case "check_in":
+      return {
+        key,
+        title: I18n.t("events.admission.processing.check_in.title", { defaultValue: "Registrando ingreso" }),
+        description: I18n.t("events.admission.processing.check_in.description", { defaultValue: "Estamos marcando este ticket como admitido. No escanees el siguiente hasta que terminemos." }),
+      }
+    case "undo_check_in":
+      return {
+        key,
+        title: I18n.t("events.admission.processing.undo_check_in.title", { defaultValue: "Quitando registro" }),
+        description: I18n.t("events.admission.processing.undo_check_in.description", { defaultValue: "Estamos revirtiendo el ingreso de este ticket. Espera a que aparezca el resultado actualizado." }),
+      }
+    case "lookup_scanner":
+    default:
+      return {
+        key: "lookup_scanner",
+        title: I18n.t("events.admission.processing.lookup_scanner.title", { defaultValue: "Procesando ticket QR" }),
+        description: I18n.t("events.admission.processing.lookup_scanner.description", { defaultValue: "Estamos leyendo el QR y preparando la validacion. Mantente en esta pantalla y no escanees otro ticket todavia." }),
+      }
+  }
+}
+
+function ProcessingOverlay({ operation }) {
+  if (!operation) return null
+
+  return (
+    <div
+      aria-live="assertive"
+      aria-busy="true"
+      role="status"
+      className="fixed inset-0 z-[140] flex items-center justify-center bg-zinc-950/92 px-4 backdrop-blur-md"
+    >
+      <div className="w-full max-w-xl rounded-[32px] border border-white/10 bg-zinc-900/95 p-6 text-center shadow-[0_40px_120px_rgba(0,0,0,0.55)] sm:p-8">
+        <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full border border-emerald-400/25 bg-emerald-400/10 shadow-[0_0_60px_rgba(52,211,153,0.18)] sm:h-28 sm:w-28">
+          <Loader2 className="h-12 w-12 animate-spin text-emerald-300 sm:h-14 sm:w-14" />
+        </div>
+        <div className="mt-6 text-xs font-medium uppercase tracking-[0.34em] text-emerald-300/85">
+          {I18n.t("events.admission.processing.wait", { defaultValue: "No cierres esta pantalla" })}
+        </div>
+        <h2 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+          {operation.title}
+        </h2>
+        <p className="mt-4 text-base leading-7 text-zinc-300 sm:text-lg">
+          {operation.description}
+        </p>
+      </div>
+    </div>
+  )
+}
+
 function SummaryStat({ label, value, tone = "default" }) {
   return (
     <div
@@ -157,6 +215,7 @@ function SettingsPanelContent({
   autoMode,
   cameraError,
   cameraState,
+  isBusy,
   isLookupPending,
   manualCode,
   onAutoModeChange,
@@ -174,6 +233,7 @@ function SettingsPanelContent({
           variant="outline"
           className="h-12 w-full border-white/10 bg-white/5 text-white hover:bg-white/10"
           onClick={onToggleCamera}
+          disabled={isBusy}
         >
           {cameraState === "active" ? (
             <>
@@ -205,7 +265,7 @@ function SettingsPanelContent({
               ? I18n.t("events.admission.auto_mode.on", { defaultValue: "Activado" })
               : I18n.t("events.admission.auto_mode.off", { defaultValue: "Manual" })}
           </span>
-          <Switch checked={autoMode} onCheckedChange={onAutoModeChange} />
+          <Switch checked={autoMode} onCheckedChange={onAutoModeChange} disabled={isBusy} />
         </div>
       </div>
 
@@ -214,10 +274,11 @@ function SettingsPanelContent({
           <Input
             value={manualCode}
             onChange={onManualCodeChange}
+            disabled={isBusy}
             placeholder={I18n.t("events.admission.manual.placeholder", { defaultValue: "Pega el enlace del ticket o el codigo firmado" })}
             className="h-12 border-white/10 bg-white/5 text-white placeholder:text-zinc-500"
           />
-          <Button type="submit" disabled={isLookupPending} className="h-12 whitespace-nowrap">
+          <Button type="submit" disabled={isBusy || isLookupPending} className="h-12 whitespace-nowrap">
             {isLookupPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {I18n.t("events.admission.manual.submit", { defaultValue: "Validar codigo" })}
           </Button>
@@ -228,6 +289,7 @@ function SettingsPanelContent({
           variant="outline"
           className="h-12 border-emerald-400/30 bg-emerald-400/10 text-emerald-50 hover:bg-emerald-400/15"
           onClick={onNextScan}
+          disabled={isBusy}
         >
           <RefreshCcw className="mr-2 h-4 w-4" />
           {I18n.t("events.admission.actions.scan_next", { defaultValue: "Escanear siguiente" })}
@@ -246,6 +308,7 @@ function SettingsPanelContent({
 }
 
 function ValidationPanelContent({
+  isBusy,
   lookupError,
   ticketResult,
   statusConfig,
@@ -338,7 +401,7 @@ function ValidationPanelContent({
             <Button
               type="button"
               className="h-12 flex-1"
-              disabled={!ticketResult.can_toggle_check_in || isUpdating}
+              disabled={!ticketResult.can_toggle_check_in || isBusy || isUpdating}
               onClick={onToggleCheckIn}
             >
               {isUpdating ? (
@@ -359,6 +422,7 @@ function ValidationPanelContent({
                 nextButtonClassName
               )}
               onClick={onNextScan}
+              disabled={isBusy}
             >
               <ScanLine className="mr-2 h-4 w-4" />
               {I18n.t("events.admission.actions.scan_next", { defaultValue: "Escanear siguiente" })}
@@ -440,6 +504,7 @@ export default function EventAdmission() {
   const [loadingPage, setLoadingPage] = React.useState(true)
   const [isLookupPending, setIsLookupPending] = React.useState(false)
   const [isUpdating, setIsUpdating] = React.useState(false)
+  const [pendingOperation, setPendingOperation] = React.useState(null)
   const [isUnauthorized, setIsUnauthorized] = React.useState(false)
   const [mobileStatsOpen, setMobileStatsOpen] = React.useState(false)
   const [mobileSettingsOpen, setMobileSettingsOpen] = React.useState(false)
@@ -465,6 +530,16 @@ export default function EventAdmission() {
       window.clearTimeout(nextScanTimeoutRef.current)
       nextScanTimeoutRef.current = null
     }
+  }, [])
+
+  const setProcessingOperation = React.useCallback((operationKey) => {
+    setPendingOperation(buildProcessingOperation(operationKey))
+  }, [])
+
+  const clearProcessingOperation = React.useCallback((operationKey) => {
+    setPendingOperation((currentOperation) => (
+      currentOperation?.key === operationKey ? null : currentOperation
+    ))
   }, [])
 
   const primeAudioContext = React.useCallback(async () => {
@@ -645,11 +720,13 @@ export default function EventAdmission() {
   }, [clearNextScanTimeout, resumeScanner])
 
   const handleToggleCheckIn = React.useCallback(async (ticket = ticketResult, options = {}) => {
-    if (!ticket) return false
+    if (!ticket || isUpdating) return false
 
     const { autoAdvance = false } = options
+    const operationKey = ticket.checked_in ? "undo_check_in" : "check_in"
 
     clearNextScanTimeout()
+    setProcessingOperation(operationKey)
     setIsUpdating(true)
 
     try {
@@ -704,22 +781,26 @@ export default function EventAdmission() {
       return false
     } finally {
       setIsUpdating(false)
+      clearProcessingOperation(operationKey)
     }
-  }, [applyPayload, clearNextScanTimeout, playSuccessTone, queueNextScan, slug, ticketResult, toast])
+  }, [applyPayload, clearNextScanTimeout, clearProcessingOperation, isUpdating, playSuccessTone, queueNextScan, setProcessingOperation, slug, ticketResult, toast])
 
   const lookupTicket = React.useCallback(async (code, source = "scanner") => {
-    if (!code?.trim()) return
+    if (!code?.trim() || lookupPendingRef.current) return
+
+    const operationKey = source === "manual" ? "lookup_manual" : "lookup_scanner"
 
     clearNextScanTimeout()
     lookupPendingRef.current = true
+    setProcessingOperation(operationKey)
     setIsLookupPending(true)
     setLookupError("")
 
-    if (source === "scanner") {
-      await pauseScanner()
-    }
-
     try {
+      if (source === "scanner") {
+        await pauseScanner()
+      }
+
       const response = await post(`/events/${slug}/admission/scan.json`, {
         body: JSON.stringify({ code }),
         contentType: "application/json",
@@ -767,8 +848,9 @@ export default function EventAdmission() {
     } finally {
       setIsLookupPending(false)
       lookupPendingRef.current = false
+      clearProcessingOperation(operationKey)
     }
-  }, [applyPayload, autoMode, clearNextScanTimeout, handleToggleCheckIn, pauseScanner, slug])
+  }, [applyPayload, autoMode, clearNextScanTimeout, clearProcessingOperation, handleToggleCheckIn, pauseScanner, setProcessingOperation, slug])
 
   React.useEffect(() => {
     lookupTicketRef.current = lookupTicket
@@ -872,24 +954,27 @@ export default function EventAdmission() {
 
   const handleManualSubmit = React.useCallback(async (event) => {
     event.preventDefault()
+    if (pendingOperation) return
     await lookupTicket(manualCode, "manual")
-  }, [lookupTicket, manualCode])
+  }, [lookupTicket, manualCode, pendingOperation])
 
   const handleNextScan = React.useCallback(async () => {
+    if (pendingOperation) return
     clearNextScanTimeout()
     setTicketResult(null)
     setLookupError("")
     await resumeScanner()
-  }, [clearNextScanTimeout, resumeScanner])
+  }, [clearNextScanTimeout, pendingOperation, resumeScanner])
 
   const handleCameraToggle = React.useCallback(() => {
+    if (pendingOperation) return
     if (cameraState === "active") {
       void pauseScanner()
       return
     }
 
     void resumeScanner()
-  }, [cameraState, pauseScanner, resumeScanner])
+  }, [cameraState, pauseScanner, pendingOperation, resumeScanner])
 
   const handleMobileResultOpenChange = React.useCallback((open) => {
     setMobileResultOpen(open)
@@ -935,72 +1020,77 @@ export default function EventAdmission() {
   const statusConfig = ticketResult ? STATUS_CONFIG[ticketResult.admission_status] : null
 
   return (
-    <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.08),_transparent_35%),linear-gradient(180deg,_#111827_0%,_#09090b_100%)] px-4 py-4 text-zinc-100 sm:px-6 lg:px-8">
-      <div className="mx-auto flex max-w-7xl flex-col gap-4">
-        <div className="flex flex-col gap-4 rounded-3xl border border-white/10 bg-white/5 p-4 shadow-2xl backdrop-blur sm:p-5">
-          <div className="flex items-start justify-between gap-4">
-            <div className="min-w-0 space-y-1">
-              <div className="flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-zinc-400">
-                <ScanLine className="h-4 w-4" />
-                {I18n.t("events.admission.label", { defaultValue: "Modo admision" })}
+    <>
+      <ProcessingOverlay operation={pendingOperation} />
+
+      <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.08),_transparent_35%),linear-gradient(180deg,_#111827_0%,_#09090b_100%)] px-4 py-4 text-zinc-100 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-7xl flex-col gap-4">
+          <div className="flex flex-col gap-4 rounded-3xl border border-white/10 bg-white/5 p-4 shadow-2xl backdrop-blur sm:p-5">
+            <div className="flex items-start justify-between gap-4">
+              <div className="min-w-0 space-y-1">
+                <div className="flex items-center gap-2 text-xs uppercase tracking-[0.22em] text-zinc-400">
+                  <ScanLine className="h-4 w-4" />
+                  {I18n.t("events.admission.label", { defaultValue: "Modo admision" })}
+                </div>
+                <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{eventInfo?.title}</h1>
+                <div className="text-sm text-zinc-400">
+                  {[eventInfo?.event_dates, eventInfo?.location].filter(Boolean).join(" • ")}
+                </div>
               </div>
-              <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">{eventInfo?.title}</h1>
-              <div className="text-sm text-zinc-400">
-                {[eventInfo?.event_dates, eventInfo?.location].filter(Boolean).join(" • ")}
+
+              <div className="flex shrink-0 items-center gap-2 lg:hidden">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="border-white/15 bg-white/5 text-white hover:bg-white/10"
+                  onClick={() => setMobileStatsOpen(true)}
+                  aria-label={I18n.t("events.admission.summary.title", { defaultValue: "Ver estadísticas" })}
+                >
+                  <BarChart3 className="h-4 w-4" />
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="border-white/15 bg-white/5 text-white hover:bg-white/10"
+                  onClick={() => setMobileSettingsOpen(true)}
+                  aria-label={I18n.t("events.admission.settings.title", { defaultValue: "Abrir ajustes" })}
+                >
+                  <Settings2 className="h-4 w-4" />
+                </Button>
               </div>
             </div>
 
-            <div className="flex shrink-0 items-center gap-2 lg:hidden">
-              <Button
-                type="button"
-                variant="outline"
-                size="icon"
-                className="border-white/15 bg-white/5 text-white hover:bg-white/10"
-                onClick={() => setMobileStatsOpen(true)}
-                aria-label={I18n.t("events.admission.summary.title", { defaultValue: "Ver estadísticas" })}
-              >
-                <BarChart3 className="h-4 w-4" />
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+              <Button asChild variant="secondary" className="w-full bg-white/10 text-white hover:bg-white/15 sm:w-auto">
+                <Link to={`/events/${slug}/edit/attendees`}>
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  {I18n.t("events.admission.back_to_attendees", { defaultValue: "Volver a asistentes" })}
+                </Link>
               </Button>
               <Button
                 type="button"
                 variant="outline"
-                size="icon"
-                className="border-white/15 bg-white/5 text-white hover:bg-white/10"
-                onClick={() => setMobileSettingsOpen(true)}
-                aria-label={I18n.t("events.admission.settings.title", { defaultValue: "Abrir ajustes" })}
+                className="hidden border-white/15 bg-transparent text-white hover:bg-white/10 lg:inline-flex"
+                onClick={handleCameraToggle}
+                disabled={Boolean(pendingOperation)}
               >
-                <Settings2 className="h-4 w-4" />
+                {cameraState === "active" ? (
+                  <>
+                    <CameraOff className="mr-2 h-4 w-4" />
+                    {I18n.t("events.admission.actions.pause_camera", { defaultValue: "Pausar camara" })}
+                  </>
+                ) : (
+                  <>
+                    <Camera className="mr-2 h-4 w-4" />
+                    {I18n.t("events.admission.actions.resume_camera", { defaultValue: "Activar camara" })}
+                  </>
+                )}
               </Button>
             </div>
           </div>
-
-          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
-            <Button asChild variant="secondary" className="w-full bg-white/10 text-white hover:bg-white/15 sm:w-auto">
-              <Link to={`/events/${slug}/edit/attendees`}>
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                {I18n.t("events.admission.back_to_attendees", { defaultValue: "Volver a asistentes" })}
-              </Link>
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="hidden border-white/15 bg-transparent text-white hover:bg-white/10 lg:inline-flex"
-              onClick={handleCameraToggle}
-            >
-              {cameraState === "active" ? (
-                <>
-                  <CameraOff className="mr-2 h-4 w-4" />
-                  {I18n.t("events.admission.actions.pause_camera", { defaultValue: "Pausar camara" })}
-                </>
-              ) : (
-                <>
-                  <Camera className="mr-2 h-4 w-4" />
-                  {I18n.t("events.admission.actions.resume_camera", { defaultValue: "Activar camara" })}
-                </>
-              )}
-            </Button>
-          </div>
-        </div>
+          
 
         <SummaryStatsGrid summary={summary} className="hidden lg:grid" />
 
@@ -1059,6 +1149,7 @@ export default function EventAdmission() {
                   type="button"
                   className="h-14 w-full rounded-2xl bg-emerald-400 text-base font-semibold text-zinc-950 shadow-[0_18px_45px_rgba(52,211,153,0.22)] hover:bg-emerald-300"
                   onClick={() => void handleNextScan()}
+                  disabled={Boolean(pendingOperation)}
                 >
                   <ScanLine className="mr-2 h-5 w-5" />
                   {I18n.t("events.admission.actions.scan_next", { defaultValue: "Escanear siguiente" })}
@@ -1070,6 +1161,7 @@ export default function EventAdmission() {
                   autoMode={autoMode}
                   cameraError={cameraError}
                   cameraState={cameraState}
+                  isBusy={Boolean(pendingOperation)}
                   isLookupPending={isLookupPending}
                   manualCode={manualCode}
                   onAutoModeChange={(checked) => {
@@ -1095,6 +1187,7 @@ export default function EventAdmission() {
               </div>
 
               <ValidationPanelContent
+                isBusy={Boolean(pendingOperation)}
                 lookupError={lookupError}
                 ticketResult={ticketResult}
                 statusConfig={statusConfig}
@@ -1136,6 +1229,7 @@ export default function EventAdmission() {
                 autoMode={autoMode}
                 cameraError={cameraError}
                 cameraState={cameraState}
+                isBusy={Boolean(pendingOperation)}
                 isLookupPending={isLookupPending}
                 manualCode={manualCode}
                 onAutoModeChange={(checked) => {
@@ -1164,6 +1258,7 @@ export default function EventAdmission() {
             </DrawerHeader>
             <div className="overflow-y-auto px-4 pb-6">
               <ValidationPanelContent
+                isBusy={Boolean(pendingOperation)}
                 lookupError={lookupError}
                 ticketResult={ticketResult}
                 statusConfig={statusConfig}
@@ -1175,7 +1270,8 @@ export default function EventAdmission() {
             </div>
           </DrawerContent>
         </Drawer>
+        </div>
       </div>
-    </div>
+    </>
   )
 }
