@@ -99,14 +99,24 @@ class EventHostsController < ApplicationController
   end
 
   def event_host_params
-    params.require(:event_host).permit(
-      :email, :name, :description, :listed_on_page, :event_manager, :avatar
+    normalize_access_role_params(
+      params.require(:event_host).permit(
+        :email, :name, :description, :listed_on_page, :event_manager, :access_role, :role, :avatar
+      )
     )
   end
 
   def multiple_hosts_params(params)
-    params.permit(
-      :email, :name, :description, :listed_on_page, :event_manager, :avatar
+    normalize_access_role_params(
+      params.permit(
+        :email, :name, :description, :listed_on_page, :event_manager, :access_role, :role, :avatar
+      )
     )
+  end
+
+  def normalize_access_role_params(permitted_params)
+    access_role = permitted_params.delete(:access_role).presence || permitted_params.delete(:role).presence
+    permitted_params[:access_role] = access_role if access_role.present?
+    permitted_params
   end
 end

@@ -44,20 +44,12 @@ class EventAdmissionsController < ApplicationController
   end
 
   def authorize_manager!
-    return if manager_for_event?
+    return if @event.can_access_admission?(current_user)
 
     respond_to do |format|
       format.html { redirect_to root_path, alert: "Unauthorized" }
       format.json { render json: { error: "Unauthorized" }, status: :unauthorized }
     end
-  end
-
-  def manager_for_event?
-    current_user.present? && (@event.user_id == current_user.id || event_manager_ids.include?(current_user.id))
-  end
-
-  def event_manager_ids
-    @event_manager_ids ||= @event.event_hosts.where(event_manager: true).pluck(:user_id)
   end
 
   def admission_scope
@@ -113,6 +105,7 @@ class EventAdmissionsController < ApplicationController
   def base_payload
     {
       viewer_role: viewer_role,
+      viewer_permissions: viewer_permissions,
       event: event_payload,
       summary: summary_payload,
       recent_activity: recent_activity_payload
@@ -120,7 +113,18 @@ class EventAdmissionsController < ApplicationController
   end
 
   def viewer_role
-    @event.user_id == current_user.id ? "owner" : "manager"
+    @event.viewer_access_role_for(current_user)
+  end
+
+  def viewer_permissions
+    {
+      can_access_reports: @event.can_access_reports?(current_user),
+      can_access_attendees: @event.can_access_attendees?(current_user),
+      can_access_admission: @event.can_access_admission?(current_user),
+      can_create_invitations: @event.can_manage_attendee_invitations?(current_user),
+      can_export_attendees: @event.can_export_attendees?(current_user),
+      can_refund_attendees: @event.can_refund_attendees?(current_user)
+    }
   end
 
   def ticket_payload(item)

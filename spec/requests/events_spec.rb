@@ -27,7 +27,7 @@ RSpec.describe "Events", type: :request do
     end
 
     it "allows event managers to open the edit shell" do
-      create(:event_host, event: event, user: manager, event_manager: true)
+      create(:event_host, event: event, user: manager, access_role: "admin")
       sign_in manager
 
       get edit_event_path(event)
@@ -36,7 +36,7 @@ RSpec.describe "Events", type: :request do
     end
 
     it "does not expose the owner edit payload to event managers" do
-      create(:event_host, event: event, user: manager, event_manager: true)
+      create(:event_host, event: event, user: manager, access_role: "admin")
       sign_in manager
 
       get edit_event_path(event, format: :json)
@@ -63,8 +63,8 @@ RSpec.describe "Events", type: :request do
     let!(:non_manager_hosted_event) { create(:event, user: other_owner, state: "draft", title: "Hosted But Not Managed") }
 
     before do
-      create(:event_host, event: managed_event, user: user, event_manager: true)
-      create(:event_host, event: non_manager_hosted_event, user: user, event_manager: false)
+      create(:event_host, event: managed_event, user: user, access_role: "admission")
+      create(:event_host, event: non_manager_hosted_event, user: user, access_role: "host")
       sign_in user
     end
 

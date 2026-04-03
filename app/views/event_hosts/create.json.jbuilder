@@ -11,6 +11,7 @@ if params[:event_hosts_attributes].present?
       json.description host.description
       json.listed_on_page host.listed_on_page
       json.event_manager host.event_manager
+      json.access_role host.access_role
       json.avatar_url host.avatar.url if host.avatar.present?
       json.created_at host.created_at
       json.updated_at host.updated_at
@@ -46,6 +47,7 @@ else
       json.description @event_host.description
       json.listed_on_page @event_host.listed_on_page
       json.event_manager @event_host.event_manager
+      json.access_role @event_host.access_role
       json.avatar_url @event_host.avatar.url if @event_host.avatar.present?
       json.created_at @event_host.created_at
       json.updated_at @event_host.updated_at

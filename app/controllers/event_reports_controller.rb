@@ -25,17 +25,9 @@ class EventReportsController < ApplicationController
   end
 
   def authorize_manager!
-    return if manager_for_event?
+    return if @event.can_access_reports?(current_user)
 
     render json: { error: 'Unauthorized' }, status: :unauthorized
-  end
-
-  def manager_for_event?
-    current_user.present? && (@event.user_id == current_user.id || event_manager_ids.include?(current_user.id))
-  end
-
-  def event_manager_ids
-    @event_manager_ids ||= @event.event_hosts.where(event_manager: true).pluck(:user_id)
   end
 
   def general_stats

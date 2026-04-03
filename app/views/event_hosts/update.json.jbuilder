@@ -14,6 +14,7 @@ else
     json.description @event_host.description
     json.listed_on_page @event_host.listed_on_page
     json.event_manager @event_host.event_manager
+    json.access_role @event_host.access_role
     if @event_host.avatar.attached?
       json.avatar_url do
         json.small @event_host.avatar_url(:small)

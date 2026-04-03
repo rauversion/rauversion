@@ -60,7 +60,7 @@ import { ImageUploader } from "@/components/ui/image-uploader"
 
 const teamMemberSchema = z.object({
   email: z.string().email(),
-  role: z.enum(["host", "manager", "special_guest"]),
+  access_role: z.enum(["host", "admin", "admission", "grant_admission"]),
 })
 
 const formSchema = z.object({
@@ -71,14 +71,15 @@ const hostSchema = z.object({
   name: z.string().min(1, I18n.t('events.edit.teams.edit_member.name.required')),
   description: z.string().optional(),
   listed_on_page: z.boolean().optional(),
-  event_manager: z.boolean().optional(),
+  access_role: z.enum(["host", "admin", "admission", "grant_admission"]).default("host"),
   avatar: z.any().optional()
 })
 
-const roleOptions = [
+const accessRoleOptions = [
   { value: "host", label: I18n.t('events.edit.teams.roles.host') },
-  { value: "manager", label: I18n.t('events.edit.teams.roles.manager') },
-  { value: "special_guest", label: I18n.t('events.edit.teams.roles.special_guest') },
+  { value: "admin", label: I18n.t('events.edit.teams.access_roles.admin', { defaultValue: 'Admin' }) },
+  { value: "admission", label: I18n.t('events.edit.teams.access_roles.admission', { defaultValue: 'Admisión' }) },
+  { value: "grant_admission", label: I18n.t('events.edit.teams.access_roles.grant_admission', { defaultValue: 'Grant Admission' }) },
 ]
 
 export default function Teams() {
@@ -108,7 +109,7 @@ export default function Teams() {
       name: "",
       description: "",
       listed_on_page: false,
-      event_manager: false,
+      access_role: "host",
       avatar: null
     }
   })
@@ -119,7 +120,7 @@ export default function Teams() {
       name: "",
       description: "",
       listed_on_page: false,
-      event_manager: false,
+      access_role: "host",
       avatar: null
     }
   })
@@ -193,7 +194,7 @@ export default function Teams() {
   const addTeamMember = () => {
     append({
       email: "",
-      role: "host"
+      access_role: "host"
     })
   }
 
@@ -243,7 +244,7 @@ export default function Teams() {
       formData.append('event_host[name]', data.name)
       formData.append('event_host[description]', data.description || '')
       formData.append('event_host[listed_on_page]', data.listed_on_page)
-      formData.append('event_host[event_manager]', data.event_manager)
+      formData.append('event_host[access_role]', data.access_role)
 
       if (data.avatar) {
         formData.append('event_host[avatar]', data.avatar)
@@ -306,7 +307,7 @@ export default function Teams() {
       formData.append('event_host[name]', data.name)
       formData.append('event_host[description]', data.description || '')
       formData.append('event_host[listed_on_page]', data.listed_on_page)
-      formData.append('event_host[event_manager]', data.event_manager)
+      formData.append('event_host[access_role]', data.access_role)
 
       if (data.avatar) {
         formData.append('event_host[avatar]', data.avatar)
@@ -361,7 +362,7 @@ export default function Teams() {
         name: hostToEdit.name,
         description: hostToEdit.description || "",
         listed_on_page: hostToEdit.listed_on_page || false,
-        event_manager: hostToEdit.event_manager || false,
+        access_role: hostToEdit.access_role || (hostToEdit.event_manager ? "admin" : "host"),
         avatar: null
       })
       // Reset preview to show existing avatar
@@ -404,9 +405,8 @@ export default function Teams() {
                           </span>
                         )}
                         <span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800">
-                          {member.event_manager
-                            ? I18n.t('events.edit.teams.roles.manager')
-                            : I18n.t('events.edit.teams.roles.host')}
+                          {accessRoleOptions.find((option) => option.value === member.access_role)?.label ||
+                            I18n.t('events.edit.teams.roles.host')}
                         </span>
                       </div>
                     </div>
@@ -529,7 +529,7 @@ export default function Teams() {
                       <TableCell>
                         <FormField
                           control={form.control}
-                          name={`team_members.${index}.role`}
+                          name={`team_members.${index}.access_role`}
                           render={({ field }) => (
                             <FormItem>
                               <FormControl>
@@ -543,7 +543,7 @@ export default function Teams() {
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
-                                    {roleOptions.map((role) => (
+                                    {accessRoleOptions.map((role) => (
                                       <SelectItem
                                         key={role.value}
                                         value={role.value}
@@ -683,22 +683,30 @@ export default function Teams() {
 
                 <FormField
                   control={editForm.control}
-                  name="event_manager"
+                  name="access_role"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                      <div className="space-y-0.5">
-                        <FormLabel>{I18n.t('events.edit.teams.edit_member.manager.label')}</FormLabel>
-                        <FormDescription>
-                          {I18n.t('events.edit.teams.edit_member.manager.description')}
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                          disabled={isEditLoading}
-                        />
-                      </FormControl>
+                    <FormItem>
+                      <FormLabel>{I18n.t('events.edit.teams.edit_member.access_role.label', { defaultValue: 'Nivel de acceso' })}</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value} disabled={isEditLoading}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder={I18n.t('events.edit.teams.edit_member.access_role.placeholder', { defaultValue: 'Selecciona un nivel de acceso' })} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {accessRoleOptions.map((role) => (
+                            <SelectItem key={role.value} value={role.value}>
+                              {role.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        {I18n.t('events.edit.teams.edit_member.access_role.description', {
+                          defaultValue: 'Admin puede ver reportes y gestionar asistentes. Admission puede usar admisión y ver asistentes. Grant Admission además puede enviar invitaciones.',
+                        })}
+                      </FormDescription>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -825,22 +833,30 @@ export default function Teams() {
 
                 <FormField
                   control={standaloneForm.control}
-                  name="event_manager"
+                  name="access_role"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
-                      <div className="space-y-0.5">
-                        <FormLabel>{I18n.t('events.edit.teams.edit_member.manager.label')}</FormLabel>
-                        <FormDescription>
-                          {I18n.t('events.edit.teams.edit_member.manager.description')}
-                        </FormDescription>
-                      </div>
-                      <FormControl>
-                        <Switch
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                          disabled={isStandaloneLoading}
-                        />
-                      </FormControl>
+                    <FormItem>
+                      <FormLabel>{I18n.t('events.edit.teams.edit_member.access_role.label', { defaultValue: 'Nivel de acceso' })}</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value} disabled={isStandaloneLoading}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder={I18n.t('events.edit.teams.edit_member.access_role.placeholder', { defaultValue: 'Selecciona un nivel de acceso' })} />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {accessRoleOptions.map((role) => (
+                            <SelectItem key={role.value} value={role.value}>
+                              {role.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        {I18n.t('events.edit.teams.edit_member.access_role.description', {
+                          defaultValue: 'Admin puede ver reportes y gestionar asistentes. Admission puede usar admisión y ver asistentes. Grant Admission además puede enviar invitaciones.',
+                        })}
+                      </FormDescription>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />

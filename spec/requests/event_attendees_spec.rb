@@ -2,11 +2,20 @@ require 'rails_helper'
 
 RSpec.describe "EventAttendees", type: :request do
   let(:user) { create(:user) }
+  let(:admin_staff) { create(:user) }
+  let(:admission_staff) { create(:user) }
+  let(:grant_admission_staff) { create(:user) }
   let(:event) { create(:event, user: user, ticket_currency: "usd") }
   let(:ticket) { create(:event_ticket, event: event) }
   
   before do
     user.confirm
+    admin_staff.confirm
+    admission_staff.confirm
+    grant_admission_staff.confirm
+    create(:event_host, event: event, user: admin_staff, access_role: "admin")
+    create(:event_host, event: event, user: admission_staff, access_role: "admission")
+    create(:event_host, event: event, user: grant_admission_staff, access_role: "grant_admission")
     sign_in user
   end
 
@@ -43,6 +52,17 @@ RSpec.describe "EventAttendees", type: :request do
       expect(json['collection'].length).to eq(1)
       expect(json['collection'].first['state']).to eq('paid')
     end
+
+    it "allows admission staff to view attendees in read-only mode" do
+      sign_in admission_staff
+
+      get event_event_attendees_path(event), as: :json
+
+      expect(response).to have_http_status(:success)
+      json = JSON.parse(response.body)
+      expect(json.dig('permissions', 'can_create_invitations')).to eq(false)
+      expect(json.dig('permissions', 'can_refund_attendees')).to eq(false)
+    end
   end
 
   describe "GET /events/:event_id/event_attendees/export_csv" do
@@ -76,6 +96,16 @@ RSpec.describe "EventAttendees", type: :request do
       expect(response).to have_http_status(:success)
       json = JSON.parse(response.body)
       expect(json['collection'].length).to eq(3) # including the ticket from let
+    end
+
+    it "allows grant admission staff to load tickets for invitations" do
+      sign_in grant_admission_staff
+
+      get tickets_event_event_attendees_path(event), as: :json
+
+      expect(response).to have_http_status(:success)
+      json = JSON.parse(response.body)
+      expect(json.dig('permissions', 'can_create_invitations')).to eq(true)
     end
   end
 
@@ -116,6 +146,28 @@ RSpec.describe "EventAttendees", type: :request do
          .and change(Purchase, :count).by(1)
       
       expect(response).to have_http_status(:created)
+    end
+
+    it "allows grant admission staff to create invitations" do
+      sign_in grant_admission_staff
+
+      expect {
+        post create_invitation_event_event_attendees_path(event, format: :json),
+             params: { email: 'grant@example.com', ticket_id: ticket.id },
+             as: :json
+      }.to change(Purchase, :count).by(1)
+
+      expect(response).to have_http_status(:created)
+    end
+
+    it "denies admission-only staff from creating invitations" do
+      sign_in admission_staff
+
+      post create_invitation_event_event_attendees_path(event, format: :json),
+           params: { email: 'readonly@example.com', ticket_id: ticket.id },
+           as: :json
+
+      expect(response).to have_http_status(:unauthorized)
     end
 
     it "denies access to non-owner" do
@@ -214,6 +266,25 @@ RSpec.describe "EventAttendees", type: :request do
       
       post refund_event_event_attendee_path(event, paid_item), as: :json
       
+      expect(response).to have_http_status(:unauthorized)
+    end
+
+    it "allows admin staff to process refunds" do
+      initial_qty = ticket.qty
+      sign_in admin_staff
+
+      post refund_event_event_attendee_path(event, paid_item), as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(paid_item.reload.state).to eq('refunded')
+      expect(ticket.reload.qty).to eq(initial_qty + 1)
+    end
+
+    it "denies grant admission staff from processing refunds" do
+      sign_in grant_admission_staff
+
+      post refund_event_event_attendee_path(event, paid_item), as: :json
+
       expect(response).to have_http_status(:unauthorized)
     end
 

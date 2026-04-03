@@ -60,7 +60,7 @@ class Event < ApplicationRecord
 
 
   scope :drafts, -> { where(state: "draft") }
-  scope :managers, -> { where(event_manager: true) }
+  scope :managers, -> { joins(:event_hosts).merge(EventHost.with_backoffice_access).distinct }
   # Ex:- scope :active, -> {where(:active => true)}
 
   scope :upcoming, -> { where('event_start >= ?', Time.current).order(event_start: :asc) }
@@ -226,5 +226,63 @@ class Event < ApplicationRecord
     else
       ENV.fetch('PLATFORM_EVENTS_FEE', 10).to_i
     end
+  end
+
+  def owner?(user)
+    user.present? && user.id == user_id
+  end
+
+  def event_host_for(user)
+    return nil unless user.present?
+
+    event_hosts.find_by(user_id: user.id)
+  end
+
+  def viewer_access_role_for(user)
+    return "owner" if owner?(user)
+
+    event_host_for(user)&.access_role
+  end
+
+  def can_access_backoffice?(user)
+    return true if owner?(user)
+
+    event_host_for(user)&.can_access_backoffice? || false
+  end
+
+  def can_access_reports?(user)
+    return true if owner?(user)
+
+    event_host_for(user)&.can_access_reports? || false
+  end
+
+  def can_access_attendees?(user)
+    return true if owner?(user)
+
+    event_host_for(user)&.can_access_attendees? || false
+  end
+
+  def can_access_admission?(user)
+    return true if owner?(user)
+
+    event_host_for(user)&.can_access_admission? || false
+  end
+
+  def can_manage_attendee_invitations?(user)
+    return true if owner?(user)
+
+    event_host_for(user)&.can_manage_attendee_invitations? || false
+  end
+
+  def can_export_attendees?(user)
+    return true if owner?(user)
+
+    event_host_for(user)&.can_export_attendees? || false
+  end
+
+  def can_refund_attendees?(user)
+    return true if owner?(user)
+
+    event_host_for(user)&.can_refund_attendees? || false
   end
 end

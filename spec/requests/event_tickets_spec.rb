@@ -4,6 +4,7 @@ RSpec.describe "EventTickets", type: :request do
   describe "PUT /events/:event_id/event_tickets/:id" do
     let(:owner) { create(:user) }
     let(:manager) { create(:user) }
+    let(:admission_staff) { create(:user) }
     let(:buyer) { create(:user) }
     let(:stranger) { create(:user) }
     let(:event) { create(:event, user: owner, ticket_currency: "usd") }
@@ -33,12 +34,13 @@ RSpec.describe "EventTickets", type: :request do
     before do
       owner.confirm
       manager.confirm
+      admission_staff.confirm
       buyer.confirm
       stranger.confirm
     end
 
     it "allows an event manager to check in a paid ticket" do
-      create(:event_host, event: event, user: manager, event_manager: true)
+      create(:event_host, event: event, user: manager, access_role: "admin")
       sign_in manager
 
       put request_path, params: { checked_in: true }, as: :json
@@ -49,6 +51,16 @@ RSpec.describe "EventTickets", type: :request do
 
       json = JSON.parse(response.body)
       expect(json.dig("event_ticket", "purchased_item", "checked_in")).to be(true)
+    end
+
+    it "allows admission staff to check in a paid ticket" do
+      create(:event_host, event: event, user: admission_staff, access_role: "admission")
+      sign_in admission_staff
+
+      put request_path, params: { checked_in: true }, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(purchased_item.reload.checked_in).to be(true)
     end
 
     it "rejects users who are not event managers" do

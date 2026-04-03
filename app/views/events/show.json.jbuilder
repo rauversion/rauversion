@@ -51,6 +51,7 @@ json.event_hosts @event.event_hosts do |host|
   json.description host.description
   json.listed_on_page host.listed_on_page
   json.event_manager host.event_manager
+  json.access_role host.access_role
   if host.avatar.attached?
     json.avatar_url do
       json.small host.avatar_url(:small)

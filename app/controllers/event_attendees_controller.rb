@@ -1,7 +1,10 @@
 class EventAttendeesController < ApplicationController
   before_action :authenticate_user!
   before_action :set_event
-  before_action :authorize_event_owner!, only: [:export_csv, :create_invitation, :refund]
+  before_action :authorize_view_attendees!, only: [:index, :tickets]
+  before_action :authorize_export_attendees!, only: [:export_csv]
+  before_action :authorize_invitation_management!, only: [:create_invitation]
+  before_action :authorize_refunds!, only: [:refund]
 
   def index
     @purchased_items = @event.purchased_items
@@ -31,7 +34,7 @@ class EventAttendeesController < ApplicationController
   def tickets
     @tickets = @event.event_tickets
     respond_to do |format|
-      format.json { render json: { collection: @tickets } }
+      format.json { render json: { collection: @tickets, permissions: attendee_permissions } }
     end
   end
 
@@ -227,8 +230,39 @@ class EventAttendeesController < ApplicationController
   end
 
   def authorize_event_owner!
-    unless @event.user_id == current_user.id
-      render json: { error: 'Unauthorized' }, status: :unauthorized
-    end
+    render json: { error: 'Unauthorized' }, status: :unauthorized
+  end
+
+  def authorize_view_attendees!
+    return if @event.can_access_attendees?(current_user)
+
+    authorize_event_owner!
+  end
+
+  def authorize_export_attendees!
+    return if @event.can_export_attendees?(current_user)
+
+    authorize_event_owner!
+  end
+
+  def authorize_invitation_management!
+    return if @event.can_manage_attendee_invitations?(current_user)
+
+    authorize_event_owner!
+  end
+
+  def authorize_refunds!
+    return if @event.can_refund_attendees?(current_user)
+
+    authorize_event_owner!
+  end
+
+  def attendee_permissions
+    {
+      can_access_admission: @event.can_access_admission?(current_user),
+      can_create_invitations: @event.can_manage_attendee_invitations?(current_user),
+      can_export_attendees: @event.can_export_attendees?(current_user),
+      can_refund_attendees: @event.can_refund_attendees?(current_user)
+    }
   end
 end

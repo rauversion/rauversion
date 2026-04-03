@@ -83,11 +83,19 @@ export default function Attendees() {
 
   const {
     items: attendees,
+    data,
     loading,
     lastElementRef,
     resetList,
     fetchItems
   } = useInfiniteScroll(`/events/${slug}/event_attendees.json${searchParams}`)
+
+  const permissions = data?.permissions || {
+    can_access_admission: false,
+    can_create_invitations: false,
+    can_export_attendees: false,
+    can_refund_attendees: false,
+  }
 
   window.resetList = resetList // For debugging purposes
   const form = useForm({
@@ -109,6 +117,11 @@ export default function Attendees() {
   // Load tickets for the invitation dialog
   React.useEffect(() => {
     const loadTickets = async () => {
+      if (!permissions.can_create_invitations) {
+        setTickets([])
+        return
+      }
+
       try {
         const response = await get(`/events/${slug}/event_attendees/tickets.json`)
         if (response.ok) {
@@ -120,7 +133,7 @@ export default function Attendees() {
       }
     }
     loadTickets()
-  }, [slug])
+  }, [permissions.can_create_invitations, slug])
 
   const onSubmit = (data) => {
     const params = new URLSearchParams()
@@ -233,91 +246,97 @@ export default function Attendees() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button asChild variant="outline">
-            <Link to={`/events/${slug}/admission`}>
-              <ScanLine className="h-4 w-4 mr-2" />
-              {I18n.t("events.admission.title", { defaultValue: "Admisión" })}
-            </Link>
-          </Button>
-          <Dialog open={isInviteDialogOpen} onOpenChange={setIsInviteDialogOpen}>
-            <DialogTrigger asChild>
-              <Button variant="default">
-                <UserPlus className="h-4 w-4 mr-2" />
-                Send Invitation
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Send Event Invitation</DialogTitle>
-                <DialogDescription>
-                  Invite someone to this event by email. If they don't have an account, one will be created for them.
-                </DialogDescription>
-              </DialogHeader>
-              <Form {...inviteForm}>
-                <form onSubmit={inviteForm.handleSubmit(onSubmitInvite)} className="space-y-4">
-                  <FormField
-                    control={inviteForm.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email Address</FormLabel>
-                        <FormControl>
-                          <Input placeholder="contact@example.com" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={inviteForm.control}
-                    name="ticket_id"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Select Ticket</FormLabel>
-                        <Select onValueChange={field.onChange} value={field.value}>
+          {permissions.can_access_admission && (
+            <Button asChild variant="outline">
+              <Link to={`/events/${slug}/admission`}>
+                <ScanLine className="h-4 w-4 mr-2" />
+                {I18n.t("events.admission.title", { defaultValue: "Admisión" })}
+              </Link>
+            </Button>
+          )}
+          {permissions.can_create_invitations && (
+            <Dialog open={isInviteDialogOpen} onOpenChange={setIsInviteDialogOpen}>
+              <DialogTrigger asChild>
+                <Button variant="default">
+                  <UserPlus className="h-4 w-4 mr-2" />
+                  Send Invitation
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Send Event Invitation</DialogTitle>
+                  <DialogDescription>
+                    Invite someone to this event by email. If they don't have an account, one will be created for them.
+                  </DialogDescription>
+                </DialogHeader>
+                <Form {...inviteForm}>
+                  <form onSubmit={inviteForm.handleSubmit(onSubmitInvite)} className="space-y-4">
+                    <FormField
+                      control={inviteForm.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email Address</FormLabel>
                           <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Choose a ticket" />
-                            </SelectTrigger>
+                            <Input placeholder="contact@example.com" {...field} />
                           </FormControl>
-                          <SelectContent>
-                            {tickets.map((ticket) => (
-                              <SelectItem key={ticket.id} value={String(ticket.id)}>
-                                {ticket.title} - ${ticket.price}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <DialogFooter>
-                    <Button type="button" variant="outline" onClick={() => setIsInviteDialogOpen(false)}>
-                      Cancel
-                    </Button>
-                    <Button type="submit" disabled={isSubmittingInvite}>
-                      {isSubmittingInvite ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Sending...
-                        </>
-                      ) : (
-                        'Send Invitation'
+                          <FormMessage />
+                        </FormItem>
                       )}
-                    </Button>
-                  </DialogFooter>
-                </form>
-              </Form>
-            </DialogContent>
-          </Dialog>
-          <Button
-            variant="outline"
-            onClick={handleExportCSV}
-          >
-            <Download className="h-4 w-4 mr-2" />
-            {I18n.t('events.edit.attendees.export_csv')}
-          </Button>
+                    />
+                    <FormField
+                      control={inviteForm.control}
+                      name="ticket_id"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Select Ticket</FormLabel>
+                          <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger>
+                                <SelectValue placeholder="Choose a ticket" />
+                              </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                              {tickets.map((ticket) => (
+                                <SelectItem key={ticket.id} value={String(ticket.id)}>
+                                  {ticket.title} - ${ticket.price}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <DialogFooter>
+                      <Button type="button" variant="outline" onClick={() => setIsInviteDialogOpen(false)}>
+                        Cancel
+                      </Button>
+                      <Button type="submit" disabled={isSubmittingInvite}>
+                        {isSubmittingInvite ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Sending...
+                          </>
+                        ) : (
+                          'Send Invitation'
+                        )}
+                      </Button>
+                    </DialogFooter>
+                  </form>
+                </Form>
+              </DialogContent>
+            </Dialog>
+          )}
+          {permissions.can_export_attendees && (
+            <Button
+              variant="outline"
+              onClick={handleExportCSV}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              {I18n.t('events.edit.attendees.export_csv')}
+            </Button>
+          )}
         </div>
       </div>
 
@@ -425,7 +444,7 @@ export default function Attendees() {
                   )}
                 </TableCell>
                 <TableCell>
-                  {item.state === 'paid' && (
+                  {permissions.can_refund_attendees && item.state === 'paid' && (
                     <Button
                       variant="outline"
                       size="sm"
@@ -441,6 +460,9 @@ export default function Attendees() {
                         </>
                       )}
                     </Button>
+                  )}
+                  {!permissions.can_refund_attendees && item.state === 'paid' && (
+                    <span className="text-sm text-muted-foreground">Restricted</span>
                   )}
                   {item.state === 'refunded' && (
                     <span className="text-sm text-muted-foreground">Refunded</span>

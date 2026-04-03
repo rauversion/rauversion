@@ -3,6 +3,7 @@ require "rails_helper"
 RSpec.describe "EventAdmissions", type: :request do
   let(:owner) { create(:user) }
   let(:manager) { create(:user) }
+  let(:admission_staff) { create(:user) }
   let(:buyer) { create(:user) }
   let(:stranger) { create(:user) }
   let(:event) { create(:event, user: owner, ticket_currency: "clp") }
@@ -30,9 +31,11 @@ RSpec.describe "EventAdmissions", type: :request do
   before do
     owner.confirm
     manager.confirm
+    admission_staff.confirm
     buyer.confirm
     stranger.confirm
-    create(:event_host, event: event, user: manager, event_manager: true)
+    create(:event_host, event: event, user: manager, access_role: "admin")
+    create(:event_host, event: event, user: admission_staff, access_role: "admission")
   end
 
   describe "GET /events/:event_id/admission" do
@@ -45,9 +48,22 @@ RSpec.describe "EventAdmissions", type: :request do
       json = JSON.parse(response.body)
 
       expect(json.dig("event", "slug")).to eq(event.slug)
-      expect(json["viewer_role"]).to eq("manager")
+      expect(json["viewer_role"]).to eq("admin")
       expect(json.dig("summary", "total_paid_count")).to eq(1)
       expect(json.dig("summary", "checked_in_count")).to eq(0)
+    end
+
+    it "returns the admission summary for admission staff" do
+      sign_in admission_staff
+
+      get event_admission_path(event, format: :json), as: :json
+
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+
+      expect(json["viewer_role"]).to eq("admission")
+      expect(json.dig("viewer_permissions", "can_access_attendees")).to eq(true)
+      expect(json.dig("viewer_permissions", "can_access_reports")).to eq(false)
     end
   end
 

@@ -46,7 +46,7 @@ import {
 import MobileSheetMenu from "@/components/shared/MobileSheetMenu";
 import Reports from "./sections/Reports";
 
-function EventManagerOverview({ eventAdmissionPath, i18n }) {
+function EventManagerOverview({ eventAdmissionPath, eventAttendeesPath, eventReportsPath, permissions, i18n }) {
   return (
     <div className="space-y-6">
       <Alert>
@@ -56,39 +56,101 @@ function EventManagerOverview({ eventAdmissionPath, i18n }) {
         </AlertTitle>
         <AlertDescription>
           {i18n.t("events.edit.manager_dashboard.description", {
-            defaultValue: "Como gestor del evento puedes revisar reportes y operar la admisión, pero no editar la configuración general.",
+            defaultValue: "Como miembro del equipo del evento puedes usar las herramientas operativas que tengas habilitadas, pero no editar la configuración general.",
           })}
         </AlertDescription>
       </Alert>
 
-      <Reports />
+      {permissions.can_access_reports && <Reports />}
 
-      <Card className="border-dashed">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <ScanLine className="h-5 w-5" />
-            {i18n.t("events.admission.title", { defaultValue: "Admisión" })}
-          </CardTitle>
-          <CardDescription>
-            {i18n.t("events.edit.manager_dashboard.admission_description", {
-              defaultValue: "Accede al scanner y al registro de ingresos para validar tickets durante el evento.",
-            })}
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-          <p className="text-sm text-muted-foreground">
-            {i18n.t("events.edit.manager_dashboard.admission_hint", {
-              defaultValue: "Usa esta vista para escanear QR, registrar ingresos y revisar la actividad reciente.",
-            })}
-          </p>
-          <Button asChild>
-            <Link to={eventAdmissionPath}>
-              <ScanLine className="h-4 w-4" />
-              {i18n.t("events.edit.manager_dashboard.go_to_admission", { defaultValue: "Ir a admisión" })}
-            </Link>
-          </Button>
-        </CardContent>
-      </Card>
+      <div className="grid gap-4 md:grid-cols-2">
+        {permissions.can_access_attendees && (
+          <Card className="border-dashed">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users2 className="h-5 w-5" />
+                {i18n.t("events.edit.attendees.title")}
+              </CardTitle>
+              <CardDescription>
+                {i18n.t("events.edit.manager_dashboard.attendees_description", {
+                  defaultValue: "Revisa la lista de asistentes y el estado de sus tickets.",
+                })}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex items-center justify-between gap-4">
+              <p className="text-sm text-muted-foreground">
+                {i18n.t("events.edit.manager_dashboard.attendees_hint", {
+                  defaultValue: "Desde aquí puedes buscar compras, revisar estados y abrir admisión.",
+                })}
+              </p>
+              <Button asChild variant="outline">
+                <Link to={eventAttendeesPath}>
+                  <Users2 className="h-4 w-4" />
+                  {i18n.t("events.edit.manager_dashboard.go_to_attendees", { defaultValue: "Ver asistentes" })}
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {permissions.can_access_reports && (
+          <Card className="border-dashed">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5" />
+                {i18n.t("events.edit.reports.title")}
+              </CardTitle>
+              <CardDescription>
+                {i18n.t("events.edit.manager_dashboard.reports_description", {
+                  defaultValue: "Consulta ventas, estados de compra y evolución del evento.",
+                })}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex items-center justify-between gap-4">
+              <p className="text-sm text-muted-foreground">
+                {i18n.t("events.edit.manager_dashboard.reports_hint", {
+                  defaultValue: "Abre la vista completa de reportes para revisar ingresos, órdenes y estados.",
+                })}
+              </p>
+              <Button asChild variant="outline">
+                <Link to={eventReportsPath}>
+                  <BarChart3 className="h-4 w-4" />
+                  {i18n.t("events.edit.manager_dashboard.go_to_reports", { defaultValue: "Ver reportes" })}
+                </Link>
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      {permissions.can_access_admission && (
+        <Card className="border-dashed">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <ScanLine className="h-5 w-5" />
+              {i18n.t("events.admission.title", { defaultValue: "Admisión" })}
+            </CardTitle>
+            <CardDescription>
+              {i18n.t("events.edit.manager_dashboard.admission_description", {
+                defaultValue: "Accede al scanner y al registro de ingresos para validar tickets durante el evento.",
+              })}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <p className="text-sm text-muted-foreground">
+              {i18n.t("events.edit.manager_dashboard.admission_hint", {
+                defaultValue: "Usa esta vista para escanear QR, registrar ingresos y revisar la actividad reciente.",
+              })}
+            </p>
+            <Button asChild>
+              <Link to={eventAdmissionPath}>
+                <ScanLine className="h-4 w-4" />
+                {i18n.t("events.edit.manager_dashboard.go_to_admission", { defaultValue: "Ir a admisión" })}
+              </Link>
+            </Button>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
@@ -99,12 +161,22 @@ export default function EventEdit() {
   const [event, setEvent] = React.useState(null);
   const [errors, setErrors] = React.useState(null);
   const [viewerRole, setViewerRole] = React.useState(null);
+  const [viewerPermissions, setViewerPermissions] = React.useState({
+    can_access_reports: false,
+    can_access_attendees: false,
+    can_access_admission: false,
+    can_create_invitations: false,
+    can_export_attendees: false,
+    can_refund_attendees: false,
+  });
   const [loadingAccess, setLoadingAccess] = React.useState(true);
   const [accessError, setAccessError] = React.useState(null);
   const { i18n } = useLocaleStore;
   const eventViewPath = `/events/${slug}`;
   const eventEditPath = `${eventViewPath}/edit`;
   const eventAdmissionPath = `/events/${slug}/admission`;
+  const eventAttendeesPath = `${eventEditPath}/attendees`;
+  const eventReportsPath = `${eventEditPath}/reports`;
 
   const ownerMenuItems = [
     {
@@ -184,6 +256,10 @@ export default function EventEdit() {
         if (response.ok) {
           setEvent(data.event);
           setViewerRole(data.viewer_role || "owner");
+          setViewerPermissions((currentPermissions) => ({
+            ...currentPermissions,
+            ...(data.viewer_permissions || {}),
+          }));
           return;
         }
 
@@ -209,14 +285,36 @@ export default function EventEdit() {
     };
   }, [slug]);
 
-  const isManagerView = viewerRole === "manager";
-  const menuItems = isManagerView
-    ? ownerMenuItems.filter((item) => item.path === "reports")
+  const isStaffView = viewerRole && viewerRole !== "owner";
+  const staffMenuItems = [
+    {
+      title: i18n.t("events.edit.overview"),
+      icon: LayoutDashboard,
+      path: "",
+    },
+    viewerPermissions.can_access_attendees && {
+      title: i18n.t("events.edit.attendees.title"),
+      icon: Users2,
+      path: "attendees",
+      description: i18n.t("events.edit.attendees.description"),
+    },
+    viewerPermissions.can_access_reports && {
+      title: i18n.t("events.edit.reports.title"),
+      icon: BarChart3,
+      path: "reports",
+      description: i18n.t("events.edit.reports.description"),
+    },
+  ].filter(Boolean);
+
+  const menuItems = isStaffView
+    ? staffMenuItems
     : ownerMenuItems;
   const normalizedPath = location.pathname.replace(/\/$/, "");
-  const managerReportsPath = `${eventEditPath}/reports`;
-  const isManagerOverview = isManagerView && normalizedPath === eventEditPath;
-  const isAllowedManagerPath = !isManagerView || [eventEditPath, managerReportsPath].includes(normalizedPath);
+  const allowedStaffPaths = [eventEditPath];
+  if (viewerPermissions.can_access_attendees) allowedStaffPaths.push(eventAttendeesPath);
+  if (viewerPermissions.can_access_reports) allowedStaffPaths.push(eventReportsPath);
+  const isStaffOverview = isStaffView && normalizedPath === eventEditPath;
+  const isAllowedStaffPath = !isStaffView || allowedStaffPaths.includes(normalizedPath);
 
   const isSelectedMenuItem = (item, currentLocation = location) => {
     if (item.path === "") {
@@ -251,7 +349,7 @@ export default function EventEdit() {
     );
   }
 
-  if (!isAllowedManagerPath) {
+  if (!isAllowedStaffPath) {
     return <Navigate to={eventEditPath} replace />;
   }
 
@@ -298,20 +396,20 @@ export default function EventEdit() {
                 {i18n.t("events.edit.quick_links.title", { defaultValue: "Ir a" })}
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              {!isManagerView && (
+              <DropdownMenuItem asChild>
+                <Link to={eventViewPath}>
+                  <ExternalLink className="h-4 w-4" />
+                  {i18n.t("events.edit.quick_links.view_event", { defaultValue: "Ver evento" })}
+                </Link>
+              </DropdownMenuItem>
+              {viewerPermissions.can_access_admission && (
                 <DropdownMenuItem asChild>
-                  <Link to={eventViewPath}>
-                    <ExternalLink className="h-4 w-4" />
-                    {i18n.t("events.edit.quick_links.view_event", { defaultValue: "Ver evento" })}
+                  <Link to={eventAdmissionPath}>
+                    <ScanLine className="h-4 w-4" />
+                    {i18n.t("events.admission.title", { defaultValue: "Admisión" })}
                   </Link>
                 </DropdownMenuItem>
               )}
-              <DropdownMenuItem asChild>
-                <Link to={eventAdmissionPath}>
-                  <ScanLine className="h-4 w-4" />
-                  {i18n.t("events.admission.title", { defaultValue: "Admisión" })}
-                </Link>
-              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -355,9 +453,15 @@ export default function EventEdit() {
         </div>
 
         <div className="flex-1 rounded-lg border border-zinc-200 bg-white p-6 dark:border-zinc-800 dark:bg-card">
-          <EventEditContext.Provider value={{ errors, setErrors }}>
-            {isManagerOverview ? (
-              <EventManagerOverview eventAdmissionPath={eventAdmissionPath} i18n={i18n} />
+          <EventEditContext.Provider value={{ errors, setErrors, viewerPermissions, viewerRole }}>
+            {isStaffOverview ? (
+              <EventManagerOverview
+                eventAdmissionPath={eventAdmissionPath}
+                eventAttendeesPath={eventAttendeesPath}
+                eventReportsPath={eventReportsPath}
+                permissions={viewerPermissions}
+                i18n={i18n}
+              />
             ) : (
               <Outlet />
             )}

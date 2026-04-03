@@ -22,6 +22,13 @@ json.collection @purchased_items do |item|
   end
 end
 
+json.permissions do
+  json.can_access_admission @event.can_access_admission?(current_user)
+  json.can_create_invitations @event.can_manage_attendee_invitations?(current_user)
+  json.can_export_attendees @event.can_export_attendees?(current_user)
+  json.can_refund_attendees @event.can_refund_attendees?(current_user)
+end
+
 json.metadata do
   json.partial! 'shared/pagination_metadata', collection: @purchased_items
 end

@@ -46,7 +46,7 @@ class EventTicketsController < ApplicationController
   end
 
   def authorize_manager!
-    return if manager_for_event?
+    return if @event.can_access_admission?(current_user)
 
     respond_to do |format|
       format.html { redirect_to root_path, alert: "Unauthorized" }
@@ -55,7 +55,7 @@ class EventTicketsController < ApplicationController
   end
 
   def manager_for_event?
-    current_user.present? && (@event.user_id == current_user.id || event_managers.include?(current_user.id))
+    @event.can_access_admission?(current_user)
   end
 
   def render_check_in_error(message)
@@ -65,7 +65,4 @@ class EventTicketsController < ApplicationController
     end
   end
 
-  def event_managers
-    @event.event_hosts.where(event_manager: true).pluck(:user_id)
-  end
 end

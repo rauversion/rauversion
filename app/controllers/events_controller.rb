@@ -193,7 +193,7 @@ class EventsController < ApplicationController
 
   def set_edit_event
     @event = Event.friendly.find(params[:id])
-    raise ActiveRecord::RecordNotFound unless manager_for_event?(@event)
+    raise ActiveRecord::RecordNotFound unless @event.can_access_backoffice?(current_user)
   end
 
   def event_owned_by_current_user?(event)
@@ -201,10 +201,7 @@ class EventsController < ApplicationController
   end
 
   def manager_for_event?(event)
-    return false unless current_user.present?
-    return true if event_owned_by_current_user?(event)
-
-    event.event_hosts.where(event_manager: true, user_id: current_user.id).exists?
+    event.can_access_backoffice?(current_user)
   end
 
   def owned_events
@@ -232,7 +229,7 @@ class EventsController < ApplicationController
 
   def managed_events_scope
     Event.joins(:event_hosts)
-      .where(event_hosts: { user_id: current_user.id, event_manager: true })
+      .where(event_hosts: { user_id: current_user.id, access_role: EventHost::BACKOFFICE_ACCESS_ROLES })
   end
 
   def event_params

@@ -1,4 +1,7 @@
 class EventHost < ApplicationRecord
+  ACCESS_ROLES = %w[host admin admission grant_admission].freeze
+  BACKOFFICE_ACCESS_ROLES = %w[admin admission grant_admission].freeze
+
   belongs_to :event
   belongs_to :user, optional: true
 
@@ -6,7 +9,16 @@ class EventHost < ApplicationRecord
 
   attr_accessor :email
 
+  before_validation :normalize_access_role
+
+  validates :access_role, inclusion: { in: ACCESS_ROLES }
+
   # before_save :invite_user
+
+  scope :with_backoffice_access, -> { where(access_role: BACKOFFICE_ACCESS_ROLES) }
+  scope :with_reports_access, -> { where(access_role: "admin") }
+  scope :with_attendees_access, -> { where(access_role: BACKOFFICE_ACCESS_ROLES) }
+  scope :with_admission_access, -> { where(access_role: BACKOFFICE_ACCESS_ROLES) }
 
   def invite_user
     if email.present?
@@ -33,5 +45,48 @@ class EventHost < ApplicationRecord
     end
 
     Rails.application.routes.url_helpers.rails_storage_proxy_url(url) if url.present?
+  end
+
+  def admin_access?
+    access_role == "admin"
+  end
+
+  def admission_access?
+    %w[admin admission grant_admission].include?(access_role)
+  end
+
+  def can_access_backoffice?
+    BACKOFFICE_ACCESS_ROLES.include?(access_role)
+  end
+
+  def can_access_reports?
+    admin_access?
+  end
+
+  def can_access_attendees?
+    admission_access?
+  end
+
+  def can_access_admission?
+    admission_access?
+  end
+
+  def can_manage_attendee_invitations?
+    %w[admin grant_admission].include?(access_role)
+  end
+
+  def can_export_attendees?
+    admin_access?
+  end
+
+  def can_refund_attendees?
+    admin_access?
+  end
+
+  private
+
+  def normalize_access_role
+    self.access_role = access_role.presence || (event_manager? ? "admin" : "host")
+    self.event_manager = (access_role == "admin")
   end
 end
