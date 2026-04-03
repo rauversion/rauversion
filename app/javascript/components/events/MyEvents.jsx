@@ -140,7 +140,7 @@ export default function MyEvents() {
     <div className="px-4 sm:px-6 lg:px-8">
       <div className="mb-6 my-4">
         <Tabs value={tab} onValueChange={setTab}>
-          <TabsList>
+          <TabsList className="w-full justify-start sm:w-auto">
             <TabsTrigger value="all">{tabLabels.all}</TabsTrigger>
             <TabsTrigger value="owned">{tabLabels.owned}</TabsTrigger>
             <TabsTrigger value="drafts">{tabLabels.drafts}</TabsTrigger>

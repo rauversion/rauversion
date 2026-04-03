@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { format } from "date-fns"
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll"
+import { useIsMobile } from "@/hooks/use-mobile"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
 import { get, post } from "@rails/request.js"
@@ -73,6 +74,7 @@ const attendeeStatuses = {
 
 export default function Attendees() {
   const { slug } = useParams()
+  const isMobile = useIsMobile()
   const { toast } = useToast()
   const [searchParams, setSearchParams] = React.useState("")
   const [isInviteDialogOpen, setIsInviteDialogOpen] = React.useState(false)
@@ -236,18 +238,51 @@ export default function Attendees() {
     }
   }
 
+  const renderRefundAction = (item, className = "") => {
+    if (permissions.can_refund_attendees && item.state === 'paid') {
+      return (
+        <Button
+          variant="outline"
+          size="sm"
+          className={className}
+          onClick={() => setRefundConfirmItem(item)}
+          disabled={refundingItemId === item.id}
+        >
+          {refundingItemId === item.id ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <>
+              <RotateCcw className="h-4 w-4 mr-1" />
+              Refund
+            </>
+          )}
+        </Button>
+      )
+    }
+
+    if (!permissions.can_refund_attendees && item.state === 'paid') {
+      return <span className={`text-sm text-muted-foreground ${className}`.trim()}>Restricted</span>
+    }
+
+    if (item.state === 'refunded') {
+      return <span className={`text-sm text-muted-foreground ${className}`.trim()}>Refunded</span>
+    }
+
+    return null
+  }
+
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">{I18n.t('events.edit.attendees.title')}</h2>
           <p className="text-sm text-muted-foreground">
             {I18n.t('events.edit.attendees.subtitle')}
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex w-full flex-col gap-2 sm:flex-row sm:flex-wrap md:w-auto md:justify-end">
           {permissions.can_access_admission && (
-            <Button asChild variant="outline">
+            <Button asChild variant="outline" className="w-full sm:w-auto">
               <Link to={`/events/${slug}/admission`}>
                 <ScanLine className="h-4 w-4 mr-2" />
                 {I18n.t("events.admission.title", { defaultValue: "Admisión" })}
@@ -257,7 +292,7 @@ export default function Attendees() {
           {permissions.can_create_invitations && (
             <Dialog open={isInviteDialogOpen} onOpenChange={setIsInviteDialogOpen}>
               <DialogTrigger asChild>
-                <Button variant="default">
+                <Button variant="default" className="w-full sm:w-auto">
                   <UserPlus className="h-4 w-4 mr-2" />
                   Send Invitation
                 </Button>
@@ -331,6 +366,7 @@ export default function Attendees() {
           {permissions.can_export_attendees && (
             <Button
               variant="outline"
+              className="w-full sm:w-auto"
               onClick={handleExportCSV}
             >
               <Download className="h-4 w-4 mr-2" />
@@ -341,7 +377,7 @@ export default function Attendees() {
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="flex gap-4 mb-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="mb-6 flex flex-col gap-3 md:flex-row md:items-start">
           <FormField
             control={form.control}
             name="query"
@@ -365,13 +401,13 @@ export default function Attendees() {
             control={form.control}
             name="status"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="w-full md:w-[180px]">
                 <Select
                   onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
                   <FormControl>
-                    <SelectTrigger className="w-[180px]">
+                    <SelectTrigger className="w-full md:w-[180px]">
                       <SelectValue placeholder={I18n.t('events.edit.attendees.search.filter_status')} />
                     </SelectTrigger>
                   </FormControl>
@@ -386,93 +422,120 @@ export default function Attendees() {
             )}
           />
 
-          <Button type="submit">{I18n.t('events.edit.attendees.search.button')}</Button>
+          <Button type="submit" className="w-full md:w-auto">{I18n.t('events.edit.attendees.search.button')}</Button>
         </form>
       </Form>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>{I18n.t('events.edit.attendees.table.attendee')}</TableHead>
-              <TableHead>{I18n.t('events.edit.attendees.table.ticket')}</TableHead>
-              <TableHead>{I18n.t('events.edit.attendees.table.status')}</TableHead>
-              <TableHead>{I18n.t('events.edit.attendees.table.purchase_date')}</TableHead>
-              <TableHead>{I18n.t('events.edit.attendees.table.amount')}</TableHead>
+      {isMobile ? (
+        <div className="space-y-3">
+          {attendees.map((item, index) => (
+            <div
+              key={item.id}
+              ref={index === attendees.length - 1 ? lastElementRef : null}
+              className="rounded-xl border bg-card p-4 shadow-sm"
+            >
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="truncate font-medium">{item.user.name || item.guest_email}</p>
+                  <p className="truncate text-sm text-muted-foreground">{item.user.email || item.guest_email}</p>
+                </div>
+                <Badge
+                  variant="secondary"
+                  className={attendeeStatuses[item.state]?.color || 'bg-secondary'}
+                >
+                  {attendeeStatuses[item.state]?.label || item.state}
+                </Badge>
+              </div>
 
-              <TableHead className="w-[100px]">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {attendees.map((item, index) => (
-              <TableRow
-                key={item.id}
-                ref={index === attendees.length - 1 ? lastElementRef : null}
-              >
-                <TableCell>
-                  <div className="flex items-center space-x-2">
-                    <div>
-                      <p className="font-medium">{item.user.name || item.guest_email}</p>
-                      <p className="text-sm text-muted-foreground">{item.user.email || item.guest_email}</p>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="font-medium">{item.event_ticket.title}</div>
-                  <div className="text-sm text-muted-foreground">
+              <div className="mt-4 grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 text-sm">
+                <span className="text-muted-foreground">{I18n.t('events.edit.attendees.table.ticket')}</span>
+                <div className="min-w-0">
+                  <div className="truncate font-medium">{item.event_ticket.title}</div>
+                  <div className="text-muted-foreground">
                     {item.event_ticket.currency} {item.event_ticket.price}
                   </div>
-                </TableCell>
-                <TableCell>
-                  <Badge
-                    variant="secondary"
-                    className={attendeeStatuses[item.state]?.color || 'bg-secondary'}
-                  >
-                    {attendeeStatuses[item.state]?.label || item.state}
-                  </Badge>
-                </TableCell>
-                <TableCell>
-                  {format(new Date(item.created_at), 'PPP')}
-                </TableCell>
-                <TableCell>
-                  {item.price} {item.currency?.toUpperCase()}
+                </div>
 
-                  {item.checked_in_at && (
-                    <Badge variant="success">
-                      {I18n.t('events.edit.attendees.status.checked_in', { time: format(new Date(item.checked_in_at), 'PPp') })}
-                    </Badge>
-                  )}
-                </TableCell>
-                <TableCell>
-                  {permissions.can_refund_attendees && item.state === 'paid' && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setRefundConfirmItem(item)}
-                      disabled={refundingItemId === item.id}
-                    >
-                      {refundingItemId === item.id ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <>
-                          <RotateCcw className="h-4 w-4 mr-1" />
-                          Refund
-                        </>
-                      )}
-                    </Button>
-                  )}
-                  {!permissions.can_refund_attendees && item.state === 'paid' && (
-                    <span className="text-sm text-muted-foreground">Restricted</span>
-                  )}
-                  {item.state === 'refunded' && (
-                    <span className="text-sm text-muted-foreground">Refunded</span>
-                  )}
-                </TableCell>
+                <span className="text-muted-foreground">{I18n.t('events.edit.attendees.table.purchase_date')}</span>
+                <span>{format(new Date(item.created_at), 'PPP')}</span>
+
+                <span className="text-muted-foreground">{I18n.t('events.edit.attendees.table.amount')}</span>
+                <span>{item.price} {item.currency?.toUpperCase()}</span>
+              </div>
+
+              {item.checked_in_at && (
+                <Badge variant="success" className="mt-4 w-fit">
+                  {I18n.t('events.edit.attendees.status.checked_in', { time: format(new Date(item.checked_in_at), 'PPp') })}
+                </Badge>
+              )}
+
+              {renderRefundAction(item, "mt-4 w-full justify-center")}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{I18n.t('events.edit.attendees.table.attendee')}</TableHead>
+                <TableHead>{I18n.t('events.edit.attendees.table.ticket')}</TableHead>
+                <TableHead>{I18n.t('events.edit.attendees.table.status')}</TableHead>
+                <TableHead>{I18n.t('events.edit.attendees.table.purchase_date')}</TableHead>
+                <TableHead>{I18n.t('events.edit.attendees.table.amount')}</TableHead>
+                <TableHead className="w-[100px]">Actions</TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+            </TableHeader>
+            <TableBody>
+              {attendees.map((item, index) => (
+                <TableRow
+                  key={item.id}
+                  ref={index === attendees.length - 1 ? lastElementRef : null}
+                >
+                  <TableCell>
+                    <div className="flex items-center space-x-2">
+                      <div>
+                        <p className="font-medium">{item.user.name || item.guest_email}</p>
+                        <p className="text-sm text-muted-foreground">{item.user.email || item.guest_email}</p>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="font-medium">{item.event_ticket.title}</div>
+                    <div className="text-sm text-muted-foreground">
+                      {item.event_ticket.currency} {item.event_ticket.price}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant="secondary"
+                      className={attendeeStatuses[item.state]?.color || 'bg-secondary'}
+                    >
+                      {attendeeStatuses[item.state]?.label || item.state}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    {format(new Date(item.created_at), 'PPP')}
+                  </TableCell>
+                  <TableCell>
+                    <div className="space-y-2">
+                      <div>{item.price} {item.currency?.toUpperCase()}</div>
+                      {item.checked_in_at && (
+                        <Badge variant="success">
+                          {I18n.t('events.edit.attendees.status.checked_in', { time: format(new Date(item.checked_in_at), 'PPp') })}
+                        </Badge>
+                      )}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {renderRefundAction(item)}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
 
       {/* Loading indicator */}
       {loading && (
