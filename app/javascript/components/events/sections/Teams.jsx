@@ -5,6 +5,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
 import { post, put, get, destroy } from '@rails/request.js'
 import { useToast } from "@/hooks/use-toast"
+import { useIsMobile } from "@/hooks/use-mobile"
 import { Button } from "@/components/ui/button"
 import I18n from 'stores/locales'
 import {
@@ -84,6 +85,7 @@ const accessRoleOptions = [
 
 export default function Teams() {
   const { slug } = useParams()
+  const isMobile = useIsMobile()
   const { toast } = useToast()
   const [event, setEvent] = React.useState(null)
   const [pendingInvites, setPendingInvites] = React.useState([])
@@ -370,6 +372,11 @@ export default function Teams() {
     }
   }, [hostToEdit])
 
+  const getRoleLabel = React.useCallback((role) => (
+    accessRoleOptions.find((option) => option.value === role)?.label ||
+    I18n.t('events.edit.teams.roles.host')
+  ), [])
+
   return (
     <div className="space-y-6">
       <Card>
@@ -386,17 +393,17 @@ export default function Teams() {
               {currentTeam.map((member) => (
                 <div
                   key={member.id}
-                  className="flex items-center justify-between p-4 border rounded-lg"
+                  className="flex flex-col gap-4 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between"
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex min-w-0 items-start gap-3">
                     <Avatar>
                       <AvatarImage src={member.avatar_url?.small} alt={member.name} />
                       <AvatarFallback>{member.name?.charAt(0)?.toUpperCase()}</AvatarFallback>
                     </Avatar>
-                    <div>
-                      <p className="font-medium">{member.name}</p>
+                    <div className="min-w-0">
+                      <p className="break-words font-medium">{member.name}</p>
                       {member.description && (
-                        <p className="text-sm text-muted-foreground mt-1">{member.description}</p>
+                        <p className="mt-1 break-words text-sm text-muted-foreground">{member.description}</p>
                       )}
                       <div className="mt-2 flex flex-wrap gap-2">
                         {member.listed_on_page && (
@@ -405,16 +412,16 @@ export default function Teams() {
                           </span>
                         )}
                         <span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800">
-                          {accessRoleOptions.find((option) => option.value === member.access_role)?.label ||
-                            I18n.t('events.edit.teams.roles.host')}
+                          {getRoleLabel(member.access_role)}
                         </span>
                       </div>
                     </div>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex w-full gap-2 sm:w-auto">
                     <Button
                       variant="ghost"
                       size="sm"
+                      className="flex-1 sm:flex-none"
                       onClick={() => setHostToEdit(member)}
                     >
                       <Pencil className="h-4 w-4" />
@@ -422,6 +429,7 @@ export default function Teams() {
                     <Button
                       variant="ghost"
                       size="sm"
+                      className="flex-1 sm:flex-none"
                       onClick={() => setHostToDelete(member)}
                     >
                       <Trash2 className="h-4 w-4" />
@@ -442,41 +450,66 @@ export default function Teams() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{I18n.t('events.edit.teams.pending.table.email')}</TableHead>
-                <TableHead>{I18n.t('events.edit.teams.pending.table.role')}</TableHead>
-                <TableHead>{I18n.t('events.edit.teams.pending.table.sent_at')}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {pendingInvites.map((invite) => (
-                <TableRow key={invite.id}>
-                  <TableCell>{invite.email}</TableCell>
-                  <TableCell className="capitalize">{invite.role}</TableCell>
-                  <TableCell>{invite.created_at}</TableCell>
+          {isMobile ? (
+            pendingInvites.length > 0 ? (
+              <div className="space-y-3">
+                {pendingInvites.map((invite) => (
+                  <div key={invite.id} className="rounded-lg border p-4">
+                    <div className="break-all font-medium">{invite.email}</div>
+                    <div className="mt-3 flex flex-wrap gap-2">
+                      <span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800">
+                        {getRoleLabel(invite.role)}
+                      </span>
+                    </div>
+                    <div className="mt-3 text-sm text-muted-foreground">
+                      {invite.created_at}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">
+                {I18n.t('events.edit.teams.pending.empty', { defaultValue: 'No hay invitaciones pendientes.' })}
+              </p>
+            )
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>{I18n.t('events.edit.teams.pending.table.email')}</TableHead>
+                  <TableHead>{I18n.t('events.edit.teams.pending.table.role')}</TableHead>
+                  <TableHead>{I18n.t('events.edit.teams.pending.table.sent_at')}</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {pendingInvites.map((invite) => (
+                  <TableRow key={invite.id}>
+                    <TableCell>{invite.email}</TableCell>
+                    <TableCell className="capitalize">{getRoleLabel(invite.role)}</TableCell>
+                    <TableCell>{invite.created_at}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <div className="flex justify-between items-center">
-            <div>
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+            <div className="min-w-0">
               <CardTitle>{I18n.t('events.edit.teams.add_members.title')}</CardTitle>
               <CardDescription>
                 {I18n.t('events.edit.teams.add_members.description')}
               </CardDescription>
             </div>
-            <div className="flex gap-2">
+            <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row">
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
+                className="w-full sm:w-auto"
                 onClick={() => setShowStandaloneDialog(true)}
               >
                 <Plus className="h-4 w-4 mr-2" />
@@ -486,6 +519,7 @@ export default function Teams() {
                 type="button"
                 variant="outline"
                 size="sm"
+                className="w-full sm:w-auto"
                 onClick={addTeamMember}
               >
                 <UserPlus className="h-4 w-4 mr-2" />
@@ -497,85 +531,154 @@ export default function Teams() {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{I18n.t('events.edit.teams.pending.table.email')}</TableHead>
-                    <TableHead>{I18n.t('events.edit.teams.pending.table.role')}</TableHead>
-                    <TableHead className="w-[50px]"></TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
+              {isMobile ? (
+                <div className="space-y-3">
                   {fields.map((field, index) => (
-                    <TableRow key={field.id}>
-                      <TableCell>
-                        <FormField
-                          control={form.control}
-                          name={`team_members.${index}.email`}
-                          render={({ field }) => (
-                            <FormItem>
+                    <div key={field.id} className="space-y-4 rounded-lg border p-4">
+                      <FormField
+                        control={form.control}
+                        name={`team_members.${index}.email`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>{I18n.t('events.edit.teams.pending.table.email')}</FormLabel>
+                            <FormControl>
+                              <Input
+                                type="email"
+                                placeholder={I18n.t('events.edit.teams.add_members.email_placeholder')}
+                                {...field}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name={`team_members.${index}.access_role`}
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>{I18n.t('events.edit.teams.pending.table.role')}</FormLabel>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value}
+                            >
                               <FormControl>
-                                <Input
-                                  type="email"
-                                  placeholder={I18n.t('events.edit.teams.add_members.email_placeholder')}
-                                  {...field}
-                                />
+                                <SelectTrigger>
+                                  <SelectValue placeholder={I18n.t('events.edit.teams.add_members.role_placeholder')} />
+                                </SelectTrigger>
                               </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <FormField
-                          control={form.control}
-                          name={`team_members.${index}.access_role`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormControl>
-                                <Select
-                                  onValueChange={field.onChange}
-                                  defaultValue={field.value}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder={I18n.t('events.edit.teams.add_members.role_placeholder')} />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    {accessRoleOptions.map((role) => (
-                                      <SelectItem
-                                        key={role.value}
-                                        value={role.value}
-                                      >
-                                        {role.label}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </TableCell>
-                      <TableCell>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => remove(index)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
+                              <SelectContent>
+                                {accessRoleOptions.map((role) => (
+                                  <SelectItem
+                                    key={role.value}
+                                    value={role.value}
+                                  >
+                                    {role.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="w-full justify-center"
+                        onClick={() => remove(index)}
+                      >
+                        <Trash2 className="h-4 w-4 mr-2" />
+                        {I18n.t('events.edit.teams.remove_member', { defaultValue: 'Eliminar' })}
+                      </Button>
+                    </div>
                   ))}
-                </TableBody>
-              </Table>
+                </div>
+              ) : (
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>{I18n.t('events.edit.teams.pending.table.email')}</TableHead>
+                      <TableHead>{I18n.t('events.edit.teams.pending.table.role')}</TableHead>
+                      <TableHead className="w-[50px]"></TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {fields.map((field, index) => (
+                      <TableRow key={field.id}>
+                        <TableCell>
+                          <FormField
+                            control={form.control}
+                            name={`team_members.${index}.email`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Input
+                                    type="email"
+                                    placeholder={I18n.t('events.edit.teams.add_members.email_placeholder')}
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <FormField
+                            control={form.control}
+                            name={`team_members.${index}.access_role`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormControl>
+                                  <Select
+                                    onValueChange={field.onChange}
+                                    defaultValue={field.value}
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder={I18n.t('events.edit.teams.add_members.role_placeholder')} />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      {accessRoleOptions.map((role) => (
+                                        <SelectItem
+                                          key={role.value}
+                                          value={role.value}
+                                        >
+                                          {role.label}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => remove(index)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              )}
 
               {fields.length > 0 && (
-                <Button type="submit">{I18n.t('events.edit.teams.add_members.send_invitations')}</Button>
+                <Button type="submit" className="w-full sm:w-auto">
+                  {I18n.t('events.edit.teams.add_members.send_invitations')}
+                </Button>
               )}
             </form>
           </Form>
@@ -605,7 +708,7 @@ export default function Teams() {
           editForm.reset()
         }
       }}>
-        <DialogContent>
+        <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>{I18n.t('events.edit.teams.edit_member.title')}</DialogTitle>
           </DialogHeader>
@@ -663,7 +766,7 @@ export default function Teams() {
                   control={editForm.control}
                   name="listed_on_page"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                    <FormItem className="flex flex-col gap-4 rounded-lg border p-3 shadow-sm sm:flex-row sm:items-center sm:justify-between">
                       <div className="space-y-0.5">
                         <FormLabel>{I18n.t('events.edit.teams.edit_member.listed.label')}</FormLabel>
                         <FormDescription>
@@ -712,7 +815,7 @@ export default function Teams() {
                 />
               </div>
 
-              <div className="flex justify-end space-x-2">
+              <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
                 <Button
                   type="button"
                   variant="outline"
@@ -747,7 +850,7 @@ export default function Teams() {
           setStandalonePreviewUrl(null)
         }
       }}>
-        <DialogContent>
+        <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>{I18n.t('events.edit.teams.add_standalone_host.title')}</DialogTitle>
           </DialogHeader>
@@ -813,7 +916,7 @@ export default function Teams() {
                   control={standaloneForm.control}
                   name="listed_on_page"
                   render={({ field }) => (
-                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                    <FormItem className="flex flex-col gap-4 rounded-lg border p-3 shadow-sm sm:flex-row sm:items-center sm:justify-between">
                       <div className="space-y-0.5">
                         <FormLabel>{I18n.t('events.edit.teams.edit_member.listed.label')}</FormLabel>
                         <FormDescription>
@@ -862,7 +965,7 @@ export default function Teams() {
                 />
               </div>
 
-              <div className="flex justify-end space-x-2">
+              <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
                 <Button
                   type="button"
                   variant="outline"

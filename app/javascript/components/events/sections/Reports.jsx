@@ -2,11 +2,12 @@ import React from "react"
 import { useParams } from "react-router-dom"
 import { get } from '@rails/request.js'
 import I18n from '@/stores/locales'
+import { useIsMobile } from "@/hooks/use-mobile"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { DollarSign, Users, Calendar, TrendingUp, Clock, CheckCircle, XCircle, AlertCircle } from "lucide-react"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, PieChart, Pie, Cell, ResponsiveContainer } from "recharts"
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, PieChart, Pie, Cell } from "recharts"
 
 const COLORS = {
   paid: "hsl(142, 76%, 36%)",
@@ -31,6 +32,7 @@ const chartConfig = {
 
 export default function Reports() {
   const { slug } = useParams()
+  const isMobile = useIsMobile()
   const [loading, setLoading] = React.useState(true)
   const [stats, setStats] = React.useState({
     paid: { count: 0, total: 0 },
@@ -82,6 +84,9 @@ export default function Reports() {
 
   const isEventStarted = event && new Date(event.event_start) <= new Date()
   const isEventEnded = event && new Date(event.event_ends) <= new Date()
+  const chartHeightClassName = isMobile ? "h-[220px]" : "h-[300px]"
+  const pieOuterRadius = isMobile ? 64 : 88
+  const pieInnerRadius = isMobile ? 34 : 48
 
   if (loading) {
     return (
@@ -243,13 +248,28 @@ export default function Reports() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ChartContainer config={chartConfig} className="h-[300px]">
-              <BarChart data={barChartData}>
+            <ChartContainer config={chartConfig} className={`w-full min-w-0 aspect-auto overflow-hidden ${chartHeightClassName}`}>
+              <BarChart
+                data={barChartData}
+                margin={isMobile ? { top: 8, right: 8, left: -20, bottom: 0 } : { top: 8, right: 16, left: 0, bottom: 0 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
+                <XAxis
+                  dataKey="name"
+                  tick={{ fontSize: isMobile ? 11 : 12 }}
+                  interval={0}
+                  tickLine={false}
+                  axisLine={false}
+                />
+                <YAxis
+                  tick={{ fontSize: isMobile ? 11 : 12 }}
+                  tickFormatter={(value) => `$${Number(value || 0).toLocaleString()}`}
+                  tickLine={false}
+                  axisLine={false}
+                  width={isMobile ? 48 : 64}
+                />
                 <ChartTooltip content={<ChartTooltipContent />} />
-                <Bar dataKey="value" radius={[8, 8, 0, 0]} />
+                <Bar dataKey="value" radius={[8, 8, 0, 0]} maxBarSize={isMobile ? 42 : 64} />
               </BarChart>
             </ChartContainer>
           </CardContent>
@@ -264,15 +284,16 @@ export default function Reports() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ChartContainer config={chartConfig} className="h-[300px]">
+            <ChartContainer config={chartConfig} className={`w-full min-w-0 aspect-auto overflow-hidden ${chartHeightClassName}`}>
               <PieChart>
                 <Pie
                   data={pieChartData}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  outerRadius={80}
+                  label={isMobile ? false : ({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                  outerRadius={pieOuterRadius}
+                  innerRadius={pieInnerRadius}
                   fill="#8884d8"
                   dataKey="value"
                 >
@@ -283,6 +304,24 @@ export default function Reports() {
                 <ChartTooltip content={<ChartTooltipContent />} />
               </PieChart>
             </ChartContainer>
+
+            <div className="mt-4 grid gap-2 sm:grid-cols-3">
+              {pieChartData.map((entry) => (
+                <div
+                  key={entry.name}
+                  className="flex items-center justify-between rounded-lg border px-3 py-2 text-sm"
+                >
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span
+                      className="h-2.5 w-2.5 shrink-0 rounded-full"
+                      style={{ backgroundColor: entry.fill }}
+                    />
+                    <span className="truncate">{entry.name}</span>
+                  </div>
+                  <span className="font-medium">{entry.value}</span>
+                </div>
+              ))}
+            </div>
           </CardContent>
         </Card>
       </div>

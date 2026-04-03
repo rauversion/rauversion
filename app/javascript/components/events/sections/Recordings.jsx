@@ -11,12 +11,9 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { cn } from "@/lib/utils"
-import { Switch } from "@/components/ui/switch"
 
 import {
   Form,
@@ -67,9 +64,8 @@ export default function Recordings() {
     items: recordings,
     loading,
     lastElementRef,
+    setItems,
     resetList,
-    page,
-    fetchItems,
   } = useInfiniteScroll(`/events/${slug}/event_recordings.json`)
 
   const form = useForm({
@@ -173,8 +169,8 @@ export default function Recordings() {
   }
 
   return (
-    <div className="space-y-4 p-8">
-      <div className="flex items-center justify-between">
+    <div className="space-y-6 p-4 sm:p-6 lg:p-8">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h2 className="text-3xl font-bold tracking-tight">{I18n.t('events.edit.recordings.title')}</h2>
           <p className="text-sm text-muted-foreground">
@@ -182,18 +178,21 @@ export default function Recordings() {
           </p>
         </div>
 
-        <Button onClick={() => {
-          setEditMode(false)
-          setSelectedRecording(null)
-          form.reset()
-          setOpen(true)
-        }}>
+        <Button
+          className="w-full sm:w-auto"
+          onClick={() => {
+            setEditMode(false)
+            setSelectedRecording(null)
+            form.reset()
+            setOpen(true)
+          }}
+        >
           <Plus className="mr-2 h-4 w-4" />
           {I18n.t('events.edit.recordings.add_recording')}
         </Button>
 
         <Dialog open={open} onOpenChange={handleClose}>
-          <DialogContent>
+          <DialogContent className="max-h-[90svh] overflow-y-auto sm:max-w-xl">
             <DialogHeader>
               <DialogTitle>
                 {I18n.t(editMode ? 'events.edit.recordings.edit_recording' : 'events.edit.recordings.add_recording')}
@@ -285,9 +284,10 @@ export default function Recordings() {
                   )}
                 />
 
-                <DialogFooter>
+                <DialogFooter className="gap-2">
                   <Button 
                     type="submit" 
+                    className="w-full sm:w-auto"
                     disabled={submitting}
                   >
                     {submitting && (
@@ -310,20 +310,21 @@ export default function Recordings() {
             className="relative rounded-lg border bg-card text-card-foreground shadow-sm"
           >
             <div
-              className="aspect-video w-full overflow-hidden rounded-t-lg"
+              className="aspect-video w-full overflow-hidden rounded-t-lg bg-black [&_iframe]:h-full [&_iframe]:w-full [&_iframe]:border-0"
               dangerouslySetInnerHTML={{ __html: recording.iframe }}
             />
             <div className="p-4">
-              <h3 className="text-lg font-semibold">{recording.title}</h3>
+              <h3 className="break-words text-lg font-semibold">{recording.title}</h3>
               {recording.description && (
-                <p className="mt-2 text-sm text-muted-foreground">
+                <p className="mt-2 break-words text-sm text-muted-foreground">
                   {recording.description}
                 </p>
               )}
-              <div className="mt-4 flex justify-end gap-2">
+              <div className="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end">
                 <Button
                   variant="outline"
                   size="sm"
+                  className="w-full sm:w-auto"
                   onClick={() => editRecording(recording)}
                 >
                   {I18n.t('events.edit.recordings.buttons.edit')}
@@ -331,6 +332,7 @@ export default function Recordings() {
                 <Button
                   variant="destructive"
                   size="sm"
+                  className="w-full sm:w-auto"
                   onClick={() => deleteRecording(recording.id)}
                 >
                   {I18n.t('events.edit.recordings.buttons.delete')}
