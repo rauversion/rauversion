@@ -8,6 +8,8 @@ export function useInfiniteScroll(fetchUrl, options = {}) {
   const [hasMore, setHasMore] = useState(true)
   const [page, setPage] = useState(1)
   const observer = useRef()
+  const activeRequestsRef = useRef(0)
+  const collectionVersionRef = useRef(0)
 
   const lastElementRef = useCallback(node => {
     if (loading) return
@@ -20,13 +22,19 @@ export function useInfiniteScroll(fetchUrl, options = {}) {
     if (node) observer.current.observe(node)
   }, [loading, hasMore])
 
-  const fetchItems = async (pageNum) => {
+  const fetchItems = useCallback(async (pageNum = 1, version = collectionVersionRef.current) => {
+    activeRequestsRef.current += 1
+
     try {
       setLoading(true)
       const url = `${fetchUrl}${fetchUrl.includes('?') ? '&' : '?'}page=${pageNum}`
       const response = await get(url)
+
       if (response.ok) {
         const responseData = await response.json
+
+        if (version !== collectionVersionRef.current) return
+
         setData(responseData)
         setItems(prevItems => {
           if (pageNum === 1) return responseData.collection
@@ -37,23 +45,36 @@ export function useInfiniteScroll(fetchUrl, options = {}) {
     } catch (error) {
       console.error('Error fetching items:', error)
     } finally {
-      setLoading(false)
+      activeRequestsRef.current = Math.max(0, activeRequestsRef.current - 1)
+
+      if (activeRequestsRef.current === 0) {
+        setLoading(false)
+      }
     }
-  }
+  }, [fetchUrl])
 
   const resetList = useCallback(() => {
     setPage(1)
     setItems([])
+    setData(null)
     setHasMore(true)
   }, [])
 
-  useEffect(() => {
+  const refresh = useCallback(() => {
+    collectionVersionRef.current += 1
     resetList()
-  }, [fetchUrl])
+    void fetchItems(1, collectionVersionRef.current)
+  }, [fetchItems, resetList])
 
   useEffect(() => {
-    fetchItems(page)
-  }, [fetchUrl, page])
+    refresh()
+  }, [fetchUrl, refresh])
+
+  useEffect(() => {
+    if (page === 1) return
+
+    void fetchItems(page, collectionVersionRef.current)
+  }, [fetchItems, page])
 
   return {
     items,
@@ -61,6 +82,7 @@ export function useInfiniteScroll(fetchUrl, options = {}) {
     hasMore,
     lastElementRef,
     resetList,
+    refresh,
     setItems,
     fetchItems,
     data,

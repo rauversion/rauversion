@@ -89,7 +89,7 @@ export default function Attendees() {
     loading,
     lastElementRef,
     resetList,
-    fetchItems
+    refresh,
   } = useInfiniteScroll(`/events/${slug}/event_attendees.json${searchParams}`)
 
   const permissions = data?.permissions || {
@@ -141,9 +141,14 @@ export default function Attendees() {
     const params = new URLSearchParams()
     if (data.query) params.append("query", data.query)
     if (data.status !== "all") params.append("status", data.status)
-    const queryString = params.toString()
-    setSearchParams(queryString ? `?${queryString}` : "")
-    fetchItems()
+    const nextSearchParams = params.toString() ? `?${params.toString()}` : ""
+
+    if (nextSearchParams === searchParams) {
+      refresh()
+      return
+    }
+
+    setSearchParams(nextSearchParams)
   }
 
   const handleExportCSV = async () => {
@@ -183,7 +188,7 @@ export default function Attendees() {
         })
         setIsInviteDialogOpen(false)
         inviteForm.reset()
-        fetchItems()
+        refresh()
       } else {
         const errorData = await response.json
         toast({
@@ -217,7 +222,7 @@ export default function Attendees() {
           description: "The ticket has been refunded successfully.",
         })
         setRefundConfirmItem(null)
-        fetchItems()
+        refresh()
       } else {
         const errorData = await response.json
         toast({
