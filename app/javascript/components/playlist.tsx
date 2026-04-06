@@ -1,82 +1,84 @@
-import React, { useEffect, useState, useRef } from "react";
-import { Play, Pause } from 'lucide-react';
-import { getUserDisplayName } from "@/utils/userDisplayName";
-import { buildPlaylistPalette, resolvePlaylistCoverUrl } from "@/lib/playlist-theme";
-import type { TemplateStyle } from "@/lib/blocks/types";
+import React, { useEffect, useMemo, useState } from "react"
+import { Play, Pause } from "lucide-react"
+import { getUserDisplayName } from "@/utils/userDisplayName"
+import { buildPlaylistPalette, resolvePlaylistCoverUrl } from "@/lib/playlist-theme"
+import type { TemplateStyle } from "@/lib/blocks/types"
+import useAudioStore from "@/stores/audioStore"
 
 interface Track {
-  id: number;
-  title: string;
-  description: string;
-  duration: number | string | null;
-  audio_url: string;
-  cover_url: string;
-  position: number;
-  author: User;
+  id: number
+  title: string
+  description: string
+  duration: number | string | null
+  audio_url: string
+  cover_url: string
+  position: number
+  author?: User
+  user?: User
 }
 
 interface User {
-  id: number;
-  username: string;
-  display_name?: string;
-  full_name: string;
-  avatar_url: string;
+  id: number
+  username: string
+  display_name?: string
+  full_name: string
+  avatar_url: string
 }
 
 interface PlaylistMetadata {
-  buy_link: string;
-  buy_link_title: string;
-  buy: boolean;
-  record_label: string;
+  buy_link: string
+  buy_link_title: string
+  buy: boolean
+  record_label: string
 }
 
 interface Playlist {
-  id: number;
-  title: string;
-  slug: string;
-  url?: string;
-  description: string;
-  playlist_type: string;
-  private: boolean;
+  id: number
+  title: string
+  slug: string
+  url?: string
+  description: string
+  playlist_type: string
+  private: boolean
   // metadata: PlaylistMetadata;
-  buy: boolean;
-  buy_link: string;
-  buy_link_title: string;
-  created_at: string;
-  updated_at: string;
-  user: User;
-  label?: User;
-  cover_url: string | { small?: string; medium?: string; large?: string; cropped_image?: string };
-  tracks: Track[];
-  likes_count: number;
-  comments_count: number;
-  author: User;
+  buy: boolean
+  buy_link: string
+  buy_link_title: string
+  created_at: string
+  updated_at: string
+  user: User
+  label?: User
+  cover_url: string | { small?: string; medium?: string; large?: string; cropped_image?: string }
+  tracks: Track[]
+  likes_count: number
+  comments_count: number
+  author: User
 }
 
 interface PlaylistProps {
-  playlistId: string | number;
-  primaryColor?: string;
-  template?: TemplateStyle;
-  themeMode?: "dark" | "light";
-  height?: number;
+  playlistId: string | number
+  primaryColor?: string
+  template?: TemplateStyle
+  themeMode?: "dark" | "light"
+  height?: number
 }
 
 function formatTrackDuration(duration: number | string | null | undefined) {
   if (duration === null || duration === undefined || duration === "") {
-    return "";
+    return ""
   }
 
-  const parsedDuration = typeof duration === "number" ? duration : Number(duration);
+  const parsedDuration = typeof duration === "number" ? duration : Number(duration)
 
   if (Number.isNaN(parsedDuration)) {
-    return "";
+    return ""
   }
 
-  const totalSeconds = Math.floor(parsedDuration);
-  const minutes = Math.floor(totalSeconds / 60);
-  const remainingSeconds = totalSeconds % 60;
+  const totalSeconds = Math.floor(parsedDuration)
+  const minutes = Math.floor(totalSeconds / 60)
+  const remainingSeconds = totalSeconds % 60
 
-  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
+  return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`
 }
 
 export default function PlaylistComponent({
@@ -86,81 +88,99 @@ export default function PlaylistComponent({
   themeMode = "dark",
   height = 560,
 }: PlaylistProps) {
-  const [playlist, setPlaylist] = useState<Playlist | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [currentTrackIndex, setCurrentTrackIndex] = useState<number>(-1);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const [playlist, setPlaylist] = useState<Playlist | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const currentTrackId = useAudioStore((state) => state.currentTrackId)
+  const isPlaying = useAudioStore((state) => state.isPlaying)
+  const play = useAudioStore((state) => state.play)
+  const pause = useAudioStore((state) => state.pause)
+  const setAudioPlaylist = useAudioStore((state) => state.setPlaylist)
+
+  const trackIds = useMemo(
+    () => (playlist?.tracks || []).map((track) => `${track.id}`).filter(Boolean),
+    [playlist]
+  )
+  const activeTrackIndex = useMemo(
+    () => playlist?.tracks.findIndex((track) => `${track.id}` === `${currentTrackId}`) ?? -1,
+    [currentTrackId, playlist]
+  )
+  const isPlaylistActive = useMemo(
+    () => trackIds.includes(`${currentTrackId}`),
+    [currentTrackId, trackIds]
+  )
 
   useEffect(() => {
     const fetchPlaylist = async () => {
       if (!playlistId) {
-        setPlaylist(null);
-        setLoading(false);
-        return;
+        setPlaylist(null)
+        setLoading(false)
+        return
       }
 
-      setLoading(true);
-      setError(null);
+      setLoading(true)
+      setError(null)
 
       try {
-        const response = await fetch(`/playlists/${playlistId}.json`);
+        const response = await fetch(`/playlists/${playlistId}.json`)
         if (!response.ok) {
-          throw new Error('Failed to fetch playlist');
+          throw new Error("Failed to fetch playlist")
         }
-        const data = await response.json();
-        setPlaylist(normalizePlaylist(data));
+        const data = await response.json()
+        setPlaylist(normalizePlaylist(data))
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
+        setError(err instanceof Error ? err.message : "An error occurred")
       } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchPlaylist();
-  }, [playlistId]);
-
-  useEffect(() => {
-    if (playlist && currentTrackIndex >= 0 && playlist.tracks[currentTrackIndex]) {
-      const track = playlist.tracks[currentTrackIndex];
-      if (audioRef.current && track.audio_url) {
-        audioRef.current.src = track.audio_url;
-        if (isPlaying) {
-          audioRef.current.play();
-        }
+        setLoading(false)
       }
     }
-  }, [currentTrackIndex, playlist, isPlaying]);
 
-  const handleTrackPlay = (index: number) => {
-    if (currentTrackIndex === index) {
-      togglePlayPause();
-    } else {
-      setCurrentTrackIndex(index);
-      setIsPlaying(true);
+    fetchPlaylist()
+  }, [playlistId])
+
+  const ensurePlaylistQueue = () => {
+    if (trackIds.length > 0) {
+      setAudioPlaylist(trackIds)
     }
-  };
+  }
 
-  const togglePlayPause = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
+  const handlePlayPlaylist = () => {
+    if (!playlist?.tracks?.length) return
+
+    ensurePlaylistQueue()
+
+    if (isPlaylistActive && isPlaying) {
+      pause()
+      return
     }
-  };
 
-  if (loading) return <div className="text-muted-foreground">Loading...</div>;
-  if (error) return <div className="text-destructive">Error: {error}</div>;
-  if (!playlist) return <div className="text-muted-foreground">No playlist found</div>;
+    const nextTrackId =
+      isPlaylistActive && activeTrackIndex >= 0
+        ? playlist.tracks[activeTrackIndex].id
+        : playlist.tracks[0].id
 
-  const playlistCoverUrl = resolvePlaylistCoverUrl(playlist.cover_url);
-  const playlistHref = playlist.url || (playlist.slug ? `/playlists/${playlist.slug}` : undefined);
-  const palette = buildPlaylistPalette({ primaryColor, template, themeMode });
-  const trackListHeight = Math.max(height - 230, 180);
+    play(nextTrackId)
+  }
+
+  const handleTrackPlay = (trackId: number) => {
+    ensurePlaylistQueue()
+
+    if (`${currentTrackId}` === `${trackId}` && isPlaying) {
+      pause()
+      return
+    }
+
+    play(trackId)
+  }
+
+  if (loading) return <div className="text-muted-foreground">Loading...</div>
+  if (error) return <div className="text-destructive">Error: {error}</div>
+  if (!playlist) return <div className="text-muted-foreground">No playlist found</div>
+
+  const playlistCoverUrl = resolvePlaylistCoverUrl(playlist.cover_url)
+  const playlistHref = playlist.url || (playlist.slug ? `/playlists/${playlist.slug}` : undefined)
+  const palette = buildPlaylistPalette({ primaryColor, template, themeMode })
+  const trackListHeight = Math.max(height - 230, 180)
 
   return (
     <div
@@ -180,7 +200,6 @@ export default function PlaylistComponent({
         } as React.CSSProperties
       }
     >
-      <audio ref={audioRef} />
       <div className="flex items-start gap-6">
         {playlistCoverUrl && (
           <img 
@@ -195,11 +214,11 @@ export default function PlaylistComponent({
           <p className="mb-4 text-[var(--playlist-muted)]">{getUserDisplayName(playlist.user)}</p>
           <div className="flex items-center gap-4">
             <button 
-              onClick={togglePlayPause}
+              onClick={handlePlayPlaylist}
               className="rounded-full p-3 font-semibold text-white transition hover:scale-105"
               style={{ backgroundColor: palette.accent }}
             >
-              {isPlaying ? <Pause size={24} /> : <Play size={24} />}
+              {isPlaying && isPlaylistActive ? <Pause size={24} /> : <Play size={24} />}
             </button>
             {playlistHref && (
               <a
@@ -226,9 +245,10 @@ export default function PlaylistComponent({
           }}
         >
           {playlist.tracks.map((track, index) => {
-            const formattedDuration = formatTrackDuration(track.duration);
-            const trackAuthor = track.author || track.user;
-            const isCurrentTrack = currentTrackIndex === index && isPlaying;
+            const formattedDuration = formatTrackDuration(track.duration)
+            const trackAuthor = track.author || track.user
+            const isCurrentTrack = `${currentTrackId}` === `${track.id}`
+            const isCurrentTrackPlaying = isCurrentTrack && isPlaying
 
             return (
               <div 
@@ -242,11 +262,11 @@ export default function PlaylistComponent({
                   <button 
                     className="text-[var(--playlist-muted)] opacity-0 transition group-hover:opacity-100 hover:text-[var(--playlist-accent)]"
                     onClick={(e) => {
-                      e.stopPropagation();
-                      handleTrackPlay(index);
+                      e.stopPropagation()
+                      handleTrackPlay(track.id)
                     }}
                   >
-                    {currentTrackIndex === index && isPlaying ? 
+                    {isCurrentTrackPlaying ? 
                       <Pause size={20} /> : 
                       <Play size={20} />
                     }
@@ -262,7 +282,7 @@ export default function PlaylistComponent({
 
                 </div>
               </div>
-            );
+            )
           })}
         </div>
       </div>
@@ -281,15 +301,15 @@ export default function PlaylistComponent({
         </div>
       )}
     </div>
-  );
+  )
 }
 
 function normalizePlaylist(data: any): Playlist | null {
-  const playlist = data?.playlist || data;
-  if (!playlist?.id) return null;
+  const playlist = data?.playlist || data
+  if (!playlist?.id) return null
 
   return {
     ...playlist,
     tracks: Array.isArray(playlist.tracks) ? playlist.tracks : [],
-  };
+  }
 }
