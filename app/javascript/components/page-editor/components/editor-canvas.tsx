@@ -155,6 +155,7 @@ export function EditorCanvas({
                   <SortableBlock
                     key={block.id}
                     block={block}
+                    pageStyle={style}
                     isSelected={selectedBlockId === block.id}
                     selectedBlockId={selectedBlockId}
                     onSelect={onSelectBlock}

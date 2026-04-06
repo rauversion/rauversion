@@ -1,10 +1,12 @@
 "use client"
 
 import React from "react"
-import type { Block, BlockType } from "@/lib/blocks/types"
+import type { Block, BlockType, PageStyle } from "@/lib/blocks/types"
 import { TextBlock } from "./text-block"
 import { ImageBlock } from "./image-block"
 import { SpacerBlock } from "./spacer-block"
+import { ProductItemBlock } from "./product-item-block"
+import { SectionBlock } from "./section-block"
 import { PlaylistBlock } from "./playlist-block"
 import { TrackBlock } from "./track-block"
 import { LinkEmbedBlock } from "./link-embed-block"
@@ -34,6 +36,7 @@ import { cn } from "@/lib/utils"
 
 interface BlockRendererProps {
   block: Block
+  pageStyle?: PageStyle
   isEditing?: boolean
   isSelected?: boolean
   onSelect?: (id: string) => void
@@ -49,6 +52,7 @@ interface BlockRendererProps {
 
 export function BlockRenderer({
   block,
+  pageStyle,
   isEditing = false,
   isSelected = false,
   onSelect,
@@ -86,6 +90,10 @@ export function BlockRenderer({
         )
       case "spacer":
         return <SpacerBlock block={block} isEditing={isEditing} />
+      case "product-item":
+        return <ProductItemBlock block={block} isEditing={isEditing} />
+      case "section":
+        return <SectionBlock block={block} pageStyle={pageStyle} isEditing={isEditing} />
       case "playlist":
         return <PlaylistBlock block={block} isEditing={isEditing} />
       case "track":
@@ -136,6 +144,7 @@ export function BlockRenderer({
         return (
           <ColumnBlock
             block={block}
+            pageStyle={pageStyle}
             isEditing={isEditing}
             onSelectBlock={onSelect}
             selectedBlockId={selectedBlockId}
@@ -161,6 +170,7 @@ export function BlockRenderer({
         return (
           <CarouselBlock
             block={block}
+            pageStyle={pageStyle}
             isEditing={isEditing}
             selectedBlockId={selectedBlockId}
             onSelectBlock={onSelect}

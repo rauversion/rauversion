@@ -2,6 +2,8 @@ export type BlockType =
   | "text"
   | "image"
   | "spacer"
+  | "product-item"
+  | "section"
   | "playlist"
   | "track"
   | "custom-player"
@@ -136,6 +138,52 @@ export interface CardBlock extends BaseBlock {
     link?: string
     linkText?: string
     badge?: string
+  }
+}
+
+export type ProductItemVariant = "minimal" | "horizontal" | "compact" | "elegant"
+export type ProductItemButtonStyle = "solid" | "outline"
+export type ProductItemShadow = "none" | "sm" | "md" | "lg"
+export type ProductItemHoverEffect = "none" | "lift" | "grow" | "shadow"
+export type ProductItemRoundedCorners = "none" | "sm" | "md" | "lg" | "full"
+export type ProductItemAspectRatio = "square" | "video" | "portrait" | "wide"
+
+export interface ProductItemBlock extends BaseBlock {
+  type: "product-item"
+  props: {
+    productId: string
+    variant: ProductItemVariant
+    backgroundColor: string
+    borderColor: string
+    titleColor: string
+    priceColor: string
+    textColor: string
+    buttonText: string
+    buttonStyle: ProductItemButtonStyle
+    shadow: ProductItemShadow
+    hoverEffect: ProductItemHoverEffect
+    roundedCorners: ProductItemRoundedCorners
+    aspectRatio: ProductItemAspectRatio
+    showGallery: boolean
+  }
+}
+
+export type SectionVariant = "left" | "right" | "fixed" | "overlay"
+export type SectionTitleSize = "2xl" | "3xl" | "4xl" | "5xl" | "6xl"
+export type SectionSubtitleSize = "5xl" | "6xl" | "7xl" | "8xl" | "9xl"
+export type SectionTextSize = "base" | "lg" | "xl"
+
+export interface SectionBlock extends BaseBlock {
+  type: "section"
+  props: {
+    variant: SectionVariant
+    title: string
+    subtitle: string
+    description: string
+    image: string
+    titleSize: SectionTitleSize
+    subtitleSize: SectionSubtitleSize
+    textSize: SectionTextSize
   }
 }
 
@@ -576,6 +624,8 @@ export type Block =
   | TextBlock
   | ImageBlock
   | SpacerBlock
+  | ProductItemBlock
+  | SectionBlock
   | PlaylistBlock
   | TrackBlock
   | CustomPlayerBlock

@@ -55,6 +55,20 @@ export const blockRegistry: BlockRegistryEntry[] = [
     category: "content",
   },
   {
+    type: "product-item",
+    label: "Producto",
+    description: "Card de producto con variantes",
+    icon: ShoppingBag,
+    category: "content",
+  },
+  {
+    type: "section",
+    label: "Section",
+    description: "Seccion editorial tipo Puck",
+    icon: LayoutList,
+    category: "content",
+  },
+  {
     type: "card",
     label: "Card",
     description: "Card con variantes",

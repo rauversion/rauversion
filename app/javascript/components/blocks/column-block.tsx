@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import type { ColumnBlock as ColumnBlockType, Block, BlockType } from "@/lib/blocks/types"
+import type { ColumnBlock as ColumnBlockType, Block, BlockType, PageStyle } from "@/lib/blocks/types"
 import { cn } from "@/lib/utils"
 import { BlockRenderer } from "./block-renderer"
 import {
@@ -36,6 +36,7 @@ import { blockTypeLabels } from "@/lib/blocks/defaults"
 
 interface ColumnBlockProps {
   block: ColumnBlockType
+  pageStyle?: PageStyle
   isEditing?: boolean
   onSelectBlock?: (id: string) => void
   selectedBlockId?: string | null
@@ -49,6 +50,7 @@ interface ColumnBlockProps {
 // Sortable item for blocks inside columns
 function SortableColumnItem({
   block,
+  pageStyle,
   isSelected,
   selectedBlockId,
   onSelect,
@@ -56,6 +58,7 @@ function SortableColumnItem({
   onUpdateProps,
 }: {
   block: Block
+  pageStyle?: PageStyle
   isSelected: boolean
   selectedBlockId?: string | null
   onSelect?: (id: string) => void
@@ -112,6 +115,7 @@ function SortableColumnItem({
       </div>
       <BlockRenderer
         block={block}
+        pageStyle={pageStyle}
         isEditing={true}
         isSelected={isSelected}
         selectedBlockId={selectedBlockId}
@@ -127,6 +131,7 @@ function DroppableColumn({
   columnIndex,
   children,
   blocks,
+  pageStyle,
   isEditing,
   selectedBlockId,
   onSelectBlock,
@@ -137,6 +142,7 @@ function DroppableColumn({
   columnIndex: number
   children: Block[]
   blocks: Block[]
+  pageStyle?: PageStyle
   isEditing?: boolean
   selectedBlockId?: string | null
   onSelectBlock?: (id: string) => void
@@ -179,6 +185,7 @@ function DroppableColumn({
             <SortableColumnItem
               key={block.id}
               block={block}
+              pageStyle={pageStyle}
               isSelected={selectedBlockId === block.id}
               selectedBlockId={selectedBlockId}
               onSelect={onSelectBlock}
@@ -222,6 +229,7 @@ function DroppableColumn({
 
 export function ColumnBlock({
   block,
+  pageStyle,
   isEditing,
   onSelectBlock,
   selectedBlockId,
@@ -246,9 +254,9 @@ export function ColumnBlock({
   )
 
   const columnsClass = {
-    2: "grid-cols-2",
-    3: "grid-cols-3",
-    4: "grid-cols-4",
+    2: "grid-cols-1 md:grid-cols-2",
+    3: "grid-cols-1 md:grid-cols-3",
+    4: "grid-cols-1 md:grid-cols-4",
   }[columns]
 
   const gapClass = {
@@ -319,6 +327,7 @@ export function ColumnBlock({
               <BlockRenderer
                 key={child.id}
                 block={child}
+                pageStyle={pageStyle}
                 isEditing={false}
               />
             ))}
@@ -343,6 +352,7 @@ export function ColumnBlock({
             columnIndex={colIndex}
             children={columnBlocks}
             blocks={columnBlocks}
+            pageStyle={pageStyle}
             isEditing={isEditing}
             selectedBlockId={selectedBlockId}
             onSelectBlock={onSelectBlock}
@@ -356,7 +366,7 @@ export function ColumnBlock({
       <DragOverlay>
         {activeBlock && (
           <div className="opacity-80 shadow-lg">
-            <BlockRenderer block={activeBlock} isEditing={false} />
+            <BlockRenderer block={activeBlock} pageStyle={pageStyle} isEditing={false} />
           </div>
         )}
       </DragOverlay>

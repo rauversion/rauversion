@@ -26,6 +26,7 @@ import type {
   CarouselSlide,
   Block,
   BlockType,
+  PageStyle,
 } from "@/lib/blocks/types"
 import { blockRegistry } from "@/lib/blocks/registry"
 import { createDefaultBlock } from "@/lib/blocks/defaults"
@@ -51,6 +52,7 @@ import {
 
 interface CarouselBlockProps {
   block: CarouselBlockType
+  pageStyle?: PageStyle
   isEditing?: boolean
   selectedBlockId?: string | null
   onSelectBlock?: (id: string) => void
@@ -61,6 +63,7 @@ interface CarouselBlockProps {
 // Sortable item for blocks inside slides
 function SortableSlideItem({
   block,
+  pageStyle,
   isSelected,
   selectedBlockId,
   onSelect,
@@ -68,6 +71,7 @@ function SortableSlideItem({
   onUpdateProps,
 }: {
   block: Block
+  pageStyle?: PageStyle
   isSelected: boolean
   selectedBlockId?: string | null
   onSelect?: (id: string) => void
@@ -129,6 +133,7 @@ function SortableSlideItem({
 
       <BlockRenderer
         block={block}
+        pageStyle={pageStyle}
         isEditing={true}
         isSelected={isSelected}
         selectedBlockId={selectedBlockId}
@@ -143,6 +148,7 @@ function SortableSlideItem({
 function DroppableSlide({
   slide,
   slideIndex,
+  pageStyle,
   isEditing,
   selectedBlockId,
   onSelectBlock,
@@ -153,6 +159,7 @@ function DroppableSlide({
 }: {
   slide: CarouselSlide
   slideIndex: number
+  pageStyle?: PageStyle
   isEditing?: boolean
   selectedBlockId?: string | null
   onSelectBlock?: (id: string) => void
@@ -202,6 +209,7 @@ function DroppableSlide({
                 <SortableSlideItem
                   key={block.id}
                   block={block}
+                  pageStyle={pageStyle}
                   isSelected={selectedBlockId === block.id}
                   selectedBlockId={selectedBlockId}
                   onSelect={onSelectBlock}
@@ -217,6 +225,7 @@ function DroppableSlide({
               <div className="opacity-80 bg-background rounded border shadow-lg p-2">
                 <BlockRenderer
                   block={slide.blocks.find((b) => b.id === activeId)!}
+                  pageStyle={pageStyle}
                   isEditing={false}
                 />
               </div>
@@ -226,7 +235,7 @@ function DroppableSlide({
       ) : (
         <div className="space-y-2">
           {slide.blocks.map((block) => (
-            <BlockRenderer key={block.id} block={block} isEditing={false} />
+            <BlockRenderer key={block.id} block={block} pageStyle={pageStyle} isEditing={false} />
           ))}
         </div>
       )}
@@ -268,6 +277,7 @@ function DroppableSlide({
 
 export function CarouselBlock({
   block,
+  pageStyle,
   isEditing = false,
   selectedBlockId,
   onSelectBlock,
@@ -399,6 +409,7 @@ export function CarouselBlock({
               <DroppableSlide
                 slide={slide}
                 slideIndex={index}
+                pageStyle={pageStyle}
                 isEditing={isEditing}
                 selectedBlockId={selectedBlockId}
                 onSelectBlock={onSelectBlock}

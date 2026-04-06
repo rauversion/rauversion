@@ -19,6 +19,7 @@ import { ImageUploader } from "@/components/ui/image-uploader"
 import { Textarea } from "@/components/ui/textarea"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import PlaylistSelectorSingle from "@/components/puck/PlaylistSelectorSingle"
+import ProductSelectorSingle from "./ProductSelectorSingle"
 import type { 
   SocialLink, 
   SocialPlatform, 
@@ -215,6 +216,291 @@ export function BlockSettings({
               </SelectContent>
             </Select>
           </div>
+        )}
+
+        {block.type === "product-item" && (
+          <>
+            <div className="space-y-2">
+              <Label>Producto de tu cuenta</Label>
+              <ProductSelectorSingle
+                value={block.props.productId || null}
+                placeholder="Busca un producto de tu cuenta..."
+                onChange={(productId) => handleUpdate("productId", productId || "")}
+              />
+              <Input
+                value={block.props.productId}
+                onChange={(e) => handleUpdate("productId", e.target.value)}
+                placeholder="Slug, id o URL del producto"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Variante</Label>
+              <Select
+                value={block.props.variant}
+                onValueChange={(v) => handleUpdate("variant", v)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="minimal">Minimal</SelectItem>
+                  <SelectItem value="horizontal">Horizontal</SelectItem>
+                  <SelectItem value="compact">Compact</SelectItem>
+                  <SelectItem value="elegant">Elegant</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Proporcion de imagen</Label>
+              <Select
+                value={block.props.aspectRatio}
+                onValueChange={(v) => handleUpdate("aspectRatio", v)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="square">Cuadrado</SelectItem>
+                  <SelectItem value="video">Video</SelectItem>
+                  <SelectItem value="portrait">Retrato</SelectItem>
+                  <SelectItem value="wide">Panoramico</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Sombra</Label>
+              <Select
+                value={block.props.shadow}
+                onValueChange={(v) => handleUpdate("shadow", v)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Sin sombra</SelectItem>
+                  <SelectItem value="sm">Pequena</SelectItem>
+                  <SelectItem value="md">Mediana</SelectItem>
+                  <SelectItem value="lg">Grande</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Hover</Label>
+              <Select
+                value={block.props.hoverEffect}
+                onValueChange={(v) => handleUpdate("hoverEffect", v)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Sin efecto</SelectItem>
+                  <SelectItem value="lift">Lift</SelectItem>
+                  <SelectItem value="grow">Grow</SelectItem>
+                  <SelectItem value="shadow">Shadow</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Esquinas</Label>
+              <Select
+                value={block.props.roundedCorners}
+                onValueChange={(v) => handleUpdate("roundedCorners", v)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Rectas</SelectItem>
+                  <SelectItem value="sm">Pequenas</SelectItem>
+                  <SelectItem value="md">Medianas</SelectItem>
+                  <SelectItem value="lg">Grandes</SelectItem>
+                  <SelectItem value="full">Extra grandes</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="flex items-center justify-between">
+              <Label>Mostrar galeria</Label>
+              <Switch
+                checked={block.props.showGallery}
+                onCheckedChange={(v) => handleUpdate("showGallery", v)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Texto del boton</Label>
+              <Input
+                value={block.props.buttonText}
+                onChange={(e) => handleUpdate("buttonText", e.target.value)}
+                placeholder="Agregar al carrito"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Estilo del boton</Label>
+              <Select
+                value={block.props.buttonStyle}
+                onValueChange={(v) => handleUpdate("buttonStyle", v)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="solid">Solid</SelectItem>
+                  <SelectItem value="outline">Outline</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Color de fondo</Label>
+              <Input
+                value={block.props.backgroundColor}
+                onChange={(e) => handleUpdate("backgroundColor", e.target.value)}
+                placeholder="#FFFFFF"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Color del borde</Label>
+              <Input
+                value={block.props.borderColor}
+                onChange={(e) => handleUpdate("borderColor", e.target.value)}
+                placeholder="#E5E7EB"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Color del titulo</Label>
+              <Input
+                value={block.props.titleColor}
+                onChange={(e) => handleUpdate("titleColor", e.target.value)}
+                placeholder="#111827"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Color del precio</Label>
+              <Input
+                value={block.props.priceColor}
+                onChange={(e) => handleUpdate("priceColor", e.target.value)}
+                placeholder="#111827"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Color del texto</Label>
+              <Input
+                value={block.props.textColor}
+                onChange={(e) => handleUpdate("textColor", e.target.value)}
+                placeholder="#6B7280"
+              />
+            </div>
+          </>
+        )}
+
+        {block.type === "section" && (
+          <>
+            <div className="space-y-2">
+              <Label>Variante</Label>
+              <Select
+                value={block.props.variant}
+                onValueChange={(v) => handleUpdate("variant", v)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="left">Left Image</SelectItem>
+                  <SelectItem value="right">Right Image</SelectItem>
+                  <SelectItem value="fixed">Fixed Layout</SelectItem>
+                  <SelectItem value="overlay">Overlay</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Titulo</Label>
+              <Input
+                value={block.props.title}
+                onChange={(e) => handleUpdate("title", e.target.value)}
+                placeholder="Section Title"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Subtitulo</Label>
+              <Input
+                value={block.props.subtitle}
+                onChange={(e) => handleUpdate("subtitle", e.target.value)}
+                placeholder="01"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Descripcion</Label>
+              <Textarea
+                value={block.props.description}
+                onChange={(e) => handleUpdate("description", e.target.value)}
+                placeholder="<p>Add your section description here...</p>"
+                rows={6}
+              />
+              <p className="text-xs text-muted-foreground">
+                Acepta texto o HTML simple.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <Label>Imagen</Label>
+              <ImageUploader
+                value={block.props.image || ""}
+                onSuccess={(dataUrl) => handleUpdate("image", dataUrl)}
+                onRemove={() => handleUpdate("image", "")}
+                aspectRatio={block.props.variant === "overlay" ? "video" : "square"}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Tamano del titulo</Label>
+              <Select
+                value={block.props.titleSize}
+                onValueChange={(v) => handleUpdate("titleSize", v)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="2xl">Small</SelectItem>
+                  <SelectItem value="3xl">Medium</SelectItem>
+                  <SelectItem value="4xl">Large</SelectItem>
+                  <SelectItem value="5xl">Extra Large</SelectItem>
+                  <SelectItem value="6xl">2XL</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Tamano del subtitulo</Label>
+              <Select
+                value={block.props.subtitleSize}
+                onValueChange={(v) => handleUpdate("subtitleSize", v)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="5xl">Large</SelectItem>
+                  <SelectItem value="6xl">Extra Large</SelectItem>
+                  <SelectItem value="7xl">2XL</SelectItem>
+                  <SelectItem value="8xl">3XL</SelectItem>
+                  <SelectItem value="9xl">4XL</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Tamano del texto</Label>
+              <Select
+                value={block.props.textSize}
+                onValueChange={(v) => handleUpdate("textSize", v)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="base">Small</SelectItem>
+                  <SelectItem value="lg">Medium</SelectItem>
+                  <SelectItem value="xl">Large</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </>
         )}
 
         {block.type === "playlist" && (

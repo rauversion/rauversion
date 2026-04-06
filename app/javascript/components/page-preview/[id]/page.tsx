@@ -79,7 +79,7 @@ export default function PreviewPage() {
         ) : (
           <div className="space-y-6">
             {blocks.map((block) => (
-              <BlockRenderer key={block.id} block={block} isEditing={false} />
+              <BlockRenderer key={block.id} block={block} pageStyle={style} isEditing={false} />
             ))}
           </div>
         )}

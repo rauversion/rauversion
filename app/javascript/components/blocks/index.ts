@@ -1,6 +1,7 @@
 export { TextBlock } from "./text-block"
 export { ImageBlock } from "./image-block"
 export { SpacerBlock } from "./spacer-block"
+export { SectionBlock } from "./section-block"
 export { PlaylistBlock } from "./playlist-block"
 export { TrackBlock } from "./track-block"
 export { LinkEmbedBlock } from "./link-embed-block"

@@ -134,7 +134,7 @@ export function PreviewTab({ page, previewUrl }: PreviewTabProps) {
             ) : (
               <div className="space-y-6 max-w-2xl mx-auto">
                 {blocks.map((block) => (
-                  <BlockRenderer key={block.id} block={block} isEditing={false} />
+                  <BlockRenderer key={block.id} block={block} pageStyle={style} isEditing={false} />
                 ))}
               </div>
             )}

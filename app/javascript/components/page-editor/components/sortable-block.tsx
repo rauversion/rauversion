@@ -3,7 +3,7 @@
 import React from "react"
 import { useSortable } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-import type { Block, BlockType } from "@/lib/blocks/types"
+import type { Block, BlockType, PageStyle } from "@/lib/blocks/types"
 import { BlockRenderer } from "@/components/blocks/block-renderer"
 import { cn } from "@/lib/utils"
 import { GripVertical, Copy, Trash2 } from "lucide-react"
@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button"
 
 interface SortableBlockProps {
   block: Block
+  pageStyle: PageStyle
   isSelected: boolean
   selectedBlockId: string | null
   onSelect: (id: string) => void
@@ -25,6 +26,7 @@ interface SortableBlockProps {
 
 export function SortableBlock({
   block,
+  pageStyle,
   isSelected,
   selectedBlockId,
   onSelect,
@@ -105,6 +107,7 @@ export function SortableBlock({
       <div onClick={() => onSelect(block.id)} className="cursor-pointer">
         <BlockRenderer
           block={block}
+          pageStyle={pageStyle}
           isEditing={true}
           isSelected={isSelected}
           selectedBlockId={selectedBlockId}

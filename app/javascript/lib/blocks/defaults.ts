@@ -4,6 +4,8 @@ import type {
   TextBlock,
   ImageBlock,
   SpacerBlock,
+  ProductItemBlock,
+  SectionBlock,
   PlaylistBlock,
   TrackBlock,
   CustomPlayerBlock,
@@ -77,6 +79,44 @@ export function createDefaultBlock(type: BlockType): Block {
           height: "md",
         },
       } satisfies SpacerBlock
+
+    case "product-item":
+      return {
+        id,
+        type: "product-item",
+        props: {
+          productId: "",
+          variant: "minimal",
+          backgroundColor: "#FFFFFF",
+          borderColor: "#E5E7EB",
+          titleColor: "#111827",
+          priceColor: "#111827",
+          textColor: "#6B7280",
+          buttonText: "Agregar al carrito",
+          buttonStyle: "outline",
+          shadow: "sm",
+          hoverEffect: "lift",
+          roundedCorners: "lg",
+          aspectRatio: "square",
+          showGallery: true,
+        },
+      } satisfies ProductItemBlock
+
+    case "section":
+      return {
+        id,
+        type: "section",
+        props: {
+          variant: "left",
+          title: "Section Title",
+          subtitle: "01",
+          description: "<p>Add your section description here...</p>",
+          image: "",
+          titleSize: "5xl",
+          subtitleSize: "8xl",
+          textSize: "lg",
+        },
+      } satisfies SectionBlock
 
     case "playlist":
       return {
@@ -488,6 +528,8 @@ export const blockTypeLabels: Record<BlockType, string> = {
   text: "Texto",
   image: "Imagen",
   spacer: "Espaciador",
+  "product-item": "Producto",
+  section: "Section",
   playlist: "Playlist",
   track: "Track",
   "custom-player": "Player Custom",
@@ -519,6 +561,8 @@ export const blockTypeDescriptions: Record<BlockType, string> = {
   text: "Editor de texto enriquecido",
   image: "Imagen con opciones de ajuste",
   spacer: "Espacio vertical configurable",
+  "product-item": "Card de producto de tu cuenta",
+  section: "Seccion editorial con imagen y texto",
   playlist: "Embed de playlist de Spotify, YouTube o SoundCloud",
   track: "Track individual embebido",
   "custom-player": "Reproductor de audio personalizado",
