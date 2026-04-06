@@ -4,7 +4,7 @@ import React from "react"
 import type { GalleryBlock as GalleryBlockType, GalleryImage } from "@/lib/blocks/types"
 import { cn } from "@/lib/utils"
 import { X, ChevronLeft, ChevronRight, ImageIcon } from "lucide-react"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 
 interface GalleryBlockProps {
   block: GalleryBlockType
@@ -51,6 +51,35 @@ export function GalleryBlock({ block, isEditing }: GalleryBlockProps) {
   const goToNext = () => {
     setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1))
   }
+
+  useEffect(() => {
+    if (!lightboxOpen || !lightbox || isEditing) return undefined
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault()
+        closeLightbox()
+        return
+      }
+
+      if (event.key === "ArrowLeft") {
+        event.preventDefault()
+        goToPrevious()
+        return
+      }
+
+      if (event.key === "ArrowRight") {
+        event.preventDefault()
+        goToNext()
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown)
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown)
+    }
+  }, [goToNext, goToPrevious, isEditing, lightbox, lightboxOpen])
 
   if (images.length === 0 && isEditing) {
     return (

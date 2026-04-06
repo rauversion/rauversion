@@ -197,14 +197,14 @@ export function CountdownBlock({ block, isEditing }: CountdownBlockProps) {
                 <div 
                   className="relative px-4 py-3 md:px-6 md:py-4 rounded-lg border-2 border-primary"
                   style={{
-                    boxShadow: `0 0 20px var(--color-primary), 0 0 40px var(--color-primary), inset 0 0 20px rgba(99, 102, 241, 0.1)`,
+                    boxShadow: `0 0 12px var(--color-primary), 0 0 24px var(--color-primary), inset 0 0 12px rgba(99, 102, 241, 0.08)`,
                   }}
                 >
                   <span 
                     className="text-4xl md:text-6xl font-bold tabular-nums"
                     style={{
                       color: "var(--color-primary)",
-                      textShadow: `0 0 10px var(--color-primary), 0 0 20px var(--color-primary), 0 0 30px var(--color-primary)`,
+                      textShadow: `0 0 6px var(--color-primary), 0 0 14px var(--color-primary)`,
                     }}
                   >
                     {String(unit.value).padStart(2, "0")}
