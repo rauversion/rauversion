@@ -7,6 +7,7 @@ import type {
   ProductItemBlock,
   SectionBlock,
   PlaylistBlock,
+  MultiPlaylistBlock,
   TrackBlock,
   CustomPlayerBlock,
   LinkEmbedBlock,
@@ -130,6 +131,19 @@ export function createDefaultBlock(type: BlockType): Block {
           theme: "auto",
         },
       } satisfies PlaylistBlock
+
+    case "multi-playlist":
+      return {
+        id,
+        type: "multi-playlist",
+        props: {
+          playlistIds: [],
+          autoPlay: false,
+          interval: 5000,
+          itemSize: "responsive",
+          orientation: "horizontal",
+        },
+      } satisfies MultiPlaylistBlock
 
     case "track":
       return {
@@ -532,6 +546,7 @@ export const blockTypeLabels: Record<BlockType, string> = {
   "product-item": "Producto",
   section: "Section",
   playlist: "Playlist",
+  "multi-playlist": "Multi Playlist",
   track: "Track",
   "custom-player": "Player Custom",
   "link-embed": "Embed Link",
@@ -565,6 +580,7 @@ export const blockTypeDescriptions: Record<BlockType, string> = {
   "product-item": "Card de producto de tu cuenta",
   section: "Seccion editorial con imagen y texto",
   playlist: "Embed de playlist de Spotify, YouTube o SoundCloud",
+  "multi-playlist": "Slider de playlists de Rauversion",
   track: "Track individual embebido",
   "custom-player": "Reproductor de audio personalizado",
   "link-embed": "Embed de YouTube u otros enlaces",

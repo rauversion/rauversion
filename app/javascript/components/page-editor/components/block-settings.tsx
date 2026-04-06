@@ -20,6 +20,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import PlaylistSelectorSingle from "@/components/puck/PlaylistSelectorSingle"
 import ProductSelectorSingle from "./ProductSelectorSingle"
+import PlaylistSelectorMulti from "./PlaylistSelectorMulti"
 import type { 
   SocialLink, 
   SocialPlatform, 
@@ -573,6 +574,67 @@ export function BlockSettings({
                 min={100}
                 max={600}
               />
+            </div>
+          </>
+        )}
+
+        {block.type === "multi-playlist" && (
+          <>
+            <div className="space-y-2">
+              <Label>Playlists de tu cuenta</Label>
+              <PlaylistSelectorMulti
+                value={block.props.playlistIds || []}
+                placeholder="Busca playlists de Rauversion..."
+                onChange={(playlistIds) => handleUpdate("playlistIds", playlistIds)}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label>Autoplay</Label>
+              <Switch
+                checked={block.props.autoPlay}
+                onCheckedChange={(value) => handleUpdate("autoPlay", value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Intervalo (ms)</Label>
+              <Input
+                type="number"
+                value={block.props.interval}
+                onChange={(e) => handleUpdate("interval", Number.parseInt(e.target.value, 10) || 5000)}
+                min={1000}
+                step={500}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Tamano de items</Label>
+              <Select
+                value={block.props.itemSize}
+                onValueChange={(value) => handleUpdate("itemSize", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="responsive">Responsive</SelectItem>
+                  <SelectItem value="third">Un tercio</SelectItem>
+                  <SelectItem value="half">Mitad</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Orientacion</Label>
+              <Select
+                value={block.props.orientation}
+                onValueChange={(value) => handleUpdate("orientation", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="horizontal">Horizontal</SelectItem>
+                  <SelectItem value="vertical">Vertical</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </>
         )}

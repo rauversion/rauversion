@@ -5,6 +5,7 @@ export type BlockType =
   | "product-item"
   | "section"
   | "playlist"
+  | "multi-playlist"
   | "track"
   | "custom-player"
   | "link-embed"
@@ -75,6 +76,20 @@ export interface PlaylistBlock extends BaseBlock {
     url: string
     height: number
     theme: "dark" | "light" | "auto"
+  }
+}
+
+export type MultiPlaylistItemSize = "responsive" | "third" | "half"
+export type MultiPlaylistOrientation = "horizontal" | "vertical"
+
+export interface MultiPlaylistBlock extends BaseBlock {
+  type: "multi-playlist"
+  props: {
+    playlistIds: string[]
+    autoPlay: boolean
+    interval: number
+    itemSize: MultiPlaylistItemSize
+    orientation: MultiPlaylistOrientation
   }
 }
 
@@ -629,6 +644,7 @@ export type Block =
   | ProductItemBlock
   | SectionBlock
   | PlaylistBlock
+  | MultiPlaylistBlock
   | TrackBlock
   | CustomPlayerBlock
   | LinkEmbedBlock

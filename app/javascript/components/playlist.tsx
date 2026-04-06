@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Play, Pause } from 'lucide-react';
 import { getUserDisplayName } from "@/utils/userDisplayName";
+import { buildPlaylistPalette, resolvePlaylistCoverUrl } from "@/lib/playlist-theme";
 import type { TemplateStyle } from "@/lib/blocks/types";
 
 interface Track {
@@ -58,64 +59,6 @@ interface PlaylistProps {
   template?: TemplateStyle;
   themeMode?: "dark" | "light";
   height?: number;
-}
-
-function buildPlaylistPalette({
-  primaryColor = "var(--primary)",
-  template = "minimal",
-  themeMode = "dark",
-}: {
-  primaryColor?: string;
-  template?: TemplateStyle;
-  themeMode?: "dark" | "light";
-}) {
-  const darkMode = themeMode !== "light";
-  const baseSurface = darkMode ? "#0f0f10" : "#ffffff";
-  const baseForeground = darkMode ? "#ffffff" : "#111827";
-  const mutedForeground = darkMode ? "rgba(255,255,255,0.68)" : "#6B7280";
-
-  return {
-    minimal: {
-      surface: `color-mix(in oklab, ${primaryColor} 7%, ${baseSurface})`,
-      panel: `color-mix(in oklab, ${primaryColor} 4%, ${darkMode ? "#151518" : "#f8fafc"})`,
-      border: `color-mix(in oklab, ${primaryColor} 28%, transparent)`,
-      text: baseForeground,
-      muted: mutedForeground,
-      accent: primaryColor,
-      accentSoft: `color-mix(in oklab, ${primaryColor} 16%, transparent)`,
-    },
-    bold: {
-      surface: `linear-gradient(160deg, color-mix(in oklab, ${primaryColor} 70%, ${darkMode ? "#050505" : "#ffffff"}), color-mix(in oklab, ${primaryColor} 30%, ${darkMode ? "#131313" : "#f5f5f5"}))`,
-      panel: `color-mix(in oklab, ${primaryColor} 18%, ${darkMode ? "#0c0c0f" : "#ffffff"})`,
-      border: primaryColor,
-      text: "#ffffff",
-      muted: "rgba(255,255,255,0.78)",
-      accent: primaryColor,
-      accentSoft: `color-mix(in oklab, ${primaryColor} 22%, transparent)`,
-    },
-    gradient: {
-      surface: `linear-gradient(135deg, color-mix(in oklab, ${primaryColor} 24%, transparent), color-mix(in oklab, ${primaryColor} 8%, ${baseSurface}) 45%, color-mix(in oklab, ${primaryColor} 16%, transparent))`,
-      panel: `color-mix(in oklab, ${primaryColor} 10%, ${darkMode ? "#141418" : "#f8fafc"})`,
-      border: `color-mix(in oklab, ${primaryColor} 36%, transparent)`,
-      text: baseForeground,
-      muted: mutedForeground,
-      accent: primaryColor,
-      accentSoft: `color-mix(in oklab, ${primaryColor} 20%, transparent)`,
-    },
-    classic: {
-      surface: darkMode
-        ? `color-mix(in oklab, ${primaryColor} 10%, #171717)`
-        : `color-mix(in oklab, ${primaryColor} 8%, #faf7f0)`,
-      panel: darkMode
-        ? `color-mix(in oklab, ${primaryColor} 6%, #101011)`
-        : `color-mix(in oklab, ${primaryColor} 5%, #f5f1e8)`,
-      border: `color-mix(in oklab, ${primaryColor} 24%, ${darkMode ? "#3f3f46" : "#d6d3d1"})`,
-      text: baseForeground,
-      muted: mutedForeground,
-      accent: primaryColor,
-      accentSoft: `color-mix(in oklab, ${primaryColor} 16%, transparent)`,
-    },
-  }[template]
 }
 
 function formatTrackDuration(duration: number | string | null | undefined) {
@@ -214,7 +157,7 @@ export default function PlaylistComponent({
   if (error) return <div className="text-destructive">Error: {error}</div>;
   if (!playlist) return <div className="text-muted-foreground">No playlist found</div>;
 
-  const playlistCoverUrl = resolveImageUrl(playlist.cover_url);
+  const playlistCoverUrl = resolvePlaylistCoverUrl(playlist.cover_url);
   const playlistHref = playlist.url || (playlist.slug ? `/playlists/${playlist.slug}` : undefined);
   const palette = buildPlaylistPalette({ primaryColor, template, themeMode });
   const trackListHeight = Math.max(height - 230, 180);
@@ -349,11 +292,4 @@ function normalizePlaylist(data: any): Playlist | null {
     ...playlist,
     tracks: Array.isArray(playlist.tracks) ? playlist.tracks : [],
   };
-}
-
-function resolveImageUrl(image: Playlist["cover_url"] | string | null | undefined) {
-  if (!image) return null;
-  if (typeof image === "string") return image;
-
-  return image.medium || image.large || image.small || image.cropped_image || null;
 }

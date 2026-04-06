@@ -8,6 +8,7 @@ import { SpacerBlock } from "./spacer-block"
 import { ProductItemBlock } from "./product-item-block"
 import { SectionBlock } from "./section-block"
 import { PlaylistBlock } from "./playlist-block"
+import { MultiPlaylistBlock } from "./multi-playlist-block"
 import { TrackBlock } from "./track-block"
 import { LinkEmbedBlock } from "./link-embed-block"
 import { ColumnBlock } from "./column-block"
@@ -96,6 +97,8 @@ export function BlockRenderer({
         return <SectionBlock block={block} pageStyle={pageStyle} isEditing={isEditing} />
       case "playlist":
         return <PlaylistBlock block={block} pageStyle={pageStyle} isEditing={isEditing} />
+      case "multi-playlist":
+        return <MultiPlaylistBlock block={block} pageStyle={pageStyle} isEditing={isEditing} />
       case "track":
         return <TrackBlock block={block} isEditing={isEditing} />
       case "link-embed":

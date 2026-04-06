@@ -216,6 +216,13 @@ export const blockRegistry: BlockRegistryEntry[] = [
     category: "media",
   },
   {
+    type: "multi-playlist",
+    label: "Multi Playlist",
+    description: "Slider de playlists de Rauversion",
+    icon: ListMusic,
+    category: "media",
+  },
+  {
     type: "track",
     label: "Track",
     description: "Track individual embebido",
