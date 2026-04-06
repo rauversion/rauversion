@@ -95,7 +95,7 @@ export function BlockRenderer({
       case "section":
         return <SectionBlock block={block} pageStyle={pageStyle} isEditing={isEditing} />
       case "playlist":
-        return <PlaylistBlock block={block} isEditing={isEditing} />
+        return <PlaylistBlock block={block} pageStyle={pageStyle} isEditing={isEditing} />
       case "track":
         return <TrackBlock block={block} isEditing={isEditing} />
       case "link-embed":

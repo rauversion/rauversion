@@ -412,6 +412,22 @@ export function BlockSettings({
               </Select>
             </div>
             <div className="space-y-2">
+              <Label>Modo de color</Label>
+              <Select
+                value={block.props.themeMode || "inherit"}
+                onValueChange={(v) => handleUpdate("themeMode", v)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="inherit">Usar tema de la pagina</SelectItem>
+                  <SelectItem value="light">Light</SelectItem>
+                  <SelectItem value="dark">Dark</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
               <Label>Titulo</Label>
               <Input
                 value={block.props.title}

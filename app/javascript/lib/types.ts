@@ -172,11 +172,13 @@ export type SectionVariant = "left" | "right" | "fixed" | "overlay"
 export type SectionTitleSize = "2xl" | "3xl" | "4xl" | "5xl" | "6xl"
 export type SectionSubtitleSize = "5xl" | "6xl" | "7xl" | "8xl" | "9xl"
 export type SectionTextSize = "base" | "lg" | "xl"
+export type SectionThemeMode = "inherit" | "light" | "dark"
 
 export interface SectionBlock extends BaseBlock {
   type: "section"
   props: {
     variant: SectionVariant
+    themeMode: SectionThemeMode
     title: string
     subtitle: string
     description: string

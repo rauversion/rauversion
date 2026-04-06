@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { Play, Pause } from 'lucide-react';
 import { getUserDisplayName } from "@/utils/userDisplayName";
+import type { TemplateStyle } from "@/lib/blocks/types";
 
 interface Track {
   id: number;
@@ -53,6 +54,68 @@ interface Playlist {
 
 interface PlaylistProps {
   playlistId: string | number;
+  primaryColor?: string;
+  template?: TemplateStyle;
+  themeMode?: "dark" | "light";
+  height?: number;
+}
+
+function buildPlaylistPalette({
+  primaryColor = "var(--primary)",
+  template = "minimal",
+  themeMode = "dark",
+}: {
+  primaryColor?: string;
+  template?: TemplateStyle;
+  themeMode?: "dark" | "light";
+}) {
+  const darkMode = themeMode !== "light";
+  const baseSurface = darkMode ? "#0f0f10" : "#ffffff";
+  const baseForeground = darkMode ? "#ffffff" : "#111827";
+  const mutedForeground = darkMode ? "rgba(255,255,255,0.68)" : "#6B7280";
+
+  return {
+    minimal: {
+      surface: `color-mix(in oklab, ${primaryColor} 7%, ${baseSurface})`,
+      panel: `color-mix(in oklab, ${primaryColor} 4%, ${darkMode ? "#151518" : "#f8fafc"})`,
+      border: `color-mix(in oklab, ${primaryColor} 28%, transparent)`,
+      text: baseForeground,
+      muted: mutedForeground,
+      accent: primaryColor,
+      accentSoft: `color-mix(in oklab, ${primaryColor} 16%, transparent)`,
+    },
+    bold: {
+      surface: `linear-gradient(160deg, color-mix(in oklab, ${primaryColor} 70%, ${darkMode ? "#050505" : "#ffffff"}), color-mix(in oklab, ${primaryColor} 30%, ${darkMode ? "#131313" : "#f5f5f5"}))`,
+      panel: `color-mix(in oklab, ${primaryColor} 18%, ${darkMode ? "#0c0c0f" : "#ffffff"})`,
+      border: primaryColor,
+      text: "#ffffff",
+      muted: "rgba(255,255,255,0.78)",
+      accent: primaryColor,
+      accentSoft: `color-mix(in oklab, ${primaryColor} 22%, transparent)`,
+    },
+    gradient: {
+      surface: `linear-gradient(135deg, color-mix(in oklab, ${primaryColor} 24%, transparent), color-mix(in oklab, ${primaryColor} 8%, ${baseSurface}) 45%, color-mix(in oklab, ${primaryColor} 16%, transparent))`,
+      panel: `color-mix(in oklab, ${primaryColor} 10%, ${darkMode ? "#141418" : "#f8fafc"})`,
+      border: `color-mix(in oklab, ${primaryColor} 36%, transparent)`,
+      text: baseForeground,
+      muted: mutedForeground,
+      accent: primaryColor,
+      accentSoft: `color-mix(in oklab, ${primaryColor} 20%, transparent)`,
+    },
+    classic: {
+      surface: darkMode
+        ? `color-mix(in oklab, ${primaryColor} 10%, #171717)`
+        : `color-mix(in oklab, ${primaryColor} 8%, #faf7f0)`,
+      panel: darkMode
+        ? `color-mix(in oklab, ${primaryColor} 6%, #101011)`
+        : `color-mix(in oklab, ${primaryColor} 5%, #f5f1e8)`,
+      border: `color-mix(in oklab, ${primaryColor} 24%, ${darkMode ? "#3f3f46" : "#d6d3d1"})`,
+      text: baseForeground,
+      muted: mutedForeground,
+      accent: primaryColor,
+      accentSoft: `color-mix(in oklab, ${primaryColor} 16%, transparent)`,
+    },
+  }[template]
 }
 
 function formatTrackDuration(duration: number | string | null | undefined) {
@@ -73,7 +136,13 @@ function formatTrackDuration(duration: number | string | null | undefined) {
   return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
 }
 
-export default function PlaylistComponent({ playlistId }: PlaylistProps) {
+export default function PlaylistComponent({
+  playlistId,
+  primaryColor,
+  template,
+  themeMode = "dark",
+  height = 560,
+}: PlaylistProps) {
   const [playlist, setPlaylist] = useState<Playlist | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -147,31 +216,56 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
 
   const playlistCoverUrl = resolveImageUrl(playlist.cover_url);
   const playlistHref = playlist.url || (playlist.slug ? `/playlists/${playlist.slug}` : undefined);
+  const palette = buildPlaylistPalette({ primaryColor, template, themeMode });
+  const trackListHeight = Math.max(height - 230, 180);
 
   return (
-    <div className="h-screen rounded-lg p-4 bg-muted/50">
+    <div
+      className="rounded-2xl border p-4 md:p-5"
+      style={
+        {
+          height,
+          background: palette.surface,
+          borderColor: palette.border,
+          color: palette.text,
+          "--playlist-accent": palette.accent,
+          "--playlist-text": palette.text,
+          "--playlist-muted": palette.muted,
+          "--playlist-panel": palette.panel,
+          "--playlist-border": palette.border,
+          "--playlist-accent-soft": palette.accentSoft,
+        } as React.CSSProperties
+      }
+    >
       <audio ref={audioRef} />
       <div className="flex items-start gap-6">
         {playlistCoverUrl && (
           <img 
             src={playlistCoverUrl} 
             alt={playlist.title}
-            className="w-[160px] h-[160px] rounded-md shadow-lg"
+            className="h-[160px] w-[160px] rounded-xl object-cover shadow-lg"
           />
         )}
         
         <div className="flex-1">
-          <h2 className="text-foreground font-bold text-3xl mb-2">{playlist.title}</h2>
-          <p className="text-muted-foreground mb-4">{getUserDisplayName(playlist.user)}</p>
+          <h2 className="mb-2 text-3xl font-bold text-[var(--playlist-text)]">{playlist.title}</h2>
+          <p className="mb-4 text-[var(--playlist-muted)]">{getUserDisplayName(playlist.user)}</p>
           <div className="flex items-center gap-4">
             <button 
               onClick={togglePlayPause}
-              className="bg-[#1DB954] text-black font-semibold rounded-full p-3 hover:scale-105 transition"
+              className="rounded-full p-3 font-semibold text-white transition hover:scale-105"
+              style={{ backgroundColor: palette.accent }}
             >
               {isPlaying ? <Pause size={24} /> : <Play size={24} />}
             </button>
             {playlistHref && (
-              <a href={playlistHref} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold px-4 py-1.5 rounded-full bg-transparent border border-border text-foreground hover:scale-105 transition">
+              <a
+                href={playlistHref}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="rounded-full border px-4 py-1.5 text-xs font-semibold text-[var(--playlist-text)] transition hover:scale-105"
+                style={{ borderColor: palette.border }}
+              >
                 Listen on Rauversion
               </a>
             )}
@@ -180,21 +274,30 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
       </div>
 
       <div className="mt-8">
-        <div className="space-y-1 h-[calc(100vh-211px)] overflow-y-auto">
+        <div
+          className="space-y-1 overflow-y-auto rounded-xl border p-3 md:p-4"
+          style={{
+            height: trackListHeight,
+            background: palette.panel,
+            borderColor: palette.border,
+          }}
+        >
           {playlist.tracks.map((track, index) => {
             const formattedDuration = formatTrackDuration(track.duration);
             const trackAuthor = track.author || track.user;
+            const isCurrentTrack = currentTrackIndex === index && isPlaying;
 
             return (
               <div 
                 key={track.id}
-                className="flex items-center justify-between p-2 rounded hover:bg-muted group"
+                className="group flex items-center justify-between rounded-lg p-2 transition-colors hover:bg-[var(--playlist-accent-soft)]"
+                style={isCurrentTrack ? { background: palette.accentSoft } : undefined}
               >
                 <div className="flex items-center gap-4">
-                  <span className="text-muted-foreground w-6">{index + 1}</span>
+                  <span className="w-6 text-[var(--playlist-muted)]">{index + 1}</span>
                   
                   <button 
-                    className="text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-foreground transition"
+                    className="text-[var(--playlist-muted)] opacity-0 transition group-hover:opacity-100 hover:text-[var(--playlist-accent)]"
                     onClick={(e) => {
                       e.stopPropagation();
                       handleTrackPlay(index);
@@ -207,12 +310,12 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
                   </button>
 
                   <div>
-                    <p className="text-foreground font-medium">{track.title}</p>
-                    <p className="text-muted-foreground text-sm">{trackAuthor ? getUserDisplayName(trackAuthor) : ""}</p>
+                    <p className="font-medium text-[var(--playlist-text)]">{track.title}</p>
+                    <p className="text-sm text-[var(--playlist-muted)]">{trackAuthor ? getUserDisplayName(trackAuthor) : ""}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <span className="text-muted-foreground">{formattedDuration}</span>
+                  <span className="text-[var(--playlist-muted)]">{formattedDuration}</span>
 
                 </div>
               </div>
@@ -227,7 +330,8 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
             href={playlist.buy_link}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs font-semibold px-4 py-1.5 rounded-full bg-transparent border border-border text-foreground hover:scale-105 transition"
+            className="rounded-full border px-4 py-1.5 text-xs font-semibold text-[var(--playlist-text)] transition hover:scale-105"
+            style={{ borderColor: palette.border }}
           >
             {playlist.buy_link_title || 'Buy Now'}
           </a>

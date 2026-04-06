@@ -108,6 +108,7 @@ export function createDefaultBlock(type: BlockType): Block {
         type: "section",
         props: {
           variant: "left",
+          themeMode: "inherit",
           title: "Section Title",
           subtitle: "01",
           description: "<p>Add your section description here...</p>",

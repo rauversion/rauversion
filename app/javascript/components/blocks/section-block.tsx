@@ -33,10 +33,13 @@ const textSizeClasses = {
   xl: "text-xl",
 } as const
 
-function buildPalette(style?: PageStyle) {
+function buildPalette(style?: PageStyle, themeMode: "inherit" | "light" | "dark" = "inherit") {
   const primaryColor = style?.primaryColor || "var(--primary)"
   const template = style?.template || "minimal"
-  const darkMode = style?.darkMode ?? true
+  const darkMode =
+    themeMode === "inherit"
+      ? style?.darkMode ?? true
+      : themeMode === "dark"
   const baseSurface = darkMode ? "#0f0f10" : "#ffffff"
   const baseForeground = darkMode ? "#ffffff" : "#111827"
   const mutedForeground = darkMode ? "rgba(255,255,255,0.72)" : "#4B5563"
@@ -81,9 +84,10 @@ function buildPalette(style?: PageStyle) {
   }[template]
 }
 
-export function SectionBlock({ block, pageStyle }: SectionBlockProps) {
+export function SectionBlock({ block, pageStyle, isEditing = false }: SectionBlockProps) {
   const {
     variant,
+    themeMode = "inherit",
     title,
     subtitle,
     description,
@@ -96,13 +100,21 @@ export function SectionBlock({ block, pageStyle }: SectionBlockProps) {
   const titleClass = titleSizeClasses[titleSize]
   const subtitleClass = subtitleSizeClasses[subtitleSize]
   const textClass = textSizeClasses[textSize]
-  const palette = buildPalette(pageStyle)
+  const palette = buildPalette(pageStyle, themeMode)
+  const mobileOverlayHidden = !isEditing
+  const isLightMode = themeMode === "light" || (themeMode === "inherit" && pageStyle?.darkMode === false)
+  const overlayBase = isLightMode
+    ? "linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.16) 35%, rgba(255,255,255,0.46) 100%)"
+    : "linear-gradient(180deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.28) 35%, rgba(0,0,0,0.64) 100%)"
+  const overlayHover = isLightMode
+    ? "linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.10) 35%, rgba(255,255,255,0.30) 100%)"
+    : "linear-gradient(180deg, rgba(0,0,0,0.03) 0%, rgba(0,0,0,0.16) 35%, rgba(0,0,0,0.42) 100%)"
 
   const renderLeftVariant = () => (
     <div className="grid grid-cols-1 gap-8 rounded-2xl p-6 md:p-8 lg:grid-cols-2" style={{ background: palette.surface }}>
-      <div className="flex flex-col items-center gap-4 sm:flex-row sm:items-start">
+      <div className="flex flex-col gap-4 md:flex-row md:items-start">
         {image ? (
-          <img src={image} alt={title || ""} className="w-full rounded-lg object-cover sm:max-w-xs" />
+          <img src={image} alt={title || ""} className="w-full rounded-lg object-cover md:max-w-xs" />
         ) : null}
         <div
           className={cn(textClass, "w-full")}
@@ -157,8 +169,8 @@ export function SectionBlock({ block, pageStyle }: SectionBlockProps) {
         {title}
       </h2>
 
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
-        <div className="md:col-span-2">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+        <div className="lg:col-span-2">
           <div
             className={cn(textClass)}
             style={{ color: palette.text }}
@@ -181,13 +193,17 @@ export function SectionBlock({ block, pageStyle }: SectionBlockProps) {
   )
 
   const renderOverlayVariant = () => (
-    <div className="relative w-full overflow-hidden rounded-lg">
-      <div className="aspect-[4/3] w-full md:aspect-[16/9]">
+    <div
+      className="group relative grid overflow-hidden rounded-2xl border focus:outline-none"
+      style={{ borderColor: palette.border }}
+      tabIndex={mobileOverlayHidden ? 0 : -1}
+    >
+      <div className="col-start-1 row-start-1 min-h-[360px] md:min-h-[420px]">
         {image ? (
           <img
             src={image}
             alt={title || ""}
-            className="h-full w-full object-cover transition-all duration-300 sm:grayscale hover:grayscale-0"
+            className="h-full w-full object-cover transition-all duration-500 md:group-hover:scale-[1.03]"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
@@ -196,25 +212,47 @@ export function SectionBlock({ block, pageStyle }: SectionBlockProps) {
         )}
       </div>
 
-      <div className="w-full md:absolute md:inset-y-0 md:right-0 md:w-1/2 lg:w-2/5">
+      <div
+        className={cn(
+          "pointer-events-none col-start-1 row-start-1 z-[1] transition-opacity duration-300",
+          mobileOverlayHidden
+            ? "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 group-active:opacity-100 md:opacity-100"
+            : "opacity-100"
+        )}
+        style={{ background: overlayBase }}
+      >
         <div
-          className="flex h-full w-full flex-col justify-center p-6 md:p-8"
-          style={{ background: palette.overlay }}
+          className="hidden h-full w-full transition-opacity duration-300 md:block md:opacity-0 md:group-hover:opacity-100"
+          style={{ background: overlayHover }}
+        />
+      </div>
+
+      <div className="col-start-1 row-start-1 z-10 flex justify-stretch md:justify-end">
+        <div
+          className={cn(
+            "relative flex w-full flex-col justify-center p-6 md:w-1/2 md:p-8 lg:w-2/5",
+            mobileOverlayHidden
+              ? "opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-within:opacity-100 group-active:opacity-100 md:opacity-100"
+              : "opacity-100"
+          )}
+          style={{ textShadow: isLightMode ? "0 2px 10px rgba(255,255,255,0.18)" : "0 2px 14px rgba(0,0,0,0.45)" }}
         >
-          <h2 className={cn(titleClass, "font-bold leading-none tracking-tight")} style={{ color: palette.title }}>
-            {title}
-          </h2>
-          <p
-            className={cn(subtitleClass, "pt-3 font-bold uppercase tracking-tight text-left md:text-right")}
-            style={{ color: palette.subtitle }}
-          >
-            {subtitle}
-          </p>
-          <div
-            className="mt-4 text-sm"
-            style={{ color: palette.text }}
-            dangerouslySetInnerHTML={{ __html: description }}
-          />
+          <div className="relative z-10">
+            <h2 className={cn(titleClass, "font-bold leading-none tracking-tight")} style={{ color: palette.title }}>
+              {title}
+            </h2>
+            <p
+              className={cn(subtitleClass, "pt-3 font-bold uppercase tracking-tight text-left md:text-right")}
+              style={{ color: palette.subtitle }}
+            >
+              {subtitle}
+            </p>
+            <div
+              className={cn("mt-4", textClass)}
+              style={{ color: palette.text }}
+              dangerouslySetInnerHTML={{ __html: description }}
+            />
+          </div>
         </div>
       </div>
     </div>

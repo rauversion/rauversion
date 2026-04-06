@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import type { PlaylistBlock as PlaylistBlockType } from "@/lib/blocks/types"
+import type { PageStyle, PlaylistBlock as PlaylistBlockType } from "@/lib/blocks/types"
 import PlaylistComponent from "@/components/playlist"
 import { getEmbedUrl, detectPlatform } from "@/lib/embeds"
 import { cn } from "@/lib/utils"
@@ -9,19 +9,38 @@ import { ListMusic } from "lucide-react"
 
 interface PlaylistBlockProps {
   block: PlaylistBlockType
+  pageStyle?: PageStyle
   isEditing?: boolean
 }
 
-export function PlaylistBlock({ block, isEditing }: PlaylistBlockProps) {
-  const { url, height, platform } = block.props
+export function PlaylistBlock({ block, pageStyle, isEditing }: PlaylistBlockProps) {
+  const { url, height, platform, theme } = block.props
   const playlistId = extractRauversionPlaylistId(url)
+  const resolvedTheme = theme === "auto"
+    ? pageStyle?.darkMode === false
+      ? "light"
+      : "dark"
+    : theme
 
   if (platform === "rauversion" && playlistId) {
-    return <PlaylistComponent playlistId={playlistId} />
+    return (
+      <PlaylistComponent
+        playlistId={playlistId}
+        height={height}
+        primaryColor={pageStyle?.primaryColor}
+        template={pageStyle?.template}
+        themeMode={resolvedTheme}
+      />
+    )
   }
 
   const detectedPlatform = detectPlatform(url) || platform
-  const embedUrl = url ? getEmbedUrl(url, detectedPlatform) : null
+  const embedUrl = url
+    ? getEmbedUrl(url, detectedPlatform, {
+        theme: resolvedTheme === "auto" ? undefined : resolvedTheme,
+        accentColor: pageStyle?.primaryColor,
+      })
+    : null
 
   if (!embedUrl) {
     return (

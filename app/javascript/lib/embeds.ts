@@ -6,6 +6,11 @@ interface EmbedInfo {
   type: "track" | "playlist" | "album" | "video"
 }
 
+interface EmbedOptions {
+  theme?: "dark" | "light"
+  accentColor?: string
+}
+
 export function parseSpotifyUrl(url: string): EmbedInfo | null {
   const patterns = [
     /spotify\.com\/track\/([a-zA-Z0-9]+)/,
@@ -64,9 +69,11 @@ export function parseEmbedUrl(url: string): EmbedInfo | null {
 
 export function getSpotifyEmbedUrl(
   id: string,
-  type: "track" | "playlist" | "album"
+  type: "track" | "playlist" | "album",
+  theme: "dark" | "light" = "dark"
 ): string {
-  return `https://open.spotify.com/embed/${type}/${id}?utm_source=generator&theme=0`
+  const spotifyTheme = theme === "light" ? 1 : 0
+  return `https://open.spotify.com/embed/${type}/${id}?utm_source=generator&theme=${spotifyTheme}`
 }
 
 export function getYouTubeEmbedUrl(id: string, type: "video" | "playlist"): string {
@@ -76,9 +83,10 @@ export function getYouTubeEmbedUrl(id: string, type: "video" | "playlist"): stri
   return `https://www.youtube.com/embed/${id}`
 }
 
-export function getSoundCloudEmbedUrl(url: string): string {
+export function getSoundCloudEmbedUrl(url: string, accentColor?: string): string {
   // SoundCloud requires oEmbed API call, return encoded URL for iframe
-  return `https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=%23ff5500&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false`
+  const color = (accentColor || "#ff5500").replace("#", "%23")
+  return `https://w.soundcloud.com/player/?url=${encodeURIComponent(url)}&color=${color}&auto_play=false&hide_related=true&show_comments=false&show_user=true&show_reposts=false&show_teaser=false`
 }
 
 export function detectPlatform(url: string): Platform | null {
@@ -88,17 +96,17 @@ export function detectPlatform(url: string): Platform | null {
   return null
 }
 
-export function getEmbedUrl(url: string, platform: Platform): string | null {
+export function getEmbedUrl(url: string, platform: Platform, options: EmbedOptions = {}): string | null {
   const info = parseEmbedUrl(url)
   if (!info) return null
 
   switch (platform) {
     case "spotify":
-      return getSpotifyEmbedUrl(info.id, info.type as "track" | "playlist" | "album")
+      return getSpotifyEmbedUrl(info.id, info.type as "track" | "playlist" | "album", options.theme)
     case "youtube":
       return getYouTubeEmbedUrl(info.id, info.type as "video" | "playlist")
     case "soundcloud":
-      return getSoundCloudEmbedUrl(url)
+      return getSoundCloudEmbedUrl(url, options.accentColor)
     default:
       return null
   }
