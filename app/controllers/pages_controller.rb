@@ -80,12 +80,33 @@ class PagesController < ApplicationController
   end
 
   def page_params
-    params.require(:page).permit(:title, :slug, :published, :menu, :settings, body: {})
+    permitted = params.require(:page).permit(:title, :slug, :published, :menu, :settings)
+
+    if params[:page]&.key?(:body)
+      permitted[:body] = normalize_json_param(params[:page][:body])
+    end
+
+    if params[:page]&.key?(:settings)
+      permitted[:settings] = normalize_json_param(params[:page][:settings])
+    end
+
+    permitted
   end
 
   def require_admin!
     unless current_user&.is_admin?
       render json: { error: "Unauthorized" }, status: :unauthorized
+    end
+  end
+
+  def normalize_json_param(value)
+    case value
+    when ActionController::Parameters
+      value.to_unsafe_h.transform_values { |item| normalize_json_param(item) }
+    when Array
+      value.map { |item| normalize_json_param(item) }
+    else
+      value
     end
   end
 end

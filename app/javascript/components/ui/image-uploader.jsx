@@ -16,17 +16,21 @@ import { Button } from "@/components/ui/button"
 
 export function ImageUploader({
   onUploadComplete,
+  onSuccess,
+  onRemove,
   aspectRatio = 16 / 9,
   maxSize = 10, // MB
   className,
   preview = true,
   enableCropper = true,
   initialCropData = null,
+  value = null,
   imageUrl = null,
   imageCropped = null,
   cropUploadMode = "crop" // "crop" (default) or "original_with_coords"
 }) {
   const { toast } = useToast()
+  const resolvedImageUrl = value ?? imageUrl
   const [dragActive, setDragActive] = React.useState(false)
   const [cropperOpen, setCropperOpen] = React.useState(false)
   const [cropData, setCropData] = React.useState(null)
@@ -55,6 +59,16 @@ export function ImageUploader({
       }, 200)
     }
   }, [cropperOpen, initialCropData])
+
+  const notifyUploadResult = React.useCallback((signedBlobId, cropData, serviceUrl) => {
+    if (typeof onUploadComplete === "function") {
+      onUploadComplete(signedBlobId, cropData, serviceUrl)
+    }
+
+    if (typeof onSuccess === "function") {
+      onSuccess(serviceUrl, cropData, signedBlobId)
+    }
+  }, [onSuccess, onUploadComplete])
 
   const handleDrag = (e) => {
     e.preventDefault()
@@ -131,7 +145,7 @@ export function ImageUploader({
           })
         } else {
           const serviceUrl = blob.service_url
-          onUploadComplete(blob.signed_id, cropData, serviceUrl)
+          notifyUploadResult(blob.signed_id, cropData, serviceUrl)
           toast({
             title: "Éxito",
             description: "Imagen subida correctamente",
@@ -166,10 +180,10 @@ export function ImageUploader({
         scaleY: cropper.getData().scaleY
       }
 
-      if (!originalFile && image && image === imageUrl) {
+      if (!originalFile && image && image === resolvedImageUrl) {
         // Cropping an already-uploaded image: just send new cropData
         // Assume parent has the signed_id and imageUrl
-        onUploadComplete(undefined, cropData, imageUrl)
+        notifyUploadResult(undefined, cropData, resolvedImageUrl)
         setCropperOpen(false)
       } else if (cropUploadMode === "original_with_coords" && originalFile) {
         // Upload original file, send cropData
@@ -219,10 +233,10 @@ export function ImageUploader({
             className="aspect-[16/9]- py-4 bg-subtle rounded-lg flex items-center justify-center cursor-pointer"
             onClick={onButtonClick}
           >
-            {preview && imageUrl ? (
+            {preview && resolvedImageUrl ? (
               <>
                 <img
-                  src={imageCropped || imageUrl}
+                  src={imageCropped || resolvedImageUrl}
                   alt="Preview"
                   className="w-full h-full object-cover rounded-lg"
                 />
@@ -252,21 +266,36 @@ export function ImageUploader({
         )}
       </div>
 
-      {preview && imageUrl && (
+      {preview && resolvedImageUrl && (
         <div className="flex justify-between items-center mt-2">
-          <Button
-            type="button"
-            size="sm"
-            variant="secondary"
-            onClick={e => {
-              e.stopPropagation()
-              setImage(imageUrl)
-              setOriginalFile(null)
-              setCropperOpen(true)
-            }}
-          >
-            Crop
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              size="sm"
+              variant="secondary"
+              onClick={e => {
+                e.stopPropagation()
+                setImage(resolvedImageUrl)
+                setOriginalFile(null)
+                setCropperOpen(true)
+              }}
+            >
+              Crop
+            </Button>
+            {typeof onRemove === "function" && (
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={e => {
+                  e.stopPropagation()
+                  onRemove()
+                }}
+              >
+                Remove
+              </Button>
+            )}
+          </div>
         </div>
       )
       }

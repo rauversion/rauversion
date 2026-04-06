@@ -1,0 +1,249 @@
+import type { BlockType } from "./types"
+import {
+  Type,
+  Image,
+  SeparatorHorizontal,
+  ListMusic,
+  Music,
+  Play,
+  Link,
+  Columns,
+  CreditCard,
+  GalleryHorizontal,
+  MousePointerClick,
+  Sparkles,
+  Heading,
+  Timer,
+  Share2,
+  CalendarDays,
+  Video,
+  Images,
+  MoveHorizontal,
+  Minus,
+  Users,
+  Quote,
+  BarChart3,
+  Disc3,
+  UserCircle,
+  ChevronDown,
+  LayoutList,
+  ShoppingBag,
+  LucideIcon,
+} from "lucide-react"
+
+export interface BlockRegistryEntry {
+  type: BlockType
+  label: string
+  description: string
+  icon: LucideIcon
+  category: "content" | "media" | "layout"
+}
+
+export const blockRegistry: BlockRegistryEntry[] = [
+  {
+    type: "text",
+    label: "Texto",
+    description: "Editor de texto enriquecido",
+    icon: Type,
+    category: "content",
+  },
+  {
+    type: "image",
+    label: "Imagen",
+    description: "Imagen con opciones de ajuste",
+    icon: Image,
+    category: "content",
+  },
+  {
+    type: "card",
+    label: "Card",
+    description: "Card con variantes",
+    icon: CreditCard,
+    category: "content",
+  },
+  {
+    type: "button",
+    label: "Boton",
+    description: "Boton con variantes",
+    icon: MousePointerClick,
+    category: "content",
+  },
+  {
+    type: "hero",
+    label: "Hero",
+    description: "Seccion hero principal",
+    icon: Sparkles,
+    category: "content",
+  },
+  {
+    type: "headline",
+    label: "Headline",
+    description: "Titulo elegante",
+    icon: Heading,
+    category: "content",
+  },
+  {
+    type: "countdown",
+    label: "Countdown",
+    description: "Cuenta regresiva",
+    icon: Timer,
+    category: "content",
+  },
+  {
+    type: "social-links",
+    label: "Social Links",
+    description: "Redes y plataformas",
+    icon: Share2,
+    category: "content",
+  },
+  {
+    type: "tour-dates",
+    label: "Tour Dates",
+    description: "Fechas de gira",
+    icon: CalendarDays,
+    category: "content",
+  },
+  {
+    type: "video-background",
+    label: "Video Background",
+    description: "Video de fondo",
+    icon: Video,
+    category: "media",
+  },
+  {
+    type: "gallery",
+    label: "Galeria",
+    description: "Galeria de imagenes",
+    icon: Images,
+    category: "media",
+  },
+  {
+    type: "marquee",
+    label: "Marquee",
+    description: "Texto en movimiento",
+    icon: MoveHorizontal,
+    category: "content",
+  },
+  {
+    type: "divider",
+    label: "Separador",
+    description: "Linea decorativa",
+    icon: Minus,
+    category: "layout",
+  },
+  {
+    type: "credits",
+    label: "Creditos",
+    description: "Lista de creditos",
+    icon: Users,
+    category: "content",
+  },
+  {
+    type: "press-quotes",
+    label: "Press Quotes",
+    description: "Quotes de prensa",
+    icon: Quote,
+    category: "content",
+  },
+  {
+    type: "stats",
+    label: "Estadisticas",
+    description: "Numeros animados",
+    icon: BarChart3,
+    category: "content",
+  },
+  {
+    type: "discography",
+    label: "Discografia",
+    description: "Albums anteriores",
+    icon: Disc3,
+    category: "content",
+  },
+  {
+    type: "bio-card",
+    label: "Bio Card",
+    description: "Biografia del artista",
+    icon: UserCircle,
+    category: "content",
+  },
+  {
+    type: "accordion",
+    label: "Acordeon",
+    description: "FAQ colapsable",
+    icon: ChevronDown,
+    category: "content",
+  },
+  {
+    type: "tabs",
+    label: "Tabs",
+    description: "Contenido en pestanas",
+    icon: LayoutList,
+    category: "content",
+  },
+  {
+    type: "merch-grid",
+    label: "Merch",
+    description: "Productos de merch",
+    icon: ShoppingBag,
+    category: "content",
+  },
+  {
+    type: "spacer",
+    label: "Espaciador",
+    description: "Espacio vertical configurable",
+    icon: SeparatorHorizontal,
+    category: "layout",
+  },
+  {
+    type: "playlist",
+    label: "Playlist",
+    description: "Embed de playlist",
+    icon: ListMusic,
+    category: "media",
+  },
+  {
+    type: "track",
+    label: "Track",
+    description: "Track individual embebido",
+    icon: Music,
+    category: "media",
+  },
+  {
+    type: "custom-player",
+    label: "Player Custom",
+    description: "Reproductor personalizado",
+    icon: Play,
+    category: "media",
+  },
+  {
+    type: "link-embed",
+    label: "Embed Link",
+    description: "YouTube u otros enlaces",
+    icon: Link,
+    category: "media",
+  },
+  {
+    type: "column",
+    label: "Columnas",
+    description: "Contenedor de columnas",
+    icon: Columns,
+    category: "layout",
+  },
+  {
+    type: "carousel",
+    label: "Carousel",
+    description: "Carrusel de slides",
+    icon: GalleryHorizontal,
+    category: "layout",
+  },
+]
+
+export const blocksByCategory = {
+  content: blockRegistry.filter((b) => b.category === "content"),
+  media: blockRegistry.filter((b) => b.category === "media"),
+  layout: blockRegistry.filter((b) => b.category === "layout"),
+}
+
+export function getBlockEntry(type: BlockType): BlockRegistryEntry | undefined {
+  return blockRegistry.find((b) => b.type === type)
+}

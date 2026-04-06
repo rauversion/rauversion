@@ -32,7 +32,7 @@ interface Playlist {
   id: number;
   title: string;
   slug: string;
-  url: string;
+  url?: string;
   description: string;
   playlist_type: string;
   private: boolean;
@@ -44,7 +44,7 @@ interface Playlist {
   updated_at: string;
   user: User;
   label?: User;
-  cover_url: string;
+  cover_url: string | { small?: string; medium?: string; large?: string; cropped_image?: string };
   tracks: Track[];
   likes_count: number;
   comments_count: number;
@@ -98,7 +98,7 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
           throw new Error('Failed to fetch playlist');
         }
         const data = await response.json();
-        setPlaylist(data);
+        setPlaylist(normalizePlaylist(data));
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
       } finally {
@@ -110,7 +110,7 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
   }, [playlistId]);
 
   useEffect(() => {
-    if (playlist && currentTrackIndex >= 0) {
+    if (playlist && currentTrackIndex >= 0 && playlist.tracks[currentTrackIndex]) {
       const track = playlist.tracks[currentTrackIndex];
       if (audioRef.current && track.audio_url) {
         audioRef.current.src = track.audio_url;
@@ -145,13 +145,16 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
   if (error) return <div className="text-destructive">Error: {error}</div>;
   if (!playlist) return <div className="text-muted-foreground">No playlist found</div>;
 
+  const playlistCoverUrl = resolveImageUrl(playlist.cover_url);
+  const playlistHref = playlist.url || (playlist.slug ? `/playlists/${playlist.slug}` : undefined);
+
   return (
     <div className="h-screen rounded-lg p-4 bg-muted/50">
       <audio ref={audioRef} />
       <div className="flex items-start gap-6">
-        {playlist.cover_url && (
+        {playlistCoverUrl && (
           <img 
-            src={playlist.cover_url} 
+            src={playlistCoverUrl} 
             alt={playlist.title}
             className="w-[160px] h-[160px] rounded-md shadow-lg"
           />
@@ -167,9 +170,11 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
             >
               {isPlaying ? <Pause size={24} /> : <Play size={24} />}
             </button>
-            <a href={playlist.url} target="_blank" className="text-xs font-semibold px-4 py-1.5 rounded-full bg-transparent border border-border text-foreground hover:scale-105 transition">
-              Listen on Rauversion
-            </a>
+            {playlistHref && (
+              <a href={playlistHref} target="_blank" rel="noopener noreferrer" className="text-xs font-semibold px-4 py-1.5 rounded-full bg-transparent border border-border text-foreground hover:scale-105 transition">
+                Listen on Rauversion
+              </a>
+            )}
           </div>
         </div>
       </div>
@@ -178,6 +183,7 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
         <div className="space-y-1 h-[calc(100vh-211px)] overflow-y-auto">
           {playlist.tracks.map((track, index) => {
             const formattedDuration = formatTrackDuration(track.duration);
+            const trackAuthor = track.author || track.user;
 
             return (
               <div 
@@ -202,7 +208,7 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
 
                   <div>
                     <p className="text-foreground font-medium">{track.title}</p>
-                    <p className="text-muted-foreground text-sm">{getUserDisplayName(track.author)}</p>
+                    <p className="text-muted-foreground text-sm">{trackAuthor ? getUserDisplayName(trackAuthor) : ""}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
@@ -229,4 +235,21 @@ export default function PlaylistComponent({ playlistId }: PlaylistProps) {
       )}
     </div>
   );
+}
+
+function normalizePlaylist(data: any): Playlist | null {
+  const playlist = data?.playlist || data;
+  if (!playlist?.id) return null;
+
+  return {
+    ...playlist,
+    tracks: Array.isArray(playlist.tracks) ? playlist.tracks : [],
+  };
+}
+
+function resolveImageUrl(image: Playlist["cover_url"] | string | null | undefined) {
+  if (!image) return null;
+  if (typeof image === "string") return image;
+
+  return image.medium || image.large || image.small || image.cropped_image || null;
 }

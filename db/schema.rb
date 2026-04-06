@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_02_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_05_110000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -155,6 +155,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_02_120000) do
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["user_id"], name: "index_courses_on_user_id"
+  end
+
+  create_table "editor_templates", force: :cascade do |t|
+    t.string "category", null: false
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.string "name", null: false
+    t.jsonb "page_data", default: {}, null: false
+    t.string "thumbnail"
+    t.datetime "updated_at", null: false
+    t.bigint "user_id"
+    t.index ["category", "user_id"], name: "index_editor_templates_on_category_and_user_id"
+    t.index ["user_id"], name: "index_editor_templates_on_user_id"
   end
 
   create_table "embedded_sites", force: :cascade do |t|
@@ -1145,6 +1158,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_02_120000) do
   add_foreign_key "course_enrollments", "users"
   add_foreign_key "course_modules", "courses"
   add_foreign_key "courses", "users"
+  add_foreign_key "editor_templates", "users"
   add_foreign_key "embedded_sites", "users"
   add_foreign_key "event_hosts", "events"
   add_foreign_key "event_hosts", "users"

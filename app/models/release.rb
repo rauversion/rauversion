@@ -27,6 +27,7 @@ class Release < ApplicationRecord
   store_attribute :config, :soundcloud, :string
 
   store_attribute :editor_data, :theme_schema, :json
+  store_attribute :editor_data, :pages, :json, default: []
 
   validates :template, inclusion: { in: TEMPLATES }
 

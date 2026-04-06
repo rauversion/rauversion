@@ -81,6 +81,15 @@ class ReleasesController < ApplicationController
       return
     end
 
+    if params[:release]&.key?(:pages)
+      if @release.update(pages: permitted_params[:pages] || [])
+        render json: { status: 'success', message: 'Release updated successfully' }
+      else
+        render json: { status: 'error', message: @release.errors.full_messages }, status: :unprocessable_entity
+      end
+      return
+    end
+
     if permitted_params[:editor_data].present?
       if @release.update(editor_data: permitted_params[:editor_data])
         render json: { status: 'success', message: 'Release updated successfully' }
@@ -135,7 +144,7 @@ class ReleasesController < ApplicationController
   private
 
   def release_params
-    params.require(:release).permit(
+    permitted = params.require(:release).permit(
       :subtitle, :cover, :cover_color, :record_color, :sleeve_color, 
       :spotify, :bandcamp, :soundcloud, 
       :product_id, :template, 
@@ -148,9 +157,35 @@ class ReleasesController < ApplicationController
       playlist_ids: [],
       release_playlists_attributes: [],
       release_sections_attributes: [],
+      pages: [],
       editor_data: {},
       theme_schema: {}
     )
+
+    if params[:release]&.key?(:pages)
+      permitted[:pages] = normalize_json_param(params[:release][:pages])
+    end
+
+    if params[:release]&.key?(:editor_data)
+      permitted[:editor_data] = normalize_json_param(params[:release][:editor_data])
+    end
+
+    if params[:release]&.key?(:theme_schema)
+      permitted[:theme_schema] = normalize_json_param(params[:release][:theme_schema])
+    end
+
+    permitted
+  end
+
+  def normalize_json_param(value)
+    case value
+    when ActionController::Parameters
+      value.to_unsafe_h.transform_values { |item| normalize_json_param(item) }
+    when Array
+      value.map { |item| normalize_json_param(item) }
+    else
+      value
+    end
   end
 
 end
