@@ -67,13 +67,28 @@ export default function PlaylistShow() {
     fetchPlaylist();
   }, [slug, setAudioPlaylist]);
 
+  const playlistTrackIds = playlist?.tracks?.map((track) => `${track.id}`) || [];
+  const activePlaylistTrack = playlist?.tracks?.find(
+    (track) => `${track.id}` === `${currentTrackId}`
+  );
+  const isPlaylistActive = Boolean(activePlaylistTrack);
+
   const handlePlay = () => {
-    if (playlist?.tracks?.[0]) {
-      play(playlist.tracks[0].id);
+    if (!playlist?.tracks?.length) return;
+
+    setAudioPlaylist(playlistTrackIds);
+
+    if (isPlaylistActive && isPlaying) {
+      pause();
+      return;
     }
+
+    play(activePlaylistTrack ? activePlaylistTrack.id : playlist.tracks[0].id);
   };
 
   const handleTrackPlay = (trackId) => {
+    setAudioPlaylist(playlistTrackIds);
+
     if (`${currentTrackId}` === `${trackId}` && isPlaying) {
       pause();
     } else {
@@ -312,11 +327,7 @@ export default function PlaylistShow() {
                 transition={{ duration: 0.5, delay: 0.4 }}
               >
                 <motion.button
-                  onClick={() =>
-                    isPlaying && currentTrackId === playlist.tracks[0]?.id
-                      ? pause()
-                      : handlePlay()
-                  }
+                  onClick={handlePlay}
                   className={cn(
                     "relative flex items-center justify-center",
                     "h-11 w-11 shrink-0 rounded-full @sm/playlist-hero:h-14 @sm/playlist-hero:w-14",
@@ -328,8 +339,7 @@ export default function PlaylistShow() {
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
-                  {isPlaying &&
-                    playlist.tracks?.find((o) => o.id === currentTrackId) ? (
+                  {isPlaying && isPlaylistActive ? (
                     <motion.div
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
