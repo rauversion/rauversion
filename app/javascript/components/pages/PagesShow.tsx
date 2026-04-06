@@ -1,8 +1,14 @@
 import React from "react";
-import { useParams } from "react-router-dom";
-import { get } from "@rails/request.js";
+import { useParams } from "react-router-dom"
 import { useToast } from "@/hooks/use-toast";
 import { Render } from "@puckeditor/core";
+import { BlockRenderer } from "@/components/blocks/block-renderer"
+import { cn } from "@/lib/utils"
+import {
+  fetchContentPage,
+  normalizeContentPageBody,
+  hasLegacyContentPageBody,
+} from "@/lib/content-pages"
 import {
   Playlist,
   PlaylistConfig,
@@ -199,19 +205,14 @@ export default function PagesShow() {
 
   React.useEffect(() => {
     const fetchPage = async () => {
+      if (!slug) {
+        setLoading(false)
+        return
+      }
+
       try {
-        const response = await get(`/pages/${slug}.json`);
-        if (response.ok) {
-          const data = await response.json;
-          setLoading(false);
-          setPage(data);
-        } else {
-          toast({
-            title: "Error",
-            description: "Could not load page",
-            variant: "destructive",
-          });
-        }
+        const data = await fetchContentPage(slug)
+        setPage(data)
       } catch (error) {
         toast({
           title: "Error",
@@ -235,8 +236,51 @@ export default function PagesShow() {
 
   if (!page) return <p className="text-center text-muted-foreground">Page not found</p>;
 
-  debugger
-  if (page.body) {
+  const editorPages = normalizeContentPageBody(page.body)
+  const firstEditorPage = editorPages[0]
+
+  if (firstEditorPage) {
+    const { style, blocks } = firstEditorPage
+
+    const fontClass = {
+      sans: "font-sans",
+      serif: "font-serif",
+      mono: "font-mono",
+    }[style.fontFamily]
+
+    return (
+      <div
+        data-template={style.template}
+        className={cn(
+          "min-h-screen transition-all",
+          fontClass,
+          style.darkMode ? "bg-[#0a0a0a] text-white" : "bg-white text-black"
+        )}
+        style={
+          {
+            "--color-primary": style.primaryColor,
+            "--primary": style.primaryColor,
+          } as React.CSSProperties
+        }
+      >
+        <div className="max-w-2xl mx-auto px-4 py-12">
+          {blocks.length === 0 ? (
+            <div className="flex flex-col items-center justify-center min-h-[50vh] text-muted-foreground">
+              <p>Esta pagina no tiene contenido.</p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {blocks.map((block) => (
+                <BlockRenderer key={block.id} block={block} isEditing={false} />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  if (hasLegacyContentPageBody(page.body)) {
     return (
       <div className="min-h-screen">
         <Render
@@ -245,7 +289,7 @@ export default function PagesShow() {
           renderMode="view"
         />
       </div>
-    );
+    )
   }
 
   return null;

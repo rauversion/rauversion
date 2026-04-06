@@ -1,128 +1,91 @@
-import React from "react";
-import { useParams } from "react-router-dom";
-import { get, put } from "@rails/request.js";
-import { useToast } from "@/hooks/use-toast";
-import { PuckEditor } from "../puck";
-
-function Editor({ pageId }) {
-  const [data, setData] = React.useState({});
-  const [loading, setLoading] = React.useState(true);
-  const { toast } = useToast();
-
-  
-
-  // Save the data to your database
-  async function save(newData) {
-    try {
-      const response = await put(`/pages/${pageId}.json`, {
-        body: JSON.stringify({
-          page: {
-            body: newData
-          }
-        }),
-        responseKind: "json",
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to save page data');
-      }
-
-      const result = await response.json;
-      toast({
-        description: "Page updated successfully",
-        variant: "success",
-      });
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Could not update page",
-        variant: "destructive",
-      });
-    }
-  }
-
-  React.useEffect(() => {
-    const fetchEditorData = async () => {
-      try {
-        if (!pageId) {
-          setLoading(false);
-          return;
-        }
-
-        const response = await get(`/pages/${pageId}.json`);
-        if (response.ok) {
-          const pageData = await response.json;
-          if (pageData.body) {
-            setData(pageData.body);
-          }
-        }
-      } catch (error) {
-        // Optionally handle error
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchEditorData();
-  }, [pageId]);
-
-  if (loading) {
-    return <div className="flex items-center justify-center h-screen">
-      <div className="text-lg text-muted-foreground">Loading editor...</div>
-    </div>;
-  }
-
-  return (
-    <PuckEditor data={data} onPublish={save} />
-  );
-}
+import React from "react"
+import { useParams } from "react-router-dom"
+import { useToast } from "@/hooks/use-toast"
+import { EditorWorkspace } from "@/components/page-editor/editor-workspace"
+import type { Page as EditorPage } from "@/lib/blocks/types"
+import {
+  fetchContentPage,
+  saveContentPageBody,
+  normalizeContentPageBody,
+  hasLegacyContentPageBody,
+  type ContentPageRecord,
+} from "@/lib/content-pages"
 
 export default function PagesEditor() {
-  const { id } = useParams();
-  const { toast } = useToast();
-  const [page, setPage] = React.useState(null);
-  const [loading, setLoading] = React.useState(true);
+  const { id } = useParams()
+  const { toast } = useToast()
+  const [pageRecord, setPageRecord] = React.useState<ContentPageRecord | null>(null)
+  const [loadFailed, setLoadFailed] = React.useState(false)
+  const [initialPages, setInitialPages] = React.useState<EditorPage[] | null | undefined>(
+    id ? undefined : null
+  )
 
   React.useEffect(() => {
-    const fetchPage = async () => {
+    if (!id) {
+      setLoadFailed(true)
+      setInitialPages(null)
+      return
+    }
+
+    let cancelled = false
+
+    const loadPage = async () => {
       try {
-        const response = await get(`/pages/${id}.json`);
-        if (response.ok) {
-          const data = await response.json;
-          setPage(data);
-        } else {
-          toast({
-            title: "Error",
-            description: "Could not load page",
-            variant: "destructive",
-          });
-        }
+        const record = await fetchContentPage(id)
+
+        if (cancelled) return
+
+        setPageRecord(record)
+        setLoadFailed(false)
+        setInitialPages(normalizeContentPageBody(record.body))
       } catch (error) {
+        if (!cancelled) {
+          setPageRecord(null)
+          setLoadFailed(true)
+          setInitialPages(null)
+        }
+
         toast({
           title: "Error",
           description: "Could not load page",
           variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
+        })
       }
-    };
-    fetchPage();
-  }, [id, toast]);
+    }
 
-  if (loading) {
+    loadPage()
+
+    return () => {
+      cancelled = true
+    }
+  }, [id, toast])
+
+  const legacyNotice = pageRecord && hasLegacyContentPageBody(pageRecord.body) ? (
+    <div className="px-4 py-2 text-sm border-b border-amber-200 bg-amber-50 text-amber-900">
+      Esta pagina usa el formato legacy de Puck. Si guardas desde este editor, se reemplazara por el formato nuevo.
+    </div>
+  ) : null
+
+  if (loadFailed) {
     return (
-      <div className="flex justify-center py-4">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      <div className="flex items-center justify-center h-screen">
+        <p className="text-muted-foreground">No se pudo cargar la pagina.</p>
       </div>
-    );
+    )
   }
 
-  if (!page) return null;
-
   return (
-    <div className="h-screen">
-      <Editor pageId={id} />
-    </div>
-  );
+    <EditorWorkspace
+      storageNamespace={id ? `pages:${id}` : undefined}
+      initialPages={initialPages}
+      deferInitialLoad={Boolean(id && initialPages === undefined)}
+      defaultPageName={pageRecord?.title}
+      title="Pages Editor"
+      templateCategory="pages"
+      previewUrl={pageRecord?.slug ? `/pages/${pageRecord.slug}` : undefined}
+      onPersistPages={id ? (pages) => saveContentPageBody(id, pages) : undefined}
+      loadingMessage="Cargando pagina..."
+      notice={legacyNotice}
+    />
+  )
 }

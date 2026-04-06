@@ -6,6 +6,7 @@ Rails.application.routes.draw do
       get :menus
     end
   end
+  resources :editor_templates, only: [:index, :create, :destroy], defaults: { format: :json }
   resources :course_enrollments, only: [:create, :show] do
     member do
       post :start_lesson
@@ -364,6 +365,11 @@ Rails.application.routes.draw do
       post :upload_puck_image
     end
   end
+
+  get "/releases2/:id", to: "application#render_blank"
+  get "/releases2/:id/preview", to: "application#render_blank"
+  get "/releases2/:id/preview/:pageId", to: "application#render_blank"
+  get "/albums2/:id", to: "application#render_blank"
 
   resources :playlists do
 

@@ -47,6 +47,7 @@ function Editor({ releaseId }) {
     }
   }
 
+
   React.useEffect(() => {
     const fetchEditorData = async () => {
       try {
