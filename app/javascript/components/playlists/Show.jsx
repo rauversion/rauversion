@@ -29,12 +29,9 @@ export default function PlaylistShow() {
     currentTrackId,
     currentTrackMeta,
     isPlaying,
-    audioPlaying,
     play,
     pause,
     setPlaylist: setAudioPlaylist,
-    formatTime,
-    addMultipleToPlaylist,
   } = useAudioStore();
   const { currentUser } = useAuthStore();
   const { toast } = useToast();
@@ -47,8 +44,6 @@ export default function PlaylistShow() {
         setPlaylist(data.playlist);
         setLikes(data.playlist.likes_count || 0);
         setIsLiked(Boolean(data.playlist.like_id));
-        // Set the playlist in the audio store
-        setAudioPlaylist(data.playlist.tracks.map((track) => track.id));
       }
     } catch (error) {
       console.error("Error fetching playlist:", error);
@@ -58,14 +53,8 @@ export default function PlaylistShow() {
   };
 
   useEffect(() => {
-    if (playlist && playlist.tracks) {
-      addMultipleToPlaylist(playlist.tracks);
-    }
-  }, [playlist]);
-
-  useEffect(() => {
     fetchPlaylist();
-  }, [slug, setAudioPlaylist]);
+  }, [slug]);
 
   const playlistTrackIds = playlist?.tracks?.map((track) => `${track.id}`) || [];
   const activePlaylistTrack = playlist?.tracks?.find(

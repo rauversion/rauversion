@@ -221,12 +221,15 @@ export function GalleryBlock({ block, isEditing }: GalleryBlockProps) {
           <ChevronLeft className="h-10 w-10" />
         </button>
 
-        <div className="relative max-w-5xl max-h-[80vh] w-full h-full mx-16" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="relative mx-16 flex h-[80vh] w-full max-w-5xl items-center justify-center"
+          onClick={(e) => e.stopPropagation()}
+        >
           {images[currentIndex]?.src && (
             <img
               src={images[currentIndex].src}
               alt={images[currentIndex].alt || ""}
-              className="max-h-full max-w-full object-contain"
+              className="mx-auto max-h-full max-w-full object-contain"
             />
           )}
           {showCaptions && images[currentIndex]?.caption && (

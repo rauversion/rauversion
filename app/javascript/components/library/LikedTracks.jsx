@@ -222,9 +222,6 @@ export default function LikedTracks() {
             }
           })
 
-          if (initialPage && Array.isArray(nextData?.liked_playlist?.track_ids)) {
-            syncLikedQueue(nextData.liked_playlist.track_ids.map((trackId) => `${trackId}`))
-          }
         }
       } catch (fetchError) {
         if (!cancelled) {
@@ -256,7 +253,7 @@ export default function LikedTracks() {
     return () => {
       cancelled = true
     }
-  }, [page, syncLikedQueue, toast])
+  }, [page, toast])
 
   const metadata = data?.metadata || {}
 
