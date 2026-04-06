@@ -4,8 +4,8 @@ import React, { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import type { Page } from "@/lib/blocks/types"
 import { getCurrentPageId, loadPages } from "@/lib/storage"
-import { BlockRenderer } from "@/components/blocks/block-renderer"
-import { cn } from "@/lib/utils"
+import { fetchReleasePages } from "@/lib/release-editor-pages"
+import { EditorPageView } from "@/components/page-editor/page-view"
 import { Disc3 } from "lucide-react"
 
 export default function PreviewPage() {
@@ -14,17 +14,43 @@ export default function PreviewPage() {
   const [notFound, setNotFound] = useState(false)
 
   useEffect(() => {
-    const storageNamespace = id ? `releases2:${id}` : undefined
-    const pages = loadPages(storageNamespace)
-    const targetPageId = pageId || getCurrentPageId(storageNamespace)
-    const found = pages.find((p) => p.id === targetPageId)
-
-    if (found) {
-      setPage(found)
-      setNotFound(false)
-    } else {
+    if (!id) {
       setPage(null)
       setNotFound(true)
+      return
+    }
+
+    let cancelled = false
+
+    const loadPreviewPage = async () => {
+      const storageNamespace = `releases:${id}`
+      const localPages = loadPages(storageNamespace)
+      const availablePages =
+        localPages.length > 0
+          ? localPages
+          : await fetchReleasePages(id)
+      const targetPageId =
+        pageId ||
+        getCurrentPageId(storageNamespace) ||
+        availablePages[0]?.id
+      const found = availablePages.find((candidatePage) => candidatePage.id === targetPageId) || null
+
+      if (cancelled) return
+
+      setPage(found)
+      setNotFound(!found)
+    }
+
+    loadPreviewPage().catch((error) => {
+      console.error("Error loading release preview:", error)
+      if (!cancelled) {
+        setPage(null)
+        setNotFound(true)
+      }
+    })
+
+    return () => {
+      cancelled = true
     }
   }, [id, pageId])
 
@@ -48,49 +74,5 @@ export default function PreviewPage() {
     )
   }
 
-  const { style, blocks } = page
-
-  const fontClass = {
-    sans: "font-sans",
-    serif: "font-serif",
-    mono: "font-mono",
-  }[style.fontFamily]
-
-  return (
-    <div
-      data-template={style.template}
-      className={cn(
-        "min-h-screen transition-all",
-        fontClass,
-        style.darkMode ? "bg-[#0a0a0a] text-white" : "bg-white text-black"
-      )}
-      style={
-        {
-          "--color-primary": style.primaryColor,
-          "--primary": style.primaryColor,
-        } as React.CSSProperties
-      }
-    >
-      <div className="max-w-2xl mx-auto px-4 py-12">
-        {blocks.length === 0 ? (
-          <div className="flex flex-col items-center justify-center min-h-[50vh] text-muted-foreground">
-            <p>Esta pagina no tiene contenido.</p>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {blocks.map((block) => (
-              <BlockRenderer key={block.id} block={block} pageStyle={style} isEditing={false} />
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Footer */}
-      <footer className="py-8 text-center border-t border-border/30">
-        <p className="text-xs text-muted-foreground">
-          Creado con Release Editor
-        </p>
-      </footer>
-    </div>
-  )
+  return <EditorPageView page={page} footerText="Creado con Release Editor" />
 }

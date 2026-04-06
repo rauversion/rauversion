@@ -89,8 +89,6 @@ Rails.application.routes.draw do
     end
   end
 
-  post "/api/puck/chat", to: "api/puck#chat"
-
   # devise_for :users
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
@@ -136,8 +134,6 @@ Rails.application.routes.draw do
   delete 'product_cart/remove/:product_id', to: 'product_cart#remove', as: 'product_cart_remove'
 
   get 'change_locale', to: 'application#change_locale'
-  get 'puck', to: 'releases#puck'
-
   resources :product_purchases, only: [:index, :show]
 
   namespace :products do
@@ -358,18 +354,10 @@ Rails.application.routes.draw do
   resources :releases do
     member do
       get :editor
-      get :editor2, action: :editor
-    end
-    collection do
-      get :puck
-      post :upload_puck_image
+      get :preview
+      get "preview/:pageId", action: :preview
     end
   end
-
-  get "/releases2/:id", to: "application#render_blank"
-  get "/releases2/:id/preview", to: "application#render_blank"
-  get "/releases2/:id/preview/:pageId", to: "application#render_blank"
-  get "/albums2/:id", to: "application#render_blank"
 
   resources :playlists do
 
@@ -384,10 +372,6 @@ Rails.application.routes.draw do
     resource :sharer, controller: "sharer"
 
     resources :releases do
-      collection do
-        get :puck
-        post :upload_puck_image
-      end
     end
 
     member do

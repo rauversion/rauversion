@@ -8,7 +8,7 @@ import type { Page } from "@/lib/blocks/types"
 
 export default function EditorPage() {
   const { id } = useParams()
-  const storageNamespace = id ? `releases2:${id}` : undefined
+  const storageNamespace = id ? `releases:${id}` : undefined
   const [initialReleasePages, setInitialReleasePages] = useState<Page[] | null | undefined>(
     id ? undefined : null
   )
@@ -49,7 +49,7 @@ export default function EditorPage() {
       deferInitialLoad={Boolean(id && initialReleasePages === undefined)}
       title="Release Editor"
       templateCategory="album-releases"
-      previewUrl={(page) => id ? `/releases2/${id}/preview/${page.id}` : undefined}
+      previewUrl={(page) => id ? `/releases/${id}/preview/${page.id}` : undefined}
       onPersistPages={id ? (pages) => saveReleasePages(id, pages) : undefined}
       loadingMessage="Cargando editor..."
     />

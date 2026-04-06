@@ -1,6 +1,5 @@
 class ReleasesController < ApplicationController
   before_action :authenticate_user!, except: [:show, :preview]
-  # before_action :find_playlist, except: [:puck, :upload_puck_image, :edit]
   before_action :disable_footer, only: [:editor]
 
   def index
@@ -14,10 +13,7 @@ class ReleasesController < ApplicationController
   def editor
     @release = current_user.releases.friendly.find(params[:id])
     @disable_player = true
-    respond_to do |format|
-      format.html { render "puck" }
-      format.json
-    end
+    render_blank
   end
 
   def new
@@ -26,7 +22,6 @@ class ReleasesController < ApplicationController
 
   def create
     @release = current_user.releases.new
-    @release.template = "puck"
     permitted_params = release_params
     
     respond_to do |format|
@@ -47,7 +42,7 @@ class ReleasesController < ApplicationController
   def show
     @release = Release.friendly.find(params[:id])
     respond_to do |format|
-      format.html
+      format.html { render_blank }
       format.json
     end
   end
@@ -55,7 +50,7 @@ class ReleasesController < ApplicationController
   def preview
     @release = Release.friendly.find(params[:id])
     respond_to do |format|
-      format.html
+      format.html { render_blank }
       format.json
     end
   end
@@ -123,22 +118,6 @@ class ReleasesController < ApplicationController
       format.html { redirect_to releases_path }
       format.json { head :no_content }
     end
-  end
-
-  def upload_puck_image
-    uploaded_file = params[:file]
-    blob = ActiveStorage::Blob.create_and_upload!(
-      io: uploaded_file,
-      filename: uploaded_file.original_filename,
-      content_type: uploaded_file.content_type
-    )
-    
-    variant = blob.variant(resize_to_fill: [1200, 1200]).processed
-    
-    render json: { 
-      url: rails_blob_url(variant),
-      id: blob.id
-    }
   end
 
   private

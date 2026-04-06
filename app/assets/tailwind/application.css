@@ -1,6 +1,5 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
-@import "@puckeditor/plugin-ai/styles.css";
 
 @plugin "@tailwindcss/typography";
 @custom-variant dark (&:is(.dark *));
@@ -329,10 +328,7 @@
 
 @custom-media --standard-viewport (min-width: 768px);
 
-/*@import "../stylesheets/puck_copy.css";*/
 @import "../stylesheets/cropper.css";
-
-@import "@puckeditor/core/puck.css";
 
 @layer utilities {}
 

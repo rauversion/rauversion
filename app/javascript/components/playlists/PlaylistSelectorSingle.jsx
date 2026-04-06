@@ -1,41 +1,41 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { get } from "@rails/request.js";
-import AsyncSelect from "react-select/async";
+import React, { useCallback, useEffect, useMemo, useState } from "react"
+import { get } from "@rails/request.js"
+import AsyncSelect from "react-select/async"
 
-import selectTheme from "@/components/ui/selectTheme";
-import { getUserDisplayName } from "@/utils/userDisplayName";
+import selectTheme from "@/components/ui/selectTheme"
+import { getUserDisplayName } from "@/utils/userDisplayName"
 
 function resolveCoverUrl(coverUrl) {
-  if (!coverUrl) return null;
-  if (typeof coverUrl === "string") return coverUrl;
+  if (!coverUrl) return null
+  if (typeof coverUrl === "string") return coverUrl
 
-  return coverUrl.small || coverUrl.medium || coverUrl.large || coverUrl.cropped_image || null;
+  return coverUrl.small || coverUrl.medium || coverUrl.large || coverUrl.cropped_image || null
 }
 
 function resolveTrackCount(playlist) {
-  if (typeof playlist?.tracks_count === "number") return playlist.tracks_count;
-  if (Array.isArray(playlist?.tracks)) return playlist.tracks.length;
+  if (typeof playlist?.tracks_count === "number") return playlist.tracks_count
+  if (Array.isArray(playlist?.tracks)) return playlist.tracks.length
 
-  return null;
+  return null
 }
 
 function humanizePlaylistType(type) {
   switch (type) {
     case "album":
-      return "Album";
+      return "Album"
     case "ep":
-      return "EP";
+      return "EP"
     case "single":
-      return "Single";
+      return "Single"
     case "compilation":
-      return "Compilation";
+      return "Compilation"
     default:
-      return "Playlist";
+      return "Playlist"
   }
 }
 
 function buildPlaylistOption(playlist) {
-  if (!playlist?.id) return null;
+  if (!playlist?.id) return null
 
   return {
     value: playlist.id,
@@ -44,122 +44,122 @@ function buildPlaylistOption(playlist) {
     subtitle: getUserDisplayName(playlist.user) || playlist.user?.username || null,
     playlistType: playlist.playlist_type || "playlist",
     tracksCount: resolveTrackCount(playlist),
-  };
+  }
 }
 
 function mergeOptions(previousOptions, nextOptions) {
-  const mergedOptions = new Map();
+  const mergedOptions = new Map()
 
   previousOptions.forEach((option) => {
-    mergedOptions.set(`${option.value}`, option);
-  });
+    mergedOptions.set(`${option.value}`, option)
+  })
 
   nextOptions.forEach((option) => {
     if (option) {
-      mergedOptions.set(`${option.value}`, option);
+      mergedOptions.set(`${option.value}`, option)
     }
-  });
+  })
 
-  return Array.from(mergedOptions.values());
+  return Array.from(mergedOptions.values())
 }
 
-const PlaylistSelectorSingle = ({
+export default function PlaylistSelectorSingle({
   onChange,
   value = null,
   endpoint = null,
   autoFocus = false,
   placeholder = "Busca una playlist para insertar...",
-}) => {
-  const currentUsername = document.querySelector('meta[name="current-user-id"]')?.content;
+}) {
+  const currentUsername = document.querySelector('meta[name="current-user-id"]')?.content
   const resolvedEndpoint = useMemo(() => {
-    if (endpoint) return endpoint;
-    if (currentUsername) return `/${currentUsername}/albums.json`;
+    if (endpoint) return endpoint
+    if (currentUsername) return `/${currentUsername}/albums.json`
 
-    return "/playlists.json";
-  }, [currentUsername, endpoint]);
+    return "/playlists.json"
+  }, [currentUsername, endpoint])
 
-  const searchParam = resolvedEndpoint.includes("/albums.json") ? "q" : "term";
-  const [options, setOptions] = useState([]);
-  const [selectedOption, setSelectedOption] = useState(null);
-  const [isBootstrapping, setIsBootstrapping] = useState(false);
-  const [isLoadingOptions, setIsLoadingOptions] = useState(false);
+  const searchParam = resolvedEndpoint.includes("/albums.json") ? "q" : "term"
+  const [options, setOptions] = useState([])
+  const [selectedOption, setSelectedOption] = useState(null)
+  const [isBootstrapping, setIsBootstrapping] = useState(false)
+  const [isLoadingOptions, setIsLoadingOptions] = useState(false)
 
   const hydrateSelectedPlaylist = useCallback(async (playlistId) => {
     if (!playlistId) {
-      setSelectedOption(null);
-      return;
+      setSelectedOption(null)
+      return
     }
 
-    const cachedOption = options.find((option) => `${option.value}` === `${playlistId}`);
+    const cachedOption = options.find((option) => `${option.value}` === `${playlistId}`)
     if (cachedOption) {
-      setSelectedOption(cachedOption);
-      return;
+      setSelectedOption(cachedOption)
+      return
     }
 
-    setIsBootstrapping(true);
+    setIsBootstrapping(true)
 
     try {
-      const response = await get(`/playlists/${playlistId}.json`, { responseKind: "json" });
+      const response = await get(`/playlists/${playlistId}.json`, { responseKind: "json" })
       if (!response.ok) {
-        setSelectedOption(null);
-        return;
+        setSelectedOption(null)
+        return
       }
 
-      const data = await response.json;
-      const nextOption = buildPlaylistOption(data?.playlist);
+      const data = await response.json
+      const nextOption = buildPlaylistOption(data?.playlist)
 
       if (nextOption) {
-        setOptions((previousOptions) => mergeOptions(previousOptions, [nextOption]));
-        setSelectedOption(nextOption);
+        setOptions((previousOptions) => mergeOptions(previousOptions, [nextOption]))
+        setSelectedOption(nextOption)
       } else {
-        setSelectedOption(null);
+        setSelectedOption(null)
       }
     } catch (_error) {
-      setSelectedOption(null);
+      setSelectedOption(null)
     } finally {
-      setIsBootstrapping(false);
+      setIsBootstrapping(false)
     }
-  }, [options]);
+  }, [options])
 
   useEffect(() => {
-    hydrateSelectedPlaylist(value);
-  }, [hydrateSelectedPlaylist, value]);
+    hydrateSelectedPlaylist(value)
+  }, [hydrateSelectedPlaylist, value])
 
   const loadOptions = useCallback(async (inputValue) => {
-    setIsLoadingOptions(true);
+    setIsLoadingOptions(true)
 
     try {
-      const requestUrl = new URL(resolvedEndpoint, window.location.origin);
+      const requestUrl = new URL(resolvedEndpoint, window.location.origin)
 
       if ((inputValue || "").trim()) {
-        requestUrl.searchParams.set(searchParam, inputValue.trim());
+        requestUrl.searchParams.set(searchParam, inputValue.trim())
       }
 
       const response = await get(`${requestUrl.pathname}${requestUrl.search}`, {
         responseKind: "json",
-      });
+      })
 
       if (!response.ok) {
-        return [];
+        return []
       }
 
-      const data = await response.json;
-      const nextOptions = (data?.collection || []).map(buildPlaylistOption).filter(Boolean);
+      const data = await response.json
+      const nextOptions = (data?.collection || []).map(buildPlaylistOption).filter(Boolean)
 
-      setOptions((previousOptions) => mergeOptions(previousOptions, nextOptions));
+      setOptions((previousOptions) => mergeOptions(previousOptions, nextOptions))
 
-      return nextOptions;
+      return nextOptions
     } catch (_error) {
-      return [];
+      return []
     } finally {
-      setIsLoadingOptions(false);
+      setIsLoadingOptions(false)
     }
-  }, [resolvedEndpoint, searchParam]);
+  }, [resolvedEndpoint, searchParam])
 
   const handleChange = useCallback((nextSelectedOption) => {
-    setSelectedOption(nextSelectedOption || null);
-    onChange(nextSelectedOption ? nextSelectedOption.value : null);
-  }, [onChange]);
+    setSelectedOption(nextSelectedOption || null)
+    onChange(nextSelectedOption ? nextSelectedOption.value : null)
+  }, [onChange])
 
   const customStyles = useMemo(() => ({
     control: (provided, state) => ({
@@ -186,14 +186,14 @@ const PlaylistSelectorSingle = ({
       paddingTop: 6,
       paddingBottom: 6,
     }),
-  }), []);
+  }), [])
 
   const formatOptionLabel = useCallback((option, { context }) => {
     const meta = [
       humanizePlaylistType(option.playlistType),
       option.subtitle,
       option.tracksCount !== null ? `${option.tracksCount} tracks` : null,
-    ].filter(Boolean).join(" · ");
+    ].filter(Boolean).join(" · ")
 
     if (context === "value") {
       return (
@@ -209,7 +209,7 @@ const PlaylistSelectorSingle = ({
             <div className="truncate text-sm font-medium">{option.label}</div>
           </div>
         </div>
-      );
+      )
     }
 
     return (
@@ -233,8 +233,8 @@ const PlaylistSelectorSingle = ({
           ) : null}
         </div>
       </div>
-    );
-  }, []);
+    )
+  }, [])
 
   return (
     <div className="w-full">
@@ -258,10 +258,8 @@ const PlaylistSelectorSingle = ({
         loadingMessage={() => "Cargando playlists..."}
         className="w-full"
         classNamePrefix="playlist-selector"
-        openMenuOnFocus
+        menuPortalTarget={document.body}
       />
     </div>
-  );
-};
-
-export default PlaylistSelectorSingle;
+  )
+}

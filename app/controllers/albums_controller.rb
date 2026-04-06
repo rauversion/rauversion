@@ -24,7 +24,7 @@ class AlbumsController < ApplicationController
     )
 
     respond_to do |format|
-      format.html
+      format.html { render_blank }
       format.json
     end
   end

@@ -62,7 +62,7 @@ export default function PagesEditor() {
 
   const legacyNotice = pageRecord && hasLegacyContentPageBody(pageRecord.body) ? (
     <div className="px-4 py-2 text-sm border-b border-amber-200 bg-amber-50 text-amber-900">
-      Esta pagina usa el formato legacy de Puck. Si guardas desde este editor, se reemplazara por el formato nuevo.
+      Esta pagina usa un formato antiguo. Si guardas desde este editor, se reemplazara por el formato nuevo.
     </div>
   ) : null
 

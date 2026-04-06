@@ -25,9 +25,9 @@ class ErrorBoundary extends React.Component {
 }
 
 import { Button } from "@/components/ui/button";
-import PlaylistSelectorSingle from "../puck/PlaylistSelectorSingle";
+import PlaylistSelectorSingle from "../playlists/PlaylistSelectorSingle";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import PlaylistComponent from "../puck/Playlist";
+import PlaylistComponent from "../playlist";
 import { cn } from "@/lib/utils";
 import { GripVertical, ListMusic, PencilLine, Trash2, XCircle } from "lucide-react";
 

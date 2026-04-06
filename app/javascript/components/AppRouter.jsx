@@ -81,8 +81,7 @@ import ReleasesList from "./releases/ReleasesList"
 import ReleaseForm from "./releases/ReleaseForm"
 import ReleaseEditor from "./releases/ReleaseEditor"
 import ReleasePreview from "./releases/ReleasePreview"
-import Releases2Editor from "./page-editor/page"
-import Releases2Preview from "./page-preview/[id]/page"
+import ReleasePagesPreview from "./page-preview/[id]/page"
 import AlbumPagesShow from "./albums/AlbumPagesShow"
 
 import AlbumsIndex from "./albums/Index"
@@ -94,7 +93,6 @@ import MusicForm from "./products/music/Form"
 import MerchForm from "./products/merch/Form"
 import AccessoryForm from "./products/accessory/Form"
 import ServiceForm from "./products/service/Form"
-import AlbumShow from "./albums/AlbumShow"
 import { ServiceBookings } from "./ServiceBookings"
 import { ServiceBookingDetail } from "./ServiceBookings/ServiceBookingDetail"
 import NewTrack from "./tracks/NewTrack"
@@ -248,17 +246,17 @@ function AppContent() {
   const isEventShowRoute = /^\/events\/[^/]+$/.test(location.pathname)
   const isAdmissionRoute = /^\/events\/[^/]+\/admission$/.test(location.pathname)
   const isArticleEditRoute = /^\/articles\/[^/]+\/edit$/.test(location.pathname)
+  const isAlbumShowRoute = /^\/albums\/[^/]+$/.test(location.pathname)
+  const isPageShowRoute = /^\/pages\/[^/]+$/.test(location.pathname)
   const isAdminRoute = location.pathname === "/admin" || location.pathname.startsWith("/admin/")
-  const isReleases2Route = location.pathname === "/releases2" || location.pathname.startsWith("/releases2/")
-  const isAlbums2Route = location.pathname === "/albums2" || location.pathname.startsWith("/albums2/")
 
   const shouldShowMusicLibraryLayout =
     !isAdminRoute &&
     !isAdmissionRoute &&
     !isEventShowRoute &&
     !isArticleEditRoute &&
-    !isReleases2Route &&
-    !isAlbums2Route &&
+    !isAlbumShowRoute &&
+    !isPageShowRoute &&
     !isPodcastRoute &&
     !location.pathname.includes("/users/sign_in") &&
     !location.pathname.includes("/users/sign_up") &&
@@ -297,8 +295,7 @@ function AppContent() {
 
 
       <Route path="/" element={<Home />} />
-      <Route path="/albums/:slug" element={<AlbumShow />} />
-      <Route path="/albums2/:id" element={<AlbumPagesShow />} />
+      <Route path="/albums/:slug" element={<AlbumPagesShow />} />
 
       <Route path="/courses" element={<CoursesIndex />} />
 
@@ -350,13 +347,11 @@ function AppContent() {
       <Route path="/releases" element={<ReleasesList />} />
       <Route path="/releases/new" element={<ReleaseForm />} />
       <Route path="/releases/:id/edit" element={<ReleaseForm />} />
-      <Route path="/releases/:id/editor" key="release-editor" element={<ReleaseEditor key={"release-editor"} />} />
+      <Route path="/releases/:id/editor" key="release-editor" element={<RequireAuth><ReleaseEditor key={"release-editor"} /></RequireAuth>} />
 
-      <Route path="/releases/:id/preview" element={<ReleasePreview />} />
+      <Route path="/releases/:id/preview" element={<ReleasePagesPreview />} />
+      <Route path="/releases/:id/preview/:pageId" element={<ReleasePagesPreview />} />
       <Route path="/releases/:id" element={<ReleasePreview />} />
-      <Route path="/releases2/:id" element={<RequireAuth><Releases2Editor /></RequireAuth>} />
-      <Route path="/releases2/:id/preview" element={<Releases2Preview />} />
-      <Route path="/releases2/:id/preview/:pageId" element={<Releases2Preview />} />
       <Route path="/albums" element={<AlbumsIndex />} />
       <Route path="/artists" element={<ArtistsIndex />} />
       <Route path="/store" element={<StoreIndex />} />
@@ -439,8 +434,6 @@ function AppContent() {
         !location.pathname.includes('new') &&
         !location.pathname.includes('editor') &&
         !location.pathname.includes('preview') &&
-        !isReleases2Route &&
-        !isAlbums2Route &&
         !location.pathname.includes('albums') &&
         !isPodcastRoute &&
         !location.pathname.includes('page-builder') &&

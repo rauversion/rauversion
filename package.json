@@ -10,8 +10,6 @@
     "@hotwired/turbo": "8.0.12",
     "@hotwired/turbo-rails": "8.0.12",
     "@josefarias/hotwire_combobox": "^0.2.1",
-    "@puckeditor/core": "^0.21",
-    "@puckeditor/plugin-ai": "^0.6.0",
     "@radix-ui/react-accordion": "^1.2.2",
     "@radix-ui/react-alert-dialog": "^1.1.5",
     "@radix-ui/react-aspect-ratio": "^1.1.1",

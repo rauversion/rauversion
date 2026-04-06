@@ -18,7 +18,7 @@ import { Trash2, X, Plus, GripVertical } from "lucide-react"
 import { ImageUploader } from "@/components/ui/image-uploader"
 import { Textarea } from "@/components/ui/textarea"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import PlaylistSelectorSingle from "@/components/puck/PlaylistSelectorSingle"
+import PlaylistSelectorSingle from "@/components/playlists/PlaylistSelectorSingle"
 import ProductSelectorSingle from "./ProductSelectorSingle"
 import PlaylistSelectorMulti from "./PlaylistSelectorMulti"
 import type { 

@@ -1,21 +1,24 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
-import { useParams } from "react-router-dom"
+import { get } from "@rails/request.js"
+import { Navigate, useParams } from "react-router-dom"
 import type { Page } from "@/lib/blocks/types"
-import { fetchAlbumPages } from "@/lib/release-editor-pages"
-import { BlockRenderer } from "@/components/blocks/block-renderer"
-import { cn } from "@/lib/utils"
+import { normalizeReleasePages } from "@/lib/release-editor-pages"
+import { EditorPageView } from "@/components/page-editor/page-view"
 import { Disc3 } from "lucide-react"
 
 export default function AlbumPagesShow() {
-  const { id } = useParams()
+  const { id, slug } = useParams()
   const [page, setPage] = useState<Page | null>(null)
   const [notFound, setNotFound] = useState(false)
   const [isEmpty, setIsEmpty] = useState(false)
+  const [playlistSlug, setPlaylistSlug] = useState<string | null>(null)
 
   useEffect(() => {
-    if (!id) {
+    const albumIdentifier = id || slug
+
+    if (!albumIdentifier) {
       setNotFound(true)
       return
     }
@@ -24,7 +27,16 @@ export default function AlbumPagesShow() {
 
     const loadAlbumPages = async () => {
       try {
-        const pages = await fetchAlbumPages(id)
+        const response = await get(`/albums/${albumIdentifier}.json`, {
+          responseKind: "json",
+        })
+
+        if (!response.ok) {
+          throw new Error("No se pudo cargar el album")
+        }
+
+        const album = await response.json
+        const pages = normalizeReleasePages(album?.editor_data?.pages)
 
         if (cancelled) return
 
@@ -32,10 +44,17 @@ export default function AlbumPagesShow() {
           setPage(pages[0])
           setIsEmpty(false)
           setNotFound(false)
+          setPlaylistSlug(null)
+        } else if (album?.playlist?.slug) {
+          setPage(null)
+          setIsEmpty(false)
+          setNotFound(false)
+          setPlaylistSlug(album.playlist.slug)
         } else {
           setPage(null)
           setIsEmpty(true)
           setNotFound(false)
+          setPlaylistSlug(null)
         }
       } catch (error) {
         console.error("Error loading album pages:", error)
@@ -43,6 +62,7 @@ export default function AlbumPagesShow() {
           setPage(null)
           setIsEmpty(false)
           setNotFound(true)
+          setPlaylistSlug(null)
         }
       }
     }
@@ -52,7 +72,11 @@ export default function AlbumPagesShow() {
     return () => {
       cancelled = true
     }
-  }, [id])
+  }, [id, slug])
+
+  if (playlistSlug) {
+    return <Navigate to={`/playlists/${playlistSlug}`} replace />
+  }
 
   if (notFound) {
     return (
@@ -86,48 +110,5 @@ export default function AlbumPagesShow() {
     )
   }
 
-  const { style, blocks } = page
-
-  const fontClass = {
-    sans: "font-sans",
-    serif: "font-serif",
-    mono: "font-mono",
-  }[style.fontFamily]
-
-  return (
-    <div
-      data-template={style.template}
-      className={cn(
-        "min-h-screen transition-all",
-        fontClass,
-        style.darkMode ? "bg-[#0a0a0a] text-white" : "bg-white text-black"
-      )}
-      style={
-        {
-          "--color-primary": style.primaryColor,
-          "--primary": style.primaryColor,
-        } as React.CSSProperties
-      }
-    >
-      <div className="max-w-2xl mx-auto px-4 py-12">
-        {blocks.length === 0 ? (
-          <div className="flex flex-col items-center justify-center min-h-[50vh] text-muted-foreground">
-            <p>Esta pagina no tiene contenido.</p>
-          </div>
-        ) : (
-          <div className="space-y-6">
-            {blocks.map((block) => (
-              <BlockRenderer key={block.id} block={block} pageStyle={style} isEditing={false} />
-            ))}
-          </div>
-        )}
-      </div>
-
-      <footer className="py-8 text-center border-t border-border/30">
-        <p className="text-xs text-muted-foreground">
-          Creado con Release Editor
-        </p>
-      </footer>
-    </div>
-  )
+  return <EditorPageView page={page} footerText="Creado con Release Editor" />
 }
