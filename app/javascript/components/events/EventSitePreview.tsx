@@ -73,5 +73,12 @@ export default function EventSitePreview() {
     )
   }
 
-  return <EditorPageView page={page} eventSite={eventSite} footerText={`Preview de ${eventSite.title}`} />
+  return (
+    <EditorPageView
+      page={page}
+      eventSite={eventSite}
+      footerText={`Preview de ${eventSite.title}`}
+      contentWidthClassName="max-w-6xl"
+    />
+  )
 }

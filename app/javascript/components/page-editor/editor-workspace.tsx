@@ -49,6 +49,8 @@ interface EditorWorkspaceProps {
   loadingMessage?: string
   notice?: React.ReactNode
   eventSite?: EventSiteRecord | null
+  previewDesktopFrameWidthClassName?: string
+  previewContentWidthClassName?: string
 }
 
 export function EditorWorkspace({
@@ -63,6 +65,8 @@ export function EditorWorkspace({
   loadingMessage = "Cargando editor...",
   notice,
   eventSite,
+  previewDesktopFrameWidthClassName,
+  previewContentWidthClassName,
 }: EditorWorkspaceProps) {
   const {
     page,
@@ -367,6 +371,8 @@ export function EditorWorkspace({
             <PreviewTab
               page={page}
               previewUrl={resolvedPreviewUrl}
+              desktopFrameWidthClassName={previewDesktopFrameWidthClassName}
+              contentWidthClassName={previewContentWidthClassName}
             />
           </TabsContent>
         </Tabs>

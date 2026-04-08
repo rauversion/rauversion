@@ -141,7 +141,7 @@ function ScheduleList({
   if (schedules.length === 0) return null
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
+    <div className="grid gap-4 @2xl/event-block:grid-cols-2">
       {schedules.map((schedule) => (
         <article
           key={schedule.id}
@@ -212,7 +212,7 @@ function TicketPanel({
 }) {
   return (
     <aside
-      className="rounded-[28px] border p-5 md:p-6"
+      className="rounded-[28px] border p-5 @sm/event-block:p-6"
       style={{
         background: palette.panelStrong,
         borderColor: palette.border,
@@ -369,9 +369,12 @@ export function EventBlock({
   const locationLabel = formatLocation(eventSite)
   const authorName = eventSite.author ? getUserDisplayName(eventSite.author) : ""
   const authorImage = authorAvatar(eventSite.author)
+  const usesHeroBackground =
+    Boolean(heroCover) &&
+    (block.props.variant === "poster" || block.props.variant === "immersive")
 
   const heroText = (
-    <div className="relative z-10 flex flex-col gap-6">
+    <div className="relative z-10 flex flex-col gap-5 @2xl/event-block:gap-6">
       {block.props.showMeta ? (
         <div className="flex flex-wrap items-center gap-3 text-sm" style={{ color: palette.muted }}>
           {authorName ? (
@@ -400,11 +403,17 @@ export function EventBlock({
       ) : null}
 
       <div className="space-y-4">
-        <h2 className="max-w-4xl text-4xl font-black tracking-tight md:text-6xl" style={{ color: palette.text }}>
+        <h2
+          className="max-w-4xl text-3xl font-black tracking-tight @sm/event-block:text-4xl @2xl/event-block:text-5xl @5xl/event-block:text-6xl"
+          style={{ color: palette.text }}
+        >
           {eventSite.title}
         </h2>
         {block.props.showDescription && eventSite.description ? (
-          <p className="max-w-3xl whitespace-pre-line text-base leading-7 md:text-lg" style={{ color: palette.muted }}>
+          <p
+            className="max-w-3xl whitespace-pre-line text-sm leading-7 @sm/event-block:text-base @2xl/event-block:text-lg"
+            style={{ color: palette.muted }}
+          >
             {eventSite.description}
           </p>
         ) : null}
@@ -434,72 +443,112 @@ export function EventBlock({
     />
   ) : null
 
+  const ticketPanelContent = ticketPanel ? (
+    <div className="w-full max-w-md @4xl/event-block:max-w-sm @6xl/event-block:max-w-md">
+      {ticketPanel}
+    </div>
+  ) : null
+
+  const mobileHeroContent = (
+    <div
+      className={cn(
+        "flex flex-col gap-4 @4xl/event-block:hidden",
+        block.props.variant === "minimal" ? "justify-start" : "min-h-[520px] justify-end"
+      )}
+    >
+      <div
+        className="rounded-[28px] border p-5 backdrop-blur-md"
+        style={{
+          background: block.props.variant === "minimal" ? palette.panel : palette.panelStrong,
+          borderColor: palette.border,
+        }}
+      >
+        {heroText}
+      </div>
+      {ticketPanelContent}
+    </div>
+  )
+
+  const desktopHeroContent = (
+    <div className="hidden @4xl/event-block:block">
+      {block.props.variant === "poster" && (
+        <div className="grid gap-6 @4xl/event-block:grid-cols-[minmax(0,1fr)_minmax(280px,340px)] @4xl/event-block:items-end">
+          {heroText}
+          {ticketPanelContent}
+        </div>
+      )}
+
+      {block.props.variant === "editorial" && (
+        <div className="grid gap-6 @4xl/event-block:grid-cols-[minmax(220px,320px)_minmax(0,1fr)] @4xl/event-block:items-start">
+          <div className="overflow-hidden rounded-[32px] border" style={{ borderColor: palette.border }}>
+            {heroCover ? (
+              <img src={heroCover} alt={eventSite.title} className="aspect-[4/5] w-full object-cover" />
+            ) : (
+              <div className="aspect-[4/5]" style={{ background: palette.accentSoft }} />
+            )}
+          </div>
+          <div className="flex min-w-0 flex-col gap-6">
+            {heroText}
+            {ticketPanelContent}
+          </div>
+        </div>
+      )}
+
+      {block.props.variant === "immersive" && (
+        <div
+          className="rounded-[28px] border p-5 backdrop-blur @sm/event-block:p-6 @2xl/event-block:rounded-[32px] @2xl/event-block:p-7"
+          style={{ background: palette.panel, borderColor: palette.border }}
+        >
+          <div className="grid gap-6 @4xl/event-block:grid-cols-[minmax(0,1fr)_minmax(280px,320px)] @4xl/event-block:items-center">
+            {heroText}
+            {ticketPanelContent}
+          </div>
+        </div>
+      )}
+
+      {block.props.variant === "minimal" && (
+        <div
+          className="grid gap-6 rounded-[28px] border p-5 @sm/event-block:p-6 @2xl/event-block:rounded-[32px] @2xl/event-block:p-7 @4xl/event-block:grid-cols-[minmax(0,1fr)_minmax(280px,320px)]"
+          style={{ background: palette.panel, borderColor: palette.border }}
+        >
+          {heroText}
+          {ticketPanelContent}
+        </div>
+      )}
+    </div>
+  )
+
   return (
     <>
       <section
-        className="relative left-1/2 right-1/2 w-screen -translate-x-1/2 overflow-hidden"
+        className="@container/event-block relative overflow-hidden rounded-[30px] border"
         style={{
+          borderColor: palette.border,
           background:
             block.props.variant === "minimal"
               ? palette.background
-              : heroCover
+              : usesHeroBackground
                 ? `${palette.overlay}, url(${heroCover}) center/cover`
-                : palette.background,
+                : palette.panelStrong,
           color: palette.text,
         }}
       >
         <div
           className={cn(
-            "mx-auto w-full max-w-7xl px-4 py-10 sm:px-6 lg:px-8 lg:py-16",
-            block.props.variant === "minimal" && "py-8 lg:py-10"
+            "w-full px-4 py-6 @sm/event-block:px-6 @sm/event-block:py-8 @4xl/event-block:px-8 @4xl/event-block:py-10",
+            block.props.variant === "minimal" && "py-5 @sm/event-block:py-6 @4xl/event-block:py-8"
           )}
         >
-          {block.props.variant === "poster" && (
-            <div className="grid gap-6 lg:grid-cols-[minmax(0,1.2fr)_360px] lg:items-end">
-              {heroText}
-              {ticketPanel}
-            </div>
-          )}
-
-          {block.props.variant === "editorial" && (
-            <div className="grid gap-8 lg:grid-cols-[minmax(320px,480px)_minmax(0,1fr)] lg:items-center">
-              <div className="overflow-hidden rounded-[32px] border" style={{ borderColor: palette.border }}>
-                {heroCover ? (
-                  <img src={heroCover} alt={eventSite.title} className="aspect-[4/5] w-full object-cover" />
-                ) : (
-                  <div className="aspect-[4/5]" style={{ background: palette.accentSoft }} />
-                )}
-              </div>
-              <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
-                {heroText}
-                {ticketPanel}
-              </div>
-            </div>
-          )}
-
-          {block.props.variant === "immersive" && (
-            <div className="rounded-[36px] border p-6 backdrop-blur md:p-8" style={{ background: palette.panel, borderColor: palette.border }}>
-              <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:items-center">
-                {heroText}
-                {ticketPanel}
-              </div>
-            </div>
-          )}
-
-          {block.props.variant === "minimal" && (
-            <div className="grid gap-6 rounded-[32px] border p-6 md:p-8 lg:grid-cols-[minmax(0,1fr)_320px]" style={{ background: palette.panel, borderColor: palette.border }}>
-              {heroText}
-              {ticketPanel}
-            </div>
-          )}
+          {mobileHeroContent}
+          {desktopHeroContent}
 
           {block.props.showHosts && hosts.length > 0 ? (
-            <div className="mt-10">
+            <div className="mt-8 @2xl/event-block:mt-10">
               <div className="mb-5 flex items-center gap-2 text-sm uppercase tracking-[0.24em]" style={{ color: palette.muted }}>
                 <Users className="h-4 w-4" />
                 <span>Invitados</span>
               </div>
-              <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-4">
+              <div className="grid gap-5 @sm/event-block:grid-cols-2 @5xl/event-block:grid-cols-3">
                 {hosts.map((host) => (
                   <ArtistCard key={host.id} artist={host} />
                 ))}
@@ -508,7 +557,7 @@ export function EventBlock({
           ) : null}
 
           {block.props.showSchedule && eventSite.event_schedules.length > 0 ? (
-            <div className="mt-10">
+            <div className="mt-8 @2xl/event-block:mt-10">
               <div className="mb-5 flex items-center gap-2 text-sm uppercase tracking-[0.24em]" style={{ color: palette.muted }}>
                 <CalendarDays className="h-4 w-4" />
                 <span>Agenda</span>

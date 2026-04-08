@@ -99,7 +99,7 @@ export default function EventShow() {
   const hasVisibleHosts = visibleHosts.length > 0
 
   if (event.siteMode === "custom" && event.sitePages.length > 0) {
-    return <EditorPageView page={event.sitePages[0]} eventSite={event} />
+    return <EditorPageView page={event.sitePages[0]} eventSite={event} contentWidthClassName="max-w-6xl" />
   }
 
   return (

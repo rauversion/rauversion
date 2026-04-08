@@ -10,11 +10,18 @@ import { Button } from "@/components/ui/button"
 interface PreviewTabProps {
   page: Page
   previewUrl?: string
+  desktopFrameWidthClassName?: string
+  contentWidthClassName?: string
 }
 
 type ViewMode = "desktop" | "mobile"
 
-export function PreviewTab({ page, previewUrl }: PreviewTabProps) {
+export function PreviewTab({
+  page,
+  previewUrl,
+  desktopFrameWidthClassName = "max-w-4xl",
+  contentWidthClassName = "max-w-2xl",
+}: PreviewTabProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("desktop")
   const [copied, setCopied] = useState(false)
 
@@ -94,7 +101,7 @@ export function PreviewTab({ page, previewUrl }: PreviewTabProps) {
         <div
           className={cn(
             "mx-auto transition-all duration-300 overflow-hidden",
-            viewMode === "desktop" ? "max-w-4xl" : "max-w-sm"
+            viewMode === "desktop" ? desktopFrameWidthClassName : "max-w-sm"
           )}
         >
           {/* Browser chrome mockup */}
@@ -132,7 +139,7 @@ export function PreviewTab({ page, previewUrl }: PreviewTabProps) {
                 <p className="text-sm">Anade algunos bloques en el editor para empezar</p>
               </div>
             ) : (
-              <div className="space-y-6 max-w-2xl mx-auto">
+              <div className={cn("mx-auto space-y-6", contentWidthClassName)}>
                 {blocks.map((block) => (
                   <BlockRenderer key={block.id} block={block} pageStyle={style} isEditing={false} />
                 ))}

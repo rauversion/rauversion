@@ -111,10 +111,17 @@ export function SectionBlock({ block, pageStyle, isEditing = false }: SectionBlo
     : "linear-gradient(180deg, rgba(0,0,0,0.03) 0%, rgba(0,0,0,0.16) 35%, rgba(0,0,0,0.42) 100%)"
 
   const renderLeftVariant = () => (
-    <div className="grid grid-cols-1 gap-8 rounded-2xl p-6 md:p-8 lg:grid-cols-2" style={{ background: palette.surface }}>
-      <div className="flex flex-col gap-4 md:flex-row md:items-start">
+    <div
+      className="grid grid-cols-1 gap-8 rounded-2xl p-6 @sm/section-block:p-8 @4xl/section-block:grid-cols-2"
+      style={{ background: palette.surface }}
+    >
+      <div className="flex flex-col gap-4 @3xl/section-block:flex-row @3xl/section-block:items-start">
         {image ? (
-          <img src={image} alt={title || ""} className="w-full rounded-lg object-cover md:max-w-xs" />
+          <img
+            src={image}
+            alt={title || ""}
+            className="w-full rounded-lg object-cover @3xl/section-block:max-w-xs"
+          />
         ) : null}
         <div
           className={cn(textClass, "w-full")}
@@ -124,13 +131,13 @@ export function SectionBlock({ block, pageStyle, isEditing = false }: SectionBlo
       </div>
 
       <div className="flex flex-col justify-between gap-6">
-        <div className="flex justify-start lg:justify-end">
+        <div className="flex justify-start @4xl/section-block:justify-end">
           <p className={cn(subtitleClass, "font-bold")} style={{ color: palette.subtitle }}>
             {subtitle}
           </p>
         </div>
         <p
-          className={cn(titleClass, "font-bold uppercase tracking-tight text-left lg:text-right")}
+          className={cn(titleClass, "font-bold uppercase tracking-tight text-left @4xl/section-block:text-right")}
           style={{ color: palette.title }}
         >
           {title}
@@ -140,7 +147,10 @@ export function SectionBlock({ block, pageStyle, isEditing = false }: SectionBlo
   )
 
   const renderRightVariant = () => (
-    <div className="grid grid-cols-1 gap-8 rounded-2xl p-6 md:p-8 lg:grid-cols-2" style={{ background: palette.surface }}>
+    <div
+      className="grid grid-cols-1 gap-8 rounded-2xl p-6 @sm/section-block:p-8 @4xl/section-block:grid-cols-2"
+      style={{ background: palette.surface }}
+    >
       <div className="flex flex-col gap-4">
         <h2 className={cn(titleClass, "font-bold uppercase")} style={{ color: palette.title }}>
           {title}
@@ -156,7 +166,10 @@ export function SectionBlock({ block, pageStyle, isEditing = false }: SectionBlo
         {image ? (
           <img src={image} alt={title || ""} className="mb-4 w-full rounded-lg object-cover" />
         ) : null}
-        <p className={cn(subtitleClass, "font-bold text-left lg:text-right")} style={{ color: palette.subtitle }}>
+        <p
+          className={cn(subtitleClass, "font-bold text-left @4xl/section-block:text-right")}
+          style={{ color: palette.subtitle }}
+        >
           {subtitle}
         </p>
       </div>
@@ -164,13 +177,13 @@ export function SectionBlock({ block, pageStyle, isEditing = false }: SectionBlo
   )
 
   const renderFixedVariant = () => (
-    <div className="flex flex-col gap-6 rounded-2xl p-6 md:p-8" style={{ background: palette.surface }}>
+    <div className="flex flex-col gap-6 rounded-2xl p-6 @sm/section-block:p-8" style={{ background: palette.surface }}>
       <h2 className={cn(titleClass, "font-bold uppercase")} style={{ color: palette.title }}>
         {title}
       </h2>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+      <div className="grid grid-cols-1 gap-6 @4xl/section-block:grid-cols-3">
+        <div className="@4xl/section-block:col-span-2">
           <div
             className={cn(textClass)}
             style={{ color: palette.text }}
@@ -198,12 +211,12 @@ export function SectionBlock({ block, pageStyle, isEditing = false }: SectionBlo
       style={{ borderColor: palette.border }}
       tabIndex={mobileOverlayHidden ? 0 : -1}
     >
-      <div className="col-start-1 row-start-1 min-h-[360px] md:min-h-[420px]">
+      <div className="col-start-1 row-start-1 min-h-[360px] @2xl/section-block:min-h-[420px]">
         {image ? (
           <img
             src={image}
             alt={title || ""}
-            className="h-full w-full object-cover transition-all duration-500 md:group-hover:scale-[1.03]"
+            className="h-full w-full object-cover transition-all duration-500 @4xl/section-block:group-hover:scale-[1.03]"
           />
         ) : (
           <div className="flex h-full w-full items-center justify-center bg-muted text-muted-foreground">
@@ -216,23 +229,23 @@ export function SectionBlock({ block, pageStyle, isEditing = false }: SectionBlo
         className={cn(
           "pointer-events-none col-start-1 row-start-1 z-[1] transition-opacity duration-300",
           mobileOverlayHidden
-            ? "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 group-active:opacity-100 md:opacity-100"
+            ? "opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 group-active:opacity-100 @4xl/section-block:opacity-100"
             : "opacity-100"
         )}
         style={{ background: overlayBase }}
       >
         <div
-          className="hidden h-full w-full transition-opacity duration-300 md:block md:opacity-0 md:group-hover:opacity-100"
+          className="hidden h-full w-full transition-opacity duration-300 @4xl/section-block:block @4xl/section-block:opacity-0 @4xl/section-block:group-hover:opacity-100"
           style={{ background: overlayHover }}
         />
       </div>
 
-      <div className="col-start-1 row-start-1 z-10 flex justify-stretch md:justify-end">
+      <div className="col-start-1 row-start-1 z-10 flex justify-stretch @4xl/section-block:justify-end">
         <div
           className={cn(
-            "relative flex w-full flex-col justify-center p-6 md:w-1/2 md:p-8 lg:w-2/5",
+            "relative flex w-full flex-col justify-center p-6 @4xl/section-block:w-1/2 @4xl/section-block:p-8 @6xl/section-block:w-2/5",
             mobileOverlayHidden
-              ? "opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-within:opacity-100 group-active:opacity-100 md:opacity-100"
+              ? "opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-within:opacity-100 group-active:opacity-100 @4xl/section-block:opacity-100"
               : "opacity-100"
           )}
           style={{ textShadow: isLightMode ? "0 2px 10px rgba(255,255,255,0.18)" : "0 2px 14px rgba(0,0,0,0.45)" }}
@@ -242,7 +255,7 @@ export function SectionBlock({ block, pageStyle, isEditing = false }: SectionBlo
               {title}
             </h2>
             <p
-              className={cn(subtitleClass, "pt-3 font-bold uppercase tracking-tight text-left md:text-right")}
+              className={cn(subtitleClass, "pt-3 font-bold uppercase tracking-tight text-left @4xl/section-block:text-right")}
               style={{ color: palette.subtitle }}
             >
               {subtitle}
@@ -268,7 +281,7 @@ export function SectionBlock({ block, pageStyle, isEditing = false }: SectionBlo
   return (
     <section
       className={cn(
-        "border-t-4 px-4 py-10",
+        "@container/section-block border-t-4 px-4 py-10",
         variant === "overlay" ? "" : "mx-auto max-w-6xl"
       )}
       style={{

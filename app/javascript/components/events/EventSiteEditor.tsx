@@ -89,6 +89,8 @@ export default function EventSiteEditor() {
       loadingMessage="Cargando sitio del evento..."
       notice={notice}
       eventSite={eventSite}
+      previewDesktopFrameWidthClassName="max-w-7xl"
+      previewContentWidthClassName="max-w-6xl"
     />
   )
 }

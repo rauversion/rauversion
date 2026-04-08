@@ -13,6 +13,7 @@ interface EditorPageViewProps {
   emptyMessage?: string
   footerText?: string | null
   eventSite?: EventSiteRecord | null
+  contentWidthClassName?: string
 }
 
 export function EditorPageView({
@@ -20,6 +21,7 @@ export function EditorPageView({
   emptyMessage = "Esta pagina no tiene contenido.",
   footerText = null,
   eventSite,
+  contentWidthClassName = "max-w-2xl",
 }: EditorPageViewProps) {
   const { style, blocks } = page
 
@@ -45,7 +47,7 @@ export function EditorPageView({
           } as React.CSSProperties
         }
       >
-        <div className="max-w-2xl mx-auto px-4 py-12">
+        <div className={cn("mx-auto px-4 py-12", contentWidthClassName)}>
           {blocks.length === 0 ? (
             <div className="flex flex-col items-center justify-center min-h-[50vh] text-muted-foreground">
               <p>{emptyMessage}</p>
