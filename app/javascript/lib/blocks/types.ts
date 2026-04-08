@@ -3,6 +3,8 @@ export type BlockType =
   | "image"
   | "spacer"
   | "product-item"
+  | "event"
+  | "event-tickets"
   | "section"
   | "playlist"
   | "multi-playlist"
@@ -201,6 +203,35 @@ export interface SectionBlock extends BaseBlock {
     titleSize: SectionTitleSize
     subtitleSize: SectionSubtitleSize
     textSize: SectionTextSize
+  }
+}
+
+export type EventBlockVariant = "editorial" | "poster" | "immersive" | "minimal"
+
+export interface EventBlock extends BaseBlock {
+  type: "event"
+  props: {
+    variant: EventBlockVariant
+    themeMode: SectionThemeMode
+    showDescription: boolean
+    showMeta: boolean
+    showHosts: boolean
+    showSchedule: boolean
+    showTicketPanel: boolean
+    ticketButtonText: string
+  }
+}
+
+export type EventTicketsVariant = "cards" | "list"
+
+export interface EventTicketsBlock extends BaseBlock {
+  type: "event-tickets"
+  props: {
+    eventId: string
+    variant: EventTicketsVariant
+    themeMode: SectionThemeMode
+    showEventTitle: boolean
+    buttonText: string
   }
 }
 
@@ -642,6 +673,8 @@ export type Block =
   | ImageBlock
   | SpacerBlock
   | ProductItemBlock
+  | EventBlock
+  | EventTicketsBlock
   | SectionBlock
   | PlaylistBlock
   | MultiPlaylistBlock

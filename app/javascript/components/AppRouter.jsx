@@ -48,10 +48,13 @@ import MyEvents from './events/MyEvents'
 import EditArticle from './articles/EditArticle'
 import PressKitPage from './press_kit/PressKitPage'
 import EventEdit from "./events/EventEdit"
+import EventSiteEditor from "./events/EventSiteEditor"
+import EventSitePreview from "./events/EventSitePreview"
 import Overview from "./events/sections/Overview"
 import Schedule from "./events/sections/Schedule"
 import Teams from "./events/sections/Teams"
 import Tickets from "./events/sections/Tickets"
+import Site from "./events/sections/Site"
 import EventLists from "./events/sections/EventLists"
 import Streaming from "./events/sections/Streaming"
 import Attendees from "./events/sections/Attendees"
@@ -321,11 +324,15 @@ function AppContent() {
       <Route path="/events/mine" element={<RequireAuth><MyEvents /></RequireAuth>} />
       <Route path="/events/:slug" element={<EventShow />} />
       <Route path="/events/:slug/admission" element={<RequireAuth><EventAdmission /></RequireAuth>} />
+      <Route path="/events/:slug/editor" element={<RequireAuth><EventSiteEditor /></RequireAuth>} />
+      <Route path="/events/:slug/preview" element={<RequireAuth><EventSitePreview /></RequireAuth>} />
+      <Route path="/events/:slug/preview/:pageId" element={<RequireAuth><EventSitePreview /></RequireAuth>} />
       <Route path="/events/:slug/edit" element={<RequireAuth><EventEdit /></RequireAuth>}>
         <Route index element={<Overview />} />
         <Route path="schedule" element={<Schedule />} />
         <Route path="teams" element={<Teams />} />
         <Route path="tickets" element={<Tickets />} />
+        <Route path="site" element={<Site />} />
         <Route path="email-lists" element={<EventLists />} />
         <Route path="streaming" element={<Streaming />} />
         <Route path="attendees" element={<Attendees />} />

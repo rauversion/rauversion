@@ -74,6 +74,8 @@ json.event do
   json.scheduling_settings @event.scheduling_settings
   json.attendee_list_settings @event.attendee_list_settings
   json.tax_rates_settings @event.tax_rates_settings
+  json.site_mode @event.site_mode
+  json.site_pages @event.site_pages
   
   # Stats
   json.event_hosts_count @event.event_hosts.size
@@ -84,4 +86,3 @@ json.event do
     json.streaming_service @event.streaming_service
   end
 end
-

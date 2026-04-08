@@ -21,6 +21,7 @@ import { ScrollArea } from "@/components/ui/scroll-area"
 import PlaylistSelectorSingle from "@/components/playlists/PlaylistSelectorSingle"
 import ProductSelectorSingle from "./ProductSelectorSingle"
 import PlaylistSelectorMulti from "./PlaylistSelectorMulti"
+import EventSelectorSingle from "./EventSelectorSingle"
 import type { 
   SocialLink, 
   SocialPlatform, 
@@ -388,6 +389,151 @@ export function BlockSettings({
                 value={block.props.textColor}
                 onChange={(e) => handleUpdate("textColor", e.target.value)}
                 placeholder="#6B7280"
+              />
+            </div>
+          </>
+        )}
+
+        {block.type === "event" && (
+          <>
+            <div className="space-y-2">
+              <Label>Variante</Label>
+              <Select
+                value={block.props.variant}
+                onValueChange={(value) => handleUpdate("variant", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="editorial">Editorial</SelectItem>
+                  <SelectItem value="poster">Poster</SelectItem>
+                  <SelectItem value="immersive">Immersive</SelectItem>
+                  <SelectItem value="minimal">Minimal</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Modo de color</Label>
+              <Select
+                value={block.props.themeMode || "inherit"}
+                onValueChange={(value) => handleUpdate("themeMode", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="inherit">Usar tema de la pagina</SelectItem>
+                  <SelectItem value="light">Light</SelectItem>
+                  <SelectItem value="dark">Dark</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Texto del boton principal</Label>
+              <Input
+                value={block.props.ticketButtonText}
+                onChange={(e) => handleUpdate("ticketButtonText", e.target.value)}
+                placeholder="Tickets"
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label>Mostrar descripcion</Label>
+              <Switch
+                checked={block.props.showDescription}
+                onCheckedChange={(value) => handleUpdate("showDescription", value)}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label>Mostrar metadata</Label>
+              <Switch
+                checked={block.props.showMeta}
+                onCheckedChange={(value) => handleUpdate("showMeta", value)}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label>Mostrar panel de tickets</Label>
+              <Switch
+                checked={block.props.showTicketPanel}
+                onCheckedChange={(value) => handleUpdate("showTicketPanel", value)}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label>Mostrar invitados</Label>
+              <Switch
+                checked={block.props.showHosts}
+                onCheckedChange={(value) => handleUpdate("showHosts", value)}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label>Mostrar agenda</Label>
+              <Switch
+                checked={block.props.showSchedule}
+                onCheckedChange={(value) => handleUpdate("showSchedule", value)}
+              />
+            </div>
+          </>
+        )}
+
+        {block.type === "event-tickets" && (
+          <>
+            <div className="space-y-2">
+              <Label>Evento</Label>
+              <EventSelectorSingle
+                value={block.props.eventId || null}
+                placeholder="Busca un evento de tu cuenta..."
+                onChange={(eventId) => handleUpdate("eventId", eventId || "")}
+              />
+              <Input
+                value={block.props.eventId}
+                onChange={(e) => handleUpdate("eventId", e.target.value)}
+                placeholder="Slug, id o URL del evento"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Variante</Label>
+              <Select
+                value={block.props.variant}
+                onValueChange={(value) => handleUpdate("variant", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cards">Cards</SelectItem>
+                  <SelectItem value="list">Lista</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Modo de color</Label>
+              <Select
+                value={block.props.themeMode || "inherit"}
+                onValueChange={(value) => handleUpdate("themeMode", value)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="inherit">Usar tema de la pagina</SelectItem>
+                  <SelectItem value="light">Light</SelectItem>
+                  <SelectItem value="dark">Dark</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Texto del boton</Label>
+              <Input
+                value={block.props.buttonText}
+                onChange={(e) => handleUpdate("buttonText", e.target.value)}
+                placeholder="Comprar tickets"
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label>Mostrar titulo del evento</Label>
+              <Switch
+                checked={block.props.showEventTitle}
+                onCheckedChange={(value) => handleUpdate("showEventTitle", value)}
               />
             </div>
           </>

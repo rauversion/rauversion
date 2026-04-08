@@ -5,6 +5,8 @@ import type {
   ImageBlock,
   SpacerBlock,
   ProductItemBlock,
+  EventBlock,
+  EventTicketsBlock,
   SectionBlock,
   PlaylistBlock,
   MultiPlaylistBlock,
@@ -102,6 +104,35 @@ export function createDefaultBlock(type: BlockType): Block {
           showGallery: true,
         },
       } satisfies ProductItemBlock
+
+    case "event":
+      return {
+        id,
+        type: "event",
+        props: {
+          variant: "editorial",
+          themeMode: "inherit",
+          showDescription: true,
+          showMeta: true,
+          showHosts: true,
+          showSchedule: true,
+          showTicketPanel: true,
+          ticketButtonText: "Tickets",
+        },
+      } satisfies EventBlock
+
+    case "event-tickets":
+      return {
+        id,
+        type: "event-tickets",
+        props: {
+          eventId: "",
+          variant: "cards",
+          themeMode: "inherit",
+          showEventTitle: true,
+          buttonText: "Comprar tickets",
+        },
+      } satisfies EventTicketsBlock
 
     case "section":
       return {
@@ -544,6 +575,8 @@ export const blockTypeLabels: Record<BlockType, string> = {
   image: "Imagen",
   spacer: "Espaciador",
   "product-item": "Producto",
+  event: "Evento",
+  "event-tickets": "Tickets Evento",
   section: "Section",
   playlist: "Playlist",
   "multi-playlist": "Multi Playlist",
@@ -578,6 +611,8 @@ export const blockTypeDescriptions: Record<BlockType, string> = {
   image: "Imagen con opciones de ajuste",
   spacer: "Espacio vertical configurable",
   "product-item": "Card de producto de tu cuenta",
+  event: "Hero y tickets del evento actual",
+  "event-tickets": "Tickets de un evento seleccionado",
   section: "Seccion editorial con imagen y texto",
   playlist: "Embed de playlist de Spotify, YouTube o SoundCloud",
   "multi-playlist": "Slider de playlists de Rauversion",

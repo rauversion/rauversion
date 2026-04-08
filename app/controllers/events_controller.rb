@@ -1,7 +1,8 @@
 class EventsController < ApplicationController
   before_action :authenticate_user!, except: [:index, :show]
   before_action :set_owned_event, only: [:schedule, :team, :tickets, :streaming, :attendees, :recordings, :settings, :update]
-  before_action :set_edit_event, only: [:edit]
+  before_action :set_edit_event, only: [:edit, :editor, :preview]
+  before_action :disable_footer, only: [:editor, :preview]
 
   def index
     @q = Event.ransack(params[:q])
@@ -120,6 +121,14 @@ class EventsController < ApplicationController
     end
   end
 
+  def editor
+    render_blank
+  end
+
+  def preview
+    render_blank
+  end
+
   def create
     @event = current_user.events.new(event_params)
     if @event.save
@@ -147,19 +156,28 @@ class EventsController < ApplicationController
 
   def mine
     @tab = params[:tab] || "all"
-    @events = case @tab
+    events_scope = case @tab
     when "all"
-      all_accessible_events.page(params[:page]).per(10)
+      all_accessible_events
     when "owned"
-      owned_events.page(params[:page]).per(10)
+      owned_events
     when "drafts"
-      owned_events.drafts.page(params[:page]).per(10)
+      owned_events.drafts
     when "published"
-      owned_events.published.page(params[:page]).per(10)
+      owned_events.published
     when "manager"
-      managed_events.page(params[:page]).per(10)
+      managed_events
     else
-      all_accessible_events.page(params[:page]).per(10)
+      all_accessible_events
+    end
+
+    @events = filter_mine_events(events_scope)
+      .page(params[:page])
+      .per(mine_events_per_page)
+
+    respond_to do |format|
+      format.html
+      format.json
     end
   end
 
@@ -232,8 +250,34 @@ class EventsController < ApplicationController
       .where(event_hosts: { user_id: current_user.id, access_role: EventHost::BACKOFFICE_ACCESS_ROLES })
   end
 
+  def filter_mine_events(scope)
+    raw_query = params[:q]
+
+    query =
+      if raw_query.is_a?(ActionController::Parameters) || raw_query.is_a?(Hash)
+        raw_query[:title_or_description_cont].presence ||
+          raw_query[:title_cont].presence ||
+          raw_query[:term].presence
+      else
+        raw_query.presence
+      end
+
+    return scope if query.blank?
+
+    scope.ransack(title_or_description_cont: query).result(distinct: true)
+  end
+
+  def mine_events_per_page
+    return 10 unless request.format.json?
+
+    requested_per_page = params[:per].to_i
+    return 50 if requested_per_page <= 0
+
+    [requested_per_page, 100].min
+  end
+
   def event_params
-    params.require(:event).permit(:title, :event_start, :event_ends,
+    permitted = params.require(:event).permit(:title, :event_start, :event_ends,
       :timezone,
       :state,
       :visibility, 
@@ -244,6 +288,7 @@ class EventsController < ApplicationController
       :scheduling_description, :cover,
       :requires_shipping, :show_remaining_count,
       :ticket_currency, :hide_location_until_purchase,
+      :site_mode,
       event_schedules_attributes: [
         :id, :name, :_destroy, :start_date, :end_date, :schedule_type, :description,
         schedule_schedulings_attributes: [:id, :_destroy, :name, :start_date, :end_date, :short_description]
@@ -261,6 +306,25 @@ class EventsController < ApplicationController
         :disable_qr,
         :sales_channel,
         :requires_login
-      ])
+      ],
+      site_pages: []
+    )
+
+    if params[:event]&.key?(:site_pages)
+      permitted[:site_pages] = normalize_json_param(params[:event][:site_pages])
+    end
+
+    permitted
+  end
+
+  def normalize_json_param(value)
+    case value
+    when ActionController::Parameters
+      value.to_unsafe_h.transform_values { |item| normalize_json_param(item) }
+    when Array
+      value.map { |item| normalize_json_param(item) }
+    else
+      value
+    end
   end
 end

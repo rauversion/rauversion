@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_05_110000) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_07_103000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -292,6 +292,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_05_110000) do
     t.boolean "private"
     t.string "province"
     t.jsonb "scheduling_settings"
+    t.jsonb "site_data", default: {}, null: false
     t.string "slug"
     t.string "state"
     t.jsonb "streaming_service", default: {}

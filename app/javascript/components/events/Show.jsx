@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useParams, Link } from 'react-router-dom'
-import { formatDateRange } from '../utils/dateHelpers'
 import I18n from 'stores/locales'
 import PurchaseDialog from './PurchaseDialog'
-import { Button } from "@/components/ui/button"
 
 import EventSchedule from './EventSchedule'
 import { ArtistCard } from './ArtistCard'
 
 import { ArrowRight } from "lucide-react"
 import useAuthStore from "@/stores/authStore"
+import { fetchPublicEventSite } from "@/lib/event-sites"
+import { EditorPageView } from "@/components/page-editor/page-view"
 
 
 function TicketButton({ onClick }) {
@@ -64,8 +64,7 @@ export default function EventShow() {
   useEffect(() => {
     const fetchEvent = async () => {
       try {
-        const response = await fetch(`/events/${slug}.json`)
-        const data = await response.json()
+        const data = await fetchPublicEventSite(slug)
         setEvent(data)
 
         // If there's a ticket_token in the URL, automatically open the purchase dialog
@@ -85,9 +84,6 @@ export default function EventShow() {
   if (loading) {
     return <div className="min-h-screen flex items-center justify-center">{I18n.t('events.loading')}</div>
   }
-
-  console.log('Event data:', slug)
-
   if (!event) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center">
@@ -101,6 +97,10 @@ export default function EventShow() {
 
   const visibleHosts = event.event_hosts?.filter((host) => host.listed_on_page) || []
   const hasVisibleHosts = visibleHosts.length > 0
+
+  if (event.siteMode === "custom" && event.sitePages.length > 0) {
+    return <EditorPageView page={event.sitePages[0]} eventSite={event} />
+  }
 
   return (
     <div className="min-h-screen bg-black text-white flex flex-col">
@@ -182,7 +182,7 @@ export default function EventShow() {
       <PurchaseDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}
-        eventId={slug}
+        eventId={event.slug || slug}
         ticketToken={ticketToken}
       />
 

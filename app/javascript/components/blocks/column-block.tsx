@@ -160,6 +160,7 @@ function DroppableColumn({
     "text",
     "image",
     "card",
+    "event-tickets",
     "playlist",
     "track",
     "custom-player",

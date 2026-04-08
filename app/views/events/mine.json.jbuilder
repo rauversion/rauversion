@@ -7,6 +7,11 @@ json.collection @events do |event|
   json.location event.location
   json.venue event.venue
   json.online event.online
+  json.cover_url do
+    json.medium event.cover_url(:medium)
+    json.small event.cover_url(:small)
+    json.large event.cover_url(:large)
+  end
   
   json.user do
     json.partial! 'users/user', user: event.user, show_full_name: true

@@ -203,6 +203,12 @@ export default function EventEdit() {
       description: i18n.t("events.edit.tickets.description"),
     },
     {
+      title: i18n.t("events.edit.site.title", { defaultValue: "Sitio" }),
+      icon: ExternalLink,
+      path: "site",
+      description: i18n.t("events.edit.site.description", { defaultValue: "Configura el sitio público y abre el editor visual." }),
+    },
+    {
       title: i18n.t("events.edit.email_lists.title", { defaultValue: "Email Lists" }),
       icon: Mail,
       path: "email-lists",

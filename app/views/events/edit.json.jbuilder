@@ -91,6 +91,8 @@ json.widget_button @event.widget_button if @event.widget_button.present?
 json.tax_rates_settings @event.tax_rates_settings if @event.tax_rates_settings.present?
 json.attendee_list_settings @event.attendee_list_settings if @event.attendee_list_settings.present?
 json.ticket_currency @event.ticket_currency
+json.site_mode @event.site_mode
+json.site_pages @event.site_pages
 
 if @event.streaming_service.present?
   json.streaming_service do

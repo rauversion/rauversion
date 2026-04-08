@@ -280,6 +280,9 @@ Rails.application.routes.draw do
       get :mine
     end
     member do
+      get :editor
+      get :preview
+      get "preview/:pageId", action: :preview
       get :schedule
       get :team
       get :tickets

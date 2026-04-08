@@ -6,6 +6,8 @@ import { TextBlock } from "./text-block"
 import { ImageBlock } from "./image-block"
 import { SpacerBlock } from "./spacer-block"
 import { ProductItemBlock } from "./product-item-block"
+import { EventBlock } from "./event-block"
+import { EventTicketsBlock } from "./event-tickets-block"
 import { SectionBlock } from "./section-block"
 import { PlaylistBlock } from "./playlist-block"
 import { MultiPlaylistBlock } from "./multi-playlist-block"
@@ -93,6 +95,10 @@ export function BlockRenderer({
         return <SpacerBlock block={block} isEditing={isEditing} />
       case "product-item":
         return <ProductItemBlock block={block} isEditing={isEditing} />
+      case "event":
+        return <EventBlock block={block} pageStyle={pageStyle} isEditing={isEditing} />
+      case "event-tickets":
+        return <EventTicketsBlock block={block} pageStyle={pageStyle} isEditing={isEditing} />
       case "section":
         return <SectionBlock block={block} pageStyle={pageStyle} isEditing={isEditing} />
       case "playlist":

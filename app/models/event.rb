@@ -58,6 +58,9 @@ class Event < ApplicationRecord
   store_accessor :event_settings, :require_login, :boolean, default: false
   store_accessor :event_settings, :custom_fee, :integer
 
+  store_attribute :site_data, :site_mode, :string, default: "default"
+  store_attribute :site_data, :site_pages, :json, default: []
+
 
   scope :drafts, -> { where(state: "draft") }
   scope :managers, -> { joins(:event_hosts).merge(EventHost.with_backoffice_access).distinct }

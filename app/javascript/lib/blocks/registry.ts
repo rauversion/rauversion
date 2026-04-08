@@ -5,6 +5,7 @@ import {
   SeparatorHorizontal,
   ListMusic,
   Music,
+  Ticket,
   Play,
   Link,
   Columns,
@@ -59,6 +60,20 @@ export const blockRegistry: BlockRegistryEntry[] = [
     label: "Producto",
     description: "Card de producto con variantes",
     icon: ShoppingBag,
+    category: "content",
+  },
+  {
+    type: "event",
+    label: "Evento",
+    description: "Hero y tickets del evento actual",
+    icon: Ticket,
+    category: "content",
+  },
+  {
+    type: "event-tickets",
+    label: "Tickets Evento",
+    description: "Tickets de un evento seleccionado",
+    icon: Ticket,
     category: "content",
   },
   {
