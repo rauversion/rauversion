@@ -403,6 +403,10 @@ en:
           minimum_price:
             label: Minimum Price
             description: Minimum amount buyers must pay
+          suggested_price:
+            label: Suggested Price
+            description: Default amount shown to buyers. It does not change the minimum price.
+            validation: Suggested price must be greater than or equal to the minimum price
         validation:
           title_min: Name must be at least 2 characters.
         messages:

@@ -1,7 +1,7 @@
 import React from "react"
 import { useParams } from "react-router-dom"
 import { useForm, useFieldArray } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
+import { toNestErrors, validateFieldsNatively } from "@hookform/resolvers"
 import * as z from "zod"
 import { format } from "date-fns"
 import { get, put } from '@rails/request.js'
@@ -41,6 +41,45 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { cn } from "classnames"
 import { formatDateSafely } from "@/hooks/safeDate"
 
+const nullableNonNegativeNumber = z.preprocess((arg) => {
+  if (arg === "" || arg === null || typeof arg === "undefined") return null
+
+  const numericValue = typeof arg === "number" ? arg : Number(arg)
+  return Number.isFinite(numericValue) ? numericValue : arg
+}, z.number().min(0).nullable())
+
+const zodResolverCompat = (schema) => async (values, _context, options) => {
+  const result = await schema.safeParseAsync(values)
+
+  if (result.success) {
+    if (options.shouldUseNativeValidation) {
+      validateFieldsNatively({}, options)
+    }
+
+    return {
+      values: result.data,
+      errors: {},
+    }
+  }
+
+  const fieldErrors = result.error.issues.reduce((acc, issue) => {
+    const path = issue.path.join(".")
+    if (!path || acc[path]) return acc
+
+    acc[path] = {
+      type: issue.code,
+      message: issue.message,
+    }
+
+    return acc
+  }, {})
+
+  return {
+    values: {},
+    errors: toNestErrors(fieldErrors, options),
+  }
+}
+
 const ticketSchema = z.object({
   id: z.number().optional(),
   title: z.string().min(2, {
@@ -73,9 +112,20 @@ const ticketSchema = z.object({
   sales_channel: z.enum(["all", "event_page", "box_office"]).default("all"),
   pay_what_you_want: z.boolean().default(false),
   minimum_price: z.coerce.number().min(0).optional(),
+  suggested_price: nullableNonNegativeNumber,
   event_list_id: z.coerce.number().nullable().optional(),
   _destroy: z.boolean().optional(),
   hidden_in_form: z.boolean().optional(),
+}).superRefine((ticket, ctx) => {
+  if (!ticket.pay_what_you_want) return
+
+  if (typeof ticket.suggested_price === "number" && ticket.suggested_price < (ticket.minimum_price || 0)) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["suggested_price"],
+      message: I18n.t('events.edit.tickets.form.suggested_price.validation'),
+    })
+  }
 })
 
 const formSchema = z.object({
@@ -127,7 +177,7 @@ export default function Tickets() {
   const [eventLists, setEventLists] = React.useState([])
 
   const form = useForm({
-    resolver: zodResolver(formSchema),
+    resolver: zodResolverCompat(formSchema),
     defaultValues: {
       ticket_currency: DEFAULT_TICKET_CURRENCY,
       hide_location_until_purchase: false,
@@ -195,6 +245,7 @@ export default function Tickets() {
             sales_channel: ticket.settings.sales_channel,
             pay_what_you_want: ticket.settings.pay_what_you_want || false,
             minimum_price: ticket.settings.minimum_price || 0,
+            suggested_price: ticket.settings.suggested_price ?? null,
             event_list_id: ticket.event_list_id || null,
           })) || []
         })
@@ -246,6 +297,7 @@ export default function Tickets() {
       sales_channel: "all",
       pay_what_you_want: false,
       minimum_price: 0,
+      suggested_price: null,
     })
   }
 
@@ -298,6 +350,7 @@ export default function Tickets() {
         ticket_currency: ticketCurrency,
         tickets: data.tickets.map(ticket => ({
           ...ticket,
+          suggested_price: ticket.suggested_price ?? null,
           selling_start: ticket.selling_start ? ticket.selling_start.toISOString() : null,
           selling_end: ticket.selling_end ? ticket.selling_end.toISOString() : null,
         }))
@@ -356,6 +409,14 @@ export default function Tickets() {
     }
   }
 
+  const onInvalidSubmit = () => {
+    toast({
+      title: I18n.t('events.edit.tickets.messages.error'),
+      description: I18n.t('events.edit.tickets.messages.update_error_check_form'),
+      variant: "destructive",
+    })
+  }
+
   return (
     <div className="space-y-6">
       <Card>
@@ -379,7 +440,7 @@ export default function Tickets() {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit, onInvalidSubmit)} className="space-y-6">
               <FormField
                 control={form.control}
                 name="ticket_currency"
@@ -525,7 +586,7 @@ export default function Tickets() {
                         </div>
 
                         {/* Pay What You Want */}
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-4">
                           <FormField
                             control={form.control}
                             name={`tickets.${index}.pay_what_you_want`}
@@ -548,22 +609,47 @@ export default function Tickets() {
                           />
 
                           {form.watch(`tickets.${index}.pay_what_you_want`) && (
-                            <FormField
-                              control={form.control}
-                              name={`tickets.${index}.minimum_price`}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>{I18n.t('events.edit.tickets.form.minimum_price.label')}</FormLabel>
-                                  <FormControl>
-                                    <Input type="number" min="0" step="0.01" {...field} />
-                                  </FormControl>
-                                  <FormDescription>
-                                    {I18n.t('events.edit.tickets.form.minimum_price.description')}
-                                  </FormDescription>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
+                            <div className="grid grid-cols-2 gap-4">
+                              <FormField
+                                control={form.control}
+                                name={`tickets.${index}.minimum_price`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>{I18n.t('events.edit.tickets.form.minimum_price.label')}</FormLabel>
+                                    <FormControl>
+                                      <Input type="number" min="0" step="0.01" {...field} />
+                                    </FormControl>
+                                    <FormDescription>
+                                      {I18n.t('events.edit.tickets.form.minimum_price.description')}
+                                    </FormDescription>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+
+                              <FormField
+                                control={form.control}
+                                name={`tickets.${index}.suggested_price`}
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>{I18n.t('events.edit.tickets.form.suggested_price.label')}</FormLabel>
+                                    <FormControl>
+                                      <Input
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        {...field}
+                                        value={field.value ?? ""}
+                                      />
+                                    </FormControl>
+                                    <FormDescription>
+                                      {I18n.t('events.edit.tickets.form.suggested_price.description')}
+                                    </FormDescription>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            </div>
                           )}
                         </div>
 

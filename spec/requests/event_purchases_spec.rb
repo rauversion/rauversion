@@ -31,6 +31,23 @@ RSpec.describe "EventPurchases", type: :request do
       expect(ticket["formatted_price"]).to include("USD")
       expect(ticket["formatted_price"]).to include("10")
     end
+
+    it "includes the suggested price for pay what you want tickets" do
+      paid_ticket.pay_what_you_want = true
+      paid_ticket.minimum_price = 0
+      paid_ticket.suggested_price = 1500
+      paid_ticket.save!
+
+      get new_event_event_purchase_path(event, format: :json)
+
+      expect(response).to have_http_status(:success)
+
+      json = JSON.parse(response.body)
+      ticket = json.fetch("tickets").find { |item| item["id"] == paid_ticket.id }
+
+      expect(ticket["suggested_price"].to_f).to eq(1500.0)
+      expect(ticket["minimum_price"].to_f).to eq(0.0)
+    end
   end
 
   describe "POST /create with free tickets" do

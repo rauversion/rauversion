@@ -200,6 +200,38 @@ RSpec.describe EventTicket, type: :model do
       ticket.minimum_price = 0
       expect(ticket).to be_valid
     end
+
+    it "allows a suggested_price above the minimum price" do
+      ticket = FactoryBot.build(:event_ticket, event: event)
+      ticket.pay_what_you_want = true
+      ticket.minimum_price = 0
+      ticket.suggested_price = 1500
+      expect(ticket).to be_valid
+    end
+
+    it "allows suggested_price to be nil" do
+      ticket = FactoryBot.build(:event_ticket, event: event)
+      ticket.pay_what_you_want = true
+      ticket.minimum_price = 0
+      ticket.suggested_price = nil
+      expect(ticket).to be_valid
+    end
+
+    it "requires suggested_price to be non-negative" do
+      ticket = FactoryBot.build(:event_ticket, event: event)
+      ticket.suggested_price = -1
+      expect(ticket).not_to be_valid
+      expect(ticket.errors[:suggested_price]).to include("must be non-negative")
+    end
+
+    it "requires suggested_price to be greater than or equal to minimum_price" do
+      ticket = FactoryBot.build(:event_ticket, event: event)
+      ticket.pay_what_you_want = true
+      ticket.minimum_price = 1000
+      ticket.suggested_price = 500
+      expect(ticket).not_to be_valid
+      expect(ticket.errors[:suggested_price]).to include("must be greater than or equal to minimum price")
+    end
   end
 
   describe "#can_redeem_with_email?" do

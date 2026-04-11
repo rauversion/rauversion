@@ -24,7 +24,8 @@ interface Ticket {
   min_tickets_per_order?: number
   max_tickets_per_order?: number
   pay_what_you_want?: boolean
-  minimum_price?: number
+  minimum_price?: number | null
+  suggested_price?: number | null
   sold_out?: boolean
 }
 
@@ -74,6 +75,21 @@ function formatCurrencyAmount(amount: number, currency?: string) {
   } catch {
     return `${normalizedCurrency} ${formatNumberAmount(numericAmount)}`
   }
+}
+
+function defaultTicketCustomPrice(ticket: Ticket) {
+  const minimumPrice = Number(ticket.minimum_price) || 0
+  if (ticket.suggested_price == null) {
+    return minimumPrice
+  }
+
+  const suggestedPrice = Number(ticket.suggested_price)
+
+  if (!Number.isFinite(suggestedPrice)) {
+    return minimumPrice
+  }
+
+  return Math.max(suggestedPrice, minimumPrice)
 }
 
 export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps) {
@@ -144,7 +160,7 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
       const fieldName = ticket.id.toString()
       if (ticket.pay_what_you_want) {
         setValue(`${fieldName}_quantity`, 0)
-        setValue(`${fieldName}_custom_price`, ticket.minimum_price || 0)
+        setValue(`${fieldName}_custom_price`, defaultTicketCustomPrice(ticket))
       } else {
         setValue(fieldName, 0)
       }
@@ -362,6 +378,7 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
                 const priceFieldName = `${ticket.id}_custom_price`
                 const ticketCurrency = event?.ticket_currency?.toUpperCase() || "CLP"
                 const minimumPrice = ticket.minimum_price || 0
+                const initialCustomPrice = defaultTicketCustomPrice(ticket)
                 
                 const quantity = watch(quantityFieldName) ?? 0
                 const numericQuantity = Number(quantity)
@@ -376,7 +393,7 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
                     ? "events.purchase_form.validation.max_tickets_per_order"
                     : "events.purchase_form.validation.max_tickets"
 
-                const customPrice = isPWYW ? (watch(priceFieldName) ?? ticket.minimum_price ?? 0) : null
+                const customPrice = isPWYW ? (watch(priceFieldName) ?? initialCustomPrice) : null
                 const numericCustomPrice = Number(customPrice)
                 const isCustomPriceBelowMinimum =
                   isPWYW && Number.isFinite(numericCustomPrice) && numericCustomPrice < minimumPrice
@@ -519,7 +536,7 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
                                 })
                               }
                             }}
-                            defaultValue={minimumPrice}
+                            defaultValue={initialCustomPrice}
                           />
                         </div>
 

@@ -58,6 +58,7 @@ export interface EventSiteTicket {
   quantity?: number
   sold_out?: boolean
   minimum_price?: number | null
+  suggested_price?: number | null
   pay_what_you_want?: boolean
   min_tickets_per_order?: number
   max_tickets_per_order?: number
@@ -207,6 +208,18 @@ function normalizeTicket(value: unknown): EventSiteTicket | null {
 
   const id = typeof value.id === "number" || typeof value.id === "string" ? value.id : null
   const title = typeof value.title === "string" ? value.title : ""
+  const minimumPrice =
+    typeof value.minimum_price === "number"
+      ? value.minimum_price
+      : value.minimum_price == null || value.minimum_price === ""
+        ? null
+        : Number(value.minimum_price)
+  const suggestedPrice =
+    typeof value.suggested_price === "number"
+      ? value.suggested_price
+      : value.suggested_price == null || value.suggested_price === ""
+        ? null
+        : Number(value.suggested_price)
 
   if (!id || !title) return null
 
@@ -219,8 +232,8 @@ function normalizeTicket(value: unknown): EventSiteTicket | null {
       typeof value.short_description === "string" ? value.short_description : undefined,
     quantity: typeof value.quantity === "number" ? value.quantity : Number(value.quantity) || undefined,
     sold_out: value.sold_out === true || value["sold_out?"] === true,
-    minimum_price:
-      typeof value.minimum_price === "number" ? value.minimum_price : Number(value.minimum_price) || undefined,
+    minimum_price: minimumPrice === null ? null : Number.isFinite(minimumPrice) ? minimumPrice : undefined,
+    suggested_price: suggestedPrice === null ? null : Number.isFinite(suggestedPrice) ? suggestedPrice : undefined,
     pay_what_you_want: value.pay_what_you_want === true,
     min_tickets_per_order:
       typeof value.min_tickets_per_order === "number"

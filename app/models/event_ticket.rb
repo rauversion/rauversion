@@ -22,6 +22,7 @@ class EventTicket < ApplicationRecord
   store_accessor :settings, :after_purchase_message, :string
   store_accessor :settings, :pay_what_you_want, :boolean
   store_accessor :settings, :minimum_price, :decimal
+  store_accessor :settings, :suggested_price, :decimal
   store_accessor :settings, :disable_qr, :boolean
   store_accessor :settings, :requires_shipping, :boolean
   store_accessor :settings, :show_remaining_count, :boolean
@@ -35,6 +36,7 @@ class EventTicket < ApplicationRecord
   validates :short_description, presence: true
   validate :selling_start_before_selling_end
   validate :minimum_price_present_if_pwyw
+  validate :suggested_price_valid
 
   def free?
     price.to_i == 0
@@ -66,6 +68,20 @@ class EventTicket < ApplicationRecord
     if minimum_price.blank? || minimum_price.to_f < 0
       errors.add(:minimum_price, "must be present and non-negative when pay what you want is enabled")
     end
+  end
+
+  def suggested_price_valid
+    return if suggested_price.blank?
+
+    if suggested_price.to_f < 0
+      errors.add(:suggested_price, "must be non-negative")
+      return
+    end
+
+    return unless pay_what_you_want? && minimum_price.present?
+    return if suggested_price.to_f >= minimum_price.to_f
+
+    errors.add(:suggested_price, "must be greater than or equal to minimum price")
   end
   # scope :purchased_tickets, -> { where(:attibute => value)}
   # Ex:- scope :active, -> {where(:active => true)}

@@ -22,6 +22,7 @@ json.event do
     json.max_tickets_per_order ticket.max_tickets_per_order
     json.after_purchase_message ticket.after_purchase_message
     json.sales_channel ticket.sales_channel
+    json.suggested_price ticket.suggested_price
     json.created_at ticket.created_at
     json.updated_at ticket.updated_at
     

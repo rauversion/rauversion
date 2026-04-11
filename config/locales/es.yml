@@ -428,6 +428,10 @@ es:
           minimum_price:
             label: Precio Mínimo
             description: Monto mínimo que los compradores deben pagar
+          suggested_price:
+            label: Precio Sugerido
+            description: Monto mostrado por defecto a los compradores. No cambia el precio mínimo.
+            validation: El precio sugerido debe ser mayor o igual al precio mínimo
         validation:
           title_min: El nombre debe tener al menos 2 caracteres.
         messages:

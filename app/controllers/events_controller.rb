@@ -299,7 +299,7 @@ class EventsController < ApplicationController
         :price, :qty, :selling_start, :selling_end, :short_description,
         :show_after_sold_out, :hidden, :min_tickets_per_order,
         :max_tickets_per_order, :max_tickets_per_user, :after_purchase_message,
-        :pay_what_you_want, :minimum_price,
+        :pay_what_you_want, :minimum_price, :suggested_price,
         :requires_shipping, 
         :show_remaining_count, 
         :event_list_id,
