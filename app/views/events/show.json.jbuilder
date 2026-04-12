@@ -111,7 +111,11 @@ if @event.streaming_service.present?
 end
 
 json.scheduling_settings @event.scheduling_settings if @event.scheduling_settings.present?
-json.event_settings @event.event_settings if @event.event_settings.present?
+if @event.event_settings.present?
+  json.event_settings @event.event_settings.merge(
+    "hide_location_until_purchase" => @event.hide_location_until_purchase
+  )
+end
 json.tickets @event.event_tickets if @event.event_tickets.present?
 
 json.author do

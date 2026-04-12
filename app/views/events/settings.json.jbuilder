@@ -6,7 +6,11 @@ json.event do
   json.online @event.online
   
   # Event settings
-  json.event_settings @event.event_settings
+  if @event.event_settings.present?
+    json.event_settings @event.event_settings.merge(
+      "hide_location_until_purchase" => @event.hide_location_until_purchase
+    )
+  end
   json.participant_label @event.participant_label
   json.participant_description @event.participant_description
   json.accept_sponsors @event.accept_sponsors

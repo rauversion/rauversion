@@ -338,6 +338,9 @@ es:
           label: Hora de Finalización
         location:
           label: Ubicación
+        hide_location_until_purchase:
+          label: Ocultar ubicación hasta la compra
+          description: Mostrar la ubicación exacta solo después de que alguien compre una entrada.
         save: Guardar Cambios
         state:
           label: Estado

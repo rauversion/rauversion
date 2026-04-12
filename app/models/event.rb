@@ -66,6 +66,14 @@ class Event < ApplicationRecord
   scope :managers, -> { joins(:event_hosts).merge(EventHost.with_backoffice_access).distinct }
   # Ex:- scope :active, -> {where(:active => true)}
 
+  def hide_location_until_purchase
+    ActiveModel::Type::Boolean.new.cast(super)
+  end
+
+  def hide_location_until_purchase=(value)
+    super(ActiveModel::Type::Boolean.new.cast(value))
+  end
+
   scope :upcoming, -> { where('event_start >= ?', Time.current).order(event_start: :asc) }
   scope :past, -> { where('event_start < ?', Time.current).order(event_start: :desc) }
   scope :published, -> { where(state: 'published') }

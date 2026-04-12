@@ -313,6 +313,9 @@ en:
           label: End Time
         location:
           label: Location
+        hide_location_until_purchase:
+          label: Hide location until purchase
+          description: Only show the exact event location after someone buys a ticket.
         state:
           label: Event State
           description: Toggle between draft and published state

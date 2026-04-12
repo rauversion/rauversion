@@ -85,9 +85,13 @@ export interface EventSiteRecord {
   event_dates_formatted?: string
   venue?: string
   location?: string
+  street?: string
+  street_number?: string
   city?: string
   province?: string
   country?: string
+  lat?: string
+  lng?: string
   ticket_currency?: string
   cover_url?: EventImageUrls
   author?: EventSiteAuthor | null
@@ -99,6 +103,12 @@ export interface EventSiteRecord {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null
+}
+
+function normalizeOptionalString(value: unknown): string | undefined {
+  if (typeof value === "string") return value
+  if (typeof value === "number") return String(value)
+  return undefined
 }
 
 function normalizePages(value: unknown): Page[] {
@@ -283,9 +293,13 @@ export function normalizeEventSiteRecord(payload: unknown): EventSiteRecord {
       typeof value.event_dates_formatted === "string" ? value.event_dates_formatted : undefined,
     venue: typeof value.venue === "string" ? value.venue : undefined,
     location: typeof value.location === "string" ? value.location : undefined,
+    street: normalizeOptionalString(value.street),
+    street_number: normalizeOptionalString(value.street_number),
     city: typeof value.city === "string" ? value.city : undefined,
     province: typeof value.province === "string" ? value.province : undefined,
     country: typeof value.country === "string" ? value.country : undefined,
+    lat: normalizeOptionalString(value.lat),
+    lng: normalizeOptionalString(value.lng),
     ticket_currency:
       typeof value.ticket_currency === "string" ? value.ticket_currency : undefined,
     cover_url: normalizeImageUrls(value.cover_url),

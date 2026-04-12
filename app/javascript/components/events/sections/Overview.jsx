@@ -125,6 +125,7 @@ const formSchema = z.object({
   lat: nullableString,
   lng: nullableString,
   address: nullableString,
+  hide_location_until_purchase: z.boolean().default(false),
   cover: z.any().optional(),
   state: z.enum(["published", "draft"]).default("draft"),
 }).superRefine((values, ctx) => {
@@ -181,6 +182,10 @@ function normalizeText(value) {
   return value == null ? "" : String(value)
 }
 
+function normalizeBoolean(value) {
+  return value === true || value === "true"
+}
+
 function parseEventDate(value) {
   if (!value) return undefined
 
@@ -194,7 +199,7 @@ export default function Overview() {
   const [event, setEvent] = React.useState(null)
   const { setErrors } = useContext(EventEditContext)
   const [isSubmitting, setIsSubmitting] = React.useState(false)
-  const [showMapEditor, setShowMapEditor] = React.useState(false)
+  const [showMapEditor, setShowMapEditor] = React.useState(true)
 
   const handleImageUpload = async (blobId, cropData) => {
     try {
@@ -241,6 +246,7 @@ export default function Overview() {
       event_end_time: '',
       lat: '',
       lng: '',
+      hide_location_until_purchase: false,
       state: 'draft',
     }
   })
@@ -273,10 +279,12 @@ export default function Overview() {
           venue: normalizeText(data.venue),
           lat: normalizeText(data.lat),
           lng: normalizeText(data.lng),
+          hide_location_until_purchase: normalizeBoolean(data.event_settings?.hide_location_until_purchase),
           state: data.state || 'draft',
           cover: data.cover_blob_id
         })
-        setShowMapEditor(Boolean(data.lat || data.lng))
+        // Show the map by default so the user can place a pin even when no coordinates are saved yet.
+        setShowMapEditor(true)
       } catch (error) {
         console.error('Error loading event:', error)
         setErrors('Failed to load event data')
@@ -776,6 +784,35 @@ export default function Overview() {
                     {I18n.t('events.edit.form.location_help', { defaultValue: 'Este texto se muestra al publico incluso si no usas el mapa.' })}
                   </FormDescription>
                   <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
+          <div className="mt-4">
+            <FormField
+              control={form.control}
+              name="hide_location_until_purchase"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border bg-background p-3 shadow-sm">
+                  <div className="space-y-0.5 pr-4">
+                    <FormLabel>
+                      {I18n.t('events.edit.form.hide_location_until_purchase.label', {
+                        defaultValue: 'Ocultar ubicación hasta la compra',
+                      })}
+                    </FormLabel>
+                    <FormDescription>
+                      {I18n.t('events.edit.form.hide_location_until_purchase.description', {
+                        defaultValue: 'La ubicación exacta se mostrará solo después de que la persona compre una entrada.',
+                      })}
+                    </FormDescription>
+                  </div>
+                  <FormControl>
+                    <Switch
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
                 </FormItem>
               )}
             />

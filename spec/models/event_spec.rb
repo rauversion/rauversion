@@ -90,6 +90,26 @@ RSpec.describe Event, type: :model do
       expect(event.reload.hide_location_until_purchase).to eq(false)
     end
 
+    it "casts string false to false" do
+      event.hide_location_until_purchase = "false"
+      event.save
+
+      event.reload
+
+      expect(event.hide_location_until_purchase).to eq(false)
+      expect(event.event_settings["hide_location_until_purchase"]).to eq(false)
+    end
+
+    it "casts string true to true" do
+      event.hide_location_until_purchase = "true"
+      event.save
+
+      event.reload
+
+      expect(event.hide_location_until_purchase).to eq(true)
+      expect(event.event_settings["hide_location_until_purchase"]).to eq(true)
+    end
+
     it "defaults to nil when not set" do
       expect(event.hide_location_until_purchase).to be_nil
     end

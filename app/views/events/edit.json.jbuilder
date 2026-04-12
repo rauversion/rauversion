@@ -94,6 +94,12 @@ json.ticket_currency @event.ticket_currency
 json.site_mode @event.site_mode
 json.site_pages @event.site_pages
 
+if @event.event_settings.present?
+  json.event_settings @event.event_settings.merge(
+    "hide_location_until_purchase" => @event.hide_location_until_purchase
+  )
+end
+
 if @event.streaming_service.present?
   json.streaming_service do
     json.name @event.streaming_service["name"]
@@ -112,7 +118,6 @@ if @event.streaming_service.present?
 end
 
 json.scheduling_settings @event.scheduling_settings if @event.scheduling_settings.present?
-json.event_settings @event.event_settings if @event.event_settings.present?
 json.registration_type @event.registration_type
 json.allow_comments @event.allow_comments
 json.show_attendees @event.show_attendees

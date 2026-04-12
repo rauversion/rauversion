@@ -130,7 +130,6 @@ const ticketSchema = z.object({
 
 const formSchema = z.object({
   ticket_currency: z.string().min(1),
-  hide_location_until_purchase: z.boolean().default(false),
   tickets: z.array(ticketSchema),
 })
 
@@ -180,7 +179,6 @@ export default function Tickets() {
     resolver: zodResolverCompat(formSchema),
     defaultValues: {
       ticket_currency: DEFAULT_TICKET_CURRENCY,
-      hide_location_until_purchase: false,
       tickets: []
     }
   })
@@ -222,7 +220,6 @@ export default function Tickets() {
         // Reset form with current tickets
         form.reset({
           ticket_currency: (data.ticket_currency || DEFAULT_TICKET_CURRENCY).toLowerCase(),
-          hide_location_until_purchase: data.event_settings?.hide_location_until_purchase || false,
           tickets: data.tickets?.map(ticket => ({
             id: ticket.id,
             title: ticket.title,
@@ -360,7 +357,6 @@ export default function Tickets() {
         body: JSON.stringify({
           event: {
             ticket_currency: formattedData.ticket_currency,
-            hide_location_until_purchase: data.hide_location_until_purchase,
             event_tickets_attributes: formattedData.tickets
           }
         }),
@@ -468,29 +464,6 @@ export default function Tickets() {
                       {I18n.t('events.edit.tickets.ticket_currency.description')}
                     </FormDescription>
                     <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="hide_location_until_purchase"
-                render={({ field }) => (
-                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm max-w-2xl">
-                    <div className="space-y-0.5">
-                      <FormLabel>
-                        {I18n.t('events.edit.tickets.hide_location_until_purchase.label')}
-                      </FormLabel>
-                      <FormDescription>
-                        {I18n.t('events.edit.tickets.hide_location_until_purchase.description')}
-                      </FormDescription>
-                    </div>
-                    <FormControl>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </FormControl>
                   </FormItem>
                 )}
               />
