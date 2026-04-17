@@ -1652,7 +1652,7 @@ export function BlockSettings({
                 </Button>
               </div>
               
-              <ScrollArea className="max-h-[300px]">
+              
                 <div className="space-y-3 pr-2">
                   {block.props.links.map((link: SocialLink, index: number) => (
                     <div 
@@ -1732,7 +1732,7 @@ export function BlockSettings({
                     </div>
                   ))}
                 </div>
-              </ScrollArea>
+              
             </div>
           </>
         )}
