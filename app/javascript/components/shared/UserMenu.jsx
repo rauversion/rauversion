@@ -57,6 +57,7 @@ import {
   Headphones,
   Menu,
   ChevronDown,
+  Mail,
 } from "lucide-react";
 import {
   NavigationMenu,
@@ -646,6 +647,13 @@ export default function UserMenu() {
                             </Link>
                           </DropdownMenuItem>
                         )}
+
+                        <DropdownMenuItem asChild>
+                          <Link to="/email-templates">
+                            <Mail className="mr-2 h-4 w-4" />
+                            <span>Email templates</span>
+                          </Link>
+                        </DropdownMenuItem>
                       </DropdownMenuGroup>
 
                       <DropdownMenuSeparator />
@@ -854,6 +862,13 @@ export default function UserMenu() {
                             </Link>
                           </DropdownMenuItem>
                         )}
+
+                        <DropdownMenuItem asChild>
+                          <Link to="/email-templates">
+                            <Mail className="mr-2 h-4 w-4" />
+                            <span>Email templates</span>
+                          </Link>
+                        </DropdownMenuItem>
                       </DropdownMenuGroup>
 
                       <DropdownMenuSeparator />

@@ -4,6 +4,8 @@ import SalesProductShow from './sales/ProductShow'
 import PagesTable from './pages/PagesTable'
 import PagesEditor from './pages/PagesEditor'
 import PagesShow from './pages/PagesShow'
+import EmailTemplatesTable from './email-templates/EmailTemplatesTable'
+import EmailTemplateEditor from './email-templates/EmailTemplateEditor'
 import useAuthStore from '@/stores/authStore'
 import { useActionCable } from '../hooks/useActionCable'
 import ArticlesIndex from './articles/Index'
@@ -251,6 +253,7 @@ function AppContent() {
   const isArticleEditRoute = /^\/articles\/[^/]+\/edit$/.test(location.pathname)
   const isAlbumShowRoute = /^\/albums\/[^/]+$/.test(location.pathname)
   const isPageShowRoute = /^\/pages\/[^/]+$/.test(location.pathname)
+  const isEmailTemplateEditRoute = /^\/email-templates\/[^/]+\/edit$/.test(location.pathname)
   const isAdminRoute = location.pathname === "/admin" || location.pathname.startsWith("/admin/")
 
   const shouldShowMusicLibraryLayout =
@@ -260,6 +263,7 @@ function AppContent() {
     !isArticleEditRoute &&
     !isAlbumShowRoute &&
     !isPageShowRoute &&
+    !isEmailTemplateEditRoute &&
     !isPodcastRoute &&
     !location.pathname.includes("/users/sign_in") &&
     !location.pathname.includes("/users/sign_up") &&
@@ -289,6 +293,8 @@ function AppContent() {
       <Route path="/pages" element={<RequireAdmin><LegacyPagesIndexRedirect /></RequireAdmin>} />
       <Route path="/pages/:id/edit" element={<RequireAdmin><LegacyPagesEditorRedirect /></RequireAdmin>} />
       <Route path="/pages/:slug" element={<PagesShow />} />
+      <Route path="/email-templates" element={<RequireAuth><EmailTemplatesTable /></RequireAuth>} />
+      <Route path="/email-templates/:id/edit" element={<RequireAuth><EmailTemplateEditor /></RequireAuth>} />
 
       <Route path="/users/sign_in" element={<Login />} />
       <Route path="/users/sign_up" element={<Register />} />

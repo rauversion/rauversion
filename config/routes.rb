@@ -6,6 +6,12 @@ Rails.application.routes.draw do
       get :menus
     end
   end
+  resources :email_templates, path: "email-templates" do
+    collection do
+      post :preview
+      post :test_send
+    end
+  end
   resources :editor_templates, only: [:index, :create, :destroy], defaults: { format: :json }
   resources :course_enrollments, only: [:create, :show] do
     member do
