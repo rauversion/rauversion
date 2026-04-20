@@ -81,7 +81,11 @@ function labelForStatus(status: NewsletterBroadcastStatus) {
   }[status]
 }
 
-export default function NewsletterBroadcastsPage() {
+export function NewsletterBroadcastsManager({
+  embedded = false,
+}: {
+  embedded?: boolean
+}) {
   const navigate = useNavigate()
   const { toast } = useToast()
   const [broadcasts, setBroadcasts] = React.useState<NewsletterBroadcastRecord[]>([])
@@ -354,30 +358,8 @@ export default function NewsletterBroadcastsPage() {
     }
   }
 
-  return (
-    <div className="container mx-auto my-8 space-y-6">
-      <Card>
-        <CardHeader className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
-          <div className="space-y-1">
-            <CardTitle>Newsletter Broadcasts</CardTitle>
-            <CardDescription>
-              Elige una audiencia guardada, selecciona un template y lanza el envío con seguimiento de progreso.
-            </CardDescription>
-          </div>
-
-          <div className="flex gap-2">
-            <Button asChild variant="outline">
-              <Link to="/newsletter">Volver a newsletter</Link>
-            </Button>
-            <Button type="button" onClick={handleCreateBroadcast} disabled={creating}>
-              <Plus className="h-4 w-4" />
-              {creating ? "Creando…" : "Nuevo broadcast"}
-            </Button>
-          </div>
-        </CardHeader>
-      </Card>
-
-      <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
+  const content = (
+    <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
         <Card>
           <CardHeader>
             <CardTitle>Broadcasts</CardTitle>
@@ -489,7 +471,7 @@ export default function NewsletterBroadcastsPage() {
 
                       <div className="flex items-end">
                         <Button asChild variant="outline">
-                          <Link to="/newsletter">Administrar audiencias</Link>
+                          <Link to="/newsletter/audiences">Administrar audiencias</Link>
                         </Button>
                       </div>
                     </div>
@@ -634,7 +616,7 @@ export default function NewsletterBroadcastsPage() {
                         {sending ? "Preparando…" : ["completed", "completed_with_errors", "failed"].includes(broadcast.status) ? "Reenviar" : "Enviar ahora"}
                       </Button>
                       <Button asChild variant="outline">
-                        <Link to="/newsletter">Ir a listas y audiencias</Link>
+                        <Link to="/newsletter/contacts">Ir a listas y contactos</Link>
                       </Button>
                     </div>
 
@@ -694,6 +676,60 @@ export default function NewsletterBroadcastsPage() {
           </CardContent>
         </Card>
       </div>
+  )
+
+  if (embedded) {
+    return (
+      <div className="space-y-4">
+        <Card>
+          <CardHeader className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+            <div className="space-y-1">
+              <CardTitle>Newsletter Broadcasts</CardTitle>
+              <CardDescription>
+                Elige una audiencia guardada, selecciona un template y lanza el envío con seguimiento de progreso.
+              </CardDescription>
+            </div>
+
+            <div className="flex gap-2">
+              <Button type="button" onClick={handleCreateBroadcast} disabled={creating}>
+                <Plus className="h-4 w-4" />
+                {creating ? "Creando…" : "Nuevo broadcast"}
+              </Button>
+            </div>
+          </CardHeader>
+        </Card>
+
+        {content}
+      </div>
+    )
+  }
+
+  return (
+    <div className="container mx-auto my-8 space-y-6">
+      <Card>
+        <CardHeader className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="space-y-1">
+            <CardTitle>Newsletter Broadcasts</CardTitle>
+            <CardDescription>
+              Elige una audiencia guardada, selecciona un template y lanza el envío con seguimiento de progreso.
+            </CardDescription>
+          </div>
+
+          <div className="flex gap-2">
+            <Button asChild variant="outline">
+              <Link to="/newsletter/contacts">Volver a newsletter</Link>
+            </Button>
+            <Button type="button" onClick={handleCreateBroadcast} disabled={creating}>
+              <Plus className="h-4 w-4" />
+              {creating ? "Creando…" : "Nuevo broadcast"}
+            </Button>
+          </div>
+        </CardHeader>
+      </Card>
+
+      {content}
     </div>
   )
 }
+
+export default NewsletterBroadcastsManager

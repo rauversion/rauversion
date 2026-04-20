@@ -1,15 +1,19 @@
 module Newsletter
-  class AudiencesController < ApplicationController
-    before_action :authenticate_user!
+  class AudiencesController < BaseController
     before_action :set_audience, only: [:show, :update, :destroy]
 
     def index
-      render json: {
-        audiences: current_user.newsletter_audiences
-          .includes(:sources)
-          .order(updated_at: :desc)
-          .map { |audience| serialize_audience(audience) },
-      }
+      respond_to do |format|
+        format.html { render_blank }
+        format.json do
+          render json: {
+            audiences: current_user.newsletter_audiences
+              .includes(:sources)
+              .order(updated_at: :desc)
+              .map { |audience| serialize_audience(audience) },
+          }
+        end
+      end
     end
 
     def show

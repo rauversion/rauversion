@@ -14,6 +14,8 @@ Rails.application.routes.draw do
   end
   namespace :newsletter do
     root to: "dashboard#index"
+    get "contacts", to: "dashboard#index"
+    get "templates", to: "dashboard#index"
 
     resources :contact_lists, path: "contact-lists" do
       member do

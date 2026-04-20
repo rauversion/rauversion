@@ -20,7 +20,11 @@ import {
 } from "@/lib/email-editor/api"
 import { createNewEmailDocument } from "@/lib/email-editor/defaults"
 
-export default function EmailTemplatesTable() {
+export default function EmailTemplatesTable({
+  embedded = false,
+}: {
+  embedded?: boolean
+}) {
   const navigate = useNavigate()
   const { toast } = useToast()
   const [templates, setTemplates] = React.useState<EmailTemplateRecord[]>([])
@@ -82,7 +86,7 @@ export default function EmailTemplatesTable() {
   }
 
   return (
-    <Card className="container mx-auto my-8">
+    <Card className={embedded ? "" : "container mx-auto my-8"}>
       <CardContent className="pt-6">
         <div className="mb-4 flex items-center justify-between">
           <div>

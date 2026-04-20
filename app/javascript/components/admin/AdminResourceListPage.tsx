@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { MoreHorizontal, Plus, Search } from "lucide-react"
 
+const SEARCH_DEBOUNCE_MS = 500
+
 function renderValue(type: string, value: any) {
   if (value === null || value === undefined || value === "") {
     return <span className="text-muted-foreground">—</span>
@@ -43,6 +45,7 @@ export default function AdminResourceListPage() {
   const [payload, setPayload] = React.useState<AdminListResponse | null>(null)
   const [loading, setLoading] = React.useState(true)
   const [searchInput, setSearchInput] = React.useState(searchParams.get("query") || "")
+  const [debouncedSearchInput, setDebouncedSearchInput] = React.useState(searchParams.get("query") || "")
 
   const scope = searchParams.get("scope") || "all"
   const query = searchParams.get("query") || ""
@@ -74,24 +77,29 @@ export default function AdminResourceListPage() {
 
   React.useEffect(() => {
     setSearchInput(query)
+    setDebouncedSearchInput(query)
   }, [query])
 
   React.useEffect(() => {
     const timeout = window.setTimeout(() => {
-      if (searchInput === query) return
+      setDebouncedSearchInput(searchInput)
+    }, SEARCH_DEBOUNCE_MS)
+
+    return () => window.clearTimeout(timeout)
+  }, [searchInput])
+
+  React.useEffect(() => {
+    if (debouncedSearchInput === query) return
 
       const next = new URLSearchParams(searchParams)
-      if (searchInput) {
-        next.set("query", searchInput)
+      if (debouncedSearchInput) {
+        next.set("query", debouncedSearchInput)
       } else {
         next.delete("query")
       }
       next.delete("page")
       setSearchParams(next)
-    }, 250)
-
-    return () => window.clearTimeout(timeout)
-  }, [query, searchInput, searchParams, setSearchParams])
+  }, [debouncedSearchInput, query, searchParams, setSearchParams])
 
   const handleScopeChange = (nextScope: string) => {
     const next = new URLSearchParams(searchParams)

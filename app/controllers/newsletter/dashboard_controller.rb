@@ -1,6 +1,5 @@
 module Newsletter
-  class DashboardController < ApplicationController
-    before_action :authenticate_user!
+  class DashboardController < BaseController
 
     def index
       render_blank

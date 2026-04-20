@@ -1,16 +1,20 @@
 require "csv"
 
 module Newsletter
-  class ContactListsController < ApplicationController
-    before_action :authenticate_user!
+  class ContactListsController < BaseController
     before_action :set_contact_list, only: [:show, :update, :destroy, :import]
 
     def index
-      render json: {
-        contact_lists: current_user.newsletter_contact_lists
-          .order(updated_at: :desc)
-          .map { |contact_list| serialize_contact_list(contact_list) },
-      }
+      respond_to do |format|
+        format.html { render_blank }
+        format.json do
+          render json: {
+            contact_lists: current_user.newsletter_contact_lists
+              .order(updated_at: :desc)
+              .map { |contact_list| serialize_contact_list(contact_list) },
+          }
+        end
+      end
     end
 
     def show

@@ -1,6 +1,5 @@
 module Newsletter
-  class ContactListContactsController < ApplicationController
-    before_action :authenticate_user!
+  class ContactListContactsController < BaseController
     before_action :set_contact_list
     before_action :set_contact, only: [:show, :update, :destroy]
 

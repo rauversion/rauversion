@@ -1,5 +1,5 @@
 import React from "react"
-import { Link } from "react-router-dom"
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -12,8 +12,21 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AudiencesManager } from "@/components/newsletter/AudiencesManager"
 import { ContactListsManager } from "@/components/newsletter/ContactListsManager"
+import EmailTemplatesTable from "@/components/email-templates/EmailTemplatesTable"
+import NewsletterBroadcastsManager from "@/components/newsletter/NewsletterBroadcastsPage"
+
+const NEWSLETTER_TABS = ["contacts", "audiences", "broadcasts", "templates"] as const
+type NewsletterTab = typeof NEWSLETTER_TABS[number]
 
 export default function NewsletterPage() {
+  const navigate = useNavigate()
+  const { tab } = useParams<{ tab: string }>()
+  const activeTab = NEWSLETTER_TABS.includes((tab || "") as NewsletterTab) ? (tab as NewsletterTab) : null
+
+  if (!activeTab) {
+    return <Navigate to="/newsletter/contacts" replace />
+  }
+
   return (
     <div className="container mx-auto my-8 space-y-6">
       <Card>
@@ -25,20 +38,14 @@ export default function NewsletterPage() {
             </CardDescription>
           </div>
 
-          <div className="flex gap-2">
-            <Button asChild>
-              <Link to="/newsletter/broadcasts">Abrir broadcasts</Link>
-            </Button>
-            <Button asChild variant="outline">
-              <Link to="/email-templates">Abrir editor de correos</Link>
-            </Button>
-          </div>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="contacts" className="space-y-4">
+          <Tabs value={activeTab} onValueChange={(value) => navigate(`/newsletter/${value}`)} className="space-y-4">
             <TabsList>
               <TabsTrigger value="contacts">Contactos</TabsTrigger>
               <TabsTrigger value="audiences">Audiencias</TabsTrigger>
+              <TabsTrigger value="broadcasts">Broadcasts</TabsTrigger>
+              <TabsTrigger value="templates">Email templates</TabsTrigger>
             </TabsList>
 
             <TabsContent value="contacts">
@@ -47,6 +54,14 @@ export default function NewsletterPage() {
 
             <TabsContent value="audiences">
               <AudiencesManager />
+            </TabsContent>
+
+            <TabsContent value="broadcasts">
+              <NewsletterBroadcastsManager embedded />
+            </TabsContent>
+
+            <TabsContent value="templates">
+              <EmailTemplatesTable embedded />
             </TabsContent>
           </Tabs>
         </CardContent>

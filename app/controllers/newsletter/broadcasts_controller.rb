@@ -1,6 +1,5 @@
 module Newsletter
-  class BroadcastsController < ApplicationController
-    before_action :authenticate_user!
+  class BroadcastsController < BaseController
     before_action :set_broadcast, only: [:show, :update, :destroy, :send_now]
 
     def index
@@ -83,6 +82,15 @@ module Newsletter
 
       if preview[:recipients].empty?
         render json: { errors: ["La audiencia seleccionada no tiene destinatarios"] }, status: :unprocessable_entity
+        return
+      end
+
+      if preview[:unique_recipients_count] > current_user.newsletter_broadcast_recipient_limit
+        render json: {
+          errors: [
+            "Esta audiencia supera tu limite de #{current_user.newsletter_broadcast_recipient_limit} destinatarios por newsletter"
+          ],
+        }, status: :unprocessable_entity
         return
       end
 

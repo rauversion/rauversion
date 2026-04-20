@@ -177,7 +177,7 @@ export default function AdminResourceFormPage({ createMode = false }: AdminResou
     return (
       <Input
         id={field.key}
-        type={field.type === "email" ? "email" : "text"}
+        type={field.type === "email" ? "email" : field.type === "number" ? "number" : "text"}
         disabled={disabled}
         value={value ?? ""}
         onChange={(event) => setFormData((current) => ({ ...current, [field.key]: event.target.value }))}
