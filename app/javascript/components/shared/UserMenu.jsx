@@ -649,6 +649,13 @@ export default function UserMenu() {
                         )}
 
                         <DropdownMenuItem asChild>
+                          <Link to="/newsletter">
+                            <Users className="mr-2 h-4 w-4" />
+                            <span>Newsletter</span>
+                          </Link>
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem asChild>
                           <Link to="/email-templates">
                             <Mail className="mr-2 h-4 w-4" />
                             <span>Email templates</span>
@@ -862,6 +869,13 @@ export default function UserMenu() {
                             </Link>
                           </DropdownMenuItem>
                         )}
+
+                        <DropdownMenuItem asChild>
+                          <Link to="/newsletter">
+                            <Users className="mr-2 h-4 w-4" />
+                            <span>Newsletter</span>
+                          </Link>
+                        </DropdownMenuItem>
 
                         <DropdownMenuItem asChild>
                           <Link to="/email-templates">

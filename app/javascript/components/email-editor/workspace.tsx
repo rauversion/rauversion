@@ -16,6 +16,7 @@ import { EmailDocumentSettings } from "./document-settings"
 import { EmailBlockSettings } from "./block-settings"
 import { EmailPreviewTab } from "./preview-tab"
 import { EmailTestSendDialog } from "./test-send-dialog"
+import { EmailVariablesDialog } from "./email-variables-dialog"
 
 interface EmailEditorWorkspaceProps {
   storageNamespace?: string
@@ -101,6 +102,7 @@ export function EmailEditorWorkspace({
           <h1 className="text-lg font-semibold">{title}</h1>
         </div>
         <div className="flex items-center gap-2">
+          <EmailVariablesDialog />
           <EmailTestSendDialog document={document} />
           <Button type="button" variant="ghost" size="icon" onClick={() => undo()} disabled={!canUndo}>
             <Undo2 className="h-4 w-4" />

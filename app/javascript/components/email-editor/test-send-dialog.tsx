@@ -19,7 +19,9 @@ import { sendEmailTest } from "@/lib/email-editor/api"
 import { normalizeEmailDocument } from "@/lib/email-editor/normalizers"
 import { serializeEmailDocumentToMjml } from "@/lib/email-editor/serializer"
 import type { EmailDocument } from "@/lib/email-editor/types"
+import { buildEmailVariableMap, resolveEmailTemplate } from "@/lib/email-editor/variables"
 import { cn } from "@/lib/utils"
+import useAuthStore from "@/stores/authStore"
 
 type DeliveryStatus = "idle" | "processing" | "sent" | "error"
 
@@ -28,6 +30,7 @@ interface EmailTestSendDialogProps {
 }
 
 export function EmailTestSendDialog({ document }: EmailTestSendDialogProps) {
+  const { currentUser, env } = useAuthStore()
   const [open, setOpen] = React.useState(false)
   const [toEmail, setToEmail] = React.useState("")
   const [status, setStatus] = React.useState<DeliveryStatus>("idle")
@@ -51,11 +54,16 @@ export function EmailTestSendDialog({ document }: EmailTestSendDialogProps) {
 
     try {
       const normalized = normalizeEmailDocument(document, document.name)
+      const variables = buildEmailVariableMap({
+        sender: currentUser,
+        recipientEmail: toEmail.trim(),
+        appName: env?.app_name,
+      })
       const result = await sendEmailTest({
         toEmail: toEmail.trim(),
-        subject: normalized.subject,
+        subject: resolveEmailTemplate(normalized.subject, variables),
         templateName: normalized.name,
-        mjml: serializeEmailDocumentToMjml(normalized),
+        mjml: serializeEmailDocumentToMjml(normalized, { variables }),
       })
 
       setStatus("sent")

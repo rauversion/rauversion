@@ -6,6 +6,8 @@ import PagesEditor from './pages/PagesEditor'
 import PagesShow from './pages/PagesShow'
 import EmailTemplatesTable from './email-templates/EmailTemplatesTable'
 import EmailTemplateEditor from './email-templates/EmailTemplateEditor'
+import NewsletterPage from './newsletter/NewsletterPage'
+import NewsletterBroadcastsPage from './newsletter/NewsletterBroadcastsPage'
 import useAuthStore from '@/stores/authStore'
 import { useActionCable } from '../hooks/useActionCable'
 import ArticlesIndex from './articles/Index'
@@ -293,6 +295,8 @@ function AppContent() {
       <Route path="/pages" element={<RequireAdmin><LegacyPagesIndexRedirect /></RequireAdmin>} />
       <Route path="/pages/:id/edit" element={<RequireAdmin><LegacyPagesEditorRedirect /></RequireAdmin>} />
       <Route path="/pages/:slug" element={<PagesShow />} />
+      <Route path="/newsletter" element={<RequireAuth><NewsletterPage /></RequireAuth>} />
+      <Route path="/newsletter/broadcasts" element={<RequireAuth><NewsletterBroadcastsPage /></RequireAuth>} />
       <Route path="/email-templates" element={<RequireAuth><EmailTemplatesTable /></RequireAuth>} />
       <Route path="/email-templates/:id/edit" element={<RequireAuth><EmailTemplateEditor /></RequireAuth>} />
 

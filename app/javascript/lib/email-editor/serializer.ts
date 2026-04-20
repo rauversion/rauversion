@@ -13,6 +13,7 @@ import type {
   EmailTextBlock,
   EmailTheme,
 } from "./types"
+import { resolveEmailTemplate, type EmailVariableMap } from "./variables"
 
 function escapeAttribute(value: string) {
   return value
@@ -93,8 +94,18 @@ function dividerWidth(width: EmailDividerBlock["props"]["width"]) {
   }[width]
 }
 
-function renderHeading(block: EmailHeadingBlock, theme: EmailTheme) {
-  const { text, subtitle, align, color, size } = block.props
+function resolveTextValue(value: string | undefined, variables?: EmailVariableMap) {
+  return resolveEmailTemplate(value || "", variables)
+}
+
+function resolveHtmlValue(value: string | undefined, variables?: EmailVariableMap) {
+  return resolveEmailTemplate(value || "", variables, { escapeHtmlValues: true })
+}
+
+function renderHeading(block: EmailHeadingBlock, theme: EmailTheme, variables?: EmailVariableMap) {
+  const { align, color, size } = block.props
+  const text = resolveTextValue(block.props.text, variables)
+  const subtitle = resolveTextValue(block.props.subtitle || "", variables)
 
   return `
     <mj-section background-color="${escapeAttribute(sectionBackground(theme))}" padding="12px 24px 4px 24px">
@@ -106,33 +117,37 @@ function renderHeading(block: EmailHeadingBlock, theme: EmailTheme) {
   `
 }
 
-function renderText(block: EmailTextBlock, theme: EmailTheme) {
+function renderText(block: EmailTextBlock, theme: EmailTheme, variables?: EmailVariableMap) {
   return `
     <mj-section background-color="${escapeAttribute(sectionBackground(theme))}" padding="8px 24px">
       <mj-column>
         <mj-text align="${block.props.align}" font-size="${textSizeToPixels(block.props.size)}px" color="${escapeAttribute(block.props.color?.trim() || theme.textColor)}" line-height="1.7" padding="0">
-          ${block.props.content}
+          ${resolveHtmlValue(block.props.content, variables)}
         </mj-text>
       </mj-column>
     </mj-section>
   `
 }
 
-function renderImage(block: EmailImageBlock, theme: EmailTheme) {
-  if (!block.props.src) {
+function renderImage(block: EmailImageBlock, theme: EmailTheme, variables?: EmailVariableMap) {
+  const src = resolveTextValue(block.props.src, variables)
+  if (!src) {
     return ""
   }
+
+  const alt = resolveTextValue(block.props.alt, variables)
+  const href = resolveTextValue(block.props.href || "", variables)
 
   return `
     <mj-section background-color="${escapeAttribute(sectionBackground(theme))}" padding="12px 24px">
       <mj-column>
-        <mj-image src="${escapeAttribute(block.props.src)}" alt="${escapeAttribute(block.props.alt)}" href="${escapeAttribute(block.props.href || "")}" align="${block.props.align}" width="${imageWidthToPixels(block.props.width, theme)}px" border-radius="${radiusToPixels(block.props.borderRadius)}" padding="0" />
+        <mj-image src="${escapeAttribute(src)}" alt="${escapeAttribute(alt)}" href="${escapeAttribute(href)}" align="${block.props.align}" width="${imageWidthToPixels(block.props.width, theme)}px" border-radius="${radiusToPixels(block.props.borderRadius)}" padding="0" />
       </mj-column>
     </mj-section>
   `
 }
 
-function renderGallery(block: EmailGalleryBlock, theme: EmailTheme) {
+function renderGallery(block: EmailGalleryBlock, theme: EmailTheme, variables?: EmailVariableMap) {
   if (block.props.images.length === 0) {
     return ""
   }
@@ -146,8 +161,8 @@ function renderGallery(block: EmailGalleryBlock, theme: EmailTheme) {
       <mj-section background-color="${escapeAttribute(sectionBackground(theme))}" padding="${index === 0 ? 12 : 0}px 24px 0 24px">
         ${rowItems.map((image) => `
           <mj-column width="${Math.floor(100 / block.props.columns)}%">
-            ${image.src ? `<mj-image src="${escapeAttribute(image.src)}" alt="${escapeAttribute(image.alt)}" padding="0 ${gap / 2}px" border-radius="16px" />` : ""}
-            ${block.props.showCaptions && image.caption ? `<mj-text align="center" color="${escapeAttribute(theme.textColor)}" font-size="13px" padding="${gap}px ${gap / 2}px 0 ${gap / 2}px">${escapeText(image.caption)}</mj-text>` : ""}
+            ${image.src ? `<mj-image src="${escapeAttribute(resolveTextValue(image.src, variables))}" alt="${escapeAttribute(resolveTextValue(image.alt, variables))}" padding="0 ${gap / 2}px" border-radius="16px" />` : ""}
+            ${block.props.showCaptions && image.caption ? `<mj-text align="center" color="${escapeAttribute(theme.textColor)}" font-size="13px" padding="${gap}px ${gap / 2}px 0 ${gap / 2}px">${escapeText(resolveTextValue(image.caption, variables))}</mj-text>` : ""}
           </mj-column>
         `).join("")}
       </mj-section>
@@ -157,11 +172,16 @@ function renderGallery(block: EmailGalleryBlock, theme: EmailTheme) {
   return rows.join("")
 }
 
-function renderLinks(block: EmailLinksBlock, theme: EmailTheme) {
-  const links = block.props.links.filter((item) => item.label.trim() && item.url.trim())
+function renderLinks(block: EmailLinksBlock, theme: EmailTheme, variables?: EmailVariableMap) {
+  const links = block.props.links
+    .map((item) => ({
+      label: resolveTextValue(item.label, variables),
+      url: resolveTextValue(item.url, variables),
+    }))
+    .filter((item) => item.label.trim() && item.url.trim())
   if (links.length === 0) return ""
 
-  const title = block.props.title?.trim()
+  const title = resolveTextValue(block.props.title?.trim() || "", variables)
 
   if (block.props.layout === "buttons") {
     return `
@@ -205,20 +225,26 @@ function renderLinks(block: EmailLinksBlock, theme: EmailTheme) {
   `
 }
 
-function renderBio(block: EmailBioBlock, theme: EmailTheme) {
+function renderBio(block: EmailBioBlock, theme: EmailTheme, variables?: EmailVariableMap) {
   const imageSize = block.props.layout === "compact" ? 96 : 180
   const imageClasses = block.props.layout === "compact"
     ? "email-bio-avatar email-bio-avatar--compact"
     : "email-bio-avatar"
+  const image = resolveTextValue(block.props.image || "", variables)
+  const name = resolveTextValue(block.props.name, variables)
+  const role = resolveTextValue(block.props.role || "", variables)
+  const bio = resolveTextValue(block.props.bio, variables)
+  const ctaText = resolveTextValue(block.props.ctaText || "", variables)
+  const ctaUrl = resolveTextValue(block.props.ctaUrl || "", variables)
   const imageMarkup = block.props.image
-    ? `<mj-image css-class="${imageClasses}" src="${escapeAttribute(block.props.image)}" alt="${escapeAttribute(block.props.name)}" border-radius="${radiusToPixels(block.props.imageShape)}" padding="0" width="${imageSize}px" />`
+    ? `<mj-image css-class="${imageClasses}" src="${escapeAttribute(image)}" alt="${escapeAttribute(name)}" border-radius="${radiusToPixels(block.props.imageShape)}" padding="0" width="${imageSize}px" />`
     : ""
 
   const textContent = `
-    <mj-text color="${escapeAttribute(theme.headingColor)}" font-size="${block.props.layout === "compact" ? 18 : 22}px" font-weight="700" padding="0">${escapeText(block.props.name)}</mj-text>
-    ${block.props.role ? `<mj-text color="${escapeAttribute(theme.accentColor)}" font-size="13px" text-transform="uppercase" letter-spacing="0.5px" padding="6px 0 0 0">${escapeText(block.props.role)}</mj-text>` : ""}
-    <mj-text color="${escapeAttribute(theme.textColor)}" font-size="15px" line-height="1.7" padding="12px 0 0 0">${escapeText(block.props.bio)}</mj-text>
-    ${block.props.ctaText && block.props.ctaUrl ? `<mj-button align="left" background-color="${escapeAttribute(theme.accentColor)}" color="#ffffff" href="${escapeAttribute(block.props.ctaUrl)}" inner-padding="12px 18px" border-radius="999px" font-size="14px" padding="16px 0 0 0">${escapeText(block.props.ctaText)}</mj-button>` : ""}
+    <mj-text color="${escapeAttribute(theme.headingColor)}" font-size="${block.props.layout === "compact" ? 18 : 22}px" font-weight="700" padding="0">${escapeText(name)}</mj-text>
+    ${role ? `<mj-text color="${escapeAttribute(theme.accentColor)}" font-size="13px" text-transform="uppercase" letter-spacing="0.5px" padding="6px 0 0 0">${escapeText(role)}</mj-text>` : ""}
+    <mj-text color="${escapeAttribute(theme.textColor)}" font-size="15px" line-height="1.7" padding="12px 0 0 0">${escapeText(bio)}</mj-text>
+    ${ctaText && ctaUrl ? `<mj-button align="left" background-color="${escapeAttribute(theme.accentColor)}" color="#ffffff" href="${escapeAttribute(ctaUrl)}" inner-padding="12px 18px" border-radius="999px" font-size="14px" padding="16px 0 0 0">${escapeText(ctaText)}</mj-button>` : ""}
   `
 
   if (block.props.layout === "stacked") {
@@ -226,10 +252,10 @@ function renderBio(block: EmailBioBlock, theme: EmailTheme) {
       <mj-section background-color="${escapeAttribute(sectionBackground(theme))}" padding="16px 24px">
         <mj-column>
           ${imageMarkup}
-          <mj-text align="center" color="${escapeAttribute(theme.headingColor)}" font-size="24px" font-weight="700" padding="18px 0 0 0">${escapeText(block.props.name)}</mj-text>
-          ${block.props.role ? `<mj-text align="center" color="${escapeAttribute(theme.accentColor)}" font-size="13px" text-transform="uppercase" letter-spacing="0.5px" padding="6px 0 0 0">${escapeText(block.props.role)}</mj-text>` : ""}
-          <mj-text align="center" color="${escapeAttribute(theme.textColor)}" font-size="15px" line-height="1.7" padding="12px 0 0 0">${escapeText(block.props.bio)}</mj-text>
-          ${block.props.ctaText && block.props.ctaUrl ? `<mj-button align="center" background-color="${escapeAttribute(theme.accentColor)}" color="#ffffff" href="${escapeAttribute(block.props.ctaUrl)}" inner-padding="12px 18px" border-radius="999px" font-size="14px" padding="16px 0 0 0">${escapeText(block.props.ctaText)}</mj-button>` : ""}
+          <mj-text align="center" color="${escapeAttribute(theme.headingColor)}" font-size="24px" font-weight="700" padding="18px 0 0 0">${escapeText(name)}</mj-text>
+          ${role ? `<mj-text align="center" color="${escapeAttribute(theme.accentColor)}" font-size="13px" text-transform="uppercase" letter-spacing="0.5px" padding="6px 0 0 0">${escapeText(role)}</mj-text>` : ""}
+          <mj-text align="center" color="${escapeAttribute(theme.textColor)}" font-size="15px" line-height="1.7" padding="12px 0 0 0">${escapeText(bio)}</mj-text>
+          ${ctaText && ctaUrl ? `<mj-button align="center" background-color="${escapeAttribute(theme.accentColor)}" color="#ffffff" href="${escapeAttribute(ctaUrl)}" inner-padding="12px 18px" border-radius="999px" font-size="14px" padding="16px 0 0 0">${escapeText(ctaText)}</mj-button>` : ""}
         </mj-column>
       </mj-section>
     `
@@ -256,8 +282,10 @@ function renderBio(block: EmailBioBlock, theme: EmailTheme) {
   `
 }
 
-function renderButton(block: EmailButtonBlock, theme: EmailTheme) {
-  if (!block.props.href.trim()) return ""
+function renderButton(block: EmailButtonBlock, theme: EmailTheme, variables?: EmailVariableMap) {
+  const href = resolveTextValue(block.props.href, variables)
+  if (!href.trim()) return ""
+  const text = resolveTextValue(block.props.text, variables)
 
   const isOutline = block.props.variant === "outline"
   const fontSize = block.props.size === "lg" ? 16 : block.props.size === "sm" ? 13 : 14
@@ -268,7 +296,7 @@ function renderButton(block: EmailButtonBlock, theme: EmailTheme) {
       <mj-column>
         <mj-button
           align="${block.props.align}"
-          href="${escapeAttribute(block.props.href)}"
+          href="${escapeAttribute(href)}"
           background-color="${isOutline ? "transparent" : escapeAttribute(theme.accentColor)}"
           color="${isOutline ? escapeAttribute(theme.accentColor) : "#ffffff"}"
           border="${isOutline ? `1px solid ${theme.accentColor}` : "none"}"
@@ -277,7 +305,7 @@ function renderButton(block: EmailButtonBlock, theme: EmailTheme) {
           inner-padding="${padding}"
           padding="0"
         >
-          ${escapeText(block.props.text)}
+          ${escapeText(text)}
         </mj-button>
       </mj-column>
     </mj-section>
@@ -306,30 +334,36 @@ function renderSpacer(block: EmailSpacerBlock, theme: EmailTheme) {
   `
 }
 
-function renderSection(block: EmailSectionBlock, theme: EmailTheme) {
-  const backgroundColor = sectionBackground(theme, block.props.backgroundColor)
+function renderSection(block: EmailSectionBlock, theme: EmailTheme, variables?: EmailVariableMap) {
+  const backgroundColor = sectionBackground(theme, resolveTextValue(block.props.backgroundColor || "", variables))
+  const eyebrow = resolveTextValue(block.props.eyebrow || "", variables)
+  const title = resolveTextValue(block.props.title, variables)
+  const body = resolveHtmlValue(block.props.body, variables)
+  const image = resolveTextValue(block.props.image || "", variables)
+  const ctaText = resolveTextValue(block.props.ctaText || "", variables)
+  const ctaUrl = resolveTextValue(block.props.ctaUrl || "", variables)
   const content = `
-    ${block.props.eyebrow ? `<mj-text color="${escapeAttribute(theme.accentColor)}" font-size="13px" text-transform="uppercase" letter-spacing="0.5px" padding="0 0 10px 0">${escapeText(block.props.eyebrow)}</mj-text>` : ""}
-    <mj-text color="${escapeAttribute(theme.headingColor)}" font-size="26px" font-weight="700" line-height="1.2" padding="0">${escapeText(block.props.title)}</mj-text>
-    <mj-text color="${escapeAttribute(theme.textColor)}" font-size="15px" line-height="1.7" padding="12px 0 0 0">${block.props.body}</mj-text>
-    ${block.props.ctaText && block.props.ctaUrl ? `<mj-button align="left" background-color="${escapeAttribute(theme.accentColor)}" color="#ffffff" href="${escapeAttribute(block.props.ctaUrl)}" inner-padding="12px 18px" border-radius="999px" font-size="14px" padding="16px 0 0 0">${escapeText(block.props.ctaText)}</mj-button>` : ""}
+    ${eyebrow ? `<mj-text color="${escapeAttribute(theme.accentColor)}" font-size="13px" text-transform="uppercase" letter-spacing="0.5px" padding="0 0 10px 0">${escapeText(eyebrow)}</mj-text>` : ""}
+    <mj-text color="${escapeAttribute(theme.headingColor)}" font-size="26px" font-weight="700" line-height="1.2" padding="0">${escapeText(title)}</mj-text>
+    <mj-text color="${escapeAttribute(theme.textColor)}" font-size="15px" line-height="1.7" padding="12px 0 0 0">${body}</mj-text>
+    ${ctaText && ctaUrl ? `<mj-button align="left" background-color="${escapeAttribute(theme.accentColor)}" color="#ffffff" href="${escapeAttribute(ctaUrl)}" inner-padding="12px 18px" border-radius="999px" font-size="14px" padding="16px 0 0 0">${escapeText(ctaText)}</mj-button>` : ""}
   `
 
   if (block.props.layout === "stacked") {
     return `
       <mj-section background-color="${escapeAttribute(backgroundColor)}" padding="18px 24px">
         <mj-column>
-          ${block.props.image ? `<mj-image src="${escapeAttribute(block.props.image)}" padding="0 0 16px 0" border-radius="20px" />` : ""}
+          ${image ? `<mj-image src="${escapeAttribute(image)}" padding="0 0 16px 0" border-radius="20px" />` : ""}
           ${content}
         </mj-column>
       </mj-section>
     `
   }
 
-  const imageColumn = block.props.image
-    ? `<mj-column width="42%"><mj-image src="${escapeAttribute(block.props.image)}" padding="0" border-radius="20px" /></mj-column>`
+  const imageColumn = image
+    ? `<mj-column width="42%"><mj-image src="${escapeAttribute(image)}" padding="0" border-radius="20px" /></mj-column>`
     : ""
-  const textColumn = `<mj-column width="${block.props.image ? "58%" : "100%"}">${content}</mj-column>`
+  const textColumn = `<mj-column width="${image ? "58%" : "100%"}">${content}</mj-column>`
 
   return `
     <mj-section background-color="${escapeAttribute(backgroundColor)}" padding="18px 24px">
@@ -338,41 +372,42 @@ function renderSection(block: EmailSectionBlock, theme: EmailTheme) {
   `
 }
 
-function renderBlock(block: EmailBlock, theme: EmailTheme) {
+function renderBlock(block: EmailBlock, theme: EmailTheme, variables?: EmailVariableMap) {
   switch (block.type) {
     case "heading":
-      return renderHeading(block, theme)
+      return renderHeading(block, theme, variables)
     case "text":
-      return renderText(block, theme)
+      return renderText(block, theme, variables)
     case "image":
-      return renderImage(block, theme)
+      return renderImage(block, theme, variables)
     case "gallery":
-      return renderGallery(block, theme)
+      return renderGallery(block, theme, variables)
     case "links":
-      return renderLinks(block, theme)
+      return renderLinks(block, theme, variables)
     case "bio":
-      return renderBio(block, theme)
+      return renderBio(block, theme, variables)
     case "button":
-      return renderButton(block, theme)
+      return renderButton(block, theme, variables)
     case "divider":
       return renderDivider(block, theme)
     case "spacer":
       return renderSpacer(block, theme)
     case "section":
-      return renderSection(block, theme)
+      return renderSection(block, theme, variables)
     default:
       return ""
   }
 }
 
-export function serializeEmailDocumentToMjml(document: EmailDocument) {
+export function serializeEmailDocumentToMjml(document: EmailDocument, options: { variables?: EmailVariableMap } = {}) {
   const theme = document.theme
+  const variables = options.variables
 
   return `
 <mjml>
   <mj-head>
-    <mj-title>${escapeText(document.subject)}</mj-title>
-    ${document.preheader ? `<mj-preview>${escapeText(document.preheader)}</mj-preview>` : ""}
+    <mj-title>${escapeText(resolveTextValue(document.subject, variables))}</mj-title>
+    ${document.preheader ? `<mj-preview>${escapeText(resolveTextValue(document.preheader, variables))}</mj-preview>` : ""}
     <mj-style inline="inline">
       .email-bio-avatar table,
       .email-bio-avatar td,
@@ -398,11 +433,11 @@ export function serializeEmailDocumentToMjml(document: EmailDocument) {
     </mj-attributes>
   </mj-head>
   <mj-body background-color="${escapeAttribute(theme.bodyBackground)}" width="${theme.contentWidth}px">
-    ${document.blocks.map((block) => renderBlock(block, theme)).join("")}
+    ${document.blocks.map((block) => renderBlock(block, theme, variables)).join("")}
     <mj-section background-color="${escapeAttribute(theme.contentBackground)}" padding="24px 24px 32px 24px">
       <mj-column>
-        ${theme.footerText ? `<mj-text align="center" color="${escapeAttribute(theme.textColor)}" font-size="12px" padding="0">${escapeText(theme.footerText)}</mj-text>` : ""}
-        ${theme.unsubscribeUrl ? `<mj-text align="center" color="${escapeAttribute(theme.textColor)}" font-size="12px" padding="8px 0 0 0"><a href="${escapeAttribute(theme.unsubscribeUrl)}" style="color: ${theme.accentColor}; text-decoration: none;">Unsubscribe</a></mj-text>` : ""}
+        ${theme.footerText ? `<mj-text align="center" color="${escapeAttribute(theme.textColor)}" font-size="12px" padding="0">${escapeText(resolveTextValue(theme.footerText, variables))}</mj-text>` : ""}
+        ${theme.unsubscribeUrl ? `<mj-text align="center" color="${escapeAttribute(theme.textColor)}" font-size="12px" padding="8px 0 0 0"><a href="${escapeAttribute(resolveTextValue(theme.unsubscribeUrl, variables))}" style="color: ${theme.accentColor}; text-decoration: none;">Unsubscribe</a></mj-text>` : ""}
       </mj-column>
     </mj-section>
   </mj-body>

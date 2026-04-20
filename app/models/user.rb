@@ -17,6 +17,9 @@ class User < ApplicationRecord
   has_many :playlists
   has_many :editor_templates, dependent: :destroy
   has_many :email_templates, dependent: :destroy
+  has_many :newsletter_contact_lists, class_name: "Newsletter::ContactList", dependent: :destroy
+  has_many :newsletter_audiences, class_name: "Newsletter::Audience", dependent: :destroy
+  has_many :newsletter_broadcasts, class_name: "Newsletter::Broadcast", dependent: :destroy
   has_many :releases
   has_many :reposts
   has_many :reposted_tracks, through: :reposts, source: :track

@@ -9,6 +9,8 @@ import { compileEmailPreview } from "@/lib/email-editor/api"
 import { normalizeEmailDocument } from "@/lib/email-editor/normalizers"
 import { serializeEmailDocumentToMjml } from "@/lib/email-editor/serializer"
 import type { EmailDocument } from "@/lib/email-editor/types"
+import { buildEmailVariableMap, type EmailVariableMap } from "@/lib/email-editor/variables"
+import useAuthStore from "@/stores/authStore"
 
 function formatPreviewErrors(errors: Array<Record<string, unknown> | string>) {
   return errors.map((error) => {
@@ -18,8 +20,8 @@ function formatPreviewErrors(errors: Array<Record<string, unknown> | string>) {
   })
 }
 
-function buildPreviewMjml(document: EmailDocument) {
-  return serializeEmailDocumentToMjml(normalizeEmailDocument(document, document.name))
+function buildPreviewMjml(document: EmailDocument, variables: EmailVariableMap) {
+  return serializeEmailDocumentToMjml(normalizeEmailDocument(document, document.name), { variables })
 }
 
 export function EmailPreviewTab({
@@ -29,7 +31,12 @@ export function EmailPreviewTab({
   document: EmailDocument
   isActive: boolean
 }) {
-  const [mjml, setMjml] = React.useState(() => buildPreviewMjml(document))
+  const { currentUser, env } = useAuthStore()
+  const variables = React.useMemo(
+    () => buildEmailVariableMap({ sender: currentUser, appName: env?.app_name }),
+    [currentUser, env?.app_name]
+  )
+  const [mjml, setMjml] = React.useState(() => buildPreviewMjml(document, variables))
   const [html, setHtml] = React.useState("")
   const [errors, setErrors] = React.useState<string[]>([])
   const [isLoading, setIsLoading] = React.useState(false)
@@ -38,7 +45,7 @@ export function EmailPreviewTab({
   const latestRequestRef = React.useRef(0)
 
   React.useEffect(() => {
-    const nextMjml = buildPreviewMjml(document)
+    const nextMjml = buildPreviewMjml(document, variables)
     setMjml(nextMjml)
 
     if (!isActive) return
@@ -64,7 +71,7 @@ export function EmailPreviewTab({
     }, 350)
 
     return () => window.clearTimeout(timeoutId)
-  }, [document, isActive])
+  }, [document, isActive, variables])
 
   const copy = async (value: string, target: "mjml" | "html") => {
     await navigator.clipboard.writeText(value)
