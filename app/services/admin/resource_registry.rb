@@ -500,6 +500,12 @@ module Admin
                 value: ->(alert) { alert.user&.display_name.presence || alert.user&.username }
               },
               { key: "role", label: "Role", type: "badge", value: ->(alert) { alert.role } },
+              {
+                key: "body_preview",
+                label: "Message",
+                type: "text",
+                value: ->(alert) { alert.body.to_s.squish.truncate(120) }
+              },
               { key: "approved", label: "Approved", type: "boolean", value: ->(alert) { alert.approved? } },
               { key: "created_at", label: "Created", type: "datetime", value: ->(alert) { alert.created_at } }
             ],
@@ -528,12 +534,14 @@ module Admin
               }
             ],
             row_actions: lambda { |alert|
-              actions = default_actions(
-                key: :interest_alerts,
-                record: alert,
-                editable: true,
-                destroyable: false
-              )
+              actions = [
+                {
+                  key: "review",
+                  label: "Review",
+                  kind: "navigate",
+                  to: "/admin/interest_alerts/#{alert.id}"
+                }
+              ]
               if !alert.approved?
                 actions.unshift(
                   {

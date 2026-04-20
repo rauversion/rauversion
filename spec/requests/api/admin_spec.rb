@@ -376,6 +376,60 @@ RSpec.describe "Admin API", type: :request do
     end
   end
 
+  describe "GET /api/admin/interest_alerts" do
+    let(:requester) do
+      create(
+        :user,
+        email: "interest-alert-requester@rauversion.com",
+        username: "interest-alert-requester",
+        confirmed_at: Time.current
+      )
+    end
+
+    let!(:interest_alert) do
+      InterestAlert.create!(
+        user: requester,
+        body: "I would like to become a seller so I can publish merch and digital products from my profile.",
+        role: "seller"
+      )
+    end
+
+    it "includes a message preview in the list payload" do
+      get "/api/admin/interest_alerts"
+
+      expect(response).to have_http_status(:ok)
+      expect(json_response.dig("resource", "columns").map { |column| column["key"] }).to include("body_preview")
+      expect(json_response["records"].first.dig("values", "body_preview")).to include("I would like to become a seller")
+      expect(json_response["records"].first["actions"].map { |action| action["key"] }).to include("review")
+    end
+  end
+
+  describe "GET /api/admin/interest_alerts/:id" do
+    let(:requester) do
+      create(
+        :user,
+        email: "interest-alert-detail@rauversion.com",
+        username: "interest-alert-detail",
+        confirmed_at: Time.current
+      )
+    end
+
+    let!(:interest_alert) do
+      InterestAlert.create!(
+        user: requester,
+        body: "Full request body for admin review.",
+        role: "artist"
+      )
+    end
+
+    it "returns the full message body in the detail payload" do
+      get "/api/admin/interest_alerts/#{interest_alert.id}"
+
+      expect(response).to have_http_status(:ok)
+      expect(json_response.dig("record", "form_values", "body")).to eq("Full request body for admin review.")
+    end
+  end
+
   describe "GET /api/admin/dashboard" do
     let(:seller) do
       create(

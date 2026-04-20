@@ -123,15 +123,18 @@ export default function AdminResourceFormPage({ createMode = false }: AdminResou
 
   const renderField = (field: AdminFormField) => {
     const value = formData[field.key]
-    const disabled = saving || field.readonly
+    const disabled = saving || (field.readonly && (field.type === "select" || field.type === "boolean"))
+    const readOnly = field.readonly && !disabled
 
     if (field.type === "textarea") {
       return (
         <Textarea
           id={field.key}
           disabled={disabled}
+          readOnly={readOnly}
           value={value ?? ""}
           rows={8}
+          className={readOnly ? "bg-muted/30" : undefined}
           onChange={(event) => setFormData((current) => ({ ...current, [field.key]: event.target.value }))}
         />
       )
@@ -179,6 +182,8 @@ export default function AdminResourceFormPage({ createMode = false }: AdminResou
         id={field.key}
         type={field.type === "email" ? "email" : field.type === "number" ? "number" : "text"}
         disabled={disabled}
+        readOnly={readOnly}
+        className={readOnly ? "bg-muted/30" : undefined}
         value={value ?? ""}
         onChange={(event) => setFormData((current) => ({ ...current, [field.key]: event.target.value }))}
       />
