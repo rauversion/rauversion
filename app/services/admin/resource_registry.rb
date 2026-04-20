@@ -650,6 +650,20 @@ module Admin
           { key: "featured", label: "Featured", type: "boolean", section: "Permissions" },
           { key: "support_link", label: "Support link", type: "text", section: "Permissions" },
           {
+            key: "can_send_newsletter",
+            label: "Can send newsletter",
+            type: "boolean",
+            section: "Newsletter",
+            description: "Enables access to newsletter templates, audiences, and broadcasts."
+          },
+          {
+            key: "newsletter_broadcast_recipient_limit",
+            label: "Recipient limit per newsletter",
+            type: "number",
+            section: "Newsletter",
+            description: "Maximum unique recipients allowed for a single broadcast."
+          },
+          {
             key: "stripe_active",
             label: "Stripe activated",
             type: "boolean",
@@ -801,6 +815,8 @@ module Admin
           editor
           featured
           support_link
+          can_send_newsletter
+          newsletter_broadcast_recipient_limit
           tbk_commerce_code
           tbk_test_mode
           hide_username_from_profile

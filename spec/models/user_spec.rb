@@ -105,6 +105,45 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe "newsletter settings" do
+    it "defaults newsletter access to disabled with a capped recipient limit" do
+      user = build(:user)
+
+      expect(user.can_send_newsletter).to be(false)
+      expect(user.newsletter_broadcast_recipient_limit).to eq(User::NEWSLETTER_BROADCAST_RECIPIENT_LIMIT_DEFAULT)
+      expect(user.can_access_newsletter?).to be(false)
+    end
+
+    it "persists newsletter access settings in the user settings store" do
+      user = create(
+        :user,
+        can_send_newsletter: true,
+        newsletter_broadcast_recipient_limit: 250
+      )
+
+      user.reload
+
+      expect(user.can_send_newsletter).to be(true)
+      expect(user.newsletter_broadcast_recipient_limit).to eq(250)
+      expect(user.settings).to include(
+        "can_send_newsletter" => true,
+        "newsletter_broadcast_recipient_limit" => 250
+      )
+      expect(user.can_access_newsletter?).to be(true)
+    end
+
+    it "requires a positive recipient limit when newsletter sending is enabled" do
+      user = build(
+        :user,
+        can_send_newsletter: true,
+        newsletter_broadcast_recipient_limit: 0
+      )
+
+      expect(user).not_to be_valid
+      expect(user.errors[:newsletter_broadcast_recipient_limit]).to include("must be greater than 0")
+    end
+  end
+
   describe "#unread_messages_count" do
     it "returns 0 when user has no conversations" do
       user = FactoryBot.create(:user)

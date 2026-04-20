@@ -4,6 +4,8 @@ import SalesProductShow from './sales/ProductShow'
 import PagesTable from './pages/PagesTable'
 import PagesEditor from './pages/PagesEditor'
 import PagesShow from './pages/PagesShow'
+import EmailTemplateEditor from './email-templates/EmailTemplateEditor'
+import NewsletterPage from './newsletter/NewsletterPage'
 import useAuthStore from '@/stores/authStore'
 import { useActionCable } from '../hooks/useActionCable'
 import ArticlesIndex from './articles/Index'
@@ -146,6 +148,25 @@ function RequireAuth({ children }) {
   return children
 }
 
+function RequireNewsletterAccess({ children }) {
+  const { currentUser, loading: currentUserLoading } = useAuthStore()
+  const location = useLocation()
+
+  if (currentUserLoading) {
+    return <LoadingSpinner />
+  }
+
+  if (!currentUser) {
+    return <Navigate to="/users/sign_in" state={{ from: location }} replace />
+  }
+
+  if (!currentUser.can_send_newsletter) {
+    return <Navigate to="/" replace />
+  }
+
+  return children
+}
+
 function RequireAdmin({ children }) {
   const { currentUser, loading: currentUserLoading } = useAuthStore()
   const location = useLocation()
@@ -251,6 +272,7 @@ function AppContent() {
   const isArticleEditRoute = /^\/articles\/[^/]+\/edit$/.test(location.pathname)
   const isAlbumShowRoute = /^\/albums\/[^/]+$/.test(location.pathname)
   const isPageShowRoute = /^\/pages\/[^/]+$/.test(location.pathname)
+  const isEmailTemplateEditRoute = /^\/email-templates\/[^/]+\/edit$/.test(location.pathname)
   const isAdminRoute = location.pathname === "/admin" || location.pathname.startsWith("/admin/")
 
   const shouldShowMusicLibraryLayout =
@@ -260,6 +282,7 @@ function AppContent() {
     !isArticleEditRoute &&
     !isAlbumShowRoute &&
     !isPageShowRoute &&
+    !isEmailTemplateEditRoute &&
     !isPodcastRoute &&
     !location.pathname.includes("/users/sign_in") &&
     !location.pathname.includes("/users/sign_up") &&
@@ -289,6 +312,10 @@ function AppContent() {
       <Route path="/pages" element={<RequireAdmin><LegacyPagesIndexRedirect /></RequireAdmin>} />
       <Route path="/pages/:id/edit" element={<RequireAdmin><LegacyPagesEditorRedirect /></RequireAdmin>} />
       <Route path="/pages/:slug" element={<PagesShow />} />
+      <Route path="/newsletter" element={<RequireNewsletterAccess><Navigate to="/newsletter/contacts" replace /></RequireNewsletterAccess>} />
+      <Route path="/newsletter/:tab" element={<RequireNewsletterAccess><NewsletterPage /></RequireNewsletterAccess>} />
+      <Route path="/email-templates" element={<RequireNewsletterAccess><Navigate to="/newsletter/templates" replace /></RequireNewsletterAccess>} />
+      <Route path="/email-templates/:id/edit" element={<RequireNewsletterAccess><EmailTemplateEditor /></RequireNewsletterAccess>} />
 
       <Route path="/users/sign_in" element={<Login />} />
       <Route path="/users/sign_up" element={<Register />} />

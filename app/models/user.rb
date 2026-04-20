@@ -1,4 +1,6 @@
 class User < ApplicationRecord
+  NEWSLETTER_BROADCAST_RECIPIENT_LIMIT_DEFAULT = 1_000
+
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
   enum :role, { user: 'user', admin: 'admin', artist: 'artist' }
@@ -16,6 +18,10 @@ class User < ApplicationRecord
   has_many :featured_tracks, through: :track_artists, source: :track
   has_many :playlists
   has_many :editor_templates, dependent: :destroy
+  has_many :email_templates, dependent: :destroy
+  has_many :newsletter_contact_lists, class_name: "Newsletter::ContactList", dependent: :destroy
+  has_many :newsletter_audiences, class_name: "Newsletter::Audience", dependent: :destroy
+  has_many :newsletter_broadcasts, class_name: "Newsletter::Broadcast", dependent: :destroy
   has_many :releases
   has_many :reposts
   has_many :reposted_tracks, through: :reposts, source: :track
@@ -92,6 +98,8 @@ class User < ApplicationRecord
   store_attribute :settings, :pst_enabled, :boolean
   store_attribute :settings, :tbk_commerce_code, :string
   store_attribute :settings, :tbk_test_mode, :boolean
+  store_attribute :settings, :can_send_newsletter, :boolean, default: false
+  store_attribute :settings, :newsletter_broadcast_recipient_limit, :integer, default: NEWSLETTER_BROADCAST_RECIPIENT_LIMIT_DEFAULT
 
 
   store_attribute :social_links_settings, :email_sign_up, :boolean
@@ -107,6 +115,10 @@ class User < ApplicationRecord
 
   accepts_nested_attributes_for :photos, allow_destroy: true
   accepts_nested_attributes_for :podcaster_info, allow_destroy: true
+
+  validates :newsletter_broadcast_recipient_limit,
+    numericality: { only_integer: true, greater_than: 0 },
+    if: :can_send_newsletter
 
   scope :artists, -> { where(role: "artist").where.not(username: nil) }
   
@@ -238,6 +250,10 @@ class User < ApplicationRecord
 
   def is_publisher?
     is_admin?
+  end
+
+  def can_access_newsletter?
+    can_send_newsletter
   end
 
   def is_admin?

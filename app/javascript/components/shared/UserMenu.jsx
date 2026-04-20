@@ -57,6 +57,7 @@ import {
   Headphones,
   Menu,
   ChevronDown,
+  Mail,
 } from "lucide-react";
 import {
   NavigationMenu,
@@ -646,6 +647,15 @@ export default function UserMenu() {
                             </Link>
                           </DropdownMenuItem>
                         )}
+
+                        {currentUser.can_send_newsletter && (
+                          <DropdownMenuItem asChild>
+                            <Link to="/newsletter/contacts">
+                              <Users className="mr-2 h-4 w-4" />
+                              <span>Newsletter</span>
+                            </Link>
+                          </DropdownMenuItem>
+                        )}
                       </DropdownMenuGroup>
 
                       <DropdownMenuSeparator />
@@ -851,6 +861,15 @@ export default function UserMenu() {
                             <Link to="/events/mine">
                               <Calendar className="mr-2 h-4 w-4" />
                               <span>{I18n.t("menu.my_events")}</span>
+                            </Link>
+                          </DropdownMenuItem>
+                        )}
+
+                        {currentUser.can_send_newsletter && (
+                          <DropdownMenuItem asChild>
+                            <Link to="/newsletter/contacts">
+                              <Users className="mr-2 h-4 w-4" />
+                              <span>Newsletter</span>
                             </Link>
                           </DropdownMenuItem>
                         )}

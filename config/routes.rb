@@ -6,6 +6,38 @@ Rails.application.routes.draw do
       get :menus
     end
   end
+  resources :email_templates, path: "email-templates" do
+    collection do
+      post :preview
+      post :test_send
+    end
+  end
+  namespace :newsletter do
+    root to: "dashboard#index"
+    get "contacts", to: "dashboard#index"
+    get "templates", to: "dashboard#index"
+
+    resources :contact_lists, path: "contact-lists" do
+      member do
+        post :import
+      end
+
+      resources :contacts, controller: :contact_list_contacts
+    end
+
+    resources :audiences do
+      collection do
+        get :source_options
+        post :preview
+      end
+    end
+
+    resources :broadcasts do
+      member do
+        post :send_now
+      end
+    end
+  end
   resources :editor_templates, only: [:index, :create, :destroy], defaults: { format: :json }
   resources :course_enrollments, only: [:create, :show] do
     member do

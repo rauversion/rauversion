@@ -77,6 +77,8 @@ RSpec.describe "Admin API", type: :request do
         google_analytics_id: "G-ABC123DEF4",
         age_restriction: "18",
         new_message_email: false,
+        can_send_newsletter: true,
+        newsletter_broadcast_recipient_limit: 250,
         confirmed_at: Time.current
       )
     end
@@ -93,6 +95,37 @@ RSpec.describe "Admin API", type: :request do
       expect(json_response.dig("record", "form_values", "google_analytics_id")).to eq("G-ABC123DEF4")
       expect(json_response.dig("record", "form_values", "age_restriction")).to eq("18")
       expect(json_response.dig("record", "form_values", "new_message_email")).to eq(false)
+      expect(json_response.dig("record", "form_values", "can_send_newsletter")).to eq(true)
+      expect(json_response.dig("record", "form_values", "newsletter_broadcast_recipient_limit")).to eq(250)
+    end
+  end
+
+  describe "PATCH /api/admin/users/:id" do
+    let!(:artist) do
+      create(
+        :user,
+        email: "newsletter-artist@rauversion.com",
+        username: "newsletter-artist",
+        role: :artist,
+        can_send_newsletter: false,
+        newsletter_broadcast_recipient_limit: 100,
+        confirmed_at: Time.current
+      )
+    end
+
+    it "updates newsletter permission fields" do
+      patch "/api/admin/users/#{artist.id}", params: {
+        record: {
+          can_send_newsletter: true,
+          newsletter_broadcast_recipient_limit: 750
+        }
+      }, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(artist.reload.can_send_newsletter).to eq(true)
+      expect(artist.newsletter_broadcast_recipient_limit).to eq(750)
+      expect(json_response.dig("record", "form_values", "can_send_newsletter")).to eq(true)
+      expect(json_response.dig("record", "form_values", "newsletter_broadcast_recipient_limit")).to eq(750)
     end
   end
 

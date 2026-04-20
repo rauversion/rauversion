@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_07_103000) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_19_143001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -168,6 +168,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_07_103000) do
     t.bigint "user_id"
     t.index ["category", "user_id"], name: "index_editor_templates_on_category_and_user_id"
     t.index ["user_id"], name: "index_editor_templates_on_user_id"
+  end
+
+  create_table "email_templates", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.jsonb "document", default: {}, null: false
+    t.string "name", null: false
+    t.string "preheader"
+    t.boolean "published", default: false, null: false
+    t.string "subject", default: "", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["document"], name: "index_email_templates_on_document", using: :gin
+    t.index ["user_id", "updated_at"], name: "index_email_templates_on_user_id_and_updated_at"
+    t.index ["user_id"], name: "index_email_templates_on_user_id"
   end
 
   create_table "embedded_sites", force: :cascade do |t|
@@ -434,6 +448,101 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_07_103000) do
     t.bigint "user_id", null: false
     t.index ["conversation_id"], name: "index_messages_on_conversation_id"
     t.index ["user_id"], name: "index_messages_on_user_id"
+  end
+
+  create_table "newsletter_audience_sources", force: :cascade do |t|
+    t.bigint "audience_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "position", default: 0, null: false
+    t.jsonb "source_settings", default: {}, null: false
+    t.string "source_type", null: false
+    t.datetime "updated_at", null: false
+    t.index ["audience_id", "position"], name: "index_newsletter_audience_sources_on_audience_id_and_position"
+    t.index ["audience_id"], name: "index_newsletter_audience_sources_on_audience_id"
+    t.index ["source_type"], name: "index_newsletter_audience_sources_on_source_type"
+  end
+
+  create_table "newsletter_audiences", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id", "name"], name: "index_newsletter_audiences_on_user_id_and_name", unique: true
+    t.index ["user_id"], name: "index_newsletter_audiences_on_user_id"
+  end
+
+  create_table "newsletter_broadcast_recipients", force: :cascade do |t|
+    t.bigint "broadcast_id", null: false
+    t.string "country"
+    t.datetime "created_at", null: false
+    t.string "display_name"
+    t.string "email", null: false
+    t.text "error_message"
+    t.jsonb "event_titles", default: [], null: false
+    t.datetime "failed_at"
+    t.string "first_name"
+    t.string "last_name"
+    t.string "name"
+    t.integer "position", default: 0, null: false
+    t.datetime "sent_at"
+    t.jsonb "source_labels", default: [], null: false
+    t.jsonb "source_types", default: [], null: false
+    t.string "status", default: "pending", null: false
+    t.jsonb "ticket_titles", default: [], null: false
+    t.datetime "updated_at", null: false
+    t.string "username"
+    t.index ["broadcast_id", "email"], name: "idx_on_broadcast_id_email_92e8c072d7", unique: true
+    t.index ["broadcast_id", "position"], name: "idx_on_broadcast_id_position_3491f48325"
+    t.index ["broadcast_id"], name: "index_newsletter_broadcast_recipients_on_broadcast_id"
+    t.index ["status"], name: "index_newsletter_broadcast_recipients_on_status"
+  end
+
+  create_table "newsletter_broadcasts", force: :cascade do |t|
+    t.bigint "audience_id"
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.bigint "email_template_id"
+    t.datetime "failed_at"
+    t.integer "failed_recipients", default: 0, null: false
+    t.text "html_template"
+    t.text "last_error"
+    t.string "name", null: false
+    t.integer "sent_recipients", default: 0, null: false
+    t.datetime "started_at"
+    t.string "status", default: "draft", null: false
+    t.text "subject_template"
+    t.integer "total_recipients", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["audience_id"], name: "index_newsletter_broadcasts_on_audience_id"
+    t.index ["email_template_id"], name: "index_newsletter_broadcasts_on_email_template_id"
+    t.index ["status"], name: "index_newsletter_broadcasts_on_status"
+    t.index ["user_id", "updated_at"], name: "index_newsletter_broadcasts_on_user_id_and_updated_at"
+    t.index ["user_id"], name: "index_newsletter_broadcasts_on_user_id"
+  end
+
+  create_table "newsletter_contact_lists", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id", "name"], name: "index_newsletter_contact_lists_on_user_id_and_name", unique: true
+    t.index ["user_id"], name: "index_newsletter_contact_lists_on_user_id"
+  end
+
+  create_table "newsletter_contacts", force: :cascade do |t|
+    t.bigint "contact_list_id", null: false
+    t.string "country"
+    t.datetime "created_at", null: false
+    t.string "dni"
+    t.string "email", null: false
+    t.string "first_name"
+    t.string "last_name"
+    t.string "name"
+    t.datetime "updated_at", null: false
+    t.index ["contact_list_id", "email"], name: "index_newsletter_contacts_on_contact_list_id_and_email", unique: true
+    t.index ["contact_list_id"], name: "index_newsletter_contacts_on_contact_list_id"
+    t.index ["email"], name: "index_newsletter_contacts_on_email"
   end
 
   create_table "nondisposable_disposable_domains", force: :cascade do |t|
@@ -1160,6 +1269,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_07_103000) do
   add_foreign_key "course_modules", "courses"
   add_foreign_key "courses", "users"
   add_foreign_key "editor_templates", "users"
+  add_foreign_key "email_templates", "users"
   add_foreign_key "embedded_sites", "users"
   add_foreign_key "event_hosts", "events"
   add_foreign_key "event_hosts", "users"
@@ -1176,6 +1286,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_07_103000) do
   add_foreign_key "message_reads", "participants"
   add_foreign_key "messages", "conversations"
   add_foreign_key "messages", "users"
+  add_foreign_key "newsletter_audience_sources", "newsletter_audiences", column: "audience_id"
+  add_foreign_key "newsletter_audiences", "users"
+  add_foreign_key "newsletter_broadcast_recipients", "newsletter_broadcasts", column: "broadcast_id"
+  add_foreign_key "newsletter_broadcasts", "email_templates"
+  add_foreign_key "newsletter_broadcasts", "newsletter_audiences", column: "audience_id"
+  add_foreign_key "newsletter_broadcasts", "users"
+  add_foreign_key "newsletter_contact_lists", "users"
+  add_foreign_key "newsletter_contacts", "newsletter_contact_lists", column: "contact_list_id"
   add_foreign_key "oauth_credentials", "users"
   add_foreign_key "participants", "conversations"
   add_foreign_key "participants", "users"
