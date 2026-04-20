@@ -1,5 +1,5 @@
 import React from "react"
-import { Plus, Save, Trash2, Upload } from "lucide-react"
+import { Download, Plus, Save, Trash2, Upload } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -44,6 +44,8 @@ const EMPTY_CONTACT = {
   country: "",
   dni: "",
 }
+
+const CONTACTS_IMPORT_TEMPLATE_PATH = "/templates/event_list_contacts_template.csv"
 
 export function ContactListsManager() {
   const { toast } = useToast()
@@ -324,7 +326,7 @@ export function ContactListsManager() {
             </div>
           ) : (
             <>
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
                 <div className="flex flex-1 gap-2">
                   <Input value={selectedListName} onChange={(event) => setSelectedListName(event.target.value)} />
                   <Button
@@ -338,23 +340,34 @@ export function ContactListsManager() {
                   </Button>
                 </div>
 
-                <div className="flex items-center gap-2">
-                  <Badge variant="secondary">{selectedList.contactsCount} contactos</Badge>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    accept=".csv,text/csv"
-                    className="hidden"
-                    onChange={handleImportContacts}
-                  />
-                  <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} disabled={importing}>
-                    <Upload className="h-4 w-4" />
-                    {importing ? "Importando…" : "Importar CSV"}
-                  </Button>
-                  <Button type="button" variant="destructive" onClick={handleDeleteList}>
-                    <Trash2 className="h-4 w-4" />
-                    Eliminar
-                  </Button>
+                <div className="flex flex-col items-start gap-2">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary">{selectedList.contactsCount} contactos</Badge>
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".csv,text/csv"
+                      className="hidden"
+                      onChange={handleImportContacts}
+                    />
+                    <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()} disabled={importing}>
+                      <Upload className="h-4 w-4" />
+                      {importing ? "Importando…" : "Importar CSV"}
+                    </Button>
+                    <Button type="button" variant="destructive" onClick={handleDeleteList}>
+                      <Trash2 className="h-4 w-4" />
+                      Eliminar
+                    </Button>
+                  </div>
+
+                  <a
+                    href={CONTACTS_IMPORT_TEMPLATE_PATH}
+                    download="newsletter_contacts_template.csv"
+                    className="inline-flex items-center gap-2 text-sm text-primary underline-offset-4 hover:underline"
+                  >
+                    <Download className="h-4 w-4" />
+                    Descargar CSV de ejemplo
+                  </a>
                 </div>
               </div>
 
