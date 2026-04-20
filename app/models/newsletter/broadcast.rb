@@ -5,6 +5,7 @@ class Newsletter::Broadcast < ApplicationRecord
   belongs_to :audience, class_name: "Newsletter::Audience", optional: true
   belongs_to :email_template, optional: true
   has_many :recipients, class_name: "Newsletter::BroadcastRecipient", dependent: :destroy, inverse_of: :broadcast
+  has_many :events, class_name: "Newsletter::BroadcastEvent", dependent: :destroy, inverse_of: :broadcast
 
   validates :name, presence: true
   validates :status, presence: true, inclusion: { in: STATUSES }

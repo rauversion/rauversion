@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_19_143001) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_19_153000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -469,6 +469,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_19_143001) do
     t.bigint "user_id", null: false
     t.index ["user_id", "name"], name: "index_newsletter_audiences_on_user_id_and_name", unique: true
     t.index ["user_id"], name: "index_newsletter_audiences_on_user_id"
+  end
+
+  create_table "newsletter_broadcast_events", force: :cascade do |t|
+    t.bigint "broadcast_id", null: false
+    t.datetime "created_at", null: false
+    t.string "event_type", null: false
+    t.string "ip_address"
+    t.datetime "occurred_at", null: false
+    t.bigint "recipient_id", null: false
+    t.text "tracked_url"
+    t.datetime "updated_at", null: false
+    t.text "user_agent"
+    t.index ["broadcast_id", "event_type"], name: "idx_on_broadcast_id_event_type_4d9080970e"
+    t.index ["broadcast_id", "recipient_id", "event_type"], name: "idx_newsletter_broadcast_events_on_broadcast_recipient_type"
+    t.index ["broadcast_id"], name: "index_newsletter_broadcast_events_on_broadcast_id"
+    t.index ["recipient_id"], name: "index_newsletter_broadcast_events_on_recipient_id"
   end
 
   create_table "newsletter_broadcast_recipients", force: :cascade do |t|
@@ -1288,6 +1304,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_19_143001) do
   add_foreign_key "messages", "users"
   add_foreign_key "newsletter_audience_sources", "newsletter_audiences", column: "audience_id"
   add_foreign_key "newsletter_audiences", "users"
+  add_foreign_key "newsletter_broadcast_events", "newsletter_broadcast_recipients", column: "recipient_id"
+  add_foreign_key "newsletter_broadcast_events", "newsletter_broadcasts", column: "broadcast_id"
   add_foreign_key "newsletter_broadcast_recipients", "newsletter_broadcasts", column: "broadcast_id"
   add_foreign_key "newsletter_broadcasts", "email_templates"
   add_foreign_key "newsletter_broadcasts", "newsletter_audiences", column: "audience_id"

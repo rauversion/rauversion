@@ -16,6 +16,8 @@ Rails.application.routes.draw do
     root to: "dashboard#index"
     get "contacts", to: "dashboard#index"
     get "templates", to: "dashboard#index"
+    get "track/open", to: "tracking#open", as: :track_open
+    get "track/click", to: "tracking#click", as: :track_click
 
     resources :contact_lists, path: "contact-lists" do
       member do
@@ -35,6 +37,7 @@ Rails.application.routes.draw do
     resources :broadcasts do
       member do
         post :send_now
+        post :clear_metrics
       end
     end
   end

@@ -53,12 +53,16 @@ module Newsletter
       )
 
       subject = Newsletter::TemplateVariables.resolve(broadcast.subject_template.to_s, variables)
-      html = Newsletter::TemplateVariables.resolve(
+      resolved_html = Newsletter::TemplateVariables.resolve(
         broadcast.html_template.to_s,
         variables,
         escape_html_values: true
       )
-      text = ActionController::Base.helpers.strip_tags(html.to_s)
+      html = Newsletter::BroadcastTracking.prepare_html(
+        recipient: recipient,
+        html: resolved_html
+      )
+      text = ActionController::Base.helpers.strip_tags(resolved_html.to_s)
 
       NewsletterBroadcastMailer.with(
         to_email: recipient.email,

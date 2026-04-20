@@ -3,6 +3,17 @@ import { Link, useNavigate } from "react-router-dom"
 import { Edit3, Eye, Plus, Save, Send, Trash2 } from "lucide-react"
 
 import { EmailPreviewTab } from "@/components/email-editor/preview-tab"
+import NewsletterBroadcastMetricsPanel from "@/components/newsletter/NewsletterBroadcastMetricsPanel"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -41,6 +52,7 @@ import { normalizeEmailDocument } from "@/lib/email-editor/normalizers"
 import { serializeEmailDocumentToMjml } from "@/lib/email-editor/serializer"
 import {
   createNewsletterBroadcast,
+  clearNewsletterBroadcastMetrics,
   destroyNewsletterBroadcast,
   fetchNewsletterAudiences,
   fetchNewsletterBroadcast,
@@ -100,6 +112,8 @@ export function NewsletterBroadcastsManager({
   const [creatingTemplate, setCreatingTemplate] = React.useState(false)
   const [saving, setSaving] = React.useState(false)
   const [sending, setSending] = React.useState(false)
+  const [clearingMetrics, setClearingMetrics] = React.useState(false)
+  const [confirmClearMetricsOpen, setConfirmClearMetricsOpen] = React.useState(false)
   const [activeTab, setActiveTab] = React.useState("audience")
   const previewRequestRef = React.useRef(0)
 
@@ -167,7 +181,13 @@ export function NewsletterBroadcastsManager({
   }, [loadBroadcastDetail, selectedBroadcastId, toast])
 
   React.useEffect(() => {
-    if (!broadcast || !["queued", "sending"].includes(broadcast.status)) return
+    if (!broadcast) return
+
+    const shouldPollForDelivery = ["queued", "sending"].includes(broadcast.status)
+    const shouldPollForMetrics = activeTab === "metrics" && broadcast.sentRecipients > 0
+    if (!shouldPollForDelivery && !shouldPollForMetrics) return
+
+    const intervalMs = shouldPollForDelivery ? 2000 : 5000
 
     const intervalId = window.setInterval(() => {
       loadBroadcastDetail(broadcast.id).catch(() => {
@@ -176,10 +196,10 @@ export function NewsletterBroadcastsManager({
       loadBroadcasts().catch(() => {
         window.clearInterval(intervalId)
       })
-    }, 2000)
+    }, intervalMs)
 
     return () => window.clearInterval(intervalId)
-  }, [broadcast, loadBroadcastDetail, loadBroadcasts])
+  }, [activeTab, broadcast, loadBroadcastDetail, loadBroadcasts])
 
   const selectedAudience = React.useMemo(
     () => audiences.find((item) => item.id === broadcast?.audienceId) ?? null,
@@ -217,6 +237,9 @@ export function NewsletterBroadcastsManager({
   }, [selectedAudience, toast])
 
   const broadcastLocked = Boolean(broadcast && ["queued", "sending"].includes(broadcast.status))
+  const hasTrackedMetrics = Boolean(
+    broadcast && (broadcast.metrics.totalOpens > 0 || broadcast.metrics.totalClicks > 0)
+  )
 
   const updateLocalBroadcast = (updates: Partial<NewsletterBroadcastRecord>) => {
     setBroadcast((current) => (current ? { ...current, ...updates } : current))
@@ -358,8 +381,32 @@ export function NewsletterBroadcastsManager({
     }
   }
 
+  const handleClearMetrics = async () => {
+    if (!broadcast) return
+
+    setClearingMetrics(true)
+    try {
+      const cleared = await clearNewsletterBroadcastMetrics(broadcast.id)
+      setBroadcast(cleared)
+      setConfirmClearMetricsOpen(false)
+      toast({
+        title: "Métricas limpiadas",
+        description: "Se eliminaron las aperturas y clicks registrados de este broadcast.",
+      })
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "No se pudieron limpiar las métricas",
+        variant: "destructive",
+      })
+    } finally {
+      setClearingMetrics(false)
+    }
+  }
+
   const content = (
-    <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
+    <>
+      <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
         <Card>
           <CardHeader>
             <CardTitle>Broadcasts</CardTitle>
@@ -439,6 +486,7 @@ export function NewsletterBroadcastsManager({
                     <TabsTrigger value="audience">Audiencia</TabsTrigger>
                     <TabsTrigger value="template">Template</TabsTrigger>
                     <TabsTrigger value="send">Enviar</TabsTrigger>
+                    <TabsTrigger value="metrics">Métricas</TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="audience" className="space-y-4">
@@ -627,19 +675,21 @@ export function NewsletterBroadcastsManager({
                             <TableHead>Email</TableHead>
                             <TableHead>Nombre</TableHead>
                             <TableHead>Estado</TableHead>
+                            <TableHead className="text-right">Aperturas</TableHead>
+                            <TableHead className="text-right">Clicks</TableHead>
                             <TableHead>Origen</TableHead>
                           </TableRow>
                         </TableHeader>
                         <TableBody>
                           {loadingDetail ? (
                             <TableRow>
-                              <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">
+                              <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
                                 Cargando destinatarios…
                               </TableCell>
                             </TableRow>
                           ) : broadcast.recipients.length === 0 ? (
                             <TableRow>
-                              <TableCell colSpan={4} className="py-8 text-center text-muted-foreground">
+                              <TableCell colSpan={6} className="py-8 text-center text-muted-foreground">
                                 El snapshot de destinatarios aparecerá aquí al iniciar el envío.
                               </TableCell>
                             </TableRow>
@@ -653,6 +703,8 @@ export function NewsletterBroadcastsManager({
                                     {recipient.status}
                                   </Badge>
                                 </TableCell>
+                                <TableCell className="text-right">{recipient.openCount}</TableCell>
+                                <TableCell className="text-right">{recipient.clickCount}</TableCell>
                                 <TableCell className="max-w-[320px] truncate">
                                   {recipient.errorMessage || recipient.sourceLabels.join(", ") || "—"}
                                 </TableCell>
@@ -670,12 +722,56 @@ export function NewsletterBroadcastsManager({
                       </div>
                     ) : null}
                   </TabsContent>
+
+                  <TabsContent value="metrics" className="space-y-4">
+                    <div className="flex justify-end">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => setConfirmClearMetricsOpen(true)}
+                        disabled={broadcastLocked || clearingMetrics || !hasTrackedMetrics}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        {clearingMetrics ? "Limpiando…" : "Limpiar métricas"}
+                      </Button>
+                    </div>
+
+                    <NewsletterBroadcastMetricsPanel broadcast={broadcast} />
+
+                    {broadcast.sentRecipients > 0 ? (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Eye className="h-4 w-4" />
+                        Las métricas se refrescan automáticamente mientras esta pestaña está abierta.
+                      </div>
+                    ) : null}
+                  </TabsContent>
                 </Tabs>
               </div>
             )}
           </CardContent>
         </Card>
       </div>
+
+      <AlertDialog open={confirmClearMetricsOpen} onOpenChange={setConfirmClearMetricsOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Limpiar métricas?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esto eliminará las aperturas y clicks registrados de este broadcast. El snapshot de destinatarios y el estado del envío no cambiarán.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={clearingMetrics}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleClearMetrics}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {clearingMetrics ? "Limpiando…" : "Sí, limpiar"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   )
 
   if (embedded) {

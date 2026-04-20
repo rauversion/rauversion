@@ -1,6 +1,6 @@
 module Newsletter
   class BroadcastsController < BaseController
-    before_action :set_broadcast, only: [:show, :update, :destroy, :send_now]
+    before_action :set_broadcast, only: [:show, :update, :destroy, :send_now, :clear_metrics]
 
     def index
       respond_to do |format|
@@ -127,6 +127,19 @@ module Newsletter
       render json: { errors: e.record.errors.full_messages }, status: :unprocessable_entity
     end
 
+    def clear_metrics
+      if @broadcast.active_delivery?
+        render json: { errors: ["No puedes limpiar las métricas de un broadcast en progreso"] }, status: :unprocessable_entity
+        return
+      end
+
+      @broadcast.events.delete_all
+
+      render json: {
+        broadcast: serialize_broadcast(@broadcast.reload, include_recipients: true),
+      }
+    end
+
     private
 
     def set_broadcast
@@ -190,6 +203,7 @@ module Newsletter
     end
 
     def serialize_broadcast(broadcast, include_recipients: false)
+      metrics = Newsletter::BroadcastMetrics.new(broadcast)
       serialized = {
         id: broadcast.id.to_s,
         name: broadcast.name,
@@ -209,16 +223,21 @@ module Newsletter
         failed_at: broadcast.failed_at,
         updated_at: broadcast.updated_at,
         created_at: broadcast.created_at,
+        metrics: metrics.as_json,
       }
 
       return serialized unless include_recipients
 
+      recipient_aggregates = metrics.recipient_aggregates
+
       serialized.merge(
-        recipients: broadcast.recipients.order(position: :asc).limit(100).map { |recipient| serialize_recipient(recipient) }
+        recipients: broadcast.recipients.order(position: :asc).limit(100).map { |recipient| serialize_recipient(recipient, recipient_aggregates[recipient.id]) }
       )
     end
 
-    def serialize_recipient(recipient)
+    def serialize_recipient(recipient, aggregate = nil)
+      aggregate ||= {}
+
       {
         id: recipient.id.to_s,
         email: recipient.email,
@@ -236,6 +255,12 @@ module Newsletter
         error_message: recipient.error_message.to_s,
         sent_at: recipient.sent_at,
         failed_at: recipient.failed_at,
+        open_count: aggregate[:open_count].to_i,
+        click_count: aggregate[:click_count].to_i,
+        opened_at: aggregate[:opened_at],
+        last_opened_at: aggregate[:last_opened_at],
+        clicked_at: aggregate[:clicked_at],
+        last_clicked_at: aggregate[:last_clicked_at],
       }
     end
   end

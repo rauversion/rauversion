@@ -5,6 +5,10 @@ import type {
   NewsletterAudienceRecord,
   NewsletterBroadcastRecipientRecord,
   NewsletterBroadcastRecord,
+  NewsletterBroadcastMetrics,
+  NewsletterBroadcastMetricSlice,
+  NewsletterBroadcastActivityPoint,
+  NewsletterBroadcastLinkMetric,
   NewsletterAudienceSourceInput,
   NewsletterContactListRecord,
   NewsletterContactRecord,
@@ -117,6 +121,89 @@ function normalizeBroadcastRecipient(value: unknown): NewsletterBroadcastRecipie
     errorMessage: readString(value.error_message ?? value.errorMessage),
     sentAt: readString(value.sent_at ?? value.sentAt),
     failedAt: readString(value.failed_at ?? value.failedAt),
+    openCount: readNumber(value.open_count ?? value.openCount),
+    clickCount: readNumber(value.click_count ?? value.clickCount),
+    openedAt: readString(value.opened_at ?? value.openedAt),
+    lastOpenedAt: readString(value.last_opened_at ?? value.lastOpenedAt),
+    clickedAt: readString(value.clicked_at ?? value.clickedAt),
+    lastClickedAt: readString(value.last_clicked_at ?? value.lastClickedAt),
+  }
+}
+
+function normalizeMetricSlice(value: unknown): NewsletterBroadcastMetricSlice {
+  if (!isRecord(value)) {
+    throw new Error("Invalid newsletter metric slice payload")
+  }
+
+  return {
+    key: readString(value.key),
+    label: readString(value.label),
+    value: readNumber(value.value),
+    fill: readString(value.fill),
+  }
+}
+
+function normalizeActivityPoint(value: unknown): NewsletterBroadcastActivityPoint {
+  if (!isRecord(value)) {
+    throw new Error("Invalid newsletter activity point payload")
+  }
+
+  return {
+    date: readString(value.date),
+    opens: readNumber(value.opens),
+    clicks: readNumber(value.clicks),
+  }
+}
+
+function normalizeLinkMetric(value: unknown): NewsletterBroadcastLinkMetric {
+  if (!isRecord(value)) {
+    throw new Error("Invalid newsletter link metric payload")
+  }
+
+  return {
+    url: readString(value.url),
+    clicks: readNumber(value.clicks),
+    uniqueClicks: readNumber(value.unique_clicks ?? value.uniqueClicks),
+  }
+}
+
+function normalizeBroadcastMetrics(value: unknown): NewsletterBroadcastMetrics {
+  if (!isRecord(value)) {
+    return {
+      uniqueOpenRecipients: 0,
+      totalOpens: 0,
+      uniqueClickRecipients: 0,
+      totalClicks: 0,
+      openRate: 0,
+      clickRate: 0,
+      clickToOpenRate: 0,
+      deliveryBreakdown: [],
+      engagementBreakdown: [],
+      activitySeries: [],
+      topLinks: [],
+    }
+  }
+
+  return {
+    uniqueOpenRecipients: readNumber(value.unique_open_recipients ?? value.uniqueOpenRecipients),
+    totalOpens: readNumber(value.total_opens ?? value.totalOpens),
+    uniqueClickRecipients: readNumber(value.unique_click_recipients ?? value.uniqueClickRecipients),
+    totalClicks: readNumber(value.total_clicks ?? value.totalClicks),
+    openRate: readNumber(value.open_rate ?? value.openRate),
+    clickRate: readNumber(value.click_rate ?? value.clickRate),
+    clickToOpenRate: readNumber(value.click_to_open_rate ?? value.clickToOpenRate),
+    deliveryBreakdown: Array.isArray(value.delivery_breakdown ?? value.deliveryBreakdown)
+      ? (value.delivery_breakdown ?? value.deliveryBreakdown).map((item) => normalizeMetricSlice(item))
+      : [],
+    engagementBreakdown: Array.isArray(value.engagement_breakdown ?? value.engagementBreakdown)
+      ? (value.engagement_breakdown ?? value.engagementBreakdown).map((item) => normalizeMetricSlice(item))
+      : [],
+    activitySeries: Array.isArray(value.activity_series ?? value.activitySeries)
+      ? (value.activity_series ?? value.activitySeries).map((item) => normalizeActivityPoint(item))
+      : [],
+    topLinks: Array.isArray(value.top_links ?? value.topLinks)
+      ? (value.top_links ?? value.topLinks).map((item) => normalizeLinkMetric(item))
+      : [],
   }
 }
 
@@ -146,6 +233,7 @@ function normalizeBroadcast(value: unknown): NewsletterBroadcastRecord {
     failedAt: readString(value.failed_at ?? value.failedAt),
     updatedAt: readString(value.updated_at ?? value.updatedAt),
     createdAt: readString(value.created_at ?? value.createdAt),
+    metrics: normalizeBroadcastMetrics(value.metrics),
     recipients: recipients.map((recipient) => normalizeBroadcastRecipient(recipient)),
   }
 }
@@ -545,6 +633,19 @@ export async function sendNewsletterBroadcast(id: string, input: SendNewsletterB
         html_template: input.htmlTemplate,
       },
     }),
+    responseKind: "json",
+  })
+
+  if (!response.ok) {
+    throw new Error(await parseErrors(response))
+  }
+
+  const payload = await response.json
+  return normalizeBroadcast(isRecord(payload) ? payload.broadcast : null)
+}
+
+export async function clearNewsletterBroadcastMetrics(id: string): Promise<NewsletterBroadcastRecord> {
+  const response = await post(`/newsletter/broadcasts/${id}/clear_metrics.json`, {
     responseKind: "json",
   })
 

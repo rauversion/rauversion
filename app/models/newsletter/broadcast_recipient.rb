@@ -2,6 +2,7 @@ class Newsletter::BroadcastRecipient < ApplicationRecord
   STATUSES = %w[pending sent failed].freeze
 
   belongs_to :broadcast, class_name: "Newsletter::Broadcast", inverse_of: :recipients
+  has_many :events, class_name: "Newsletter::BroadcastEvent", dependent: :destroy, inverse_of: :recipient
 
   validates :email, presence: true, format: { with: URI::MailTo::EMAIL_REGEXP }
   validates :status, presence: true, inclusion: { in: STATUSES }

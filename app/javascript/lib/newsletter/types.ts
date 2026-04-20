@@ -67,6 +67,45 @@ export interface NewsletterBroadcastRecipientRecord {
   errorMessage: string
   sentAt: string
   failedAt: string
+  openCount: number
+  clickCount: number
+  openedAt: string
+  lastOpenedAt: string
+  clickedAt: string
+  lastClickedAt: string
+}
+
+export interface NewsletterBroadcastMetricSlice {
+  key: string
+  label: string
+  value: number
+  fill: string
+}
+
+export interface NewsletterBroadcastActivityPoint {
+  date: string
+  opens: number
+  clicks: number
+}
+
+export interface NewsletterBroadcastLinkMetric {
+  url: string
+  clicks: number
+  uniqueClicks: number
+}
+
+export interface NewsletterBroadcastMetrics {
+  uniqueOpenRecipients: number
+  totalOpens: number
+  uniqueClickRecipients: number
+  totalClicks: number
+  openRate: number
+  clickRate: number
+  clickToOpenRate: number
+  deliveryBreakdown: NewsletterBroadcastMetricSlice[]
+  engagementBreakdown: NewsletterBroadcastMetricSlice[]
+  activitySeries: NewsletterBroadcastActivityPoint[]
+  topLinks: NewsletterBroadcastLinkMetric[]
 }
 
 export interface NewsletterBroadcastRecord {
@@ -88,6 +127,7 @@ export interface NewsletterBroadcastRecord {
   failedAt: string
   updatedAt: string
   createdAt: string
+  metrics: NewsletterBroadcastMetrics
   recipients: NewsletterBroadcastRecipientRecord[]
 }
 
