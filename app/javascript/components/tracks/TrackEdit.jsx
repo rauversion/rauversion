@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Button } from "@/components/ui/button"
+import { Progress } from "@/components/ui/progress"
 import { Select as BaseSelect, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Switch } from "@/components/ui/switch"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -53,6 +54,7 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
   const [loading, setLoading] = useState(false)
   const [cropUploadMode, setCropUploadMode] = useState("original_with_coords") // "crop" or "original_with_coords"
   const [videoUploading, setVideoUploading] = useState(false)
+  const [videoUploadProgress, setVideoUploadProgress] = useState(0)
   const [queuedVideoName, setQueuedVideoName] = useState("")
 
   const { control, handleSubmit, setValue, watch, form } = useForm({
@@ -121,6 +123,7 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
   useEffect(() => {
     if (!open) return
     setQueuedVideoName("")
+    setVideoUploadProgress(0)
     setValue("video", "")
     fetchTrack()
   }, [open])
@@ -142,12 +145,26 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
 
   const uploadFile = async (file) => {
     return new Promise((resolve, reject) => {
-      const upload = new DirectUpload(file, "/rails/active_storage/direct_uploads")
+      const upload = new DirectUpload(
+        file,
+        "/rails/active_storage/direct_uploads",
+        {
+          directUploadWillStoreFileWithXHR: (request) => {
+            request.upload.addEventListener("progress", (event) => {
+              if (!event.lengthComputable) return
+
+              setVideoUploadProgress((event.loaded / event.total) * 100)
+            })
+          },
+        }
+      )
 
       upload.create((error, blob) => {
         if (error) {
+          setVideoUploadProgress(0)
           reject(error)
         } else {
+          setVideoUploadProgress(100)
           resolve(blob)
         }
       })
@@ -159,6 +176,8 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
     if (!file) return
 
     setVideoUploading(true)
+    setQueuedVideoName("")
+    setVideoUploadProgress(0)
 
     try {
       const blob = await uploadFile(file)
@@ -170,6 +189,7 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
       })
     } catch (error) {
       console.error("Video upload error:", error)
+      setQueuedVideoName("")
       toast({
         title: "Error",
         description: I18n.t("tracks.edit.messages.video_upload_error"),
@@ -381,9 +401,17 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
                         />
                         <p className="mt-2 text-sm text-muted-foreground">
                           {videoUploading
-                            ? I18n.t("tracks.edit.form.video_uploading")
+                            ? `${I18n.t("tracks.edit.form.video_uploading")} ${Math.round(videoUploadProgress)}%`
                             : I18n.t("tracks.edit.form.video_hint")}
                         </p>
+                        {(videoUploading || videoUploadProgress > 0) && (
+                          <div className="mt-3 space-y-1">
+                            <Progress value={videoUploadProgress} className="h-2" />
+                            <div className="text-xs text-muted-foreground">
+                              <span>{Math.round(videoUploadProgress)}%</span>
+                            </div>
+                          </div>
+                        )}
                         {queuedVideoName && (
                           <p className="mt-2 text-sm font-medium text-foreground">
                             {I18n.t("tracks.edit.form.video_selected", { name: queuedVideoName })}
