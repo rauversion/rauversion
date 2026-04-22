@@ -258,7 +258,6 @@ export default function PlaylistSelectorSingle({
         loadingMessage={() => "Cargando playlists..."}
         className="w-full"
         classNamePrefix="playlist-selector"
-        menuPortalTarget={document.body}
       />
     </div>
   )

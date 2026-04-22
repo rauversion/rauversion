@@ -80,6 +80,7 @@ export default function PlaylistBlock(props) {
   return (
     <NodeViewWrapper
       as="figure"
+      contentEditable={false}
       className={cn(
         "graf--figure graf--playlist-block relative rounded-2xl border border-border/60 bg-card/40 p-4 text-sm shadow-sm",
         props.selected && "is-selected is-mediaFocused ring-1 ring-emerald-400/40"
@@ -168,7 +169,11 @@ export default function PlaylistBlock(props) {
       </ErrorBoundary>
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="border-border bg-background sm:max-w-2xl">
+        <DialogContent
+          className="border-border bg-background sm:max-w-2xl"
+          onPointerDownOutside={(event) => event.preventDefault()}
+          onInteractOutside={(event) => event.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle>{playlistId ? "Cambiar playlist" : "Seleccionar playlist"}</DialogTitle>
             <DialogDescription>
