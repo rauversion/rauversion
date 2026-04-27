@@ -1326,8 +1326,10 @@ en:
       share:
         upload_complete: Upload completed
         go_to_track: Go to the track
+        go_to_playlist: Go to the playlist
         share: Share
         copy_link: Copy Link
+        copy_playlist_link: Copy playlist link
         share_twitter: Share on Twitter
       messages:
         invalid_files: Invalid files
@@ -1339,9 +1341,22 @@ en:
         cover_error: Error uploading the cover image
         save_error: Error saving track information
         link_copied: Link copied to clipboard
+        playlist_title_required: Playlist title required
+        playlist_title_required_description: Add a title before creating the playlist.
       controls:
         create_playlist: Create a playlist with these tracks
         privacy: Privacy
+        playlist_settings: Playlist settings
+        playlist_title: Playlist title
+        playlist_title_placeholder: Name this playlist
+        playlist_type: Playlist type
+        playlist_types:
+          playlist: Playlist
+          album: Album
+          ep: EP
+          single: Single
+          compilation: Compilation
+        playlist_privacy: Playlist privacy
         public: Public
         private: Private
         clear_all: Clean Everything

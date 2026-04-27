@@ -39,6 +39,17 @@ RSpec.describe "Playlists", type: :request do
         likeable_id: track.id
       )
     end
+    let!(:private_playlist) do
+      Playlist.create!(
+        user: artist,
+        title: "Private playlist",
+        playlist_type: "playlist",
+        private: true
+      )
+    end
+    let!(:private_playlist_track) do
+      TrackPlaylist.create!(playlist: private_playlist, track: track, position: 1)
+    end
 
     it "returns tracks without active like state for guests" do
       get "/playlists/#{playlist.slug}.json"
@@ -93,6 +104,28 @@ RSpec.describe "Playlists", type: :request do
       json = JSON.parse(response.body)
 
       expect(json.fetch("playlist").fetch("tracks").map { |item| item["id"] }).to eq([track.id, private_track.id])
+    end
+
+    it "returns a private playlist to its owner" do
+      sign_in artist
+
+      get "/playlists/#{private_playlist.slug}.json"
+
+      expect(response).to have_http_status(:ok)
+
+      json = JSON.parse(response.body)
+
+      expect(json.dig("playlist", "id")).to eq(private_playlist.id)
+      expect(json.dig("playlist", "private")).to eq(true)
+      expect(json.fetch("playlist").fetch("tracks").map { |item| item["id"] }).to eq([track.id])
+    end
+
+    it "does not return a private playlist to another user" do
+      sign_in listener
+
+      get "/playlists/#{private_playlist.slug}.json"
+
+      expect(response).to have_http_status(:not_found)
     end
   end
 end

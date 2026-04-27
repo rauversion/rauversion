@@ -6,4 +6,13 @@ else
   json.tracks @track_form.tracks do |track|
     json.partial! 'tracks/track', track: track
   end
+
+  if @track_form.playlist.present?
+    json.playlist do
+      json.partial! 'playlists/playlist',
+        playlist: @track_form.playlist,
+        show_details: true,
+        show_tracks_count: true
+    end
+  end
 end

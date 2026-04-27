@@ -147,6 +147,58 @@ RSpec.describe "Tracks", type: :request do
     end
   end
 
+  describe "POST /tracks.json" do
+    let(:artist) { create(:user, role: :artist, confirmed_at: Time.current) }
+
+    it "creates a playlist from multiple uploaded tracks when requested" do
+      first_blob = audio_blob(filename: "first.wav")
+      second_blob = audio_blob(filename: "second.wav")
+
+      sign_in artist
+
+      expect do
+        post tracks_path(format: :json),
+          params: {
+            track_form: {
+              step: "info",
+              make_playlist: true,
+              playlist_title: "Session playlist",
+              playlist_type: "album",
+              playlist_private: true,
+              tracks_attributes: [
+                { audio: first_blob.signed_id, title: "First track", private: false },
+                { audio: second_blob.signed_id, title: "Second track", private: false }
+              ]
+            }
+          },
+          as: :json
+      end.to change(Track, :count).by(2)
+        .and change(Playlist, :count).by(1)
+        .and change(TrackPlaylist, :count).by(2)
+
+      expect(response).to have_http_status(:ok)
+
+      payload = JSON.parse(response.body)
+      playlist = Playlist.last
+
+      expect(payload["success"]).to eq(true)
+      expect(payload.dig("playlist", "title")).to eq("Session playlist")
+      expect(payload.dig("playlist", "playlist_type")).to eq("album")
+      expect(payload.dig("playlist", "private")).to eq(true)
+      expect(playlist.tracks.order("track_playlists.position").pluck(:title)).to eq(
+        ["First track", "Second track"]
+      )
+    end
+
+    def audio_blob(filename:)
+      ActiveStorage::Blob.create_and_upload!(
+        io: StringIO.new("fake-audio"),
+        filename: filename,
+        content_type: "audio/wav"
+      )
+    end
+  end
+
   describe "GET /tracks/:id/appears_on.json" do
     let(:artist) { create(:user, confirmed_at: Time.current) }
     let(:track) { create(:track, user: artist) }

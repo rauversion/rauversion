@@ -37,18 +37,7 @@ class PlaylistsController < ApplicationController
   end
 
   def show
-    if current_user
-      begin
-        @playlist = Playlist.where(user_id: current_user.id)
-        .or(Playlist.where(label_id: current_user.id))
-        .where(playlist_type: ["album", "ep"])
-        .friendly.find(params[:id])
-      rescue ActiveRecord::RecordNotFound
-        nil
-      end
-    end
-
-    @playlist ||= Playlist.published.friendly.find(params[:id])
+    @playlist = visible_playlist_scope.friendly.find(params[:id])
     @visible_track_playlists = @playlist
       .visible_track_playlists_for(current_user)
       .includes(
@@ -76,8 +65,6 @@ class PlaylistsController < ApplicationController
       []
     end
 
-    render status: 404, plain: "This playlist is private or not found" and return unless @playlist
-
     respond_to do |format|
       format.html do
         if turbo_frame_request?
@@ -89,6 +76,8 @@ class PlaylistsController < ApplicationController
       end
       format.json
     end
+  rescue ActiveRecord::RecordNotFound
+    render status: 404, plain: "This playlist is private or not found"
   end
 
   def edit
@@ -212,6 +201,15 @@ class PlaylistsController < ApplicationController
   end
 
   private
+
+  def visible_playlist_scope
+    scope = Playlist.published
+    return scope if current_user.blank?
+
+    scope
+      .or(Playlist.where(user_id: current_user.id))
+      .or(Playlist.where(label_id: current_user.id))
+  end
 
   def playlist_params
     params.require(:playlist).permit(:title, :description, :playlist_type, :private, :price,

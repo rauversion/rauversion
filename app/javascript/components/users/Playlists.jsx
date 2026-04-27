@@ -151,7 +151,7 @@ export function PlaylistCard({
             <div className="bg-black/20 rounded-xl p-4 space-y-1">
               {playlist.tracks?.map((track, index) => (
                 <PlaylistListItem
-                  key={track.id}
+                  key={`${playlist.id}-${track.id}-${index}`}
                   track={track}
                   index={index}
                   currentTrackId={currentTrackId}

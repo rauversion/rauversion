@@ -1388,8 +1388,10 @@ es:
       share:
         upload_complete: Subida completada
         go_to_track: Ir a la pista
+        go_to_playlist: Ir a la playlist
         share: Compartir
         copy_link: Copiar Enlace
+        copy_playlist_link: Copiar enlace de la playlist
         share_twitter: Compartir en Twitter
       messages:
         invalid_files: Archivos inválidos
@@ -1401,9 +1403,22 @@ es:
         cover_error: Error al subir la imagen de portada
         save_error: Error al guardar la información de la pista
         link_copied: Enlace copiado al portapapeles
+        playlist_title_required: Falta el título de la playlist
+        playlist_title_required_description: Agrega un título antes de crear la playlist.
       controls:
         create_playlist: Crear una lista de reproducción con estas pistas
         privacy: Privacidad
+        playlist_settings: Configuración de la playlist
+        playlist_title: Título de la playlist
+        playlist_title_placeholder: Nombra esta playlist
+        playlist_type: Tipo de playlist
+        playlist_types:
+          playlist: Playlist
+          album: Álbum
+          ep: EP
+          single: Single
+          compilation: Compilación
+        playlist_privacy: Privacidad de la playlist
         public: Público
         private: Privado
         clear_all: Limpiar Todo

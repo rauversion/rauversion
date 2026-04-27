@@ -6,7 +6,6 @@ import { InterestAlert } from "../shared/alerts";
 import useAuthStore from "@/stores/authStore";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Music } from "lucide-react";
 import { DirectUpload } from "@rails/activestorage";
 import { post } from "@rails/request.js";
 import { Input } from "@/components/ui/input";
@@ -15,15 +14,24 @@ import Select from "react-select";
 import { Category } from "@/lib/constants";
 import { useThemeStore } from "@/stores/theme";
 import { ImageUploader } from "@/components/ui/image-uploader";
-import { Share2, X } from "lucide-react";
+import { ListMusic, Music, Share2, X } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Select as UiSelect,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import selectTheme from "@/components/ui/selectTheme";
 import I18n from "stores/locales";
 
 import "@/styles/react-select.css";
+
+const playlistTypeOptions = ["playlist", "album", "ep", "single", "compilation"];
 
 export default function NewTrack() {
   const navigate = useNavigate();
@@ -36,10 +44,43 @@ export default function NewTrack() {
   const [uploadProgress, setUploadProgress] = React.useState({});
   const [uploadedFiles, setUploadedFiles] = React.useState([]);
   const [makePlaylist, setMakePlaylist] = React.useState(false);
-  const [privacy, setPrivacy] = React.useState("public");
+  const [playlistTitle, setPlaylistTitle] = React.useState("");
+  const [playlistType, setPlaylistType] = React.useState("playlist");
+  const [playlistPrivacy, setPlaylistPrivacy] = React.useState("public");
   const [completedTracks, setCompletedTracks] = React.useState([]);
+  const [completedPlaylist, setCompletedPlaylist] = React.useState(null);
   const fileInputRef = React.useRef(null);
   const progressContainerRef = React.useRef(null);
+
+  const titleFromFiles = (sourceFiles) =>
+    sourceFiles[0]?.name.replace(/\.[^/.]+$/, "") || "";
+
+  const handleMakePlaylistChange = (checked) => {
+    setMakePlaylist(checked);
+    if (checked && !playlistTitle.trim()) {
+      setPlaylistTitle(titleFromFiles(files));
+    }
+  };
+
+  const renderPlaylistTypeSelect = (selectId) => (
+    <div className="space-y-2">
+      <Label htmlFor={selectId}>
+        {I18n.t("tracks.new.controls.playlist_type")}
+      </Label>
+      <UiSelect value={playlistType} onValueChange={setPlaylistType}>
+        <SelectTrigger id={selectId}>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          {playlistTypeOptions.map((type) => (
+            <SelectItem key={type} value={type}>
+              {I18n.t(`tracks.new.controls.playlist_types.${type}`)}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </UiSelect>
+    </div>
+  );
 
   const handleDrop = (e) => {
     e.preventDefault();
@@ -53,7 +94,6 @@ export default function NewTrack() {
   };
 
   const handleFiles = (newFiles) => {
-    debugger
     const mediaFiles = newFiles.filter((file) =>
       file.type.startsWith("audio/") || file.type.startsWith("video/")
     );
@@ -65,6 +105,9 @@ export default function NewTrack() {
       });
     }
     setFiles((prev) => [...prev, ...mediaFiles]);
+    if (makePlaylist && !playlistTitle.trim()) {
+      setPlaylistTitle(titleFromFiles([...files, ...mediaFiles]));
+    }
   };
 
   const uploadFile = async (file, type = "audio") => {
@@ -166,6 +209,16 @@ export default function NewTrack() {
 
   const handleSubmitInfo = async (e) => {
     e.preventDefault();
+    const shouldCreatePlaylist = makePlaylist && uploadedFiles.length > 1;
+
+    if (shouldCreatePlaylist && !playlistTitle.trim()) {
+      toast({
+        title: I18n.t("tracks.new.messages.playlist_title_required"),
+        description: I18n.t("tracks.new.messages.playlist_title_required_description"),
+        variant: "destructive",
+      });
+      return;
+    }
 
     try {
       const response = await post("/tracks", {
@@ -173,8 +226,10 @@ export default function NewTrack() {
         body: JSON.stringify({
           track_form: {
             step: "info",
-            make_playlist: makePlaylist,
-            privacy: privacy,
+            make_playlist: shouldCreatePlaylist,
+            playlist_title: playlistTitle.trim(),
+            playlist_type: playlistType,
+            playlist_private: playlistPrivacy === "private",
             tracks_attributes: uploadedFiles.map((file) => ({
               audio: file.blobId,
               title: file.title,
@@ -195,6 +250,7 @@ export default function NewTrack() {
 
       if (data.success) {
         setCompletedTracks(data.tracks);
+        setCompletedPlaylist(data.playlist || null);
         setStep("share");
       } else {
         toast({
@@ -235,6 +291,60 @@ export default function NewTrack() {
           onSubmit={handleSubmitInfo}
           className="mt-8 sm:mx-auto sm:w-full sm:max-w-4xl space-y-4"
         >
+          {makePlaylist && uploadedFiles.length > 1 && (
+            <Card>
+              <CardContent className="p-4 space-y-4">
+                <div className="flex items-center gap-2">
+                  <ListMusic className="h-5 w-5 text-muted-foreground" />
+                  <Label className="text-base font-medium">
+                    {I18n.t("tracks.new.controls.playlist_settings")}
+                  </Label>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="playlist-title">
+                    {I18n.t("tracks.new.controls.playlist_title")}
+                  </Label>
+                  <Input
+                    id="playlist-title"
+                    value={playlistTitle}
+                    onChange={(event) => setPlaylistTitle(event.target.value)}
+                    placeholder={I18n.t(
+                      "tracks.new.controls.playlist_title_placeholder"
+                    )}
+                    required
+                  />
+                </div>
+
+                {renderPlaylistTypeSelect("playlist-type")}
+
+                <div className="space-y-2">
+                  <Label className="text-sm font-medium">
+                    {I18n.t("tracks.new.controls.playlist_privacy")}
+                  </Label>
+                  <RadioGroup
+                    value={playlistPrivacy}
+                    onValueChange={setPlaylistPrivacy}
+                    className="flex space-x-4"
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="public" id="playlist-public-info" />
+                      <Label htmlFor="playlist-public-info">
+                        {I18n.t("tracks.new.controls.public")}
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="private" id="playlist-private-info" />
+                      <Label htmlFor="playlist-private-info">
+                        {I18n.t("tracks.new.controls.private")}
+                      </Label>
+                    </div>
+                  </RadioGroup>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {uploadedFiles.map((file, index) => (
             <div
               key={index}
@@ -358,6 +468,52 @@ export default function NewTrack() {
     return (
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="space-y-6">
+          {completedPlaylist && (
+            <Card className="overflow-hidden">
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 flex items-center justify-center bg-muted rounded-md">
+                      <ListMusic className="h-8 w-8 text-muted-foreground" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold">
+                        {completedPlaylist.title}
+                      </h3>
+                      <div className="mt-1 flex items-center gap-2">
+                        <Link
+                          to={`/playlists/${completedPlaylist.slug}`}
+                          className="text-sm text-primary hover:text-primary/90"
+                        >
+                          {I18n.t("tracks.new.share.go_to_playlist")}
+                        </Link>
+                        {completedPlaylist.private && (
+                          <Badge variant="secondary">
+                            {I18n.t("tracks.new.controls.private")}
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <Button
+                    variant="outline"
+                    className="shrink-0"
+                    onClick={() => {
+                      navigator.clipboard.writeText(
+                        `${window.location.origin}/playlists/${completedPlaylist.slug}`
+                      );
+                      toast({
+                        description: I18n.t("tracks.new.messages.link_copied"),
+                      });
+                    }}
+                  >
+                    {I18n.t("tracks.new.share.copy_playlist_link")}
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {completedTracks.map((track) => (
             <Card key={track.id} className="overflow-hidden">
               <CardContent className="p-6">
@@ -590,51 +746,67 @@ export default function NewTrack() {
             </Card>
           ))}
 
-          {/* Privacy and Playlist Controls */}
-          <Card>
-            <CardContent className="p-4 space-y-4">
-              {files.length > 1 && (
+          {/* Playlist Controls */}
+          {files.length > 1 && (
+            <Card>
+              <CardContent className="p-4 space-y-4">
                 <div className="flex items-center space-x-2">
                   <Switch
                     id="make-playlist"
                     checked={makePlaylist}
-                    onCheckedChange={setMakePlaylist}
+                    onCheckedChange={handleMakePlaylistChange}
                   />
                   <Label htmlFor="make-playlist">
                     {I18n.t("tracks.new.controls.create_playlist")}
                   </Label>
                 </div>
-              )}
 
-              <div className="space-y-2">
-                <Label className="text-sm font-medium">
-                  {I18n.t("tracks.new.controls.privacy")}
-                </Label>
-                <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-2">
-                    <RadioGroup
-                      value={privacy}
-                      onValueChange={setPrivacy}
-                      className="flex space-x-4"
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="public" id="public" />
-                        <Label htmlFor="public">
-                          {I18n.t("tracks.new.controls.public")}
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="private" id="private" />
-                        <Label htmlFor="private">
-                          {I18n.t("tracks.new.controls.private")}
-                        </Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+                {makePlaylist && (
+                  <>
+                    <div className="space-y-2">
+                      <Label htmlFor="playlist-title-upload">
+                        {I18n.t("tracks.new.controls.playlist_title")}
+                      </Label>
+                      <Input
+                        id="playlist-title-upload"
+                        value={playlistTitle}
+                        onChange={(event) => setPlaylistTitle(event.target.value)}
+                        placeholder={I18n.t(
+                          "tracks.new.controls.playlist_title_placeholder"
+                        )}
+                      />
+                    </div>
+
+                    {renderPlaylistTypeSelect("playlist-type-upload")}
+
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium">
+                        {I18n.t("tracks.new.controls.playlist_privacy")}
+                      </Label>
+                      <RadioGroup
+                        value={playlistPrivacy}
+                        onValueChange={setPlaylistPrivacy}
+                        className="flex space-x-4"
+                      >
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="public" id="playlist-public" />
+                          <Label htmlFor="playlist-public">
+                            {I18n.t("tracks.new.controls.public")}
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <RadioGroupItem value="private" id="playlist-private" />
+                          <Label htmlFor="playlist-private">
+                            {I18n.t("tracks.new.controls.private")}
+                          </Label>
+                        </div>
+                      </RadioGroup>
+                    </div>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          )}
 
           <div className="flex justify-end gap-4 mt-4">
             <Button
@@ -642,6 +814,9 @@ export default function NewTrack() {
               onClick={() => {
                 setFiles([]);
                 setUploadProgress({});
+                setMakePlaylist(false);
+                setPlaylistTitle("");
+                setPlaylistType("playlist");
               }}
             >
               {I18n.t("tracks.new.controls.clear_all")}

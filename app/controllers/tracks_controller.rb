@@ -76,6 +76,10 @@ class TracksController < ApplicationController
     else
       @track_form.tracks_attributes_objects = track_bulk_params[:tracks_attributes]
       @track_form.user = current_user
+      @track_form.make_playlist = track_bulk_params[:make_playlist]
+      @track_form.playlist_title = track_bulk_params[:playlist_title]
+      @track_form.playlist_type = track_bulk_params[:playlist_type]
+      @track_form.playlist_private = track_bulk_params[:playlist_private]
       @track_form.save
       if @track_form.errors.blank?
         @track_form.step = "share"
@@ -250,6 +254,9 @@ class TracksController < ApplicationController
   def track_bulk_params
     params.require(:track_form).permit(
       :make_playlist, 
+      :playlist_title,
+      :playlist_type,
+      :playlist_private,
       :private,
       :enable_label,
       :step,
