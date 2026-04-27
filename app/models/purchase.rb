@@ -1,4 +1,6 @@
 class Purchase < ApplicationRecord
+  PENDING_RESERVATION_TTL = 15.minutes
+
   belongs_to :user, optional: true
   has_many :purchased_items
   belongs_to :purchasable, polymorphic: true
@@ -44,30 +46,29 @@ class Purchase < ApplicationRecord
   end
 
   def validate_ticket(ticket, purchased_item)
+    requested_quantity = purchased_item.quantity.to_i
+
     # Check if the ticket with the specified ID exists
     if ticket.blank?
-      errors.add(:base, "Ticket with ID #{purchased_item.ticket_id} does not exist.")
+      ticket_id = purchased_item.respond_to?(:ticket_id) ? purchased_item.ticket_id : "unknown"
+      errors.add(:base, "Ticket with ID #{ticket_id} does not exist.")
+      return
     end
 
-    # Check if the ticket quantity is sufficient for purchase
-    if purchased_item.quantity >= ticket.qty
-      errors.add(:base, "Insufficient quantity for Ticket ID #{ticket.id}. Available: #{ticket.qty}. Requested: #{purchased_item.quantity}.")
-    end
-
-    # Check if the total quantity purchased for this ticket in all previous purchases
-    # does not exceed the ticket's available quantity
-    total_purchased_quantity = purchasable.purchased_event_tickets.where(id: ticket.id).size
-    if total_purchased_quantity + purchased_item.quantity > ticket.qty
-      errors.add(:base, "Exceeded available quantity for Ticket ID #{ticket.id}. Already Purchased: #{total_purchased_quantity}. Requested: #{purchased_item.quantity}.")
+    # Check if the ticket quantity is sufficient for purchase.
+    # Pending items only reserve stock while they are inside the reservation TTL.
+    available_quantity = ticket.available_quantity(excluding_purchase: self)
+    if requested_quantity > available_quantity
+      errors.add(:base, "Insufficient quantity for Ticket ID #{ticket.id}. Available: #{available_quantity}. Requested: #{requested_quantity}.")
     end
 
     # Check if the purchased quantity meets the :min_tickets_per_order setting
-    if ticket.min_tickets_per_order.present? && purchased_item.quantity < ticket.min_tickets_per_order.to_i
+    if ticket.min_tickets_per_order.present? && requested_quantity < ticket.min_tickets_per_order.to_i
       errors.add(:base, "Ticket ID #{ticket.id} requires a minimum of #{ticket.settings["min_tickets_per_order"]} tickets per order.")
     end
 
     # Check if the purchased quantity exceeds the :max_tickets_per_order setting
-    if ticket.max_tickets_per_order.present? && purchased_item.quantity > ticket.max_tickets_per_order.to_i
+    if ticket.max_tickets_per_order.present? && requested_quantity > ticket.max_tickets_per_order.to_i
       errors.add(:base, "Ticket ID #{ticket.id} allows a maximum of #{ticket.settings["max_tickets_per_order"]} tickets per order.")
     end
 
@@ -85,7 +86,7 @@ class Purchase < ApplicationRecord
         .count
       
       # Check if adding this quantity would exceed the limit
-      if user_purchased_count + purchased_item.quantity > ticket.max_tickets_per_user.to_i
+      if user_purchased_count + requested_quantity > ticket.max_tickets_per_user.to_i
         available = ticket.max_tickets_per_user.to_i - user_purchased_count
         errors.add(:base, "You have reached the maximum limit of #{ticket.max_tickets_per_user} tickets per person for '#{ticket.title}'. You already have #{user_purchased_count} ticket(s) and can only purchase #{available} more.")
       end

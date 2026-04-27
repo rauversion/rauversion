@@ -165,6 +165,15 @@ class EventPurchasesController < ApplicationController
 
     @purchase.virtual_purchased = selected_items
 
+    if @purchase.virtual_purchased.blank?
+      @purchase.errors.add(:base, "No tickets selected")
+      respond_to do |format|
+        format.html { render_blank }
+        format.json { render :create, status: :unprocessable_entity }
+      end
+      return
+    end
+
     # Check if mixing free and paid tickets
     has_free_tickets = @purchase.virtual_purchased.any? { |item| item.resource.price.to_f == 0 }
     has_paid_tickets = @purchase.virtual_purchased.any? { |item| item.resource.price.to_f > 0 }

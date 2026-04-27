@@ -72,6 +72,30 @@ RSpec.describe Event, type: :model do
         expect(available).to include(ticket2)
         expect(available).not_to include(ticket1)
       end
+
+      it "does not include tickets with no availability after active pending reservations" do
+        ticket = FactoryBot.create(:event_ticket, event: event, qty: 1, selling_start: 1.day.ago, selling_end: 3.days.from_now)
+        pending_purchase = FactoryBot.create(:purchase, user: user, purchasable: event)
+        pending_purchase.purchased_items.create!(
+          purchased_item: ticket,
+          state: "pending",
+          created_at: 1.minute.ago
+        )
+
+        expect(event.available_tickets).not_to include(ticket)
+      end
+
+      it "includes tickets when only stale pending reservations exist" do
+        ticket = FactoryBot.create(:event_ticket, event: event, qty: 1, selling_start: 1.day.ago, selling_end: 3.days.from_now)
+        pending_purchase = FactoryBot.create(:purchase, user: user, purchasable: event)
+        pending_purchase.purchased_items.create!(
+          purchased_item: ticket,
+          state: "pending",
+          created_at: Purchase::PENDING_RESERVATION_TTL.ago - 1.minute
+        )
+
+        expect(event.available_tickets).to include(ticket)
+      end
     end
   end
 

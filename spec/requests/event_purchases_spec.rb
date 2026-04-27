@@ -48,6 +48,24 @@ RSpec.describe "EventPurchases", type: :request do
       expect(ticket["suggested_price"].to_f).to eq(1500.0)
       expect(ticket["minimum_price"].to_f).to eq(0.0)
     end
+
+    it "returns ticket quantity net of active pending reservations" do
+      active_purchase = create(:purchase, user: user, purchasable: event)
+      create(:purchased_item, purchase: active_purchase, purchased_item: paid_ticket, state: "pending", created_at: 1.minute.ago)
+
+      stale_purchase = create(:purchase, user: user, purchasable: event)
+      create(:purchased_item, purchase: stale_purchase, purchased_item: paid_ticket, state: "pending", created_at: Purchase::PENDING_RESERVATION_TTL.ago - 1.minute)
+
+      get new_event_event_purchase_path(event, format: :json)
+
+      expect(response).to have_http_status(:success)
+
+      json = JSON.parse(response.body)
+      ticket = json.fetch("tickets").find { |item| item["id"] == paid_ticket.id }
+
+      expect(ticket["quantity"]).to eq(9)
+      expect(ticket["sold_out?"]).to eq(false)
+    end
   end
 
   describe "POST /create with free tickets" do
@@ -133,6 +151,47 @@ RSpec.describe "EventPurchases", type: :request do
       purchase = Purchase.last
       expect(purchase.state).to eq('pending')
       expect(response.body).to include("stripe.com")
+    end
+
+    it "allows checkout when stale pending reservations would otherwise fill the stock" do
+      paid_ticket.update!(qty: 1)
+      stale_purchase = create(:purchase, user: user, purchasable: event)
+      create(:purchased_item, purchase: stale_purchase, purchased_item: paid_ticket, state: "pending", created_at: Purchase::PENDING_RESERVATION_TTL.ago - 1.minute)
+
+      allow_any_instance_of(PaymentProviders::EventStripeProvider).to receive(:create_checkout_session).and_return(
+        { checkout_url: "https://stripe.com/checkout/session" }
+      )
+
+      expect {
+        post event_event_purchases_path(event), params: {
+          format: :json,
+          tickets: [
+            { id: paid_ticket.id, quantity: 1 }
+          ]
+        }
+      }.to change(Purchase, :count).by(1)
+        .and change(PurchasedItem, :count).by(1)
+
+      expect(response).to have_http_status(:success)
+      expect(response.body).to include("stripe.com")
+    end
+
+    it "rejects checkout when active pending reservations fill the stock" do
+      paid_ticket.update!(qty: 1)
+      active_purchase = create(:purchase, user: user, purchasable: event)
+      create(:purchased_item, purchase: active_purchase, purchased_item: paid_ticket, state: "pending", created_at: 1.minute.ago)
+
+      expect {
+        post event_event_purchases_path(event), params: {
+          format: :json,
+          tickets: [
+            { id: paid_ticket.id, quantity: 1 }
+          ]
+        }
+      }.not_to change(Purchase, :count)
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(JSON.parse(response.body)["errors"]).to include("No tickets selected")
     end
   end
 

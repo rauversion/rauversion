@@ -55,7 +55,7 @@ RSpec.describe Purchase, type: :model do
         VirtualPurchasedItem.new({resource: aa, quantity: 6})
       end
       expect(purchase).to_not be_valid
-      expect(purchase.errors.full_messages.join(" ")).to include("Exceeded available quantity")
+      expect(purchase.errors.full_messages.join(" ")).to include("Insufficient quantity")
 
       purchase.store_items
       purchase.save
@@ -195,6 +195,63 @@ RSpec.describe Purchase, type: :model do
         expect(item.price).to eq(50.0)
         expect(item.currency).to eq(event.ticket_currency || 'usd')
       end
+    end
+
+    it "ignores stale pending ticket items when validating availability" do
+      ticket = FactoryBot.create(:event_ticket, event: event, qty: 1)
+      stale_purchase = user.purchases.create!(purchasable: event)
+      stale_purchase.purchased_items.create!(
+        purchased_item: ticket,
+        state: "pending",
+        created_at: Purchase::PENDING_RESERVATION_TTL.ago - 1.minute
+      )
+
+      purchase = user.purchases.new(purchasable: event)
+      purchase.virtual_purchased = [VirtualPurchasedItem.new(resource: ticket, quantity: 1)]
+
+      expect(purchase).to be_valid
+    end
+
+    it "counts recent pending ticket items as active reservations" do
+      ticket = FactoryBot.create(:event_ticket, event: event, qty: 1)
+      active_purchase = user.purchases.create!(purchasable: event)
+      active_purchase.purchased_items.create!(
+        purchased_item: ticket,
+        state: "pending",
+        created_at: 1.minute.ago
+      )
+
+      purchase = user.purchases.new(purchasable: event)
+      purchase.virtual_purchased = [VirtualPurchasedItem.new(resource: ticket, quantity: 1)]
+
+      expect(purchase).to_not be_valid
+      expect(purchase.errors.full_messages.join(" ")).to include("Available: 0")
+    end
+
+    it "allows purchasing exactly the available quantity after active reservations" do
+      ticket = FactoryBot.create(:event_ticket, event: event, qty: 2)
+      active_purchase = user.purchases.create!(purchasable: event)
+      active_purchase.purchased_items.create!(
+        purchased_item: ticket,
+        state: "pending",
+        created_at: 1.minute.ago
+      )
+
+      purchase = user.purchases.new(purchasable: event)
+      purchase.virtual_purchased = [VirtualPurchasedItem.new(resource: ticket, quantity: 1)]
+
+      expect(purchase).to be_valid
+    end
+
+    it "excludes its own pending items when validating a persisted checkout update" do
+      ticket = FactoryBot.create(:event_ticket, event: event, qty: 2)
+      purchase = user.purchases.new(purchasable: event)
+      purchase.virtual_purchased = [VirtualPurchasedItem.new(resource: ticket, quantity: 2)]
+
+      purchase.store_items
+      purchase.save!
+
+      expect(purchase.update(checkout_type: "stripe", checkout_id: "cs_test_123")).to eq(true)
     end
   end
 

@@ -132,8 +132,8 @@ class Event < ApplicationRecord
         t.selling_end.nil? || t.selling_end >= at_time
       end
 
-      # Quantity handling: include if qty > 0 OR show_after_sold_out enabled
-      qty_ok = t.qty.to_i > 0 || (t.respond_to?(:show_after_sold_out) && t.show_after_sold_out == true)
+      # Quantity handling: include if net availability is positive OR show_after_sold_out enabled
+      qty_ok = t.available_quantity.positive? || (t.respond_to?(:show_after_sold_out) && t.show_after_sold_out == true)
 
       selling_ok && qty_ok
     end

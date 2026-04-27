@@ -1,12 +1,14 @@
 json.tickets @tickets do |ticket|
+  available_quantity = ticket.available_quantity
+
   json.id ticket.id
   json.title ticket.title
   json.price ticket.price
   json.formatted_price formatted_event_ticket_price(ticket.price, @event.ticket_currency)
   json.short_description ticket.short_description
-  json.quantity ticket.qty.to_i
+  json.quantity available_quantity
   json.pay_what_you_want ticket.pay_what_you_want?
-  json.sold_out? ticket.qty.to_i <= 0
+  json.sold_out? available_quantity <= 0
   json.minimum_price ticket.minimum_price
   json.suggested_price ticket.suggested_price
   json.min_tickets_per_order ticket.min_tickets_per_order

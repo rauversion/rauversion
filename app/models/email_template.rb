@@ -35,9 +35,12 @@ class EmailTemplate < ApplicationRecord
   private
 
   def normalize_document_payload
+    name_explicitly_blank = will_save_change_to_name? && name.blank?
+    subject_explicitly_blank = will_save_change_to_subject? && subject.blank?
+
     self.document = normalized_document
-    self.name = document["name"].presence || name
-    self.subject = document["subject"].presence || subject
+    self.name = document["name"].presence || name unless name_explicitly_blank
+    self.subject = document["subject"].presence || subject unless subject_explicitly_blank
     self.preheader = document["preheader"].presence || preheader
   end
 

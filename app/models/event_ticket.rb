@@ -52,6 +52,21 @@ class EventTicket < ApplicationRecord
     event_list.has_email?(email)
   end
 
+  def active_pending_purchased_items(ttl: Purchase::PENDING_RESERVATION_TTL, excluding_purchase: nil)
+    scope = purchased_items.where(state: "pending")
+    scope = scope.where("purchased_items.created_at >= ?", Time.current - ttl) if ttl.present?
+    scope = scope.where.not(purchase_id: excluding_purchase.id) if excluding_purchase&.persisted?
+    scope
+  end
+
+  def active_pending_quantity(ttl: Purchase::PENDING_RESERVATION_TTL, excluding_purchase: nil)
+    active_pending_purchased_items(ttl: ttl, excluding_purchase: excluding_purchase).count
+  end
+
+  def available_quantity(ttl: Purchase::PENDING_RESERVATION_TTL, excluding_purchase: nil)
+    [qty.to_i - active_pending_quantity(ttl: ttl, excluding_purchase: excluding_purchase), 0].max
+  end
+
   private
 
   def selling_start_before_selling_end
