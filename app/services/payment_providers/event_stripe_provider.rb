@@ -84,7 +84,7 @@ module PaymentProviders
     end
 
     def calculate_total(line_items)
-      line_items.sum { |item| item["price_data"]["unit_amount"] }
+      line_items.sum { |item| item["price_data"]["unit_amount"] * item["quantity"].to_i }
     end
 
     def calculate_fee(total)

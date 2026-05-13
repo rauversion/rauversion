@@ -54,4 +54,21 @@ RSpec.describe PaymentProviders::EventStripeProvider, type: :service do
       end
     end
   end
+
+  describe "#calculate_total" do
+    subject(:provider) { described_class.new(event: event, user: user, purchase: purchase) }
+
+    it "multiplies each line item amount by its quantity" do
+      line_items = [
+        {
+          "quantity" => 3,
+          "price_data" => {
+            "unit_amount" => 10_000
+          }
+        }
+      ]
+
+      expect(provider.send(:calculate_total, line_items)).to eq(30_000)
+    end
+  end
 end
