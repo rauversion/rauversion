@@ -25,8 +25,8 @@ class Mp3Converter
 
     stdout, stderr, status = Open3.capture3(*args)
 
-    Rails.logger.info("Mp3Converter stdout=#{stdout}") if stdout.present?
-    Rails.logger.warn("Mp3Converter stderr=#{stderr}") if stderr.present?
+    log_output(:info, "stdout", stdout)
+    log_output(status.success? ? :info : :warn, "stderr", stderr)
 
     raise "ffmpeg failed to generate mp3" unless status.success? && File.exist?(output_file)
 
@@ -37,5 +37,15 @@ class Mp3Converter
 
   def ffmpeg_path
     "ffmpeg"
+  end
+
+  def log_output(level, stream, output)
+    return unless output.to_s.bytesize.positive?
+
+    Rails.logger.public_send(level, "Mp3Converter #{stream}=#{loggable_output(output)}")
+  end
+
+  def loggable_output(output)
+    output.to_s.encode(Encoding::UTF_8, invalid: :replace, undef: :replace, replace: "?")
   end
 end
