@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import I18n from 'stores/locales'
+import { get } from '@rails/request.js'
 
 export default function EventsIndex() {
   const [events, setEvents] = useState({ events: [], past_events: [] })
@@ -9,8 +10,8 @@ export default function EventsIndex() {
   useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await fetch('/events.json')
-        const data = await response.json()
+        const response = await get('/events.json', { responseKind: 'json' })
+        const data = await response.json
         setEvents(data)
       } catch (error) {
         console.error('Error fetching events:', error)

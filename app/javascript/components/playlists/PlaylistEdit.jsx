@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils"
 import { useForm, Controller } from "react-hook-form"
 import { useToast } from "@/hooks/use-toast"
 import { useThemeStore } from '@/stores/theme'
-import { put, destroy } from "@rails/request.js"
+import { destroy, get, put } from "@rails/request.js"
 import I18n from 'stores/locales'
 
 import {
@@ -53,8 +53,8 @@ export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenCh
   const fetchPlaylist = async () => {
     setLoading(true)
     try {
-      const response = await fetch(`/playlists/${playlist.slug}/edit.json`)
-      const data = await response.json()
+      const response = await get(`/playlists/${playlist.slug}/edit.json`, { responseKind: "json" })
+      const data = await response.json
       setPlaylist(data.playlist)
 
       // Update form values with fetched data
@@ -134,7 +134,7 @@ export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenCh
         onOpenChange(false)
         onOk && onOk(response)
       } else {
-        const error = await response.json()
+        const error = await response.json
         toast({
           title: "Error",
           description: error.message || I18n.t('playlists.edit.messages.update_error'),
@@ -164,7 +164,7 @@ export default function PlaylistEdit({ playlist: initialPlaylist, open, onOpenCh
         onOpenChange(false)
         navigate(ownerHomePath)
       } else {
-        const error = await response.json()
+        const error = await response.json
         toast({
           title: "Error",
           description: error.message || I18n.t('playlists.edit.messages.delete_error'),

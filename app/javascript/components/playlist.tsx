@@ -4,6 +4,7 @@ import { getUserDisplayName } from "@/utils/userDisplayName"
 import { buildPlaylistPalette, resolvePlaylistCoverUrl } from "@/lib/playlist-theme"
 import type { TemplateStyle } from "@/lib/blocks/types"
 import useAudioStore from "@/stores/audioStore"
+import { get } from "@rails/request.js"
 
 interface Track {
   id: number
@@ -122,11 +123,11 @@ export default function PlaylistComponent({
       setError(null)
 
       try {
-        const response = await fetch(`/playlists/${playlistId}.json`)
+        const response = await get(`/playlists/${playlistId}.json`, { responseKind: "json" })
         if (!response.ok) {
           throw new Error("Failed to fetch playlist")
         }
-        const data = await response.json()
+        const data = await response.json
         setPlaylist(normalizePlaylist(data))
       } catch (err) {
         setError(err instanceof Error ? err.message : "An error occurred")

@@ -1,4 +1,5 @@
 import type { Page, Template, Block } from "@/lib/blocks/types"
+import { destroy, get, post } from "@rails/request.js"
 
 export interface EditorTemplateRecord extends Template {
   category?: string
@@ -10,12 +11,6 @@ const DEFAULT_PAGE_STYLE: Template["page"]["style"] = {
   template: "minimal",
   darkMode: true,
   fontFamily: "sans",
-}
-
-function getCsrfToken(): string {
-  if (typeof document === "undefined") return ""
-
-  return document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") || ""
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -66,8 +61,8 @@ function extractErrorMessage(data: unknown, fallback: string): string {
   return fallback
 }
 
-async function parseResponse(response: Response, fallbackMessage: string): Promise<unknown> {
-  const data = await response.json().catch(() => ({}))
+async function parseResponse(response: { ok: boolean; json: Promise<unknown> }, fallbackMessage: string): Promise<unknown> {
+  const data = await response.json.catch(() => ({}))
 
   if (!response.ok) {
     throw new Error(extractErrorMessage(data, fallbackMessage))
@@ -120,12 +115,7 @@ function sanitizePage(page: Page): Template["page"] {
 }
 
 export async function fetchEditorTemplates(category: string): Promise<EditorTemplateRecord[]> {
-  const response = await fetch(`/editor_templates.json?category=${encodeURIComponent(category)}`, {
-    headers: {
-      Accept: "application/json",
-    },
-    credentials: "same-origin",
-  })
+  const response = await get(`/editor_templates.json?category=${encodeURIComponent(category)}`, { responseKind: "json" })
 
   const data = await parseResponse(response, "No se pudieron cargar las plantillas")
   const templates = isRecord(data) && Array.isArray(data.templates) ? data.templates : []
@@ -146,14 +136,8 @@ export async function createEditorTemplate({
   name,
   description,
 }: CreateEditorTemplateParams): Promise<EditorTemplateRecord> {
-  const response = await fetch("/editor_templates.json", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Accept: "application/json",
-      "X-CSRF-Token": getCsrfToken(),
-    },
-    credentials: "same-origin",
+  const response = await post("/editor_templates.json", {
+    responseKind: "json",
     body: JSON.stringify({
       editor_template: {
         category,
@@ -171,17 +155,10 @@ export async function createEditorTemplate({
 }
 
 export async function destroyEditorTemplate(id: string): Promise<void> {
-  const response = await fetch(`/editor_templates/${id}.json`, {
-    method: "DELETE",
-    headers: {
-      Accept: "application/json",
-      "X-CSRF-Token": getCsrfToken(),
-    },
-    credentials: "same-origin",
-  })
+  const response = await destroy(`/editor_templates/${id}.json`, { responseKind: "json" })
 
   if (response.ok) return
 
-  const data = await response.json().catch(() => ({}))
+  const data = await response.json.catch(() => ({}))
   throw new Error(extractErrorMessage(data, "No se pudo eliminar la plantilla"))
 }

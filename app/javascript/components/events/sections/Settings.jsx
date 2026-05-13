@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import * as z from "zod"
-import { put } from '@rails/request.js'
+import { destroy, get, put } from '@rails/request.js'
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
 import I18n from 'stores/locales'
@@ -113,8 +113,8 @@ export default function Settings() {
   const form = useForm({
     resolver: zodResolver(settingsSchema),
     defaultValues: async () => {
-      const response = await fetch(`/events/${slug}/edit.json`)
-      const data = await response.json()
+      const response = await get(`/events/${slug}/edit.json`, { responseKind: 'json' })
+      const data = await response.json
       setEvent(data)
       setLoading(false)
       return {
@@ -193,9 +193,7 @@ export default function Settings() {
 
   const deleteEvent = async () => {
     try {
-      const response = await fetch(`/events/${slug}.json`, {
-        method: 'DELETE'
-      })
+      const response = await destroy(`/events/${slug}.json`, { responseKind: 'json' })
 
       if (response.ok) {
         navigate('/events', { replace: true })

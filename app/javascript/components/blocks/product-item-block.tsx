@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import useCartStore from "@/stores/cartStore"
 import { cn } from "@/lib/utils"
 import { getUserDisplayName } from "@/utils/userDisplayName"
+import { get } from "@rails/request.js"
 
 interface ProductImage {
   id?: number | string
@@ -211,13 +212,13 @@ export function ProductItemBlock({ block, isEditing = false }: ProductItemBlockP
       setError(null)
 
       try {
-        const response = await fetch(`/products/${encodeURIComponent(resolvedIdentifier)}.json`)
+        const response = await get(`/products/${encodeURIComponent(resolvedIdentifier)}.json`, { responseKind: "json" })
 
         if (!response.ok) {
           throw new Error("No pudimos cargar el producto")
         }
 
-        const data = await response.json()
+        const data = await response.json
         const nextProduct = data?.product || data
 
         setProduct(nextProduct)

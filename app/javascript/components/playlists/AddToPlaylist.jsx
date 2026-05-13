@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/use-toast"
 import { useForm, Controller } from "react-hook-form"
-import { post, destroy } from "@rails/request.js"
+import { destroy, get, post } from "@rails/request.js"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
@@ -37,8 +37,8 @@ export default function AddToPlaylist({ track, open, onOpenChange }) {
       if(!open) return
       setLoading(true)
       try {
-        const response = await fetch(`/playlists/new.json?track_id=${track.id}`)
-        const data = await response.json()
+        const response = await get(`/playlists/new.json?track_id=${track.id}`, { responseKind: "json" })
+        const data = await response.json
         setPlaylists(data.playlists)
       } catch (error) {
         console.error("Error fetching playlists:", error)

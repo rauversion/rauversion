@@ -7,6 +7,7 @@ import { useInfiniteScroll } from '@/hooks/useInfiniteScroll'
 import useConversationStore from '../../stores/conversationStore'
 import Message from './Message'
 import I18n from '@/stores/locales'
+import { post } from '@rails/request.js'
 
 const MessagingContainer = ({ 
   currentUserId,
@@ -30,11 +31,8 @@ const MessagingContainer = ({
     // Find or create conversation for this messageable
     const initializeConversation = async () => {
       try {
-        const response = await fetch('/conversations', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+        const response = await post('/conversations', {
+          responseKind: 'json',
           body: JSON.stringify({
             conversation: {
               messageable_type: messageable.type,
@@ -42,7 +40,7 @@ const MessagingContainer = ({
             }
           })
         })
-        const data = await response.json()
+        const data = await response.json
         
         if (data.conversation) {
           fetchConversation(data.conversation.id)

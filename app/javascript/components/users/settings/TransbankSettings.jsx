@@ -55,7 +55,7 @@ export default function TransbankSettings() {
           description: I18n.t('user_settings.transbank.messages.success'),
         })
       } else {
-        const error = await response.json()
+        const error = await response.json
         toast({
           title: "Error",
           description: error.message || I18n.t('user_settings.transbank.messages.error'),
@@ -75,7 +75,7 @@ export default function TransbankSettings() {
     try {
       const response = await post(`/${username}/settings/transbank/verify`)
       if (response.ok) {
-        const data = await response.json()
+        const data = await response.json
         setVerificationStatus(data.status)
         toast({
           title: data.status === 'verified' ? "Success" : "Error",
@@ -83,7 +83,7 @@ export default function TransbankSettings() {
           variant: data.status === 'verified' ? "default" : "destructive",
         })
       } else {
-        const error = await response.json()
+        const error = await response.json
         toast({
           title: "Error",
           description: error.message || I18n.t('user_settings.transbank.messages.verify_error'),

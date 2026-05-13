@@ -54,9 +54,9 @@ export default function NewCoursePage() {
     const fetchCourse = async () => {
       try {
         if (courseId) {
-          const response = await fetch(`/courses/${courseId}.json`)
+          const response = await get(`/courses/${courseId}.json`, { responseKind: "json" })
           if (response.ok) {
-            const data = await response.json()
+            const data = await response.json
             setCourseData((prev) => ({ ...prev, ...data.course }))
           } else {
             console.error("Failed to fetch course details")
@@ -134,7 +134,7 @@ export default function NewCoursePage() {
           body: JSON.stringify({ course: { course_module_attributes: updatedModules } }),
         })
         if (response.ok) {
-          const data = await response.json()
+          const data = await response.json
           // Replace temporary id with real id
           setCourseData((prev) => {
             const modules = prev.modules.map((mod) => (mod.id === module.id ? data.course_module : mod))

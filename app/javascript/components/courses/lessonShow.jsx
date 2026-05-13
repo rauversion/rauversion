@@ -330,9 +330,9 @@ export default function LessonPage() {
                               size="sm"
                               onClick={async () => {
                                 try {
-                                  const response = await fetch(`/courses/${courseId}/course_documents/${doc.id}/download`)
+                                  const response = await get(`/courses/${courseId}/course_documents/${doc.id}/download`, { responseKind: "json" })
                                   if (response.ok) {
-                                    const data = await response.json()
+                                    const data = await response.json
                                     if (data.url) {
                                       window.open(data.url, "_blank", "noopener")
                                     }

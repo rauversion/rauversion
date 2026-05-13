@@ -20,7 +20,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Category, permissionDefinitions } from "@/lib/constants"
 import { useToast } from "@/hooks/use-toast"
 import { useThemeStore } from '@/stores/theme'
-import { put, destroy } from "@rails/request.js"
+import { destroy, get, put } from "@rails/request.js"
 import { DirectUpload } from "@rails/activestorage"
 import { Check, Copy, Facebook, Twitter, Link2, Code2 } from "lucide-react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -97,8 +97,8 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
   const fetchTrack = async () => {
     setLoading(true)
     try {
-      const response = await fetch(`/tracks/${track.slug}.json`)
-      const data = await response.json()
+      const response = await get(`/tracks/${track.slug}.json`, { responseKind: "json" })
+      const data = await response.json
       setTrack(data.track)
       setValue('cropped_image', data.cover_url?.cropped_image)
 
@@ -228,7 +228,7 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
         onOpenChange(false)
         onOk && onOk(response)
       } else {
-        const error = await response.json()
+        const error = await response.json
         toast({
           title: "Error",
           description: error.message || I18n.t('tracks.edit.messages.update_error'),
@@ -262,7 +262,7 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
         onOpenChange(false)
         navigate('/')
       } else {
-        const error = await response.json()
+        const error = await response.json
         toast({
           title: "Error",
           description: error.message || I18n.t('tracks.edit.messages.delete_error'),

@@ -1,16 +1,23 @@
 declare module '@rails/request.js' {
   interface RequestOptions {
-    body?: string
-    headers?: Record<string, string>
-    query?: Record<string, string>
+    body?: BodyInit | Record<string, unknown> | null
+    contentType?: string
+    headers?: HeadersInit
+    query?: Record<string, string> | URLSearchParams | FormData
+    redirect?: RequestRedirect
     responseKind?: 'json' | 'html' | 'turbo-stream'
+    signal?: AbortSignal
   }
 
   interface Response {
-    json: any
-    html?: string
+    headers: Headers
+    html: Promise<string>
+    json: Promise<any>
+    ok: boolean
+    redirected: boolean
     response: globalThis.Response
     success: boolean
+    text: Promise<string>
   }
 
   export function get(path: string, options?: RequestOptions): Promise<Response>

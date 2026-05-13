@@ -11,6 +11,7 @@ import { X } from "lucide-react"
 import { AudioPlayer } from "./audio-player"
 import AudioTrimSlider from "./AudioTrimRangeSelector"
 import type { DiscProperties } from "./turn-audio-app"
+import { post } from "@rails/request.js"
 
 interface PropertiesPanelProps {
   properties: DiscProperties
@@ -55,12 +56,9 @@ export function PropertiesPanel({ properties, updateProperty, isPlaying, setIsPl
     // Add more fields as needed (format, exportSize, etc.)
 
     try {
-      const response = await fetch("/turn/generate_video.json", {
-        method: "POST",
+      const response = await post("/turn/generate_video.json", {
+        responseKind: "json",
         body: formData,
-        headers: {
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") || ""
-        },
       })
       if (response.ok) {
         // Reset form state

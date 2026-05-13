@@ -213,7 +213,7 @@ export default function Teams() {
           description: I18n.t('events.edit.teams.messages.remove_success'),
         })
       } else {
-        const data = await response.json()
+        const data = await response.json
         toast({
           title: I18n.t("events.edit.teams.messages.error_title"),
           description: data.message || I18n.t('events.edit.teams.messages.remove_error'),

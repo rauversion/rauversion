@@ -6,7 +6,7 @@ import { EventEditContext } from "../EventEdit"
 import { toNestErrors, validateFieldsNatively } from "@hookform/resolvers"
 import * as z from "zod"
 import { format } from "date-fns"
-import { put } from '@rails/request.js'
+import { get, put } from '@rails/request.js'
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
 import { Calendar } from "@/components/ui/calendar"
@@ -259,8 +259,8 @@ export default function Overview() {
   React.useEffect(() => {
     const loadEventData = async () => {
       try {
-        const response = await fetch(`/events/${slug}/edit.json`)
-        const data = await response.json()
+        const response = await get(`/events/${slug}/edit.json`, { responseKind: 'json' })
+        const data = await response.json
 
         setEvent(data)
 

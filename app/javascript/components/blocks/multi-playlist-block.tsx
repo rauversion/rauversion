@@ -20,6 +20,7 @@ import {
   resolvePlaylistCoverUrl,
   resolvePlaylistTheme,
 } from "@/lib/playlist-theme"
+import { get } from "@rails/request.js"
 
 interface PlaylistUser {
   username?: string
@@ -102,13 +103,13 @@ export function MultiPlaylistBlock({
         const requestUrl = new URL("/playlists/albums.json", window.location.origin)
         requestUrl.searchParams.set("ids", resolvedPlaylistIds.join(","))
 
-        const response = await fetch(`${requestUrl.pathname}${requestUrl.search}`)
+        const response = await get(`${requestUrl.pathname}${requestUrl.search}`, { responseKind: "json" })
 
         if (!response.ok) {
           throw new Error("No pudimos cargar las playlists")
         }
 
-        const data = await response.json()
+        const data = await response.json
         const collection = Array.isArray(data?.collection) ? data.collection : []
         const playlistsById = new Map(
           collection

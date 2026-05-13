@@ -8,6 +8,7 @@ import useArtistStore from '@/stores/artistStore'
 import UserCard from '@/components/shared/userCard'
 import { PlusIcon } from 'lucide-react'
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll"
+import { destroy } from '@rails/request.js'
 
 export default function UserArtists() {
   const { username } = useParams()
@@ -70,13 +71,7 @@ export default function UserArtists() {
                   label: I18n.t('artists.disconnect'),
                   onClick: () => {
                     if (window.confirm(I18n.t('artists.disconnect_confirm'))) {
-                      fetch(`/account_connections/${artist.id}`, {
-                        method: 'DELETE',
-                        headers: {
-                          'Content-Type': 'application/json',
-                          'X-CSRF-Token': document.querySelector('[name="csrf-token"]').content
-                        }
-                      }).then(() => {
+                      destroy(`/account_connections/${artist.id}`, { responseKind: 'json' }).then(() => {
                         window.location.reload()
                       })
                     }

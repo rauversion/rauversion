@@ -3,6 +3,7 @@ import { NodeViewWrapper } from "@tiptap/react";
 import { Button } from "@/components/ui/button";
 import { Sparkles, Plus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { post } from "@rails/request.js";
 
 export default function AiEnhancerBlock(props) {
   // Dante block props: node, updateAttributes, extension, selected, editor
@@ -29,12 +30,8 @@ export default function AiEnhancerBlock(props) {
       }
       const textToEnhance = selectedText || value;
 
-      const response = await fetch('/ai_enhancements/enhance', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]')?.content
-        },
+      const response = await post('/ai_enhancements/enhance', {
+        responseKind: 'json',
         body: JSON.stringify({
           text: textToEnhance,
           prompt: aiPrompt,
@@ -42,7 +39,7 @@ export default function AiEnhancerBlock(props) {
         })
       });
 
-      const data = await response.json();
+      const data = await response.json;
 
       if (response.ok) {
         // Set current node to paragraph with empty text, then insert ai-enhancer-block after

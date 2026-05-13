@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { post } from "@rails/request.js"
 
 const getStarterKitConfig = (isPlain) => (
   isPlain
@@ -137,12 +138,8 @@ export default function SimpleEditor({
         ${aiPrompt}
       `
 
-      const response = await fetch('/ai_enhancements/enhance', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRF-Token': document.querySelector('meta[name="csrf-token"]').content,
-        },
+      const response = await post('/ai_enhancements/enhance', {
+        responseKind: 'json',
         body: JSON.stringify({
           text: textToEnhance,
           prompt: promptWithContent,
@@ -150,7 +147,7 @@ export default function SimpleEditor({
         }),
       })
 
-      const data = await response.json()
+      const data = await response.json
 
       if (response.ok) {
         if (selectedText) {

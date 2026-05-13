@@ -146,8 +146,9 @@ const useAuthStore = create((set, get) => ({
     return get().currentUser?.editor || false
   },
   updateCsrfToken: (token) => {
-    document.querySelector('meta[name="csrf-token"]').setAttribute("content", token);
-    localStorage.setItem("csrfToken", token);
+    const csrfMeta = document.querySelector('meta[name="csrf-token"]')
+    csrfMeta?.setAttribute("content", token)
+    localStorage.setItem("csrfToken", token)
   }
   
 }))

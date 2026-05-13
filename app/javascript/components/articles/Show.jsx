@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { Skeleton } from '../ui/skeleton'
+import { get } from '@rails/request.js'
 
 
 import { EditorComponent } from './EditArticle'
@@ -15,8 +16,8 @@ export default function ArticleShow({ preview }) {
   useEffect(() => {
     const fetchArticle = async () => {
       try {
-        const response = await fetch(url)
-        const data = await response.json()
+        const response = await get(url, { responseKind: 'json' })
+        const data = await response.json
         setArticle(data)
       } catch (error) {
         console.error('Error fetching article:', error)
