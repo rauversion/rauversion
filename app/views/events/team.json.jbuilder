@@ -8,6 +8,11 @@ json.event do
   json.event_hosts @event.event_hosts.includes(:user) do |host|
     json.id host.id
     json.name host.name
+    json.display_name host.name.presence || host.user&.display_name.presence || host.user&.email
+    json.email host.user&.email
+    json.user_id host.user_id
+    json.record_type host.user.present? ? "user" : "event_data"
+    json.invitation_pending host.user.present? && host.user.invitation_sent_at.present? && host.user.invitation_accepted_at.blank?
     json.description host.description
     json.listed_on_page host.listed_on_page
     json.event_manager host.event_manager
@@ -21,8 +26,13 @@ json.event do
     end
     json.created_at host.created_at
     
-    json.user do
-      json.partial! 'users/user', user: host.user, show_full_name: true
+    if host.user.present?
+      json.user do
+        json.partial! 'users/user', user: host.user, show_full_name: true
+        json.email host.user.email
+      end
+    else
+      json.user nil
     end
   end
 

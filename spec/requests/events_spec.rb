@@ -44,6 +44,42 @@ RSpec.describe "Events", type: :request do
       expect(response).to have_http_status(:unauthorized)
       expect(JSON.parse(response.body)).to include("error" => "Unauthorized")
     end
+
+    it "includes email and source metadata for event hosts in the edit payload" do
+      invited_user = create(
+        :user,
+        email: "gestor-invitado@example.com",
+        invitation_sent_at: 1.day.ago,
+        invitation_accepted_at: nil
+      )
+      invited_host = create(:event_host, event: event, user: invited_user, name: nil, access_role: "admin")
+      standalone_host = create(:event_host, event: event, user: nil, name: "Gestor externo", access_role: "host")
+
+      sign_in user
+
+      get edit_event_path(event, format: :json)
+
+      expect(response).to have_http_status(:ok)
+
+      event_hosts = JSON.parse(response.body).fetch("event_hosts")
+      invited_payload = event_hosts.find { |host| host.fetch("id") == invited_host.id }
+      standalone_payload = event_hosts.find { |host| host.fetch("id") == standalone_host.id }
+
+      expect(invited_payload).to include(
+        "email" => "gestor-invitado@example.com",
+        "user_id" => invited_user.id,
+        "record_type" => "user",
+        "invitation_pending" => true
+      )
+      expect(invited_payload.dig("user", "email")).to eq("gestor-invitado@example.com")
+
+      expect(standalone_payload).to include(
+        "email" => nil,
+        "user_id" => nil,
+        "record_type" => "event_data",
+        "invitation_pending" => false
+      )
+    end
   end
 
   describe "GET /index" do

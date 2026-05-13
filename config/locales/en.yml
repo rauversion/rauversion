@@ -703,6 +703,11 @@ en:
           title: Current Team
           description: People who are currently part of your event team
           members: Members of the Current Team
+          unnamed_member: Unnamed
+        member_types:
+          user: User
+          event_data: Event data
+          invitation_pending: Pending invitation
         add_member:
           title: Add Member
           description: Invite new people to help manage the event

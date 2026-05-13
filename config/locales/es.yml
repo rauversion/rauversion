@@ -782,6 +782,11 @@ es:
           title: Equipo Actual
           description: Personas que actualmente forman parte del equipo de tu evento
           members: Miembros del Equipo Actual
+          unnamed_member: Sin nombre
+        member_types:
+          user: Usuario
+          event_data: Dato del evento
+          invitation_pending: Invitación pendiente
         pending:
           title: Invitaciones Pendientes
           description: Invitaciones que han sido enviadas pero aún no han sido aceptadas

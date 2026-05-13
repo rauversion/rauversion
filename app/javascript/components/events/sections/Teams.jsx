@@ -41,7 +41,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
-import { Plus, Trash2, UserPlus } from "lucide-react"
+import { Loader2, Mail, Pencil, Plus, Trash2, UserPlus } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   AlertDialog,
@@ -54,9 +54,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Pencil } from "lucide-react"
 import { Switch } from "@/components/ui/switch"
-import { Loader2 } from "lucide-react"
 import { ImageUploader } from "@/components/ui/image-uploader"
 
 const teamMemberSchema = z.object({
@@ -82,6 +80,30 @@ const accessRoleOptions = [
   { value: "admission", label: I18n.t('events.edit.teams.access_roles.admission', { defaultValue: 'Admisión' }) },
   { value: "grant_admission", label: I18n.t('events.edit.teams.access_roles.grant_admission', { defaultValue: 'Grant Admission' }) },
 ]
+
+const memberEmail = (member) => member.email || member.user?.email || ""
+const isUserBackedMember = (member) => member.record_type === "user" || Boolean(member.user_id || member.user?.id)
+const memberDisplayName = (member) => (
+  member.display_name ||
+  member.name ||
+  member.user?.display_name ||
+  member.user?.full_name ||
+  member.user?.email ||
+  member.email ||
+  I18n.t('events.edit.teams.current_team.unnamed_member', { defaultValue: 'Sin nombre' })
+)
+const memberInitials = (name) => {
+  const initials = name
+    .toString()
+    .trim()
+    .split(/\s+/)
+    .map((part) => part.charAt(0))
+    .join("")
+    .slice(0, 2)
+    .toUpperCase()
+
+  return initials || "?"
+}
 
 export default function Teams() {
   const { slug } = useParams()
@@ -390,53 +412,81 @@ export default function Teams() {
           <div className="space-y-4">
             <h3 className="text-lg font-medium">{I18n.t('events.edit.teams.current_team.members')}</h3>
             <div className="grid gap-4">
-              {currentTeam.map((member) => (
-                <div
-                  key={member.id}
-                  className="flex flex-col gap-4 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between"
-                >
-                  <div className="flex min-w-0 items-start gap-3">
-                    <Avatar>
-                      <AvatarImage src={member.avatar_url?.small} alt={member.name} />
-                      <AvatarFallback>{member.name?.charAt(0)?.toUpperCase()}</AvatarFallback>
-                    </Avatar>
-                    <div className="min-w-0">
-                      <p className="break-words font-medium">{member.name}</p>
-                      {member.description && (
-                        <p className="mt-1 break-words text-sm text-muted-foreground">{member.description}</p>
-                      )}
-                      <div className="mt-2 flex flex-wrap gap-2">
-                        {member.listed_on_page && (
-                          <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
-                            {I18n.t('events.edit.teams.edit_member.listed.label')}
-                          </span>
+              {currentTeam.map((member) => {
+                const displayName = memberDisplayName(member)
+                const email = memberEmail(member)
+                const userBacked = isUserBackedMember(member)
+
+                return (
+                  <div
+                    key={member.id}
+                    className="flex flex-col gap-4 rounded-lg border p-4 sm:flex-row sm:items-center sm:justify-between"
+                  >
+                    <div className="flex min-w-0 items-start gap-3">
+                      <Avatar>
+                        <AvatarImage src={member.avatar_url?.small} alt={displayName} />
+                        <AvatarFallback>{memberInitials(displayName)}</AvatarFallback>
+                      </Avatar>
+                      <div className="min-w-0">
+                        <p className="break-words font-medium">{displayName}</p>
+                        {email && (
+                          <p className="mt-1 flex min-w-0 items-center gap-1.5 text-sm text-muted-foreground">
+                            <Mail className="h-3.5 w-3.5 shrink-0" />
+                            <span className="break-all">{email}</span>
+                          </p>
                         )}
-                        <span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800">
-                          {getRoleLabel(member.access_role)}
-                        </span>
+                        {member.description && (
+                          <p className="mt-1 break-words text-sm text-muted-foreground">{member.description}</p>
+                        )}
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          <span
+                            className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                              userBacked
+                                ? "bg-indigo-100 text-indigo-800"
+                                : "bg-slate-100 text-slate-700"
+                            }`}
+                          >
+                            {userBacked
+                              ? I18n.t('events.edit.teams.member_types.user', { defaultValue: 'Usuario' })
+                              : I18n.t('events.edit.teams.member_types.event_data', { defaultValue: 'Dato del evento' })}
+                          </span>
+                          {member.invitation_pending && (
+                            <span className="inline-flex items-center rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">
+                              {I18n.t('events.edit.teams.member_types.invitation_pending', { defaultValue: 'Invitación pendiente' })}
+                            </span>
+                          )}
+                          {member.listed_on_page && (
+                            <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">
+                              {I18n.t('events.edit.teams.edit_member.listed.label')}
+                            </span>
+                          )}
+                          <span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800">
+                            {getRoleLabel(member.access_role)}
+                          </span>
+                        </div>
                       </div>
                     </div>
+                    <div className="flex w-full gap-2 sm:w-auto">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="flex-1 sm:flex-none"
+                        onClick={() => setHostToEdit(member)}
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="flex-1 sm:flex-none"
+                        onClick={() => setHostToDelete(member)}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex w-full gap-2 sm:w-auto">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="flex-1 sm:flex-none"
-                      onClick={() => setHostToEdit(member)}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="flex-1 sm:flex-none"
-                      onClick={() => setHostToDelete(member)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
         </CardContent>
