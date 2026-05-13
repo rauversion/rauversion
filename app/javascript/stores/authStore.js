@@ -1,6 +1,8 @@
 import { create } from 'zustand'
 import { get as apiGet, destroy } from '@rails/request.js'
 
+let authRequestId = 0
+
 const useAuthStore = create((set, get) => ({
   currentUser: null,
   labelUser: null,
@@ -13,10 +15,13 @@ const useAuthStore = create((set, get) => ({
 
   // Initialize auth state
   initAuth: async () => {
+    const requestId = ++authRequestId
     
     try {
       set({ loading: true })
       const response = await apiGet('/api/v1/me.json')
+
+      if (requestId !== authRequestId) return
       
       if (response.ok) {
 
@@ -43,6 +48,8 @@ const useAuthStore = create((set, get) => ({
         })
       }
     } catch (error) {
+      if (requestId !== authRequestId) return
+
       set({ 
         currentUser: null,
         labelUser: null,
@@ -57,6 +64,8 @@ const useAuthStore = create((set, get) => ({
 
   // Sign out
   signOut: async () => {
+    authRequestId += 1
+
     try {
       const response = await destroy('/users/sign_out.json')
 
@@ -72,11 +81,11 @@ const useAuthStore = create((set, get) => ({
 
         const newCsrfToken = response.headers.get("X-CSRF-Token");
         if (newCsrfToken) {
-          updateCsrfToken(newCsrfToken);
+          get().updateCsrfToken(newCsrfToken);
         }
       }
     } catch (error) {
-      set({ error: error.message })
+      set({ loading: false, error: error.message })
     }
   },
 
@@ -103,7 +112,8 @@ const useAuthStore = create((set, get) => ({
   },
 
   setCurrentUser: (user) => {
-    set({ currentUser: user })
+    authRequestId += 1
+    set({ currentUser: user, loading: false })
   },
 
   // Clear any errors

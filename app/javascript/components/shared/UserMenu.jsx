@@ -100,7 +100,7 @@ const ListItem = React.forwardRef(
 ListItem.displayName = "ListItem";
 
 // MobileNavigation and NavSection components
-export function MobileNavigation({ currentUser, storeNavItems, eventsNavItems, magazineNavItems, musicNavItems }) {
+export function MobileNavigation({ currentUser, authLoading, storeNavItems, eventsNavItems, magazineNavItems, musicNavItems }) {
   const [open, setOpen] = React.useState(false);
 
   return (
@@ -120,7 +120,7 @@ export function MobileNavigation({ currentUser, storeNavItems, eventsNavItems, m
           <NavSection title={I18n.t("menu.music")} items={musicNavItems} />
           <NavSection title={I18n.t("menu.events")} items={eventsNavItems} />
           <NavSection title={I18n.t("menu.store")} items={storeNavItems} />
-          {!currentUser && (
+          {!currentUser && !authLoading && (
             <div className="flex flex-col gap-2 px-4 py-4">
               <a
                 href="/users/sign_in"
@@ -239,6 +239,7 @@ export default function UserMenu() {
     labelUser,
     cartItemCount,
     unreadMessagesCount,
+    loading: authLoading,
     signOut,
     incrementUnreadMessagesCount
   } = useAuthStore();
@@ -744,6 +745,7 @@ export default function UserMenu() {
                 magazineNavItems={magazineNavItems}
                 musicNavItems={musicNavItems}
                 currentUser={currentUser}
+                authLoading={authLoading}
               />
             </div>
 
@@ -954,7 +956,7 @@ export default function UserMenu() {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </>
-              ) : (
+              ) : !authLoading ? (
                 <div className="flex items-center">
                   <a
                     href="/users/sign_in"
@@ -969,7 +971,7 @@ export default function UserMenu() {
                     {I18n.t("menu.register")}
                   </a>
                 </div>
-              )}
+              ) : null}
             </div>
           </div>
         </div>

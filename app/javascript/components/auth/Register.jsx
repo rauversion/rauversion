@@ -43,7 +43,7 @@ export default function Register() {
   const [spinner, setSpinner] = useState('')
   const navigate = useNavigate()
   const { toast } = useToast()
-  const { setCurrentUser } = useAuthStore()
+  const { initAuth } = useAuthStore()
   const { register, handleSubmit, watch, formState: { errors }, trigger, setValue } = useForm()
   const password = watch('password')
 
@@ -112,7 +112,7 @@ export default function Register() {
           setRegisteredEmail(data.email)
           setShowConfirmation(true)
         } else {
-          setCurrentUser(result.user)
+          await initAuth()
           toast({
             title: I18n.t('sessions.register.toast.success.title'),
             description: I18n.t('sessions.register.toast.success.message')

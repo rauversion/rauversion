@@ -16,7 +16,7 @@ export default function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const navigate = useNavigate()
   const { toast } = useToast()
-  const { setCurrentUser, updateCsrfToken } = useAuthStore()
+  const { initAuth, updateCsrfToken } = useAuthStore()
   const { register, handleSubmit, formState: { errors } } = useForm()
 
   const onSubmit = async (data) => {
@@ -32,21 +32,19 @@ export default function Login() {
         })
       })
 
-      const result = await response.json
+      const newCsrfToken = response.headers.get("X-CSRF-Token")
+
+      if (newCsrfToken) {
+        updateCsrfToken(newCsrfToken)
+      }
 
       if (response.ok) {
-        setCurrentUser(result.user)
+        await initAuth()
         toast({
           title: I18n.t('sessions.toast.success.title'),
           description: I18n.t('sessions.toast.success.message')
         })
         navigate('/')
-
-        const newCsrfToken = response.headers.get("X-CSRF-Token");
-        if (newCsrfToken) {
-          updateCsrfToken(newCsrfToken);
-        }
-
       } else {
         toast({
           title: I18n.t('sessions.toast.error.title'),
@@ -60,11 +58,6 @@ export default function Login() {
         description: I18n.t('sessions.toast.error.generic'),
         variant: 'destructive'
       })
-
-      const newCsrfToken = response.headers.get("X-CSRF-Token");
-      if (newCsrfToken) {
-        updateCsrfToken(newCsrfToken);
-      }
     } finally {
       setIsSubmitting(false)
     }
