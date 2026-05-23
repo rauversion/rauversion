@@ -1998,10 +1998,92 @@ en:
       error_description: There was an error processing your download request.
   sales:
     title: My music sales
+    subtitle: Track revenue, orders, products, and recent buyer activity.
     my_music: My music sales
     my_tickets: My tickets
     albums: Albums
     tracks: Individual tracks
+    buyer: Buyer
+    tabs:
+      dashboard: Dashboard
+      albums: Albums
+      tracks: Tracks
+      products: Products & Merch
+    types:
+      tracks: Tracks
+      albums: Albums
+      products: Products
+      unknown: Sale
+    statuses:
+      completed: Completed
+      order_placed: Order placed
+      pending: Pending
+      refunded: Refunded
+      failed: Failed
+      unknown: Unknown
+    actions:
+      view_booking: View Booking
+    empty:
+      albums:
+        title: No album sales yet
+        description: Album purchases will appear here as they come in.
+      tracks:
+        title: No track sales yet
+        description: Individual track purchases will appear here.
+      products:
+        title: No product sales yet
+        description: Merch, services, and product orders will appear here.
+    dashboard:
+      eyebrow: Sales Dashboard
+      title: Revenue, orders, and your strongest-selling items in one place.
+      description: Showing performance for the last %{days} days.
+      latest_sale: Latest sale
+      never: No sales yet
+      empty_title: Sales dashboard unavailable
+      empty_description: We could not load your sales dashboard right now.
+      no_revenue_title: No revenue in this period
+      no_revenue_description: Revenue charts will appear after paid music or product sales.
+      no_mix_title: No sales mix yet
+      no_mix_description: Sales distribution appears after your first paid sale.
+      no_top_items_title: No top items yet
+      no_top_items_description: Your best-selling albums, tracks, and products will appear here.
+      no_status_title: No product statuses yet
+      no_status_description: Product order status distribution appears after product orders.
+      recent_sales: Recent sales
+      recent_sales_description: Latest buyer activity across music and products.
+      no_recent_title: No recent sales
+      no_recent_description: Recent sales will appear here.
+      untitled_sale: Untitled sale
+      unknown_buyer: Unknown buyer
+      metrics:
+        gross_revenue: Gross revenue
+        music_revenue: Music revenue
+        product_revenue: Product revenue
+        orders: Orders
+        units: Units sold
+        average_order: Average order
+        range: Last %{days} days
+        music_and_products: Paid music purchases and product orders
+        units_description: Tracks, albums, and product quantities
+        average_order_description: Gross revenue divided by paid orders
+        music_sales_count: "%{count} paid music sales"
+        product_orders_count: "%{count} paid product orders"
+        pending_product_orders: Pending product orders
+        pending_product_orders_description: Product orders waiting for completion
+        refunds: Refunds
+        refunds_description: Refunded music purchases and product orders
+      charts:
+        revenue_over_time: Revenue over time
+        revenue_over_time_description: Daily revenue split between music and products.
+        sales_mix: Sales mix
+        sales_mix_description: Units sold by sale category.
+        top_items: Top items by revenue
+        top_items_description: Best-performing albums, tracks, and products.
+        product_status: Product order status
+        product_status_description: Current status mix for product purchases.
+        music: Music
+        products: Products
+        revenue: Revenue
   payments:
     include_message: incluye un mensaje para %{name}
     optional_message: Optional message

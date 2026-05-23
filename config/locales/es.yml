@@ -2057,10 +2057,92 @@ es:
 
   sales:
     title: Mis ventas de música
+    subtitle: Revisa ingresos, pedidos, productos y actividad reciente de compradores.
     my_music: Mis ventas de música
     my_tickets: Mis entradas
     albums: Álbumes
     tracks: Pistas individuales
+    buyer: Comprador
+    tabs:
+      dashboard: Dashboard
+      albums: Álbumes
+      tracks: Tracks
+      products: Productos y merch
+    types:
+      tracks: Tracks
+      albums: Álbumes
+      products: Productos
+      unknown: Venta
+    statuses:
+      completed: Completado
+      order_placed: Pedido recibido
+      pending: Pendiente
+      refunded: Reembolsado
+      failed: Fallido
+      unknown: Desconocido
+    actions:
+      view_booking: Ver reserva
+    empty:
+      albums:
+        title: Aún no hay ventas de álbumes
+        description: Las compras de álbumes aparecerán aquí cuando lleguen.
+      tracks:
+        title: Aún no hay ventas de tracks
+        description: Las compras de tracks individuales aparecerán aquí.
+      products:
+        title: Aún no hay ventas de productos
+        description: Los pedidos de merch, servicios y productos aparecerán aquí.
+    dashboard:
+      eyebrow: Dashboard de ventas
+      title: Ingresos, pedidos y tus ítems más vendidos en un solo lugar.
+      description: Mostrando el rendimiento de los últimos %{days} días.
+      latest_sale: Última venta
+      never: Aún no hay ventas
+      empty_title: Dashboard de ventas no disponible
+      empty_description: No pudimos cargar tu dashboard de ventas ahora.
+      no_revenue_title: Sin ingresos en este período
+      no_revenue_description: Los gráficos de ingresos aparecerán después de ventas pagadas de música o productos.
+      no_mix_title: Aún no hay mezcla de ventas
+      no_mix_description: La distribución de ventas aparecerá después de tu primera venta pagada.
+      no_top_items_title: Aún no hay ítems destacados
+      no_top_items_description: Tus álbumes, tracks y productos con mejor rendimiento aparecerán aquí.
+      no_status_title: Aún no hay estados de productos
+      no_status_description: La distribución de estados aparecerá después de pedidos de productos.
+      recent_sales: Ventas recientes
+      recent_sales_description: Última actividad de compradores en música y productos.
+      no_recent_title: No hay ventas recientes
+      no_recent_description: Las ventas recientes aparecerán aquí.
+      untitled_sale: Venta sin título
+      unknown_buyer: Comprador desconocido
+      metrics:
+        gross_revenue: Ingresos brutos
+        music_revenue: Ingresos de música
+        product_revenue: Ingresos de productos
+        orders: Pedidos
+        units: Unidades vendidas
+        average_order: Pedido promedio
+        range: Últimos %{days} días
+        music_and_products: Compras pagadas de música y pedidos de productos
+        units_description: Tracks, álbumes y cantidades de productos
+        average_order_description: Ingresos brutos divididos por pedidos pagados
+        music_sales_count: "%{count} ventas pagadas de música"
+        product_orders_count: "%{count} pedidos pagados de productos"
+        pending_product_orders: Pedidos de productos pendientes
+        pending_product_orders_description: Pedidos de productos esperando cierre
+        refunds: Reembolsos
+        refunds_description: Compras de música y pedidos de productos reembolsados
+      charts:
+        revenue_over_time: Ingresos en el tiempo
+        revenue_over_time_description: Ingresos diarios separados entre música y productos.
+        sales_mix: Mix de ventas
+        sales_mix_description: Unidades vendidas por categoría.
+        top_items: Ítems principales por ingresos
+        top_items_description: Álbumes, tracks y productos con mejor rendimiento.
+        product_status: Estado de pedidos de productos
+        product_status_description: Distribución actual de estados para compras de productos.
+        music: Música
+        products: Productos
+        revenue: Ingresos
 
   payments:
     include_message: "incluye un mensaje para %{name}"

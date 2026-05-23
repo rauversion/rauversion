@@ -4,9 +4,15 @@ class SalesController < ApplicationController
   before_action :set_purchase, only: [:product_show, :update, :refund]
 
   def index
-    @tab = params[:tab].present? ? params[:tab].singularize.capitalize : "Album"
+    @tab = params[:tab].present? ? params[:tab].singularize.capitalize : "Dashboard"
 
-    if @tab == "Product"
+    if @tab == "Dashboard"
+      @dashboard = SalesDashboard.new(
+        user: current_user,
+        from: params[:from],
+        to: params[:to]
+      ).as_json
+    elsif @tab == "Product"
       @collection = ProductPurchase.for_seller(current_user)
                                 .order(created_at: :desc)
                                 .page(params[:page])
@@ -18,7 +24,7 @@ class SalesController < ApplicationController
     end
 
     respond_to do |format|
-      format.html
+      format.html { render_blank }
       format.json
     end
   end
@@ -89,7 +95,9 @@ class SalesController < ApplicationController
   end
 
   def ensure_seller
-    redirect_to root_path, alert: 'Access denied. Seller account required.' unless current_user.can_sell_products?
+    return if current_user.is_creator? || current_user.can_sell_products?
+
+    redirect_to root_path, alert: 'Access denied. Seller account required.'
   end
 
 end

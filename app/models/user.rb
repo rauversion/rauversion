@@ -295,14 +295,24 @@ class User < ApplicationRecord
   end
 
   def user_sales_for(kind = "Track")
-    if kind == "Product"
+    case kind
+    when "Product"
       ProductPurchase.for_seller(self)
                                 .order(created_at: :desc)
-    else
-      purchased_items = PurchasedItem.joins(
-        "INNER JOIN tracks ON purchased_items.purchased_item_id = tracks.id AND purchased_items.purchased_item_type = '#{kind}'"
+    when "Album"
+      PurchasedItem.joins(
+        "INNER JOIN playlists ON purchased_items.purchased_item_id = playlists.id AND purchased_items.purchased_item_type = 'Playlist'"
       )
-        .where(tracks: {user_id: id})
+        .where(playlists: { user_id: seller_account_ids, playlist_type: "album" })
+        .order(created_at: :desc)
+    when "Track"
+      PurchasedItem.joins(
+        "INNER JOIN tracks ON purchased_items.purchased_item_id = tracks.id AND purchased_items.purchased_item_type = 'Track'"
+      )
+        .where(tracks: { user_id: seller_account_ids })
+        .order(created_at: :desc)
+    else
+      PurchasedItem.none
     end
   end
 
