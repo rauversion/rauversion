@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import { get } from '@rails/request.js'
 
 export function useInfiniteScroll(fetchUrl, options = {}) {
+  const { enabled = true } = options
   const [items, setItems] = useState([])
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -12,6 +13,7 @@ export function useInfiniteScroll(fetchUrl, options = {}) {
   const collectionVersionRef = useRef(0)
 
   const lastElementRef = useCallback(node => {
+    if (!enabled) return
     if (loading) return
     if (observer.current) observer.current.disconnect()
     observer.current = new IntersectionObserver(entries => {
@@ -20,9 +22,11 @@ export function useInfiniteScroll(fetchUrl, options = {}) {
       }
     })
     if (node) observer.current.observe(node)
-  }, [loading, hasMore])
+  }, [enabled, loading, hasMore])
 
   const fetchItems = useCallback(async (pageNum = 1, version = collectionVersionRef.current) => {
+    if (!enabled) return
+
     activeRequestsRef.current += 1
 
     try {
@@ -51,7 +55,7 @@ export function useInfiniteScroll(fetchUrl, options = {}) {
         setLoading(false)
       }
     }
-  }, [fetchUrl])
+  }, [enabled, fetchUrl])
 
   const resetList = useCallback(() => {
     setPage(1)
@@ -67,14 +71,25 @@ export function useInfiniteScroll(fetchUrl, options = {}) {
   }, [fetchItems, resetList])
 
   useEffect(() => {
+    if (!enabled) {
+      collectionVersionRef.current += 1
+      if (observer.current) observer.current.disconnect()
+      setItems([])
+      setData(null)
+      setHasMore(false)
+      setLoading(false)
+      return
+    }
+
     refresh()
-  }, [fetchUrl, refresh])
+  }, [enabled, fetchUrl, refresh])
 
   useEffect(() => {
+    if (!enabled) return
     if (page === 1) return
 
     void fetchItems(page, collectionVersionRef.current)
-  }, [fetchItems, page])
+  }, [enabled, fetchItems, page])
 
   return {
     items,

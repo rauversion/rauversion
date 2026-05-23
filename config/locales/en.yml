@@ -1917,6 +1917,85 @@ en:
     my_tickets: My tickets
     purchased_albums: Albums purchased
     purchased_tracks: Individual tracks purchased
+    page_title: My Purchases
+    page_description: Review recent purchases first, then jump into music, tickets, or product orders.
+    tabs:
+      overview: Overview
+      tickets: Tickets
+      music: Music
+      products: Products
+    descriptions:
+      overview: Latest purchases across music, tickets, and products.
+      tickets: Event tickets grouped by purchase.
+      music: Albums, tracks, and playlists you bought.
+      products: Merch, services, and other store orders.
+    overview:
+      latest_title: Latest purchases
+      latest_description: Recent orders from all purchase categories.
+    counts:
+      purchase:
+        one: "%{count} purchase"
+        other: "%{count} purchases"
+      ticket:
+        one: "%{count} ticket"
+        other: "%{count} tickets"
+      item:
+        one: "%{count} item"
+        other: "%{count} items"
+      music_item:
+        one: "%{count} music item"
+        other: "%{count} music items"
+    summaries:
+      ticket_purchase: "%{count_label} - %{tickets}"
+    fallbacks:
+      purchase: "Purchase #%{id}"
+      ticket: Ticket
+      music_purchase: Music purchase
+      unknown_date: Unknown date
+    labels:
+      event: Event
+      purchased: Purchased
+      status: Status
+      tickets: Tickets
+      total: Total
+      price: Price
+      type: Type
+    actions:
+      details: Details
+      view_ticket: View Ticket
+      view_booking: View Booking
+    details:
+      title: Purchase Details
+      tickets_in_purchase: Tickets in this purchase
+    empty:
+      overview:
+        title: No purchases yet
+        description: Your latest music, tickets, and product orders will appear here.
+      music:
+        title: No music purchases
+        description: Albums, tracks, and playlists you buy will appear here.
+      tickets:
+        title: No ticket purchases
+        description: Event tickets you buy will appear here grouped by purchase.
+      products:
+        title: No product purchases
+        description: Merch, services, and store orders you buy will appear here.
+    errors:
+      overview: We couldn't load your purchase overview. Please try again.
+      overview_tab: Unable to load this purchase category.
+    download:
+      download: Download
+      downloaded: Downloaded
+      loading: Loading...
+      processing: Processing...
+      processing_title: Download Processing
+      processing_description: Your download is being prepared. You will be notified when it is ready.
+      status_title: Download Status
+      status_description: Your download is being processed. You'll be notified when it's ready.
+      ready_title: Download Ready
+      ready_description: Your download is ready!
+      error_title: Download Error
+      error_description: There was an error processing your download request.
   sales:
     title: My music sales
     my_music: My music sales

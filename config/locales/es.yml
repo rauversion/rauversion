@@ -1975,6 +1975,85 @@ es:
     my_tickets: Mis entradas
     purchased_albums: Álbumes comprados
     purchased_tracks: Pistas individuales compradas
+    page_title: Mis compras
+    page_description: Revisa primero tus compras recientes y luego entra a música, entradas o pedidos de productos.
+    tabs:
+      overview: Resumen
+      tickets: Entradas
+      music: Música
+      products: Productos
+    descriptions:
+      overview: Últimas compras de música, entradas y productos.
+      tickets: Entradas de eventos agrupadas por compra.
+      music: Álbumes, pistas y playlists que compraste.
+      products: Merch, servicios y otros pedidos de la tienda.
+    overview:
+      latest_title: Últimas compras
+      latest_description: Pedidos recientes de todas las categorías.
+    counts:
+      purchase:
+        one: "%{count} compra"
+        other: "%{count} compras"
+      ticket:
+        one: "%{count} entrada"
+        other: "%{count} entradas"
+      item:
+        one: "%{count} ítem"
+        other: "%{count} ítems"
+      music_item:
+        one: "%{count} ítem de música"
+        other: "%{count} ítems de música"
+    summaries:
+      ticket_purchase: "%{count_label} - %{tickets}"
+    fallbacks:
+      purchase: "Compra #%{id}"
+      ticket: Entrada
+      music_purchase: Compra de música
+      unknown_date: Fecha desconocida
+    labels:
+      event: Evento
+      purchased: Comprado
+      status: Estado
+      tickets: Entradas
+      total: Total
+      price: Precio
+      type: Tipo
+    actions:
+      details: Detalles
+      view_ticket: Ver entrada
+      view_booking: Ver reserva
+    details:
+      title: Detalles de la compra
+      tickets_in_purchase: Entradas en esta compra
+    empty:
+      overview:
+        title: Aún no hay compras
+        description: Tus últimas compras de música, entradas y productos aparecerán aquí.
+      music:
+        title: No hay compras de música
+        description: Los álbumes, pistas y playlists que compres aparecerán aquí.
+      tickets:
+        title: No hay compras de entradas
+        description: Las entradas de eventos que compres aparecerán aquí agrupadas por compra.
+      products:
+        title: No hay compras de productos
+        description: El merch, servicios y pedidos de la tienda que compres aparecerán aquí.
+    errors:
+      overview: No pudimos cargar el resumen de tus compras. Inténtalo de nuevo.
+      overview_tab: No se pudo cargar esta categoría de compras.
+    download:
+      download: Descargar
+      downloaded: Descargado
+      loading: Cargando...
+      processing: Procesando...
+      processing_title: Descarga en proceso
+      processing_description: Tu descarga se está preparando. Te avisaremos cuando esté lista.
+      status_title: Estado de descarga
+      status_description: Tu descarga se está procesando. Te avisaremos cuando esté lista.
+      ready_title: Descarga lista
+      ready_description: Tu descarga está lista.
+      error_title: Error de descarga
+      error_description: Hubo un error al procesar tu solicitud de descarga.
 
   sales:
     title: Mis ventas de música
