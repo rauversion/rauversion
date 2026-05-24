@@ -1,8 +1,9 @@
 class SalesDashboard
-  DEFAULT_RANGE_DAYS = 30
+  DEFAULT_RANGE_DAYS = 365
   TOP_LIMIT = 8
   RECENT_LIMIT = 8
   PAID_PRODUCT_STATUSES = %w[completed order_placed].freeze
+  EVENTS_JOIN = "INNER JOIN events ON events.id = purchases.purchasable_id AND purchases.purchasable_type = 'Event'".freeze
 
   def initialize(user:, from: nil, to: nil)
     @user = user
@@ -18,6 +19,7 @@ class SalesDashboard
       revenue_series: revenue_series,
       sales_mix: sales_mix,
       product_status_mix: product_status_mix,
+      ticket_events: top_ticket_events,
       top_items: top_items,
       recent_sales: recent_sales
     }
@@ -52,21 +54,25 @@ class SalesDashboard
   end
 
   def summary
-    orders = paid_music_orders_count + paid_product_orders_count
+    orders = paid_music_orders_count + paid_product_orders_count + paid_ticket_orders_count
     revenue = combined_revenue_by_currency.values.sum(&:to_d)
-    units = paid_track_items.count + paid_album_items.count + paid_product_units
+    units = paid_track_items.count + paid_album_items.count + paid_product_units + paid_ticket_units
 
     {
       gross_revenue: revenue.to_f,
       music_revenue: money_value(paid_music_revenue),
       product_revenue: money_value(paid_product_revenue),
+      ticket_revenue: money_value(paid_ticket_revenue),
       orders_count: orders,
       units_sold: units,
       average_order_value: orders.positive? ? (revenue / orders).to_f : 0,
       music_sales_count: paid_track_items.count + paid_album_items.count,
       product_orders_count: paid_product_orders_count,
+      ticket_orders_count: paid_ticket_orders_count,
+      tickets_sold_count: paid_ticket_units,
+      ticket_events_with_sales_count: ticket_events_with_sales_count,
       pending_product_orders_count: product_purchases.where(status: "pending").count,
-      refunded_count: refunded_music_items_count + product_purchases.where(status: "refunded").count,
+      refunded_count: refunded_music_items_count + product_purchases.where(status: "refunded").count + refunded_ticket_items.count,
       latest_sale_at: latest_sale_at,
       primary_currency: primary_currency
     }
@@ -80,16 +86,21 @@ class SalesDashboard
     products = paid_product_items
       .group_by_day("product_purchases.created_at", range: date_range, format: "%Y-%m-%d")
       .sum("COALESCE(product_purchase_items.price, 0) * COALESCE(product_purchase_items.quantity, 1)")
+    tickets = paid_ticket_items
+      .group_by_day("purchased_items.created_at", range: date_range, format: "%Y-%m-%d")
+      .sum("COALESCE(purchased_items.price, 0)")
 
     date_keys.map do |date|
       music_amount = money_value(music[date])
       product_amount = money_value(products[date])
+      ticket_amount = money_value(tickets[date])
 
       {
         date: date,
         music: music_amount,
         products: product_amount,
-        total: music_amount + product_amount
+        tickets: ticket_amount,
+        total: music_amount + product_amount + ticket_amount
       }
     end
   end
@@ -110,6 +121,11 @@ class SalesDashboard
         key: "products",
         units: paid_product_units,
         revenue: money_value(paid_product_revenue)
+      },
+      {
+        key: "tickets",
+        units: paid_ticket_units,
+        revenue: money_value(paid_ticket_revenue)
       }
     ]
   end
@@ -185,6 +201,10 @@ class SalesDashboard
     paid_product_items.sum("COALESCE(product_purchase_items.price, 0) * COALESCE(product_purchase_items.quantity, 1)")
   end
 
+  def paid_ticket_revenue
+    paid_ticket_items.sum("COALESCE(purchased_items.price, 0)")
+  end
+
   def paid_music_revenue
     paid_track_items.sum("COALESCE(purchased_items.price, 0)") +
       paid_album_items.sum("COALESCE(purchased_items.price, 0)")
@@ -192,6 +212,10 @@ class SalesDashboard
 
   def paid_product_units
     paid_product_items.sum("COALESCE(product_purchase_items.quantity, 1)").to_i
+  end
+
+  def paid_ticket_units
+    paid_ticket_items.count
   end
 
   def paid_music_orders_count
@@ -202,11 +226,20 @@ class SalesDashboard
     paid_product_items.distinct.count("product_purchases.id")
   end
 
+  def paid_ticket_orders_count
+    paid_ticket_items.distinct.count(:purchase_id)
+  end
+
+  def ticket_events_with_sales_count
+    paid_ticket_items.distinct.count("events.id")
+  end
+
   def combined_revenue_by_currency
     merge_grouped_money(
       paid_track_items.group(:currency).sum("COALESCE(purchased_items.price, 0)"),
       paid_album_items.group(:currency).sum("COALESCE(purchased_items.price, 0)"),
-      paid_product_items.group("product_purchase_items.currency").sum("COALESCE(product_purchase_items.price, 0) * COALESCE(product_purchase_items.quantity, 1)")
+      paid_product_items.group("product_purchase_items.currency").sum("COALESCE(product_purchase_items.price, 0) * COALESCE(product_purchase_items.quantity, 1)"),
+      paid_ticket_items.group(:currency).sum("COALESCE(purchased_items.price, 0)")
     )
   end
 
@@ -218,7 +251,8 @@ class SalesDashboard
     [
       paid_track_items.maximum("purchased_items.created_at"),
       paid_album_items.maximum("purchased_items.created_at"),
-      paid_product_items.maximum("product_purchases.created_at")
+      paid_product_items.maximum("product_purchases.created_at"),
+      paid_ticket_items.maximum("purchased_items.created_at")
     ].compact.max
   end
 
@@ -297,6 +331,73 @@ class SalesDashboard
           buyer_email: purchase.user&.email,
           created_at: purchase.created_at,
           path: Rails.application.routes.url_helpers.product_show_sale_path(purchase)
+        }
+      end
+  end
+
+  def event_ids
+    @event_ids ||= Event
+      .left_outer_joins(:event_hosts)
+      .where(
+        "events.user_id IN (:seller_ids) OR (event_hosts.user_id = :user_id AND event_hosts.access_role = :reports_role)",
+        seller_ids: seller_ids,
+        user_id: user.id,
+        reports_role: "admin"
+      )
+      .distinct
+      .pluck(:id)
+  end
+
+  def ticket_items
+    @ticket_items ||= begin
+      if event_ids.empty?
+        PurchasedItem.none
+      else
+        PurchasedItem
+          .joins(:purchase)
+          .joins(EVENTS_JOIN)
+          .where(events: { id: event_ids })
+          .where(purchased_items: { purchased_item_type: "EventTicket", created_at: date_range })
+      end
+    end
+  end
+
+  def paid_ticket_items
+    @paid_ticket_items ||= ticket_items.where(purchased_items: { state: "paid" })
+  end
+
+  def refunded_ticket_items
+    @refunded_ticket_items ||= ticket_items.where(purchased_items: { state: "refunded" })
+  end
+
+  def top_ticket_events
+    refunded_by_event = refunded_ticket_items.group("events.id").count
+
+    paid_ticket_items
+      .select(
+        "events.id AS event_id",
+        "events.title AS event_title",
+        "events.slug AS event_slug",
+        "events.event_start AS event_start",
+        "MIN(purchased_items.currency) AS sale_currency",
+        "COUNT(purchased_items.id) AS sold_tickets",
+        "SUM(COALESCE(purchased_items.price, 0)) AS revenue"
+      )
+      .group("events.id", "events.title", "events.slug", "events.event_start")
+      .order(Arel.sql("sold_tickets DESC, revenue DESC"))
+      .limit(TOP_LIMIT)
+      .map do |row|
+        event_identifier = row.event_slug.presence || row.event_id
+
+        {
+          id: row.event_id,
+          title: row.event_title,
+          event_start: row.event_start,
+          sold_tickets: row.sold_tickets.to_i,
+          refunded_tickets: refunded_by_event[row.event_id].to_i,
+          revenue: money_value(row.revenue),
+          currency: normalize_currency(row.sale_currency),
+          report_path: "/events/#{event_identifier}/reports"
         }
       end
   end

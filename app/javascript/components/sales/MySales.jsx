@@ -3,9 +3,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Calendar } from "@/components/ui/calendar"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
-import { formatDistance } from "date-fns"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { differenceInCalendarDays, format, formatDistance, isValid, parseISO, subDays } from "date-fns"
 import { useInfiniteScroll } from "@/hooks/useInfiniteScroll"
 import { get } from "@rails/request.js"
 import {
@@ -21,17 +24,24 @@ import {
   YAxis,
 } from "recharts"
 import {
+  ArrowUpRight,
+  CalendarIcon,
   CircleDollarSign,
   Disc3,
   LayoutDashboard,
   Loader2,
   Package,
   Receipt,
+  RotateCcw,
   ShoppingBag,
+  Ticket,
   TrendingUp,
 } from "lucide-react"
-import { Link } from "react-router"
+import { Link, useSearchParams } from "react-router-dom"
 import I18n from "@/stores/locales"
+import { cn } from "@/lib/utils"
+
+const DASHBOARD_RANGE_DAYS = 365
 
 const SALES_TABS = [
   { value: "Dashboard", labelKey: "tabs.dashboard", icon: LayoutDashboard },
@@ -44,6 +54,7 @@ const MIX_COLORS = {
   tracks: "var(--chart-1)",
   albums: "var(--chart-2)",
   products: "var(--chart-3)",
+  tickets: "var(--chart-4)",
 }
 
 const STATUS_COLORS = {
@@ -84,6 +95,62 @@ function formatShortDate(value) {
     month: "short",
     day: "numeric",
   })
+}
+
+function defaultDashboardRange() {
+  const today = new Date()
+
+  return {
+    from: subDays(today, DASHBOARD_RANGE_DAYS - 1),
+    to: today,
+  }
+}
+
+function formatDateInput(value) {
+  return format(value, "yyyy-MM-dd")
+}
+
+function parseDateInput(value) {
+  if (!value) return undefined
+
+  const parsed = parseISO(value)
+  return isValid(parsed) ? parsed : undefined
+}
+
+function searchParamsToRange(searchParams) {
+  const from = parseDateInput(searchParams.get("from"))
+  const to = parseDateInput(searchParams.get("to"))
+
+  if (!from && !to) return defaultDashboardRange()
+
+  return {
+    from: from || to,
+    to: to || from,
+  }
+}
+
+function rangeDays(range) {
+  if (!range?.from) return 0
+
+  return differenceInCalendarDays(range.to || range.from, range.from) + 1
+}
+
+function rangeLabel(range) {
+  if (!range?.from) return t("dashboard.pick_range")
+  if (!range.to) return format(range.from, "LLL dd, y")
+
+  return `${format(range.from, "LLL dd, y")} - ${format(range.to, "LLL dd, y")}`
+}
+
+function dashboardPath(range) {
+  const params = new URLSearchParams({ tab: "Dashboard" })
+
+  if (range?.from) {
+    params.set("from", formatDateInput(range.from))
+    params.set("to", formatDateInput(range.to || range.from))
+  }
+
+  return `/sales.json?${params.toString()}`
 }
 
 function statusVariant(status) {
@@ -127,6 +194,151 @@ function DashboardLoading() {
   )
 }
 
+function DashboardRangeToolbar({
+  range,
+  setRange,
+  pickerOpen,
+  setPickerOpen,
+  onApply,
+  onReset,
+  days,
+}) {
+  return (
+    <section className="mb-6 flex flex-col gap-3 rounded-lg border bg-card p-4 shadow-sm lg:flex-row lg:items-center lg:justify-between">
+      <div>
+        <p className="text-sm font-medium">{t("dashboard.date_range")}</p>
+        <p className="text-sm text-muted-foreground">
+          {t("dashboard.date_range_showing", {
+            range: rangeLabel(range),
+            days: days || rangeDays(range),
+          })}
+        </p>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-2">
+        <Popover open={pickerOpen} onOpenChange={setPickerOpen}>
+          <PopoverTrigger asChild>
+            <Button
+              variant="outline"
+              className={cn(
+                "min-w-[260px] justify-start text-left font-normal",
+                !range?.from && "text-muted-foreground"
+              )}
+            >
+              <CalendarIcon className="h-4 w-4" />
+              {rangeLabel(range)}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0" align="end">
+            <div className="border-b px-4 py-3">
+              <p className="text-sm font-medium">{t("dashboard.select_report_range")}</p>
+              <p className="text-xs text-muted-foreground">{t("dashboard.calendar_help")}</p>
+            </div>
+            <Calendar
+              initialFocus
+              mode="range"
+              defaultMonth={range?.from}
+              selected={range}
+              onSelect={setRange}
+              numberOfMonths={2}
+            />
+            <div className="flex items-center justify-between gap-4 border-t px-4 py-3">
+              <span className="text-xs text-muted-foreground">{rangeLabel(range)}</span>
+              <Button size="sm" onClick={onApply} disabled={!range?.from}>
+                {t("dashboard.apply_range")}
+              </Button>
+            </div>
+          </PopoverContent>
+        </Popover>
+
+        <Button variant="secondary" onClick={onReset}>
+          <RotateCcw className="h-4 w-4" />
+          {t("dashboard.last_year")}
+        </Button>
+      </div>
+    </section>
+  )
+}
+
+function TicketEventsCard({ events, summary, currency }) {
+  const chartData = events.map((event) => ({
+    title: event.title?.length > 18 ? `${event.title.slice(0, 18)}...` : event.title,
+    sold_tickets: event.sold_tickets,
+    fullTitle: event.title,
+  }))
+
+  const chartConfig = {
+    sold_tickets: {
+      label: t("dashboard.ticket_events.tickets_sold"),
+      color: "var(--chart-4)",
+    },
+  }
+
+  return (
+    <Card className="rounded-lg border-border bg-card shadow-sm">
+      <CardHeader className="gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <CardTitle>{t("dashboard.ticket_events.title")}</CardTitle>
+          <CardDescription>{t("dashboard.ticket_events.description")}</CardDescription>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <Badge variant="outline">
+            {formatNumber(summary.tickets_sold_count)} {t("dashboard.ticket_events.tickets_sold")}
+          </Badge>
+          <Badge variant="outline">
+            {formatMoney(summary.ticket_revenue, currency)}
+          </Badge>
+        </div>
+      </CardHeader>
+      <CardContent>
+        {events.length > 0 ? (
+          <div className="grid gap-6 xl:grid-cols-[1fr_0.95fr]">
+            <ChartContainer config={chartConfig} className="h-[280px] w-full min-w-0 aspect-auto overflow-hidden">
+              <BarChart data={chartData} margin={{ left: 4, right: 16, top: 8, bottom: 0 }}>
+                <CartesianGrid vertical={false} />
+                <XAxis dataKey="title" tickLine={false} axisLine={false} minTickGap={18} />
+                <YAxis tickLine={false} axisLine={false} width={48} />
+                <ChartTooltip
+                  content={
+                    <ChartTooltipContent
+                      labelFormatter={(_value, payload) => payload?.[0]?.payload?.fullTitle || ""}
+                    />
+                  }
+                />
+                <Bar dataKey="sold_tickets" fill="var(--color-sold_tickets)" radius={[8, 8, 0, 0]} />
+              </BarChart>
+            </ChartContainer>
+
+            <div className="divide-y rounded-lg border">
+              {events.map((event) => (
+                <div key={`${event.id}-${event.currency}`} className="flex flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0">
+                    <p className="truncate font-medium">{event.title}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {formatNumber(event.sold_tickets)} {t("dashboard.ticket_events.tickets_sold")} - {formatMoney(event.revenue, event.currency)}
+                    </p>
+                  </div>
+                  <Button asChild size="sm" variant="outline" className="shrink-0">
+                    <Link to={event.report_path}>
+                      {t("dashboard.ticket_events.view_report")}
+                      <ArrowUpRight className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <EmptyState
+            title={t("dashboard.ticket_events.empty_title")}
+            description={t("dashboard.ticket_events.empty_description")}
+          />
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
 function SalesDashboard({ payload, loading }) {
   if (loading) return <DashboardLoading />
   if (!payload?.dashboard) {
@@ -153,6 +365,10 @@ function SalesDashboard({ payload, loading }) {
     products: {
       label: t("dashboard.charts.products"),
       color: "var(--chart-2)",
+    },
+    tickets: {
+      label: t("dashboard.charts.tickets"),
+      color: "var(--chart-4)",
     },
   }
 
@@ -239,10 +455,10 @@ function SalesDashboard({ payload, loading }) {
           icon={Package}
         />
         <MetricCard
-          title={t("dashboard.metrics.pending_product_orders")}
-          value={formatNumber(dashboard.summary.pending_product_orders_count)}
-          description={t("dashboard.metrics.pending_product_orders_description")}
-          icon={Receipt}
+          title={t("dashboard.metrics.ticket_revenue")}
+          value={formatMoney(dashboard.summary.ticket_revenue, currency)}
+          description={t("dashboard.metrics.tickets_sold_count", { count: formatNumber(dashboard.summary.tickets_sold_count) })}
+          icon={Ticket}
         />
         <MetricCard
           title={t("dashboard.metrics.refunds")}
@@ -251,6 +467,12 @@ function SalesDashboard({ payload, loading }) {
           icon={ShoppingBag}
         />
       </section>
+
+      <TicketEventsCard
+        events={dashboard.ticket_events || []}
+        summary={dashboard.summary}
+        currency={currency}
+      />
 
       <section className="grid gap-6 xl:grid-cols-[1.35fr_0.9fr]">
         <Card className="rounded-lg border-border bg-card shadow-sm">
@@ -271,6 +493,10 @@ function SalesDashboard({ payload, loading }) {
                       <stop offset="5%" stopColor="var(--color-products)" stopOpacity={0.32} />
                       <stop offset="95%" stopColor="var(--color-products)" stopOpacity={0.02} />
                     </linearGradient>
+                    <linearGradient id="ticketRevenue" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="var(--color-tickets)" stopOpacity={0.32} />
+                      <stop offset="95%" stopColor="var(--color-tickets)" stopOpacity={0.02} />
+                    </linearGradient>
                   </defs>
                   <CartesianGrid vertical={false} strokeDasharray="3 3" />
                   <XAxis dataKey="date" tickFormatter={formatShortDate} tickLine={false} axisLine={false} minTickGap={24} />
@@ -281,7 +507,7 @@ function SalesDashboard({ payload, loading }) {
                         labelFormatter={(value) => formatShortDate(value)}
                         formatter={(value, name) => (
                           <span className="font-medium">
-                            {name === "music" ? t("dashboard.charts.music") : t("dashboard.charts.products")}: {formatMoney(value, currency)}
+                            {t(`dashboard.charts.${name}`)}: {formatMoney(value, currency)}
                           </span>
                         )}
                       />
@@ -289,6 +515,7 @@ function SalesDashboard({ payload, loading }) {
                   />
                   <Area type="monotone" dataKey="music" stackId="revenue" stroke="var(--color-music)" fill="url(#musicRevenue)" strokeWidth={2} />
                   <Area type="monotone" dataKey="products" stackId="revenue" stroke="var(--color-products)" fill="url(#productRevenue)" strokeWidth={2} />
+                  <Area type="monotone" dataKey="tickets" stackId="revenue" stroke="var(--color-tickets)" fill="url(#ticketRevenue)" strokeWidth={2} />
                 </AreaChart>
               </ChartContainer>
             ) : (
@@ -583,9 +810,21 @@ function SalesList({ sales, loading, lastElementRef, emptyTitle, emptyDescriptio
 }
 
 export default function MySales() {
+  const [searchParams, setSearchParams] = useSearchParams()
   const [tab, setTab] = React.useState("Dashboard")
   const [dashboardPayload, setDashboardPayload] = React.useState(null)
   const [dashboardLoading, setDashboardLoading] = React.useState(true)
+  const [dashboardRange, setDashboardRange] = React.useState(() => searchParamsToRange(searchParams))
+  const [pickerOpen, setPickerOpen] = React.useState(false)
+  const searchKey = searchParams.toString()
+  const appliedDashboardRange = React.useMemo(
+    () => searchParamsToRange(new URLSearchParams(searchKey)),
+    [searchKey]
+  )
+  const dashboardRequestPath = React.useMemo(
+    () => dashboardPath(appliedDashboardRange),
+    [appliedDashboardRange]
+  )
   const {
     items: sales,
     loading,
@@ -593,6 +832,10 @@ export default function MySales() {
   } = useInfiniteScroll(`/sales.json?tab=${tab}`, {
     enabled: tab !== "Dashboard",
   })
+
+  React.useEffect(() => {
+    setDashboardRange(searchParamsToRange(new URLSearchParams(searchKey)))
+  }, [searchKey])
 
   React.useEffect(() => {
     let cancelled = false
@@ -603,7 +846,7 @@ export default function MySales() {
       setDashboardLoading(true)
 
       try {
-        const response = await get("/sales.json?tab=Dashboard")
+        const response = await get(dashboardRequestPath)
         const payload = await response.json
 
         if (!cancelled) {
@@ -625,7 +868,29 @@ export default function MySales() {
     return () => {
       cancelled = true
     }
-  }, [tab])
+  }, [tab, dashboardRequestPath])
+
+  function applyRange() {
+    if (!dashboardRange?.from) return
+
+    const nextParams = new URLSearchParams(searchParams)
+    nextParams.set("from", formatDateInput(dashboardRange.from))
+    nextParams.set("to", formatDateInput(dashboardRange.to || dashboardRange.from))
+    setSearchParams(nextParams, { replace: true })
+    setPickerOpen(false)
+  }
+
+  function resetRange() {
+    const nextRange = defaultDashboardRange()
+    setDashboardRange(nextRange)
+    setSearchParams(
+      {
+        from: formatDateInput(nextRange.from),
+        to: formatDateInput(nextRange.to),
+      },
+      { replace: true }
+    )
+  }
 
   return (
     <div className="container mx-auto max-w-6xl py-6 space-y-8">
@@ -650,6 +915,15 @@ export default function MySales() {
         </TabsList>
 
         <TabsContent value="Dashboard" className="mt-6">
+          <DashboardRangeToolbar
+            range={dashboardRange}
+            setRange={setDashboardRange}
+            pickerOpen={pickerOpen}
+            setPickerOpen={setPickerOpen}
+            onApply={applyRange}
+            onReset={resetRange}
+            days={dashboardPayload?.dashboard?.range?.days}
+          />
           <SalesDashboard payload={dashboardPayload} loading={dashboardLoading} />
         </TabsContent>
 

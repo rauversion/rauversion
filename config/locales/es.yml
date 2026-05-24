@@ -2056,8 +2056,8 @@ es:
       error_description: Hubo un error al procesar tu solicitud de descarga.
 
   sales:
-    title: Mis ventas de música
-    subtitle: Revisa ingresos, pedidos, productos y actividad reciente de compradores.
+    title: Mis ventas
+    subtitle: Revisa ingresos, pedidos, productos, tickets y actividad reciente de compradores.
     my_music: Mis ventas de música
     my_tickets: Mis entradas
     albums: Álbumes
@@ -2072,6 +2072,7 @@ es:
       tracks: Tracks
       albums: Álbumes
       products: Productos
+      tickets: Tickets
       unknown: Venta
     statuses:
       completed: Completado
@@ -2114,35 +2115,52 @@ es:
       no_recent_description: Las ventas recientes aparecerán aquí.
       untitled_sale: Venta sin título
       unknown_buyer: Comprador desconocido
+      date_range: Rango de fechas
+      date_range_showing: Mostrando %{range} - %{days} días
+      pick_range: Elige un rango
+      select_report_range: Selecciona el rango del reporte
+      calendar_help: El dashboard se actualiza cuando aplicas el nuevo rango.
+      apply_range: Aplicar
+      last_year: Últimos 12 meses
       metrics:
         gross_revenue: Ingresos brutos
         music_revenue: Ingresos de música
         product_revenue: Ingresos de productos
+        ticket_revenue: Ingresos de tickets
         orders: Pedidos
         units: Unidades vendidas
         average_order: Pedido promedio
         range: Últimos %{days} días
-        music_and_products: Compras pagadas de música y pedidos de productos
-        units_description: Tracks, álbumes y cantidades de productos
+        music_and_products: Compras pagadas de música, pedidos de productos y pedidos de tickets
+        units_description: Tracks, álbumes, cantidades de productos y tickets
         average_order_description: Ingresos brutos divididos por pedidos pagados
         music_sales_count: "%{count} ventas pagadas de música"
         product_orders_count: "%{count} pedidos pagados de productos"
+        tickets_sold_count: "%{count} tickets vendidos"
         pending_product_orders: Pedidos de productos pendientes
         pending_product_orders_description: Pedidos de productos esperando cierre
         refunds: Reembolsos
-        refunds_description: Compras de música y pedidos de productos reembolsados
+        refunds_description: Compras de música, pedidos de productos y tickets reembolsados
       charts:
         revenue_over_time: Ingresos en el tiempo
-        revenue_over_time_description: Ingresos diarios separados entre música y productos.
+        revenue_over_time_description: Ingresos diarios separados entre música, productos y tickets.
         sales_mix: Mix de ventas
         sales_mix_description: Unidades vendidas por categoría.
         top_items: Ítems principales por ingresos
-        top_items_description: Álbumes, tracks y productos con mejor rendimiento.
+        top_items_description: Álbumes, tracks, productos y eventos con tickets con mejor rendimiento.
         product_status: Estado de pedidos de productos
         product_status_description: Distribución actual de estados para compras de productos.
         music: Música
         products: Productos
+        tickets: Tickets
         revenue: Ingresos
+      ticket_events:
+        title: Ventas de tickets por evento
+        description: Eventos con más tickets pagados en el rango seleccionado.
+        tickets_sold: tickets vendidos
+        view_report: Ver reporte
+        empty_title: Sin ventas de tickets en este período
+        empty_description: Los tickets pagados de eventos aparecerán aquí cuando el rango seleccionado los incluya.
 
   payments:
     include_message: "incluye un mensaje para %{name}"

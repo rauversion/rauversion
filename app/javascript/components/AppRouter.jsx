@@ -351,6 +351,7 @@ function AppContent() {
       <Route path="/events/mine" element={<RequireAuth><MyEvents /></RequireAuth>} />
       <Route path="/events/:slug" element={<EventShow />} />
       <Route path="/events/:slug/admission" element={<RequireAuth><EventAdmission /></RequireAuth>} />
+      <Route path="/events/:slug/reports" element={<RequireAuth><main className="container mx-auto max-w-6xl py-6"><Reports /></main></RequireAuth>} />
       <Route path="/events/:slug/editor" element={<RequireAuth><EventSiteEditor /></RequireAuth>} />
       <Route path="/events/:slug/preview" element={<RequireAuth><EventSitePreview /></RequireAuth>} />
       <Route path="/events/:slug/preview/:pageId" element={<RequireAuth><EventSitePreview /></RequireAuth>} />

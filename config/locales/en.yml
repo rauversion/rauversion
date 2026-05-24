@@ -1997,8 +1997,8 @@ en:
       error_title: Download Error
       error_description: There was an error processing your download request.
   sales:
-    title: My music sales
-    subtitle: Track revenue, orders, products, and recent buyer activity.
+    title: My sales
+    subtitle: Track revenue, orders, products, tickets, and recent buyer activity.
     my_music: My music sales
     my_tickets: My tickets
     albums: Albums
@@ -2013,6 +2013,7 @@ en:
       tracks: Tracks
       albums: Albums
       products: Products
+      tickets: Tickets
       unknown: Sale
     statuses:
       completed: Completed
@@ -2055,35 +2056,52 @@ en:
       no_recent_description: Recent sales will appear here.
       untitled_sale: Untitled sale
       unknown_buyer: Unknown buyer
+      date_range: Date range
+      date_range_showing: Showing %{range} - %{days} days
+      pick_range: Pick a date range
+      select_report_range: Select report range
+      calendar_help: The dashboard updates after you apply the new range.
+      apply_range: Apply
+      last_year: Last 12 months
       metrics:
         gross_revenue: Gross revenue
         music_revenue: Music revenue
         product_revenue: Product revenue
+        ticket_revenue: Ticket revenue
         orders: Orders
         units: Units sold
         average_order: Average order
         range: Last %{days} days
-        music_and_products: Paid music purchases and product orders
-        units_description: Tracks, albums, and product quantities
+        music_and_products: Paid music purchases, product orders, and ticket orders
+        units_description: Tracks, albums, product quantities, and tickets
         average_order_description: Gross revenue divided by paid orders
         music_sales_count: "%{count} paid music sales"
         product_orders_count: "%{count} paid product orders"
+        tickets_sold_count: "%{count} tickets sold"
         pending_product_orders: Pending product orders
         pending_product_orders_description: Product orders waiting for completion
         refunds: Refunds
-        refunds_description: Refunded music purchases and product orders
+        refunds_description: Refunded music purchases, product orders, and tickets
       charts:
         revenue_over_time: Revenue over time
-        revenue_over_time_description: Daily revenue split between music and products.
+        revenue_over_time_description: Daily revenue split between music, products, and tickets.
         sales_mix: Sales mix
         sales_mix_description: Units sold by sale category.
         top_items: Top items by revenue
-        top_items_description: Best-performing albums, tracks, and products.
+        top_items_description: Best-performing albums, tracks, products, and ticketed events.
         product_status: Product order status
         product_status_description: Current status mix for product purchases.
         music: Music
         products: Products
+        tickets: Tickets
         revenue: Revenue
+      ticket_events:
+        title: Ticket sales by event
+        description: Events with the most paid tickets in the selected range.
+        tickets_sold: tickets sold
+        view_report: View report
+        empty_title: No ticket sales in this period
+        empty_description: Paid event tickets will appear here when the selected range includes them.
   payments:
     include_message: incluye un mensaje para %{name}
     optional_message: Optional message

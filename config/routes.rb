@@ -324,6 +324,7 @@ Rails.application.routes.draw do
       get :streaming
       get :attendees
       get :recordings
+      get :reports, to: "application#render_blank"
       get :settings
     end
 

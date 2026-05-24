@@ -95,7 +95,10 @@ class SalesController < ApplicationController
   end
 
   def ensure_seller
-    return if current_user.is_creator? || current_user.can_sell_products?
+    return if current_user.is_creator? ||
+      current_user.can_sell_products? ||
+      current_user.events.exists? ||
+      current_user.event_hosts.with_reports_access.exists?
 
     redirect_to root_path, alert: 'Access denied. Seller account required.'
   end

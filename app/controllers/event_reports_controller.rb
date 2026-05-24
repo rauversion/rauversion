@@ -21,7 +21,11 @@ class EventReportsController < ApplicationController
   private
 
   def set_event
-    @event = Event.find_by!(slug: params[:event_id])
+    @event = Event.find_by(slug: params[:event_id])
+    return if @event
+
+    @event = Event.find_by(id: params[:event_id]) if params[:event_id].to_s.match?(/\A\d+\z/)
+    raise ActiveRecord::RecordNotFound, "Couldn't find Event" unless @event
   end
 
   def authorize_manager!
