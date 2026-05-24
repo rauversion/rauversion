@@ -3,7 +3,8 @@ translations:
   - file: app/javascript/locales.json
     patterns:
       - "*"
-      - "!*.activerecord"
-      - "!*.errors"
-      - "!*.number.nth"
-      - "!.faker"
+      - "!*.activerecord.*"
+      - "!*.errors.*"
+      - "!*.number.nth.*"
+      - "!*.faker.*"
+      - "!*.ransack.*"
