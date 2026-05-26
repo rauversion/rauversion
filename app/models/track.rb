@@ -12,6 +12,7 @@ class Track < ApplicationRecord
   has_many :track_comments
   has_many :track_playlists
   has_many :playlists, through: :track_playlists
+  has_many :track_masters, dependent: :destroy
   has_many :listening_events
   has_many :reposts, dependent: :destroy
   has_many :purchased_items, as: :purchased_item

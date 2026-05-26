@@ -5,6 +5,7 @@ RSpec.describe Track, type: :model do
   it { should have_many(:track_comments) }
   it { should have_many(:track_playlists) }
   it { should have_many(:playlists).through(:track_playlists) }
+  it { should have_many(:track_masters).dependent(:destroy) }
   it { should have_many(:listening_events) }
   it { should have_many(:reposts) }
   it { should have_many(:purchased_items) }

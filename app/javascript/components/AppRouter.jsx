@@ -18,6 +18,7 @@ import ForgotPassword from './auth/ForgotPassword'
 import EditPassword from './auth/EditPassword'
 import AcceptInvitation from './users/AcceptInvitation'
 import TrackShow from './tracks/Show'
+import TrackMastering from './tracks/TrackMastering'
 import TracksIndex from './tracks/Index'
 import Home from './home/Index'
 import PlaylistsIndex from './playlists/Index'
@@ -376,6 +377,8 @@ function AppContent() {
       <Route path="/turn" element={<SpinningVideo />} />
       <Route path="/tracks" element={<TracksIndex />} />
       <Route path="/tracks/new" element={<NewTrack />} />
+      <Route path="/tracks/:slug/masterings/new" element={<RequireAuth><TrackMastering /></RequireAuth>} />
+      <Route path="/tracks/:slug/masterings/:masterId" element={<RequireAuth><TrackMastering /></RequireAuth>} />
       <Route path="/tracks/:slug" element={<TrackShow />} />
       <Route path="/playlists" element={<PlaylistsIndex />} />
       <Route path="/playlists/:slug" element={<PlaylistShow />} />

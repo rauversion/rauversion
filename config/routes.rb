@@ -370,6 +370,11 @@ Rails.application.routes.draw do
     collection do
       get :by_id
     end
+    resources :masterings, controller: "track_masterings", only: [:new, :create, :show] do
+      member do
+        get :download
+      end
+    end
     resource :events, only: :show, controller: "tracking_events"
     resource :reposts
     resource :likes
