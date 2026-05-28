@@ -377,6 +377,7 @@ function AppContent() {
       <Route path="/turn" element={<SpinningVideo />} />
       <Route path="/tracks" element={<TracksIndex />} />
       <Route path="/tracks/new" element={<NewTrack />} />
+      <Route path="/tracks/:slug/masterings" element={<RequireAuth><TrackMastering /></RequireAuth>} />
       <Route path="/tracks/:slug/masterings/new" element={<RequireAuth><TrackMastering /></RequireAuth>} />
       <Route path="/tracks/:slug/masterings/:masterId" element={<RequireAuth><TrackMastering /></RequireAuth>} />
       <Route path="/tracks/:slug" element={<TrackShow />} />

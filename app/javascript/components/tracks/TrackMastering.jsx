@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react"
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom"
-import { get, post } from "@rails/request.js"
+import { destroy, get, post } from "@rails/request.js"
 import {
   AlertTriangle,
   ArrowLeft,
@@ -10,6 +10,7 @@ import {
   Loader2,
   RefreshCw,
   SlidersHorizontal,
+  Trash2,
 } from "lucide-react"
 
 import { Badge } from "@/components/ui/badge"
@@ -140,6 +141,129 @@ function formatEventTime(timestamp) {
   return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" })
 }
 
+function formatMasterDate(timestamp) {
+  if (!timestamp) return "Sin fecha"
+
+  const date = new Date(timestamp)
+  if (Number.isNaN(date.getTime())) return "Sin fecha"
+
+  return date.toLocaleString([], {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  })
+}
+
+function profileLabel(targetProfiles, key) {
+  return targetProfiles.find((profile) => profile.key === key)?.label_es || key
+}
+
+function canDeleteMaster(master) {
+  return master && !["pending", "running"].includes(master.state)
+}
+
+function compactMetricValue(value, suffix = "") {
+  return value === null || value === undefined || value === "" ? "n/d" : `${value}${suffix}`
+}
+
+function MasterMetricsSummary({ master }) {
+  const after = master.analysis_after || {}
+  const before = master.analysis_before || {}
+  const source = hasMetricValues(after) ? after : before
+
+  if (!hasMetricValues(source)) {
+    return <p className="text-sm text-muted-foreground">Sin metricas disponibles todavia.</p>
+  }
+
+  return (
+    <dl className="grid gap-3 sm:grid-cols-4">
+      <div className="rounded-md bg-muted p-3">
+        <dt className="text-xs text-muted-foreground">LUFS</dt>
+        <dd className="mt-1 text-sm font-semibold text-foreground">{compactMetricValue(source.integrated_lufs)}</dd>
+      </div>
+      <div className="rounded-md bg-muted p-3">
+        <dt className="text-xs text-muted-foreground">True peak</dt>
+        <dd className="mt-1 text-sm font-semibold text-foreground">{compactMetricValue(source.true_peak_dbfs, " dB")}</dd>
+      </div>
+      <div className="rounded-md bg-muted p-3">
+        <dt className="text-xs text-muted-foreground">Crest</dt>
+        <dd className="mt-1 text-sm font-semibold text-foreground">{compactMetricValue(source.crest_factor_db, " dB")}</dd>
+      </div>
+      <div className="rounded-md bg-muted p-3">
+        <dt className="text-xs text-muted-foreground">Clipping</dt>
+        <dd className="mt-1 text-sm font-semibold text-foreground">
+          {source.clipping_detected === undefined ? "n/d" : String(source.clipping_detected)}
+        </dd>
+      </div>
+    </dl>
+  )
+}
+
+function MasteringCard({ master, track, targetProfiles, recentMasters, onDelete, deletingMasterId, compact = false }) {
+  const deleting = deletingMasterId === master.id
+  const deleteDisabled = deleting || !canDeleteMaster(master)
+
+  return (
+    <div className={`${compact ? "rounded-md p-3" : "rounded-lg p-5"} border border-border bg-card`}>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm font-semibold text-foreground">{profileLabel(targetProfiles, master.target_profile)}</span>
+            <Badge variant={stateVariant(master.state)}>{master.state}</Badge>
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">{formatMasterDate(master.created_at)}</p>
+          {!compact && master.feedback && (
+            <p className="mt-3 line-clamp-2 text-sm text-muted-foreground">{master.feedback}</p>
+          )}
+        </div>
+
+        <div className="flex flex-wrap gap-2">
+          <Button asChild variant="outline" size="sm">
+            <Link
+              to={`/tracks/${track.slug}/masterings/${master.id}`}
+              state={{
+                track,
+                trackMaster: master,
+                recentMasters,
+                targetProfiles,
+              }}
+            >
+              Ver
+            </Link>
+          </Button>
+          {master.ready && master.download_url && (
+            <Button asChild variant="outline" size="sm">
+              <a href={master.download_url}>
+                <Download className="mr-2 h-3.5 w-3.5" />
+                WAV
+              </a>
+            </Button>
+          )}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={deleteDisabled}
+            onClick={() => onDelete(master)}
+            className="text-destructive hover:text-destructive"
+          >
+            {deleting ? <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> : <Trash2 className="mr-2 h-3.5 w-3.5" />}
+            Eliminar
+          </Button>
+        </div>
+      </div>
+
+      {!compact && (
+        <div className="mt-5">
+          <MasterMetricsSummary master={master} />
+        </div>
+      )}
+    </div>
+  )
+}
+
 function MasteringProgressPanel({ events, progress }) {
   const safeProgress = Math.max(0, Math.min(100, Number(progress) || 0))
   const lastEvent = events[events.length - 1]
@@ -211,6 +335,8 @@ export default function TrackMastering() {
   const { toast } = useToast()
   const { subscribe, unsubscribe } = useActionCable()
   const isResultView = Boolean(masterId)
+  const normalizedPathname = location.pathname.replace(/\/+$/, "")
+  const isIndexView = !isResultView && normalizedPathname.endsWith(`/tracks/${slug}/masterings`)
   const hydratedMaster = location.state?.trackMaster && String(location.state.trackMaster.id) === String(masterId)
     ? location.state.trackMaster
     : null
@@ -227,6 +353,7 @@ export default function TrackMastering() {
   const [loading, setLoading] = useState(!location.state?.track || (isResultView && !hydratedMaster))
   const [submitting, setSubmitting] = useState(false)
   const [retrying, setRetrying] = useState(false)
+  const [deletingMasterId, setDeletingMasterId] = useState(null)
   const [retryPrompt, setRetryPrompt] = useState(hydratedMaster?.feedback || "")
   const [error, setError] = useState(null)
   const [masteringEvents, setMasteringEvents] = useState([])
@@ -238,6 +365,8 @@ export default function TrackMastering() {
     try {
       const path = isResultView
         ? `/tracks/${slug}/masterings/${masterId}.json`
+        : isIndexView
+          ? `/tracks/${slug}/masterings.json`
         : `/tracks/${slug}/masterings/new.json`
 
       const response = await get(path, { responseKind: "json" })
@@ -248,13 +377,15 @@ export default function TrackMastering() {
       }
 
       setTrack(data.track)
-      setTrackMaster(data.track_master)
-      setRecentMasters(Array.isArray(data.recent_masters) ? data.recent_masters : [])
+      setTrackMaster(isIndexView ? null : data.track_master)
+      setRecentMasters(Array.isArray(data.masters) ? data.masters : (Array.isArray(data.recent_masters) ? data.recent_masters : []))
       setTargetProfiles(Array.isArray(data.target_profiles) && data.target_profiles.length > 0 ? data.target_profiles : FALLBACK_PROFILES)
-      setTargetProfile(data.track_master?.target_profile || "demo_balanced")
-      setFeedback(data.track_master?.feedback || "")
-      setReferenceNotes(data.track_master?.reference_notes || "")
-      setRetryPrompt(data.track_master?.feedback || "")
+      if (!isIndexView) {
+        setTargetProfile(data.track_master?.target_profile || "demo_balanced")
+        setFeedback(data.track_master?.feedback || "")
+        setReferenceNotes(data.track_master?.reference_notes || "")
+        setRetryPrompt(data.track_master?.feedback || "")
+      }
     } catch (loadError) {
       if (quiet) {
         console.warn("No se pudo refrescar el detalle de mastering.", loadError)
@@ -264,7 +395,7 @@ export default function TrackMastering() {
     } finally {
       if (!quiet) setLoading(false)
     }
-  }, [isResultView, masterId, slug])
+  }, [isIndexView, isResultView, masterId, slug])
 
   useEffect(() => {
     const hasCurrentMaster = !isResultView || (trackMaster && String(trackMaster.id) === String(masterId))
@@ -434,11 +565,136 @@ export default function TrackMastering() {
     }
   }
 
+  const deleteMaster = async (master) => {
+    if (!master?.id || deletingMasterId) return
+
+    if (!canDeleteMaster(master)) {
+      toast({
+        title: "Master en proceso",
+        description: "Espera a que termine antes de eliminarlo.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    if (!window.confirm("Eliminar este mastering? Esta accion no se puede deshacer.")) return
+
+    setDeletingMasterId(master.id)
+
+    try {
+      const response = await destroy(`/tracks/${slug}/masterings/${master.id}.json`, {
+        responseKind: "json",
+      })
+      const data = await response.json
+
+      if (!response.ok) {
+        throw new Error(data?.errors?.join(", ") || "No se pudo eliminar el master.")
+      }
+
+      const nextMasters = recentMasters.filter((recentMaster) => recentMaster.id !== master.id)
+      setRecentMasters(nextMasters)
+      toast({ description: "Master eliminado." })
+
+      if (trackMaster?.id === master.id) {
+        navigate(`/tracks/${slug}/masterings`, {
+          state: {
+            track,
+            recentMasters: nextMasters,
+            targetProfiles,
+          },
+        })
+      }
+    } catch (deleteError) {
+      toast({
+        title: "Error",
+        description: deleteError.message || "No se pudo eliminar el master.",
+        variant: "destructive",
+      })
+    } finally {
+      setDeletingMasterId(null)
+    }
+  }
+
   const hasCurrentMaster = !isResultView || (trackMaster && String(trackMaster.id) === String(masterId))
 
   if (error) return <ErrorState message={error} to={track ? `/tracks/${track.slug}` : "/tracks"} />
   if ((loading || isResultView) && (!track || !hasCurrentMaster)) return <LoadingState />
   if (!track) return <ErrorState message="Track no encontrado." to="/tracks" />
+
+  if (isIndexView) {
+    return (
+      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <Button asChild variant="ghost" className="-ml-3 mb-2">
+              <Link to={`/tracks/${track.slug}`}>
+                <ArrowLeft className="mr-2 h-4 w-4" />
+                Track
+              </Link>
+            </Button>
+            <h1 className="text-2xl font-semibold tracking-tight text-foreground">Masterings de {track.title}</h1>
+            <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
+              Historial de renders, metricas y descargas para comparar setups.
+            </p>
+          </div>
+
+          <Button asChild>
+            <Link to={`/tracks/${track.slug}/masterings/new`}>
+              <SlidersHorizontal className="mr-2 h-4 w-4" />
+              Nuevo master
+            </Link>
+          </Button>
+        </div>
+
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <section className="space-y-4">
+            {recentMasters.length > 0 ? (
+              recentMasters.map((master) => (
+                <MasteringCard
+                  key={master.id}
+                  master={master}
+                  track={track}
+                  targetProfiles={targetProfiles}
+                  recentMasters={recentMasters}
+                  onDelete={deleteMaster}
+                  deletingMasterId={deletingMasterId}
+                />
+              ))
+            ) : (
+              <div className="rounded-lg border border-border bg-card p-6">
+                <h2 className="text-lg font-semibold text-foreground">No hay masterings todavia</h2>
+                <p className="mt-2 text-sm text-muted-foreground">Crea un setup para analizar el track, generar la receta y renderizar un WAV.</p>
+                <Button asChild className="mt-5">
+                  <Link to={`/tracks/${track.slug}/masterings/new`}>
+                    <AudioLines className="mr-2 h-4 w-4" />
+                    Crear master
+                  </Link>
+                </Button>
+              </div>
+            )}
+          </section>
+
+          <aside className="space-y-6">
+            <MetricsPanel
+              before={latestMeasuredMaster?.analysis_before}
+              after={latestMeasuredMaster?.analysis_after}
+              profile={targetProfiles.find((profile) => profile.key === latestMeasuredMaster?.target_profile)}
+              emptyMessage="Todavia no hay mediciones guardadas para este track."
+            />
+
+            <section className="rounded-lg border border-border bg-card p-5">
+              <h2 className="text-sm font-semibold text-foreground">Track original</h2>
+              {track.playback_url ? (
+                <audio controls className="mt-4 w-full" src={track.playback_url} />
+              ) : (
+                <p className="mt-3 text-sm text-muted-foreground">Original no disponible para comparar.</p>
+              )}
+            </section>
+          </aside>
+        </div>
+      </main>
+    )
+  }
 
   if (isResultView) {
     return (
@@ -462,11 +718,28 @@ export default function TrackMastering() {
 
           <div className="flex flex-wrap gap-2">
             <Button asChild variant="outline">
+              <Link to={`/tracks/${track.slug}/masterings`}>
+                Todos los masters
+              </Link>
+            </Button>
+            <Button asChild variant="outline">
               <Link to={`/tracks/${track.slug}/masterings/new`}>
                 <SlidersHorizontal className="mr-2 h-4 w-4" />
                 Nuevo setup
               </Link>
             </Button>
+            {canDeleteMaster(trackMaster) && (
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => deleteMaster(trackMaster)}
+                disabled={deletingMasterId === trackMaster.id}
+                className="text-destructive hover:text-destructive"
+              >
+                {deletingMasterId === trackMaster.id ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+                Eliminar
+              </Button>
+            )}
             {trackMaster?.ready && trackMaster?.download_url && (
               <Button asChild>
                 <a href={trackMaster.download_url}>
@@ -664,6 +937,11 @@ export default function TrackMastering() {
             Feedback, setup tecnico y render WAV reproducible.
           </p>
         </div>
+        <Button asChild variant="outline">
+          <Link to={`/tracks/${track.slug}/masterings`}>
+            Todos los masters
+          </Link>
+        </Button>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
@@ -782,37 +1060,16 @@ export default function TrackMastering() {
             <div className="mt-4 space-y-3">
               {recentMasters.length > 0 ? (
                 recentMasters.map((master) => (
-                  <div key={master.id} className="rounded-md border border-border p-3">
-                    <div className="flex items-center justify-between gap-3">
-                      <span className="text-sm font-medium text-foreground">
-                        {targetProfiles.find((profile) => profile.key === master.target_profile)?.label_es || master.target_profile}
-                      </span>
-                      <Badge variant={stateVariant(master.state)}>{master.state}</Badge>
-                    </div>
-                    <div className="mt-3 flex gap-2">
-                      <Button asChild variant="outline" size="sm">
-                        <Link
-                          to={`/tracks/${track.slug}/masterings/${master.id}`}
-                          state={{
-                            track,
-                            trackMaster: master,
-                            recentMasters,
-                            targetProfiles,
-                          }}
-                        >
-                          Ver
-                        </Link>
-                      </Button>
-                      {master.ready && master.download_url && (
-                        <Button asChild variant="outline" size="sm">
-                          <a href={master.download_url}>
-                            <Download className="mr-2 h-3.5 w-3.5" />
-                            WAV
-                          </a>
-                        </Button>
-                      )}
-                    </div>
-                  </div>
+                  <MasteringCard
+                    key={master.id}
+                    master={master}
+                    track={track}
+                    targetProfiles={targetProfiles}
+                    recentMasters={recentMasters}
+                    onDelete={deleteMaster}
+                    deletingMasterId={deletingMasterId}
+                    compact
+                  />
                 ))
               ) : (
                 <p className="text-sm text-muted-foreground">Todavia no hay masters para este track.</p>

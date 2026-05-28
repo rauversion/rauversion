@@ -1,9 +1,24 @@
 class TrackMasteringsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_track
-  before_action :set_track_master, only: [:show, :download, :retry]
+  before_action :set_track_master, only: [:show, :download, :retry, :destroy]
 
   layout :layout_by_resource
+
+  def index
+    load_masters
+
+    respond_to do |format|
+      format.html { render_blank }
+      format.json do
+        render json: {
+          track: track_json(@track),
+          masters: @masters.map { |master| track_master_json(master) },
+          target_profiles: target_profiles_json
+        }
+      end
+    end
+  end
 
   def new
     @track_master = @track.track_masters.new(target_profile: params[:target_profile].presence || "demo_balanced")
@@ -83,6 +98,24 @@ class TrackMasteringsController < ApplicationController
     render json: { track_master: track_master_json(@track_master) }, status: :accepted
   end
 
+  def destroy
+    if @track_master.pending? || @track_master.running?
+      respond_to do |format|
+        format.html { redirect_to track_mastering_path(@track, @track_master), alert: "No se puede eliminar un master en proceso." }
+        format.json { render json: { errors: ["No se puede eliminar un master en proceso."] }, status: :unprocessable_entity }
+      end
+      return
+    end
+
+    deleted_id = @track_master.id
+    @track_master.destroy!
+
+    respond_to do |format|
+      format.html { redirect_to track_masterings_path(@track), notice: "Master eliminado." }
+      format.json { render json: { deleted_id: deleted_id } }
+    end
+  end
+
   private
 
   def set_track
@@ -103,6 +136,10 @@ class TrackMasteringsController < ApplicationController
 
   def load_recent_masters
     @recent_masters = @track.track_masters.latest_first.limit(5)
+  end
+
+  def load_masters
+    @masters = @track.track_masters.latest_first
   end
 
   def render_unprocessable_master

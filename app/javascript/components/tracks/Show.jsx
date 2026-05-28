@@ -344,9 +344,9 @@ export default function TrackShow() {
 
           {currentUser?.id === track.user.id && (
             <Button asChild variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
-              <Link to={`/tracks/${track.slug}/masterings/new`}>
+              <Link to={`/tracks/${track.slug}/masterings`}>
                 <SlidersHorizontal className="h-4 w-4" />
-                <span className="sr-only">Master</span>
+                <span className="sr-only">Masterings</span>
               </Link>
             </Button>
           )}

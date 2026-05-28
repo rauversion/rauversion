@@ -370,7 +370,7 @@ Rails.application.routes.draw do
     collection do
       get :by_id
     end
-    resources :masterings, controller: "track_masterings", only: [:new, :create, :show] do
+    resources :masterings, controller: "track_masterings", only: [:index, :new, :create, :show, :destroy] do
       member do
         get :download
         post :retry

@@ -33,6 +33,23 @@ RSpec.describe "Track masterings", type: :request do
     end
   end
 
+  describe "GET /tracks/:track_id/masterings" do
+    it "returns all masterings for the React index" do
+      sign_in artist
+      older_master = create(:track_master, track: track, state: "completed", created_at: 2.days.ago)
+      newer_master = create(:track_master, track: track, state: "failed", created_at: 1.hour.ago)
+
+      get track_masterings_path(track, format: :json)
+
+      expect(response).to have_http_status(:ok)
+      payload = JSON.parse(response.body)
+
+      expect(payload.dig("track", "title")).to eq("Master Me")
+      expect(payload.fetch("masters").map { |master| master["id"] }).to eq([newer_master.id, older_master.id])
+      expect(payload.fetch("target_profiles").map { |profile| profile["key"] }).to include("club_loud")
+    end
+  end
+
   describe "POST /tracks/:track_id/masterings" do
     before do
       track.audio.attach(
@@ -146,6 +163,32 @@ RSpec.describe "Track masterings", type: :request do
 
       expect(response).to have_http_status(:unprocessable_entity)
       expect(JSON.parse(response.body).fetch("errors")).to include("El master ya esta en proceso.")
+    end
+  end
+
+  describe "DELETE /tracks/:track_id/masterings/:id" do
+    it "deletes a completed mastering" do
+      sign_in artist
+      master = create(:track_master, track: track, state: "completed")
+
+      expect do
+        delete track_mastering_path(track, master), as: :json
+      end.to change(TrackMaster, :count).by(-1)
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body).fetch("deleted_id")).to eq(master.id)
+    end
+
+    it "does not delete a mastering that is still processing" do
+      sign_in artist
+      master = create(:track_master, track: track, state: "running")
+
+      expect do
+        delete track_mastering_path(track, master), as: :json
+      end.not_to change(TrackMaster, :count)
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(JSON.parse(response.body).fetch("errors")).to include("No se puede eliminar un master en proceso.")
     end
   end
 end
