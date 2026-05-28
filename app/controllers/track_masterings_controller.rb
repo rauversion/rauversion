@@ -1,5 +1,6 @@
 class TrackMasteringsController < ApplicationController
   before_action :authenticate_user!
+  before_action :require_mastering_access!
   before_action :set_track
   before_action :set_track_master, only: [:show, :download, :retry, :destroy]
 
@@ -117,6 +118,15 @@ class TrackMasteringsController < ApplicationController
   end
 
   private
+
+  def require_mastering_access!
+    return if current_user.can_access_mastering?
+
+    respond_to do |format|
+      format.html { redirect_to root_path, alert: "Mastering no esta habilitado para tu cuenta." }
+      format.json { render json: { errors: ["Mastering no esta habilitado para tu cuenta."] }, status: :forbidden }
+    end
+  end
 
   def set_track
     @track = current_user.tracks.friendly.find(params[:track_id])

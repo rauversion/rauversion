@@ -168,6 +168,25 @@ function RequireNewsletterAccess({ children }) {
   return children
 }
 
+function RequireMasteringAccess({ children }) {
+  const { currentUser, loading: currentUserLoading } = useAuthStore()
+  const location = useLocation()
+
+  if (currentUserLoading) {
+    return <LoadingSpinner />
+  }
+
+  if (!currentUser) {
+    return <Navigate to="/users/sign_in" state={{ from: location }} replace />
+  }
+
+  if (!currentUser.mastering_allowed) {
+    return <Navigate to="/" replace />
+  }
+
+  return children
+}
+
 function RequireAdmin({ children }) {
   const { currentUser, loading: currentUserLoading } = useAuthStore()
   const location = useLocation()
@@ -377,9 +396,9 @@ function AppContent() {
       <Route path="/turn" element={<SpinningVideo />} />
       <Route path="/tracks" element={<TracksIndex />} />
       <Route path="/tracks/new" element={<NewTrack />} />
-      <Route path="/tracks/:slug/masterings" element={<RequireAuth><TrackMastering /></RequireAuth>} />
-      <Route path="/tracks/:slug/masterings/new" element={<RequireAuth><TrackMastering /></RequireAuth>} />
-      <Route path="/tracks/:slug/masterings/:masterId" element={<RequireAuth><TrackMastering /></RequireAuth>} />
+      <Route path="/tracks/:slug/masterings" element={<RequireMasteringAccess><TrackMastering /></RequireMasteringAccess>} />
+      <Route path="/tracks/:slug/masterings/new" element={<RequireMasteringAccess><TrackMastering /></RequireMasteringAccess>} />
+      <Route path="/tracks/:slug/masterings/:masterId" element={<RequireMasteringAccess><TrackMastering /></RequireMasteringAccess>} />
       <Route path="/tracks/:slug" element={<TrackShow />} />
       <Route path="/playlists" element={<PlaylistsIndex />} />
       <Route path="/playlists/:slug" element={<PlaylistShow />} />

@@ -144,6 +144,31 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe "mastering settings" do
+    it "defaults mastering access to disabled" do
+      user = build(:user)
+
+      expect(user.mastering_allowed).to be(false)
+      expect(user.can_access_mastering?).to be(false)
+    end
+
+    it "persists mastering access in the user settings store" do
+      user = create(:user, mastering_allowed: true)
+
+      user.reload
+
+      expect(user.mastering_allowed).to be(true)
+      expect(user.settings).to include("mastering_allowed" => true)
+      expect(user.can_access_mastering?).to be(true)
+    end
+
+    it "allows admins to access mastering without the stored flag" do
+      user = build(:user, role: "admin", mastering_allowed: false)
+
+      expect(user.can_access_mastering?).to be(true)
+    end
+  end
+
   describe "#unread_messages_count" do
     it "returns 0 when user has no conversations" do
       user = FactoryBot.create(:user)

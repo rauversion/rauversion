@@ -78,6 +78,7 @@ RSpec.describe "Admin API", type: :request do
         age_restriction: "18",
         new_message_email: false,
         can_send_newsletter: true,
+        mastering_allowed: true,
         newsletter_broadcast_recipient_limit: 250,
         confirmed_at: Time.current
       )
@@ -96,6 +97,7 @@ RSpec.describe "Admin API", type: :request do
       expect(json_response.dig("record", "form_values", "age_restriction")).to eq("18")
       expect(json_response.dig("record", "form_values", "new_message_email")).to eq(false)
       expect(json_response.dig("record", "form_values", "can_send_newsletter")).to eq(true)
+      expect(json_response.dig("record", "form_values", "mastering_allowed")).to eq(true)
       expect(json_response.dig("record", "form_values", "newsletter_broadcast_recipient_limit")).to eq(250)
     end
   end
@@ -113,18 +115,21 @@ RSpec.describe "Admin API", type: :request do
       )
     end
 
-    it "updates newsletter permission fields" do
+    it "updates newsletter and mastering permission fields" do
       patch "/api/admin/users/#{artist.id}", params: {
         record: {
           can_send_newsletter: true,
+          mastering_allowed: true,
           newsletter_broadcast_recipient_limit: 750
         }
       }, as: :json
 
       expect(response).to have_http_status(:ok)
       expect(artist.reload.can_send_newsletter).to eq(true)
+      expect(artist.mastering_allowed).to eq(true)
       expect(artist.newsletter_broadcast_recipient_limit).to eq(750)
       expect(json_response.dig("record", "form_values", "can_send_newsletter")).to eq(true)
+      expect(json_response.dig("record", "form_values", "mastering_allowed")).to eq(true)
       expect(json_response.dig("record", "form_values", "newsletter_broadcast_recipient_limit")).to eq(750)
     end
   end

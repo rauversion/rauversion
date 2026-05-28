@@ -3,7 +3,7 @@ require "rails_helper"
 RSpec.describe "Track masterings", type: :request do
   include ActiveJob::TestHelper
 
-  let(:artist) { create(:user, role: :artist, confirmed_at: Time.current) }
+  let(:artist) { create(:user, role: :artist, mastering_allowed: true, confirmed_at: Time.current) }
   let(:track) { create(:track, user: artist, title: "Master Me") }
 
   around do |example|
@@ -30,6 +30,17 @@ RSpec.describe "Track masterings", type: :request do
       expect(payload.dig("track", "title")).to eq("Master Me")
       expect(payload.dig("track_master", "target_profile")).to eq("demo_balanced")
       expect(payload.fetch("target_profiles").map { |profile| profile["key"] }).to include("club_loud")
+    end
+
+    it "rejects users without mastering access" do
+      blocked_artist = create(:user, role: :artist, mastering_allowed: false, confirmed_at: Time.current)
+      blocked_track = create(:track, user: blocked_artist)
+      sign_in blocked_artist
+
+      get new_track_mastering_path(blocked_track, format: :json)
+
+      expect(response).to have_http_status(:forbidden)
+      expect(JSON.parse(response.body).fetch("errors")).to include("Mastering no esta habilitado para tu cuenta.")
     end
   end
 

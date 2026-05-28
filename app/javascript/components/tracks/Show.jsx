@@ -342,7 +342,7 @@ export default function TrackShow() {
             <span className="sr-only">{t("repost")}</span>
           </Button>
 
-          {currentUser?.id === track.user.id && (
+          {currentUser?.id === track.user.id && currentUser?.mastering_allowed && (
             <Button asChild variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
               <Link to={`/tracks/${track.slug}/masterings`}>
                 <SlidersHorizontal className="h-4 w-4" />

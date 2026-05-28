@@ -629,6 +629,7 @@ module Admin
           { key: "label", label: "Label", type: "boolean", value: ->(user) { user.label? } },
           { key: "seller", label: "Seller", type: "boolean", value: ->(user) { user.seller? } },
           { key: "editor", label: "Editor", type: "boolean", value: ->(user) { user.editor? } },
+          { key: "mastering_allowed", label: "Mastering", type: "boolean", value: ->(user) { user.mastering_allowed? } },
           { key: "stripe_active", label: "Stripe", type: "boolean", value: ->(user) { user.stripe_account_id.present? } },
           { key: "created_at", label: "Created", type: "datetime", value: ->(user) { user.created_at } }
         ]
@@ -655,6 +656,13 @@ module Admin
           { key: "label", label: "Label account", type: "boolean", section: "Permissions" },
           { key: "seller", label: "Seller", type: "boolean", section: "Permissions" },
           { key: "editor", label: "Editor", type: "boolean", section: "Permissions" },
+          {
+            key: "mastering_allowed",
+            label: "Mastering allowed",
+            type: "boolean",
+            section: "Permissions",
+            description: "Enables access to automated mastering screens and processing."
+          },
           { key: "featured", label: "Featured", type: "boolean", section: "Permissions" },
           { key: "support_link", label: "Support link", type: "text", section: "Permissions" },
           {
@@ -821,6 +829,7 @@ module Admin
           label
           seller
           editor
+          mastering_allowed
           featured
           support_link
           can_send_newsletter
