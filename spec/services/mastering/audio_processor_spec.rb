@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe Mastering::AudioProcessor do
   let(:output_dir) { Dir.mktmpdir("audio-processor-spec") }
-  let(:output_path) { File.join(output_dir, "premaster.wav") }
+  let(:output_path) { File.join(output_dir, "master.wav") }
   let(:status) { instance_double(Process::Status, success?: true) }
   let(:recipe) do
     {
@@ -67,6 +67,137 @@ RSpec.describe Mastering::AudioProcessor do
 
       expect(filter).to include("treble=f=8000.0:g=-3.0:width_type=q:width=0.5")
       expect(filter).to include("lowpass=f=12000.0")
+    end
+  end
+
+  it "allows club masters to gain up to the target loudness instead of using the old premaster cap" do
+    club_recipe = recipe.merge(
+      target: {
+        profile: "club_loud",
+        target_lufs: -9.0
+      },
+      processing_chain: [
+        {
+          type: "limiter",
+          enabled: true,
+          ceiling_db: -0.7,
+          max_gain_reduction_db: 9.0
+        }
+      ]
+    )
+
+    described_class.new(
+      input_path: "/tmp/source.wav",
+      recipe: club_recipe,
+      analysis_before: { integrated_lufs: -18.0 }
+    ).call
+
+    expect(Open3).to have_received(:capture3) do |*args|
+      filter = args[args.index("-filter:a") + 1]
+
+      expect(filter).to include("volume=9.0dB")
+      expect(filter).to include("aresample=192000")
+      expect(filter).to include("alimiter=limit=")
+      expect(filter).to include("aresample=44100")
+    end
+  end
+
+  it "can reach a quiet club source target when peak headroom plus limiter work allows it" do
+    club_recipe = recipe.merge(
+      target: {
+        profile: "club_loud",
+        target_lufs: -9.0
+      },
+      processing_chain: [
+        {
+          type: "limiter",
+          enabled: true,
+          ceiling_db: -0.7,
+          max_gain_reduction_db: 9.0
+        }
+      ]
+    )
+
+    described_class.new(
+      input_path: "/tmp/source.wav",
+      recipe: club_recipe,
+      analysis_before: {
+        integrated_lufs: -22.2,
+        true_peak_dbfs: -5.4
+      }
+    ).call
+
+    expect(Open3).to have_received(:capture3) do |*args|
+      filter = args[args.index("-filter:a") + 1]
+
+      expect(filter).to include("volume=13.2dB")
+    end
+  end
+
+  it "limits loudness gain when reaching the target would exceed the limiter work budget" do
+    club_recipe = recipe.merge(
+      target: {
+        profile: "club_loud",
+        target_lufs: -9.0
+      },
+      processing_chain: [
+        {
+          type: "limiter",
+          enabled: true,
+          ceiling_db: -0.7,
+          max_gain_reduction_db: 6.0
+        }
+      ]
+    )
+
+    described_class.new(
+      input_path: "/tmp/source.wav",
+      recipe: club_recipe,
+      analysis_before: {
+        integrated_lufs: -22.2,
+        true_peak_dbfs: -5.4
+      }
+    ).call
+
+    expect(Open3).to have_received(:capture3) do |*args|
+      filter = args[args.index("-filter:a") + 1]
+
+      expect(filter).to include("volume=10.2dB")
+    end
+  end
+
+  it "adds a second-pass loudness offset after the safe base gain" do
+    club_recipe = recipe.merge(
+      target: {
+        profile: "club_loud",
+        target_lufs: -9.0
+      },
+      render_adjustments: {
+        loudness_offset_db: 2.2
+      },
+      processing_chain: [
+        {
+          type: "limiter",
+          enabled: true,
+          ceiling_db: -0.7,
+          max_gain_reduction_db: 9.0
+        }
+      ]
+    )
+
+    described_class.new(
+      input_path: "/tmp/source.wav",
+      recipe: club_recipe,
+      analysis_before: {
+        integrated_lufs: -22.2,
+        true_peak_dbfs: -5.4
+      }
+    ).call
+
+    expect(Open3).to have_received(:capture3) do |*args|
+      filter = args[args.index("-filter:a") + 1]
+
+      expect(filter).to include("volume=15.4dB")
     end
   end
 end

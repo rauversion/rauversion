@@ -33,7 +33,7 @@ class TrackMasteringsController < ApplicationController
     if @track_master.save
       MasterTrackJob.perform_later(@track_master.id)
       respond_to do |format|
-        format.html { redirect_to track_mastering_path(@track, @track_master), notice: "Pre-master en proceso." }
+        format.html { redirect_to track_mastering_path(@track, @track_master), notice: "Master en proceso." }
         format.json { render json: { track_master: track_master_json(@track_master) }, status: :created }
       end
     else

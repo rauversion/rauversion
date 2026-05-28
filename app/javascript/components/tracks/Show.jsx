@@ -346,7 +346,7 @@ export default function TrackShow() {
             <Button asChild variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
               <Link to={`/tracks/${track.slug}/masterings/new`}>
                 <SlidersHorizontal className="h-4 w-4" />
-                <span className="sr-only">Pre-master</span>
+                <span className="sr-only">Master</span>
               </Link>
             </Button>
           )}

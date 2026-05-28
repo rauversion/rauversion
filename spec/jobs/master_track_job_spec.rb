@@ -18,7 +18,7 @@ RSpec.describe MasterTrackJob, type: :job do
       track_master,
       event: "failed",
       step: "failed",
-      message: "El pre-master fallo: render failed",
+      message: "El master fallo: render failed",
       progress: nil,
       level: "error",
       payload: { error_class: "Mastering::Pipeline::Error" }

@@ -50,6 +50,23 @@ RSpec.describe Mastering::RecipeGenerator do
     expect(limiter[:enabled]).to eq(false)
   end
 
+  it "allows club masters more limiter work than conservative demo targets" do
+    recipe = described_class.new(
+      track: track,
+      analysis: {
+        integrated_lufs: -22.2,
+        true_peak_dbfs: -5.4,
+        crest_factor_db: 17.42
+      },
+      target_profile: "club_loud"
+    ).call
+
+    limiter = recipe.fetch(:processing_chain).find { |stage| stage[:type] == "limiter" }
+
+    expect(limiter[:target_lufs]).to eq(-9.0)
+    expect(limiter[:max_gain_reduction_db]).to eq(9.0)
+  end
+
   it "parameterizes explicit high-frequency feedback into the applied eq chain" do
     recipe = described_class.new(
       track: track,

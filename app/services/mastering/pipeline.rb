@@ -15,7 +15,7 @@ module Mastering
         event: "started",
         step: "queue",
         progress: 5,
-        message: "Pre-master iniciado para #{track.title} con perfil #{track_master.target_profile}."
+        message: "Master iniciado para #{track.title} con perfil #{track_master.target_profile}."
       )
 
       attachment = source_attachment
@@ -98,6 +98,53 @@ module Mastering
           payload: { analysis_after: analysis_after }
         )
 
+        correction_pass = 0
+        while correction_pass < max_loudness_correction_passes && (correction_db = loudness_correction_db(recipe, analysis_after)).positive?
+          correction_pass += 1
+          loudness_offset_db = current_loudness_offset_db(recipe) + correction_db
+
+          event!(
+            event: "loudness_correction_started",
+            step: "loudness_correction",
+            progress: 92,
+            message: "El master quedo bajo el target; aplicando pasada #{correction_pass} de correccion con offset acumulado de +#{loudness_offset_db.round(2)} dB."
+          )
+
+          corrected_recipe = recipe_with_loudness_offset(recipe, loudness_offset_db, correction_pass)
+          corrected_output_path = AudioProcessor.new(
+            input_path: source_file.path,
+            recipe: corrected_recipe,
+            analysis_before: analysis_before
+          ).call
+
+          corrected_analysis_after = AudioAnalyzer.new(input_path: corrected_output_path).call
+
+          if unsafe_analysis?(corrected_recipe, corrected_analysis_after)
+            cleanup_output(corrected_output_path)
+            event!(
+              event: "loudness_correction_stopped",
+              step: "loudness_correction",
+              progress: 94,
+              message: "Correccion detenida para preservar true peak: #{analysis_summary(corrected_analysis_after)}.",
+              payload: { analysis_after: analysis_after }
+            )
+            break
+          end
+
+          cleanup_output(output_path)
+          output_path = corrected_output_path
+          recipe = corrected_recipe
+          analysis_after = corrected_analysis_after
+
+          event!(
+            event: "loudness_correction_finished",
+            step: "loudness_correction",
+            progress: 94,
+            message: "Pasada #{correction_pass} completada: #{analysis_summary(analysis_after)}.",
+            payload: { analysis_after: analysis_after }
+          )
+        end
+
         event!(
           event: "attach_started",
           step: "attach",
@@ -115,7 +162,7 @@ module Mastering
           event: "completed",
           step: "completed",
           progress: 100,
-          message: "Pre-master listo para reproducir y descargar."
+          message: "Master listo para reproducir y descargar."
         )
       end
 
@@ -143,7 +190,8 @@ module Mastering
     end
 
     def output_filename
-      "#{track.slug.presence || "track-#{track.id}"}-#{track_master.target_profile}-premaster.wav"
+      suffix = track_master.target_profile == "vinyl_premaster" ? "premaster" : "master"
+      "#{track.slug.presence || "track-#{track.id}"}-#{track_master.target_profile}-#{suffix}.wav"
     end
 
     def cleanup_output(path)
@@ -179,8 +227,76 @@ module Mastering
       analysis[key.to_s]
     end
 
+    def loudness_correction_db(recipe, analysis_after)
+      return 0.0 if unsafe_analysis?(recipe, analysis_after)
+
+      profile = recipe_value(recipe, :target, :profile).to_s
+      return 0.0 if profile == "vinyl_premaster"
+
+      target_lufs = number(recipe_value(recipe, :target, :target_lufs))
+      current_lufs = number(analysis_value(analysis_after, :integrated_lufs))
+      true_peak = number(analysis_value(analysis_after, :true_peak_dbfs))
+      ceiling = number(recipe_value(recipe, :target, :true_peak_ceiling_db))
+      return 0.0 if target_lufs.blank? || current_lufs.blank?
+      return 0.0 if true_peak.present? && ceiling.present? && true_peak > ceiling
+
+      correction = target_lufs - current_lufs
+      return 0.0 if correction <= 0.3
+
+      [correction, loudness_correction_limit_db(profile)].min.round(2)
+    end
+
+    def loudness_correction_limit_db(profile)
+      case profile
+      when "club_loud" then 4.0
+      when "demo_balanced" then 2.0
+      when "streaming_clean" then 1.5
+      else 1.0
+      end
+    end
+
+    def recipe_with_loudness_offset(recipe, loudness_offset_db, correction_pass)
+      recipe.deep_dup.tap do |corrected_recipe|
+        corrected_recipe[:render_adjustments] = {
+          loudness_offset_db: loudness_offset_db.round(2),
+          correction_passes: correction_pass,
+          reason_es: "Correccion iterativa para acercar el master al LUFS objetivo sin perder el ceiling de true peak."
+        }
+      end
+    end
+
+    def current_loudness_offset_db(recipe)
+      number(recipe_value(recipe, :render_adjustments, :loudness_offset_db)) || 0.0
+    end
+
+    def unsafe_analysis?(recipe, analysis)
+      return true if ActiveModel::Type::Boolean.new.cast(analysis_value(analysis, :clipping_detected))
+
+      true_peak = number(analysis_value(analysis, :true_peak_dbfs))
+      ceiling = number(recipe_value(recipe, :target, :true_peak_ceiling_db))
+      true_peak.present? && ceiling.present? && true_peak > ceiling
+    end
+
+    def max_loudness_correction_passes
+      3
+    end
+
+    def recipe_value(recipe, *keys)
+      keys.reduce(recipe) do |memo, key|
+        break if memo.blank?
+
+        memo[key] || memo[key.to_s]
+      end
+    end
+
     def value_or_unknown(value)
       value.nil? ? "n/d" : value
+    end
+
+    def number(value)
+      Float(value)
+    rescue ArgumentError, TypeError
+      nil
     end
   end
 end

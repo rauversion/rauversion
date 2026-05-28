@@ -11,7 +11,7 @@ class MasterTrackJob < ApplicationJob
       track_master,
       event: "failed",
       step: "failed",
-      message: "El pre-master fallo: #{e.message}",
+      message: "El master fallo: #{e.message}",
       progress: nil,
       level: "error",
       payload: { error_class: e.class.name }

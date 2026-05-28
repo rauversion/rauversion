@@ -127,7 +127,7 @@ module Mastering
         enabled: enabled,
         ceiling_db: profile[:true_peak_ceiling_db],
         target_lufs: profile[:target_lufs],
-        max_gain_reduction_db: already_mastered? ? 1.0 : 2.0,
+        max_gain_reduction_db: limiter_gain_reduction_limit,
         reason_es: enabled ? "Controlar true peak como ultimo paso y evitar inter-sample clipping." : "Para premaster de vinilo se prioriza headroom y se evita hard limiting."
       }
     end
@@ -156,14 +156,14 @@ module Mastering
       if already_mastered?
         "El track ya viene con bastante nivel. La recomendacion es limpiar subgrave/DC, cuidar true peak y evitar empujarlo mas de lo necesario."
       elsif integrated_lufs.present?
-        "El track conserva margen para un pre-master controlado. Conviene trabajar con movimientos amplios, poca compresion y limitacion final segura."
+        "El track conserva margen para un master controlado. Conviene trabajar con movimientos amplios, poca compresion y limitacion final segura."
       else
         "No se pudo medir loudness completo; se recomienda una cadena conservadora con limpieza subsonica y control de peak."
       end
     end
 
     def artist_message
-      "Prepararemos un pre-master #{Mastering::TargetProfiles.fetch(normalized_target_profile)[:label_es]} para #{track.title}, preservando el caracter del mix y priorizando margen de true peak seguro."
+      "Prepararemos un master #{Mastering::TargetProfiles.fetch(normalized_target_profile)[:label_es]} para #{track.title}, preservando el caracter del mix y priorizando margen de true peak seguro."
     end
 
     def warnings
@@ -173,6 +173,18 @@ module Mastering
       messages << "Para vinilo conviene preparar una version especifica con menos limitacion y mas headroom." unless normalized_target_profile == "vinyl_premaster"
       messages.concat(Array(feedback_interpretation[:warnings_es]))
       messages
+    end
+
+    def limiter_gain_reduction_limit
+      return 0.0 if normalized_target_profile == "vinyl_premaster"
+      return 1.0 if already_mastered?
+
+      case normalized_target_profile
+      when "club_loud" then 9.0
+      when "demo_balanced" then 5.0
+      when "streaming_clean" then 4.0
+      else 3.0
+      end
     end
 
     def main_issues

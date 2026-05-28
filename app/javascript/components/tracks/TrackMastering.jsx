@@ -190,7 +190,7 @@ function ErrorState({ message, to }) {
         <div className="flex items-start gap-3">
           <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
           <div>
-            <h1 className="text-lg font-semibold">No se pudo cargar el pre-master</h1>
+            <h1 className="text-lg font-semibold">No se pudo cargar el master</h1>
             <p className="mt-2 text-sm">{message}</p>
             {to && (
               <Button asChild variant="outline" className="mt-4">
@@ -371,10 +371,10 @@ export default function TrackMastering() {
       const data = await response.json
 
       if (!response.ok) {
-        throw new Error(data?.errors?.join(", ") || "No se pudo crear el pre-master.")
+        throw new Error(data?.errors?.join(", ") || "No se pudo crear el master.")
       }
 
-      toast({ description: "Pre-master en proceso." })
+      toast({ description: "Master en proceso." })
       navigate(`/tracks/${slug}/masterings/${data.track_master.id}`, {
         state: {
           track,
@@ -386,7 +386,7 @@ export default function TrackMastering() {
     } catch (submitError) {
       toast({
         title: "Error",
-        description: submitError.message || "No se pudo crear el pre-master.",
+        description: submitError.message || "No se pudo crear el master.",
         variant: "destructive",
       })
     } finally {
@@ -412,7 +412,7 @@ export default function TrackMastering() {
               </Link>
             </Button>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-semibold tracking-tight text-foreground">Pre-master: {track.title}</h1>
+              <h1 className="text-2xl font-semibold tracking-tight text-foreground">Master: {track.title}</h1>
               <Badge variant={stateVariant(trackMaster?.state)}>{trackMaster?.state}</Badge>
             </div>
             <p className="mt-2 text-sm text-muted-foreground">
@@ -456,7 +456,7 @@ export default function TrackMastering() {
             <div className="flex items-start gap-3 text-destructive">
               <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
               <div className="min-w-0 flex-1">
-                <h2 className="font-semibold">No se pudo generar el pre-master</h2>
+                <h2 className="font-semibold">No se pudo generar el master</h2>
                 <p className="mt-1 text-sm">{trackMaster.error_message}</p>
                 {masteringEvents.length > 0 && (
                   <MasteringProgressPanel events={masteringEvents} progress={masteringProgress} />
@@ -485,11 +485,11 @@ export default function TrackMastering() {
                         )}
                       </div>
                       <div className="rounded-md border border-border bg-background/70 p-4">
-                        <p className="text-sm font-semibold text-foreground">Pre-master</p>
+                        <p className="text-sm font-semibold text-foreground">Master</p>
                         {trackMaster.audio_url ? (
                           <audio controls className="mt-3 w-full" src={trackMaster.audio_url} />
                         ) : (
-                          <p className="mt-3 text-sm text-muted-foreground">Pre-master no disponible.</p>
+                          <p className="mt-3 text-sm text-muted-foreground">Master no disponible.</p>
                         )}
                       </div>
                     </div>
@@ -587,7 +587,7 @@ export default function TrackMastering() {
               Track
             </Link>
           </Button>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Pre-master de {track.title}</h1>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">Master de {track.title}</h1>
           <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
             Feedback, setup tecnico y render WAV reproducible.
           </p>
@@ -684,7 +684,7 @@ export default function TrackMastering() {
                 <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
                   <Button type="submit" disabled={submitting}>
                     {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <AudioLines className="mr-2 h-4 w-4" />}
-                    Generar pre-master
+                    Generar master
                   </Button>
                   {selectedProfile && (
                     <span className="text-sm text-muted-foreground">
@@ -702,7 +702,7 @@ export default function TrackMastering() {
             before={latestMeasuredMaster?.analysis_before}
             after={latestMeasuredMaster?.analysis_after}
             profile={selectedProfile}
-            emptyMessage="Todavia no hay mediciones para este track. Al generar el pre-master se guardaran LUFS, true peak, crest factor y clipping antes/despues."
+            emptyMessage="Todavia no hay mediciones para este track. Al generar el master se guardaran LUFS, true peak, crest factor y clipping antes/despues."
           />
 
           <section className="rounded-lg border border-border bg-card p-5">

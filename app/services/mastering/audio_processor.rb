@@ -14,7 +14,7 @@ module Mastering
 
     def call
       output_dir = Dir.mktmpdir("rauversion-master")
-      output_path = File.join(output_dir, "premaster.wav")
+      output_path = File.join(output_dir, "master.wav")
       filters = filter_chain
 
       args = [
@@ -37,7 +37,7 @@ module Mastering
       Rails.logger.info("Mastering::AudioProcessor stdout=#{stdout}") if stdout.present?
       Rails.logger.warn("Mastering::AudioProcessor stderr=#{stderr}") if stderr.present?
 
-      raise Error, "ffmpeg could not render the pre-master" unless status.success? && File.exist?(output_path)
+      raise Error, "ffmpeg could not render the master" unless status.success? && File.exist?(output_path)
 
       output_path
     rescue StandardError
@@ -130,8 +130,12 @@ module Mastering
       stage = stage("limiter")
       return [] unless stage&.fetch("enabled", false)
 
-      limit = db_to_amplitude(number(stage["ceiling_db"], -1.0)).round(6)
-      ["alimiter=limit=#{limit}:level=false"]
+      limit = db_to_amplitude(limiter_sample_ceiling_db(stage)).round(6)
+      [
+        "aresample=192000",
+        "alimiter=limit=#{limit}:level=false",
+        "aresample=#{export_sample_rate}"
+      ]
     end
 
     def loudness_gain_db
@@ -141,10 +145,51 @@ module Mastering
       return 0.0 if target_lufs.blank? || current_lufs.blank?
 
       gain = target_lufs - current_lufs
-      return gain if gain <= 0
+      return gain + loudness_offset_db if gain <= 0
 
-      max_positive_gain = current_lufs >= -10.0 ? 0.5 : 4.0
-      [gain, max_positive_gain].min
+      max_positive_gain = max_positive_gain_db(current_lufs, limiter)
+      [gain, max_positive_gain].min + loudness_offset_db
+    end
+
+    def max_positive_gain_db(current_lufs, limiter)
+      profile = recipe.dig("target", "profile").to_s
+      return 0.0 if profile == "vinyl_premaster"
+
+      # Masters should be allowed to reach the profile target. The previous
+      # +4 dB cap was appropriate for premaster safety, but left quiet mixes far
+      # below club/demo targets.
+      profile_cap = case profile
+                    when "club_loud" then 16.0
+                    when "demo_balanced" then 12.0
+                    when "streaming_clean" then 10.0
+                    else 10.0
+                    end
+
+      return [profile_cap, 1.5].min if current_lufs >= -10.0
+
+      [profile_cap, peak_safe_gain_cap(limiter)].compact.min
+    end
+
+    def peak_safe_gain_cap(limiter)
+      return unless limiter&.fetch("enabled", false)
+
+      current_true_peak = number(analysis_before["true_peak_dbfs"], nil)
+      return if current_true_peak.blank?
+
+      max_gain_reduction = number(limiter["max_gain_reduction_db"], 6.0)
+      limiter_sample_ceiling_db(limiter) - current_true_peak + max_gain_reduction
+    end
+
+    def limiter_sample_ceiling_db(limiter)
+      number(limiter["ceiling_db"], -1.0) - true_peak_safety_margin_db
+    end
+
+    def true_peak_safety_margin_db
+      0.5
+    end
+
+    def loudness_offset_db
+      number(recipe.dig("render_adjustments", "loudness_offset_db"), 0.0).clamp(-6.0, 6.0)
     end
 
     def stage(type)
