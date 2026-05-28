@@ -226,6 +226,8 @@ export default function TrackMastering() {
   const [referenceNotes, setReferenceNotes] = useState(hydratedMaster?.reference_notes || "")
   const [loading, setLoading] = useState(!location.state?.track || (isResultView && !hydratedMaster))
   const [submitting, setSubmitting] = useState(false)
+  const [retrying, setRetrying] = useState(false)
+  const [retryPrompt, setRetryPrompt] = useState(hydratedMaster?.feedback || "")
   const [error, setError] = useState(null)
   const [masteringEvents, setMasteringEvents] = useState([])
 
@@ -252,6 +254,7 @@ export default function TrackMastering() {
       setTargetProfile(data.track_master?.target_profile || "demo_balanced")
       setFeedback(data.track_master?.feedback || "")
       setReferenceNotes(data.track_master?.reference_notes || "")
+      setRetryPrompt(data.track_master?.feedback || "")
     } catch (loadError) {
       if (quiet) {
         console.warn("No se pudo refrescar el detalle de mastering.", loadError)
@@ -284,6 +287,7 @@ export default function TrackMastering() {
       setTargetProfile(location.state.trackMaster.target_profile || "demo_balanced")
       setFeedback(location.state.trackMaster.feedback || "")
       setReferenceNotes(location.state.trackMaster.reference_notes || "")
+      setRetryPrompt(location.state.trackMaster.feedback || "")
     }
   }, [location.state, masterId])
 
@@ -394,6 +398,42 @@ export default function TrackMastering() {
     }
   }
 
+  const retryMaster = async (event) => {
+    event.preventDefault()
+    if (!trackMaster?.id || retrying) return
+
+    setRetrying(true)
+
+    try {
+      const response = await post(`/tracks/${slug}/masterings/${trackMaster.id}/retry.json`, {
+        responseKind: "json",
+        body: JSON.stringify({
+          track_master: {
+            feedback: retryPrompt.trim(),
+            reference_notes: referenceNotes.trim(),
+          },
+        }),
+      })
+      const data = await response.json
+
+      if (!response.ok) {
+        throw new Error(data?.errors?.join(", ") || "No se pudo regenerar el master.")
+      }
+
+      setMasteringEvents([])
+      setTrackMaster((currentMaster) => ({ ...(currentMaster || {}), ...data.track_master }))
+      toast({ description: "Master en regeneracion." })
+    } catch (retryError) {
+      toast({
+        title: "Error",
+        description: retryError.message || "No se pudo regenerar el master.",
+        variant: "destructive",
+      })
+    } finally {
+      setRetrying(false)
+    }
+  }
+
   const hasCurrentMaster = !isResultView || (trackMaster && String(trackMaster.id) === String(masterId))
 
   if (error) return <ErrorState message={error} to={track ? `/tracks/${track.slug}` : "/tracks"} />
@@ -461,6 +501,19 @@ export default function TrackMastering() {
                 {masteringEvents.length > 0 && (
                   <MasteringProgressPanel events={masteringEvents} progress={masteringProgress} />
                 )}
+                <form onSubmit={retryMaster} className="mt-5 space-y-3">
+                  <Textarea
+                    value={retryPrompt}
+                    onChange={(event) => setRetryPrompt(event.target.value)}
+                    rows={4}
+                    placeholder="Ajusta el prompt antes de reintentar."
+                    className="bg-background text-foreground"
+                  />
+                  <Button type="submit" variant="outline" disabled={retrying}>
+                    {retrying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+                    Reintentar master
+                  </Button>
+                </form>
               </div>
             </div>
           </section>
@@ -554,6 +607,25 @@ export default function TrackMastering() {
             </section>
 
             <aside className="space-y-6">
+              <section className="rounded-lg border border-border bg-card p-5">
+                <div className="flex items-center gap-2">
+                  <RefreshCw className="h-4 w-4 text-muted-foreground" />
+                  <h2 className="text-sm font-semibold text-foreground">Regenerar</h2>
+                </div>
+                <form onSubmit={retryMaster} className="mt-4 space-y-3">
+                  <Textarea
+                    value={retryPrompt}
+                    onChange={(event) => setRetryPrompt(event.target.value)}
+                    rows={4}
+                    placeholder="Ej: menos bombeo, conservar mas pegada, dejarlo cerca de -10 LUFS..."
+                  />
+                  <Button type="submit" variant="outline" className="w-full" disabled={retrying || ["pending", "running"].includes(trackMaster?.state)}>
+                    {retrying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+                    Regenerar con prompt
+                  </Button>
+                </form>
+              </section>
+
               <MetricsPanel
                 before={trackMaster.analysis_before}
                 after={trackMaster.analysis_after}

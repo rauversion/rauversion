@@ -65,6 +65,23 @@ class TrackMaster < ApplicationRecord
     )
   end
 
+  def retry!(feedback: nil, reference_notes: nil)
+    audio.purge if audio.attached?
+
+    update!(
+      state: "pending",
+      feedback: feedback.presence || self.feedback,
+      reference_notes: reference_notes.presence || self.reference_notes,
+      recipe: {},
+      analysis_before: {},
+      analysis_after: {},
+      started_at: nil,
+      completed_at: nil,
+      failed_at: nil,
+      error_message: nil
+    )
+  end
+
   private
 
   def set_defaults

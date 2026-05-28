@@ -58,6 +58,7 @@ module Mastering
           feedback: track_master.feedback,
           reference_notes: track_master.reference_notes
         ).call
+        @current_recipe_context = recipe
         event!(
           event: "recipe_finished",
           step: "recipe",
@@ -134,6 +135,7 @@ module Mastering
           cleanup_output(output_path)
           output_path = corrected_output_path
           recipe = corrected_recipe
+          @current_recipe_context = recipe
           analysis_after = corrected_analysis_after
 
           event!(
@@ -247,12 +249,8 @@ module Mastering
     end
 
     def loudness_correction_limit_db(profile)
-      case profile
-      when "club_loud" then 4.0
-      when "demo_balanced" then 2.0
-      when "streaming_clean" then 1.5
-      else 1.0
-      end
+      number(recipe_value(current_recipe_context, :mastering_policy, :loudness_correction_limit_db)) ||
+        Mastering::TargetProfiles.fetch(profile).loudness_correction_limit_db
     end
 
     def recipe_with_loudness_offset(recipe, loudness_offset_db, correction_pass)
@@ -291,15 +289,18 @@ module Mastering
     end
 
     def minimum_crest_factor_db(profile)
-      case profile
-      when "club_loud" then 10.0
-      when "demo_balanced" then 10.8
-      when "streaming_clean" then 11.5
-      end
+      number(recipe_value(current_recipe_context, :mastering_policy, :minimum_crest_factor_db)) ||
+        Mastering::TargetProfiles.fetch(profile).minimum_crest_factor_db
     end
 
     def max_loudness_correction_passes
-      3
+      profile = recipe_value(current_recipe_context, :target, :profile)
+      number(recipe_value(current_recipe_context, :mastering_policy, :max_loudness_correction_passes))&.round ||
+        Mastering::TargetProfiles.fetch(profile).max_loudness_correction_passes
+    end
+
+    def current_recipe_context
+      @current_recipe_context || {}
     end
 
     def recipe_value(recipe, *keys)

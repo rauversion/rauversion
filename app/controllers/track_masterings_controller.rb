@@ -1,7 +1,7 @@
 class TrackMasteringsController < ApplicationController
   before_action :authenticate_user!
   before_action :set_track
-  before_action :set_track_master, only: [:show, :download]
+  before_action :set_track_master, only: [:show, :download, :retry]
 
   layout :layout_by_resource
 
@@ -63,6 +63,26 @@ class TrackMasteringsController < ApplicationController
     redirect_to rails_blob_path(@track_master.audio, disposition: "attachment")
   end
 
+  def retry
+    if @track_master.pending? || @track_master.running?
+      render json: { errors: ["El master ya esta en proceso."] }, status: :unprocessable_entity
+      return
+    end
+
+    unless @track.analyzable_audio_media&.attached? || @track.playback_media&.attached?
+      render json: { errors: ["Este track no tiene audio procesable."] }, status: :unprocessable_entity
+      return
+    end
+
+    @track_master.retry!(
+      feedback: retry_params[:feedback],
+      reference_notes: retry_params[:reference_notes]
+    )
+    MasterTrackJob.perform_later(@track_master.id)
+
+    render json: { track_master: track_master_json(@track_master) }, status: :accepted
+  end
+
   private
 
   def set_track
@@ -75,6 +95,10 @@ class TrackMasteringsController < ApplicationController
 
   def track_master_params
     params.require(:track_master).permit(:target_profile, :feedback, :reference_notes)
+  end
+
+  def retry_params
+    params.fetch(:track_master, {}).permit(:feedback, :reference_notes)
   end
 
   def load_recent_masters

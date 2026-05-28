@@ -107,4 +107,45 @@ RSpec.describe "Track masterings", type: :request do
       expect(response).to redirect_to(track_mastering_path(track, master))
     end
   end
+
+  describe "POST /tracks/:track_id/masterings/:id/retry" do
+    before do
+      track.audio.attach(
+        io: StringIO.new("fake-audio"),
+        filename: "source.wav",
+        content_type: "audio/wav"
+      )
+    end
+
+    it "resets the existing master and enqueues processing with the new prompt" do
+      sign_in artist
+      master = create(:track_master, track: track, state: "completed", feedback: "old prompt")
+
+      post retry_track_mastering_path(track, master),
+        params: {
+          track_master: {
+            feedback: "menos bombeo, conserva mas transientes"
+          }
+        },
+        as: :json
+
+      expect(response).to have_http_status(:accepted)
+      expect(master.reload.state).to eq("pending")
+      expect(master.feedback).to eq("menos bombeo, conserva mas transientes")
+      expect(enqueued_jobs.map { |job| job.fetch(:job) }).to include(MasterTrackJob)
+      expect(JSON.parse(response.body).dig("track_master", "state")).to eq("pending")
+    end
+
+    it "does not retry a master already in progress" do
+      sign_in artist
+      master = create(:track_master, track: track, state: "running")
+
+      post retry_track_mastering_path(track, master),
+        params: { track_master: { feedback: "retry" } },
+        as: :json
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(JSON.parse(response.body).fetch("errors")).to include("El master ya esta en proceso.")
+    end
+  end
 end

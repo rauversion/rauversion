@@ -1,6 +1,6 @@
 module Mastering
   class RecipeGenerator
-    def initialize(track:, analysis:, target_profile:, feedback: nil, reference_notes: nil, feedback_parameterizer: nil)
+    def initialize(track:, analysis:, target_profile:, feedback: nil, reference_notes: nil, feedback_parameterizer: nil, policy_advisor: nil)
       @track = track
       @analysis = (analysis || {}).deep_stringify_keys
       @target_profile = target_profile.presence || "demo_balanced"
@@ -8,12 +8,14 @@ module Mastering
       @reference_notes = reference_notes.to_s
       @profile = TargetProfiles.fetch(@target_profile)
       @feedback_parameterizer = feedback_parameterizer
+      @policy_advisor = policy_advisor
     end
 
     def call
       {
         diagnosis: diagnosis,
         target: target,
+        mastering_policy: mastering_policy,
         feedback_interpretation: feedback_interpretation,
         processing_chain: processing_chain,
         export: export_settings,
@@ -24,7 +26,7 @@ module Mastering
 
     private
 
-    attr_reader :track, :analysis, :target_profile, :feedback, :reference_notes, :profile, :feedback_parameterizer
+    attr_reader :track, :analysis, :target_profile, :feedback, :reference_notes, :profile, :feedback_parameterizer, :policy_advisor
 
     def diagnosis
       {
@@ -37,9 +39,9 @@ module Mastering
 
     def target
       {
-        profile: normalized_target_profile,
-        target_lufs: profile[:target_lufs],
-        true_peak_ceiling_db: profile[:true_peak_ceiling_db]
+        profile: profile.key,
+        target_lufs: profile.target_lufs,
+        true_peak_ceiling_db: profile.true_peak_ceiling_db
       }
     end
 
@@ -55,12 +57,10 @@ module Mastering
     end
 
     def highpass_filter
-      frequency = normalized_target_profile == "vinyl_premaster" ? 30 : 25
-
       {
         type: "highpass_filter",
         enabled: true,
-        frequency_hz: frequency,
+        frequency_hz: profile.highpass_frequency_hz,
         slope_db_per_oct: 12,
         reason_es: "Limpiar DC y energía subsonica sin adelgazar el bajo."
       }
@@ -108,7 +108,7 @@ module Mastering
 
     def saturation
       requested_saturation = feedback_interpretation.dig(:saturation, :enabled)
-      enabled = requested_saturation && normalized_target_profile != "vinyl_premaster" && risk_level != "high"
+      enabled = requested_saturation && !profile.vinyl_premaster? && risk_level != "high"
 
       {
         type: "saturation",
@@ -120,14 +120,14 @@ module Mastering
     end
 
     def limiter
-      enabled = normalized_target_profile != "vinyl_premaster"
+      enabled = profile.limiter_enabled
 
       {
         type: "limiter",
         enabled: enabled,
-        ceiling_db: profile[:true_peak_ceiling_db],
-        target_lufs: profile[:target_lufs],
-        max_gain_reduction_db: limiter_gain_reduction_limit,
+        ceiling_db: profile.true_peak_ceiling_db,
+        target_lufs: profile.target_lufs,
+        max_gain_reduction_db: mastering_policy[:limiter_max_gain_reduction_db],
         reason_es: enabled ? "Controlar true peak como ultimo paso y evitar inter-sample clipping." : "Para premaster de vinilo se prioriza headroom y se evita hard limiting."
       }
     end
@@ -163,28 +163,17 @@ module Mastering
     end
 
     def artist_message
-      "Prepararemos un master #{Mastering::TargetProfiles.fetch(normalized_target_profile)[:label_es]} para #{track.title}, preservando el caracter del mix y priorizando margen de true peak seguro."
+      "Prepararemos un master #{profile.label_es} para #{track.title}, preservando el caracter del mix y priorizando margen de true peak seguro."
     end
 
     def warnings
       messages = []
       messages << "No se recomienda subir mas el loudness sin perder dinamica." if already_mastered?
       messages << "El true peak medido esta cerca de 0 dBFS; el limitador debe trabajar con margen." if true_peak_dbfs.present? && true_peak_dbfs > -1.0
-      messages << "Para vinilo conviene preparar una version especifica con menos limitacion y mas headroom." unless normalized_target_profile == "vinyl_premaster"
+      messages << "Para vinilo conviene preparar una version especifica con menos limitacion y mas headroom." unless profile.vinyl_premaster?
       messages.concat(Array(feedback_interpretation[:warnings_es]))
+      messages.concat(Array(mastering_policy[:warnings_es]))
       messages
-    end
-
-    def limiter_gain_reduction_limit
-      return 0.0 if normalized_target_profile == "vinyl_premaster"
-      return 1.0 if already_mastered?
-
-      case normalized_target_profile
-      when "club_loud" then 9.0
-      when "demo_balanced" then 5.0
-      when "streaming_clean" then 4.0
-      else 3.0
-      end
     end
 
     def main_issues
@@ -199,7 +188,7 @@ module Mastering
 
     def risk_level
       return "high" if analysis["clipping_detected"] || (true_peak_dbfs.present? && true_peak_dbfs >= -0.1)
-      return "medium" if already_mastered? || (true_peak_dbfs.present? && true_peak_dbfs > profile[:true_peak_ceiling_db])
+      return "medium" if already_mastered? || (true_peak_dbfs.present? && true_peak_dbfs > profile.true_peak_ceiling_db)
 
       "low"
     end
@@ -210,9 +199,22 @@ module Mastering
     end
 
     def normalized_target_profile
-      return target_profile if TargetProfiles.all.key?(target_profile)
+      return target_profile if TargetProfiles.key?(target_profile)
 
       "demo_balanced"
+    end
+
+    def mastering_policy
+      @mastering_policy ||= begin
+        advisor = policy_advisor || PolicyAdvisor.new(
+          profile: profile,
+          analysis: analysis,
+          feedback: feedback,
+          reference_notes: reference_notes
+        )
+
+        advisor.call.deep_symbolize_keys
+      end
     end
 
     def feedback_interpretation

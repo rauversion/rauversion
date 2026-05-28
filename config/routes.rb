@@ -373,6 +373,7 @@ Rails.application.routes.draw do
     resources :masterings, controller: "track_masterings", only: [:new, :create, :show] do
       member do
         get :download
+        post :retry
       end
     end
     resource :events, only: :show, controller: "tracking_events"
