@@ -119,13 +119,13 @@ module Mastering
 
           corrected_analysis_after = AudioAnalyzer.new(input_path: corrected_output_path).call
 
-          if unsafe_analysis?(corrected_recipe, corrected_analysis_after)
+          if unsafe_analysis?(corrected_recipe, corrected_analysis_after) || overcompressed_analysis?(corrected_recipe, analysis_before, corrected_analysis_after)
             cleanup_output(corrected_output_path)
             event!(
               event: "loudness_correction_stopped",
               step: "loudness_correction",
               progress: 94,
-              message: "Correccion detenida para preservar true peak: #{analysis_summary(corrected_analysis_after)}.",
+              message: "Correccion detenida para preservar true peak y transientes: #{analysis_summary(corrected_analysis_after)}.",
               payload: { analysis_after: analysis_after }
             )
             break
@@ -275,6 +275,27 @@ module Mastering
       true_peak = number(analysis_value(analysis, :true_peak_dbfs))
       ceiling = number(recipe_value(recipe, :target, :true_peak_ceiling_db))
       true_peak.present? && ceiling.present? && true_peak > ceiling
+    end
+
+    def overcompressed_analysis?(recipe, analysis_before, analysis_after)
+      profile = recipe_value(recipe, :target, :profile).to_s
+      minimum_crest = minimum_crest_factor_db(profile)
+      return false if minimum_crest.blank?
+
+      before_crest = number(analysis_value(analysis_before, :crest_factor_db))
+      after_crest = number(analysis_value(analysis_after, :crest_factor_db))
+      return false if after_crest.blank?
+      return false if before_crest.present? && before_crest < minimum_crest
+
+      after_crest < minimum_crest
+    end
+
+    def minimum_crest_factor_db(profile)
+      case profile
+      when "club_loud" then 10.0
+      when "demo_balanced" then 10.8
+      when "streaming_clean" then 11.5
+      end
     end
 
     def max_loudness_correction_passes

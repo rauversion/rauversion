@@ -148,4 +148,56 @@ RSpec.describe Mastering::Pipeline do
       hash_including(recipe: hash_including(render_adjustments: hash_including(loudness_offset_db: 3.3)))
     )
   end
+
+  it "keeps the previous correction pass when the next pass would reduce crest factor too far" do
+    club_master = create(:track_master, track: track, target_profile: "club_loud")
+    club_recipe = recipe.merge(
+      target: {
+        profile: "club_loud",
+        target_lufs: -9.0,
+        true_peak_ceiling_db: -0.7
+      },
+      processing_chain: [
+        {
+          type: "limiter",
+          enabled: true,
+          ceiling_db: -0.7,
+          target_lufs: -9.0,
+          max_gain_reduction_db: 9.0
+        }
+      ]
+    )
+    before = analysis_before.merge(integrated_lufs: -22.2, true_peak_dbfs: -5.4, crest_factor_db: 17.42)
+    first_after = analysis_after.merge(integrated_lufs: -11.2, true_peak_dbfs: -1.1, crest_factor_db: 11.31, clipping_detected: false)
+    corrected_after = analysis_after.merge(integrated_lufs: -10.1, true_peak_dbfs: -1.1, crest_factor_db: 10.29, clipping_detected: false)
+    overcompressed_after = analysis_after.merge(integrated_lufs: -9.4, true_peak_dbfs: -1.1, crest_factor_db: 9.63, clipping_detected: false)
+
+    analyzer_before = instance_double(Mastering::AudioAnalyzer, call: before)
+    analyzer_first_after = instance_double(Mastering::AudioAnalyzer, call: first_after)
+    analyzer_corrected_after = instance_double(Mastering::AudioAnalyzer, call: corrected_after)
+    analyzer_overcompressed_after = instance_double(Mastering::AudioAnalyzer, call: overcompressed_after)
+    allow(Mastering::AudioAnalyzer).to receive(:new).and_return(analyzer_before, analyzer_first_after, analyzer_corrected_after, analyzer_overcompressed_after)
+    allow(Mastering::RecipeGenerator).to receive(:new).and_return(
+      instance_double(Mastering::RecipeGenerator, call: club_recipe)
+    )
+    first_processor = instance_double(Mastering::AudioProcessor, call: output_path)
+    corrected_processor = instance_double(Mastering::AudioProcessor, call: corrected_output_path)
+    overcompressed_processor = instance_double(Mastering::AudioProcessor, call: second_corrected_output_path)
+    allow(Mastering::AudioProcessor).to receive(:new).and_return(first_processor, corrected_processor, overcompressed_processor)
+
+    described_class.new(track_master: club_master).call
+
+    club_master.reload
+
+    expect(club_master.analysis_after).to include(
+      "integrated_lufs" => -10.1,
+      "crest_factor_db" => 10.29
+    )
+    expect(club_master.recipe).to include(
+      "render_adjustments" => include(
+        "loudness_offset_db" => 2.2,
+        "correction_passes" => 1
+      )
+    )
+  end
 end
