@@ -16,6 +16,171 @@ RSpec.describe PaymentProviders::EventStripeProvider, type: :service do
     )
   end
 
+  describe "#create_checkout_session" do
+    subject(:provider) { described_class.new(event: event, user: user, purchase: purchase) }
+
+    let(:stripe_session) do
+      double(id: "cs_test_123", url: "https://checkout.stripe.com/c/pay/cs_test_123")
+    end
+
+    before do
+      allow(Stripe::Checkout::Session).to receive(:create).and_return(stripe_session)
+    end
+
+    it "enables Stripe automatic tax for ticket checkout" do
+      provider.create_checkout_session
+
+      expect(Stripe::Checkout::Session).to have_received(:create).with(
+        hash_including(
+          automatic_tax: {
+            enabled: true
+          }
+        )
+      )
+    end
+
+    it "sets a tax behavior on inline ticket prices" do
+      provider.create_checkout_session
+
+      expect(Stripe::Checkout::Session).to have_received(:create).with(
+        hash_including(
+          line_items: array_including(
+            hash_including(
+              "price_data" => hash_including(
+                "tax_behavior" => "exclusive"
+              )
+            )
+          )
+        )
+      )
+    end
+
+    it "requires billing address collection for tax calculation" do
+      provider.create_checkout_session
+
+      expect(Stripe::Checkout::Session).to have_received(:create).with(
+        hash_including(
+          billing_address_collection: "required"
+        )
+      )
+    end
+
+    it "sets a tax code on inline ticket products" do
+      provider.create_checkout_session
+
+      expect(Stripe::Checkout::Session).to have_received(:create).with(
+        hash_including(
+          line_items: array_including(
+            hash_including(
+              "price_data" => hash_including(
+                "product_data" => hash_including(
+                  "tax_code" => "txcd_10000000"
+                )
+              )
+            )
+          )
+        )
+      )
+    end
+
+    it "adds the service fee as a visible checkout line item" do
+      event.update!(custom_fee: 10)
+
+      provider.create_checkout_session
+
+      expect(Stripe::Checkout::Session).to have_received(:create).with(
+        hash_including(
+          line_items: array_including(
+            hash_including(
+              "quantity" => 1,
+              "price_data" => hash_including(
+                "unit_amount" => 1_000,
+                "currency" => "usd",
+                "tax_behavior" => "exclusive",
+                "product_data" => hash_including(
+                  "name" => "Cargo por servicio",
+                  "tax_code" => "txcd_10000000"
+                )
+              )
+            )
+          ),
+          payment_intent_data: hash_including(
+            application_fee_amount: 1_000
+          )
+        )
+      )
+    end
+
+    context "when STRIPE_TICKET_TAX_BEHAVIOR is configured" do
+      before do
+        allow(ENV).to receive(:fetch).and_call_original
+        allow(ENV).to receive(:fetch).with("STRIPE_TICKET_TAX_BEHAVIOR", "exclusive").and_return("inclusive")
+      end
+
+      it "uses the configured ticket tax behavior" do
+        provider.create_checkout_session
+
+        expect(Stripe::Checkout::Session).to have_received(:create).with(
+          hash_including(
+            line_items: array_including(
+              hash_including(
+                "price_data" => hash_including(
+                  "tax_behavior" => "inclusive"
+                )
+              )
+            )
+          )
+        )
+      end
+    end
+
+    context "when STRIPE_TICKET_TAX_CODE is configured" do
+      before do
+        allow(ENV).to receive(:fetch).and_call_original
+        allow(ENV).to receive(:fetch).with("STRIPE_TICKET_TAX_CODE", "txcd_10000000").and_return("txcd_20030000")
+      end
+
+      it "uses the configured ticket tax code" do
+        provider.create_checkout_session
+
+        expect(Stripe::Checkout::Session).to have_received(:create).with(
+          hash_including(
+            line_items: array_including(
+              hash_including(
+                "price_data" => hash_including(
+                  "product_data" => hash_including(
+                    "tax_code" => "txcd_20030000"
+                  )
+                )
+              )
+            )
+          )
+        )
+      end
+    end
+
+    context "when the event seller has a connected Stripe account" do
+      before do
+        user.update!(stripe_account_id: "acct_connected123")
+      end
+
+      it "sets the platform as the automatic tax liability" do
+        provider.create_checkout_session
+
+        expect(Stripe::Checkout::Session).to have_received(:create).with(
+          hash_including(
+            automatic_tax: {
+              enabled: true,
+              liability: {
+                type: "self"
+              }
+            }
+          )
+        )
+      end
+    end
+  end
+
   describe "#calculate_fee" do
     subject(:provider) { described_class.new(event: event, user: user, purchase: purchase) }
 
