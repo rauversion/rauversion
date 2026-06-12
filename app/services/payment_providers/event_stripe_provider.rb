@@ -55,7 +55,7 @@ module PaymentProviders
         },
         automatic_tax: automatic_tax_options(connected_account_id),
         customer_email: user.email,
-        billing_address_collection: "required",
+        billing_address_collection: tax_enabled?(connected_account_id) ? "required" : "auto",
         mode: "payment",
         success_url: success_url,
         cancel_url: cancel_url,
@@ -65,8 +65,12 @@ module PaymentProviders
       }
     end
 
+    def tax_enabled?(connected_account_id)
+      ENV.fetch("STRIPE_AUTOMATIC_TAX_ENABLED", "false").to_s.downcase == "true"
+    end
+
     def automatic_tax_options(connected_account_id)
-      enabled = ENV.fetch("STRIPE_AUTOMATIC_TAX_ENABLED", "false").to_s.downcase == "true"
+      enabled = tax_enabled?(connected_account_id)
       return { enabled: enabled } unless enabled
 
       options = { enabled: true }
