@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_19_153000) do
+ActiveRecord::Schema[8.1].define(version: 2026_05_26_090000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -1064,6 +1064,27 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_19_153000) do
     t.index ["user_id"], name: "index_track_comments_on_user_id"
   end
 
+  create_table "track_masters", force: :cascade do |t|
+    t.jsonb "analysis_after", default: {}, null: false
+    t.jsonb "analysis_before", default: {}, null: false
+    t.datetime "completed_at"
+    t.datetime "created_at", null: false
+    t.text "error_message"
+    t.datetime "failed_at"
+    t.text "feedback"
+    t.jsonb "recipe", default: {}, null: false
+    t.text "reference_notes"
+    t.datetime "started_at"
+    t.string "state", default: "pending", null: false
+    t.string "target_profile", default: "demo_balanced", null: false
+    t.bigint "track_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["state"], name: "index_track_masters_on_state"
+    t.index ["target_profile"], name: "index_track_masters_on_target_profile"
+    t.index ["track_id", "created_at"], name: "index_track_masters_on_track_id_and_created_at"
+    t.index ["track_id"], name: "index_track_masters_on_track_id"
+  end
+
   create_table "track_peaks", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.jsonb "data"
@@ -1320,6 +1341,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_19_153000) do
   add_foreign_key "track_artists", "users"
   add_foreign_key "track_comments", "tracks"
   add_foreign_key "track_comments", "users"
+  add_foreign_key "track_masters", "tracks"
   add_foreign_key "track_peaks", "tracks"
   add_foreign_key "track_playlists", "playlists"
   add_foreign_key "track_playlists", "tracks"

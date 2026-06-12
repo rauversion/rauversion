@@ -6,7 +6,7 @@ import { Comments } from "@/components/comments/Comments"
 import { ShareDialog } from "@/components/ui/share-dialog"
 import TrackEdit from './TrackEdit'
 import TrackSkeleton from './TrackSkeleton'
-import { Settings, Share2, Heart, Repeat, Play, Pause } from 'lucide-react'
+import { Settings, Share2, Heart, Repeat, Play, Pause, SlidersHorizontal } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import useAuthStore from '@/stores/authStore'
 import useAudioStore from '@/stores/audioStore'
@@ -341,6 +341,15 @@ export default function TrackShow() {
             <Repeat className="h-4 w-4" />
             <span className="sr-only">{t("repost")}</span>
           </Button>
+
+          {currentUser?.id === track.user.id && currentUser?.mastering_allowed && (
+            <Button asChild variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
+              <Link to={`/tracks/${track.slug}/masterings`}>
+                <SlidersHorizontal className="h-4 w-4" />
+                <span className="sr-only">Masterings</span>
+              </Link>
+            </Button>
+          )}
 
           {/* Edit Button */}
           {currentUser?.id === track.user.id && (

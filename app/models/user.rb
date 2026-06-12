@@ -100,6 +100,7 @@ class User < ApplicationRecord
   store_attribute :settings, :tbk_test_mode, :boolean
   store_attribute :settings, :can_send_newsletter, :boolean, default: false
   store_attribute :settings, :newsletter_broadcast_recipient_limit, :integer, default: NEWSLETTER_BROADCAST_RECIPIENT_LIMIT_DEFAULT
+  store_attribute :settings, :mastering_allowed, :boolean, default: false
 
 
   store_attribute :social_links_settings, :email_sign_up, :boolean
@@ -254,6 +255,10 @@ class User < ApplicationRecord
 
   def can_access_newsletter?
     can_send_newsletter
+  end
+
+  def can_access_mastering?
+    admin? || mastering_allowed?
   end
 
   def is_admin?
