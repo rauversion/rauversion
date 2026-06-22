@@ -1214,6 +1214,41 @@ es:
     buy_digital_music: Comprar música digital
     or_more: o más
     supporters: Partidarios
+    dj_sets:
+      badge: DJ set
+      purchase_disabled: Los DJ sets se publican sin monetización en Rauversion.
+      discovery:
+        hero:
+          badge: DJ sets
+          title: DJ sets, mixes y radio shows.
+          description: Escucha mixes no monetizados, publicados sin descarga y sujetos a revisión de derechos.
+          search_placeholder: Busca DJ sets, artistas o tags
+          search_button: Buscar
+        filters:
+          title: Filtra DJ sets por sonido, tag o BPM.
+          tags: Tags
+        stats:
+          results_label: DJ sets
+          results_filtered_hint: Según tus filtros
+          results_default_hint: DJ sets públicos para explorar
+        fallback_panel:
+          eyebrow: Revisión de derechos
+          title: Mixes no monetizados.
+          genre_mood_title: Sin descarga ni monetización
+          genre_mood_description: Los DJ sets y mixes se publican sin descarga directa y sin monetización en Rauversion.
+          ranking_title: Reclamos de derechos
+          ranking_description: Rauversion podrá remover, bloquear o limitar contenido si recibe reclamos de titulares de derechos o detecta posibles infracciones.
+        shelf:
+          item_count: "%{count} DJ sets acá"
+        results:
+          default_title: Todos los DJ sets
+          summary: "%{count} DJ sets públicos"
+          load_more: Cargar más DJ sets
+        empty:
+          title: No encontramos DJ sets.
+          description: Prueba quitando un filtro o eligiendo otro tag.
+        summary:
+          fallback: DJ set disponible en Rauversion.
     edit: Editar esta pista
     count: "%{count} Pistas"
 
@@ -1272,6 +1307,7 @@ es:
         mood: Mood
         tempo: BPM
         subgenre: Subgéneros
+        tags: Tags
         language: Idioma
         vocal_mode: Voz
         tag: Tag
@@ -1363,12 +1399,19 @@ es:
         current_video: Abrir video actual
         private: Privado
         podcast: Podcast
+        dj_set: DJ set
+        dj_set_policy_body: Publica mixes y radio shows en Rauversion bajo modalidad no monetizada, sin descarga y sujeta a revisión de derechos.
+        dj_set_policy_removal: La publicación no garantiza autorización sobre música de terceros. Rauversion podrá remover, bloquear o limitar cualquier contenido si recibe reclamos de titulares de derechos o detecta posibles infracciones.
+        dj_set_pricing_disabled: Los DJ sets y mixes se publican sin monetización por defecto, por eso el precio queda desactivado.
+        dj_set_download_disabled: Los DJ sets se publican sin descarga directa.
       delete:
         button: Eliminar Pista
         confirm_title: ¿Estás absolutamente seguro?
         confirm_description: Esta acción no se puede deshacer. Esto eliminará permanentemente tu pista y todos los datos asociados de nuestros servidores.
         cancel: Cancelar
       messages:
+        success_title: Éxito
+        error_title: Error
         cover_success: Imagen de portada actualizada exitosamente
         video_success: Video subido exitosamente. Guarda los cambios para aplicarlo.
         video_upload_error: Error al subir el video
@@ -1377,12 +1420,45 @@ es:
         delete_success: Pista eliminada exitosamente
         delete_error: Error al eliminar la pista
     new:
+      category_step:
+        badge: Wizard de subida
+        title: ¿Qué vas a publicar?
+        subtitle: Elige la categoría antes de subir archivos para que Rauversion aplique la configuración correcta desde el inicio.
+        selected: Seleccionado
+        continue: Continuar
+      categories:
+        music:
+          title: Track o release
+          description: Música original, singles, demos y tracks editados.
+          detail: Las subidas musicales estándar pueden usar precio, descargas y la configuración normal de tracks.
+        dj_set:
+          title: DJ set o mix
+          description: Mixes, radio shows y sesiones DJ grabadas.
+          detail: Los DJ sets se publican sin monetización, sin descarga directa y sujetos a revisión de derechos.
+        podcast:
+          title: Podcast
+          description: Episodios hablados, entrevistas y programas.
+          detail: Los podcasts quedan marcados por separado para aparecer en contextos de podcast.
+      dj_set_notice:
+        title: DJ sets y mixes en Rauversion
+        body: Publica mixes y radio shows en Rauversion bajo modalidad no monetizada, sin descarga y sujeta a revisión de derechos.
+        removal: Los DJ sets y mixes en Rauversion se publican sin descarga y sin monetización por defecto. La publicación no garantiza autorización sobre música de terceros. Rauversion podrá remover, bloquear o limitar cualquier contenido si recibe reclamos de titulares de derechos o detecta posibles infracciones.
+        acknowledgement: Entiendo que este DJ set o mix se publicará sin monetización, sin descargas y sujeto a revisión de derechos.
       upload:
         title: Arrastra y suelta tus pistas aquí
         subtitle: Proporciona FLAC, WAV, ALAC o AIFF para la mejor calidad de audio
-        button: Subir archivos de audio
+        button: Subir archivos de audio o video
         or_drop: o arrastra y suelta
-        size_limit: Archivos de audio hasta 200MB
+        size_limit: Archivos de hasta 400MB
+        change_category: Cambiar categoría
+        title_by_category:
+          music: Sube tus tracks
+          dj_set: Sube tu DJ set o mix
+          podcast: Sube tu episodio de podcast
+        subtitle_by_category:
+          music: Usa FLAC, WAV, ALAC o AIFF para la mejor calidad de audio.
+          dj_set: Los mixes y radio shows se publicarán sin monetización y sin descarga directa.
+          podcast: Sube audio o video para el episodio y luego completa título, tags y descripción.
       form:
         title: Título
         tags: Etiquetas
@@ -1399,17 +1475,21 @@ es:
         copy_playlist_link: Copiar enlace de la playlist
         share_twitter: Compartir en Twitter
       messages:
+        success_title: Éxito
+        error_title: Error
         invalid_files: Archivos inválidos
         audio_only: Solo se permiten archivos de audio
+        media_only: Solo se permiten archivos de audio o video.
         no_files: No hay archivos seleccionados
-        select_files: Por favor selecciona al menos un archivo de audio
-        upload_success: "Se ha%{plural} subido %{count} pista%{plural} exitosamente"
+        select_files: Por favor selecciona al menos un archivo de audio o video
+        upload_success: "Se subieron %{count} archivo(s) exitosamente"
         upload_error: Error al subir las pistas
         cover_error: Error al subir la imagen de portada
         save_error: Error al guardar la información de la pista
         link_copied: Enlace copiado al portapapeles
         playlist_title_required: Falta el título de la playlist
         playlist_title_required_description: Agrega un título antes de crear la playlist.
+        artist_interest_submitted: Tu interés en convertirte en artista fue enviado. Revisaremos tu solicitud pronto.
       controls:
         create_playlist: Crear una lista de reproducción con estas pistas
         privacy: Privacidad

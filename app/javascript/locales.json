@@ -3840,6 +3840,7 @@
           "search": "Search",
           "subgenre": "Subgenre",
           "tag": "Tag",
+          "tags": "Tags",
           "tempo": "BPM",
           "title": "Narrow it down fast.",
           "vocal_mode": "Voice"
@@ -3918,6 +3919,51 @@
           "vocal": "With vocals"
         }
       },
+      "dj_sets": {
+        "badge": "DJ set",
+        "discovery": {
+          "empty": {
+            "description": "Try removing a filter or choosing another tag.",
+            "title": "No DJ sets found."
+          },
+          "fallback_panel": {
+            "eyebrow": "Rights review",
+            "genre_mood_description": "DJ sets and mixes are published without direct download or Rauversion monetization.",
+            "genre_mood_title": "No downloads or monetization",
+            "ranking_description": "Rauversion may remove, block or limit content if rights holders claim it or possible infringement is detected.",
+            "ranking_title": "Rights claims",
+            "title": "Non-monetized mixes."
+          },
+          "filters": {
+            "tags": "Tags",
+            "title": "Filter DJ sets by sound, tag or BPM."
+          },
+          "hero": {
+            "badge": "DJ sets",
+            "description": "Listen to non-monetized mixes published without downloads and subject to rights review.",
+            "search_button": "Search",
+            "search_placeholder": "Search DJ sets, artists or tags",
+            "title": "DJ sets, mixes and radio shows."
+          },
+          "results": {
+            "default_title": "All DJ sets",
+            "load_more": "Load more DJ sets",
+            "summary": "%{count} public DJ sets"
+          },
+          "shelf": {
+            "item_count": "%{count} DJ sets here"
+          },
+          "stats": {
+            "results_default_hint": "Public DJ sets to browse",
+            "results_filtered_hint": "Matching your filters",
+            "results_label": "DJ sets"
+          },
+          "summary": {
+            "fallback": "DJ set available on Rauversion."
+          }
+        },
+        "purchase_disabled": "DJ sets are published without monetization on Rauversion."
+      },
       "edit": {
         "delete": {
           "button": "Delete Track",
@@ -3935,6 +3981,11 @@
           "cover": "Cover Image",
           "current_video": "Open current video",
           "description": "Description",
+          "dj_set": "DJ set",
+          "dj_set_download_disabled": "DJ sets are published without direct downloads.",
+          "dj_set_policy_body": "Publish mixes and radio shows on Rauversion as non-monetized, download-disabled content subject to rights review.",
+          "dj_set_policy_removal": "Publication does not guarantee authorization for third-party music. Rauversion may remove, block or limit content if rights holders submit claims or possible infringement is detected.",
+          "dj_set_pricing_disabled": "DJ sets and mixes are published without monetization by default, so pricing is disabled.",
           "podcast": "Podcast",
           "private": "Private",
           "tags": "Labels",
@@ -3948,6 +3999,8 @@
           "cover_success": "Cover image successfully updated",
           "delete_error": "Error deleting track",
           "delete_success": "Track successfully deleted",
+          "error_title": "Error",
+          "success_title": "Success",
           "update_error": "Error updating the track",
           "update_success": "Track successfully updated",
           "video_success": "Video uploaded successfully. Save changes to apply it.",
@@ -3980,6 +4033,30 @@
       },
       "link": "Link",
       "new": {
+        "categories": {
+          "dj_set": {
+            "description": "Mixes, radio shows and recorded DJ sessions.",
+            "detail": "DJ sets are published without monetization, without direct download and subject to rights review.",
+            "title": "DJ set or mix"
+          },
+          "music": {
+            "description": "Original music, singles, demos and released tracks.",
+            "detail": "Standard music uploads can use pricing, downloads and the regular track settings.",
+            "title": "Track or release"
+          },
+          "podcast": {
+            "description": "Spoken-word episodes, interviews and shows.",
+            "detail": "Podcasts are marked separately so they can appear in podcast contexts.",
+            "title": "Podcast"
+          }
+        },
+        "category_step": {
+          "badge": "Upload wizard",
+          "continue": "Continue",
+          "selected": "Selected",
+          "subtitle": "Choose the content category before uploading so Rauversion can apply the right settings from the start.",
+          "title": "What are you publishing?"
+        },
         "controls": {
           "clear_all": "Clean Everything",
           "complete": "Completed",
@@ -4003,6 +4080,12 @@
           "uploading": "Uploading...",
           "waiting": "Waiting..."
         },
+        "dj_set_notice": {
+          "acknowledgement": "I understand that this DJ set or mix will be published without monetization, without downloads and subject to rights review.",
+          "body": "Publish mixes and radio shows on Rauversion as non-monetized, download-disabled content subject to rights review.",
+          "removal": "DJ sets and mixes on Rauversion are published without downloads and without monetization by default. Publication does not guarantee authorization for third-party music. Rauversion may remove, block or limit any content if it receives rights-holder claims or detects possible infringement.",
+          "title": "DJ sets and mixes on Rauversion"
+        },
         "form": {
           "description": "Description",
           "private_track": "Private Track",
@@ -4012,17 +4095,21 @@
           "title": "Title"
         },
         "messages": {
+          "artist_interest_submitted": "Your interest in becoming an artist has been submitted. We'll review your request shortly.",
           "audio_only": "Only audio files are allowed",
           "cover_error": "Error uploading the cover image",
+          "error_title": "Error",
           "invalid_files": "Invalid files",
           "link_copied": "Link copied to clipboard",
+          "media_only": "Only audio or video files are allowed.",
           "no_files": "There are no files selected",
           "playlist_title_required": "Playlist title required",
           "playlist_title_required_description": "Add a title before creating the playlist.",
           "save_error": "Error saving track information",
-          "select_files": "Please select at least one audio file",
+          "select_files": "Please select at least one audio or video file",
+          "success_title": "Success",
           "upload_error": "Error uploading tracks",
-          "upload_success": "Se ha%{plural} subido %{count} pista%{plural} exitosamente"
+          "upload_success": "%{count} track%{plural} uploaded successfully"
         },
         "share": {
           "copy_link": "Copy Link",
@@ -4034,11 +4121,22 @@
           "upload_complete": "Upload completed"
         },
         "upload": {
-          "button": "Upload audio files",
-          "or_drop": "o arrastra y suelta\nEnglish: or drag and drop",
-          "size_limit": "Audio files up to 200MB",
+          "button": "Upload media files",
+          "change_category": "Change category",
+          "or_drop": "or drag and drop",
+          "size_limit": "Media files up to 400MB",
           "subtitle": "It provides FLAC, WAV, ALAC, or AIFF for the best audio quality",
-          "title": "Drag and drop your tracks here"
+          "subtitle_by_category": {
+            "dj_set": "Mixes and radio shows will be published without monetization and without direct downloads.",
+            "music": "Use FLAC, WAV, ALAC or AIFF for the best audio quality.",
+            "podcast": "Upload audio or video for the episode, then complete its title, tags and description."
+          },
+          "title": "Drag and drop your tracks here",
+          "title_by_category": {
+            "dj_set": "Upload your DJ set or mix",
+            "music": "Upload your tracks",
+            "podcast": "Upload your podcast episode"
+          }
         }
       },
       "new_track": "New track",
@@ -8248,6 +8346,7 @@
           "search": "Buscar",
           "subgenre": "Subgéneros",
           "tag": "Tag",
+          "tags": "Tags",
           "tempo": "BPM",
           "title": "Encuentra algo rápido.",
           "vocal_mode": "Voz"
@@ -8326,6 +8425,51 @@
           "vocal": "Con voz"
         }
       },
+      "dj_sets": {
+        "badge": "DJ set",
+        "discovery": {
+          "empty": {
+            "description": "Prueba quitando un filtro o eligiendo otro tag.",
+            "title": "No encontramos DJ sets."
+          },
+          "fallback_panel": {
+            "eyebrow": "Revisión de derechos",
+            "genre_mood_description": "Los DJ sets y mixes se publican sin descarga directa y sin monetización en Rauversion.",
+            "genre_mood_title": "Sin descarga ni monetización",
+            "ranking_description": "Rauversion podrá remover, bloquear o limitar contenido si recibe reclamos de titulares de derechos o detecta posibles infracciones.",
+            "ranking_title": "Reclamos de derechos",
+            "title": "Mixes no monetizados."
+          },
+          "filters": {
+            "tags": "Tags",
+            "title": "Filtra DJ sets por sonido, tag o BPM."
+          },
+          "hero": {
+            "badge": "DJ sets",
+            "description": "Escucha mixes no monetizados, publicados sin descarga y sujetos a revisión de derechos.",
+            "search_button": "Buscar",
+            "search_placeholder": "Busca DJ sets, artistas o tags",
+            "title": "DJ sets, mixes y radio shows."
+          },
+          "results": {
+            "default_title": "Todos los DJ sets",
+            "load_more": "Cargar más DJ sets",
+            "summary": "%{count} DJ sets públicos"
+          },
+          "shelf": {
+            "item_count": "%{count} DJ sets acá"
+          },
+          "stats": {
+            "results_default_hint": "DJ sets públicos para explorar",
+            "results_filtered_hint": "Según tus filtros",
+            "results_label": "DJ sets"
+          },
+          "summary": {
+            "fallback": "DJ set disponible en Rauversion."
+          }
+        },
+        "purchase_disabled": "Los DJ sets se publican sin monetización en Rauversion."
+      },
       "edit": {
         "delete": {
           "button": "Eliminar Pista",
@@ -8343,6 +8487,11 @@
           "cover": "Imagen de Portada",
           "current_video": "Abrir video actual",
           "description": "Descripción",
+          "dj_set": "DJ set",
+          "dj_set_download_disabled": "Los DJ sets se publican sin descarga directa.",
+          "dj_set_policy_body": "Publica mixes y radio shows en Rauversion bajo modalidad no monetizada, sin descarga y sujeta a revisión de derechos.",
+          "dj_set_policy_removal": "La publicación no garantiza autorización sobre música de terceros. Rauversion podrá remover, bloquear o limitar cualquier contenido si recibe reclamos de titulares de derechos o detecta posibles infracciones.",
+          "dj_set_pricing_disabled": "Los DJ sets y mixes se publican sin monetización por defecto, por eso el precio queda desactivado.",
           "podcast": "Podcast",
           "private": "Privado",
           "tags": "Etiquetas",
@@ -8356,6 +8505,8 @@
           "cover_success": "Imagen de portada actualizada exitosamente",
           "delete_error": "Error al eliminar la pista",
           "delete_success": "Pista eliminada exitosamente",
+          "error_title": "Error",
+          "success_title": "Éxito",
           "update_error": "Error al actualizar la pista",
           "update_success": "Pista actualizada exitosamente",
           "video_success": "Video subido exitosamente. Guarda los cambios para aplicarlo.",
@@ -8388,6 +8539,30 @@
       },
       "link": "Enlace",
       "new": {
+        "categories": {
+          "dj_set": {
+            "description": "Mixes, radio shows y sesiones DJ grabadas.",
+            "detail": "Los DJ sets se publican sin monetización, sin descarga directa y sujetos a revisión de derechos.",
+            "title": "DJ set o mix"
+          },
+          "music": {
+            "description": "Música original, singles, demos y tracks editados.",
+            "detail": "Las subidas musicales estándar pueden usar precio, descargas y la configuración normal de tracks.",
+            "title": "Track o release"
+          },
+          "podcast": {
+            "description": "Episodios hablados, entrevistas y programas.",
+            "detail": "Los podcasts quedan marcados por separado para aparecer en contextos de podcast.",
+            "title": "Podcast"
+          }
+        },
+        "category_step": {
+          "badge": "Wizard de subida",
+          "continue": "Continuar",
+          "selected": "Seleccionado",
+          "subtitle": "Elige la categoría antes de subir archivos para que Rauversion aplique la configuración correcta desde el inicio.",
+          "title": "¿Qué vas a publicar?"
+        },
         "controls": {
           "clear_all": "Limpiar Todo",
           "complete": "Completado",
@@ -8411,6 +8586,12 @@
           "uploading": "Subiendo...",
           "waiting": "Esperando..."
         },
+        "dj_set_notice": {
+          "acknowledgement": "Entiendo que este DJ set o mix se publicará sin monetización, sin descargas y sujeto a revisión de derechos.",
+          "body": "Publica mixes y radio shows en Rauversion bajo modalidad no monetizada, sin descarga y sujeta a revisión de derechos.",
+          "removal": "Los DJ sets y mixes en Rauversion se publican sin descarga y sin monetización por defecto. La publicación no garantiza autorización sobre música de terceros. Rauversion podrá remover, bloquear o limitar cualquier contenido si recibe reclamos de titulares de derechos o detecta posibles infracciones.",
+          "title": "DJ sets y mixes en Rauversion"
+        },
         "form": {
           "description": "Descripción",
           "private_track": "Pista Privada",
@@ -8420,17 +8601,21 @@
           "title": "Título"
         },
         "messages": {
+          "artist_interest_submitted": "Tu interés en convertirte en artista fue enviado. Revisaremos tu solicitud pronto.",
           "audio_only": "Solo se permiten archivos de audio",
           "cover_error": "Error al subir la imagen de portada",
+          "error_title": "Error",
           "invalid_files": "Archivos inválidos",
           "link_copied": "Enlace copiado al portapapeles",
+          "media_only": "Solo se permiten archivos de audio o video.",
           "no_files": "No hay archivos seleccionados",
           "playlist_title_required": "Falta el título de la playlist",
           "playlist_title_required_description": "Agrega un título antes de crear la playlist.",
           "save_error": "Error al guardar la información de la pista",
-          "select_files": "Por favor selecciona al menos un archivo de audio",
+          "select_files": "Por favor selecciona al menos un archivo de audio o video",
+          "success_title": "Éxito",
           "upload_error": "Error al subir las pistas",
-          "upload_success": "Se ha%{plural} subido %{count} pista%{plural} exitosamente"
+          "upload_success": "Se subieron %{count} archivo(s) exitosamente"
         },
         "share": {
           "copy_link": "Copiar Enlace",
@@ -8442,11 +8627,22 @@
           "upload_complete": "Subida completada"
         },
         "upload": {
-          "button": "Subir archivos de audio",
+          "button": "Subir archivos de audio o video",
+          "change_category": "Cambiar categoría",
           "or_drop": "o arrastra y suelta",
-          "size_limit": "Archivos de audio hasta 200MB",
+          "size_limit": "Archivos de hasta 400MB",
           "subtitle": "Proporciona FLAC, WAV, ALAC o AIFF para la mejor calidad de audio",
-          "title": "Arrastra y suelta tus pistas aquí"
+          "subtitle_by_category": {
+            "dj_set": "Los mixes y radio shows se publicarán sin monetización y sin descarga directa.",
+            "music": "Usa FLAC, WAV, ALAC o AIFF para la mejor calidad de audio.",
+            "podcast": "Sube audio o video para el episodio y luego completa título, tags y descripción."
+          },
+          "title": "Arrastra y suelta tus pistas aquí",
+          "title_by_category": {
+            "dj_set": "Sube tu DJ set o mix",
+            "music": "Sube tus tracks",
+            "podcast": "Sube tu episodio de podcast"
+          }
         }
       },
       "new_track": "Nueva pista",

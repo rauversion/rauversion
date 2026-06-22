@@ -1,5 +1,5 @@
 class TracksController < ApplicationController
-  before_action :authenticate_user!, except: [:index, :show, :private_access, :appears_on]
+  before_action :authenticate_user!, except: [:index, :dj_sets, :show, :private_access, :appears_on]
   before_action :check_activated_account, only: [:new, :create, :update, :delete]
 
   layout :layout_by_resource
@@ -20,32 +20,21 @@ class TracksController < ApplicationController
   end
 
   def index
-    discovery = TracksDiscoveryQuery.new(
-      scope: Track.published,
-      params: discovery_params
-    ).call
+    load_discovery(scope: Track.published.without_dj_sets)
 
-    @tracks = discovery[:tracks]
-    @facets = discovery[:facets]
-    @discovery_sections = discovery[:discovery_sections]
-    @active_filters = discovery[:active_filters]
-    @meta = discovery[:meta]
-    @popular_tags = @facets[:tags]
-
-    @labels = User.where(label: true).order("id desc").limit(10)
-
-    @artists = User.featured_artists.limit(5)
-
-    @highlighted_playlist = Playlist.published
-      .includes(:releases)
-      .where(playlist_type: ["ep", "album"])
-      .order("editor_choice_position asc, release_date desc")
-      .first
-      
     respond_to do |format|
       format.html {render_blank}
       format.turbo_stream
       format.json
+    end
+  end
+
+  def dj_sets
+    load_discovery(scope: Track.published.dj_sets)
+
+    respond_to do |format|
+      format.html { render_blank }
+      format.json { render :index }
     end
   end
 
@@ -189,6 +178,30 @@ class TracksController < ApplicationController
 
   private
 
+  def load_discovery(scope:)
+    discovery = TracksDiscoveryQuery.new(
+      scope: scope,
+      params: discovery_params
+    ).call
+
+    @tracks = discovery[:tracks]
+    @facets = discovery[:facets]
+    @discovery_sections = discovery[:discovery_sections]
+    @active_filters = discovery[:active_filters]
+    @meta = discovery[:meta]
+    @popular_tags = @facets[:tags]
+
+    @labels = User.where(label: true).order("id desc").limit(10)
+
+    @artists = User.featured_artists.limit(5)
+
+    @highlighted_playlist = Playlist.published
+      .includes(:releases)
+      .where(playlist_type: ["ep", "album"])
+      .order("editor_choice_position asc, release_date desc")
+      .first
+  end
+
   def load_track_for_show
     track = Track.friendly.find(params[:id])
     @user = track.user
@@ -240,6 +253,7 @@ class TracksController < ApplicationController
       :offline_listening, :enable_app_playblack,
       :cover, :video,
       :podcast,
+      :dj_set,
       :copyright, :attribution, :noncommercial, :copies,
       crop_data: [:x, :y, :width, :height],
       tags: [],
@@ -262,7 +276,7 @@ class TracksController < ApplicationController
       :step,
       audio: [], 
       tracks_attributes: [
-        :audio, :cover, :title, :description, :private, tags: []
+        :audio, :cover, :title, :description, :private, :podcast, :dj_set, tags: []
       ]
     )
   end
@@ -280,6 +294,7 @@ class TracksController < ApplicationController
       :min_bpm,
       :max_bpm,
       :sort,
+      :seed,
       :page,
       :per_page
     )

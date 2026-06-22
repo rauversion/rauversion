@@ -31,6 +31,7 @@ json.reference_artists track.reference_artists
 json.analysis_accuracy track.analysis_accuracy
 json.tags track.tags
 json.podcast track.podcast
+json.dj_set track.dj_set
 json.created_at track.created_at
 json.updated_at track.updated_at
 json.processed  track.processed?

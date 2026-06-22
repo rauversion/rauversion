@@ -118,6 +118,25 @@ RSpec.describe Track, type: :model do
     end
   end
 
+  describe "dj set defaults" do
+    it "disables monetization and direct downloads before validation" do
+      track = FactoryBot.build(
+        :track,
+        user: user,
+        dj_set: true,
+        direct_download: true,
+        price: 10,
+        name_your_price: true
+      )
+
+      track.valid?
+
+      expect(track.direct_download).to eq(false)
+      expect(track.price).to be_nil
+      expect(track.name_your_price).to eq(false)
+    end
+  end
+
   describe "audio" do
     xit "can be created with an audio file" do
       audio = Rack::Test::UploadedFile.new(Rails.root.join("spec", "fixtures", "audio.mp3"), "audio/mp3")

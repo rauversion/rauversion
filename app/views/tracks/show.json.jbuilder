@@ -13,6 +13,7 @@ json.track do
   json.genre @track.genre
   json.tags @track.tags
   json.podcast @track.podcast
+  json.dj_set @track.dj_set
   json.created_at @track.created_at
   json.updated_at @track.updated_at
   json.processed  @track.processed?

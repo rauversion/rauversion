@@ -364,6 +364,8 @@ Rails.application.routes.draw do
     end
   end
 
+  get "/dj-sets", to: "tracks#dj_sets", as: :dj_sets
+
   get "/tracks/genre/:tag", to: "tags#index", as: :track_tag
 
   resources :tracks do

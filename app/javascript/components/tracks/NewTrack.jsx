@@ -10,11 +10,12 @@ import { DirectUpload } from "@rails/activestorage";
 import { post } from "@rails/request.js";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import Select from "react-select";
 import { Category } from "@/lib/constants";
 import { useThemeStore } from "@/stores/theme";
 import { ImageUploader } from "@/components/ui/image-uploader";
-import { ListMusic, Music, Share2, X } from "lucide-react";
+import { Disc3, ListMusic, Mic2, Music, Radio, Share2, X } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
@@ -32,13 +33,38 @@ import I18n from "stores/locales";
 import "@/styles/react-select.css";
 
 const playlistTypeOptions = ["playlist", "album", "ep", "single", "compilation"];
+const trackCategoryOptions = [
+  {
+    value: "music",
+    icon: Music,
+    titleKey: "tracks.new.categories.music.title",
+    descriptionKey: "tracks.new.categories.music.description",
+    detailKey: "tracks.new.categories.music.detail",
+  },
+  {
+    value: "dj_set",
+    icon: Disc3,
+    titleKey: "tracks.new.categories.dj_set.title",
+    descriptionKey: "tracks.new.categories.dj_set.description",
+    detailKey: "tracks.new.categories.dj_set.detail",
+  },
+  {
+    value: "podcast",
+    icon: Mic2,
+    titleKey: "tracks.new.categories.podcast.title",
+    descriptionKey: "tracks.new.categories.podcast.description",
+    detailKey: "tracks.new.categories.podcast.detail",
+  },
+];
 
 export default function NewTrack() {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { isDarkMode } = useThemeStore();
   const { currentUser } = useAuthStore();
-  const [step, setStep] = React.useState("upload"); // upload or info
+  const [step, setStep] = React.useState("category"); // category, upload, info or share
+  const [contentCategory, setContentCategory] = React.useState(null);
+  const [rightsAcknowledged, setRightsAcknowledged] = React.useState(false);
   const [uploading, setUploading] = React.useState(false);
   const [files, setFiles] = React.useState([]);
   const [uploadProgress, setUploadProgress] = React.useState({});
@@ -51,6 +77,14 @@ export default function NewTrack() {
   const [completedPlaylist, setCompletedPlaylist] = React.useState(null);
   const fileInputRef = React.useRef(null);
   const progressContainerRef = React.useRef(null);
+  const selectedCategoryOption = trackCategoryOptions.find(
+    (option) => option.value === contentCategory
+  );
+  const selectedCategoryTitle = selectedCategoryOption
+    ? I18n.t(selectedCategoryOption.titleKey)
+    : "";
+  const SelectedCategoryIcon = selectedCategoryOption?.icon || Music;
+  const isDjSet = contentCategory === "dj_set";
 
   const titleFromFiles = (sourceFiles) =>
     sourceFiles[0]?.name.replace(/\.[^/.]+$/, "") || "";
@@ -60,6 +94,20 @@ export default function NewTrack() {
     if (checked && !playlistTitle.trim()) {
       setPlaylistTitle(titleFromFiles(files));
     }
+  };
+
+  const handleCategorySelect = (category) => {
+    setContentCategory(category);
+    if (category !== "dj_set") {
+      setRightsAcknowledged(false);
+    }
+  };
+
+  const handleCategoryContinue = () => {
+    if (!contentCategory) return;
+    if (isDjSet && !rightsAcknowledged) return;
+
+    setStep("upload");
   };
 
   const renderPlaylistTypeSelect = (selectId) => (
@@ -100,7 +148,7 @@ export default function NewTrack() {
     if (mediaFiles.length !== newFiles.length) {
       toast({
         title: I18n.t("tracks.new.messages.invalid_files"),
-        description: "Only audio or video files are allowed.",
+        description: I18n.t("tracks.new.messages.media_only"),
         variant: "destructive",
       });
     }
@@ -167,6 +215,8 @@ export default function NewTrack() {
           tags: [],
           coverId: null,
           private: false,
+          podcast: contentCategory === "podcast",
+          dj_set: contentCategory === "dj_set",
         }))
       );
 
@@ -181,7 +231,7 @@ export default function NewTrack() {
     } catch (error) {
       console.error("Upload error:", error);
       toast({
-        title: "Error",
+        title: I18n.t("tracks.new.messages.error_title"),
         description: I18n.t("tracks.new.messages.upload_error"),
         variant: "destructive",
       });
@@ -200,7 +250,7 @@ export default function NewTrack() {
     } catch (error) {
       console.error("Cover upload error:", error);
       toast({
-        title: "Error",
+        title: I18n.t("tracks.new.messages.error_title"),
         description: I18n.t("tracks.new.messages.cover_error"),
         variant: "destructive",
       });
@@ -237,6 +287,8 @@ export default function NewTrack() {
               tags: file.tags,
               cover: file.coverId,
               private: file.private,
+              podcast: file.podcast,
+              dj_set: file.dj_set,
             })),
           },
         }),
@@ -254,7 +306,7 @@ export default function NewTrack() {
         setStep("share");
       } else {
         toast({
-          title: "Error",
+          title: I18n.t("tracks.new.messages.error_title"),
           description: data.errors.join(", "),
           variant: "destructive",
         });
@@ -262,7 +314,7 @@ export default function NewTrack() {
     } catch (error) {
       console.error("Error:", error);
       toast({
-        title: "Error",
+        title: I18n.t("tracks.new.messages.error_title"),
         description: I18n.t("tracks.new.messages.save_error"),
         variant: "destructive",
       });
@@ -291,6 +343,33 @@ export default function NewTrack() {
           onSubmit={handleSubmitInfo}
           className="mt-8 sm:mx-auto sm:w-full sm:max-w-4xl space-y-4"
         >
+          {selectedCategoryOption && (
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-primary/10 text-primary">
+                      <SelectedCategoryIcon className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <Label className="text-base font-medium">
+                        {selectedCategoryTitle}
+                      </Label>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        {I18n.t(selectedCategoryOption.detailKey)}
+                      </p>
+                    </div>
+                  </div>
+                  {isDjSet && (
+                    <Badge variant="secondary">
+                      {I18n.t("tracks.dj_sets.badge")}
+                    </Badge>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           {makePlaylist && uploadedFiles.length > 1 && (
             <Card>
               <CardContent className="p-4 space-y-4">
@@ -549,6 +628,11 @@ export default function NewTrack() {
                         {I18n.t("tracks.private")}
                       </Badge>
                     )}
+                    {track.dj_set && (
+                      <Badge variant="secondary" className="mb-2 ml-2">
+                        {I18n.t("tracks.dj_sets.badge")}
+                      </Badge>
+                    )}
 
                     <div className="flex items-center justify-between">
                       <div className="text-sm text-muted-foreground">
@@ -620,9 +704,8 @@ export default function NewTrack() {
 
   const handleArtistInterest = async () => {
     toast({
-      title: "Success!",
-      description:
-        "Your interest in becoming an artist has been submitted. We'll review your request shortly.",
+      title: I18n.t("tracks.new.messages.success_title"),
+      description: I18n.t("tracks.new.messages.artist_interest_submitted"),
     });
   };
 
@@ -634,16 +717,126 @@ export default function NewTrack() {
     );
   }
 
+  if (step === "category") {
+    return (
+      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-3xl text-center">
+          <Badge className="mb-4">
+            {I18n.t("tracks.new.category_step.badge")}
+          </Badge>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+            {I18n.t("tracks.new.category_step.title")}
+          </h1>
+          <p className="mt-3 text-base text-muted-foreground">
+            {I18n.t("tracks.new.category_step.subtitle")}
+          </p>
+        </div>
+
+        <div className="mt-8 grid gap-4 md:grid-cols-3">
+          {trackCategoryOptions.map((option) => {
+            const Icon = option.icon;
+            const selected = contentCategory === option.value;
+
+            return (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => handleCategorySelect(option.value)}
+                className={`rounded-lg border p-5 text-left transition ${
+                  selected
+                    ? "border-primary bg-primary/10 shadow-sm"
+                    : "border-border bg-card hover:border-primary/50"
+                }`}
+              >
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-md bg-background text-primary">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  {selected && (
+                    <Badge variant="secondary">
+                      {I18n.t("tracks.new.category_step.selected")}
+                    </Badge>
+                  )}
+                </div>
+                <h2 className="mt-5 text-lg font-semibold text-foreground">
+                  {I18n.t(option.titleKey)}
+                </h2>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  {I18n.t(option.descriptionKey)}
+                </p>
+              </button>
+            );
+          })}
+        </div>
+
+        {isDjSet && (
+          <Card className="mt-6 border-amber-500/40 bg-amber-500/10">
+            <CardContent className="space-y-4 p-5">
+              <div className="flex items-start gap-3">
+                <Radio className="mt-1 h-5 w-5 shrink-0 text-amber-600" />
+                <div>
+                  <h3 className="font-semibold text-foreground">
+                    {I18n.t("tracks.new.dj_set_notice.title")}
+                  </h3>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                    {I18n.t("tracks.new.dj_set_notice.body")}
+                  </p>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                    {I18n.t("tracks.new.dj_set_notice.removal")}
+                  </p>
+                </div>
+              </div>
+              <label className="flex items-start gap-3 rounded-md border border-amber-500/30 bg-background/70 p-3">
+                <Checkbox
+                  checked={rightsAcknowledged}
+                  onCheckedChange={(checked) => setRightsAcknowledged(Boolean(checked))}
+                />
+                <span className="text-sm leading-5 text-foreground">
+                  {I18n.t("tracks.new.dj_set_notice.acknowledgement")}
+                </span>
+              </label>
+            </CardContent>
+          </Card>
+        )}
+
+        <div className="mt-8 flex justify-center">
+          <Button
+            type="button"
+            size="lg"
+            disabled={!contentCategory || (isDjSet && !rightsAcknowledged)}
+            onClick={handleCategoryContinue}
+          >
+            <SelectedCategoryIcon className="mr-2 h-4 w-4" />
+            {I18n.t("tracks.new.category_step.continue")}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="uploader flex justify-center my-10">
         <div className="flex-col max-w-2xl w-full">
           <div className="text-center">
+            {selectedCategoryOption && (
+              <div className="mb-4 flex items-center justify-center gap-2">
+                <Badge variant="secondary">{selectedCategoryTitle}</Badge>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setStep("category")}
+                >
+                  {I18n.t("tracks.new.upload.change_category")}
+                </Button>
+              </div>
+            )}
             <h3 className="text-2xl font-semibold text-default">
-              {I18n.t("tracks.new.upload.title")}
+              {I18n.t(`tracks.new.upload.title_by_category.${contentCategory || "music"}`)}
             </h3>
             <p className="mt-2 text-sm text-muted-foreground">
-              {I18n.t("tracks.new.upload.subtitle")}
+              {I18n.t(`tracks.new.upload.subtitle_by_category.${contentCategory || "music"}`)}
             </p>
           </div>
 
@@ -681,6 +874,14 @@ export default function NewTrack() {
               {I18n.t("tracks.new.upload.size_limit")}
             </p>
           </div>
+
+          {isDjSet && (
+            <Card className="mt-6 border-amber-500/40 bg-amber-500/10">
+              <CardContent className="p-4 text-sm leading-6 text-muted-foreground">
+                {I18n.t("tracks.new.dj_set_notice.body")}
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
 

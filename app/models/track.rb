@@ -25,6 +25,7 @@ class Track < ApplicationRecord
   belongs_to :label, class_name: "User", optional: true
   attr_accessor :enable_label
   before_save :check_label
+  before_validation :apply_dj_set_defaults
 
   def check_label
    self.label_id = Current.label_user.id if enable_label && Current.label_user 
@@ -51,6 +52,8 @@ class Track < ApplicationRecord
   scope :latests, -> { order("id desc") }
 
   scope :podcasts, -> {where(podcast: true)}
+  scope :dj_sets, -> { where(dj_set: true) }
+  scope :without_dj_sets, -> { where(dj_set: [false, nil]) }
 
   # store_attribute :metadata, :ratio, :integer, limit: 1
   # store_attribute :metadata, :login_at, :datetime
@@ -558,6 +561,14 @@ class Track < ApplicationRecord
   end
 
   private
+
+  def apply_dj_set_defaults
+    return unless dj_set?
+
+    self.direct_download = false
+    self.price = nil
+    self.name_your_price = false
+  end
 
   def read_metadata_array(key)
     value = metadata&.[](key.to_s)

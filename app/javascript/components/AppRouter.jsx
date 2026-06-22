@@ -395,6 +395,7 @@ function AppContent() {
 
       <Route path="/turn" element={<SpinningVideo />} />
       <Route path="/tracks" element={<TracksIndex />} />
+      <Route path="/dj-sets" element={<TracksIndex mode="dj_sets" endpoint="/dj-sets.json" showSupplemental={false} />} />
       <Route path="/tracks/new" element={<NewTrack />} />
       <Route path="/tracks/:slug/masterings" element={<RequireMasteringAccess><TrackMastering /></RequireMasteringAccess>} />
       <Route path="/tracks/:slug/masterings/new" element={<RequireMasteringAccess><TrackMastering /></RequireMasteringAccess>} />
