@@ -136,7 +136,8 @@ module Admin
               { key: "published", label: "Public", apply: ->(relation) { relation.where(private: [false, nil]) } },
               { key: "private", label: "Private", apply: ->(relation) { relation.where(private: true) } },
               { key: "processed", label: "Processed", apply: ->(relation) { relation.where(state: "processed") } },
-              { key: "podcasts", label: "Podcasts", apply: ->(relation) { relation.where(podcast: true) } }
+              { key: "podcasts", label: "Podcasts", apply: ->(relation) { relation.where(podcast: true) } },
+              { key: "dj_sets", label: "DJ sets", apply: ->(relation) { relation.dj_sets } }
             ],
             columns: [
               { key: "id", label: "ID", type: "number", value: ->(track) { track.id } },
@@ -152,6 +153,7 @@ module Admin
               { key: "state", label: "State", type: "badge", value: ->(track) { track.state } },
               { key: "private", label: "Private", type: "boolean", value: ->(track) { track.private? } },
               { key: "podcast", label: "Podcast", type: "boolean", value: ->(track) { track.podcast? } },
+              { key: "dj_set", label: "DJ set", type: "boolean", value: ->(track) { track.dj_set? } },
               { key: "created_at", label: "Created", type: "datetime", value: ->(track) { track.created_at } }
             ],
             form_fields: [
@@ -224,7 +226,7 @@ module Admin
                 value: ->(track) {
                   media = track.playback_media
                   next unless media&.attached?
-                  Rails.application.routes.url_helpers.rails_storage_proxy_path(media, only_path: true)
+                  MediaStreamUrl.for(media)
                 }
               },
               {
@@ -234,7 +236,7 @@ module Admin
                 readonly: true,
                 value: ->(track) {
                   next unless track.audio.attached?
-                  Rails.application.routes.url_helpers.rails_storage_proxy_path(track.audio, only_path: true)
+                  MediaStreamUrl.for(track.audio)
                 }
               },
               {
@@ -244,7 +246,7 @@ module Admin
                 readonly: true,
                 value: ->(track) {
                   next unless track.mp3_audio.attached?
-                  Rails.application.routes.url_helpers.rails_storage_proxy_path(track.mp3_audio, only_path: true)
+                  MediaStreamUrl.for(track.mp3_audio)
                 }
               },
               {
@@ -255,7 +257,7 @@ module Admin
                 value: ->(track) {
                   media = track.video_playback_media
                   next unless media&.attached?
-                  Rails.application.routes.url_helpers.rails_storage_proxy_path(media, only_path: true)
+                  MediaStreamUrl.for(media)
                 }
               },
               {

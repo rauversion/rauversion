@@ -1241,6 +1241,21 @@ en:
     pending_state_message: Espera, esta pista está en estado %{state}
     show:
       appears_on: Appears on
+      processing_title: Processing audio
+      processing_description: This track is being prepared. Playback will become available when processing finishes.
+      processing_live_updates: Processing updates are arriving live.
+      processing_failed_title: Audio processing failed
+      processing_failed_description: We could not finish preparing this track. Try uploading the file again or contact support.
+      processing_steps:
+        queued: Waiting to start
+        preparing: Preparing the source file
+        extracting_audio: Extracting audio from the video
+        optimizing_video: Preparing the web video
+        transcoding_audio: Creating the playback audio
+        generating_waveform: Generating the waveform
+        completed: Ready to play
+        source_missing: The source file could not be found
+        failed: Processing could not be completed
       playlist_types:
         album: Album
         ep: EP
@@ -1385,7 +1400,7 @@ en:
         subtitle: It provides FLAC, WAV, ALAC, or AIFF for the best audio quality
         button: Upload media files
         or_drop: or drag and drop
-        size_limit: Media files up to 400MB
+        size_limit: Media files up to %{size}MB
         change_category: Change category
         title_by_category:
           music: Upload your tracks
@@ -1416,6 +1431,7 @@ en:
         invalid_files: Invalid files
         audio_only: Only audio files are allowed
         media_only: Only audio or video files are allowed.
+        file_too_large: Files cannot exceed %{size}MB.
         no_files: There are no files selected
         select_files: Please select at least one audio or video file
         upload_success: "%{count} track%{plural} uploaded successfully"
@@ -1599,6 +1615,7 @@ en:
     all: Everything
     albums: Albums
     tracks: Tracks
+    mixes: Mixes
     artists: Artists
     podcasts: Podcasts
     reposts: Reposts
@@ -1612,6 +1629,9 @@ en:
     likes: I like
     go_to: Go to profile
     follow: Follow
+    empty:
+      tracks: No tracks found
+      mixes: No mixes found
     following: Following
   albums:
     title: Albums

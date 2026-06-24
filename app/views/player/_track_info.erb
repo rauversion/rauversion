@@ -5,7 +5,7 @@
   data-controller="player-info"
   data-player-info-id-value="<%= track.id %>" 
   data-player-info-peaks-value="<%= track.peaks %>" 
-  data-player-info-url-value="<%= track.mp3_audio.url %>" >
+  data-player-info-url-value="<%= MediaStreamUrl.for(track.mp3_audio) %>" >
   <div class="py-0 px-2 h-12 leading-4 box-border text-zinc-200 flex">
     <div class="flex items-center mx-2">
       <div class="relative">

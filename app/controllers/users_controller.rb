@@ -33,20 +33,8 @@ class UsersController < ApplicationController
 
   def tracks
     @title = "Tracks"
-    query = User.track_preloaded_by_user(
-      current_user_id: current_user&.id, 
-      user: @user
-    )
-    
-    # @user.tracks.with_attached_cover.includes(user: {avatar_attachment: :blob})
-    query = query.published if current_user.blank? || current_user != @user
-    @q = query.ransack(params[:q])
-    
-    @q.sorts = 'created_at desc' if @q.sorts.empty?
+    load_user_tracks(scope: :without_dj_sets)
 
-    @tracks = @q.result.page(params[:page]).per(12)
-
-    @collection = @tracks
     respond_to do |format|
       format.html do
         @as = :track
@@ -54,6 +42,20 @@ class UsersController < ApplicationController
         paginated_render
       end
       format.json
+    end
+  end
+
+  def mixes
+    @title = "Mixes"
+    load_user_tracks(scope: :dj_sets)
+
+    respond_to do |format|
+      format.html do
+        @as = :track
+        @section = "tracks/track_item"
+        paginated_render
+      end
+      format.json { render :tracks }
     end
   end
 
@@ -331,11 +333,25 @@ class UsersController < ApplicationController
 
   def get_tracks
     @tracks = @user.tracks
+      .without_dj_sets
       .with_attached_cover
       .includes(user: { avatar_attachment: :blob })
       .order(created_at: :desc)
       .page(params[:page])
       .per(12)
+  end
+
+  def load_user_tracks(scope:)
+    query = User.track_preloaded_by_user(
+      current_user_id: current_user&.id,
+      user: @user
+    ).public_send(scope)
+
+    query = query.published if current_user.blank? || current_user != @user
+    @q = query.ransack(params[:q])
+    @q.sorts = "created_at desc" if @q.sorts.empty?
+    @tracks = @q.result.page(params[:page]).per(12)
+    @collection = @tracks
   end
 
   def get_playlists

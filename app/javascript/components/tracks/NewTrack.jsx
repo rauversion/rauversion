@@ -33,6 +33,8 @@ import I18n from "stores/locales";
 import "@/styles/react-select.css";
 
 const playlistTypeOptions = ["playlist", "album", "ep", "single", "compilation"];
+const DEFAULT_MAX_FILE_SIZE_MB = 400;
+const DJ_SET_MAX_FILE_SIZE_MB = 700;
 const trackCategoryOptions = [
   {
     value: "music",
@@ -85,6 +87,10 @@ export default function NewTrack() {
     : "";
   const SelectedCategoryIcon = selectedCategoryOption?.icon || Music;
   const isDjSet = contentCategory === "dj_set";
+  const maxFileSizeMb = isDjSet
+    ? DJ_SET_MAX_FILE_SIZE_MB
+    : DEFAULT_MAX_FILE_SIZE_MB;
+  const maxFileSizeBytes = maxFileSizeMb * 1024 * 1024;
 
   const titleFromFiles = (sourceFiles) =>
     sourceFiles[0]?.name.replace(/\.[^/.]+$/, "") || "";
@@ -145,6 +151,9 @@ export default function NewTrack() {
     const mediaFiles = newFiles.filter((file) =>
       file.type.startsWith("audio/") || file.type.startsWith("video/")
     );
+    const acceptedFiles = mediaFiles.filter(
+      (file) => file.size <= maxFileSizeBytes
+    );
     if (mediaFiles.length !== newFiles.length) {
       toast({
         title: I18n.t("tracks.new.messages.invalid_files"),
@@ -152,9 +161,18 @@ export default function NewTrack() {
         variant: "destructive",
       });
     }
-    setFiles((prev) => [...prev, ...mediaFiles]);
+    if (acceptedFiles.length !== mediaFiles.length) {
+      toast({
+        title: I18n.t("tracks.new.messages.invalid_files"),
+        description: I18n.t("tracks.new.messages.file_too_large", {
+          size: maxFileSizeMb,
+        }),
+        variant: "destructive",
+      });
+    }
+    setFiles((prev) => [...prev, ...acceptedFiles]);
     if (makePlaylist && !playlistTitle.trim()) {
-      setPlaylistTitle(titleFromFiles([...files, ...mediaFiles]));
+      setPlaylistTitle(titleFromFiles([...files, ...acceptedFiles]));
     }
   };
 
@@ -871,7 +889,9 @@ export default function NewTrack() {
             />
 
             <p className="mt-2 text-xs text-muted-foreground">
-              {I18n.t("tracks.new.upload.size_limit")}
+              {I18n.t("tracks.new.upload.size_limit", {
+                size: maxFileSizeMb,
+              })}
             </p>
           </div>
 

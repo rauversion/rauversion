@@ -20,7 +20,7 @@ end
 json.name_your_price playlist.name_your_price
 
 
-json.mp3_audio_url url_for(first_track.mp3_audio) if first_track&.mp3_audio&.attached?
+json.mp3_audio_url MediaStreamUrl.for(first_track.mp3_audio) if first_track&.mp3_audio&.attached?
 json.url playlist_path(playlist)
 
 json.cover_url do

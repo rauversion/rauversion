@@ -22,9 +22,9 @@ xml.rss version: "2.0" do
       xml.item do
         xml.title track.title
         xml.description track.description
-        xml.enclosure url: track.mp3_audio.url, type: "audio/mp3"
+        xml.enclosure url: MediaStreamUrl.for(track.mp3_audio, only_path: false), type: "audio/mp3"
         xml.pubDate track.created_at
-        xml.guid track.mp3_audio.url
+        xml.guid MediaStreamUrl.for(track.mp3_audio, only_path: false)
       end
     end
   end

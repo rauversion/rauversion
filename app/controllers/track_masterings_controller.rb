@@ -198,7 +198,7 @@ class TrackMasteringsController < ApplicationController
 
   def playback_url(track)
     media = track.playback_media
-    media&.attached? ? rails_storage_proxy_url(media) : nil
+    MediaStreamUrl.for(media)
   end
 
   def cover_url_json(track)

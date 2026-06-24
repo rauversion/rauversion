@@ -1,4 +1,7 @@
 class Track < ApplicationRecord
+  STANDARD_MEDIA_MAX_SIZE = 400.megabytes
+  DJ_SET_MEDIA_MAX_SIZE = 700.megabytes
+
   extend FriendlyId
   include Croppable
   include Notifiable
@@ -40,8 +43,10 @@ class Track < ApplicationRecord
 
   validates :cover, presence: false, blob: {content_type: :web_image} # supported options: :web_image, :image, :audio, :video, :text
 
-  validates :audio, presence: false, blob: {content_type: :audio, size_range: 1..(400.megabytes)}, unless: -> { video.attached? } # supported options: :web_image, :image, :audio, :video, :text
-  validates :video, presence: false, blob: {content_type: :video, size_range: 1..(400.megabytes)}
+  validates :audio, presence: false, blob: {content_type: :audio, size_range: 1..STANDARD_MEDIA_MAX_SIZE}, unless: -> { video.attached? || dj_set? } # supported options: :web_image, :image, :audio, :video, :text
+  validates :audio, presence: false, blob: {content_type: :audio, size_range: 1..DJ_SET_MEDIA_MAX_SIZE}, if: -> { !video.attached? && dj_set? }
+  validates :video, presence: false, blob: {content_type: :video, size_range: 1..STANDARD_MEDIA_MAX_SIZE}, unless: :dj_set?
+  validates :video, presence: false, blob: {content_type: :video, size_range: 1..DJ_SET_MEDIA_MAX_SIZE}, if: :dj_set?
 
   acts_as_likeable
 
@@ -127,6 +132,8 @@ class Track < ApplicationRecord
   end
 
   store_accessor :metadata, :crop_data, :json, default: {}
+  store_attribute :metadata, :processing_step, :string
+  store_attribute :metadata, :processing_progress, :integer
   # store_accessor :settings, :tags, :json, default: []
 
   # Example method to call cropped_image with specific attributes
@@ -317,22 +324,49 @@ class Track < ApplicationRecord
   end
 
   def reprocess_async
+    return false unless audio.attached? || video.attached?
+
+    update_processing_status!(step: "queued", progress: 0, state: "pending")
     TrackProcessorJob.perform_later(id)
   end
 
-  def reprocess!
+  def reprocess!(on_progress: nil)
     if video.attached?
       video.open do |file|
+        report_processing_progress(on_progress, step: "extracting_audio", progress: 20)
         update_audio_from_video(file)
+
+        report_processing_progress(on_progress, step: "optimizing_video", progress: 40)
         update_video_web(file)
+
+        report_processing_progress(on_progress, step: "transcoding_audio", progress: 65)
         update_mp3(file)
       end
     else
-      return if audio.blob.blank?
+      return false if audio.blob.blank?
+
+      report_processing_progress(on_progress, step: "transcoding_audio", progress: 45)
       update_mp3
     end
 
+    report_processing_progress(on_progress, step: "generating_waveform", progress: 85)
     update_peaks
+    true
+  end
+
+  def update_processing_status!(step:, progress:, state: nil)
+    next_metadata = (metadata || {}).merge(
+      "processing_step" => step,
+      "processing_progress" => progress
+    )
+
+    attributes = {
+      metadata: next_metadata,
+      updated_at: Time.current
+    }
+    attributes[:state] = state if state.present?
+
+    update_columns(attributes)
   end
 
   def has_video?
@@ -561,6 +595,10 @@ class Track < ApplicationRecord
   end
 
   private
+
+  def report_processing_progress(callback, step:, progress:)
+    callback&.call(step: step, progress: progress)
+  end
 
   def apply_dj_set_defaults
     return unless dj_set?

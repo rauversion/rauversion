@@ -2,7 +2,7 @@
                       "data-audio-target": "player",
                       "data-audio-height-value": 70,
                       "data-audio-peaks": @track.peaks.to_json,
-                      "data-audio-url": @track.mp3_audio.url,
+                      "data-audio-url": MediaStreamUrl.for(@track.mp3_audio),
                       class: "h-32 bg-black"  do %>
   <div class="controls flex items-center ">
     <span class="relative z-0 inline-flex py-2 px-2 sm:px-0">

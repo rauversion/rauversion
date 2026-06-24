@@ -461,6 +461,7 @@ function AppContent() {
       <Route path="/:username/*" element={<UserShow />}>
         <Route index element={<UserHome />} />
         <Route path="tracks" element={<UserTracks />} />
+        <Route path="mixes" element={<UserTracks mode="mixes" />} />
         <Route path="playlists" element={<UserPlaylists namespace="playlists" />} />
         <Route path="articles" element={<UserArticles />} />
         <Route path="reposts" element={<UserReposts />} />

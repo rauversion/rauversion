@@ -382,6 +382,12 @@ RSpec.describe "Tracks", type: :request do
       expect(payload["audio_url"]).to be_present
       expect(payload["mp3_url"]).to be_present
       expect(payload["playback_url"]).to eq(payload["mp3_url"])
+      expect(payload["playback_url"]).to include("/rails/active_storage/blobs/redirect/")
+      expect(payload["playback_url"]).to include("disposition=inline")
+      expect(payload).to include(
+        "processing_step" => "queued",
+        "processing_progress" => 0
+      )
     end
 
     def attach_image(record, attachment_name)

@@ -165,12 +165,37 @@ RSpec.describe "Admin API", type: :request do
       )
     end
 
+    let!(:dj_set) do
+      create(
+        :track,
+        user: artist,
+        title: "Warehouse DJ Set",
+        state: "processed",
+        dj_set: true,
+        created_at: 3.days.ago
+      )
+    end
+
     it "returns tracks in descending order" do
       get "/api/admin/tracks"
 
       expect(response).to have_http_status(:ok)
       expect(json_response.dig("resource", "label")).to eq("Tracks")
-      expect(json_response["records"].map { |record| record["id"] }.first(2)).to eq([newer_track.id, older_track.id])
+      expect(json_response["records"].map { |record| record["id"] }.first(3)).to eq(
+        [dj_set.id, newer_track.id, older_track.id]
+      )
+    end
+
+    it "filters DJ sets" do
+      get "/api/admin/tracks", params: { scope: "dj_sets" }
+
+      expect(response).to have_http_status(:ok)
+      expect(json_response["scope"]).to eq("dj_sets")
+      expect(json_response["records"].map { |record| record["id"] }).to eq([dj_set.id])
+      expect(json_response.dig("resource", "scopes")).to include(
+        include("key" => "dj_sets", "label" => "DJ sets")
+      )
+      expect(json_response.dig("records", 0, "values", "dj_set")).to eq(true)
     end
   end
 

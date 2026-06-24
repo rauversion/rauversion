@@ -13,7 +13,7 @@
       data-controller="trackplayer" 
       data-trackplayer-height-value="70" 
       data-trackplayer-id-value="<%= track.id %>"
-      data-trackplayer-url-value="<%= track.mp3_audio.url %>"
+      data-trackplayer-url-value="<%= MediaStreamUrl.for(track.mp3_audio) %>"
       data-trackplayer-url-link-value="<%= player_path(id: track, t: true) %>"
       data-trackplayer-peaks-value="<%= track.peaks || "[]" %>">
       <div class="controls flex items-center">

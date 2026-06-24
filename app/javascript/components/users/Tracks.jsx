@@ -3,16 +3,18 @@ import { useParams } from 'react-router-dom'
 import useAudioStore from '../../stores/audioStore'
 import { useInfiniteScroll } from '../../hooks/useInfiniteScroll'
 import TrackItem from './TrackItem'
+import I18n from '@/stores/locales'
 
-export default function UserTracks() {
+export default function UserTracks({ mode = "tracks" }) {
   const { username } = useParams()
   const { currentTrackId, isPlaying, play, pause } = useAudioStore()
+  const endpoint = mode === "mixes" ? "mixes" : "tracks"
   
   const {
     items: tracks,
     loading,
     lastElementRef
-  } = useInfiniteScroll(`/${username}/tracks.json`)
+  } = useInfiniteScroll(`/${username}/${endpoint}.json`)
 
   const handlePlay = (trackId) => {
     if (`${currentTrackId}` === `${trackId}` && isPlaying) {
@@ -43,7 +45,9 @@ export default function UserTracks() {
 
       {tracks.length === 0 && !loading && (
         <div className="text-center py-12">
-          <p className="text-muted-foreground">No tracks found</p>
+          <p className="text-muted-foreground">
+            {I18n.t(`profile.empty.${mode}`)}
+          </p>
         </div>
       )}
     </div>

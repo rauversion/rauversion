@@ -1260,6 +1260,21 @@ es:
     pending_state_message: "Espera, esta pista está en estado %{state}"
     show:
       appears_on: Aparece en
+      processing_title: Procesando audio
+      processing_description: Este track se está preparando. La reproducción estará disponible cuando termine el procesamiento.
+      processing_live_updates: Las actualizaciones del proceso están llegando en vivo.
+      processing_failed_title: Falló el procesamiento del audio
+      processing_failed_description: No pudimos terminar de preparar este track. Intenta subir el archivo nuevamente o contacta a soporte.
+      processing_steps:
+        queued: Esperando para comenzar
+        preparing: Preparando el archivo original
+        extracting_audio: Extrayendo el audio del video
+        optimizing_video: Preparando el video para web
+        transcoding_audio: Creando el audio de reproducción
+        generating_waveform: Generando la forma de onda
+        completed: Listo para reproducir
+        source_missing: No encontramos el archivo original
+        failed: No se pudo completar el procesamiento
       playlist_types:
         album: Álbum
         ep: EP
@@ -1449,7 +1464,7 @@ es:
         subtitle: Proporciona FLAC, WAV, ALAC o AIFF para la mejor calidad de audio
         button: Subir archivos de audio o video
         or_drop: o arrastra y suelta
-        size_limit: Archivos de hasta 400MB
+        size_limit: Archivos de hasta %{size}MB
         change_category: Cambiar categoría
         title_by_category:
           music: Sube tus tracks
@@ -1480,6 +1495,7 @@ es:
         invalid_files: Archivos inválidos
         audio_only: Solo se permiten archivos de audio
         media_only: Solo se permiten archivos de audio o video.
+        file_too_large: Los archivos no pueden superar los %{size}MB.
         no_files: No hay archivos seleccionados
         select_files: Por favor selecciona al menos un archivo de audio o video
         upload_success: "Se subieron %{count} archivo(s) exitosamente"
@@ -1664,6 +1680,7 @@ es:
     all: "Todo"
     albums: "Álbumes"
     tracks: "Pistas"
+    mixes: "Mixes"
     artists: "Artistas"
     podcasts: "Podcasts"
     reposts: "Reposteos"
@@ -1677,6 +1694,9 @@ es:
     likes: Me gusta
     go_to: Ir al perfil
     follow: Seguir
+    empty:
+      tracks: No encontramos pistas
+      mixes: No encontramos mixes
     following: Siguendo
 
   albums:
