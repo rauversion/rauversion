@@ -3927,12 +3927,12 @@
             "title": "No DJ sets found."
           },
           "fallback_panel": {
-            "eyebrow": "Rights review",
-            "genre_mood_description": "DJ sets and mixes are published without direct download or Rauversion monetization.",
-            "genre_mood_title": "No downloads or monetization",
-            "ranking_description": "Rauversion may remove, block or limit content if rights holders claim it or possible infringement is detected.",
-            "ranking_title": "Rights claims",
-            "title": "Non-monetized mixes."
+            "eyebrow": "Discovery",
+            "genre_mood_description": "Use filters to move through styles, energy and BPM ranges.",
+            "genre_mood_title": "Genre and mood",
+            "ranking_description": "Try featured, newest or random ordering to find a different session.",
+            "ranking_title": "Sort and explore",
+            "title": "Find a mix by sound."
           },
           "filters": {
             "tags": "Tags",
@@ -3940,7 +3940,7 @@
           },
           "hero": {
             "badge": "DJ sets",
-            "description": "Listen to non-monetized mixes published without downloads and subject to rights review.",
+            "description": "Browse DJ sets, mixes and radio shows from the Rauversion community.",
             "search_button": "Search",
             "search_placeholder": "Search DJ sets, artists or tags",
             "title": "DJ sets, mixes and radio shows."
@@ -8433,12 +8433,12 @@
             "title": "No encontramos DJ sets."
           },
           "fallback_panel": {
-            "eyebrow": "Revisión de derechos",
-            "genre_mood_description": "Los DJ sets y mixes se publican sin descarga directa y sin monetización en Rauversion.",
-            "genre_mood_title": "Sin descarga ni monetización",
-            "ranking_description": "Rauversion podrá remover, bloquear o limitar contenido si recibe reclamos de titulares de derechos o detecta posibles infracciones.",
-            "ranking_title": "Reclamos de derechos",
-            "title": "Mixes no monetizados."
+            "eyebrow": "Descubrimiento",
+            "genre_mood_description": "Usa los filtros para navegar por estilos, energía y rangos de BPM.",
+            "genre_mood_title": "Género y mood",
+            "ranking_description": "Prueba destacados, nuevos o random para encontrar una sesión distinta.",
+            "ranking_title": "Orden y exploración",
+            "title": "Encuentra un mix por sonido."
           },
           "filters": {
             "tags": "Tags",
@@ -8446,7 +8446,7 @@
           },
           "hero": {
             "badge": "DJ sets",
-            "description": "Escucha mixes no monetizados, publicados sin descarga y sujetos a revisión de derechos.",
+            "description": "Explora DJ sets, mixes y radio shows de la comunidad Rauversion.",
             "search_button": "Buscar",
             "search_placeholder": "Busca DJ sets, artistas o tags",
             "title": "DJ sets, mixes y radio shows."

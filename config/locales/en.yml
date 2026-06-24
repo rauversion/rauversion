@@ -1159,7 +1159,7 @@ en:
         hero:
           badge: DJ sets
           title: DJ sets, mixes and radio shows.
-          description: Listen to non-monetized mixes published without downloads and subject to rights review.
+          description: Browse DJ sets, mixes and radio shows from the Rauversion community.
           search_placeholder: Search DJ sets, artists or tags
           search_button: Search
         filters:
@@ -1170,12 +1170,12 @@ en:
           results_filtered_hint: Matching your filters
           results_default_hint: Public DJ sets to browse
         fallback_panel:
-          eyebrow: Rights review
-          title: Non-monetized mixes.
-          genre_mood_title: No downloads or monetization
-          genre_mood_description: DJ sets and mixes are published without direct download or Rauversion monetization.
-          ranking_title: Rights claims
-          ranking_description: Rauversion may remove, block or limit content if rights holders claim it or possible infringement is detected.
+          eyebrow: Discovery
+          title: Find a mix by sound.
+          genre_mood_title: Genre and mood
+          genre_mood_description: Use filters to move through styles, energy and BPM ranges.
+          ranking_title: Sort and explore
+          ranking_description: Try featured, newest or random ordering to find a different session.
         shelf:
           item_count: "%{count} DJ sets here"
         results:
