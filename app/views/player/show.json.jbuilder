@@ -3,13 +3,13 @@ json.track do
   json.slug @track.slug
   json.title @track.title
   json.url track_path(@track)
-  json.audio_url @track.mp3_audio&.url if @track.mp3_audio.attached?
+  json.audio_url MediaStreamUrl.for(@track.mp3_audio) if @track.mp3_audio.attached?
   json.description @track.description
   json.artwork_url @track.cover_url(:small)
   json.has_video @track.video.attached?
   video_media = @track.video_playback_media
   if video_media&.attached?
-    json.video_url Rails.application.routes.url_helpers.rails_storage_proxy_url(video_media)
+    json.video_url MediaStreamUrl.for(video_media)
   end
   json.artist_name @track.artists.any? ? @track.artists.map(&:display_name).reject(&:blank?).join(", ") : (@track.artist.presence || @track.user.display_name)
   json.album_title @track.album_title.presence || @track.release_title.presence || @track.playlists.find { |playlist| %w[album ep single compilation].include?(playlist.playlist_type.to_s) }&.title || "Rauversion"

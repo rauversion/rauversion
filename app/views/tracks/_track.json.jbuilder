@@ -8,8 +8,8 @@ json.private track.private
 json.duration track.duration
 
 if track.mp3_audio.attached?
-  json.mp3_audio_url url_for(track.mp3_audio)
-  json.audio_url url_for(track.mp3_audio)
+  json.mp3_audio_url MediaStreamUrl.for(track.mp3_audio)
+  json.audio_url MediaStreamUrl.for(track.mp3_audio)
 end
 
 json.metadata track.metadata
@@ -31,6 +31,7 @@ json.reference_artists track.reference_artists
 json.analysis_accuracy track.analysis_accuracy
 json.tags track.tags
 json.podcast track.podcast
+json.dj_set track.dj_set
 json.created_at track.created_at
 json.updated_at track.updated_at
 json.processed  track.processed?

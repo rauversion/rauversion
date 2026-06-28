@@ -10,9 +10,12 @@ json.track do
   json.likes_count @track.likes_count
   json.reposts_count @track.reposts_count
   json.state @track.state
+  json.processing_step @track.processing_step || (@track.processed? ? "completed" : "queued")
+  json.processing_progress @track.processing_progress || (@track.processed? ? 100 : 0)
   json.genre @track.genre
   json.tags @track.tags
   json.podcast @track.podcast
+  json.dj_set @track.dj_set
   json.created_at @track.created_at
   json.updated_at @track.updated_at
   json.processed  @track.processed?
@@ -45,21 +48,21 @@ json.track do
   json.crop_data @track.crop_data
 
   if @track.audio.attached?
-    json.audio_url Rails.application.routes.url_helpers.rails_storage_proxy_url(@track.audio)
+    json.audio_url MediaStreamUrl.for(@track.audio)
   end
 
   if @track.mp3_audio.attached?
-    json.mp3_url Rails.application.routes.url_helpers.rails_storage_proxy_url(@track.mp3_audio)
+    json.mp3_url MediaStreamUrl.for(@track.mp3_audio)
   end
 
   video_media = @track.video_playback_media
   if video_media&.attached?
-    json.video_url Rails.application.routes.url_helpers.rails_storage_proxy_url(video_media)
+    json.video_url MediaStreamUrl.for(video_media)
   end
 
   playback_media = @track.playback_media
   if playback_media&.attached?
-    json.playback_url Rails.application.routes.url_helpers.rails_storage_proxy_url(playback_media)
+    json.playback_url MediaStreamUrl.for(playback_media)
   end
 
   json.has_video @track.has_video?

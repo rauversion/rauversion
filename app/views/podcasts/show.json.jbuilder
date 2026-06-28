@@ -8,7 +8,7 @@ json.updated_at @track.updated_at
 json.cover_url image_url(@track.cropped_image)
 json.image_url image_url(@track.cropped_image)
 
-json.audio_url @track.mp3_audio.url
+json.audio_url MediaStreamUrl.for(@track.mp3_audio)
 json.peaks @track.peaks
 json.duration @track.duration
 json.likes_count @track.likes_count

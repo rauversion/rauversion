@@ -542,9 +542,10 @@ module ApplicationHelper
 
   def user_menu_items
     [
-      {to: user_path(@user.username), name: "All", key: "all" },
+      {to: user_path(@user.username), name: t("profile.all"), key: "all" },
       {to: user_albums_path(@user.username), name: t("profile.albums"), key: "albums" },
       {to: user_tracks_path(@user.username), name: t("profile.tracks"), key: "tracks" },
+      {to: user_mixes_path(@user.username), name: t("profile.mixes"), key: "mixes" },
       @user&.podcaster_info&.active? ? {to: user_podcasts_path(@user.username), name: t("profile.podcasts"), key: "podcasts" } : nil,
       {to: user_playlists_path(@user.username), name: t("profile.playlists") },
       # {to: user_reposts_path(@user.username), name: t("profile.reposts"), key: "reposts" },

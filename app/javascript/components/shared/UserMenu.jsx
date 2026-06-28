@@ -7,6 +7,7 @@ import {
   SheetHeader,
   SheetTitle,
   SheetTrigger,
+  SheetClose,
 } from "@/components/ui/sheet";
 import {
   Collapsible,
@@ -102,6 +103,7 @@ ListItem.displayName = "ListItem";
 // MobileNavigation and NavSection components
 export function MobileNavigation({ currentUser, authLoading, storeNavItems, eventsNavItems, magazineNavItems, musicNavItems }) {
   const [open, setOpen] = React.useState(false);
+  const closeMenu = () => setOpen(false);
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -125,12 +127,14 @@ export function MobileNavigation({ currentUser, authLoading, storeNavItems, even
               <a
                 href="/users/sign_in"
                 className="w-full rounded-md py-2 px-3 text-sm font-medium text-default hover:bg-muted border border-default text-center"
+                onClick={closeMenu}
               >
                 {I18n.t("menu.log_in")}
               </a>
               <a
                 href="/users/sign_up"
                 className="w-full inline-flex items-center justify-center rounded-md border border-transparent bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-brand-700 text-center"
+                onClick={closeMenu}
               >
                 {I18n.t("menu.register")}
               </a>
@@ -159,15 +163,15 @@ function NavSection({ title, items }) {
           {items.map((item) => {
             const Icon = item.icon;
             return (
-              <Link
-                key={item.href}
-                to={item.href}
-                className="flex items-center gap-3 rounded-md px-3 py-2 text-sm hover:bg-muted"
-                onClick={() => setIsOpen(false)}
-              >
-                <Icon className="h-4 w-4" />
-                <span>{item.title}</span>
-              </Link>
+              <SheetClose asChild key={item.href}>
+                <Link
+                  to={item.href}
+                  className="flex items-center gap-3 rounded-md px-3 py-2 text-sm hover:bg-muted"
+                >
+                  <Icon className="h-4 w-4" />
+                  <span>{item.title}</span>
+                </Link>
+              </SheetClose>
             );
           })}
         </div>
