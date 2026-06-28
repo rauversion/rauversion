@@ -1,5 +1,8 @@
 module PaymentProviders
   class EventStripeProvider < BaseProvider
+    TAX_BEHAVIORS = %w[exclusive inclusive].freeze
+    DEFAULT_TICKET_TAX_CODE = "txcd_10000000"
+
     attr_reader :event, :purchase
 
     def initialize(event:, user:, purchase:)
@@ -34,8 +37,10 @@ module PaymentProviders
     end
 
     def build_checkout_params(connected_account_id)
-      line_items = build_line_items
-      total = calculate_total(line_items)
+      ticket_line_items = build_line_items
+      ticket_total = calculate_total(ticket_line_items)
+      service_fee_amount = calculate_fee(ticket_total)
+      line_items = ticket_line_items + build_service_fee_line_items(service_fee_amount)
 
       Rails.logger.info("Stripe Checkout Line Items: #{line_items.inspect}")
 
@@ -43,12 +48,14 @@ module PaymentProviders
         payment_method_types: ["card"],
         line_items: line_items,
         payment_intent_data: {
-          application_fee_amount: calculate_fee(total),
+          application_fee_amount: service_fee_amount,
           transfer_data: {
             destination: connected_account_id
           }
         },
+        automatic_tax: automatic_tax_options(connected_account_id),
         customer_email: user.email,
+        billing_address_collection: tax_enabled? ? "required" : "auto",
         mode: "payment",
         success_url: success_url,
         cancel_url: cancel_url,
@@ -56,6 +63,25 @@ module PaymentProviders
           source_type: "event"
         }
       }
+    end
+
+    def tax_enabled?
+      !%w[false 0 no off].include?(ENV.fetch("STRIPE_AUTOMATIC_TAX_ENABLED", "true").to_s.downcase)
+    end
+
+    def automatic_tax_options(connected_account_id)
+      enabled = tax_enabled?
+      return { enabled: enabled } unless enabled
+
+      options = { enabled: true }
+
+      if connected_account_id.present?
+        options[:liability] = {
+          type: "self"
+        }
+      end
+
+      options
     end
 
     def stripe_amount(amount, currency)
@@ -74,13 +100,50 @@ module PaymentProviders
           "price_data" => {
             "unit_amount" => stripe_amount(item_price, ticket.event.ticket_currency),
             "currency" => ticket.event.ticket_currency,
+            "tax_behavior" => ticket_tax_behavior,
             "product_data" => {
               "name" => ticket.title,
-              "description" => "#{ticket.short_description} \r for event: #{ticket.event.title}"
+              "description" => "#{ticket.short_description} \r for event: #{ticket.event.title}",
+              "tax_code" => ticket_tax_code
             }
           }
         }
       end
+    end
+
+    def build_service_fee_line_items(service_fee_amount)
+      return [] unless service_fee_amount.positive?
+
+      [
+        {
+          "quantity" => 1,
+          "price_data" => {
+            "unit_amount" => service_fee_amount,
+            "currency" => event.ticket_currency,
+            "tax_behavior" => ticket_tax_behavior,
+            "product_data" => {
+              "name" => "Cargo por servicio",
+              "description" => "Cargo de servicio de Rauversion para la compra de tickets",
+              "tax_code" => service_fee_tax_code
+            }
+          }
+        }
+      ]
+    end
+
+    def ticket_tax_behavior
+      behavior = ENV.fetch("STRIPE_TICKET_TAX_BEHAVIOR", "exclusive").to_s
+      return behavior if TAX_BEHAVIORS.include?(behavior)
+
+      "exclusive"
+    end
+
+    def ticket_tax_code
+      ENV.fetch("STRIPE_TICKET_TAX_CODE", DEFAULT_TICKET_TAX_CODE)
+    end
+
+    def service_fee_tax_code
+      ENV.fetch("STRIPE_SERVICE_FEE_TAX_CODE", DEFAULT_TICKET_TAX_CODE)
     end
 
     def calculate_total(line_items)

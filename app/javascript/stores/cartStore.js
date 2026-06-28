@@ -1,6 +1,21 @@
 import { create } from 'zustand'
 import { get as apiGet, post, destroy } from '@rails/request.js'
 import { toast } from "@/hooks/use-toast"
+import useAuthStore from '@/stores/authStore'
+import I18n from '@/stores/locales'
+
+const cartItemCount = (cart) => {
+  if (!Array.isArray(cart?.items)) return 0
+
+  return cart.items.reduce((total, item) => {
+    const quantity = Number(item?.quantity ?? item?.product?.quantity ?? 1)
+    return total + (Number.isFinite(quantity) ? quantity : 0)
+  }, 0)
+}
+
+const syncCartItemCount = (cart) => {
+  useAuthStore.getState().updateCartItemCount(cartItemCount(cart))
+}
 
 const useCartStore = create((set, get) => ({
   cart: null,
@@ -15,6 +30,7 @@ const useCartStore = create((set, get) => ({
       if (response.ok) {
         const data = await response.json
         set({ cart: data.cart, error: null })
+        syncCartItemCount(data.cart)
       } else {
         set({ error: 'Failed to fetch cart' })
         toast({
@@ -42,6 +58,7 @@ const useCartStore = create((set, get) => ({
       if (response.ok) {
         const data = await response.json
         set({ cart: data.cart, error: null, openOnAdd: true })
+        syncCartItemCount(data.cart)
         toast({
           title: "Added to Cart",
           description: I18n.t("products.cart.added")
@@ -73,6 +90,7 @@ const useCartStore = create((set, get) => ({
       if (response.ok) {
         const data = await response.json
         set({ cart: data.cart, error: null })
+        syncCartItemCount(data.cart)
         toast({
           title: "Removed from Cart",
           description: I18n.t("products.cart.removed")
