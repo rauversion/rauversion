@@ -391,7 +391,14 @@ class UsersController < ApplicationController
   end
 
   def check_user_role
+    return render_user_not_found unless @user
     return if @user.is_creator?
+    return if public_tracks_profile_action? && @user.tracks.published.exists?
+
+    render_user_not_found
+  end
+
+  def render_user_not_found
     respond_to do |format|
       format.html { 
         render inline: "", layout: "react", notice: I18n.t("users.not_found") 
@@ -400,5 +407,9 @@ class UsersController < ApplicationController
         render json: { error: I18n.t("users.not_found")}, status: :unprocessable_entity
       }
     end
+  end
+
+  def public_tracks_profile_action?
+    action_name.in?(%w[tracks mixes])
   end
 end
