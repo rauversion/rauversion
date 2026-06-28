@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import TrackPlayer from './TrackPlayer'
 import { get } from '@rails/request.js'
@@ -6,12 +6,14 @@ import { Comments } from "@/components/comments/Comments"
 import { ShareDialog } from "@/components/ui/share-dialog"
 import TrackEdit from './TrackEdit'
 import TrackSkeleton from './TrackSkeleton'
-import { Settings, Share2, Heart, Repeat, Play, Pause } from 'lucide-react'
+import { Settings, Share2, Heart, Repeat, Play, Pause, SlidersHorizontal, Loader2, AlertTriangle } from 'lucide-react'
 import { Button } from "@/components/ui/button"
+import { Progress } from "@/components/ui/progress"
 import useAuthStore from '@/stores/authStore'
 import useAudioStore from '@/stores/audioStore'
 import MusicPurchase from '@/components/shared/MusicPurchase'
 import useTrackLikeAction from "@/hooks/useTrackLikeAction"
+import { useActionCable } from "@/hooks/useActionCable"
 import { getUserDisplayName } from "@/utils/userDisplayName"
 
 function t(key, options = {}) {
@@ -52,6 +54,7 @@ export default function TrackShow() {
   const [editOpen, setEditOpen] = useState(false)
   const { currentUser } = useAuthStore()
   const { isPending: isLikePending, toggleLike } = useTrackLikeAction()
+  const { subscribe, unsubscribe } = useActionCable()
 
   const { currentTrackId, isPlaying, play, pause } = useAudioStore()
 
@@ -90,8 +93,47 @@ export default function TrackShow() {
     fetchTrack()
   }, [slug])
 
+  const handleProcessingEvent = useCallback((data) => {
+    if (data?.type !== "track_processing" || !data.track) return
+
+    setTrack((currentTrack) => {
+      if (!currentTrack || `${currentTrack.id}` !== `${data.track.id}`) {
+        return currentTrack
+      }
+
+      return { ...currentTrack, ...data.track }
+    })
+  }, [])
+
+  const processingActive =
+    Boolean(track) &&
+    !track.processed &&
+    !["failed", "source_missing"].includes(track.processing_step)
+  const ownsTrack =
+    Boolean(currentUser?.id && track?.user?.id) &&
+    `${currentUser.id}` === `${track.user.id}`
+
+  useEffect(() => {
+    if (!processingActive || !ownsTrack) return undefined
+
+    subscribe(
+      "TrackProcessingChannel",
+      { track_id: track.id },
+      { received: handleProcessingEvent }
+    )
+
+    return () => unsubscribe("TrackProcessingChannel")
+  }, [
+    handleProcessingEvent,
+    ownsTrack,
+    processingActive,
+    subscribe,
+    track?.id,
+    unsubscribe,
+  ])
+
   const handlePlay = () => {
-    if (!track?.id) return
+    if (!track?.id || !track.processed) return
 
     const trackId = `${track.id}`
     const isCurrentTrack = currentTrackId !== null && `${currentTrackId}` === trackId
@@ -136,6 +178,25 @@ export default function TrackShow() {
   }
   const likes = track.likes_count || 0
   const isLiked = Boolean(track.like_id || track.liked_by_current_user)
+  const isProcessing = !track.processed
+  const processingFailed = ["failed", "source_missing"].includes(track.processing_step)
+  const processingProgress = Math.max(
+    0,
+    Math.min(100, Number(track.processing_progress) || 0)
+  )
+  const processingStep = [
+    "queued",
+    "preparing",
+    "extracting_audio",
+    "optimizing_video",
+    "transcoding_audio",
+    "generating_waveform",
+    "completed",
+    "source_missing",
+    "failed",
+  ].includes(track.processing_step)
+    ? track.processing_step
+    : "queued"
   const shareDescription = t("share_description", {
     title: track.title,
     artist: getUserDisplayName(track.user),
@@ -174,6 +235,39 @@ export default function TrackShow() {
                     />
                   </div>
                 )}
+                {isProcessing && (
+                  <div
+                    role="status"
+                    aria-live="polite"
+                    className="flex items-start gap-4 rounded-lg border border-border bg-muted/40 p-5"
+                  >
+                    {processingFailed ? (
+                      <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
+                    ) : (
+                      <Loader2 className="mt-0.5 h-5 w-5 shrink-0 animate-spin text-primary" />
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-foreground">
+                        {t(processingFailed ? "processing_failed_title" : "processing_title")}
+                      </p>
+                      <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                        {t(processingFailed ? "processing_failed_description" : "processing_description")}
+                      </p>
+                      {ownsTrack && !processingFailed && (
+                        <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                          {t("processing_live_updates")}
+                        </p>
+                      )}
+                      <div className="mt-4 flex items-center justify-between gap-4 text-xs font-medium text-muted-foreground">
+                        <span>{t(`processing_steps.${processingStep}`)}</span>
+                        {!processingFailed && <span>{processingProgress}%</span>}
+                      </div>
+                      {!processingFailed && (
+                        <Progress value={processingProgress} className="mt-2 h-2" />
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
               <div className="order-1 w-full md:order-2 md:w-1/3">
                 <div className="relative mx-auto w-full max-w-xs md:max-w-none">
@@ -187,10 +281,15 @@ export default function TrackShow() {
                   <button
                     type="button"
                     onClick={() => handlePlay()}
-                    aria-label={isCurrentTrackPlaying ? t("pause_track") : t("play_track")}
-                    className="absolute bottom-3 left-3 z-10 inline-flex h-12 w-12 items-center justify-center rounded-full bg-black/90 text-white shadow-2xl ring-2 ring-white/80 transition-all duration-200 hover:scale-105 hover:bg-black focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-500/60 dark:bg-white/90 dark:text-black dark:ring-black/40 md:bottom-4 md:left-4 md:h-14 md:w-14"
+                    disabled={isProcessing}
+                    aria-label={isProcessing ? t(processingFailed ? "processing_failed_title" : "processing_title") : (isCurrentTrackPlaying ? t("pause_track") : t("play_track"))}
+                    className="absolute bottom-3 left-3 z-10 inline-flex h-12 w-12 items-center justify-center rounded-full bg-black/90 text-white shadow-2xl ring-2 ring-white/80 transition-all duration-200 hover:scale-105 hover:bg-black focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-brand-500/60 disabled:cursor-not-allowed disabled:opacity-80 disabled:hover:scale-100 dark:bg-white/90 dark:text-black dark:ring-black/40 md:bottom-4 md:left-4 md:h-14 md:w-14"
                   >
-                    {isCurrentTrackPlaying ? (
+                    {processingFailed ? (
+                      <AlertTriangle className="h-6 w-6 md:h-7 md:w-7" />
+                    ) : isProcessing ? (
+                      <Loader2 className="h-6 w-6 animate-spin md:h-7 md:w-7" />
+                    ) : isCurrentTrackPlaying ? (
                       <Pause className="h-6 w-6 md:h-7 md:w-7" />
                     ) : (
                       <Play className="h-6 w-6 translate-x-[1px] md:h-7 md:w-7" />
@@ -341,6 +440,15 @@ export default function TrackShow() {
             <Repeat className="h-4 w-4" />
             <span className="sr-only">{t("repost")}</span>
           </Button>
+
+          {currentUser?.id === track.user.id && currentUser?.mastering_allowed && (
+            <Button asChild variant="ghost" size="icon" className="text-muted-foreground hover:text-foreground">
+              <Link to={`/tracks/${track.slug}/masterings`}>
+                <SlidersHorizontal className="h-4 w-4" />
+                <span className="sr-only">Masterings</span>
+              </Link>
+            </Button>
+          )}
 
           {/* Edit Button */}
           {currentUser?.id === track.user.id && (

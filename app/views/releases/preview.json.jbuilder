@@ -40,7 +40,7 @@ json.playlists @release.release_playlists.order(:position) do |release_playlist|
     json.position track.position
     
     if track.audio.attached?
-      json.audio_url rails_blob_url(track.audio)
+      json.audio_url MediaStreamUrl.for(track.audio, only_path: false)
       json.waveform_url rails_blob_url(track.waveform) if track.waveform.attached?
     end
     

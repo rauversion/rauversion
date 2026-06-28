@@ -379,7 +379,7 @@ class PersonalizedHomeQuery
 
   def latest_music_tracks
     Track.published
-      .where(podcast: [false, nil])
+      .where(podcast: [false, nil], dj_set: [false, nil])
       .with_attached_cover
       .includes(
         user: { avatar_attachment: :blob },

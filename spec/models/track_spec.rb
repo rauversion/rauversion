@@ -5,6 +5,7 @@ RSpec.describe Track, type: :model do
   it { should have_many(:track_comments) }
   it { should have_many(:track_playlists) }
   it { should have_many(:playlists).through(:track_playlists) }
+  it { should have_many(:track_masters).dependent(:destroy) }
   it { should have_many(:listening_events) }
   it { should have_many(:reposts) }
   it { should have_many(:purchased_items) }
@@ -117,6 +118,59 @@ RSpec.describe Track, type: :model do
     end
   end
 
+  describe "dj set defaults" do
+    it "disables monetization and direct downloads before validation" do
+      track = FactoryBot.build(
+        :track,
+        user: user,
+        dj_set: true,
+        direct_download: true,
+        price: 10,
+        name_your_price: true
+      )
+
+      track.valid?
+
+      expect(track.direct_download).to eq(false)
+      expect(track.price).to be_nil
+      expect(track.name_your_price).to eq(false)
+    end
+
+    it "accepts DJ set audio files up to 700 MB" do
+      track = FactoryBot.build(:track, user: user, dj_set: true)
+      track.audio.attach(
+        ActiveStorage::Blob.create_before_direct_upload!(
+          filename: "long-mix.wav",
+          byte_size: 700.megabytes,
+          checksum: "checksum",
+          content_type: "audio/wav",
+          metadata: { identified: true }
+        )
+      )
+
+      track.valid?
+
+      expect(track.errors[:audio]).to be_empty
+    end
+
+    it "rejects DJ set audio files larger than 700 MB" do
+      track = FactoryBot.build(:track, user: user, dj_set: true)
+      track.audio.attach(
+        ActiveStorage::Blob.create_before_direct_upload!(
+          filename: "oversized-mix.wav",
+          byte_size: 700.megabytes + 1,
+          checksum: "checksum",
+          content_type: "audio/wav",
+          metadata: { identified: true }
+        )
+      )
+
+      track.valid?
+
+      expect(track.errors.added?(:audio, :max_size_error, max_size: "700 MB")).to eq(true)
+    end
+  end
+
   describe "audio" do
     xit "can be created with an audio file" do
       audio = Rack::Test::UploadedFile.new(Rails.root.join("spec", "fixtures", "audio.mp3"), "audio/mp3")
@@ -225,7 +279,13 @@ RSpec.describe Track, type: :model do
     end
 
     it "extracts wav, web video and mp3 assets and marks the track as processed" do
-      track.reprocess!
+      progress_events = []
+
+      track.reprocess!(
+        on_progress: ->(step:, progress:) {
+          progress_events << { step: step, progress: progress }
+        }
+      )
 
       expect(track.audio).to be_attached
       expect(track.video_web).to be_attached
@@ -237,6 +297,14 @@ RSpec.describe Track, type: :model do
       expect(track.playback_media).to eq(track.mp3_audio)
       expect(track.downloadable_media).to eq(track.audio)
       expect(track.duration).to be_nil
+      expect(progress_events).to eq(
+        [
+          { step: "extracting_audio", progress: 20 },
+          { step: "optimizing_video", progress: 40 },
+          { step: "transcoding_audio", progress: 65 },
+          { step: "generating_waveform", progress: 85 }
+        ]
+      )
     end
   end
 

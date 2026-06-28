@@ -45,12 +45,29 @@ RSpec.describe "Tracks", type: :request do
         analysis_accuracy: 0.95
       )
     end
+    let!(:dj_set_track) do
+      create(
+        :track,
+        user: artist,
+        title: "Warehouse Broadcast",
+        genre: "House",
+        bpm: 124,
+        mood: ["Warm"],
+        subgenres: ["Deep House"],
+        language: "es",
+        instrumental: false,
+        analysis_accuracy: 0.89,
+        tags: ["mix", "club"],
+        dj_set: true
+      )
+    end
 
     before do
       attach_image(artist, :avatar)
       attach_image(techno_track, :cover)
       attach_image(ambient_track, :cover)
       attach_image(private_track, :cover)
+      attach_image(dj_set_track, :cover)
     end
 
     it "returns facets and grouped discovery shelves for public tracks" do
@@ -69,7 +86,25 @@ RSpec.describe "Tracks", type: :request do
         include("value" => "Techno", "tracks" => include(include("title" => "Night Pulse")))
       )
       expect(payload.fetch("tracks")).to all(include("bpm"))
+      expect(payload.fetch("tracks").map { |track| track["title"] }).not_to include("Warehouse Broadcast")
       expect(payload.dig("meta", "total_count")).to eq(2)
+    end
+
+    it "serves DJ sets separately and filters them by tag" do
+      get dj_sets_path(format: :json, tag: "mix")
+
+      expect(response).to have_http_status(:ok)
+
+      payload = JSON.parse(response.body)
+
+      expect(payload.fetch("tracks").map { |track| track["title"] }).to eq(["Warehouse Broadcast"])
+      expect(payload.fetch("tracks").first).to include("dj_set" => true)
+      expect(payload.dig("facets", "tags")).to include(
+        include("value" => "mix", "count" => 1),
+        include("value" => "club", "count" => 1)
+      )
+      expect(payload.fetch("active_filters")).to include("tag" => "mix")
+      expect(payload.dig("meta", "total_count")).to eq(1)
     end
 
     it "filters by metadata facets" do
@@ -188,6 +223,40 @@ RSpec.describe "Tracks", type: :request do
       expect(playlist.tracks.order("track_playlists.position").pluck(:title)).to eq(
         ["First track", "Second track"]
       )
+    end
+
+    it "creates DJ sets from the React uploader attributes" do
+      blob = audio_blob(filename: "mix.wav")
+
+      sign_in artist
+
+      expect do
+        post tracks_path(format: :json),
+          params: {
+            track_form: {
+              step: "info",
+              tracks_attributes: [
+                {
+                  audio: blob.signed_id,
+                  title: "Late Night Mix",
+                  private: false,
+                  dj_set: true,
+                  podcast: false
+                }
+              ]
+            }
+          },
+          as: :json
+      end.to change(Track, :count).by(1)
+
+      expect(response).to have_http_status(:ok)
+
+      track = Track.last
+      expect(track.title).to eq("Late Night Mix")
+      expect(track).to be_dj_set
+      expect(track.direct_download).to eq(false)
+      expect(track.price).to be_nil
+      expect(track.name_your_price).to eq(false)
     end
 
     def audio_blob(filename:)
@@ -313,6 +382,12 @@ RSpec.describe "Tracks", type: :request do
       expect(payload["audio_url"]).to be_present
       expect(payload["mp3_url"]).to be_present
       expect(payload["playback_url"]).to eq(payload["mp3_url"])
+      expect(payload["playback_url"]).to include("/rails/active_storage/blobs/redirect/")
+      expect(payload["playback_url"]).to include("disposition=inline")
+      expect(payload).to include(
+        "processing_step" => "queued",
+        "processing_progress" => 0
+      )
     end
 
     def attach_image(record, attachment_name)

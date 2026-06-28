@@ -1,4 +1,4 @@
-import React, { startTransition, useEffect, useRef, useState } from "react";
+import React, { startTransition, useCallback, useEffect, useRef, useState } from "react";
 import { get } from "@rails/request.js";
 import { Link, useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -10,6 +10,7 @@ import {
   Search,
   SlidersHorizontal,
   Sparkles,
+  Tags,
   Waves,
 } from "lucide-react";
 import FeaturedArtists from "../home/FeaturedArtists";
@@ -20,6 +21,13 @@ import { Skeleton } from "../ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import I18n from "@/stores/locales";
 import useAudioStore from "@/stores/audioStore";
@@ -39,8 +47,14 @@ const EMPTY_SECTIONS = {
   moods: { title: "", items: [] },
 };
 
-function t(key, options = {}) {
+function defaultDiscoveryT(key, options = {}) {
   return I18n.t(`tracks.discovery.${key}`, options);
+}
+
+const DiscoveryCopyContext = React.createContext(defaultDiscoveryT);
+
+function useDiscoveryTranslation() {
+  return React.useContext(DiscoveryCopyContext);
 }
 
 const SORT_OPTIONS = [
@@ -53,6 +67,7 @@ const SORT_OPTIONS = [
 ];
 
 const RANDOM_SORT = "random";
+const MISSING_TRANSLATION = "__rauversion_missing_translation__";
 
 function buildRandomSeed() {
   return Math.random().toString(36).slice(2, 10);
@@ -147,12 +162,12 @@ function ActiveFilterBadge({ label, value, onClear }) {
   );
 }
 
-function activeFilterLabel(key) {
+function activeFilterLabel(key, t) {
   const translationKey = ACTIVE_FILTER_LABEL_KEYS[key];
   return translationKey ? t(translationKey) : key.replaceAll("_", " ");
 }
 
-function activeFilterValue(key, value, facets) {
+function activeFilterValue(key, value, facets, t) {
   if (key === "vocal_mode") {
     const option = VOCAL_MODES.find((item) => item.value === value);
     return option ? t(option.labelKey) : value;
@@ -165,7 +180,7 @@ function activeFilterValue(key, value, facets) {
   return value;
 }
 
-function buildTrackSummary(track) {
+function buildTrackSummary(track, t) {
   if (track.description) return truncate(track.description, 108);
 
   const parts = [];
@@ -196,6 +211,7 @@ function buildTrackSummary(track) {
 }
 
 function DiscoveryTrackCard({ track, onBeforePlay = null }) {
+  const t = useDiscoveryTranslation();
   const { play, pause, currentTrackId, isPlaying } = useAudioStore();
   const mood = track.mood?.[0];
   const subgenres = Array.isArray(track.subgenres) ? track.subgenres.slice(0, 2) : [];
@@ -253,7 +269,7 @@ function DiscoveryTrackCard({ track, onBeforePlay = null }) {
       <Link to={`/tracks/${track.slug}`} className="block">
         <div className="space-y-3 p-4">
           <p className="line-clamp-2 text-sm text-muted-foreground dark:text-white/65">
-            {buildTrackSummary(track)}
+            {buildTrackSummary(track, t)}
           </p>
 
           <div className="flex flex-wrap gap-2">
@@ -283,6 +299,8 @@ function DiscoveryTrackCard({ track, onBeforePlay = null }) {
 }
 
 function DiscoveryShelf({ section, filterKey, activeValue, onSelect, onPrepareQueue }) {
+  const t = useDiscoveryTranslation();
+
   if (!section?.items?.length) return null;
 
   return (
@@ -339,8 +357,172 @@ function DiscoveryShelf({ section, filterKey, activeValue, onSelect, onPrepareQu
   );
 }
 
-export default function TracksIndex() {
+function DiscoveryFilters({
+  t,
+  facets,
+  activeFilters,
+  setFilter,
+  toggleFilter,
+  clearFilters,
+  hasActiveFilters,
+}) {
+  return (
+    <div className="space-y-8">
+      <div className="flex flex-wrap gap-3">
+        <select
+          value={activeFilters.vocal_mode || ""}
+          onChange={(event) => setFilter("vocal_mode", event.target.value)}
+          className="h-11 rounded-full border border-border bg-card px-4 text-sm text-foreground outline-none dark:border-white/10 dark:bg-white/5 dark:text-white"
+        >
+          {VOCAL_MODES.map((option) => (
+            <option key={option.value || "all"} value={option.value} className="bg-white text-slate-900 dark:bg-black dark:text-white">
+              {t(option.labelKey)}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={activeFilters.language || ""}
+          onChange={(event) => setFilter("language", event.target.value)}
+          className="h-11 rounded-full border border-border bg-card px-4 text-sm text-foreground outline-none dark:border-white/10 dark:bg-white/5 dark:text-white"
+        >
+          <option value="" className="bg-white text-slate-900 dark:bg-black dark:text-white">
+            {t("filters.any_language")}
+          </option>
+          {facets.languages.map((language) => (
+            <option key={language.value} value={language.value} className="bg-white text-slate-900 dark:bg-black dark:text-white">
+              {language.value} ({language.count})
+            </option>
+          ))}
+        </select>
+
+        {hasActiveFilters ? (
+          <Button
+            variant="outline"
+            className="h-11 rounded-full border-border bg-transparent text-foreground hover:bg-muted hover:text-foreground dark:border-white/15 dark:text-white dark:hover:bg-white dark:hover:text-black"
+            onClick={clearFilters}
+          >
+            {t("filters.reset_all")}
+          </Button>
+        ) : null}
+      </div>
+
+      <div>
+        <div className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground dark:text-white/65">
+          <Disc3 className="h-4 w-4 text-[#f5c451]" />
+          {t("filters.genre")}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {facets.genres.map((genre) => (
+            <FilterPill
+              key={genre.value}
+              active={activeFilters.genre === genre.value}
+              count={genre.count}
+              onClick={() => toggleFilter("genre", genre.value)}
+            >
+              {genre.value}
+            </FilterPill>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <div className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground dark:text-white/65">
+          <Sparkles className="h-4 w-4 text-[#f5c451]" />
+          {t("filters.mood")}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {facets.moods.map((mood) => (
+            <FilterPill
+              key={mood.value}
+              active={activeFilters.mood === mood.value}
+              count={mood.count}
+              onClick={() => toggleFilter("mood", mood.value)}
+            >
+              {mood.value}
+            </FilterPill>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <div className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground dark:text-white/65">
+          <Waves className="h-4 w-4 text-[#f5c451]" />
+          {t("filters.tempo")}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {facets.tempo_bands.map((band) => (
+            <FilterPill
+              key={band.key}
+              active={activeFilters.tempo_band === band.key}
+              count={band.count}
+              onClick={() => toggleFilter("tempo_band", band.key)}
+            >
+              {band.label}
+            </FilterPill>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <div className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground dark:text-white/65">
+          <SlidersHorizontal className="h-4 w-4 text-[#f5c451]" />
+          {t("filters.subgenre")}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {facets.subgenres.map((subgenre) => (
+            <FilterPill
+              key={subgenre.value}
+              active={activeFilters.subgenre === subgenre.value}
+              count={subgenre.count}
+              onClick={() => toggleFilter("subgenre", subgenre.value)}
+            >
+              {subgenre.value}
+            </FilterPill>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <div className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground dark:text-white/65">
+          <Tags className="h-4 w-4 text-[#f5c451]" />
+          {t("filters.tags")}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {facets.tags.map((tag) => (
+            <FilterPill
+              key={tag.value}
+              active={activeFilters.tag === tag.value}
+              count={tag.count}
+              onClick={() => toggleFilter("tag", tag.value)}
+            >
+              {tag.value}
+            </FilterPill>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export default function TracksIndex({ mode = "tracks", endpoint = "/tracks.json", showSupplemental = true }) {
   const [searchParams, setSearchParams] = useSearchParams();
+  const translationScope = mode === "dj_sets" ? "tracks.dj_sets.discovery" : "tracks.discovery";
+  const t = useCallback(
+    (key, options = {}) => {
+      const scopedTranslation = I18n.t(`${translationScope}.${key}`, {
+        ...options,
+        defaultValue: MISSING_TRANSLATION,
+      });
+
+      if (scopedTranslation !== MISSING_TRANSLATION) {
+        return scopedTranslation;
+      }
+
+      return I18n.t(`tracks.discovery.${key}`, options);
+    },
+    [translationScope]
+  );
   const [tracks, setTracks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -361,9 +543,10 @@ export default function TracksIndex() {
   const requestKey = searchParams.toString();
   const currentPage = Number(searchParams.get("page") || 1);
   const resultQueueTrackIds = tracks.map((track) => track.id);
-  const hasActiveFilters = Object.entries(activeFilters || {}).some(
+  const activeFilterEntries = Object.entries(activeFilters || {}).filter(
     ([key, value]) => key !== "sort" && value !== null && value !== undefined && value !== ""
   );
+  const hasActiveFilters = activeFilterEntries.length > 0;
 
   useEffect(() => {
     setDraftQuery(searchParams.get("q") || "");
@@ -390,7 +573,7 @@ export default function TracksIndex() {
     const fetchTracks = async () => {
       try {
         const query = searchParams.toString();
-        const url = query ? `/tracks.json?${query}` : "/tracks.json";
+        const url = query ? `${endpoint}?${query}` : endpoint;
         const response = await get(url);
 
         if (!response.ok || cancelled) return;
@@ -424,7 +607,7 @@ export default function TracksIndex() {
     return () => {
       cancelled = true;
     };
-  }, [requestKey, searchParams]);
+  }, [endpoint, requestKey, searchParams]);
 
   const updateSearchParams = (updater) => {
     const next = new URLSearchParams(searchParams);
@@ -490,7 +673,8 @@ export default function TracksIndex() {
   if (loading) return <LoadingSkeleton />;
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <DiscoveryCopyContext.Provider value={t}>
+      <div className="min-h-screen bg-background text-foreground">
       <section className="relative overflow-hidden border-b border-border dark:border-white/10">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(245,196,81,0.16),_transparent_35%),radial-gradient(circle_at_80%_20%,_rgba(59,130,246,0.10),_transparent_28%),linear-gradient(180deg,_rgba(15,23,42,0.04),_transparent_70%)] dark:bg-[radial-gradient(circle_at_top_left,_rgba(245,196,81,0.20),_transparent_35%),radial-gradient(circle_at_80%_20%,_rgba(59,130,246,0.18),_transparent_28%),linear-gradient(180deg,_rgba(255,255,255,0.04),_transparent_70%)]" />
         <div className="relative mx-auto max-w-7xl px-4 py-12 sm:px-8 md:py-20">
@@ -575,7 +759,7 @@ export default function TracksIndex() {
               transition={{ delay: 0.08 }}
               className="overflow-hidden rounded-[32px] border border-border bg-card dark:border-white/10 dark:bg-[#0b0b0e]"
             >
-              {highlightedPlaylist ? (
+              {highlightedPlaylist && showSupplemental ? (
                 <Link to={`/playlists/${highlightedPlaylist.slug}`} className="block h-full">
                   <div className="relative h-full min-h-[320px]">
                     <img
@@ -633,47 +817,57 @@ export default function TracksIndex() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-4 py-8 sm:px-8 md:py-10">
-        <div className="rounded-[32px] border border-border bg-card/90 p-6 md:p-8 dark:border-white/10 dark:bg-[#09090b]">
+      <section className="mx-auto max-w-7xl px-4 py-6 sm:px-8 md:py-8">
+        <div className="rounded-[28px] border border-border bg-card/90 p-4 dark:border-white/10 dark:bg-[#09090b]">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
               <p className="text-xs uppercase tracking-[0.28em] text-[#f5c451]">{t("filters.eyebrow")}</p>
-              <h2 className="mt-2 text-2xl font-black tracking-tight text-foreground dark:text-white md:text-3xl">
+              <h2 className="mt-1 text-lg font-bold tracking-tight text-foreground dark:text-white md:text-xl">
                 {t("filters.title")}
               </h2>
             </div>
-            <div className="flex flex-wrap gap-3">
-              <select
-                value={activeFilters.vocal_mode || ""}
-                onChange={(event) => setFilter("vocal_mode", event.target.value)}
-                className="h-11 rounded-full border border-border bg-card px-4 text-sm text-foreground outline-none dark:border-white/10 dark:bg-white/5 dark:text-white"
-              >
-                {VOCAL_MODES.map((option) => (
-                  <option key={option.value || "all"} value={option.value} className="bg-white text-slate-900 dark:bg-black dark:text-white">
-                    {t(option.labelKey)}
-                  </option>
-                ))}
-              </select>
 
-              <select
-                value={activeFilters.language || ""}
-                onChange={(event) => setFilter("language", event.target.value)}
-                className="h-11 rounded-full border border-border bg-card px-4 text-sm text-foreground outline-none dark:border-white/10 dark:bg-white/5 dark:text-white"
-              >
-                <option value="" className="bg-white text-slate-900 dark:bg-black dark:text-white">
-                  {t("filters.any_language")}
-                </option>
-                {facets.languages.map((language) => (
-                  <option key={language.value} value={language.value} className="bg-white text-slate-900 dark:bg-black dark:text-white">
-                    {language.value} ({language.count})
-                  </option>
-                ))}
-              </select>
+            <div className="flex flex-wrap items-center gap-3">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="h-11 rounded-full border-border bg-transparent text-foreground hover:bg-muted hover:text-foreground dark:border-white/15 dark:text-white dark:hover:bg-white dark:hover:text-black"
+                  >
+                    <SlidersHorizontal className="mr-2 h-4 w-4" />
+                    {t("filters.eyebrow")}
+                    {activeFilterEntries.length > 0 ? (
+                      <span className="ml-2 rounded-full bg-[#f5c451] px-2 py-0.5 text-xs font-semibold text-black">
+                        {activeFilterEntries.length}
+                      </span>
+                    ) : null}
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-[92vw] overflow-y-auto p-0 sm:max-w-xl">
+                  <SheetHeader className="border-b border-border p-6 text-left dark:border-white/10">
+                    <p className="text-xs uppercase tracking-[0.28em] text-[#f5c451]">{t("filters.eyebrow")}</p>
+                    <SheetTitle className="text-2xl font-black tracking-tight">
+                      {t("filters.title")}
+                    </SheetTitle>
+                  </SheetHeader>
+                  <div className="p-6">
+                    <DiscoveryFilters
+                      t={t}
+                      facets={facets}
+                      activeFilters={activeFilters}
+                      setFilter={setFilter}
+                      toggleFilter={toggleFilter}
+                      clearFilters={clearFilters}
+                      hasActiveFilters={hasActiveFilters}
+                    />
+                  </div>
+                </SheetContent>
+              </Sheet>
 
               {hasActiveFilters ? (
                 <Button
-                  variant="outline"
-                  className="h-11 rounded-full border-border bg-transparent text-foreground hover:bg-muted hover:text-foreground dark:border-white/15 dark:text-white dark:hover:bg-white dark:hover:text-black"
+                  variant="ghost"
+                  className="h-11 rounded-full text-muted-foreground hover:bg-muted hover:text-foreground dark:text-white/70 dark:hover:bg-white/10 dark:hover:text-white"
                   onClick={clearFilters}
                 >
                   {t("filters.reset_all")}
@@ -682,83 +876,18 @@ export default function TracksIndex() {
             </div>
           </div>
 
-          <div className="mt-8 space-y-6">
-            <div>
-              <div className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground dark:text-white/65">
-                <Disc3 className="h-4 w-4 text-[#f5c451]" />
-                {t("filters.genre")}
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {facets.genres.map((genre) => (
-                  <FilterPill
-                    key={genre.value}
-                    active={activeFilters.genre === genre.value}
-                    count={genre.count}
-                    onClick={() => toggleFilter("genre", genre.value)}
-                  >
-                    {genre.value}
-                  </FilterPill>
-                ))}
-              </div>
+          {hasActiveFilters ? (
+            <div className="mt-4 flex flex-wrap gap-2">
+              {activeFilterEntries.map(([key, value]) => (
+                <ActiveFilterBadge
+                  key={key}
+                  label={activeFilterLabel(key, t)}
+                  value={activeFilterValue(key, value, facets, t)}
+                  onClear={() => setFilter(key, "")}
+                />
+              ))}
             </div>
-
-            <div>
-              <div className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground dark:text-white/65">
-                <Sparkles className="h-4 w-4 text-[#f5c451]" />
-                {t("filters.mood")}
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {facets.moods.map((mood) => (
-                  <FilterPill
-                    key={mood.value}
-                    active={activeFilters.mood === mood.value}
-                    count={mood.count}
-                    onClick={() => toggleFilter("mood", mood.value)}
-                  >
-                    {mood.value}
-                  </FilterPill>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <div className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground dark:text-white/65">
-                <Waves className="h-4 w-4 text-[#f5c451]" />
-                {t("filters.tempo")}
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {facets.tempo_bands.map((band) => (
-                  <FilterPill
-                    key={band.key}
-                    active={activeFilters.tempo_band === band.key}
-                    count={band.count}
-                    onClick={() => toggleFilter("tempo_band", band.key)}
-                  >
-                    {band.label}
-                  </FilterPill>
-                ))}
-              </div>
-            </div>
-
-            <div>
-              <div className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground dark:text-white/65">
-                <SlidersHorizontal className="h-4 w-4 text-[#f5c451]" />
-                {t("filters.subgenre")}
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {facets.subgenres.map((subgenre) => (
-                  <FilterPill
-                    key={subgenre.value}
-                    active={activeFilters.subgenre === subgenre.value}
-                    count={subgenre.count}
-                    onClick={() => toggleFilter("subgenre", subgenre.value)}
-                  >
-                    {subgenre.value}
-                  </FilterPill>
-                ))}
-              </div>
-            </div>
-          </div>
+          ) : null}
         </div>
       </section>
 
@@ -798,21 +927,6 @@ export default function TracksIndex() {
               {t("results.summary", { count: meta.total_count || 0 })}
             </p>
           </div>
-
-          {hasActiveFilters ? (
-            <div className="flex flex-wrap gap-2">
-              {Object.entries(activeFilters)
-                .filter(([key, value]) => key !== "sort" && value)
-                .map(([key, value]) => (
-                  <ActiveFilterBadge
-                    key={key}
-                    label={activeFilterLabel(key)}
-                    value={activeFilterValue(key, value, facets)}
-                    onClear={() => setFilter(key, "")}
-                  />
-                ))}
-            </div>
-          ) : null}
         </div>
 
         {tracks.length ? (
@@ -862,45 +976,50 @@ export default function TracksIndex() {
         )}
       </section>
 
-      <FeaturedArtists artists={artists} />
+      {showSupplemental ? (
+        <>
+          <FeaturedArtists artists={artists} />
 
-      <CuratedPlaylists
-        playlists={featuredAlbums}
-        title={t("featured_albums.title")}
-        subtitle={t("featured_albums.subtitle")}
-      />
+          <CuratedPlaylists
+            playlists={featuredAlbums}
+            title={t("featured_albums.title")}
+            subtitle={t("featured_albums.subtitle")}
+          />
 
-      <CuratedPlaylists
-        playlists={curatedPlaylists}
-        title={t("curated_playlists.title")}
-        subtitle={t("curated_playlists.subtitle")}
-      />
+          <CuratedPlaylists
+            playlists={curatedPlaylists}
+            title={t("curated_playlists.title")}
+            subtitle={t("curated_playlists.subtitle")}
+          />
 
-      <section className="bg-muted/40 px-4 py-16 sm:px-8 md:py-24 dark:bg-white/[0.03]">
-        <div className="mx-auto max-w-7xl">
-          <div className="mb-12 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="text-xs uppercase tracking-[0.28em] text-[#f5c451]">{t("labels.eyebrow")}</p>
-              <h2 className="mt-2 text-4xl font-black tracking-tight text-foreground dark:text-white">{t("labels.title")}</h2>
+          <section className="bg-muted/40 px-4 py-16 sm:px-8 md:py-24 dark:bg-white/[0.03]">
+            <div className="mx-auto max-w-7xl">
+              <div className="mb-12 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+                <div>
+                  <p className="text-xs uppercase tracking-[0.28em] text-[#f5c451]">{t("labels.eyebrow")}</p>
+                  <h2 className="mt-2 text-4xl font-black tracking-tight text-foreground dark:text-white">{t("labels.title")}</h2>
+                </div>
+                <p className="max-w-xl text-sm text-muted-foreground dark:text-white/55">
+                  {t("labels.subtitle")}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-6 md:grid-cols-4 lg:grid-cols-6">
+                {labels.map((label) => (
+                  <Link
+                    key={label.id}
+                    to={`/${label.username}`}
+                    className="block transition-transform hover:scale-[1.02]"
+                  >
+                    <LabelCard label={label} />
+                  </Link>
+                ))}
+              </div>
             </div>
-            <p className="max-w-xl text-sm text-muted-foreground dark:text-white/55">
-              {t("labels.subtitle")}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-6 md:grid-cols-4 lg:grid-cols-6">
-            {labels.map((label) => (
-              <Link
-                key={label.id}
-                to={`/${label.username}`}
-                className="block transition-transform hover:scale-[1.02]"
-              >
-                <LabelCard label={label} />
-              </Link>
-            ))}
-          </div>
-        </div>
-      </section>
-    </div>
+          </section>
+        </>
+      ) : null}
+      </div>
+    </DiscoveryCopyContext.Provider>
   );
 }

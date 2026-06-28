@@ -11,6 +11,7 @@ if current_user
     json.is_creator current_user.is_creator?
     json.can_sell_products current_user.can_sell_products?
     json.can_send_newsletter current_user.can_access_newsletter?
+    json.mastering_allowed current_user.can_access_mastering?
     json.newsletter_broadcast_recipient_limit current_user.newsletter_broadcast_recipient_limit
     json.editor current_user.is_publisher?
     json.unread_messages_count current_user.unread_messages_count

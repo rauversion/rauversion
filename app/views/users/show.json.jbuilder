@@ -23,7 +23,8 @@ json.user do
   json.stats do
     json.followers_count @user.followees(User).count
     json.following_count @user.followers(User).count
-    json.tracks_count @user.tracks.size
+    json.tracks_count @user.tracks.without_dj_sets.count
+    json.mixes_count @user.tracks.dj_sets.count
   end
 
   json.menu_items user_menu_items()

@@ -1,15 +1,15 @@
 class TrackPurchasesController < ApplicationController
   before_action :authenticate_user!
+  before_action :set_track
+  before_action :ensure_track_is_monetizable!, only: [:new, :create]
 
   def new
-    @track = Track.friendly.find(params[:track_id])
     @payment = Payment.new
     @payment.assign_attributes(initial_price: @track.price)
     @purchase = current_user.purchases.new
   end
 
   def create
-    @track = Track.friendly.find(params[:track_id])
     @payment = Payment.new
     @payment.assign_attributes(build_params)
 
@@ -35,6 +35,19 @@ class TrackPurchasesController < ApplicationController
   end
 
   private
+
+  def set_track
+    @track = Track.friendly.find(params[:track_id])
+  end
+
+  def ensure_track_is_monetizable!
+    return unless @track.dj_set?
+
+    respond_to do |format|
+      format.html { redirect_to @track, alert: I18n.t("tracks.dj_sets.purchase_disabled") }
+      format.json { render json: { error: I18n.t("tracks.dj_sets.purchase_disabled") }, status: :unprocessable_entity }
+    end
+  end
 
   def payment_provider
     provider = params[:provider] || ENV['DEFAULT_PAYMENT_GATEWAY'] || 'stripe'

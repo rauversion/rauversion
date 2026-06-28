@@ -364,11 +364,19 @@ Rails.application.routes.draw do
     end
   end
 
+  get "/dj-sets", to: "tracks#dj_sets", as: :dj_sets
+
   get "/tracks/genre/:tag", to: "tags#index", as: :track_tag
 
   resources :tracks do
     collection do
       get :by_id
+    end
+    resources :masterings, controller: "track_masterings", only: [:index, :new, :create, :show, :destroy] do
+      member do
+        get :download
+        post :retry
+      end
     end
     resource :events, only: :show, controller: "tracking_events"
     resource :reposts
@@ -541,6 +549,7 @@ Rails.application.routes.draw do
       get "followees", to: "user_follows#followees"
       get "/tracks", to: "users#tracks"
       get "/tracks/search", to: "users#search_tracks"
+      get "/mixes", to: "users#mixes"
       get "/playlists", to: "users#playlists"
       get "/all_playlists", to: "users#all_playlists"
       get "/playlists_filter", to: "users#playlists_filter"

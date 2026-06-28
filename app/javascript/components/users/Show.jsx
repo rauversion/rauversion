@@ -185,6 +185,14 @@ export default function UserShow() {
                   </div>
                   <div>
                     <span className="font-medium text-white">
+                      {user.stats.mixes_count || 0}
+                    </span>
+                    <span className="text-muted-foreground ml-1">
+                      {I18n.t("profile.mixes").toLowerCase()}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="font-medium text-white">
                       {user.stats.followers_count}
                     </span>
                     <span className="text-muted-foreground ml-1">

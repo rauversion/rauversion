@@ -57,12 +57,13 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
   const [videoUploadProgress, setVideoUploadProgress] = useState(0)
   const [queuedVideoName, setQueuedVideoName] = useState("")
 
-  const { control, handleSubmit, setValue, watch, form } = useForm({
+  const { control, handleSubmit, setValue, watch } = useForm({
     defaultValues: {
       title: track.title || "",
       description: track.description || "",
       private: track.private || false,
       podcast: track.podcast || false,
+      dj_set: track.dj_set || false,
       genre: track.genre || "",
       contains_music: track.contains_music || "",
       artist: track.artist || "",
@@ -93,6 +94,15 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
       artist_ids: track.artists || [],
     }
   })
+  const isDjSet = watch("dj_set")
+
+  useEffect(() => {
+    if (!isDjSet) return
+
+    setValue("direct_download", false)
+    setValue("price", "")
+    setValue("name_your_price", false)
+  }, [isDjSet, setValue])
 
   const fetchTrack = async () => {
     setLoading(true)
@@ -191,7 +201,7 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
       console.error("Video upload error:", error)
       setQueuedVideoName("")
       toast({
-        title: "Error",
+        title: I18n.t("tracks.edit.messages.error_title"),
         description: I18n.t("tracks.edit.messages.video_upload_error"),
         variant: "destructive",
       })
@@ -214,6 +224,11 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
       if (payload.artist_ids && Array.isArray(payload.artist_ids)) {
         payload.artist_ids = payload.artist_ids.map(a => a.id)
       }
+      if (payload.dj_set) {
+        payload.direct_download = false
+        payload.price = null
+        payload.name_your_price = false
+      }
 
       const response = await put(`/tracks/${track.slug}`, {
         body: JSON.stringify({ track: payload }),
@@ -222,7 +237,7 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
 
       if (response.ok) {
         toast({
-          title: "Success",
+          title: I18n.t("tracks.edit.messages.success_title"),
           description: I18n.t('tracks.edit.messages.update_success')
         })
         onOpenChange(false)
@@ -230,14 +245,14 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
       } else {
         const error = await response.json
         toast({
-          title: "Error",
+          title: I18n.t("tracks.edit.messages.error_title"),
           description: error.message || I18n.t('tracks.edit.messages.update_error'),
           variant: "destructive"
         })
       }
     } catch (error) {
       toast({
-        title: "Error",
+        title: I18n.t("tracks.edit.messages.error_title"),
         description: I18n.t('tracks.edit.messages.update_error'),
         variant: "destructive"
       })
@@ -256,7 +271,7 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
 
       if (response.ok) {
         toast({
-          title: "Success",
+          title: I18n.t("tracks.edit.messages.success_title"),
           description: I18n.t('tracks.edit.messages.delete_success')
         })
         onOpenChange(false)
@@ -264,14 +279,14 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
       } else {
         const error = await response.json
         toast({
-          title: "Error",
+          title: I18n.t("tracks.edit.messages.error_title"),
           description: error.message || I18n.t('tracks.edit.messages.delete_error'),
           variant: "destructive"
         })
       }
     } catch (error) {
       toast({
-        title: "Error",
+        title: I18n.t("tracks.edit.messages.error_title"),
         description: I18n.t('tracks.edit.messages.delete_error'),
         variant: "destructive"
       })
@@ -458,6 +473,29 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
                         />
                         <Label htmlFor="podcast">{I18n.t('tracks.edit.form.podcast')}</Label>
                       </div>
+
+                      <div className="space-y-3 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
+                        <div className="flex items-center space-x-2">
+                          <Controller
+                            name="dj_set"
+                            control={control}
+                            render={({ field }) => (
+                              <Switch
+                                {...field}
+                                checked={field.value}
+                                onCheckedChange={field.onChange}
+                              />
+                            )}
+                          />
+                          <Label htmlFor="dj_set">{I18n.t('tracks.edit.form.dj_set')}</Label>
+                        </div>
+                        {isDjSet && (
+                          <div className="space-y-2 text-sm text-muted-foreground">
+                            <p>{I18n.t('tracks.edit.form.dj_set_policy_body')}</p>
+                            <p>{I18n.t('tracks.edit.form.dj_set_policy_removal')}</p>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </TabsContent>
@@ -467,11 +505,20 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
                 </TabsContent>
 
                 <TabsContent value="pricing" className="p-6">
-                  <PricingForm control={control} form={form} />
+                  <PricingForm
+                    control={control}
+                    disabled={isDjSet}
+                    disabledMessage={I18n.t('tracks.edit.form.dj_set_pricing_disabled')}
+                  />
                 </TabsContent>
 
                 <TabsContent value="permissions" className="p-6">
-                  <PermissionsForm control={control} watch={watch} />
+                  <PermissionsForm
+                    control={control}
+                    watch={watch}
+                    disabledPermissions={isDjSet ? ["direct_download"] : []}
+                    disabledPermissionHint={I18n.t('tracks.edit.form.dj_set_download_disabled')}
+                  />
                 </TabsContent>
 
                 <TabsContent value="share" className="p-6">

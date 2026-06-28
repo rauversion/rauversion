@@ -7,6 +7,7 @@ RSpec.describe "Api::V1::Me", type: :request do
         :user,
         confirmed_at: Time.current,
         can_send_newsletter: true,
+        mastering_allowed: true,
         newsletter_broadcast_recipient_limit: 250
       )
 
@@ -19,6 +20,7 @@ RSpec.describe "Api::V1::Me", type: :request do
       payload = JSON.parse(response.body)
 
       expect(payload.dig("current_user", "can_send_newsletter")).to eq(true)
+      expect(payload.dig("current_user", "mastering_allowed")).to eq(true)
       expect(payload.dig("current_user", "newsletter_broadcast_recipient_limit")).to eq(250)
     end
 

@@ -18,6 +18,7 @@ import ForgotPassword from './auth/ForgotPassword'
 import EditPassword from './auth/EditPassword'
 import AcceptInvitation from './users/AcceptInvitation'
 import TrackShow from './tracks/Show'
+import TrackMastering from './tracks/TrackMastering'
 import TracksIndex from './tracks/Index'
 import Home from './home/Index'
 import PlaylistsIndex from './playlists/Index'
@@ -161,6 +162,25 @@ function RequireNewsletterAccess({ children }) {
   }
 
   if (!currentUser.can_send_newsletter) {
+    return <Navigate to="/" replace />
+  }
+
+  return children
+}
+
+function RequireMasteringAccess({ children }) {
+  const { currentUser, loading: currentUserLoading } = useAuthStore()
+  const location = useLocation()
+
+  if (currentUserLoading) {
+    return <LoadingSpinner />
+  }
+
+  if (!currentUser) {
+    return <Navigate to="/users/sign_in" state={{ from: location }} replace />
+  }
+
+  if (!currentUser.mastering_allowed) {
     return <Navigate to="/" replace />
   }
 
@@ -375,7 +395,11 @@ function AppContent() {
 
       <Route path="/turn" element={<SpinningVideo />} />
       <Route path="/tracks" element={<TracksIndex />} />
+      <Route path="/dj-sets" element={<TracksIndex mode="dj_sets" endpoint="/dj-sets.json" showSupplemental={false} />} />
       <Route path="/tracks/new" element={<NewTrack />} />
+      <Route path="/tracks/:slug/masterings" element={<RequireMasteringAccess><TrackMastering /></RequireMasteringAccess>} />
+      <Route path="/tracks/:slug/masterings/new" element={<RequireMasteringAccess><TrackMastering /></RequireMasteringAccess>} />
+      <Route path="/tracks/:slug/masterings/:masterId" element={<RequireMasteringAccess><TrackMastering /></RequireMasteringAccess>} />
       <Route path="/tracks/:slug" element={<TrackShow />} />
       <Route path="/playlists" element={<PlaylistsIndex />} />
       <Route path="/playlists/:slug" element={<PlaylistShow />} />
@@ -437,6 +461,7 @@ function AppContent() {
       <Route path="/:username/*" element={<UserShow />}>
         <Route index element={<UserHome />} />
         <Route path="tracks" element={<UserTracks />} />
+        <Route path="mixes" element={<UserTracks mode="mixes" />} />
         <Route path="playlists" element={<UserPlaylists namespace="playlists" />} />
         <Route path="articles" element={<UserArticles />} />
         <Route path="reposts" element={<UserReposts />} />

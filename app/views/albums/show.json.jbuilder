@@ -60,7 +60,7 @@ json.release_playlists @release.release_playlists.includes(:playlist).order(:pos
       track = track_playlist.track
       json.extract! track, :id, :title, :description, :duration
       begin
-        json.audio_url url_for(track.mp3_audio) if track.audio.attached?
+        json.audio_url MediaStreamUrl.for(track.mp3_audio) if track.mp3_audio.attached?
       rescue
       end
       json.cover_url url_for(track.cover) if track.cover.attached?

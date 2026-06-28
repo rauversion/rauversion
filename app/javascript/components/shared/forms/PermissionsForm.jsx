@@ -10,7 +10,12 @@ import { useThemeStore } from '@/stores/theme'
 import { permissionDefinitions } from "@/lib/constants"
 import I18n from 'stores/locales'
 
-export default function PermissionsForm({ control, watch }) {
+export default function PermissionsForm({
+  control,
+  watch,
+  disabledPermissions = [],
+  disabledPermissionHint = null,
+}) {
   const { isDarkMode } = useThemeStore()
   const watchCopyright = watch('copyright')
   const watchPermissions = permissionDefinitions.reduce((acc, permission) => {
@@ -113,26 +118,33 @@ export default function PermissionsForm({ control, watch }) {
         </div>
       )}
 
-      {permissionDefinitions.map((permission) => (
-        <div key={permission.name} className="space-y-2 flex">
-          <div className="flex items-center space-x-2">
-            <Controller
-              name={permission.name}
-              control={control}
-              render={({ field }) => (
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
-                />
-              )}
-            />
-            <Label>{permission.label}</Label>
+      {permissionDefinitions.map((permission) => {
+        const permissionDisabled = disabledPermissions.includes(permission.name)
+
+        return (
+          <div key={permission.name} className="space-y-2 flex">
+            <div className="flex items-center space-x-2">
+              <Controller
+                name={permission.name}
+                control={control}
+                render={({ field }) => (
+                  <Switch
+                    checked={permissionDisabled ? false : field.value}
+                    onCheckedChange={field.onChange}
+                    disabled={permissionDisabled}
+                  />
+                )}
+              />
+              <Label>{permission.label}</Label>
+            </div>
+            <p className="text-sm text-muted-foreground mt-2 ml-6">
+              {permissionDisabled && disabledPermissionHint
+                ? disabledPermissionHint
+                : watchPermissions[permission.name] ? permission.checkedHint : permission.uncheckedHint}
+            </p>
           </div>
-          <p className="text-sm text-muted-foreground mt-2 ml-6">
-            {watchPermissions[permission.name] ? permission.checkedHint : permission.uncheckedHint}
-          </p>
-        </div>
-      ))}
+        )
+      })}
     </div>
   )
 }

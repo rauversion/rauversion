@@ -8,6 +8,8 @@ import I18n from 'stores/locales'
 export default function MusicPurchase({ resource, type, variant = 'default' }) {
   const [purchaseOpen, setPurchaseOpen] = useState(false)
 
+  if (resource?.dj_set) return null
+
   const classes = variant === 'mini' ? {
     wrapper: "inline-flex",
     text: "text-sm",
