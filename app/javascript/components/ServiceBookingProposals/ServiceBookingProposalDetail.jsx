@@ -2,11 +2,20 @@ import React from "react"
 import { Link, useParams } from "react-router-dom"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { get, patch } from "@rails/request.js"
+import { format } from "date-fns"
 import { CalendarDays, Check, FileSignature, Loader2, MapPin, RotateCcw, X } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -16,14 +25,82 @@ import I18n from "@/stores/locales"
 const currency = (amount, code = "clp") => {
   if (amount === null || amount === undefined || amount === "") return ""
 
+  const currencyCode = String(code || "clp").toUpperCase()
   const value = Number(amount || 0)
+
+  if (Number.isNaN(value)) {
+    return `${amount} ${currencyCode}`
+  }
+
   return value.toLocaleString(undefined, {
     style: "currency",
-    currency: code.toUpperCase(),
+    currency: currencyCode,
     currencyDisplay: "code",
-    maximumFractionDigits: code.toLowerCase() === "clp" ? 0 : 2,
+    maximumFractionDigits: currencyCode === "CLP" ? 0 : 2,
   })
 }
+
+const formatDate = (value, pattern = "PPP") => {
+  if (!value) return null
+
+  try {
+    const date = /^\d{4}-\d{2}-\d{2}$/.test(value) ? new Date(`${value}T00:00:00`) : new Date(value)
+    return format(date, pattern)
+  } catch (_error) {
+    return value
+  }
+}
+
+const partySnapshot = (person) => ({
+  id: person?.id,
+  name: person?.name,
+  username: person?.username,
+})
+
+const contractSnapshotFromProposal = (proposal) => (
+  proposal.contract_snapshot || {
+    service_booking_id: proposal.service_booking_id,
+    proposal_id: proposal.id,
+    event_name: proposal.event_name,
+    event_date: proposal.event_date,
+    starts_at: proposal.starts_at,
+    ends_at: proposal.ends_at,
+    venue: {
+      name: proposal.venue_name,
+      address: proposal.venue_address,
+      city: proposal.city,
+      country: proposal.country,
+    },
+    parties: {
+      booker: partySnapshot(proposal.booker),
+      artist: partySnapshot(proposal.artist),
+    },
+    financials: {
+      proposed_amount: proposal.proposed_amount,
+      currency: proposal.currency,
+      deposit_percentage: proposal.deposit_percentage,
+      deposit_amount: proposal.deposit_amount,
+      balance_amount: proposal.balance_amount,
+      platform_fee_rate: proposal.platform_fee_rate,
+      platform_fee_min_amount: proposal.platform_fee_min_amount,
+      platform_fee_amount: proposal.platform_fee_amount,
+      artist_payout_amount: proposal.artist_payout_amount,
+    },
+    terms: {
+      fee_type: proposal.fee_type,
+      transport_included: proposal.transport_included,
+      accommodation_included: proposal.accommodation_included,
+      hospitality_included: proposal.hospitality_included,
+      catering_included: proposal.catering_included,
+      guest_list_count: proposal.guest_list_count,
+      benefits: proposal.benefits,
+      technical_notes: proposal.technical_notes,
+      message: proposal.message,
+    },
+    accepted_at: proposal.accepted_at,
+    digital_signature_statement: null,
+  }
+)
 
 const termsFromProposal = (proposal) => ({
   proposed_amount: proposal.proposed_amount || "",
@@ -190,6 +267,131 @@ function CounterForm({ proposal, onSubmit, pending }) {
         {I18n.t("service_booking_proposals.actions.counter")}
       </Button>
     </form>
+  )
+}
+
+function ContractRow({ label, value }) {
+  if (value === null || value === undefined || value === "") return null
+
+  return (
+    <div className="flex items-start justify-between gap-4 border-b border-border/60 py-2 last:border-0">
+      <span className="text-sm text-muted-foreground">{label}</span>
+      <span className="max-w-[65%] break-words text-right text-sm font-medium text-foreground">{value}</span>
+    </div>
+  )
+}
+
+function ContractSection({ title, children }) {
+  return (
+    <section className="rounded-lg border border-border bg-background/70 p-4">
+      <h3 className="mb-3 text-sm font-semibold text-foreground">{title}</h3>
+      <div>{children}</div>
+    </section>
+  )
+}
+
+function ContractDialog({ proposal }) {
+  const snapshot = contractSnapshotFromProposal(proposal)
+  const financials = snapshot.financials || {}
+  const terms = snapshot.terms || {}
+  const venue = snapshot.venue || {}
+  const parties = snapshot.parties || {}
+  const contractCurrency = financials.currency || proposal.currency
+  const accepted = Boolean(snapshot.accepted_at || proposal.status === "accepted")
+  const yesNo = (value) => I18n.t(value ? "yes" : "no")
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant={accepted ? "default" : "outline"}>
+          <FileSignature className="mr-2 h-4 w-4" />
+          {I18n.t("service_booking_proposals.actions.view_contract")}
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{I18n.t("service_booking_proposals.show.contract")}</DialogTitle>
+          <DialogDescription>
+            {I18n.t(
+              accepted
+                ? "service_booking_proposals.show.contract_signed"
+                : "service_booking_proposals.show.contract_preview_description"
+            )}
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <ContractSection title={I18n.t("service_booking_proposals.contract_sections.event")}>
+            <ContractRow label={I18n.t("service_booking_proposals.form.event_name")} value={snapshot.event_name} />
+            <ContractRow label={I18n.t("service_booking_proposals.form.event_date")} value={formatDate(snapshot.event_date)} />
+            <ContractRow label={I18n.t("service_booking_proposals.form.start_time")} value={formatDate(snapshot.starts_at, "PPp")} />
+            <ContractRow label={I18n.t("service_booking_proposals.form.end_time")} value={formatDate(snapshot.ends_at, "PPp")} />
+            <ContractRow label={I18n.t("service_booking_proposals.contract_sections.proposal")} value={snapshot.proposal_id ? `#${snapshot.proposal_id}` : null} />
+            <ContractRow label={I18n.t("service_booking_proposals.contract_sections.booking")} value={snapshot.service_booking_id ? `#${snapshot.service_booking_id}` : null} />
+          </ContractSection>
+
+          <ContractSection title={I18n.t("service_booking_proposals.contract_sections.venue")}>
+            <ContractRow label={I18n.t("service_booking_proposals.form.venue_name")} value={venue.name} />
+            <ContractRow label={I18n.t("service_booking_proposals.form.venue_address")} value={venue.address} />
+            <ContractRow label={I18n.t("service_booking_proposals.form.city")} value={venue.city} />
+            <ContractRow label={I18n.t("service_booking_proposals.form.country")} value={venue.country} />
+          </ContractSection>
+
+          <ContractSection title={I18n.t("service_booking_proposals.contract_sections.parties")}>
+            <ContractRow label={I18n.t("service_booking_proposals.labels.booker")} value={parties.booker?.name} />
+            <ContractRow label={I18n.t("service_booking_proposals.contract_sections.booker_username")} value={parties.booker?.username} />
+            <ContractRow label={I18n.t("service_booking_proposals.labels.artist")} value={parties.artist?.name} />
+            <ContractRow label={I18n.t("service_booking_proposals.contract_sections.artist_username")} value={parties.artist?.username} />
+          </ContractSection>
+
+          <ContractSection title={I18n.t("service_booking_proposals.contract_sections.financials")}>
+            <ContractRow label={I18n.t("service_booking_proposals.form.currency")} value={contractCurrency?.toUpperCase()} />
+            <ContractRow label={I18n.t("service_booking_proposals.labels.amount")} value={currency(financials.proposed_amount, contractCurrency)} />
+            <ContractRow label={I18n.t("service_booking_proposals.labels.deposit")} value={`${financials.deposit_percentage || 0}% · ${currency(financials.deposit_amount, contractCurrency)}`} />
+            <ContractRow label={I18n.t("service_booking_proposals.labels.balance")} value={currency(financials.balance_amount, contractCurrency)} />
+            <ContractRow label={I18n.t("service_booking_proposals.labels.artist_fee")} value={currency(financials.platform_fee_amount, contractCurrency)} />
+            <ContractRow label={I18n.t("service_booking_proposals.labels.artist_payout")} value={currency(financials.artist_payout_amount, contractCurrency)} />
+          </ContractSection>
+
+          <ContractSection title={I18n.t("service_booking_proposals.contract_sections.terms")}>
+            <ContractRow label={I18n.t("service_booking_proposals.labels.fee_type")} value={I18n.t(`service_booking_proposals.fee_type_labels.${terms.fee_type}`, { defaultValue: terms.fee_type })} />
+            <ContractRow label={I18n.t("service_booking_proposals.form.transport_included")} value={yesNo(terms.transport_included)} />
+            <ContractRow label={I18n.t("service_booking_proposals.form.accommodation_included")} value={yesNo(terms.accommodation_included)} />
+            <ContractRow label={I18n.t("service_booking_proposals.form.hospitality_included")} value={yesNo(terms.hospitality_included)} />
+            <ContractRow label={I18n.t("service_booking_proposals.form.catering_included")} value={yesNo(terms.catering_included)} />
+            <ContractRow label={I18n.t("service_booking_proposals.form.guest_list_count")} value={terms.guest_list_count} />
+          </ContractSection>
+
+          <ContractSection title={I18n.t("service_booking_proposals.contract_sections.signature")}>
+            <ContractRow label={I18n.t("service_booking_proposals.contract_sections.accepted_at")} value={formatDate(snapshot.accepted_at, "PPp")} />
+            <ContractRow
+              label={I18n.t("service_booking_proposals.contract_sections.statement")}
+              value={snapshot.digital_signature_statement || I18n.t("service_booking_proposals.show.contract_preview")}
+            />
+          </ContractSection>
+        </div>
+
+        {(terms.benefits || terms.technical_notes || terms.message) && (
+          <div className="grid gap-4">
+            {terms.benefits && (
+              <ContractSection title={I18n.t("service_booking_proposals.form.benefits")}>
+                <p className="whitespace-pre-wrap text-sm text-foreground">{terms.benefits}</p>
+              </ContractSection>
+            )}
+            {terms.technical_notes && (
+              <ContractSection title={I18n.t("service_booking_proposals.form.technical_notes")}>
+                <p className="whitespace-pre-wrap text-sm text-foreground">{terms.technical_notes}</p>
+              </ContractSection>
+            )}
+            {terms.message && (
+              <ContractSection title={I18n.t("service_booking_proposals.form.message")}>
+                <p className="whitespace-pre-wrap text-sm text-foreground">{terms.message}</p>
+              </ContractSection>
+            )}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
   )
 }
 
@@ -371,22 +573,24 @@ export function ServiceBookingProposalDetail() {
             </CardContent>
           </Card>
 
-          {proposal.status === "accepted" && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileSignature className="h-5 w-5" />
-                  {I18n.t("service_booking_proposals.show.contract")}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2 text-sm">
-                <p>{I18n.t("service_booking_proposals.show.contract_signed")}</p>
-                <p className="text-muted-foreground">
-                  {proposal.contract_snapshot?.digital_signature_statement}
-                </p>
-              </CardContent>
-            </Card>
-          )}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileSignature className="h-5 w-5" />
+                {I18n.t("service_booking_proposals.show.contract")}
+              </CardTitle>
+              <CardDescription>
+                {I18n.t(
+                  proposal.status === "accepted"
+                    ? "service_booking_proposals.show.contract_signed"
+                    : "service_booking_proposals.show.contract_preview_description"
+                )}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ContractDialog proposal={proposal} />
+            </CardContent>
+          </Card>
 
           <Card>
             <CardHeader>

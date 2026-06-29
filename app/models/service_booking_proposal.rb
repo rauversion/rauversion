@@ -38,6 +38,8 @@ class ServiceBookingProposal < ApplicationRecord
   before_validation :calculate_financials
   before_create :seed_initial_history
   after_create :create_proposal_conversation!
+  after_create_commit :notify_proposal_created
+  after_update_commit :notify_counterproposal_received, if: :counterproposal_notification_pending?
 
   validates :event_name, :event_date, :venue_name, :city, :status, :fee_type, :currency, presence: true
   validates :proposed_amount, numericality: { greater_than: 0 }
@@ -83,6 +85,7 @@ class ServiceBookingProposal < ApplicationRecord
       self.status = actor == artist ? :countered_by_artist : :countered_by_booker
       self.artist_counter_count += 1 if actor == artist
       self.booker_counter_count += 1 if actor == booker
+      @counterproposal_notification_actor = actor
       append_history(action: "countered", actor: actor)
       save!
       add_system_message!("#{actor.display_name.presence || actor.full_name} sent a counterproposal.", actor: actor)
@@ -298,6 +301,22 @@ class ServiceBookingProposal < ApplicationRecord
       message_type: "system",
       body: body
     )
+  end
+
+  def notify_proposal_created
+    ServiceBookingProposalMailer.proposal_created(self).deliver_later
+  end
+
+  def counterproposal_notification_pending?
+    @counterproposal_notification_actor.present?
+  end
+
+  def notify_counterproposal_received
+    actor = @counterproposal_notification_actor
+    @counterproposal_notification_actor = nil
+    return unless actor
+
+    ServiceBookingProposalMailer.counterproposal_received(self, actor).deliver_later
   end
 
   def party_snapshot(user)

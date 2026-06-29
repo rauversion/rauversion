@@ -2465,6 +2465,7 @@ en:
       cancel: Cancel proposal
       counter: Send counterproposal
       view_booking: View booking
+      view_contract: View contract
     labels:
       amount: Fee
       deposit: Deposit
@@ -2533,7 +2534,52 @@ en:
       actions: Actions
       no_actions: No actions are available for your role in this state.
       contract: Digital contract
+      contract_preview: Current terms preview. It is not signed yet.
+      contract_preview_description: Preview the agreement that will be generated if this proposal is accepted.
       contract_signed: Contract generated and automatically signed when the proposal was accepted.
+    contract_sections:
+      event: Event
+      venue: Venue
+      parties: Parties
+      financials: Financial terms
+      terms: Agreement terms
+      signature: Signature
+      proposal: Proposal
+      booking: Booking
+      accepted_at: Accepted at
+      statement: Statement
+      booker_username: Booker username
+      artist_username: Artist username
+
+  service_booking_proposal_mailer:
+    proposal_created:
+      subject: "New show proposal for %{event} from %{booker}"
+      greeting: "Hi %{recipient},"
+      intro: "%{booker} sent you a new show proposal for %{event}."
+      proposal_details: Proposal details
+      service: Service
+      date: Date
+      venue: Venue
+      amount: Proposed fee
+      deposit: Deposit
+      balance: Balance
+      message: Message
+      view_proposal: View proposal
+      action_required: Review the proposal to accept, reject, or send a counterproposal.
+    counterproposal_received:
+      subject: "Counterproposal for %{event} from %{actor}"
+      greeting: "Hi %{recipient},"
+      intro: "%{actor} sent a counterproposal for %{event}."
+      proposal_details: Updated proposal details
+      service: Service
+      date: Date
+      venue: Venue
+      amount: Proposed fee
+      deposit: Deposit
+      balance: Balance
+      message: Message
+      view_proposal: View proposal
+      action_required: Review the counterproposal to accept, reject, or continue the negotiation.
 
   service_bookings:
     messages:

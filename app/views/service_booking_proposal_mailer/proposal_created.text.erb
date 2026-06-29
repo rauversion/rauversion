@@ -1,0 +1,21 @@
+<%= t(".greeting", recipient: @recipient_name) %>
+
+<%= t(".intro", booker: @actor_name, event: @proposal.event_name) %>
+
+<%= t(".proposal_details") %>
+
+<%= t(".service") %>: <%= @service.title %>
+<%= t(".date") %>: <%= @event_date %>
+<%= t(".venue") %>: <%= [@proposal.venue_name, @proposal.city, @proposal.country].compact_blank.join(", ") %>
+<%= t(".amount") %>: <%= formatted_product_price(@proposal.proposed_amount, @proposal.currency) %>
+<%= t(".deposit") %>: <%= @proposal.deposit_percentage %>% · <%= formatted_product_price(@proposal.deposit_amount, @proposal.currency) %>
+<%= t(".balance") %>: <%= formatted_product_price(@proposal.balance_amount, @proposal.currency) %>
+
+<% if @proposal.message.present? %>
+<%= t(".message") %>:
+<%= @proposal.message %>
+
+<% end %>
+<%= t(".view_proposal") %>: <%= @proposal_url %>
+
+<%= t(".action_required") %>

@@ -1,6 +1,18 @@
 require "rails_helper"
 
 RSpec.describe ServiceBookingProposal, type: :model do
+  include ActiveJob::TestHelper
+
+  around do |example|
+    previous_adapter = ActiveJob::Base.queue_adapter
+    ActiveJob::Base.queue_adapter = :test
+    clear_enqueued_jobs
+    example.run
+  ensure
+    clear_enqueued_jobs
+    ActiveJob::Base.queue_adapter = previous_adapter
+  end
+
   describe "financials" do
     it "calculates deposit, balance, platform fee, and artist payout" do
       proposal = build(:service_booking_proposal, proposed_amount: 800_000, deposit_percentage: 50)
@@ -30,6 +42,28 @@ RSpec.describe ServiceBookingProposal, type: :model do
       expect(proposal).to be_countered_by_artist
       expect(proposal.artist_counter_count).to eq(1)
       expect(proposal.current_offer_by).to eq(proposal.artist)
+    end
+
+    it "notifies the recipient by email" do
+      proposal = create(:service_booking_proposal)
+      clear_enqueued_jobs
+
+      expect do
+        proposal.counter!(
+          actor: proposal.artist,
+          attributes: {
+            proposed_amount: 800_000
+          }
+        )
+      end.to have_enqueued_mail(ServiceBookingProposalMailer, :counterproposal_received)
+    end
+  end
+
+  describe "notifications" do
+    it "notifies the artist when a proposal is created" do
+      expect do
+        create(:service_booking_proposal)
+      end.to have_enqueued_mail(ServiceBookingProposalMailer, :proposal_created)
     end
   end
 
