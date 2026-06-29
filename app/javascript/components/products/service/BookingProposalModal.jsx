@@ -78,6 +78,27 @@ const toDateTime = (date, time) => {
   return `${date}T${time}:00`
 }
 
+const addDays = (date, days) => {
+  const [year, month, day] = date.split("-").map(Number)
+  const value = new Date(year, month - 1, day + days)
+  const paddedMonth = String(value.getMonth() + 1).padStart(2, "0")
+  const paddedDay = String(value.getDate()).padStart(2, "0")
+
+  return `${value.getFullYear()}-${paddedMonth}-${paddedDay}`
+}
+
+const endDateForTimes = (date, startTime, endTime) => {
+  if (!date || !startTime || !endTime) return date
+
+  return endTime <= startTime ? addDays(date, 1) : date
+}
+
+const requiresPerformanceSchedule = (product) => {
+  const performanceCategories = ["dj_set", "live_act", "hybrid_live", "vocalist", "host_mc"]
+
+  return product.service_kind === "performance" || performanceCategories.includes(product.category)
+}
+
 export default function BookingProposalModal({ product }) {
   const navigate = useNavigate()
   const { toast } = useToast()
@@ -85,6 +106,7 @@ export default function BookingProposalModal({ product }) {
   const [open, setOpen] = React.useState(false)
   const [submitting, setSubmitting] = React.useState(false)
   const [form, setForm] = React.useState(() => initialForm(product))
+  const performanceScheduleRequired = requiresPerformanceSchedule(product)
 
   const amount = Number(form.proposed_amount || 0)
   const deposit = amount * (Number(form.deposit_percentage || 0) / 100)
@@ -110,7 +132,7 @@ export default function BookingProposalModal({ product }) {
       ...form,
       service_product_id: product.id,
       starts_at: toDateTime(form.event_date, form.start_time),
-      ends_at: toDateTime(form.event_date, form.end_time),
+      ends_at: toDateTime(endDateForTimes(form.event_date, form.start_time, form.end_time), form.end_time),
     }
 
     delete payload.start_time
@@ -188,6 +210,7 @@ export default function BookingProposalModal({ product }) {
                 type="time"
                 value={form.start_time}
                 onChange={(event) => update("start_time", event.target.value)}
+                required={performanceScheduleRequired}
               />
             </div>
             <div className="space-y-2">
@@ -197,6 +220,7 @@ export default function BookingProposalModal({ product }) {
                 type="time"
                 value={form.end_time}
                 onChange={(event) => update("end_time", event.target.value)}
+                required={performanceScheduleRequired}
               />
             </div>
             <div className="space-y-2">

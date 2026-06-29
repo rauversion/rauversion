@@ -1,4 +1,6 @@
 es:
+  yes: si
+  no: no
   notification_mailer:
     new_message:
       subject: "Nuevo mensaje de %{sender}"
@@ -2636,6 +2638,43 @@ es:
       message: "Mensaje"
       view_proposal: "Ver propuesta"
       action_required: "Revisa la contrapropuesta para aceptar, rechazar o continuar la negociación."
+    proposal_accepted:
+      subject: "%{actor} aceptó la propuesta de show para %{event}"
+      greeting: "Hola %{recipient},"
+      intro: "%{actor} aceptó la propuesta para %{event}. El contrato quedó firmado y se creó el booking."
+      agreement_details: "Detalles del acuerdo"
+      service: "Servicio"
+      date: "Fecha"
+      venue: "Venue"
+      amount: "Tarifa acordada"
+      deposit: "Adelanto"
+      balance: "Saldo"
+      booking: "Booking"
+      view_booking: "Ver booking"
+      view_proposal: "Ver propuesta"
+      action_required: "Revisa el booking para continuar con el pago y la coordinación del show."
+    proposal_rejected:
+      subject: "%{actor} rechazó la propuesta de show para %{event}"
+      greeting: "Hola %{recipient},"
+      intro: "%{actor} rechazó la propuesta para %{event}."
+      proposal_details: "Detalles de la propuesta"
+      service: "Servicio"
+      date: "Fecha"
+      venue: "Venue"
+      amount: "Tarifa propuesta"
+      view_proposal: "Ver propuesta"
+      action_required: "Esta propuesta quedó cerrada. Puedes iniciar una nueva propuesta si las condiciones deben cambiar."
+    proposal_cancelled:
+      subject: "%{actor} canceló la propuesta de show para %{event}"
+      greeting: "Hola %{recipient},"
+      intro: "%{actor} canceló la propuesta para %{event}."
+      proposal_details: "Detalles de la propuesta"
+      service: "Servicio"
+      date: "Fecha"
+      venue: "Venue"
+      amount: "Tarifa propuesta"
+      view_proposal: "Ver propuesta"
+      action_required: "Esta propuesta quedó cerrada. No se creó un booking desde ella."
 
   service_bookings:
     messages:
@@ -2692,6 +2731,35 @@ es:
       not_generated: "No generado"
       auto_signed: "Firmado automáticamente"
       voided: "Anulado"
+    status_pills:
+      booking:
+        pending_confirmation: "Reserva por confirmar"
+        confirmed: "Reserva confirmada"
+        scheduled: "Reserva agendada"
+        in_progress: "Reserva en curso"
+        completed: "Reserva completada"
+        cancelled: "Reserva cancelada"
+        refunded: "Reserva reembolsada"
+      payment:
+        unpaid: "Pago pendiente"
+        pending: "Pago pendiente"
+        checkout_created: "Pago listo para checkout"
+        reported: "Pago reportado"
+        confirmed: "Pago confirmado"
+        paid: "Pago pagado"
+        partially_refunded: "Pago reembolsado parcial"
+        refunded: "Pago reembolsado"
+        failed: "Pago fallido"
+      refund:
+        not_requested: "Reembolso no solicitado"
+        requested: "Reembolso solicitado"
+        processing: "Reembolso procesando"
+        refunded: "Reembolso completado"
+        failed: "Reembolso fallido"
+      contract:
+        not_generated: "Contrato no generado"
+        auto_signed: "Contrato firmado"
+        voided: "Contrato anulado"
     ledger:
       title: "Ledger de pagos"
       description: "Historial auditable y append-only de adelantos, saldos, reembolsos y cálculo de payout."
@@ -2807,6 +2875,16 @@ es:
       invalid_status: "Esta reserva no puede ser cancelada"
       error: "No se pudo cancelar la reserva"
       reason_prompt: "Indica el motivo de cancelación"
+      dialog_title: "Cancelar reserva"
+      dialog_description: "Esta acción cerrará el booking y notificará a las partes involucradas."
+      reason_label: "Motivo de cancelación"
+      reason_placeholder: "Ej: cambio de fecha del evento, problemas de disponibilidad, acuerdo cancelado..."
+      reason_help: "Este motivo quedará visible en el historial de la reserva."
+      keep_booking: "Mantener reserva"
+      confirm_button: "Confirmar cancelación"
+      completed_title: "Reserva cancelada"
+      completed_description: "La reserva quedó cancelada y se enviaron correos de notificación a las partes."
+      close_button: "Entendido"
 
     refund:
       success: "El reembolso de la reserva ha sido procesado"
@@ -2906,9 +2984,16 @@ es:
     booking_cancelled_notification:
 
       subject: "Reserva de %{service} cancelada por %{cancelled_by}"
-      greeting: "¡Hola!"
-      cancellation_message: "La reserva ha sido cancelada."
+      greeting: "¡Hola %{recipient}!"
+      cancellation_message: "%{cancelled_by} canceló la reserva de %{service}."
+      booking_details: "Detalles de la reserva"
+      service: "Servicio"
+      provider: "Proveedor"
+      customer: "Cliente"
+      date: "Fecha"
+      reason: "Motivo"
       refund_info: "Si has realizado algún pago, será reembolsado en 5-7 días hábiles."
+      view_booking_button: "Ver reserva"
 
     reminder_notification:
       subject: "Recordatorio: %{service} programado para %{time}"

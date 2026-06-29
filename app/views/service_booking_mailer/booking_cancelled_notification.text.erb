@@ -1,0 +1,19 @@
+<%= t(".greeting", recipient: @recipient.username) %>
+
+<%= t(".cancellation_message", service: @service.title, cancelled_by: @cancelled_by_name) %>
+
+<%= t(".booking_details") %>
+
+<%= t(".service") %>: <%= @service.title %>
+<%= t(".provider") %>: <%= @provider.username %>
+<%= t(".customer") %>: <%= @customer.username %>
+<% if @service_booking.scheduled_date.present? || @service_booking.starts_at.present? %>
+<%= t(".date") %>: <%= @service_booking.scheduled_date.presence || I18n.l(@service_booking.starts_at.to_date, format: :long) %><% if @service_booking.scheduled_time.present? %> · <%= @service_booking.scheduled_time %><% end %>
+<% end %>
+<% if @service_booking.cancellation_reason.present? %>
+<%= t(".reason") %>: <%= @service_booking.cancellation_reason %>
+<% end %>
+
+<%= t(".refund_info") %>
+
+<%= t(".view_booking_button") %>: <%= @booking_url %>

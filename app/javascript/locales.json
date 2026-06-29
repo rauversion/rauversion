@@ -3468,10 +3468,17 @@
     "see_everything": "See All",
     "service_booking_mailer": {
       "booking_cancelled_notification": {
-        "cancellation_message": "The reservation has been canceled.",
-        "greeting": "Hello!",
+        "booking_details": "Booking details",
+        "cancellation_message": "%{cancelled_by} cancelled the reservation for %{service}.",
+        "customer": "Customer",
+        "date": "Date",
+        "greeting": "Hi %{recipient}!",
+        "provider": "Provider",
+        "reason": "Reason",
         "refund_info": "If you have made any payment, it will be refunded within 5-7 business days.",
-        "subject": "Reserva de %{service} cancelada por %{cancelled_by}"
+        "service": "Service",
+        "subject": "%{service} reservation cancelled by %{cancelled_by}",
+        "view_booking_button": "View booking"
       },
       "booking_confirmed_notification": {
         "booking_details": "Details of the Reservation",
@@ -3543,6 +3550,34 @@
         "venue": "Venue",
         "view_proposal": "View proposal"
       },
+      "proposal_accepted": {
+        "action_required": "Review the booking to continue with payment and show coordination.",
+        "agreement_details": "Agreement details",
+        "amount": "Agreed fee",
+        "balance": "Balance",
+        "booking": "Booking",
+        "date": "Date",
+        "deposit": "Deposit",
+        "greeting": "Hi %{recipient},",
+        "intro": "%{actor} accepted the proposal for %{event}. The contract is now signed and the booking was created.",
+        "service": "Service",
+        "subject": "%{actor} accepted the show proposal for %{event}",
+        "venue": "Venue",
+        "view_booking": "View booking",
+        "view_proposal": "View proposal"
+      },
+      "proposal_cancelled": {
+        "action_required": "This proposal is closed. No booking was created from it.",
+        "amount": "Proposed fee",
+        "date": "Date",
+        "greeting": "Hi %{recipient},",
+        "intro": "%{actor} cancelled the proposal for %{event}.",
+        "proposal_details": "Proposal details",
+        "service": "Service",
+        "subject": "%{actor} cancelled the show proposal for %{event}",
+        "venue": "Venue",
+        "view_proposal": "View proposal"
+      },
       "proposal_created": {
         "action_required": "Review the proposal to accept, reject, or send a counterproposal.",
         "amount": "Proposed fee",
@@ -3555,6 +3590,18 @@
         "proposal_details": "Proposal details",
         "service": "Service",
         "subject": "New show proposal for %{event} from %{booker}",
+        "venue": "Venue",
+        "view_proposal": "View proposal"
+      },
+      "proposal_rejected": {
+        "action_required": "This proposal is closed. You can start a new proposal if the terms need to change.",
+        "amount": "Proposed fee",
+        "date": "Date",
+        "greeting": "Hi %{recipient},",
+        "intro": "%{actor} rejected the proposal for %{event}.",
+        "proposal_details": "Proposal details",
+        "service": "Service",
+        "subject": "%{actor} rejected the show proposal for %{event}",
         "venue": "Venue",
         "view_proposal": "View proposal"
       }
@@ -3701,8 +3748,18 @@
     },
     "service_bookings": {
       "cancel": {
+        "close_button": "Got it",
+        "completed_description": "The reservation was cancelled and notification emails were sent to the involved parties.",
+        "completed_title": "Reservation cancelled",
+        "confirm_button": "Confirm cancellation",
+        "dialog_description": "This will close the booking and notify the involved parties.",
+        "dialog_title": "Cancel reservation",
         "error": "Failed to cancel booking",
         "invalid_status": "This reservation cannot be canceled",
+        "keep_booking": "Keep reservation",
+        "reason_help": "This reason will be visible in the booking history.",
+        "reason_label": "Cancellation reason",
+        "reason_placeholder": "Example: event date changed, availability issue, agreement cancelled...",
         "reason_prompt": "Please provide a reason for cancellation",
         "success": "The reservation has been canceled"
       },
@@ -3924,6 +3981,40 @@
         "pending_confirmation": "Pending Confirmation",
         "refunded": "Refunded",
         "scheduled": "Programmed"
+      },
+      "status_pills": {
+        "booking": {
+          "cancelled": "Booking cancelled",
+          "completed": "Booking completed",
+          "confirmed": "Booking confirmed",
+          "in_progress": "Booking in progress",
+          "pending_confirmation": "Booking awaiting confirmation",
+          "refunded": "Booking refunded",
+          "scheduled": "Booking scheduled"
+        },
+        "contract": {
+          "auto_signed": "Contract signed",
+          "not_generated": "Contract not generated",
+          "voided": "Contract voided"
+        },
+        "payment": {
+          "checkout_created": "Payment checkout ready",
+          "confirmed": "Payment confirmed",
+          "failed": "Payment failed",
+          "paid": "Payment paid",
+          "partially_refunded": "Payment partially refunded",
+          "pending": "Payment pending",
+          "refunded": "Payment refunded",
+          "reported": "Payment reported",
+          "unpaid": "Payment pending"
+        },
+        "refund": {
+          "failed": "Refund failed",
+          "not_requested": "Refund not requested",
+          "processing": "Refund processing",
+          "refunded": "Refund completed",
+          "requested": "Refund requested"
+        }
       },
       "update": {
         "feedback_error": "Failed to submit feedback",
@@ -8484,10 +8575,17 @@
     "see_everything": "Ver Todo",
     "service_booking_mailer": {
       "booking_cancelled_notification": {
-        "cancellation_message": "La reserva ha sido cancelada.",
-        "greeting": "¡Hola!",
+        "booking_details": "Detalles de la reserva",
+        "cancellation_message": "%{cancelled_by} canceló la reserva de %{service}.",
+        "customer": "Cliente",
+        "date": "Fecha",
+        "greeting": "¡Hola %{recipient}!",
+        "provider": "Proveedor",
+        "reason": "Motivo",
         "refund_info": "Si has realizado algún pago, será reembolsado en 5-7 días hábiles.",
-        "subject": "Reserva de %{service} cancelada por %{cancelled_by}"
+        "service": "Servicio",
+        "subject": "Reserva de %{service} cancelada por %{cancelled_by}",
+        "view_booking_button": "Ver reserva"
       },
       "booking_confirmed_notification": {
         "booking_details": "Detalles de la Reserva",
@@ -8559,6 +8657,34 @@
         "venue": "Venue",
         "view_proposal": "Ver propuesta"
       },
+      "proposal_accepted": {
+        "action_required": "Revisa el booking para continuar con el pago y la coordinación del show.",
+        "agreement_details": "Detalles del acuerdo",
+        "amount": "Tarifa acordada",
+        "balance": "Saldo",
+        "booking": "Booking",
+        "date": "Fecha",
+        "deposit": "Adelanto",
+        "greeting": "Hola %{recipient},",
+        "intro": "%{actor} aceptó la propuesta para %{event}. El contrato quedó firmado y se creó el booking.",
+        "service": "Servicio",
+        "subject": "%{actor} aceptó la propuesta de show para %{event}",
+        "venue": "Venue",
+        "view_booking": "Ver booking",
+        "view_proposal": "Ver propuesta"
+      },
+      "proposal_cancelled": {
+        "action_required": "Esta propuesta quedó cerrada. No se creó un booking desde ella.",
+        "amount": "Tarifa propuesta",
+        "date": "Fecha",
+        "greeting": "Hola %{recipient},",
+        "intro": "%{actor} canceló la propuesta para %{event}.",
+        "proposal_details": "Detalles de la propuesta",
+        "service": "Servicio",
+        "subject": "%{actor} canceló la propuesta de show para %{event}",
+        "venue": "Venue",
+        "view_proposal": "Ver propuesta"
+      },
       "proposal_created": {
         "action_required": "Revisa la propuesta para aceptar, rechazar o enviar una contrapropuesta.",
         "amount": "Tarifa propuesta",
@@ -8571,6 +8697,18 @@
         "proposal_details": "Detalles de la propuesta",
         "service": "Servicio",
         "subject": "Nueva propuesta de show para %{event} de %{booker}",
+        "venue": "Venue",
+        "view_proposal": "Ver propuesta"
+      },
+      "proposal_rejected": {
+        "action_required": "Esta propuesta quedó cerrada. Puedes iniciar una nueva propuesta si las condiciones deben cambiar.",
+        "amount": "Tarifa propuesta",
+        "date": "Fecha",
+        "greeting": "Hola %{recipient},",
+        "intro": "%{actor} rechazó la propuesta para %{event}.",
+        "proposal_details": "Detalles de la propuesta",
+        "service": "Servicio",
+        "subject": "%{actor} rechazó la propuesta de show para %{event}",
         "venue": "Venue",
         "view_proposal": "Ver propuesta"
       }
@@ -8717,8 +8855,18 @@
     },
     "service_bookings": {
       "cancel": {
+        "close_button": "Entendido",
+        "completed_description": "La reserva quedó cancelada y se enviaron correos de notificación a las partes.",
+        "completed_title": "Reserva cancelada",
+        "confirm_button": "Confirmar cancelación",
+        "dialog_description": "Esta acción cerrará el booking y notificará a las partes involucradas.",
+        "dialog_title": "Cancelar reserva",
         "error": "No se pudo cancelar la reserva",
         "invalid_status": "Esta reserva no puede ser cancelada",
+        "keep_booking": "Mantener reserva",
+        "reason_help": "Este motivo quedará visible en el historial de la reserva.",
+        "reason_label": "Motivo de cancelación",
+        "reason_placeholder": "Ej: cambio de fecha del evento, problemas de disponibilidad, acuerdo cancelado...",
         "reason_prompt": "Indica el motivo de cancelación",
         "success": "La reserva ha sido cancelada"
       },
@@ -8940,6 +9088,40 @@
         "pending_confirmation": "Pendiente de Confirmación",
         "refunded": "Reembolsado",
         "scheduled": "Programado"
+      },
+      "status_pills": {
+        "booking": {
+          "cancelled": "Reserva cancelada",
+          "completed": "Reserva completada",
+          "confirmed": "Reserva confirmada",
+          "in_progress": "Reserva en curso",
+          "pending_confirmation": "Reserva por confirmar",
+          "refunded": "Reserva reembolsada",
+          "scheduled": "Reserva agendada"
+        },
+        "contract": {
+          "auto_signed": "Contrato firmado",
+          "not_generated": "Contrato no generado",
+          "voided": "Contrato anulado"
+        },
+        "payment": {
+          "checkout_created": "Pago listo para checkout",
+          "confirmed": "Pago confirmado",
+          "failed": "Pago fallido",
+          "paid": "Pago pagado",
+          "partially_refunded": "Pago reembolsado parcial",
+          "pending": "Pago pendiente",
+          "refunded": "Pago reembolsado",
+          "reported": "Pago reportado",
+          "unpaid": "Pago pendiente"
+        },
+        "refund": {
+          "failed": "Reembolso fallido",
+          "not_requested": "Reembolso no solicitado",
+          "processing": "Reembolso procesando",
+          "refunded": "Reembolso completado",
+          "requested": "Reembolso solicitado"
+        }
       },
       "update": {
         "feedback_error": "No se pudo enviar el feedback",

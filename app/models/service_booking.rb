@@ -76,6 +76,7 @@ class ServiceBooking < ApplicationRecord
   validates :timezone, presence: true, if: :scheduled?
   validates :meeting_link, presence: true, if: :online_meeting_required?
   validates :meeting_location, presence: true, if: :in_person_meeting_required?
+  validate :meeting_channel_present_for_flexible_delivery, if: :flexible_delivery_scheduled?
 
   validates :rating, inclusion: { in: 1..5 }, allow_nil: true
   validates :feedback, length: { maximum: 1000 }, allow_nil: true
@@ -87,11 +88,15 @@ class ServiceBooking < ApplicationRecord
   after_update :notify_status_change
 
   def online_meeting_required?
-    scheduled? && ['online', 'both'].include?(service_product.delivery_method)
+    scheduled? && service_product.delivery_method == 'online'
   end
 
   def in_person_meeting_required?
-    scheduled? && ['in_person', 'both'].include?(service_product.delivery_method)
+    scheduled? && service_product.delivery_method == 'in_person'
+  end
+
+  def flexible_delivery_scheduled?
+    scheduled? && service_product.delivery_method == 'both'
   end
 
   def may_cancel?
@@ -349,6 +354,12 @@ class ServiceBooking < ApplicationRecord
     record_booking_created_ledger_entry!
     record_initial_payment_confirmed_ledger_entry! if payment_paid? && total_amount.to_d.positive?
     record_payout_calculated_ledger_entry! if artist_payout_amount.to_d.positive?
+  end
+
+  def meeting_channel_present_for_flexible_delivery
+    return if meeting_link.present? || meeting_location.present?
+
+    errors.add(:base, "Meeting link or location must be present")
   end
 
   def record_booking_created_ledger_entry!

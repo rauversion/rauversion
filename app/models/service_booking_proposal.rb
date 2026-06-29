@@ -40,6 +40,7 @@ class ServiceBookingProposal < ApplicationRecord
   after_create :create_proposal_conversation!
   after_create_commit :notify_proposal_created
   after_update_commit :notify_counterproposal_received, if: :counterproposal_notification_pending?
+  after_update_commit :notify_proposal_decision_received, if: :proposal_decision_notification_pending?
 
   validates :event_name, :event_date, :venue_name, :city, :status, :fee_type, :currency, presence: true
   validates :proposed_amount, numericality: { greater_than: 0 }
@@ -100,6 +101,7 @@ class ServiceBookingProposal < ApplicationRecord
         self.accepted_by = actor
         self.accepted_at = Time.current
         self.status = :accepted
+        @proposal_decision_notification = { mailer_action: :proposal_accepted, actor: actor }
         append_history(action: "accepted", actor: actor)
         save!
 
@@ -117,12 +119,14 @@ class ServiceBookingProposal < ApplicationRecord
   def reject!(actor:)
     raise ArgumentError, "Only the recipient can reject this offer" unless can_reject?(actor)
 
+    @proposal_decision_notification = { mailer_action: :proposal_rejected, actor: actor }
     update_status_with_history!(status: :rejected, action: "rejected", actor: actor)
   end
 
   def cancel!(actor:)
     raise ArgumentError, "Only participants can cancel this proposal" unless can_cancel?(actor)
 
+    @proposal_decision_notification = { mailer_action: :proposal_cancelled, actor: actor }
     update_status_with_history!(status: :cancelled, action: "cancelled", actor: actor)
   end
 
@@ -256,7 +260,7 @@ class ServiceBookingProposal < ApplicationRecord
       service_product: service_product,
       customer: booker,
       provider: artist,
-      status: :confirmed,
+      status: booking_status_from_contract,
       payment_status: :pending,
       currency: currency,
       subtotal_amount: proposed_amount,
@@ -274,8 +278,31 @@ class ServiceBookingProposal < ApplicationRecord
       contract_signed_at: accepted_at,
       platform_fee_rate: platform_fee_rate,
       platform_fee_amount: platform_fee_amount,
-      artist_payout_amount: artist_payout_amount
+      artist_payout_amount: artist_payout_amount,
+      **booking_schedule_attributes_from_contract
     ).tap(&:set_service_product_conversation)
+  end
+
+  def booking_status_from_contract
+    ready_to_schedule_from_contract? ? :scheduled : :confirmed
+  end
+
+  def ready_to_schedule_from_contract?
+    return false if starts_at.blank?
+    return false if service_product.delivery_method == "online"
+
+    venue_name.present? || venue_address.present? || city.present?
+  end
+
+  def booking_schedule_attributes_from_contract
+    return {} unless ready_to_schedule_from_contract?
+
+    {
+      scheduled_date: (event_date || starts_at.to_date)&.iso8601,
+      scheduled_time: starts_at.strftime("%H:%M"),
+      timezone: Time.zone&.name || "UTC",
+      meeting_location: [venue_name, venue_address, city, country].compact_blank.join(", ")
+    }
   end
 
   def create_proposal_conversation!
@@ -317,6 +344,22 @@ class ServiceBookingProposal < ApplicationRecord
     return unless actor
 
     ServiceBookingProposalMailer.counterproposal_received(self, actor).deliver_later
+  end
+
+  def proposal_decision_notification_pending?
+    @proposal_decision_notification.present?
+  end
+
+  def notify_proposal_decision_received
+    notification = @proposal_decision_notification
+    @proposal_decision_notification = nil
+    return unless notification
+
+    ServiceBookingProposalMailer.public_send(
+      notification.fetch(:mailer_action),
+      self,
+      notification.fetch(:actor)
+    ).deliver_later
   end
 
   def party_snapshot(user)

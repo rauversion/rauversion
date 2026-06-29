@@ -30,10 +30,13 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { ScheduleForm } from "./ScheduleForm"
 import { FeedbackForm } from "./FeedbackForm"
 import I18n from "@/stores/locales"
@@ -254,6 +257,13 @@ const humanize = (value?: string) =>
 
 const translated = (scope: string, value?: string) =>
   value ? I18n.t(`${scope}.${value}`, { defaultValue: humanize(value) }) : ""
+
+const contextualStatusLabel = (context: string, fallbackScope: string, value?: string) =>
+  value
+    ? I18n.t(`service_bookings.status_pills.${context}.${value}`, {
+        defaultValue: translated(fallbackScope, value),
+      })
+    : ""
 
 const formatDate = (value?: string, pattern = "PPP") => {
   if (!value) return null
@@ -557,6 +567,9 @@ export function ServiceBookingDetail() {
   const { id } = useParams()
   const { toast } = useToast()
   const queryClient = useQueryClient()
+  const [cancelDialogOpen, setCancelDialogOpen] = React.useState(false)
+  const [cancelReason, setCancelReason] = React.useState("")
+  const [cancelCompleted, setCancelCompleted] = React.useState(false)
 
   const { data: booking, isLoading } = useQuery<{ service_booking: ServiceBooking }>({
     queryKey: ["service_booking", id],
@@ -620,7 +633,7 @@ export function ServiceBookingDetail() {
       })
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["service_booking", id] })
+      setCancelCompleted(true)
       toast({
         title: I18n.t("service_bookings.messages.success"),
         description: I18n.t("service_bookings.cancel.success"),
@@ -634,6 +647,22 @@ export function ServiceBookingDetail() {
       })
     },
   })
+
+  const handleCancelDialogOpenChange = (open: boolean) => {
+    setCancelDialogOpen(open)
+
+    if (open) {
+      setCancelCompleted(false)
+      return
+    }
+
+    setCancelReason("")
+
+    if (cancelCompleted) {
+      queryClient.invalidateQueries({ queryKey: ["service_booking", id] })
+      setCancelCompleted(false)
+    }
+  }
 
   const refundMutation = useMutation({
     mutationFn: async () => {
@@ -766,27 +795,27 @@ export function ServiceBookingDetail() {
 
             <div className="flex flex-wrap gap-2 lg:justify-end">
               <StatusPill
-                label={translated("service_bookings.status", service_booking.status)}
+                label={contextualStatusLabel("booking", "service_bookings.status", service_booking.status)}
                 tone={bookingTone}
                 icon={ShieldCheck}
               />
               {payment && (
                 <StatusPill
-                  label={translated("service_bookings.payment_statuses", payment.status)}
+                  label={contextualStatusLabel("payment", "service_bookings.payment_statuses", payment.status)}
                   tone={paymentTone}
                   icon={WalletCards}
                 />
               )}
               {payment?.refund_status && (
                 <StatusPill
-                  label={translated("service_bookings.refund_statuses", payment.refund_status)}
+                  label={contextualStatusLabel("refund", "service_bookings.refund_statuses", payment.refund_status)}
                   tone={refundTone}
                   icon={ReceiptText}
                 />
               )}
               {contract && contract.status !== "not_generated" && (
                 <StatusPill
-                  label={translated("service_bookings.contract_status", contract.status)}
+                  label={contextualStatusLabel("contract", "service_bookings.contract_status", contract.status)}
                   tone={contractTone}
                   icon={FileSignature}
                 />
@@ -1167,17 +1196,105 @@ export function ServiceBookingDetail() {
               )}
 
               {service_booking.actions.can_cancel && (
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    const reason = window.prompt(I18n.t("service_bookings.cancel.reason_prompt"))
-                    if (reason) cancelMutation.mutate(reason)
-                  }}
-                  disabled={cancelMutation.isPending}
+                <Dialog
+                  open={cancelDialogOpen}
+                  onOpenChange={handleCancelDialogOpenChange}
                 >
-                  {cancelMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {I18n.t("service_bookings.show.cancel_button")}
-                </Button>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" disabled={cancelMutation.isPending}>
+                      {cancelMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      <XCircle className="mr-2 h-4 w-4" />
+                      {I18n.t("service_bookings.show.cancel_button")}
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-lg">
+                    {cancelCompleted ? (
+                      <div className="space-y-5">
+                        <DialogHeader>
+                          <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full border border-chart-2/20 bg-chart-2/10 text-chart-2">
+                            <CheckCircle2 className="h-5 w-5" />
+                          </div>
+                          <DialogTitle>{I18n.t("service_bookings.cancel.completed_title")}</DialogTitle>
+                          <DialogDescription>
+                            {I18n.t("service_bookings.cancel.completed_description")}
+                          </DialogDescription>
+                        </DialogHeader>
+
+                        {cancelReason.trim() && (
+                          <div className="rounded-lg border border-border bg-muted/40 p-4 text-sm">
+                            <div className="mb-1 font-medium text-foreground">
+                              {I18n.t("service_bookings.cancel.reason_label")}
+                            </div>
+                            <p className="text-muted-foreground">{cancelReason.trim()}</p>
+                          </div>
+                        )}
+
+                        <DialogFooter>
+                          <Button type="button" onClick={() => handleCancelDialogOpenChange(false)}>
+                            {I18n.t("service_bookings.cancel.close_button")}
+                          </Button>
+                        </DialogFooter>
+                      </div>
+                    ) : (
+                      <form
+                        className="space-y-5"
+                        onSubmit={(event) => {
+                          event.preventDefault()
+                          const reason = cancelReason.trim()
+                          if (reason) cancelMutation.mutate(reason)
+                        }}
+                      >
+                        <DialogHeader>
+                          <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full border border-destructive/20 bg-destructive/10 text-destructive">
+                            <XCircle className="h-5 w-5" />
+                          </div>
+                          <DialogTitle>{I18n.t("service_bookings.cancel.dialog_title")}</DialogTitle>
+                          <DialogDescription>
+                            {I18n.t("service_bookings.cancel.dialog_description")}
+                          </DialogDescription>
+                        </DialogHeader>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="booking_cancellation_reason">
+                            {I18n.t("service_bookings.cancel.reason_label")}
+                          </Label>
+                          <Textarea
+                            id="booking_cancellation_reason"
+                            value={cancelReason}
+                            onChange={(event) => setCancelReason(event.target.value)}
+                            placeholder={I18n.t("service_bookings.cancel.reason_placeholder")}
+                            rows={5}
+                            maxLength={500}
+                            required
+                          />
+                          <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
+                            <span>{I18n.t("service_bookings.cancel.reason_help")}</span>
+                            <span>{cancelReason.length}/500</span>
+                          </div>
+                        </div>
+
+                        <DialogFooter>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => handleCancelDialogOpenChange(false)}
+                            disabled={cancelMutation.isPending}
+                          >
+                            {I18n.t("service_bookings.cancel.keep_booking")}
+                          </Button>
+                          <Button
+                            type="submit"
+                            variant="destructive"
+                            disabled={cancelMutation.isPending || !cancelReason.trim()}
+                          >
+                            {cancelMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            {I18n.t("service_bookings.cancel.confirm_button")}
+                          </Button>
+                        </DialogFooter>
+                      </form>
+                    )}
+                  </DialogContent>
+                </Dialog>
               )}
 
               {actionCount === 0 && (

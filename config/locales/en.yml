@@ -1,4 +1,6 @@
 en:
+  yes: yes
+  no: no
   notification_mailer:
     new_message:
       subject: "New message from %{sender}"
@@ -2580,6 +2582,43 @@ en:
       message: Message
       view_proposal: View proposal
       action_required: Review the counterproposal to accept, reject, or continue the negotiation.
+    proposal_accepted:
+      subject: "%{actor} accepted the show proposal for %{event}"
+      greeting: "Hi %{recipient},"
+      intro: "%{actor} accepted the proposal for %{event}. The contract is now signed and the booking was created."
+      agreement_details: Agreement details
+      service: Service
+      date: Date
+      venue: Venue
+      amount: Agreed fee
+      deposit: Deposit
+      balance: Balance
+      booking: Booking
+      view_booking: View booking
+      view_proposal: View proposal
+      action_required: Review the booking to continue with payment and show coordination.
+    proposal_rejected:
+      subject: "%{actor} rejected the show proposal for %{event}"
+      greeting: "Hi %{recipient},"
+      intro: "%{actor} rejected the proposal for %{event}."
+      proposal_details: Proposal details
+      service: Service
+      date: Date
+      venue: Venue
+      amount: Proposed fee
+      view_proposal: View proposal
+      action_required: This proposal is closed. You can start a new proposal if the terms need to change.
+    proposal_cancelled:
+      subject: "%{actor} cancelled the show proposal for %{event}"
+      greeting: "Hi %{recipient},"
+      intro: "%{actor} cancelled the proposal for %{event}."
+      proposal_details: Proposal details
+      service: Service
+      date: Date
+      venue: Venue
+      amount: Proposed fee
+      view_proposal: View proposal
+      action_required: This proposal is closed. No booking was created from it.
 
   service_bookings:
     messages:
@@ -2636,6 +2675,35 @@ en:
       not_generated: Not generated
       auto_signed: Automatically signed
       voided: Voided
+    status_pills:
+      booking:
+        pending_confirmation: Booking awaiting confirmation
+        confirmed: Booking confirmed
+        scheduled: Booking scheduled
+        in_progress: Booking in progress
+        completed: Booking completed
+        cancelled: Booking cancelled
+        refunded: Booking refunded
+      payment:
+        unpaid: Payment pending
+        pending: Payment pending
+        checkout_created: Payment checkout ready
+        reported: Payment reported
+        confirmed: Payment confirmed
+        paid: Payment paid
+        partially_refunded: Payment partially refunded
+        refunded: Payment refunded
+        failed: Payment failed
+      refund:
+        not_requested: Refund not requested
+        requested: Refund requested
+        processing: Refund processing
+        refunded: Refund completed
+        failed: Refund failed
+      contract:
+        not_generated: Contract not generated
+        auto_signed: Contract signed
+        voided: Contract voided
     ledger:
       title: Payment ledger
       description: Append-only audit trail for deposits, balances, refunds, and payout calculations.
@@ -2752,6 +2820,16 @@ en:
       invalid_status: This reservation cannot be canceled
       error: Failed to cancel booking
       reason_prompt: Please provide a reason for cancellation
+      dialog_title: Cancel reservation
+      dialog_description: This will close the booking and notify the involved parties.
+      reason_label: Cancellation reason
+      reason_placeholder: "Example: event date changed, availability issue, agreement cancelled..."
+      reason_help: This reason will be visible in the booking history.
+      keep_booking: Keep reservation
+      confirm_button: Confirm cancellation
+      completed_title: Reservation cancelled
+      completed_description: The reservation was cancelled and notification emails were sent to the involved parties.
+      close_button: Got it
     refund:
       success: The booking refund has been processed
       invalid_status: This booking cannot be refunded
@@ -2846,12 +2924,17 @@ en:
       feedback_request: We would love to hear about your experience!
       rate_button: Rate this Service
     booking_cancelled_notification:
-      subject: Reserva de %{service} cancelada por %{cancelled_by}
-      greeting: Hello!
-      cancellation_message: The reservation has been canceled.
-      refund_info:
-        If you have made any payment, it will be refunded within 5-7 business
-        days.
+      subject: "%{service} reservation cancelled by %{cancelled_by}"
+      greeting: "Hi %{recipient}!"
+      cancellation_message: "%{cancelled_by} cancelled the reservation for %{service}."
+      booking_details: Booking details
+      service: Service
+      provider: Provider
+      customer: Customer
+      date: Date
+      reason: Reason
+      refund_info: If you have made any payment, it will be refunded within 5-7 business days.
+      view_booking_button: View booking
     reminder_notification:
       subject: "Recordatorio: %{service} programado para %{time}"
       greeting: Hello!

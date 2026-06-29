@@ -62,4 +62,48 @@ RSpec.describe ServiceBookingProposalMailer, type: :mailer do
       end
     end
   end
+
+  describe "#proposal_accepted" do
+    it "notifies the booker when the artist accepts and includes the booking link" do
+      proposal.accept!(actor: artist)
+
+      I18n.with_locale(:es) do
+        mail = described_class.proposal_accepted(proposal.reload, artist)
+        html = mail.html_part.body.decoded
+        text = mail.text_part.body.decoded
+
+        expect(mail.to).to eq(["booker@example.com"])
+        expect(mail.subject).to include("aceptó la propuesta")
+        expect(html).to include("El contrato quedó firmado")
+        expect(html).to include("Ver booking")
+        expect(text).to include(Rails.application.routes.url_helpers.service_booking_url(proposal.service_booking))
+      end
+    end
+  end
+
+  describe "#proposal_rejected" do
+    it "notifies the booker when the artist rejects" do
+      I18n.with_locale(:es) do
+        mail = described_class.proposal_rejected(proposal, artist)
+        html = mail.html_part.body.decoded
+
+        expect(mail.to).to eq(["booker@example.com"])
+        expect(mail.subject).to include("rechazó la propuesta")
+        expect(html).to include("Esta propuesta quedó cerrada")
+      end
+    end
+  end
+
+  describe "#proposal_cancelled" do
+    it "notifies the artist when the booker cancels" do
+      I18n.with_locale(:es) do
+        mail = described_class.proposal_cancelled(proposal, booker)
+        html = mail.html_part.body.decoded
+
+        expect(mail.to).to eq(["artist@example.com"])
+        expect(mail.subject).to include("canceló la propuesta")
+        expect(html).to include("No se creó un booking")
+      end
+    end
+  end
 end

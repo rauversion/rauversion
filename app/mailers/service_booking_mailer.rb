@@ -64,12 +64,15 @@ class ServiceBookingMailer < ApplicationMailer
     @customer = service_booking.customer
     @service = service_booking.service_product
     @recipient = recipient
+    @cancelled_by = service_booking.cancelled_by
+    @cancelled_by_name = display_name(@cancelled_by) || 'system'
+    @booking_url = service_booking_url(service_booking)
 
     mail(
       to: recipient.email,
       subject: default_i18n_subject(
         service: @service.title,
-        cancelled_by: @service_booking.cancelled_by&.username || 'system'
+        cancelled_by: @cancelled_by_name
       )
     )
   end
@@ -88,5 +91,13 @@ class ServiceBookingMailer < ApplicationMailer
         time: I18n.l(@service_booking.scheduled_date.to_date, format: :long)
       )
     )
+  end
+
+  private
+
+  def display_name(user)
+    return if user.blank?
+
+    user.display_name.presence || user.full_name.presence || user.username
   end
 end

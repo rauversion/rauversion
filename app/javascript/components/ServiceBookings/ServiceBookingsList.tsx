@@ -146,6 +146,13 @@ const humanize = (value?: string) =>
 const translated = (scope: string, value?: string) =>
   value ? I18n.t(`${scope}.${value}`, { defaultValue: humanize(value) }) : ""
 
+const contextualStatusLabel = (context: string, fallbackScope: string, value?: string) =>
+  value
+    ? I18n.t(`service_bookings.status_pills.${context}.${value}`, {
+        defaultValue: translated(fallbackScope, value),
+      })
+    : ""
+
 const serviceKindLabel = (value?: string) =>
   value ? I18n.t(`products.service.service_kinds.${value}.label`, { defaultValue: humanize(value) }) : ""
 
@@ -333,13 +340,13 @@ export function ServiceBookingsList({ bookings }: Props) {
 
               <div className="mb-4 flex flex-wrap gap-2">
                 <StatusPill
-                  label={translated("service_bookings.status", booking.status)}
+                  label={contextualStatusLabel("booking", "service_bookings.status", booking.status)}
                   tone={bookingTone}
                   icon={ShieldCheck}
                 />
                 {booking.payment && (
                   <StatusPill
-                    label={translated("service_bookings.payment_statuses", booking.payment.status)}
+                    label={contextualStatusLabel("payment", "service_bookings.payment_statuses", booking.payment.status)}
                     tone={paymentTone}
                     icon={WalletCards}
                   />

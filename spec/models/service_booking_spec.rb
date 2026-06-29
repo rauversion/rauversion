@@ -1,6 +1,35 @@
 require "rails_helper"
 
 RSpec.describe ServiceBooking, type: :model do
+  include ActiveJob::TestHelper
+
+  around do |example|
+    previous_adapter = ActiveJob::Base.queue_adapter
+    ActiveJob::Base.queue_adapter = :test
+    clear_enqueued_jobs
+    example.run
+  ensure
+    clear_enqueued_jobs
+    ActiveJob::Base.queue_adapter = previous_adapter
+  end
+
+  describe "scheduled delivery validation" do
+    it "allows flexible delivery bookings to be scheduled with an in-person location" do
+      service_product = create(:service_product, delivery_method: "both")
+      booking = build(
+        :service_booking,
+        service_product: service_product,
+        status: "scheduled",
+        scheduled_date: "2026-07-18",
+        scheduled_time: "23:30",
+        timezone: "UTC",
+        meeting_location: "Club Rau, Santiago"
+      )
+
+      expect(booking).to be_valid
+    end
+  end
+
   describe "#refund_amount_for_gateway" do
     it "returns cents for decimal currencies" do
       booking = build(:service_booking, total_amount: 49.99, currency: "usd")
@@ -91,6 +120,21 @@ RSpec.describe ServiceBooking, type: :model do
       expect(refund_entry.amount).to eq(100)
       expect(refund_entry.direction).to eq("outgoing")
       expect(refund_entry.gateway_reference).to eq("re_123")
+    end
+  end
+
+  describe "notifications" do
+    it "notifies both parties when the booking is cancelled" do
+      booking = create(:service_booking, status: "confirmed")
+      clear_enqueued_jobs
+
+      expect do
+        booking.update!(
+          status: "cancelled",
+          cancelled_by: booking.provider,
+          cancellation_reason: "El evento cambió de fecha"
+        )
+      end.to have_enqueued_mail(ServiceBookingMailer, :booking_cancelled_notification).exactly(2).times
     end
   end
 end

@@ -84,7 +84,7 @@ json.service_booking do
   json.cancelled_by do
     if @service_booking.cancelled_by
       json.id @service_booking.cancelled_by.id
-      json.name @service_booking.cancelled_by.name
+      json.name @service_booking.cancelled_by.display_name
     end
   end
 
