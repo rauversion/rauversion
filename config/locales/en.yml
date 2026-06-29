@@ -1,6 +1,5 @@
 en:
-  yes: yes
-  no: no
+
   notification_mailer:
     new_message:
       subject: "New message from %{sender}"

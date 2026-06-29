@@ -59,7 +59,7 @@ json.service_bookings @service_bookings do |booking|
   json.cancelled_by do
     if booking.cancelled_by
       json.id booking.cancelled_by.id
-      json.name booking.cancelled_by.name
+      json.name booking.cancelled_by.display_name
     end
   end
 end
