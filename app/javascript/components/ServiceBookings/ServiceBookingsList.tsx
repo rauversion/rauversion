@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Link, useNavigate } from "react-router-dom"
 import { MessageCircle } from "lucide-react"
+import I18n from "@/stores/locales"
 
 interface Conversation {
   id: number
@@ -60,16 +61,6 @@ const statusColors = {
   refunded: "bg-muted text-foreground",
 }
 
-const statusLabels = {
-  pending_confirmation: "Pending Confirmation",
-  confirmed: "Confirmed",
-  scheduled: "Scheduled",
-  in_progress: "In Progress",
-  completed: "Completed",
-  cancelled: "Cancelled",
-  refunded: "Refunded",
-}
-
 export function ServiceBookingsList({ bookings }: Props) {
   const navigate = useNavigate()
 
@@ -78,11 +69,16 @@ export function ServiceBookingsList({ bookings }: Props) {
   }
 
   const getStatusLabel = (status: string) => {
-    return statusLabels[status as keyof typeof statusLabels] || status
+    return I18n.t(`service_bookings.status.${status}`, { defaultValue: status })
   }
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {bookings?.length === 0 && (
+        <div className="col-span-full rounded-lg border border-dashed p-8 text-center text-muted-foreground">
+          {I18n.t("service_bookings.index.no_bookings")}
+        </div>
+      )}
       {bookings && bookings.map((booking) => (
         <Card key={booking.id} className="cursor-pointer hover:shadow-lg transition-shadow"
           onClick={() => navigate(`/service_bookings/${booking.id}`)}>
@@ -97,7 +93,7 @@ export function ServiceBookingsList({ bookings }: Props) {
           <CardContent>
             <div className="flex items-center space-x-4 mb-4">
               <div>
-                <p className="text-sm font-medium">Provider</p>
+                <p className="text-sm font-medium">{I18n.t("service_bookings.labels.provider")}</p>
                 <div className="flex items-center space-x-2">
                   <Avatar className="h-6 w-6">
                     <AvatarImage src={booking.provider.avatar_url} />
@@ -109,7 +105,7 @@ export function ServiceBookingsList({ bookings }: Props) {
                 </div>
               </div>
               <div>
-                <p className="text-sm font-medium">Customer</p>
+                <p className="text-sm font-medium">{I18n.t("service_bookings.labels.customer")}</p>
                 <div className="flex items-center space-x-2">
                   <Avatar className="h-6 w-6">
                     <AvatarImage src={booking.customer.avatar_url} />
@@ -124,11 +120,11 @@ export function ServiceBookingsList({ bookings }: Props) {
 
             {booking.metadata.scheduled_date && (
               <div className="mt-2">
-                <p className="text-sm font-medium">Scheduled for</p>
+                <p className="text-sm font-medium">{I18n.t("service_bookings.labels.scheduled_for")}</p>
                 <p className="text-sm text-muted-foreground">
                   {format(new Date(booking.metadata.scheduled_date), "PPP")}
                   {booking.metadata.scheduled_time && (
-                    <> at {booking.metadata.scheduled_time}</>
+                    <> {I18n.t("service_bookings.labels.at")} {booking.metadata.scheduled_time}</>
                   )}
                 </p>
               </div>
@@ -137,7 +133,7 @@ export function ServiceBookingsList({ bookings }: Props) {
             <div className="flex items-center justify-between mt-4">
               <div className="mt-4">
                 <Button variant="outline" className="w-full">
-                  View Details
+                  {I18n.t("service_bookings.index.view_details")}
                 </Button>
               </div>
 
@@ -152,7 +148,7 @@ export function ServiceBookingsList({ bookings }: Props) {
                         onClick={e => e.stopPropagation()}
                       >
                         <MessageCircle className="inline mr-1" />
-                        {"View Conversation"}
+                        {I18n.t("service_bookings.labels.view_conversation")}
                       </Link>
                     ))}
                   </div>

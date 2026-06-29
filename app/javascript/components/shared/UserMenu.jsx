@@ -59,6 +59,7 @@ import {
   Menu,
   ChevronDown,
   Mail,
+  Mic2,
 } from "lucide-react";
 import {
   NavigationMenu,
@@ -287,7 +288,7 @@ export default function UserMenu() {
     <DropdownMenuItem asChild>
       <Link to="/conversations">
         <MessageSquare className="mr-2 h-4 w-4" />
-        <span>Messages</span>
+        <span>{I18n.t("menu.messages")}</span>
       </Link>
     </DropdownMenuItem>
   );
@@ -370,21 +371,39 @@ export default function UserMenu() {
 
   const storeNavItems = [
     {
-      title: I18n.t('menu_main.store.music.title'),
-      href: "/store/music",
-      description: I18n.t('menu_main.store.music.description'),
-      icon: Music,
-    },
-    {
       title: I18n.t('menu_main.store.services.title'),
       href: "/store/services",
       description: I18n.t('menu_main.store.services.description'),
       icon: CalendarClock,
     },
     {
+      title: I18n.t('menu_main.store.performers.title'),
+      href: "/store/performers",
+      description: I18n.t('menu_main.store.performers.description'),
+      icon: Mic2,
+    },
+    {
+      title: I18n.t('menu_main.store.music.title'),
+      href: "/store/music",
+      description: I18n.t('menu_main.store.music.description'),
+      icon: Music,
+    },
+    {
       title: I18n.t('menu_main.store.gear.title'),
       href: "/store/gear",
       description: I18n.t('menu_main.store.gear.description'),
+      icon: Package,
+    },
+    {
+      title: I18n.t('menu_main.store.merch.title'),
+      href: "/store/merch",
+      description: I18n.t('menu_main.store.merch.description'),
+      icon: Store,
+    },
+    {
+      title: I18n.t('menu_main.store.accessories.title'),
+      href: "/store/accessories",
+      description: I18n.t('menu_main.store.accessories.description'),
       icon: Package,
     },
   ];
@@ -496,15 +515,17 @@ export default function UserMenu() {
                           {I18n.t("menu.store")}
                         </NavigationMenuTrigger>
                         <NavigationMenuContent>
-                          <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
-                            <li className="row-span-3">
+                          <ul className="grid gap-3 p-4 md:w-[560px] lg:w-[720px] lg:grid-cols-[0.85fr_1fr_1fr]">
+                            <li className="lg:row-span-3">
                               <NavigationMenuLink asChild>
                                 <Link
                                   to="/store"
-                                  className="flex h-full w-full select-none flex-col justify-end rounded-md bg-gradient-to-b from-muted/50 to-pink-800 p-6 no-underline outline-none focus:shadow-md"
+                                  className="flex h-full min-h-[220px] w-full select-none flex-col justify-end rounded-md bg-muted p-6 no-underline outline-none transition-colors hover:bg-muted/80 focus:shadow-md"
                                 >
                                   <Store className="h-6 w-6 mb-2" />
-                                  <div className="mb-2 mt-4 text-lg font-medium">Rau Advisors</div>
+                                  <div className="mb-2 mt-4 text-lg font-medium">
+                                    {I18n.t("menu_main.store.title")}
+                                  </div>
                                   <p className="text-sm leading-tight text-muted-foreground">
                                     {
                                       I18n.t("menu_main.store.descr")
@@ -514,44 +535,16 @@ export default function UserMenu() {
                               </NavigationMenuLink>
                             </li>
 
-                            <ListItem
-                              to="/store/music"
-                              title={I18n.t("menu_main.store.music.title")}
-                              icon={Music}
-                            >
-                              {
-                                I18n.t("menu_main.store.music.description")
-                              }
-                            </ListItem>
-                            <ListItem
-                              to="/store/services"
-                              title={I18n.t("menu_main.store.services.title")}
-                              icon={CalendarClock}
-                            >
-                              {
-                                I18n.t("menu_main.store.services.description")
-                              }
-                            </ListItem>
-
-                            {/*<ListItem
-                              to="/store/merch"
-                              title={I18n.t("menu_main.store.merch.description")}
-                              icon={Package}
-                            >
-                              {
-                                I18n.t("menu_main.store.merch.description")
-                              }
-                            </ListItem>*/}
-
-                            <ListItem
-                              to="/store/gear"
-                              title={I18n.t("menu_main.store.gear.description")}
-                              icon={Package}
-                            >
-                              {
-                                I18n.t("menu_main.store.gear.description")
-                              }
-                            </ListItem>
+                            {storeNavItems.map((item) => (
+                              <ListItem
+                                key={item.href}
+                                to={item.href}
+                                title={item.title}
+                                icon={item.icon}
+                              >
+                                {item.description}
+                              </ListItem>
+                            ))}
                           </ul>
                         </NavigationMenuContent>
                       </NavigationMenuItem>
@@ -657,7 +650,7 @@ export default function UserMenu() {
                           <DropdownMenuItem asChild>
                             <Link to="/newsletter/contacts">
                               <Users className="mr-2 h-4 w-4" />
-                              <span>Newsletter</span>
+                              <span>{I18n.t("menu.newsletter")}</span>
                             </Link>
                           </DropdownMenuItem>
                         )}
@@ -705,6 +698,12 @@ export default function UserMenu() {
                           <Link to="/service_bookings">
                             <CalendarClock className="mr-2 h-4 w-4" />
                             <span>{I18n.t('menu.service_bookings')}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link to="/service_booking_proposals">
+                            <CalendarDays className="mr-2 h-4 w-4" />
+                            <span>{I18n.t('menu.service_booking_proposals')}</span>
                           </Link>
                         </DropdownMenuItem>
                       </DropdownMenuGroup>
@@ -875,7 +874,7 @@ export default function UserMenu() {
                           <DropdownMenuItem asChild>
                             <Link to="/newsletter/contacts">
                               <Users className="mr-2 h-4 w-4" />
-                              <span>Newsletter</span>
+                              <span>{I18n.t("menu.newsletter")}</span>
                             </Link>
                           </DropdownMenuItem>
                         )}
@@ -923,6 +922,12 @@ export default function UserMenu() {
                           <Link to="/service_bookings">
                             <CalendarClock className="mr-2 h-4 w-4" />
                             <span>{I18n.t('menu.service_bookings')}</span>
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem asChild>
+                          <Link to="/service_booking_proposals">
+                            <CalendarDays className="mr-2 h-4 w-4" />
+                            <span>{I18n.t('menu.service_booking_proposals')}</span>
                           </Link>
                         </DropdownMenuItem>
                       </DropdownMenuGroup>

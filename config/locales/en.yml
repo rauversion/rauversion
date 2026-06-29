@@ -58,6 +58,9 @@ en:
   more: More
   save: Save
   back: Return
+  cancel: Cancel
+  yes: "Yes"
+  no: "No"
   view_all: See all
   view: See
   add_to_cart: Add to cart
@@ -99,6 +102,9 @@ en:
     dark_mode: Dark mode
     light_mode: Light mode
     service_bookings: "Bookings"
+    service_booking_proposals: "Show proposals"
+    messages: Messages
+    newsletter: Newsletter
 
   menu_main:
     events:
@@ -138,6 +144,7 @@ en:
         title: "Releases"
         description: "Latest music releases and exclusive drops."
     store:
+      title: Rau Marketplace
       descr: Get direct feedback or one-on-one mentorship from electronic music experts in just a few clicks.
       music:
         title: "Music"
@@ -145,12 +152,18 @@ en:
       services:
         title: "Services"
         description: "Book music lessons, consulting, and other creative services."
+      performers:
+        title: "Performers"
+        description: "Book DJs, live acts, hosts, and show-ready artists."
       merch:
         title: "Merch"
         description: "Shop for apparel, physical goods, and limited edition merch."
       gear:
         title: "Gear"
         description: "Find gear, instruments, and unique instruments."
+      accessories:
+        title: "Accessories"
+        description: "Browse cables, cases, stands, and useful add-ons."
 
 
 
@@ -2413,10 +2426,164 @@ en:
     or_drag_and_drop: Drag and drop
   invitations:
     left: Te quedan %{count} invitaciones
+  service_booking_proposals:
+    messages:
+      success: Success
+      error: Error
+      updated: Proposal updated
+      update_error: Failed to update the proposal
+    index:
+      title: Show proposals
+      subtitle: Negotiate, accept, and close performance bookings.
+      empty: You do not have show proposals yet.
+      open: View proposal
+      view_bookings: View bookings
+    viewer:
+      artist: DJ view
+      booker: Booker view
+    status:
+      pending_artist_response: Waiting for DJ response
+      countered_by_artist: DJ counterproposal
+      countered_by_booker: Booker counterproposal
+      accepted: Accepted
+      rejected: Rejected
+      cancelled: Cancelled
+      expired: Expired
+    history:
+      created: Proposal sent
+      countered: Counterproposal
+      accepted: Accepted
+      rejected: Rejected
+      cancelled: Cancelled
+      auto_cancelled: Automatically cancelled
+    actions:
+      accept: Accept and close deal
+      reject: Reject
+      cancel: Cancel proposal
+      counter: Send counterproposal
+      view_booking: View booking
+    labels:
+      amount: Fee
+      deposit: Deposit
+      balance: Balance
+      fee_type: Fee type
+      artist_fee: Artist commission
+      artist_payout: Artist net payout
+      booker: Booker
+      artist: DJ / performer
+      conversation: Conversation
+      with_artist: with %{artist}
+    fee_type_labels:
+      landed: Landed fee
+      landed_hospitalities: Landed + hospitalities
+      no_landed_add_ons: No landed + add-ons
+    fee_types:
+      landed:
+        title: Landed
+        description: Artist fee with ground transport included.
+      landed_hospitalities:
+        title: Landed + hospitalities
+        description: Includes transport, accommodation, or backstage benefits.
+      no_landed_add_ons:
+        title: No landed + add-ons
+        description: Artist fee only; extras are handled by the booker.
+    form:
+      trigger: Send show proposal
+      title: DJ booking proposal
+      description: "Set clear terms for %{artist}: date, fee, deposit, benefits, and rider."
+      submit: Send proposal
+      submit_error: Failed to send the proposal
+      event_name: Event name
+      event_date: Date
+      start_time: Start time
+      end_time: End time
+      venue_name: Venue
+      venue_address: Address
+      city: City
+      country: Country
+      fee_type: Fee type
+      amount: Proposed fee
+      deposit_percentage: Deposit (%)
+      payment_preview: Payment preview
+      deposit_amount: Deposit
+      balance_amount: Balance
+      artist_fee: DJ commission
+      artist_payout: DJ net
+      transport_included: Transport included
+      accommodation_included: Accommodation included
+      hospitality_included: Hospitality included
+      catering_included: Backstage catering
+      guest_list_count: Guest list
+      benefits: Benefits and terms
+      technical_notes: Technical rider / notes
+      message: Message
+    show:
+      current_offer: Current offer
+      current_offer_by: Proposed by %{name}
+      counter_title: Counterproposal
+      counter_description: Each side can counter once to keep negotiation fast.
+      history: Negotiation history
+      parties: Parties
+      actions: Actions
+      no_actions: No actions are available for your role in this state.
+      contract: Digital contract
+      contract_signed: Contract generated and automatically signed when the proposal was accepted.
+
   service_bookings:
+    messages:
+      success: Success
+      error: Error
+    labels:
+      provider: Provider
+      customer: Customer
+      scheduled_for: Scheduled for
+      at: at
+      view_conversation: View conversation
+      created_on: "Created on %{date}"
+      conversations: Conversations
+      schedule_details: Schedule details
+      location: Location
+      cancellation_details: Cancellation details
+      cancelled_by: Cancelled by
+      reason: Reason
+    payment:
+      title: Payment
+      status: Status
+      refund: Refund
+      total: Total
+      deposit: Deposit
+      balance: Balance
+      deposit_status: Deposit status
+      balance_status: Balance status
+      artist_fee: Artist commission
+      artist_payout: Artist net payout
+      provider: Provider
+      payment_intent: Payment intent
+    payment_statuses:
+      unpaid: Pending
+      reported: Reported
+      confirmed: Confirmed
+    contract:
+      title: Contract
+      status: Status
+      signed_at: Signed on
+      proposal: Proposal
+    contract_status:
+      not_generated: Not generated
+      auto_signed: Automatically signed
+      voided: Voided
+    payment_tracking:
+      success: Payment status updated
+      error: Failed to update payment
+      invalid_status: This payment milestone cannot be updated yet
+      mark_deposit_paid: Mark deposit sent
+      confirm_deposit: Confirm deposit
+      mark_balance_paid: Mark balance sent
+      confirm_balance: Confirm balance
     index:
       title: Service Reservations
       subtitle: Manage your reservations and service appointments
+      load_error: Failed to load service bookings
       all: All the Reservations
       as_customer: My Reservations
       as_provider: Provider View
@@ -2459,26 +2626,50 @@ en:
       provider_notes_help: These notes will be visible to the client
       schedule_button: Schedule Service
       cancel_button: Cancel
+      errors:
+        date_required: Date is required
+        time_required: Time is required
+        timezone_required: Time zone is required
     feedback_form:
       add_feedback: Add your Opinion
       rating: Rate your experience
+      rating_placeholder: Select a rating
       feedback: Your opinion
       feedback_placeholder: Tell us about your experience...
       submit: Send Opinion
+      stars:
+        one: "%{count} star"
+        other: "%{count} stars"
+      errors:
+        rating_required: Rating is required
+        feedback_required: Feedback is required
+        feedback_too_long: Feedback must be less than 1000 characters
     update:
       feedback_submitted: Thank you for your opinion!
+      feedback_error: Failed to submit feedback
     confirm:
       success: The reservation has been successfully confirmed
       invalid_status: This reservation cannot be confirmed
+      error: Failed to confirm booking
     schedule:
       success: The service has been successfully scheduled
       invalid_status: This reservation cannot be scheduled
+      error: Failed to schedule service
     complete:
       success: The service has been marked as completed
       invalid_status: This service cannot be marked as completed yet
+      error: Failed to complete service
     cancel:
       success: The reservation has been canceled
       invalid_status: This reservation cannot be canceled
+      error: Failed to cancel booking
+      reason_prompt: Please provide a reason for cancellation
+    refund:
+      success: The booking refund has been processed
+      invalid_status: This booking cannot be refunded
+      error: Failed to process refund
+      confirm: Process a refund for this booking?
+      button: Refund Booking
     status:
       pending_confirmation: Pending Confirmation
       confirmed: Confirmed
@@ -2591,6 +2782,42 @@ en:
       services_description: Professional services and musical education
       accessories: Accessories
       services: Services
+    filters:
+      open_menu: Open filters
+      no_products: No products found in this category
+      gear:
+        title: Gear
+        subcategories:
+          all: All Gear
+          audio_gear: Audio Gear
+          dj_gear: DJ Gear
+          instrument: Instruments
+          synth: Synths
+          keyboard: Keyboards
+          controller: Controllers
+          console: Consoles
+          effect: Effects
+      services:
+        title: Services
+        subcategories:
+          all: All Services
+      performers:
+        title: Performers
+        subcategories:
+          all: All Performers
+      music:
+        title: Music
+        subcategories:
+          all: All Music
+      accessories:
+        title: Accessories
+        subcategories:
+          all: All Accessories
+      merch:
+        title: Merch
+        subcategories:
+          all: All Merch
+          merch: General
   music:
     index:
       music: Music
@@ -2674,17 +2901,133 @@ en:
         year: Year
     service:
       delivery_methods:
-        online: Virtual Meeting
-        in_person: Presencial
+        online: Online
+        in_person: In person
+        hybrid: Hybrid
+      service_kinds:
+        advisory:
+          label: Advisory
+          description: Mentoring, coaching, feedback, and creative guidance.
+        education:
+          label: Education
+          description: Classes, courses, workshops, and cohort sessions.
+        performance:
+          label: Performance
+          description: DJ sets, live acts, hosts, and bookable shows.
+        studio_service:
+          label: Studio Service
+          description: Mixing, mastering, production, and recording work.
+      booking_modes:
+        instant_checkout: Instant checkout
+        request_quote: Request quote
+        deposit_then_balance: Deposit + balance
+      categories:
+        coaching: Coaching
+        feedback: Feedback
+        event_consulting: Event consulting
+        classes: Classes
+        one_on_one_class: 1:1 class
+        workshop: Workshop
+        dj_set: DJ set
+        live_act: Live act
+        hybrid_live: Hybrid live
+        vocalist: Vocalist
+        host_mc: Host / MC
+        mastering: Mastering
+        mixing: Mixing
+        production: Production
+        recording: Recording
+        songwriting: Songwriting
+        sound_design: Sound design
+        voice_over: Voice over
+        other: Other
+      price_rule_types:
+        base: Base
+        extra_hour: Extra hour
+        travel: Travel
+        rider: Rider
+        deposit: Deposit
+        custom: Custom
+      form:
+        service_type: Service type
+        booking_mode: Booking mode
+        select_booking_mode: Select booking mode
+        title: Title
+        category: Category
+        select_category: Select category
+        delivery_method: Delivery method
+        select_delivery_method: Select delivery method
+        duration: Duration
+        description: Description
+        max_participants: Max participants
+        details: Details
+        prerequisites: Prerequisites
+        what_to_expect: What to expect
+        cancellation_policy: Cancellation policy
+        post_purchase_instructions: Post-purchase instructions
+        show_details:
+          title: Show details
+          performance_format: Performance format
+          performance_format_placeholder: DJ set, live act, hybrid...
+          available_countries: Available countries
+          available_countries_placeholder: CL, AR, MX...
+          home_city: Home city
+          home_country: Home country
+          technical_rider: Technical rider
+          technical_rider_placeholder: CDJs, mixer, monitors, stage needs...
+          hospitality_rider: Hospitality rider
+          hospitality_rider_placeholder: Travel, lodging, meal, or green room notes...
+        price_rules:
+          title: Price criteria
+          description: Publish the pricing rules buyers should understand before booking.
+          add: Add rule
+          remove: Remove rule
+          rule: "Rule %{number}"
+          base_price: Base price
+          name: Name
+          name_placeholder: Local DJ set, extra hour...
+          type: Type
+          amount: Amount
+          currency: Currency
+          currency_placeholder: usd
+          duration_minutes: Duration minutes
+          min_notice_days: Minimum notice days
+          location_scope: Location scope
+          location_scope_placeholder: Online, Santiago, out of town, LATAM...
+        errors:
+          service_type_required: Service type is required
+          title_required: Title is required
+          category_required: Category is required
+          booking_mode_required: Booking mode is required
+          delivery_method_required: Delivery method is required
+          duration_required: Duration is required
+          duration_min: Duration must be at least 15 minutes
+          max_participants_required: Maximum participants is required
+          max_participants_min: Must have at least 1 participant
+          rule_name_required: Rule name is required
+          amount_min: Amount must be greater than or equal to 0
+          unexpected: An unexpected error occurred
       show:
         about: About
         what_you_get: What You Receive
         what_to_expect: What to Expect
         description: Description
+        prerequisites: Prerequisites
         cancellation_policy: Cancellation Policy
         duration: Duration
+        duration_minutes:
+          one: "%{count} minute"
+          other: "%{count} minutes"
+        duration_hours:
+          one: "%{count} hour"
+          other: "%{count} hours"
+        duration_hours_minutes: "%{hours}h %{minutes}m"
+        max_participants: Max participants
         book_now: Book Now
         details: Details
+        price_rules:
+          title: Pricing criteria
+          description: Different prices may apply depending on the show or service scope.
 
 
   artists:

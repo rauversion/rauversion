@@ -1,8 +1,8 @@
 class ServiceBookingsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_service_booking, only: [:show, :confirm, :schedule_form, :schedule, :complete, :cancel]
-  before_action :ensure_customer_or_provider, only: [:show]
-  before_action :ensure_provider, only: [:confirm, :schedule_form, :schedule, :complete, :cancel]
+  before_action :set_service_booking, only: [:show, :confirm, :schedule_form, :schedule, :complete, :cancel, :refund, :update, :feedback_form, :mark_deposit_paid, :confirm_deposit, :mark_balance_paid, :confirm_balance]
+  before_action :ensure_customer_or_provider, only: [:show, :update, :feedback_form, :mark_deposit_paid, :confirm_deposit, :mark_balance_paid, :confirm_balance]
+  before_action :ensure_provider, only: [:confirm, :schedule_form, :schedule, :complete, :cancel, :refund]
 
   def index
     @service_bookings = case params[:filter]
@@ -162,8 +162,68 @@ class ServiceBookingsController < ApplicationController
     end
   end
 
+  def refund
+    unless @service_booking.may_refund?
+      return respond_to do |format|
+        format.html do
+          flash[:alert] = t('.invalid_status')
+          redirect_to service_bookings_path
+        end
+        format.json { render json: { success: false, error: t('.invalid_status') }, status: :unprocessable_entity }
+      end
+    end
+
+    @service_booking.update!(refund_status: :processing)
+
+    refund_id = nil
+    if @service_booking.checkout_provider == "stripe"
+      if @service_booking.payment_intent_id.blank?
+        @service_booking.update(refund_status: :failed)
+        return respond_to do |format|
+          format.html do
+            flash[:alert] = "Refund failed: payment intent not found"
+            redirect_to service_booking_path(@service_booking)
+          end
+          format.json { render json: { success: false, error: "Refund failed: payment intent not found" }, status: :unprocessable_entity }
+        end
+      end
+
+      stripe_refund = Stripe::Refund.create(
+        payment_intent: @service_booking.payment_intent_id,
+        amount: @service_booking.refund_amount_for_gateway
+      )
+      refund_id = stripe_refund.id
+    end
+
+    ActiveRecord::Base.transaction do
+      @service_booking.mark_refunded!(refund_id: refund_id)
+      mark_product_purchase_refunded_if_complete!
+      @service_booking.add_system_message!(
+        "#{current_user.display_name} processed a refund for this booking.",
+        actor: current_user
+      )
+    end
+
+    respond_to do |format|
+      format.html do
+        flash[:notice] = t('.success')
+        redirect_to service_booking_path(@service_booking)
+      end
+      format.json { render json: { success: true, message: t('.success') } }
+    end
+  rescue Stripe::StripeError => e
+    @service_booking.update(refund_status: :failed)
+
+    respond_to do |format|
+      format.html do
+        flash[:alert] = "Refund failed: #{e.message}"
+        redirect_to service_booking_path(@service_booking)
+      end
+      format.json { render json: { success: false, error: "Refund failed: #{e.message}" }, status: :unprocessable_entity }
+    end
+  end
+
   def update
-    @service_booking = ServiceBooking.find(params[:id])
     if @service_booking.update(schedule_params)
       respond_to do |format|
         format.html do
@@ -180,7 +240,42 @@ class ServiceBookingsController < ApplicationController
   end
 
   def feedback_form
-    @service_booking = ServiceBooking.find(params[:id])
+  end
+
+  def mark_deposit_paid
+    unless @service_booking.may_mark_deposit_paid?(current_user)
+      return render json: { success: false, error: t('service_bookings.payment_tracking.invalid_status') }, status: :unprocessable_entity
+    end
+
+    @service_booking.mark_deposit_paid!(actor: current_user, notes: params[:notes])
+    render json: { success: true, message: t('service_bookings.payment_tracking.success') }
+  end
+
+  def confirm_deposit
+    unless @service_booking.may_confirm_deposit?(current_user)
+      return render json: { success: false, error: t('service_bookings.payment_tracking.invalid_status') }, status: :unprocessable_entity
+    end
+
+    @service_booking.confirm_deposit!(actor: current_user, notes: params[:notes])
+    render json: { success: true, message: t('service_bookings.payment_tracking.success') }
+  end
+
+  def mark_balance_paid
+    unless @service_booking.may_mark_balance_paid?(current_user)
+      return render json: { success: false, error: t('service_bookings.payment_tracking.invalid_status') }, status: :unprocessable_entity
+    end
+
+    @service_booking.mark_balance_paid!(actor: current_user, notes: params[:notes])
+    render json: { success: true, message: t('service_bookings.payment_tracking.success') }
+  end
+
+  def confirm_balance
+    unless @service_booking.may_confirm_balance?(current_user)
+      return render json: { success: false, error: t('service_bookings.payment_tracking.invalid_status') }, status: :unprocessable_entity
+    end
+
+    @service_booking.confirm_balance!(actor: current_user, notes: params[:notes])
+    render json: { success: true, message: t('service_bookings.payment_tracking.success') }
   end
 
   def set_service_booking
@@ -213,7 +308,21 @@ class ServiceBookingsController < ApplicationController
       :provider_notes,
       :meeting_link,
       :rating,
-      :feedback
+      :feedback,
+      :starts_at,
+      :ends_at,
+      :venue_name,
+      :venue_address,
+      :city,
+      :country
     )
+  end
+
+  def mark_product_purchase_refunded_if_complete!
+    purchase = @service_booking.product_purchase
+    return unless purchase
+    return unless purchase.product_purchase_items.count == 1
+
+    purchase.update!(status: :refunded)
   end
 end

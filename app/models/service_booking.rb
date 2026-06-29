@@ -4,6 +4,9 @@ class ServiceBooking < ApplicationRecord
   belongs_to :customer, class_name: 'User'
   belongs_to :provider, class_name: 'User'
   belongs_to :cancelled_by, class_name: 'User', optional: true
+  belongs_to :product_purchase, optional: true
+  belongs_to :product_purchase_item, optional: true
+  has_one :service_booking_proposal, dependent: :nullify
 
   enum :status, {
     pending_confirmation: 'pending_confirmation',   # Initial state when customer books
@@ -14,6 +17,41 @@ class ServiceBooking < ApplicationRecord
     cancelled: 'cancelled',                        # Booking was cancelled
     refunded: 'refunded'                          # Payment was refunded
   }
+
+  enum :payment_status, {
+    unpaid: 'unpaid',
+    pending: 'pending',
+    paid: 'paid',
+    partially_refunded: 'partially_refunded',
+    refunded: 'refunded',
+    failed: 'failed'
+  }, prefix: :payment
+
+  enum :refund_status, {
+    not_requested: 'not_requested',
+    requested: 'requested',
+    processing: 'processing',
+    refunded: 'refunded',
+    failed: 'failed'
+  }, prefix: :refund
+
+  enum :contract_status, {
+    not_generated: 'not_generated',
+    auto_signed: 'auto_signed',
+    voided: 'voided'
+  }, prefix: :contract
+
+  enum :deposit_status, {
+    unpaid: 'unpaid',
+    reported: 'reported',
+    confirmed: 'confirmed'
+  }, prefix: :deposit
+
+  enum :balance_status, {
+    unpaid: 'unpaid',
+    reported: 'reported',
+    confirmed: 'confirmed'
+  }, prefix: :balance
 
   # For scheduling
   store_accessor :metadata,
@@ -53,6 +91,87 @@ class ServiceBooking < ApplicationRecord
     !completed? && !cancelled? && !refunded?
   end
 
+  def may_refund?
+    payment_paid? && !refunded? && !refund_refunded?
+  end
+
+  def may_mark_deposit_paid?(user)
+    customer == user && !cancelled? && !refunded? && !deposit_confirmed?
+  end
+
+  def may_confirm_deposit?(user)
+    provider == user && deposit_reported? && !cancelled? && !refunded?
+  end
+
+  def may_mark_balance_paid?(user)
+    customer == user && deposit_confirmed? && !balance_confirmed? && !cancelled? && !refunded?
+  end
+
+  def may_confirm_balance?(user)
+    provider == user && balance_reported? && !cancelled? && !refunded?
+  end
+
+  def mark_deposit_paid!(actor:, notes: nil)
+    update!(
+      deposit_status: :reported,
+      deposit_paid_at: Time.current,
+      payment_status: :pending,
+      payment_tracking_notes: notes.presence || payment_tracking_notes
+    )
+    add_system_message!("#{actor.display_name.presence || actor.full_name} reported the deposit payment.", actor: actor)
+  end
+
+  def confirm_deposit!(actor:, notes: nil)
+    update!(
+      deposit_status: :confirmed,
+      deposit_confirmed_at: Time.current,
+      payment_status: balance_due_amount.to_d.positive? ? :pending : :paid,
+      payment_tracking_notes: notes.presence || payment_tracking_notes
+    )
+    add_system_message!("#{actor.display_name.presence || actor.full_name} confirmed the deposit payment.", actor: actor)
+  end
+
+  def mark_balance_paid!(actor:, notes: nil)
+    update!(
+      balance_status: :reported,
+      balance_paid_at: Time.current,
+      payment_status: :pending,
+      payment_tracking_notes: notes.presence || payment_tracking_notes
+    )
+    add_system_message!("#{actor.display_name.presence || actor.full_name} reported the balance payment.", actor: actor)
+  end
+
+  def confirm_balance!(actor:, notes: nil)
+    update!(
+      balance_status: :confirmed,
+      balance_confirmed_at: Time.current,
+      payment_status: :paid,
+      payment_tracking_notes: notes.presence || payment_tracking_notes
+    )
+    add_system_message!("#{actor.display_name.presence || actor.full_name} confirmed the balance payment.", actor: actor)
+  end
+
+  def refund_amount_for_gateway
+    amount = total_amount || subtotal_amount || service_product.price || 0
+
+    case currency.to_s.downcase
+    when "clp", "jpy", "krw"
+      amount.to_i
+    else
+      (amount.to_d * 100).to_i
+    end
+  end
+
+  def mark_refunded!(refund_id: nil)
+    update!(
+      status: :refunded,
+      payment_status: :refunded,
+      refund_status: :refunded,
+      refund_id: refund_id,
+      refunded_at: Time.current
+    )
+  end
+
   def set_service_product_conversation
     # 3. Link conversation between buyer and seller
     buyer = customer
@@ -74,6 +193,17 @@ class ServiceBooking < ApplicationRecord
     # Add buyer and seller as participants if not already present
     conversation.add_participant(buyer) unless conversation.participant?(buyer)
     conversation.add_participant(seller) unless conversation.participant?(seller)
+  end
+
+  def add_system_message!(body, actor:)
+    conversation = conversations.active.first || conversations.first
+    return unless conversation
+
+    conversation.messages.create!(
+      user: actor,
+      message_type: "system",
+      body: body
+    )
   end
 
   private

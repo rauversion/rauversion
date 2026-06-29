@@ -2,6 +2,7 @@
 import React from 'react'
 import { Disc, Music, Coffee, Sticker, 
   Package, Cable, Box, Layers, Wrench, Shirt } from 'lucide-react'
+import I18n from '@/stores/locales'
 
 export const PRODUCT_TYPES = [
   {
@@ -75,31 +76,61 @@ export const CONDITIONS = {
 }
 
 
-export const SERVICE_TYPES = [
-  /*{ value: 'lessons', label: 'Lessons' },
-  { value: 'classes', label: 'Classes' },
-  { value: 'consultation', label: 'Consultation' },
-  { value: 'production', label: 'Production' },
-  { value: 'mixing', label: 'Mixing' },
-  { value: 'mastering', label: 'Mastering' }*/
+export const SERVICE_KIND_OPTIONS = [
+  {
+    value: 'advisory',
+    label: I18n.t('products.service.service_kinds.advisory.label'),
+    description: I18n.t('products.service.service_kinds.advisory.description')
+  },
+  {
+    value: 'education',
+    label: I18n.t('products.service.service_kinds.education.label'),
+    description: I18n.t('products.service.service_kinds.education.description')
+  },
+  {
+    value: 'performance',
+    label: I18n.t('products.service.service_kinds.performance.label'),
+    description: I18n.t('products.service.service_kinds.performance.description')
+  },
+  {
+    value: 'studio_service',
+    label: I18n.t('products.service.service_kinds.studio_service.label'),
+    description: I18n.t('products.service.service_kinds.studio_service.description')
+  }
+]
 
-  { value: 'coaching', label: 'coaching'} ,
-  { value: 'feedback', label: 'feedback'} ,
-  { value: 'classes', label: 'classes'} ,
-  { value: 'other', label: 'other'} ,
-  { value: 'mastering', label: 'mastering'} ,
-  { value: 'mixing', label: 'mixing'} ,
-  { value: 'production', label: 'production'} ,
-  { value: 'recording', label: 'recording'} ,
-  { value: 'songwriting', label: 'songwriting'} ,
-  { value: 'sound_design', label: 'sound_design'} ,
-  { value: 'voice_over', label: 'voice_over'} 
+export const BOOKING_MODES = [
+  { value: 'instant_checkout', label: I18n.t('products.service.booking_modes.instant_checkout') },
+  { value: 'request_quote', label: I18n.t('products.service.booking_modes.request_quote') },
+  { value: 'deposit_then_balance', label: I18n.t('products.service.booking_modes.deposit_then_balance') }
+]
+
+export const SERVICE_TYPES = [
+  { value: 'coaching', label: I18n.t('products.service.categories.coaching'), serviceKind: 'advisory'} ,
+  { value: 'feedback', label: I18n.t('products.service.categories.feedback'), serviceKind: 'advisory'} ,
+  { value: 'event_consulting', label: I18n.t('products.service.categories.event_consulting'), serviceKind: 'advisory'} ,
+  { value: 'classes', label: I18n.t('products.service.categories.classes'), serviceKind: 'education'} ,
+  { value: 'one_on_one_class', label: I18n.t('products.service.categories.one_on_one_class'), serviceKind: 'education'} ,
+  { value: 'workshop', label: I18n.t('products.service.categories.workshop'), serviceKind: 'education'} ,
+  { value: 'dj_set', label: I18n.t('products.service.categories.dj_set'), serviceKind: 'performance'} ,
+  { value: 'live_act', label: I18n.t('products.service.categories.live_act'), serviceKind: 'performance'} ,
+  { value: 'hybrid_live', label: I18n.t('products.service.categories.hybrid_live'), serviceKind: 'performance'} ,
+  { value: 'vocalist', label: I18n.t('products.service.categories.vocalist'), serviceKind: 'performance'} ,
+  { value: 'host_mc', label: I18n.t('products.service.categories.host_mc'), serviceKind: 'performance'} ,
+  { value: 'mastering', label: I18n.t('products.service.categories.mastering'), serviceKind: 'studio_service'} ,
+  { value: 'mixing', label: I18n.t('products.service.categories.mixing'), serviceKind: 'studio_service'} ,
+  { value: 'production', label: I18n.t('products.service.categories.production'), serviceKind: 'studio_service'} ,
+  { value: 'recording', label: I18n.t('products.service.categories.recording'), serviceKind: 'studio_service'} ,
+  { value: 'songwriting', label: I18n.t('products.service.categories.songwriting'), serviceKind: 'studio_service'} ,
+  { value: 'sound_design', label: I18n.t('products.service.categories.sound_design'), serviceKind: 'studio_service'} ,
+  { value: 'voice_over', label: I18n.t('products.service.categories.voice_over'), serviceKind: 'studio_service'} ,
+  { value: 'other', label: I18n.t('products.service.categories.other'), serviceKind: 'advisory'}
 ]
 
 export const DELIVERY_METHODS = [
-  { value: 'in_person', label: 'In Person' },
-  { value: 'online', label: 'Online' },
-  { value: 'both', label: 'Hybrid' }
+  { value: 'in_person', label: I18n.t('products.service.delivery_methods.in_person') },
+  { value: 'online', label: I18n.t('products.service.delivery_methods.online') },
+  { value: 'both', label: I18n.t('products.service.delivery_methods.hybrid') }
 ]
 
 export const CATEGORY_ICONS = {

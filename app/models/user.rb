@@ -44,6 +44,8 @@ class User < ApplicationRecord
   has_many :products
   has_many :provider_service_bookings, class_name: 'ServiceBooking', foreign_key: :provider_id
   has_many :customer_service_bookings, class_name: 'ServiceBooking', foreign_key: :customer_id
+  has_many :sent_service_booking_proposals, class_name: 'ServiceBookingProposal', foreign_key: :booker_id
+  has_many :received_service_booking_proposals, class_name: 'ServiceBookingProposal', foreign_key: :artist_id
   has_many :coupons
   has_many :interest_alerts
   has_many :product_purchases

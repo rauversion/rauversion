@@ -213,11 +213,13 @@ Rails.application.routes.draw do
   resources :store do
     collection do
       get :services
+      get :performers
       get :music
       get :classes
       get :feedback
       get :accessories
       get :gear
+      get :merch
     end
   end
   
@@ -467,7 +469,21 @@ Rails.application.routes.draw do
       patch :schedule
       patch :complete
       patch :cancel
+      patch :refund
+      patch :mark_deposit_paid
+      patch :confirm_deposit
+      patch :mark_balance_paid
+      patch :confirm_balance
       get :feedback_form
+    end
+  end
+
+  resources :service_booking_proposals, only: [:index, :show, :create] do
+    member do
+      patch :counter
+      patch :accept
+      patch :reject
+      patch :cancel
     end
   end
 

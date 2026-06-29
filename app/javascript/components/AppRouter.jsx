@@ -101,6 +101,8 @@ import AccessoryForm from "./products/accessory/Form"
 import ServiceForm from "./products/service/Form"
 import { ServiceBookings } from "./ServiceBookings"
 import { ServiceBookingDetail } from "./ServiceBookings/ServiceBookingDetail"
+import { ServiceBookingProposals } from "./ServiceBookingProposals"
+import { ServiceBookingProposalDetail } from "./ServiceBookingProposals/ServiceBookingProposalDetail"
 import NewTrack from "./tracks/NewTrack"
 import CategoryView from "./store/CategoryView"
 import { InterestAlertDemo } from "./shared/alerts"
@@ -454,6 +456,8 @@ function AppContent() {
       <Route path="/library/likes" element={<RequireAuth><LikedTracks /></RequireAuth>} />
       <Route path="/service_bookings" element={<RequireAuth><ServiceBookings /></RequireAuth>} />
       <Route path="/service_bookings/:id" element={<RequireAuth><ServiceBookingDetail /></RequireAuth>} />
+      <Route path="/service_booking_proposals" element={<RequireAuth><ServiceBookingProposals /></RequireAuth>} />
+      <Route path="/service_booking_proposals/:id" element={<RequireAuth><ServiceBookingProposalDetail /></RequireAuth>} />
       <Route path="/account_connections/new" element={<RequireAuth><AccountConnectionForm /></RequireAuth>} />
 
       <Route path="/:username/press-kit" element={<PressKitPage />} />

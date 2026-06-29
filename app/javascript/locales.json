@@ -331,6 +331,7 @@
     },
     "back": "Return",
     "by": "Por %{name}",
+    "cancel": "Cancel",
     "common": {
       "go_back": "Go back"
     },
@@ -1839,6 +1840,7 @@
       "watch_live": "Watch live broadcast",
       "your_events": "Your events"
     },
+    "false": "No",
     "flash": {
       "actions": {
         "create": {
@@ -2116,6 +2118,7 @@
       "log_in": "Sign in",
       "log_out": "Sign out",
       "magazine": "Magazine",
+      "messages": "Messages",
       "music": "Music",
       "my_articles": "My articles",
       "my_courses": "Mis courses",
@@ -2126,9 +2129,11 @@
       "my_products_merch": "My store",
       "my_purchases": "My purchases",
       "my_sales": "My sales",
+      "newsletter": "Newsletter",
       "notifications": "Notifications",
       "profile": "Profile",
       "register": "Register",
+      "service_booking_proposals": "Show proposals",
       "service_bookings": "Bookings",
       "settings": "Settings",
       "store": "Store",
@@ -2186,6 +2191,10 @@
         }
       },
       "store": {
+        "accessories": {
+          "description": "Browse cables, cases, stands, and useful add-ons.",
+          "title": "Accessories"
+        },
         "descr": "Get direct feedback or one-on-one mentorship from electronic music experts in just a few clicks.",
         "gear": {
           "description": "Find gear, instruments, and unique instruments.",
@@ -2199,10 +2208,15 @@
           "description": "Buy and download tracks, albums, and exclusive releases.",
           "title": "Music"
         },
+        "performers": {
+          "description": "Book DJs, live acts, hosts, and show-ready artists.",
+          "title": "Performers"
+        },
         "services": {
           "description": "Book music lessons, consulting, and other creative services.",
           "title": "Services"
-        }
+        },
+        "title": "Rau Marketplace"
       }
     },
     "messages": {
@@ -3006,14 +3020,42 @@
       },
       "quick_view": "Quick view",
       "service": {
+        "booking_modes": {
+          "deposit_then_balance": "Deposit + balance",
+          "instant_checkout": "Instant checkout",
+          "request_quote": "Request quote"
+        },
+        "categories": {
+          "classes": "Classes",
+          "coaching": "Coaching",
+          "dj_set": "DJ set",
+          "event_consulting": "Event consulting",
+          "feedback": "Feedback",
+          "host_mc": "Host / MC",
+          "hybrid_live": "Hybrid live",
+          "live_act": "Live act",
+          "mastering": "Mastering",
+          "mixing": "Mixing",
+          "one_on_one_class": "1:1 class",
+          "other": "Other",
+          "production": "Production",
+          "recording": "Recording",
+          "songwriting": "Songwriting",
+          "sound_design": "Sound design",
+          "vocalist": "Vocalist",
+          "voice_over": "Voice over",
+          "workshop": "Workshop"
+        },
         "delivery_methods": {
-          "in_person": "Presencial",
-          "online": "Virtual Meeting"
+          "hybrid": "Hybrid",
+          "in_person": "In person",
+          "online": "Online"
         },
         "edit": {
           "title": "Edit Service"
         },
         "form": {
+          "booking_mode": "Booking mode",
           "cancellation_policy": "Cancellation Policy",
           "cancellation_policy_placeholder": "Describe your cancellation and refund policy...",
           "category": "Type of service",
@@ -3021,14 +3063,61 @@
           "description": "Description",
           "details": "Details of the service",
           "duration": "Duration (minutes)",
+          "errors": {
+            "amount_min": "Amount must be greater than or equal to 0",
+            "booking_mode_required": "Booking mode is required",
+            "category_required": "Category is required",
+            "delivery_method_required": "Delivery method is required",
+            "duration_min": "Duration must be at least 15 minutes",
+            "duration_required": "Duration is required",
+            "max_participants_min": "Must have at least 1 participant",
+            "max_participants_required": "Maximum participants is required",
+            "rule_name_required": "Rule name is required",
+            "service_type_required": "Service type is required",
+            "title_required": "Title is required",
+            "unexpected": "An unexpected error occurred"
+          },
           "max_participants": "Maximum number of participants",
           "post_purchase_instructions": "Post-purchase instructions",
           "post_purchase_instructions_placeholder": "Describe the instructions for the service...",
           "prerequisites": "Requirements prior",
           "prerequisites_placeholder": "List the necessary requirements or knowledge...",
           "prerequisities": "Requirements prior",
+          "price_rules": {
+            "add": "Add rule",
+            "amount": "Amount",
+            "base_price": "Base price",
+            "currency": "Currency",
+            "currency_placeholder": "usd",
+            "description": "Publish the pricing rules buyers should understand before booking.",
+            "duration_minutes": "Duration minutes",
+            "location_scope": "Location scope",
+            "location_scope_placeholder": "Online, Santiago, out of town, LATAM...",
+            "min_notice_days": "Minimum notice days",
+            "name": "Name",
+            "name_placeholder": "Local DJ set, extra hour...",
+            "remove": "Remove rule",
+            "rule": "Rule %{number}",
+            "title": "Price criteria",
+            "type": "Type"
+          },
+          "select_booking_mode": "Select booking mode",
           "select_category": "Select type of service",
           "select_delivery_method": "Select delivery method",
+          "service_type": "Service type",
+          "show_details": {
+            "available_countries": "Available countries",
+            "available_countries_placeholder": "CL, AR, MX...",
+            "home_city": "Home city",
+            "home_country": "Home country",
+            "hospitality_rider": "Hospitality rider",
+            "hospitality_rider_placeholder": "Travel, lodging, meal, or green room notes...",
+            "performance_format": "Performance format",
+            "performance_format_placeholder": "DJ set, live act, hybrid...",
+            "technical_rider": "Technical rider",
+            "technical_rider_placeholder": "CDJs, mixer, monitors, stage needs...",
+            "title": "Show details"
+          },
           "title": "Title",
           "what_to_expect": "What to expect",
           "what_to_expect_placeholder": "Describe what participants can expect..."
@@ -3055,6 +3144,32 @@
         "new": {
           "title": "New Service"
         },
+        "price_rule_types": {
+          "base": "Base",
+          "custom": "Custom",
+          "deposit": "Deposit",
+          "extra_hour": "Extra hour",
+          "rider": "Rider",
+          "travel": "Travel"
+        },
+        "service_kinds": {
+          "advisory": {
+            "description": "Mentoring, coaching, feedback, and creative guidance.",
+            "label": "Advisory"
+          },
+          "education": {
+            "description": "Classes, courses, workshops, and cohort sessions.",
+            "label": "Education"
+          },
+          "performance": {
+            "description": "DJ sets, live acts, hosts, and bookable shows.",
+            "label": "Performance"
+          },
+          "studio_service": {
+            "description": "Mixing, mastering, production, and recording work.",
+            "label": "Studio Service"
+          }
+        },
         "show": {
           "about": "About",
           "book_now": "Book Now",
@@ -3062,8 +3177,21 @@
           "description": "Description",
           "details": "Details",
           "duration": "Duration",
+          "duration_hours": {
+            "one": "%{count} hour",
+            "other": "%{count} hours"
+          },
+          "duration_hours_minutes": "%{hours}h %{minutes}m",
+          "duration_minutes": {
+            "one": "%{count} minute",
+            "other": "%{count} minutes"
+          },
           "max_participants": "Maximum number of participants",
           "prerequisites": "Requirements prior",
+          "price_rules": {
+            "description": "Different prices may apply depending on the show or service scope.",
+            "title": "Pricing criteria"
+          },
           "what_to_expect": "What to expect",
           "what_you_get": "What You Receive"
         }
@@ -3398,27 +3526,169 @@
         "subject": "Tu sesión de %{service} ha sido completada"
       }
     },
+    "service_booking_proposals": {
+      "actions": {
+        "accept": "Accept and close deal",
+        "cancel": "Cancel proposal",
+        "counter": "Send counterproposal",
+        "reject": "Reject",
+        "view_booking": "View booking"
+      },
+      "fee_type_labels": {
+        "landed": "Landed fee",
+        "landed_hospitalities": "Landed + hospitalities",
+        "no_landed_add_ons": "No landed + add-ons"
+      },
+      "fee_types": {
+        "landed": {
+          "description": "Artist fee with ground transport included.",
+          "title": "Landed"
+        },
+        "landed_hospitalities": {
+          "description": "Includes transport, accommodation, or backstage benefits.",
+          "title": "Landed + hospitalities"
+        },
+        "no_landed_add_ons": {
+          "description": "Artist fee only; extras are handled by the booker.",
+          "title": "No landed + add-ons"
+        }
+      },
+      "form": {
+        "accommodation_included": "Accommodation included",
+        "amount": "Proposed fee",
+        "artist_fee": "DJ commission",
+        "artist_payout": "DJ net",
+        "balance_amount": "Balance",
+        "benefits": "Benefits and terms",
+        "catering_included": "Backstage catering",
+        "city": "City",
+        "country": "Country",
+        "deposit_amount": "Deposit",
+        "deposit_percentage": "Deposit (%)",
+        "description": "Set clear terms for %{artist}: date, fee, deposit, benefits, and rider.",
+        "end_time": "End time",
+        "event_date": "Date",
+        "event_name": "Event name",
+        "fee_type": "Fee type",
+        "guest_list_count": "Guest list",
+        "hospitality_included": "Hospitality included",
+        "message": "Message",
+        "payment_preview": "Payment preview",
+        "start_time": "Start time",
+        "submit": "Send proposal",
+        "submit_error": "Failed to send the proposal",
+        "technical_notes": "Technical rider / notes",
+        "title": "DJ booking proposal",
+        "transport_included": "Transport included",
+        "trigger": "Send show proposal",
+        "venue_address": "Address",
+        "venue_name": "Venue"
+      },
+      "history": {
+        "accepted": "Accepted",
+        "auto_cancelled": "Automatically cancelled",
+        "cancelled": "Cancelled",
+        "countered": "Counterproposal",
+        "created": "Proposal sent",
+        "rejected": "Rejected"
+      },
+      "index": {
+        "empty": "You do not have show proposals yet.",
+        "open": "View proposal",
+        "subtitle": "Negotiate, accept, and close performance bookings.",
+        "title": "Show proposals",
+        "view_bookings": "View bookings"
+      },
+      "labels": {
+        "amount": "Fee",
+        "artist": "DJ / performer",
+        "artist_fee": "Artist commission",
+        "artist_payout": "Artist net payout",
+        "balance": "Balance",
+        "booker": "Booker",
+        "conversation": "Conversation",
+        "deposit": "Deposit",
+        "fee_type": "Fee type",
+        "with_artist": "with %{artist}"
+      },
+      "messages": {
+        "error": "Error",
+        "success": "Success",
+        "update_error": "Failed to update the proposal",
+        "updated": "Proposal updated"
+      },
+      "show": {
+        "actions": "Actions",
+        "contract": "Digital contract",
+        "contract_signed": "Contract generated and automatically signed when the proposal was accepted.",
+        "counter_description": "Each side can counter once to keep negotiation fast.",
+        "counter_title": "Counterproposal",
+        "current_offer": "Current offer",
+        "current_offer_by": "Proposed by %{name}",
+        "history": "Negotiation history",
+        "no_actions": "No actions are available for your role in this state.",
+        "parties": "Parties"
+      },
+      "status": {
+        "accepted": "Accepted",
+        "cancelled": "Cancelled",
+        "countered_by_artist": "DJ counterproposal",
+        "countered_by_booker": "Booker counterproposal",
+        "expired": "Expired",
+        "pending_artist_response": "Waiting for DJ response",
+        "rejected": "Rejected"
+      },
+      "viewer": {
+        "artist": "DJ view",
+        "booker": "Booker view"
+      }
+    },
     "service_bookings": {
       "cancel": {
+        "error": "Failed to cancel booking",
         "invalid_status": "This reservation cannot be canceled",
+        "reason_prompt": "Please provide a reason for cancellation",
         "success": "The reservation has been canceled"
       },
       "complete": {
+        "error": "Failed to complete service",
         "invalid_status": "This service cannot be marked as completed yet",
         "success": "The service has been marked as completed"
       },
       "confirm": {
+        "error": "Failed to confirm booking",
         "invalid_status": "This reservation cannot be confirmed",
         "success": "The reservation has been successfully confirmed"
+      },
+      "contract": {
+        "proposal": "Proposal",
+        "signed_at": "Signed on",
+        "status": "Status",
+        "title": "Contract"
+      },
+      "contract_status": {
+        "auto_signed": "Automatically signed",
+        "not_generated": "Not generated",
+        "voided": "Voided"
       },
       "create": {
         "success": "Service reservation successfully created"
       },
       "feedback_form": {
         "add_feedback": "Add your Opinion",
+        "errors": {
+          "feedback_required": "Feedback is required",
+          "feedback_too_long": "Feedback must be less than 1000 characters",
+          "rating_required": "Rating is required"
+        },
         "feedback": "Your opinion",
         "feedback_placeholder": "Tell us about your experience...",
         "rating": "Rate your experience",
+        "rating_placeholder": "Select a rating",
+        "stars": {
+          "one": "%{count} star",
+          "other": "%{count} stars"
+        },
         "submit": "Send Opinion"
       },
       "index": {
@@ -3430,6 +3700,7 @@
         "confirm": "Confirm Reservation",
         "for_customer": "para %{customer}",
         "in_person": "In-person",
+        "load_error": "Failed to load service bookings",
         "mark_complete": "Mark as Completed",
         "minutes": "minutes",
         "no_bookings": "No reservations found",
@@ -3444,13 +3715,72 @@
         "waiting_schedule": "Reservation confirmed. Waiting for scheduling.",
         "with_provider": "con %{provider}"
       },
+      "labels": {
+        "at": "at",
+        "cancellation_details": "Cancellation details",
+        "cancelled_by": "Cancelled by",
+        "conversations": "Conversations",
+        "created_on": "Created on %{date}",
+        "customer": "Customer",
+        "location": "Location",
+        "provider": "Provider",
+        "reason": "Reason",
+        "schedule_details": "Schedule details",
+        "scheduled_for": "Scheduled for",
+        "view_conversation": "View conversation"
+      },
+      "messages": {
+        "error": "Error",
+        "success": "Success"
+      },
+      "payment": {
+        "artist_fee": "Artist commission",
+        "artist_payout": "Artist net payout",
+        "balance": "Balance",
+        "balance_status": "Balance status",
+        "deposit": "Deposit",
+        "deposit_status": "Deposit status",
+        "payment_intent": "Payment intent",
+        "provider": "Provider",
+        "refund": "Refund",
+        "status": "Status",
+        "title": "Payment",
+        "total": "Total"
+      },
+      "payment_statuses": {
+        "confirmed": "Confirmed",
+        "reported": "Reported",
+        "unpaid": "Pending"
+      },
+      "payment_tracking": {
+        "confirm_balance": "Confirm balance",
+        "confirm_deposit": "Confirm deposit",
+        "error": "Failed to update payment",
+        "invalid_status": "This payment milestone cannot be updated yet",
+        "mark_balance_paid": "Mark balance sent",
+        "mark_deposit_paid": "Mark deposit sent",
+        "success": "Payment status updated"
+      },
+      "refund": {
+        "button": "Refund Booking",
+        "confirm": "Process a refund for this booking?",
+        "error": "Failed to process refund",
+        "invalid_status": "This booking cannot be refunded",
+        "success": "The booking refund has been processed"
+      },
       "schedule": {
+        "error": "Failed to schedule service",
         "invalid_status": "This reservation cannot be scheduled",
         "success": "The service has been successfully scheduled"
       },
       "schedule_modal": {
         "cancel_button": "Cancel",
         "date": "Date",
+        "errors": {
+          "date_required": "Date is required",
+          "time_required": "Time is required",
+          "timezone_required": "Time zone is required"
+        },
         "meeting_link": "Meeting Link",
         "meeting_link_help": "Add a video conference link (Zoom, Google Meet, etc.) if it is a virtual meeting.",
         "meeting_link_placeholder": "e.g., https://zoom.us/j/123456789",
@@ -3497,6 +3827,7 @@
         "scheduled": "Programmed"
       },
       "update": {
+        "feedback_error": "Failed to submit feedback",
         "feedback_submitted": "Thank you for your opinion!"
       }
     },
@@ -3717,6 +4048,55 @@
       "share": "Share"
     },
     "store": {
+      "filters": {
+        "accessories": {
+          "subcategories": {
+            "all": "All Accessories"
+          },
+          "title": "Accessories"
+        },
+        "gear": {
+          "subcategories": {
+            "all": "All Gear",
+            "audio_gear": "Audio Gear",
+            "console": "Consoles",
+            "controller": "Controllers",
+            "dj_gear": "DJ Gear",
+            "effect": "Effects",
+            "instrument": "Instruments",
+            "keyboard": "Keyboards",
+            "synth": "Synths"
+          },
+          "title": "Gear"
+        },
+        "merch": {
+          "subcategories": {
+            "all": "All Merch",
+            "merch": "General"
+          },
+          "title": "Merch"
+        },
+        "music": {
+          "subcategories": {
+            "all": "All Music"
+          },
+          "title": "Music"
+        },
+        "no_products": "No products found in this category",
+        "open_menu": "Open filters",
+        "performers": {
+          "subcategories": {
+            "all": "All Performers"
+          },
+          "title": "Performers"
+        },
+        "services": {
+          "subcategories": {
+            "all": "All Services"
+          },
+          "title": "Services"
+        }
+      },
       "index": {
         "accessories": "Accessories",
         "all": "All Products",
@@ -4201,6 +4581,7 @@
       "spotlights": "Destacados %{msg}",
       "supporters": "Supporters"
     },
+    "true": "Yes",
     "upload": {
       "or_drag_and_drop": "Drag and drop",
       "upload_label": "Subir %{name}"
@@ -4802,6 +5183,7 @@
     },
     "back": "Volver",
     "by": "Por %{name}",
+    "cancel": "Cancelar",
     "common": {
       "go_back": "Go back"
     },
@@ -6408,6 +6790,7 @@
       "watch_live": "Ver transmisión en vivo",
       "your_events": "Tus eventos"
     },
+    "false": "No",
     "hello": "Hola mundo",
     "helpers": {
       "select": {
@@ -6653,6 +7036,7 @@
       "log_in": "Iniciar sesión",
       "log_out": "Cerrar sesión",
       "magazine": "Revista",
+      "messages": "Mensajes",
       "music": "Música",
       "my_articles": "Mis artículos",
       "my_courses": "Mis cursos",
@@ -6663,10 +7047,12 @@
       "my_products_merch": "Mi tienda",
       "my_purchases": "Mis compras",
       "my_sales": "Mis ventas",
+      "newsletter": "Newsletter",
       "notifications": "Notificaciones",
       "profile": "Mi Página",
       "register": "Registrar",
-      "service_bookings": "Bookings",
+      "service_booking_proposals": "Propuestas de shows",
+      "service_bookings": "Reservas",
       "settings": "Configuraciones",
       "store": "Tienda",
       "upload": "Subir música"
@@ -6723,6 +7109,10 @@
         }
       },
       "store": {
+        "accessories": {
+          "description": "Encuentra cables, cases, stands y complementos útiles.",
+          "title": "Accesorios"
+        },
         "descr": "Recibe feedback o tutorías directas de expertos en música electrónica en un par de clics.",
         "gear": {
           "description": "Encuentra equipos, instrumentos y usados únicos.",
@@ -6736,10 +7126,15 @@
           "description": "Baja tracks, compra discos en formato fisico y lanzamientos exclusivos.",
           "title": "Música"
         },
+        "performers": {
+          "description": "Agenda DJs, lives, hosts y artistas listos para shows.",
+          "title": "Performers"
+        },
         "services": {
           "description": "Agenda clases, asesorías y otros servicios de aprendizaje creativo.",
           "title": "Advisors"
-        }
+        },
+        "title": "Marketplace Rau"
       }
     },
     "messages": {
@@ -7542,7 +7937,34 @@
       },
       "quick_view": "Vista rápida",
       "service": {
+        "booking_modes": {
+          "deposit_then_balance": "Depósito + saldo",
+          "instant_checkout": "Pago inmediato",
+          "request_quote": "Solicitar cotización"
+        },
+        "categories": {
+          "classes": "Clases",
+          "coaching": "Coaching",
+          "dj_set": "DJ set",
+          "event_consulting": "Consultoría de eventos",
+          "feedback": "Feedback",
+          "host_mc": "Host / MC",
+          "hybrid_live": "Live híbrido",
+          "live_act": "Live act",
+          "mastering": "Mastering",
+          "mixing": "Mezcla",
+          "one_on_one_class": "Clase 1:1",
+          "other": "Otro",
+          "production": "Producción",
+          "recording": "Grabación",
+          "songwriting": "Composición",
+          "sound_design": "Diseño sonoro",
+          "vocalist": "Vocalista",
+          "voice_over": "Voice over",
+          "workshop": "Workshop"
+        },
         "delivery_methods": {
+          "hybrid": "Híbrido",
           "in_person": "Presencial",
           "online": "Reunión Virtual"
         },
@@ -7550,6 +7972,7 @@
           "title": "Editar Servicio"
         },
         "form": {
+          "booking_mode": "Modo de reserva",
           "cancellation_policy": "Política de cancelación",
           "cancellation_policy_placeholder": "Describe tu política de cancelación y reembolsos...",
           "category": "Tipo de servicio",
@@ -7557,14 +7980,61 @@
           "description": "Descripción",
           "details": "Detalles del servicio",
           "duration": "Duración (minutos)",
+          "errors": {
+            "amount_min": "El monto debe ser mayor o igual a 0",
+            "booking_mode_required": "El modo de reserva es obligatorio",
+            "category_required": "La categoría es obligatoria",
+            "delivery_method_required": "La modalidad es obligatoria",
+            "duration_min": "La duración debe ser de al menos 15 minutos",
+            "duration_required": "La duración es obligatoria",
+            "max_participants_min": "Debe haber al menos 1 participante",
+            "max_participants_required": "El máximo de participantes es obligatorio",
+            "rule_name_required": "El nombre de la regla es obligatorio",
+            "service_type_required": "El tipo de servicio es obligatorio",
+            "title_required": "El título es obligatorio",
+            "unexpected": "Ocurrió un error inesperado"
+          },
           "max_participants": "Máximo de participantes",
           "post_purchase_instructions": "Instrucciones post-compra",
           "post_purchase_instructions_placeholder": "Instrucciones para el cliente después de la compra...",
           "prerequisites": "Requisitos previos",
           "prerequisites_placeholder": "Lista los requisitos o conocimientos necesarios...",
           "prerequisities": "Requisitos previos",
+          "price_rules": {
+            "add": "Agregar regla",
+            "amount": "Monto",
+            "base_price": "Precio base",
+            "currency": "Moneda",
+            "currency_placeholder": "usd",
+            "description": "Publica las reglas de precio que la persona debe entender antes de reservar.",
+            "duration_minutes": "Duración en minutos",
+            "location_scope": "Alcance geográfico",
+            "location_scope_placeholder": "Online, Santiago, fuera de ciudad, LATAM...",
+            "min_notice_days": "Días mínimos de anticipación",
+            "name": "Nombre",
+            "name_placeholder": "DJ set local, hora extra...",
+            "remove": "Eliminar regla",
+            "rule": "Regla %{number}",
+            "title": "Criterios de precio",
+            "type": "Tipo"
+          },
+          "select_booking_mode": "Selecciona modo de reserva",
           "select_category": "Seleccionar tipo de servicio",
           "select_delivery_method": "Seleccionar método de entrega",
+          "service_type": "Tipo de servicio",
+          "show_details": {
+            "available_countries": "Países disponibles",
+            "available_countries_placeholder": "CL, AR, MX...",
+            "home_city": "Ciudad base",
+            "home_country": "País base",
+            "hospitality_rider": "Rider de hospitalidad",
+            "hospitality_rider_placeholder": "Viaje, alojamiento, comidas o notas de camarín...",
+            "performance_format": "Formato de performance",
+            "performance_format_placeholder": "DJ set, live act, híbrido...",
+            "technical_rider": "Rider técnico",
+            "technical_rider_placeholder": "CDJs, mixer, monitores, necesidades de escenario...",
+            "title": "Detalles del show"
+          },
           "title": "Título",
           "what_to_expect": "Qué esperar",
           "what_to_expect_placeholder": "Describe lo que los participantes pueden esperar..."
@@ -7591,6 +8061,32 @@
         "new": {
           "title": "Nuevo Servicio"
         },
+        "price_rule_types": {
+          "base": "Base",
+          "custom": "Custom",
+          "deposit": "Depósito",
+          "extra_hour": "Hora extra",
+          "rider": "Rider",
+          "travel": "Traslado"
+        },
+        "service_kinds": {
+          "advisory": {
+            "description": "Mentoría, coaching, feedback y guía creativa.",
+            "label": "Asesoría"
+          },
+          "education": {
+            "description": "Clases, cursos, workshops y sesiones grupales.",
+            "label": "Educación"
+          },
+          "performance": {
+            "description": "DJ sets, lives, hosts y shows reservables.",
+            "label": "Performance"
+          },
+          "studio_service": {
+            "description": "Mezcla, mastering, producción y grabación.",
+            "label": "Servicio de Estudio"
+          }
+        },
         "show": {
           "about": "Acerca de",
           "book_now": "Reservar Ahora",
@@ -7598,8 +8094,21 @@
           "description": "Descripción",
           "details": "Detalles",
           "duration": "Duración",
+          "duration_hours": {
+            "one": "%{count} hora",
+            "other": "%{count} horas"
+          },
+          "duration_hours_minutes": "%{hours}h %{minutes}m",
+          "duration_minutes": {
+            "one": "%{count} minuto",
+            "other": "%{count} minutos"
+          },
           "max_participants": "Máximo de participantes",
           "prerequisites": "Requisitos previos",
+          "price_rules": {
+            "description": "Pueden aplicar precios distintos según el show o el alcance del servicio.",
+            "title": "Criterios de precio"
+          },
           "what_to_expect": "Qué esperar",
           "what_you_get": "Lo que Recibes"
         }
@@ -7934,27 +8443,169 @@
         "subject": "Tu sesión de %{service} ha sido completada"
       }
     },
+    "service_booking_proposals": {
+      "actions": {
+        "accept": "Aceptar y cerrar acuerdo",
+        "cancel": "Cancelar propuesta",
+        "counter": "Enviar contrapropuesta",
+        "reject": "Rechazar",
+        "view_booking": "Ver booking"
+      },
+      "fee_type_labels": {
+        "landed": "Tarifa landed",
+        "landed_hospitalities": "Landed + hospitalities",
+        "no_landed_add_ons": "No landed + add-ons"
+      },
+      "fee_types": {
+        "landed": {
+          "description": "Fee artístico con transporte terrestre incluido.",
+          "title": "Landed"
+        },
+        "landed_hospitalities": {
+          "description": "Incluye transporte, alojamiento o beneficios backstage.",
+          "title": "Landed + hospitalities"
+        },
+        "no_landed_add_ons": {
+          "description": "Solo honorarios; extras los cubre el booker.",
+          "title": "No landed + add-ons"
+        }
+      },
+      "form": {
+        "accommodation_included": "Alojamiento incluido",
+        "amount": "Tarifa propuesta",
+        "artist_fee": "Comisión DJ",
+        "artist_payout": "Neto DJ",
+        "balance_amount": "Saldo",
+        "benefits": "Beneficios y condiciones",
+        "catering_included": "Catering backstage",
+        "city": "Ciudad",
+        "country": "País",
+        "deposit_amount": "Adelanto",
+        "deposit_percentage": "Adelanto (%)",
+        "description": "Define condiciones claras para %{artist}: fecha, fee, adelanto, beneficios y rider.",
+        "end_time": "Hora de término",
+        "event_date": "Fecha",
+        "event_name": "Nombre del evento",
+        "fee_type": "Tipo de tarifa",
+        "guest_list_count": "Guest list",
+        "hospitality_included": "Hospitality incluido",
+        "message": "Mensaje",
+        "payment_preview": "Vista de pago",
+        "start_time": "Hora de inicio",
+        "submit": "Enviar propuesta",
+        "submit_error": "No se pudo enviar la propuesta",
+        "technical_notes": "Rider técnico / notas",
+        "title": "Propuesta para contratar DJ",
+        "transport_included": "Transporte incluido",
+        "trigger": "Enviar propuesta de show",
+        "venue_address": "Dirección",
+        "venue_name": "Venue"
+      },
+      "history": {
+        "accepted": "Aceptada",
+        "auto_cancelled": "Cancelada automáticamente",
+        "cancelled": "Cancelada",
+        "countered": "Contrapropuesta",
+        "created": "Propuesta enviada",
+        "rejected": "Rechazada"
+      },
+      "index": {
+        "empty": "Aún no tienes propuestas de shows.",
+        "open": "Ver propuesta",
+        "subtitle": "Negocia, acepta y cierra bookings para performances.",
+        "title": "Propuestas de shows",
+        "view_bookings": "Ver bookings"
+      },
+      "labels": {
+        "amount": "Tarifa",
+        "artist": "DJ / performer",
+        "artist_fee": "Comisión del artista",
+        "artist_payout": "Pago neto al artista",
+        "balance": "Saldo",
+        "booker": "Booker",
+        "conversation": "Conversación",
+        "deposit": "Adelanto",
+        "fee_type": "Tipo de tarifa",
+        "with_artist": "con %{artist}"
+      },
+      "messages": {
+        "error": "Error",
+        "success": "Listo",
+        "update_error": "No se pudo actualizar la propuesta",
+        "updated": "Propuesta actualizada"
+      },
+      "show": {
+        "actions": "Acciones",
+        "contract": "Contrato digital",
+        "contract_signed": "Contrato generado y firmado automáticamente al aceptar la propuesta.",
+        "counter_description": "Cada parte puede contraofertar una vez para mantener la negociación rápida.",
+        "counter_title": "Contrapropuesta",
+        "current_offer": "Oferta actual",
+        "current_offer_by": "Propuesta por %{name}",
+        "history": "Historial de negociación",
+        "no_actions": "No hay acciones disponibles para tu rol en este estado.",
+        "parties": "Partes"
+      },
+      "status": {
+        "accepted": "Aceptada",
+        "cancelled": "Cancelada",
+        "countered_by_artist": "Contrapropuesta del DJ",
+        "countered_by_booker": "Contrapropuesta del booker",
+        "expired": "Expirada",
+        "pending_artist_response": "Esperando respuesta del DJ",
+        "rejected": "Rechazada"
+      },
+      "viewer": {
+        "artist": "Vista DJ",
+        "booker": "Vista booker"
+      }
+    },
     "service_bookings": {
       "cancel": {
+        "error": "No se pudo cancelar la reserva",
         "invalid_status": "Esta reserva no puede ser cancelada",
+        "reason_prompt": "Indica el motivo de cancelación",
         "success": "La reserva ha sido cancelada"
       },
       "complete": {
+        "error": "No se pudo completar el servicio",
         "invalid_status": "Este servicio no puede ser marcado como completado aún",
         "success": "El servicio ha sido marcado como completado"
       },
       "confirm": {
+        "error": "No se pudo confirmar la reserva",
         "invalid_status": "Esta reserva no puede ser confirmada",
         "success": "La reserva ha sido confirmada exitosamente"
+      },
+      "contract": {
+        "proposal": "Propuesta",
+        "signed_at": "Firmado el",
+        "status": "Estado",
+        "title": "Contrato"
+      },
+      "contract_status": {
+        "auto_signed": "Firmado automáticamente",
+        "not_generated": "No generado",
+        "voided": "Anulado"
       },
       "create": {
         "success": "Reserva de servicio creada exitosamente"
       },
       "feedback_form": {
         "add_feedback": "Agrega tu Opinión",
+        "errors": {
+          "feedback_required": "El feedback es obligatorio",
+          "feedback_too_long": "El feedback debe tener menos de 1000 caracteres",
+          "rating_required": "La calificación es obligatoria"
+        },
         "feedback": "Tu opinión",
         "feedback_placeholder": "Cuéntanos sobre tu experiencia...",
         "rating": "Califica tu experiencia",
+        "rating_placeholder": "Selecciona una calificación",
+        "stars": {
+          "one": "%{count} estrella",
+          "other": "%{count} estrellas"
+        },
         "submit": "Enviar Opinión"
       },
       "index": {
@@ -7966,6 +8617,7 @@
         "confirm": "Confirmar Reserva",
         "for_customer": "para %{customer}",
         "in_person": "Presencial",
+        "load_error": "No se pudieron cargar las reservas",
         "mark_complete": "Marcar como Completado",
         "minutes": "minutos",
         "no_bookings": "No se encontraron reservas",
@@ -7980,13 +8632,72 @@
         "waiting_schedule": "Reserva confirmada. Esperando programación.",
         "with_provider": "con %{provider}"
       },
+      "labels": {
+        "at": "a las",
+        "cancellation_details": "Detalles de cancelación",
+        "cancelled_by": "Cancelado por",
+        "conversations": "Conversaciones",
+        "created_on": "Creado el %{date}",
+        "customer": "Cliente",
+        "location": "Ubicación",
+        "provider": "Proveedor",
+        "reason": "Motivo",
+        "schedule_details": "Detalles de agenda",
+        "scheduled_for": "Agendado para",
+        "view_conversation": "Ver conversación"
+      },
+      "messages": {
+        "error": "Error",
+        "success": "Listo"
+      },
+      "payment": {
+        "artist_fee": "Comisión del artista",
+        "artist_payout": "Pago neto al artista",
+        "balance": "Saldo",
+        "balance_status": "Estado del saldo",
+        "deposit": "Adelanto",
+        "deposit_status": "Estado del adelanto",
+        "payment_intent": "Payment intent",
+        "provider": "Proveedor",
+        "refund": "Reembolso",
+        "status": "Estado",
+        "title": "Pago",
+        "total": "Total"
+      },
+      "payment_statuses": {
+        "confirmed": "Confirmado",
+        "reported": "Reportado",
+        "unpaid": "Pendiente"
+      },
+      "payment_tracking": {
+        "confirm_balance": "Confirmar saldo",
+        "confirm_deposit": "Confirmar adelanto",
+        "error": "No se pudo actualizar el pago",
+        "invalid_status": "Este hito de pago no se puede actualizar todavía",
+        "mark_balance_paid": "Marcar saldo realizado",
+        "mark_deposit_paid": "Marcar adelanto realizado",
+        "success": "Estado de pago actualizado"
+      },
+      "refund": {
+        "button": "Reembolsar reserva",
+        "confirm": "¿Procesar un reembolso para esta reserva?",
+        "error": "No se pudo procesar el reembolso",
+        "invalid_status": "Esta reserva no puede ser reembolsada",
+        "success": "El reembolso de la reserva ha sido procesado"
+      },
       "schedule": {
+        "error": "No se pudo programar el servicio",
         "invalid_status": "Esta reserva no puede ser programada",
         "success": "El servicio ha sido programado exitosamente"
       },
       "schedule_modal": {
         "cancel_button": "Cancelar",
         "date": "Fecha",
+        "errors": {
+          "date_required": "La fecha es obligatoria",
+          "time_required": "La hora es obligatoria",
+          "timezone_required": "La zona horaria es obligatoria"
+        },
         "meeting_link": "Enlace de Reunión",
         "meeting_link_help": "Agrega un enlace de videoconferencia (Zoom, Google Meet, etc.) si es una reunión virtual",
         "meeting_link_placeholder": "ej., https://zoom.us/j/123456789",
@@ -8033,6 +8744,7 @@
         "scheduled": "Programado"
       },
       "update": {
+        "feedback_error": "No se pudo enviar el feedback",
         "feedback_submitted": "¡Gracias por tu opinión!"
       }
     },
@@ -8253,6 +8965,55 @@
       "share": "Compartir"
     },
     "store": {
+      "filters": {
+        "accessories": {
+          "subcategories": {
+            "all": "Todos los accesorios"
+          },
+          "title": "Accesorios"
+        },
+        "gear": {
+          "subcategories": {
+            "all": "Todos los equipos",
+            "audio_gear": "Audio",
+            "console": "Consolas",
+            "controller": "Controladores",
+            "dj_gear": "Equipos DJ",
+            "effect": "Efectos",
+            "instrument": "Instrumentos",
+            "keyboard": "Teclados",
+            "synth": "Sintetizadores"
+          },
+          "title": "Equipos"
+        },
+        "merch": {
+          "subcategories": {
+            "all": "Todo el merch",
+            "merch": "General"
+          },
+          "title": "Merch"
+        },
+        "music": {
+          "subcategories": {
+            "all": "Toda la música"
+          },
+          "title": "Música"
+        },
+        "no_products": "No se encontraron productos en esta categoría",
+        "open_menu": "Abrir filtros",
+        "performers": {
+          "subcategories": {
+            "all": "Todos los performers"
+          },
+          "title": "Performers"
+        },
+        "services": {
+          "subcategories": {
+            "all": "Todos los servicios"
+          },
+          "title": "Servicios"
+        }
+      },
       "index": {
         "accessories": "Accesorios",
         "all": "Todos los Productos",
@@ -8729,6 +9490,7 @@
       "spotlights": "Destacados %{msg}",
       "supporters": "Partidarios"
     },
+    "true": "Sí",
     "upload": {
       "or_drag_and_drop": "O arrastra y suelta",
       "upload_label": "Subir %{name}"

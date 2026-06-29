@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_22_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_28_120400) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -659,6 +659,45 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_120000) do
     t.index ["plain_conversation_id"], name: "index_plain_messages_on_plain_conversation_id"
   end
 
+  create_table "playlist_gen_library_uploads", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "error_message"
+    t.string "source", null: false
+    t.string "status", default: "pending", null: false
+    t.integer "total_tracks_imported"
+    t.datetime "updated_at", null: false
+    t.index ["source"], name: "index_playlist_gen_library_uploads_on_source"
+    t.index ["status"], name: "index_playlist_gen_library_uploads_on_status"
+  end
+
+  create_table "playlist_gen_playlist_tracks", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "playlist_id", null: false
+    t.integer "position", null: false
+    t.bigint "track_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["playlist_id", "position"], name: "index_playlist_gen_playlist_tracks_on_playlist_id_and_position"
+    t.index ["playlist_id", "track_id"], name: "index_playlist_gen_playlist_tracks_on_playlist_id_and_track_id", unique: true
+    t.index ["playlist_id"], name: "index_playlist_gen_playlist_tracks_on_playlist_id"
+    t.index ["track_id"], name: "index_playlist_gen_playlist_tracks_on_track_id"
+  end
+
+  create_table "playlist_gen_playlists", force: :cascade do |t|
+    t.decimal "bpm_max", precision: 5, scale: 2
+    t.decimal "bpm_min", precision: 5, scale: 2
+    t.datetime "created_at", null: false
+    t.integer "duration_seconds"
+    t.string "energy_curve"
+    t.datetime "generated_at"
+    t.string "name", null: false
+    t.text "prompt"
+    t.string "status", default: "draft", null: false
+    t.integer "total_tracks"
+    t.datetime "updated_at", null: false
+    t.index ["generated_at"], name: "index_playlist_gen_playlists_on_generated_at"
+    t.index ["status"], name: "index_playlist_gen_playlists_on_status"
+  end
+
 # Could not dump table "playlist_gen_tracks" because of following StandardError
 #   Unknown type 'vector(1536)' for column 'embedding'
 
@@ -862,6 +901,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_120000) do
   create_table "products", force: :cascade do |t|
     t.boolean "accept_barter", default: false
     t.text "barter_description"
+    t.string "booking_mode", default: "instant_checkout", null: false
     t.string "brand"
     t.string "category"
     t.string "condition"
@@ -879,6 +919,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_120000) do
     t.bigint "playlist_id"
     t.decimal "price"
     t.integer "quantity"
+    t.string "service_kind", default: "advisory", null: false
     t.date "shipping_begins_on"
     t.integer "shipping_days"
     t.decimal "shipping_within_country_price", precision: 10, scale: 2
@@ -902,6 +943,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_120000) do
     t.index ["model"], name: "index_products_on_model"
     t.index ["playlist_id"], name: "index_products_on_playlist_id"
     t.index ["slug"], name: "index_products_on_slug"
+    t.index ["type", "booking_mode"], name: "index_products_on_type_and_booking_mode"
+    t.index ["type", "service_kind"], name: "index_products_on_type_and_service_kind"
     t.index ["user_id"], name: "index_products_on_user_id"
     t.index ["year"], name: "index_products_on_year"
   end
@@ -1022,20 +1065,133 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_120000) do
     t.index ["event_schedule_id"], name: "index_schedule_schedulings_on_event_schedule_id"
   end
 
-  create_table "service_bookings", force: :cascade do |t|
+  create_table "service_booking_proposals", force: :cascade do |t|
+    t.datetime "accepted_at"
+    t.bigint "accepted_by_id"
+    t.boolean "accommodation_included", default: false, null: false
+    t.integer "artist_counter_count", default: 0, null: false
+    t.bigint "artist_id", null: false
+    t.decimal "artist_payout_amount", precision: 12, scale: 2
+    t.decimal "balance_amount", precision: 12, scale: 2
+    t.text "benefits"
+    t.integer "booker_counter_count", default: 0, null: false
+    t.bigint "booker_id", null: false
+    t.boolean "catering_included", default: false, null: false
+    t.string "city", null: false
+    t.jsonb "contract_snapshot", default: {}, null: false
+    t.string "country"
     t.datetime "created_at", null: false
+    t.string "currency", default: "clp", null: false
+    t.bigint "current_offer_by_id"
+    t.decimal "deposit_amount", precision: 12, scale: 2
+    t.decimal "deposit_percentage", precision: 5, scale: 2, default: "50.0", null: false
+    t.datetime "ends_at"
+    t.date "event_date", null: false
+    t.string "event_name", null: false
+    t.datetime "expires_at"
+    t.string "fee_type", default: "landed", null: false
+    t.integer "guest_list_count", default: 0, null: false
+    t.boolean "hospitality_included", default: false, null: false
+    t.text "message"
+    t.jsonb "negotiation_history", default: [], null: false
+    t.decimal "platform_fee_amount", precision: 12, scale: 2
+    t.decimal "platform_fee_min_amount", precision: 12, scale: 2, default: "5000.0", null: false
+    t.decimal "platform_fee_rate", precision: 5, scale: 4, default: "0.05", null: false
+    t.decimal "proposed_amount", precision: 12, scale: 2, null: false
+    t.bigint "service_booking_id"
+    t.bigint "service_product_id", null: false
+    t.datetime "starts_at"
+    t.string "status", default: "pending_artist_response", null: false
+    t.text "technical_notes"
+    t.boolean "transport_included", default: false, null: false
+    t.datetime "updated_at", null: false
+    t.string "venue_address"
+    t.string "venue_name", null: false
+    t.index ["accepted_by_id"], name: "index_service_booking_proposals_on_accepted_by_id"
+    t.index ["artist_id", "event_date", "status"], name: "idx_svc_booking_props_artist_date_status"
+    t.index ["artist_id"], name: "index_service_booking_proposals_on_artist_id"
+    t.index ["booker_id", "status"], name: "idx_svc_booking_props_booker_status"
+    t.index ["booker_id"], name: "index_service_booking_proposals_on_booker_id"
+    t.index ["current_offer_by_id"], name: "index_service_booking_proposals_on_current_offer_by_id"
+    t.index ["service_booking_id"], name: "index_service_booking_proposals_on_service_booking_id"
+    t.index ["service_product_id", "status"], name: "idx_svc_booking_props_product_status"
+    t.index ["service_product_id"], name: "index_service_booking_proposals_on_service_product_id"
+  end
+
+  create_table "service_bookings", force: :cascade do |t|
+    t.jsonb "agreement_snapshot", default: {}, null: false
+    t.decimal "artist_payout_amount", precision: 12, scale: 2
+    t.datetime "balance_confirmed_at"
+    t.decimal "balance_due_amount", precision: 10, scale: 2
+    t.datetime "balance_paid_at"
+    t.string "balance_status", default: "unpaid", null: false
+    t.string "checkout_provider"
+    t.string "city"
+    t.datetime "contract_signed_at"
+    t.string "contract_status", default: "not_generated", null: false
+    t.string "country"
+    t.datetime "created_at", null: false
+    t.string "currency", default: "usd", null: false
     t.bigint "customer_id", null: false
+    t.decimal "deposit_amount", precision: 10, scale: 2
+    t.datetime "deposit_confirmed_at"
+    t.datetime "deposit_paid_at"
+    t.string "deposit_status", default: "unpaid", null: false
+    t.datetime "ends_at"
     t.text "feedback"
     t.jsonb "metadata", default: {}, null: false
+    t.string "payment_intent_id"
+    t.string "payment_session_id"
+    t.string "payment_status", default: "unpaid", null: false
+    t.text "payment_tracking_notes"
+    t.decimal "platform_fee_amount", precision: 12, scale: 2
+    t.decimal "platform_fee_rate", precision: 5, scale: 4, default: "0.05"
+    t.bigint "product_purchase_id"
+    t.bigint "product_purchase_item_id"
     t.bigint "provider_id", null: false
     t.integer "rating"
+    t.string "refund_id"
+    t.string "refund_status", default: "not_requested", null: false
+    t.datetime "refunded_at"
     t.bigint "service_product_id", null: false
+    t.datetime "starts_at"
     t.string "status", null: false
+    t.decimal "subtotal_amount", precision: 10, scale: 2
+    t.decimal "total_amount", precision: 10, scale: 2
     t.datetime "updated_at", null: false
+    t.string "venue_address"
+    t.string "venue_name"
+    t.index ["balance_status"], name: "index_service_bookings_on_balance_status"
+    t.index ["contract_status"], name: "index_service_bookings_on_contract_status"
     t.index ["customer_id"], name: "index_service_bookings_on_customer_id"
+    t.index ["deposit_status"], name: "index_service_bookings_on_deposit_status"
+    t.index ["payment_intent_id"], name: "index_service_bookings_on_payment_intent_id"
+    t.index ["payment_status"], name: "index_service_bookings_on_payment_status"
+    t.index ["product_purchase_id"], name: "index_service_bookings_on_product_purchase_id"
+    t.index ["product_purchase_item_id"], name: "index_service_bookings_on_product_purchase_item_id"
     t.index ["provider_id"], name: "index_service_bookings_on_provider_id"
+    t.index ["refund_status"], name: "index_service_bookings_on_refund_status"
     t.index ["service_product_id"], name: "index_service_bookings_on_service_product_id"
     t.index ["status"], name: "index_service_bookings_on_status"
+  end
+
+  create_table "service_price_rules", force: :cascade do |t|
+    t.boolean "active", default: true, null: false
+    t.decimal "amount", precision: 10, scale: 2, default: "0.0", null: false
+    t.jsonb "conditions", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.string "currency", default: "usd", null: false
+    t.integer "duration_minutes"
+    t.string "location_scope"
+    t.integer "min_notice_days"
+    t.string "name", null: false
+    t.integer "position", default: 0, null: false
+    t.string "rule_type", default: "base", null: false
+    t.bigint "service_product_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["rule_type"], name: "index_service_price_rules_on_rule_type"
+    t.index ["service_product_id", "active"], name: "index_service_price_rules_on_service_product_id_and_active"
+    t.index ["service_product_id"], name: "index_service_price_rules_on_service_product_id"
   end
 
   create_table "spotlights", force: :cascade do |t|
@@ -1333,6 +1489,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_120000) do
   add_foreign_key "participants", "users"
   add_foreign_key "photos", "users"
   add_foreign_key "plain_messages", "plain_conversations"
+  add_foreign_key "playlist_gen_playlist_tracks", "playlist_gen_playlists", column: "playlist_id"
+  add_foreign_key "playlist_gen_playlist_tracks", "playlist_gen_tracks", column: "track_id"
   add_foreign_key "playlists", "users"
   add_foreign_key "podcaster_hosts", "podcaster_infos"
   add_foreign_key "podcaster_hosts", "users"
@@ -1367,9 +1525,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_120000) do
   add_foreign_key "reposts", "tracks"
   add_foreign_key "reposts", "users"
   add_foreign_key "schedule_schedulings", "event_schedules"
+  add_foreign_key "service_booking_proposals", "products", column: "service_product_id"
+  add_foreign_key "service_booking_proposals", "service_bookings"
+  add_foreign_key "service_booking_proposals", "users", column: "accepted_by_id"
+  add_foreign_key "service_booking_proposals", "users", column: "artist_id"
+  add_foreign_key "service_booking_proposals", "users", column: "booker_id"
+  add_foreign_key "service_booking_proposals", "users", column: "current_offer_by_id"
+  add_foreign_key "service_bookings", "product_purchase_items"
+  add_foreign_key "service_bookings", "product_purchases"
   add_foreign_key "service_bookings", "products", column: "service_product_id"
   add_foreign_key "service_bookings", "users", column: "customer_id"
   add_foreign_key "service_bookings", "users", column: "provider_id"
+  add_foreign_key "service_price_rules", "products", column: "service_product_id"
   add_foreign_key "spotlights", "users"
   add_foreign_key "tickets", "events"
   add_foreign_key "track_artists", "tracks"

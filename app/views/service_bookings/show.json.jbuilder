@@ -6,6 +6,9 @@ json.service_booking do
   json.service_product do
     json.id @service_booking.service_product.id
     json.title @service_booking.service_product.title
+    json.service_kind @service_booking.service_product.service_kind
+    json.category @service_booking.service_product.category
+    json.booking_mode @service_booking.service_product.booking_mode
     json.delivery_method @service_booking.service_product.delivery_method
     json.description @service_booking.service_product.description
     json.price @service_booking.service_product.price
@@ -36,6 +39,44 @@ json.service_booking do
 
   json.rating @service_booking.rating
   json.feedback @service_booking.feedback
+  json.payment do
+    json.status @service_booking.payment_status
+    json.refund_status @service_booking.refund_status
+    json.currency @service_booking.currency
+    json.subtotal_amount @service_booking.subtotal_amount
+    json.total_amount @service_booking.total_amount
+    json.deposit_amount @service_booking.deposit_amount
+    json.balance_due_amount @service_booking.balance_due_amount
+    json.checkout_provider @service_booking.checkout_provider
+    json.payment_intent_id @service_booking.payment_intent_id if @service_booking.provider == current_user
+    json.payment_session_id @service_booking.payment_session_id if @service_booking.provider == current_user
+    json.refund_id @service_booking.refund_id if @service_booking.refund_id.present?
+    json.refunded_at @service_booking.refunded_at
+    json.deposit_status @service_booking.deposit_status
+    json.balance_status @service_booking.balance_status
+    json.deposit_paid_at @service_booking.deposit_paid_at
+    json.deposit_confirmed_at @service_booking.deposit_confirmed_at
+    json.balance_paid_at @service_booking.balance_paid_at
+    json.balance_confirmed_at @service_booking.balance_confirmed_at
+    json.platform_fee_rate @service_booking.platform_fee_rate
+    json.platform_fee_amount @service_booking.platform_fee_amount
+    json.artist_payout_amount @service_booking.artist_payout_amount
+    json.tracking_notes @service_booking.payment_tracking_notes
+  end
+  json.contract do
+    json.status @service_booking.contract_status
+    json.signed_at @service_booking.contract_signed_at
+    json.agreement_snapshot @service_booking.agreement_snapshot
+    json.proposal_id @service_booking.service_booking_proposal&.id
+  end
+  json.venue do
+    json.starts_at @service_booking.starts_at
+    json.ends_at @service_booking.ends_at
+    json.name @service_booking.venue_name
+    json.address @service_booking.venue_address
+    json.city @service_booking.city
+    json.country @service_booking.country
+  end
   json.cancelled_by do
     if @service_booking.cancelled_by
       json.id @service_booking.cancelled_by.id
@@ -54,7 +95,12 @@ json.service_booking do
     json.can_confirm @service_booking.pending_confirmation? && current_user == @service_booking.provider
     json.can_schedule @service_booking.confirmed? && current_user == @service_booking.provider
     json.can_complete @service_booking.scheduled? && current_user == @service_booking.provider
-    json.can_cancel @service_booking.may_cancel?
+    json.can_cancel @service_booking.may_cancel? && [@service_booking.customer, @service_booking.provider].include?(current_user)
+    json.can_refund @service_booking.may_refund? && current_user == @service_booking.provider
+    json.can_mark_deposit_paid @service_booking.may_mark_deposit_paid?(current_user)
+    json.can_confirm_deposit @service_booking.may_confirm_deposit?(current_user)
+    json.can_mark_balance_paid @service_booking.may_mark_balance_paid?(current_user)
+    json.can_confirm_balance @service_booking.may_confirm_balance?(current_user)
     json.can_give_feedback @service_booking.completed? && current_user == @service_booking.customer && !@service_booking.rating
   end
 end

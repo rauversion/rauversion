@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { format } from "date-fns"
-import { Loader2 } from "lucide-react"
+import { FileSignature, Loader2 } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog"
 import { ScheduleForm } from "./ScheduleForm"
 import { FeedbackForm } from "./FeedbackForm"
+import I18n from "@/stores/locales"
 
 
 interface Conversation {
@@ -34,6 +35,9 @@ interface ServiceBooking {
   service_product: {
     id: number
     title: string
+    service_kind?: string
+    category?: string
+    booking_mode?: string
     delivery_method: string
     description: string
     price: number
@@ -60,6 +64,44 @@ interface ServiceBooking {
   }
   rating?: number
   feedback?: string
+  payment?: {
+    status: string
+    refund_status: string
+    currency: string
+    subtotal_amount?: number
+    total_amount?: number
+    deposit_amount?: number
+    balance_due_amount?: number
+    checkout_provider?: string
+    payment_intent_id?: string
+    payment_session_id?: string
+    refund_id?: string
+    refunded_at?: string
+    deposit_status?: string
+    balance_status?: string
+    deposit_paid_at?: string
+    deposit_confirmed_at?: string
+    balance_paid_at?: string
+    balance_confirmed_at?: string
+    platform_fee_rate?: number
+    platform_fee_amount?: number
+    artist_payout_amount?: number
+    tracking_notes?: string
+  }
+  contract?: {
+    status: string
+    signed_at?: string
+    agreement_snapshot?: Record<string, any>
+    proposal_id?: number
+  }
+  venue?: {
+    starts_at?: string
+    ends_at?: string
+    name?: string
+    address?: string
+    city?: string
+    country?: string
+  }
   cancelled_by?: {
     id: number
     name: string
@@ -69,6 +111,11 @@ interface ServiceBooking {
     can_schedule: boolean
     can_complete: boolean
     can_cancel: boolean
+    can_refund: boolean
+    can_mark_deposit_paid: boolean
+    can_confirm_deposit: boolean
+    can_mark_balance_paid: boolean
+    can_confirm_balance: boolean
     can_give_feedback: boolean
   }
   conversations: Conversation[]
@@ -82,16 +129,6 @@ const statusColors = {
   completed: "bg-green-100 text-green-800",
   cancelled: "bg-red-100 text-red-800",
   refunded: "bg-muted text-foreground",
-}
-
-const statusLabels = {
-  pending_confirmation: "Pending Confirmation",
-  confirmed: "Confirmed",
-  scheduled: "Scheduled",
-  in_progress: "In Progress",
-  completed: "Completed",
-  cancelled: "Cancelled",
-  refunded: "Refunded",
 }
 
 export function ServiceBookingDetail() {
@@ -118,15 +155,15 @@ export function ServiceBookingDetail() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["service_booking", id] })
       toast({
-        title: "Success",
-        description: "Booking confirmed successfully",
+        title: I18n.t("service_bookings.messages.success"),
+        description: I18n.t("service_bookings.confirm.success"),
       })
     },
     onError: () => {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to confirm booking",
+        title: I18n.t("service_bookings.messages.error"),
+        description: I18n.t("service_bookings.confirm.error"),
       })
     },
   })
@@ -140,15 +177,15 @@ export function ServiceBookingDetail() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["service_booking", id] })
       toast({
-        title: "Success",
-        description: "Service marked as completed",
+        title: I18n.t("service_bookings.messages.success"),
+        description: I18n.t("service_bookings.complete.success"),
       })
     },
     onError: () => {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to complete service",
+        title: I18n.t("service_bookings.messages.error"),
+        description: I18n.t("service_bookings.complete.error"),
       })
     },
   })
@@ -163,15 +200,60 @@ export function ServiceBookingDetail() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["service_booking", id] })
       toast({
-        title: "Success",
-        description: "Booking cancelled successfully",
+        title: I18n.t("service_bookings.messages.success"),
+        description: I18n.t("service_bookings.cancel.success"),
       })
     },
     onError: () => {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to cancel booking",
+        title: I18n.t("service_bookings.messages.error"),
+        description: I18n.t("service_bookings.cancel.error"),
+      })
+    },
+  })
+
+  const refundMutation = useMutation({
+    mutationFn: async () => {
+      await patch(`/service_bookings/${id}/refund`, {
+        responseKind: "json",
+      })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["service_booking", id] })
+      toast({
+        title: I18n.t("service_bookings.messages.success"),
+        description: I18n.t("service_bookings.refund.success"),
+      })
+    },
+    onError: () => {
+      toast({
+        variant: "destructive",
+        title: I18n.t("service_bookings.messages.error"),
+        description: I18n.t("service_bookings.refund.error"),
+      })
+    },
+  })
+
+  const paymentActionMutation = useMutation({
+    mutationFn: async ({ action, notes }: { action: string; notes?: string }) => {
+      await patch(`/service_bookings/${id}/${action}`, {
+        responseKind: "json",
+        body: notes ? { notes } : undefined,
+      })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["service_booking", id] })
+      toast({
+        title: I18n.t("service_bookings.messages.success"),
+        description: I18n.t("service_bookings.payment_tracking.success"),
+      })
+    },
+    onError: () => {
+      toast({
+        variant: "destructive",
+        title: I18n.t("service_bookings.messages.error"),
+        description: I18n.t("service_bookings.payment_tracking.error"),
       })
     },
   })
@@ -187,6 +269,9 @@ export function ServiceBookingDetail() {
   if (!booking) return null
 
   const { service_booking } = booking
+  const statusLabel = I18n.t(`service_bookings.status.${service_booking.status}`, {
+    defaultValue: service_booking.status,
+  })
 
   return (
     <div className="container mx-auto py-6">
@@ -195,7 +280,9 @@ export function ServiceBookingDetail() {
           <div>
             <CardTitle>{service_booking.service_product.title}</CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
-              Created on {format(new Date(service_booking.created_at), "PPP")}
+              {I18n.t("service_bookings.labels.created_on", {
+                date: format(new Date(service_booking.created_at), "PPP"),
+              })}
             </p>
           </div>
           <Badge
@@ -203,7 +290,7 @@ export function ServiceBookingDetail() {
               statusColors[service_booking.status as keyof typeof statusColors]
             }
           >
-            {statusLabels[service_booking.status as keyof typeof statusLabels]}
+            {statusLabel}
           </Badge>
         </CardHeader>
 
@@ -212,7 +299,7 @@ export function ServiceBookingDetail() {
 
             {service_booking.conversations && service_booking.conversations.length > 0 && (
               <div>
-                <h3 className="font-medium mb-2">Conversations</h3>
+                <h3 className="font-medium mb-2">{I18n.t("service_bookings.labels.conversations")}</h3>
                 <div className="flex flex-col gap-2">
                   {service_booking.conversations.map((conversation) => (
                     <a
@@ -222,7 +309,7 @@ export function ServiceBookingDetail() {
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      {conversation.subject || "View Conversation"}
+                      {conversation.subject || I18n.t("service_bookings.labels.view_conversation")}
                     </a>
                   ))}
                 </div>
@@ -231,7 +318,7 @@ export function ServiceBookingDetail() {
 
             <div className="flex justify-between items-start">
               <div>
-                <h3 className="font-medium mb-2">Provider</h3>
+                <h3 className="font-medium mb-2">{I18n.t("service_bookings.labels.provider")}</h3>
                 <div className="flex items-center space-x-2">
                   <Avatar>
                     <AvatarImage src={service_booking.provider.avatar_url} />
@@ -244,7 +331,7 @@ export function ServiceBookingDetail() {
               </div>
 
               <div>
-                <h3 className="font-medium mb-2">Customer</h3>
+                <h3 className="font-medium mb-2">{I18n.t("service_bookings.labels.customer")}</h3>
                 <div className="flex items-center space-x-2">
                   <Avatar>
                     <AvatarImage src={service_booking.customer.avatar_url} />
@@ -259,62 +346,152 @@ export function ServiceBookingDetail() {
 
             {service_booking.metadata.scheduled_date && (
               <div>
-                <h3 className="font-medium mb-2">Schedule Details</h3>
+                <h3 className="font-medium mb-2">{I18n.t("service_bookings.labels.schedule_details")}</h3>
                 <p>
-                  Date:{" "}
+                  {I18n.t("service_bookings.schedule_modal.date")}:{" "}
                   {format(
                     new Date(service_booking.metadata.scheduled_date),
                     "PPP"
                   )}
                 </p>
                 {service_booking.metadata.scheduled_time && (
-                  <p>Time: {service_booking.metadata.scheduled_time}</p>
+                  <p>{I18n.t("service_bookings.schedule_modal.time")}: {service_booking.metadata.scheduled_time}</p>
                 )}
                 {service_booking.metadata.timezone && (
-                  <p>Timezone: {service_booking.metadata.timezone}</p>
+                  <p>{I18n.t("service_bookings.schedule_modal.timezone")}: {service_booking.metadata.timezone}</p>
                 )}
                 {service_booking.metadata.meeting_link && (
                   <p>
-                    Meeting Link:{" "}
+                    {I18n.t("service_bookings.schedule_modal.meeting_link")}:{" "}
                     <a
                       href={service_booking.metadata.meeting_link}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-blue-600 hover:underline"
                     >
-                      Join Meeting
+                      {I18n.t("service_bookings.index.online_meeting")}
                     </a>
                   </p>
                 )}
                 {service_booking.metadata.meeting_location && (
-                  <p>Location: {service_booking.metadata.meeting_location}</p>
+                  <p>{I18n.t("service_bookings.labels.location")}: {service_booking.metadata.meeting_location}</p>
                 )}
+              </div>
+            )}
+
+            {service_booking.payment && (
+              <div>
+                <h3 className="font-medium mb-2">{I18n.t("service_bookings.payment.title")}</h3>
+                <div className="grid gap-2 text-sm md:grid-cols-2">
+                  <p>{I18n.t("service_bookings.payment.status")}: {service_booking.payment.status}</p>
+                  <p>{I18n.t("service_bookings.payment.refund")}: {service_booking.payment.refund_status}</p>
+                  {service_booking.payment.deposit_status && (
+                    <p>{I18n.t("service_bookings.payment.deposit_status")}: {I18n.t(`service_bookings.payment_statuses.${service_booking.payment.deposit_status}`)}</p>
+                  )}
+                  {service_booking.payment.balance_status && (
+                    <p>{I18n.t("service_bookings.payment.balance_status")}: {I18n.t(`service_bookings.payment_statuses.${service_booking.payment.balance_status}`)}</p>
+                  )}
+                  {service_booking.payment.total_amount && (
+                    <p>
+                      {I18n.t("service_bookings.payment.total")}:{" "}
+                      {Number(service_booking.payment.total_amount).toLocaleString(undefined, {
+                        style: "currency",
+                        currency: (service_booking.payment.currency || "usd").toUpperCase(),
+                      })}
+                    </p>
+                  )}
+                  {service_booking.payment.deposit_amount && (
+                    <p>
+                      {I18n.t("service_bookings.payment.deposit")}:{" "}
+                      {Number(service_booking.payment.deposit_amount).toLocaleString(undefined, {
+                        style: "currency",
+                        currency: (service_booking.payment.currency || "usd").toUpperCase(),
+                      })}
+                    </p>
+                  )}
+                  {service_booking.payment.balance_due_amount && (
+                    <p>
+                      {I18n.t("service_bookings.payment.balance")}:{" "}
+                      {Number(service_booking.payment.balance_due_amount).toLocaleString(undefined, {
+                        style: "currency",
+                        currency: (service_booking.payment.currency || "usd").toUpperCase(),
+                      })}
+                    </p>
+                  )}
+                  {service_booking.payment.platform_fee_amount && (
+                    <p>
+                      {I18n.t("service_bookings.payment.artist_fee")}:{" "}
+                      {Number(service_booking.payment.platform_fee_amount).toLocaleString(undefined, {
+                        style: "currency",
+                        currency: (service_booking.payment.currency || "usd").toUpperCase(),
+                      })}
+                    </p>
+                  )}
+                  {service_booking.payment.artist_payout_amount && (
+                    <p>
+                      {I18n.t("service_bookings.payment.artist_payout")}:{" "}
+                      {Number(service_booking.payment.artist_payout_amount).toLocaleString(undefined, {
+                        style: "currency",
+                        currency: (service_booking.payment.currency || "usd").toUpperCase(),
+                      })}
+                    </p>
+                  )}
+                  {service_booking.payment.checkout_provider && (
+                    <p>{I18n.t("service_bookings.payment.provider")}: {service_booking.payment.checkout_provider}</p>
+                  )}
+                  {service_booking.payment.payment_intent_id && (
+                    <p className="break-all">{I18n.t("service_bookings.payment.payment_intent")}: {service_booking.payment.payment_intent_id}</p>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {service_booking.contract && service_booking.contract.status !== "not_generated" && (
+              <div>
+                <h3 className="mb-2 flex items-center gap-2 font-medium">
+                  <FileSignature className="h-4 w-4" />
+                  {I18n.t("service_bookings.contract.title")}
+                </h3>
+                <div className="grid gap-2 text-sm md:grid-cols-2">
+                  <p>{I18n.t("service_bookings.contract.status")}: {I18n.t(`service_bookings.contract_status.${service_booking.contract.status}`)}</p>
+                  {service_booking.contract.signed_at && (
+                    <p>{I18n.t("service_bookings.contract.signed_at")}: {format(new Date(service_booking.contract.signed_at), "PPP")}</p>
+                  )}
+                  {service_booking.contract.proposal_id && (
+                    <p>
+                      {I18n.t("service_bookings.contract.proposal")}:{" "}
+                      <a className="text-blue-600 underline" href={`/service_booking_proposals/${service_booking.contract.proposal_id}`}>
+                        #{service_booking.contract.proposal_id}
+                      </a>
+                    </p>
+                  )}
+                </div>
               </div>
             )}
 
             {service_booking.metadata.special_requirements && (
               <div>
-                <h3 className="font-medium mb-2">Special Requirements</h3>
+                <h3 className="font-medium mb-2">{I18n.t("service_bookings.show.customer_info.special_requirements")}</h3>
                 <p>{service_booking.metadata.special_requirements}</p>
               </div>
             )}
 
             {service_booking.metadata.provider_notes && (
               <div>
-                <h3 className="font-medium mb-2">Provider Notes</h3>
+                <h3 className="font-medium mb-2">{I18n.t("service_bookings.index.provider_notes")}</h3>
                 <p>{service_booking.metadata.provider_notes}</p>
               </div>
             )}
 
             {service_booking.cancelled_by && (
               <div>
-                <h3 className="font-medium mb-2">Cancellation Details</h3>
+                <h3 className="font-medium mb-2">{I18n.t("service_bookings.labels.cancellation_details")}</h3>
                 <p>
-                  Cancelled by: {service_booking.cancelled_by.name}
+                  {I18n.t("service_bookings.labels.cancelled_by")}: {service_booking.cancelled_by.name}
                   {service_booking.metadata.cancellation_reason && (
                     <>
                       <br />
-                      Reason: {service_booking.metadata.cancellation_reason}
+                      {I18n.t("service_bookings.labels.reason")}: {service_booking.metadata.cancellation_reason}
                     </>
                   )}
                 </p>
@@ -323,8 +500,8 @@ export function ServiceBookingDetail() {
 
             {service_booking.rating && (
               <div>
-                <h3 className="font-medium mb-2">Customer Feedback</h3>
-                <p>Rating: {service_booking.rating}/5</p>
+                <h3 className="font-medium mb-2">{I18n.t("service_bookings.feedback_form.feedback")}</h3>
+                <p>{I18n.t("service_bookings.feedback_form.rating")}: {service_booking.rating}/5</p>
                 {service_booking.feedback && <p>{service_booking.feedback}</p>}
               </div>
             )}
@@ -338,18 +515,18 @@ export function ServiceBookingDetail() {
                   {confirmMutation.isPending && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
-                  Confirm Booking
+                  {I18n.t("service_bookings.show.confirm_button")}
                 </Button>
               )}
 
               {service_booking.actions.can_schedule && (
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button>Schedule Service</Button>
+                    <Button>{I18n.t("service_bookings.show.schedule_button")}</Button>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
-                      <DialogTitle>Schedule Service</DialogTitle>
+                      <DialogTitle>{I18n.t("service_bookings.show.schedule_button")}</DialogTitle>
                     </DialogHeader>
                     <ScheduleForm
                       bookingId={service_booking.id}
@@ -371,18 +548,18 @@ export function ServiceBookingDetail() {
                   {completeMutation.isPending && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
-                  Mark as Completed
+                  {I18n.t("service_bookings.show.complete_button")}
                 </Button>
               )}
 
               {service_booking.actions.can_give_feedback && (
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button>Give Feedback</Button>
+                    <Button>{I18n.t("service_bookings.feedback_form.add_feedback")}</Button>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
-                      <DialogTitle>Service Feedback</DialogTitle>
+                      <DialogTitle>{I18n.t("service_bookings.feedback_form.add_feedback")}</DialogTitle>
                     </DialogHeader>
                     <FeedbackForm
                       bookingId={service_booking.id}
@@ -400,7 +577,7 @@ export function ServiceBookingDetail() {
                 <Button
                   variant="destructive"
                   onClick={() => {
-                    const reason = window.prompt("Please provide a reason for cancellation")
+                    const reason = window.prompt(I18n.t("service_bookings.cancel.reason_prompt"))
                     if (reason) {
                       cancelMutation.mutate(reason)
                     }
@@ -410,7 +587,65 @@ export function ServiceBookingDetail() {
                   {cancelMutation.isPending && (
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   )}
-                  Cancel Booking
+                  {I18n.t("service_bookings.show.cancel_button")}
+                </Button>
+              )}
+
+              {service_booking.actions.can_refund && (
+                <Button
+                  variant="destructive"
+                  onClick={() => {
+                    const confirmed = window.confirm(I18n.t("service_bookings.refund.confirm"))
+                    if (confirmed) {
+                      refundMutation.mutate()
+                    }
+                  }}
+                  disabled={refundMutation.isPending}
+                >
+                  {refundMutation.isPending && (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  )}
+                  {I18n.t("service_bookings.refund.button")}
+                </Button>
+              )}
+
+              {service_booking.actions.can_mark_deposit_paid && (
+                <Button
+                  variant="outline"
+                  onClick={() => paymentActionMutation.mutate({ action: "mark_deposit_paid" })}
+                  disabled={paymentActionMutation.isPending}
+                >
+                  {I18n.t("service_bookings.payment_tracking.mark_deposit_paid")}
+                </Button>
+              )}
+
+              {service_booking.actions.can_confirm_deposit && (
+                <Button
+                  variant="outline"
+                  onClick={() => paymentActionMutation.mutate({ action: "confirm_deposit" })}
+                  disabled={paymentActionMutation.isPending}
+                >
+                  {I18n.t("service_bookings.payment_tracking.confirm_deposit")}
+                </Button>
+              )}
+
+              {service_booking.actions.can_mark_balance_paid && (
+                <Button
+                  variant="outline"
+                  onClick={() => paymentActionMutation.mutate({ action: "mark_balance_paid" })}
+                  disabled={paymentActionMutation.isPending}
+                >
+                  {I18n.t("service_bookings.payment_tracking.mark_balance_paid")}
+                </Button>
+              )}
+
+              {service_booking.actions.can_confirm_balance && (
+                <Button
+                  variant="outline"
+                  onClick={() => paymentActionMutation.mutate({ action: "confirm_balance" })}
+                  disabled={paymentActionMutation.isPending}
+                >
+                  {I18n.t("service_bookings.payment_tracking.confirm_balance")}
                 </Button>
               )}
             </div>

@@ -23,30 +23,57 @@ import useAuthStore from '@/stores/authStore'
 import I18n from '@/stores/locales'
 import useCartStore from '@/stores/cartStore'
 import PublicPhotosSection from "../shared/public/PublicPhotosSection"
+import BookingProposalModal from "./BookingProposalModal"
 
 const DELIVERY_METHOD_ICONS = {
   online: <Globe className="h-4 w-4" />,
   in_person: <MapPin className="h-4 w-4" />,
+  both: <Shuffle className="h-4 w-4" />,
   hybrid: <Shuffle className="h-4 w-4" />
 }
 
 const DELIVERY_METHOD_LABELS = {
   online: I18n.t('products.service.delivery_methods.online'),
   in_person: I18n.t('products.service.delivery_methods.in_person'),
+  both: I18n.t('products.service.delivery_methods.hybrid'),
   hybrid: I18n.t('products.service.delivery_methods.hybrid')
+}
+
+const serviceKindLabel = (serviceKind) => {
+  if (!serviceKind) return null
+
+  return I18n.t(`products.service.service_kinds.${serviceKind}.label`)
+}
+
+const bookingModeLabel = (bookingMode) => {
+  if (!bookingMode) return null
+
+  return I18n.t(`products.service.booking_modes.${bookingMode}`)
+}
+
+const priceRuleTypeLabel = (ruleType) => {
+  if (!ruleType) return null
+
+  return I18n.t(`products.service.price_rule_types.${ruleType}`)
 }
 
 export default function ServiceShow({ product }) {
   const navigate = useNavigate()
   const { currentUser } = useAuthStore()
   const { addToCart } = useCartStore()
+  const usesNegotiatedBooking = product.service_kind === "performance" ||
+    product.booking_mode === "request_quote" ||
+    product.booking_mode === "deposit_then_balance"
 
   const formatDuration = (minutes) => {
     const hours = Math.floor(minutes / 60)
     const remainingMinutes = minutes % 60
-    if (hours === 0) return `${minutes} minutes`
-    if (remainingMinutes === 0) return `${hours} hour${hours > 1 ? 's' : ''}`
-    return `${hours} hour${hours > 1 ? 's' : ''} ${remainingMinutes} minutes`
+    if (hours === 0) return I18n.t("products.service.show.duration_minutes", { count: minutes })
+    if (remainingMinutes === 0) return I18n.t("products.service.show.duration_hours", { count: hours })
+    return I18n.t("products.service.show.duration_hours_minutes", {
+      hours,
+      minutes: remainingMinutes,
+    })
   }
 
   return (
@@ -77,12 +104,20 @@ export default function ServiceShow({ product }) {
                 {DELIVERY_METHOD_ICONS[product.delivery_method]}
                 <span>{DELIVERY_METHOD_LABELS[product.delivery_method]}</span>
               </Badge>
+              <Badge variant="secondary">
+                {serviceKindLabel(product.service_kind)}
+              </Badge>
             </div>
           </div>
           <div className="text-right">
             <div className="text-2xl font-bold">
               {product.formatted_price}
             </div>
+            {product.booking_mode && (
+              <div className="text-sm text-muted-foreground">
+                {bookingModeLabel(product.booking_mode)}
+              </div>
+            )}
             <Badge
               variant={product.stock_quantity > 0 ? "default" : "destructive"}
               className="mt-1"
@@ -136,6 +171,37 @@ export default function ServiceShow({ product }) {
             </Card>
           )}
 
+          {product.service_price_rules?.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle>{I18n.t("products.service.show.price_rules.title")}</CardTitle>
+                <CardDescription>
+                  {I18n.t("products.service.show.price_rules.description")}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {product.service_price_rules.map((rule) => (
+                  <div key={rule.id || rule.name} className="flex items-start justify-between gap-4 rounded-lg border border-border p-3">
+                    <div>
+                      <div className="font-medium">{rule.name}</div>
+                      <div className="text-sm text-muted-foreground">
+                        {[priceRuleTypeLabel(rule.rule_type), rule.location_scope, rule.duration_minutes ? I18n.t("products.service.show.duration_minutes", { count: rule.duration_minutes }) : null]
+                          .filter(Boolean)
+                          .join(" · ")}
+                      </div>
+                    </div>
+                    <div className="text-right font-semibold">
+                      {Number(rule.amount).toLocaleString(undefined, {
+                        style: "currency",
+                        currency: (rule.currency || "usd").toUpperCase(),
+                      })}
+                    </div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+
           <Card>
             <CardHeader>
               <CardTitle>{I18n.t('products.service.show.cancellation_policy')}</CardTitle>
@@ -174,9 +240,13 @@ export default function ServiceShow({ product }) {
 
               <Separator />
 
-              <Button onClick={() => addToCart(product.id)} className="w-full" size="lg">
-                {I18n.t('products.service.show.book_now')}
-              </Button>
+              {usesNegotiatedBooking ? (
+                <BookingProposalModal product={product} />
+              ) : (
+                <Button onClick={() => addToCart(product.id)} className="w-full" size="lg">
+                  {I18n.t('products.service.show.book_now')}
+                </Button>
+              )}
 
             </CardContent>
           </Card>

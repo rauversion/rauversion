@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ServiceBookingsList } from "./ServiceBookingsList"
 import { Loader2 } from "lucide-react"
+import I18n from "@/stores/locales"
 
 interface ServiceBooking {
   id: number
@@ -69,21 +70,21 @@ export function ServiceBookings() {
   if (error) {
     toast({
       variant: "destructive",
-      title: "Error",
-      description: "Failed to load service bookings",
+      title: I18n.t("service_bookings.messages.error"),
+      description: I18n.t("service_bookings.index.load_error"),
     })
     return null
   }
 
   return (
     <div className="container mx-auto py-6">
-      <h1 className="text-3xl font-bold mb-6">Service Bookings</h1>
+      <h1 className="text-3xl font-bold mb-6">{I18n.t("service_bookings.index.title")}</h1>
 
       <Tabs defaultValue="all" className="w-full" onValueChange={setFilter}>
         <TabsList>
-          <TabsTrigger value="all">All Bookings</TabsTrigger>
-          <TabsTrigger value="customer">As Customer</TabsTrigger>
-          <TabsTrigger value="provider">As Provider</TabsTrigger>
+          <TabsTrigger value="all">{I18n.t("service_bookings.index.all")}</TabsTrigger>
+          <TabsTrigger value="customer">{I18n.t("service_bookings.index.as_customer")}</TabsTrigger>
+          <TabsTrigger value="provider">{I18n.t("service_bookings.index.as_provider")}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="all">

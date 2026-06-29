@@ -99,6 +99,7 @@ class Product < ApplicationRecord
      "price", "quantity", "shipping_begins_on", "shipping_days", 
      "shipping_within_country_price", "shipping_worldwide_price", "sku", "status", 
      "stock_quantity", "title", "updated_at", "user_id", "visibility",
+     "service_kind", "booking_mode",
      "condition", "brand", "model", "year", "accept_barter"]
   end
 

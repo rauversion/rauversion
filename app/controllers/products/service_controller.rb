@@ -70,12 +70,18 @@ module Products
 
     def product_params
       params.require(:product).permit(
-        :title, :description, :price, :category,
+        :title, :description, :price, :service_kind, :category, :booking_mode,
         :delivery_method, :duration_minutes, :max_participants,
         :prerequisites, :what_to_expect, :cancellation_policy,
         :name_your_price, :status, :coupon_id,
         :stock_quantity, :sku,
         :post_purchase_instructions,
+        :performance_format, :home_city, :home_country, :available_countries,
+        :technical_rider, :hospitality_rider, :price_notes,
+        service_price_rules_attributes: [
+          :id, :name, :rule_type, :amount, :currency, :duration_minutes,
+          :location_scope, :min_notice_days, :active, :position, :_destroy
+        ],
         product_images_attributes: [:id, :title, :description, :image, :_destroy]
       )
     end

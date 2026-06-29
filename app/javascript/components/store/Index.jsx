@@ -34,6 +34,7 @@ const CATEGORIES = [
   { id: 'all', name: 'All Products', path: '/store' },
   { id: 'gear', name: 'Gear', path: '/store/gear' },
   { id: 'service', name: 'Services', path: '/store/services' },
+  { id: 'performers', name: 'Performers', path: '/store/performers' },
   { id: 'music', name: 'Music', path: '/store/music' },
   { id: 'accessory', name: 'Accessories', path: '/store/accessories' }
 ]

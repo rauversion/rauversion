@@ -1,10 +1,19 @@
 import React from "react";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { useNavigate, useParams } from "react-router-dom";
-import { ChevronLeft } from "lucide-react";
+import {
+  BadgeDollarSign,
+  ChevronLeft,
+  GraduationCap,
+  Headphones,
+  Mic2,
+  Plus,
+  Sparkles,
+  Trash2,
+  Wrench,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   FormControl,
   FormField,
@@ -21,24 +30,341 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import FormErrors from "../shared/FormErrors";
 import PricingSection from "../shared/PricingSection";
 import PhotosSection from "../shared/PhotosSection";
-import ShippingSection from "../shared/ShippingSection";
 import DeleteButton from "../shared/DeleteButton";
 import useAuthStore from "@/stores/authStore";
 import I18n from "@/stores/locales";
 import { post, patch } from "@rails/request.js";
 import PublishSection from "../shared/PublishSection";
 
-import { SERVICE_TYPES, DELIVERY_METHODS } from "../shared/constants";
+import {
+  BOOKING_MODES,
+  SERVICE_KIND_OPTIONS,
+  SERVICE_TYPES,
+  DELIVERY_METHODS,
+} from "../shared/constants";
+
+const SERVICE_KIND_ICONS = {
+  advisory: Sparkles,
+  education: GraduationCap,
+  performance: Mic2,
+  studio_service: Headphones,
+};
+
+const PRICE_RULE_TYPES = [
+  { value: "base", label: I18n.t("products.service.price_rule_types.base") },
+  { value: "extra_hour", label: I18n.t("products.service.price_rule_types.extra_hour") },
+  { value: "travel", label: I18n.t("products.service.price_rule_types.travel") },
+  { value: "rider", label: I18n.t("products.service.price_rule_types.rider") },
+  { value: "deposit", label: I18n.t("products.service.price_rule_types.deposit") },
+  { value: "custom", label: I18n.t("products.service.price_rule_types.custom") },
+];
+
+const blankPriceRule = {
+  name: "",
+  rule_type: "custom",
+  amount: 0,
+  currency: "usd",
+  duration_minutes: "",
+  location_scope: "",
+  min_notice_days: "",
+  active: true,
+  position: 0,
+  _destroy: false,
+};
+
+function serviceKindForCategory(category) {
+  return SERVICE_TYPES.find((type) => type.value === category)?.serviceKind || "advisory";
+}
+
+function ServiceKindSelector({ value, onChange }) {
+  return (
+    <div className="grid gap-3 md:grid-cols-4">
+      {SERVICE_KIND_OPTIONS.map((option) => {
+        const Icon = SERVICE_KIND_ICONS[option.value] || Wrench;
+        const selected = value === option.value;
+
+        return (
+          <button
+            type="button"
+            key={option.value}
+            onClick={() => onChange(option.value)}
+            className={`group flex min-h-[132px] flex-col justify-between rounded-lg border p-4 text-left transition ${
+              selected
+                ? "border-primary bg-primary text-primary-foreground shadow-sm"
+                : "border-border bg-background hover:border-primary/60 hover:bg-muted/50"
+            }`}
+          >
+            <span className="flex items-center justify-between">
+              <Icon className="h-5 w-5" />
+              <span
+                className={`h-2.5 w-2.5 rounded-full ${
+                  selected ? "bg-primary-foreground" : "bg-muted-foreground/30"
+                }`}
+              />
+            </span>
+            <span>
+              <span className="block text-base font-semibold">{option.label}</span>
+              <span
+                className={`mt-1 block text-xs leading-5 ${
+                  selected ? "text-primary-foreground/80" : "text-muted-foreground"
+                }`}
+              >
+                {option.description}
+              </span>
+            </span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function ServicePricingRules({ form }) {
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "service_price_rules_attributes",
+    keyName: "fieldId",
+  });
+  const watchedRules = form.watch("service_price_rules_attributes") || [];
+
+  const removeRule = (index) => {
+    const persistedId = form.getValues(`service_price_rules_attributes.${index}.id`);
+
+    if (persistedId) {
+      form.setValue(`service_price_rules_attributes.${index}._destroy`, true, {
+        shouldDirty: true,
+      });
+    } else {
+      remove(index);
+    }
+  };
+
+  const visibleRules = fields
+    .map((field, index) => ({ field, index }))
+    .filter(({ index }) => !watchedRules[index]?._destroy);
+
+  return (
+    <Card>
+      <CardHeader className="flex flex-row items-center justify-between space-y-0">
+        <div>
+          <CardTitle className="flex items-center gap-2">
+            <BadgeDollarSign className="h-5 w-5" />
+            {I18n.t("products.service.form.price_rules.title")}
+          </CardTitle>
+          <p className="mt-2 text-sm text-muted-foreground">
+            {I18n.t("products.service.form.price_rules.description")}
+          </p>
+        </div>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => append({ ...blankPriceRule, position: fields.length })}
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          {I18n.t("products.service.form.price_rules.add")}
+        </Button>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {visibleRules.map(({ field, index }) => (
+          <div key={field.fieldId} className="rounded-lg border border-border bg-background p-4">
+            <div className="mb-4 flex items-start justify-between gap-4">
+              <div className="text-sm font-medium">
+                {I18n.t("products.service.form.price_rules.rule", { number: index + 1 })}
+              </div>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => removeRule(index)}
+                aria-label={I18n.t("products.service.form.price_rules.remove")}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <FormField
+                control={form.control}
+                name={`service_price_rules_attributes.${index}.name`}
+                rules={{ required: I18n.t("products.service.form.errors.rule_name_required") }}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{I18n.t("products.service.form.price_rules.name")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder={I18n.t("products.service.form.price_rules.name_placeholder")}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name={`service_price_rules_attributes.${index}.rule_type`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{I18n.t("products.service.form.price_rules.type")}</FormLabel>
+                    <FormControl>
+                      <select
+                        {...field}
+                        className="h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                      >
+                        {PRICE_RULE_TYPES.map((ruleType) => (
+                          <option key={ruleType.value} value={ruleType.value}>
+                            {ruleType.label}
+                          </option>
+                        ))}
+                      </select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name={`service_price_rules_attributes.${index}.amount`}
+                rules={{
+                  min: {
+                    value: 0,
+                    message: I18n.t("products.service.form.errors.amount_min"),
+                  },
+                }}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{I18n.t("products.service.form.price_rules.amount")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        {...field}
+                        onChange={(event) => field.onChange(event.target.valueAsNumber)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name={`service_price_rules_attributes.${index}.currency`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{I18n.t("products.service.form.price_rules.currency")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        placeholder={I18n.t("products.service.form.price_rules.currency_placeholder")}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name={`service_price_rules_attributes.${index}.duration_minutes`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{I18n.t("products.service.form.price_rules.duration_minutes")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min="0"
+                        step="15"
+                        {...field}
+                        onChange={(event) => field.onChange(event.target.valueAsNumber)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name={`service_price_rules_attributes.${index}.min_notice_days`}
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>{I18n.t("products.service.form.price_rules.min_notice_days")}</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="number"
+                        min="0"
+                        {...field}
+                        onChange={(event) => field.onChange(event.target.valueAsNumber)}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            <FormField
+              control={form.control}
+              name={`service_price_rules_attributes.${index}.location_scope`}
+              render={({ field }) => (
+                <FormItem className="mt-4">
+                  <FormLabel>{I18n.t("products.service.form.price_rules.location_scope")}</FormLabel>
+                  <FormControl>
+                    <Input
+                      {...field}
+                      placeholder={I18n.t("products.service.form.price_rules.location_scope_placeholder")}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function ServiceForm({ product, isEditing = false }) {
   const { currentUser } = useAuthStore();
   const navigate = useNavigate();
   const { isDarkMode } = useThemeStore();
   const { username, slug } = useParams();
+  const initialServiceKind =
+    product?.service_kind || serviceKindForCategory(product?.category) || "advisory";
+  const initialPriceRules =
+    product?.service_price_rules?.map((rule) => ({
+      id: rule.id,
+      name: rule.name || "",
+      rule_type: rule.rule_type || "custom",
+      amount: rule.amount || 0,
+      currency: rule.currency || "usd",
+      duration_minutes: rule.duration_minutes || "",
+      location_scope: rule.location_scope || "",
+      min_notice_days: rule.min_notice_days || "",
+      active: rule.active ?? true,
+      position: rule.position || 0,
+      _destroy: false,
+    })) || [
+      {
+        ...blankPriceRule,
+        name: I18n.t("products.service.form.price_rules.base_price"),
+        rule_type: "base",
+        amount: product?.price || 0,
+      },
+    ];
 
   const form = useForm({
     defaultValues: {
+      service_kind: initialServiceKind,
       category: product?.category || "",
+      booking_mode: product?.booking_mode || "instant_checkout",
       delivery_method: product?.delivery_method || "",
       title: product?.title || "",
       description: product?.description || "",
@@ -54,7 +380,15 @@ export default function ServiceForm({ product, isEditing = false }) {
       visibility: product?.visibility || "public",
       name_your_price: product?.name_your_price || false,
       quantity: product?.quantity || 1,
-      product_images_attributes: product?.photos || [],
+      performance_format: product?.performance_format || "",
+      home_city: product?.home_city || "",
+      home_country: product?.home_country || "",
+      available_countries: product?.available_countries || "",
+      technical_rider: product?.technical_rider || "",
+      hospitality_rider: product?.hospitality_rider || "",
+      price_notes: product?.price_notes || "",
+      service_price_rules_attributes: initialPriceRules,
+      product_images_attributes: product?.photos || product?.product_images || [],
       shipping_days: product?.shipping_days || "",
       shipping_begins_on: product?.shipping_begins_on || "",
       product_shippings_attributes:
@@ -67,9 +401,26 @@ export default function ServiceForm({ product, isEditing = false }) {
     },
   });
 
-  console.log(form);
+  const serviceKind = form.watch("service_kind");
+  const filteredServiceTypes = SERVICE_TYPES.filter(
+    (type) => type.serviceKind === serviceKind
+  );
 
-  const category = form.watch("category");
+  const handleServiceKindChange = (value) => {
+    form.setValue("service_kind", value, { shouldDirty: true, shouldValidate: true });
+
+    const currentCategory = form.getValues("category");
+    const categoryStillValid = SERVICE_TYPES.some(
+      (type) => type.value === currentCategory && type.serviceKind === value
+    );
+
+    if (!categoryStillValid) {
+      form.setValue("category", SERVICE_TYPES.find((type) => type.serviceKind === value)?.value || "", {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
+  };
 
   // Reset form errors when any field changes
   React.useEffect(() => {
@@ -121,7 +472,7 @@ export default function ServiceForm({ product, isEditing = false }) {
       );
       form.setError("root", {
         type: "backend",
-        message: "An unexpected error occurred",
+        message: I18n.t("products.service.form.errors.unexpected"),
       });
     }
   };
@@ -155,12 +506,38 @@ export default function ServiceForm({ product, isEditing = false }) {
               setValue={form.setValue}
               watch={form.watch}
             />
+            <Card>
+              <CardHeader>
+                <CardTitle>{I18n.t("products.service.form.service_type")}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <FormField
+                  control={form.control}
+                  name="service_kind"
+                  rules={{ required: I18n.t("products.service.form.errors.service_type_required") }}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormControl>
+                        <ServiceKindSelector
+                          value={field.value}
+                          onChange={(value) => {
+                            field.onChange(value);
+                            handleServiceKindChange(value);
+                          }}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </CardContent>
+            </Card>
             <div className="grid md:grid-cols-5 gap-4 grid-cols-1">
               <div className="block pt-0 space-y-3 md:col-span-2">
                 <FormField
                   control={form.control}
                   name="title"
-                  rules={{ required: "Title is required" }}
+                  rules={{ required: I18n.t("products.service.form.errors.title_required") }}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>
@@ -178,7 +555,7 @@ export default function ServiceForm({ product, isEditing = false }) {
                   <FormField
                     control={form.control}
                     name="category"
-                    rules={{ required: "Category is required" }}
+                    rules={{ required: I18n.t("products.service.form.errors.category_required") }}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>
@@ -190,9 +567,35 @@ export default function ServiceForm({ product, isEditing = false }) {
                             placeholder={I18n.t(
                               "products.service.form.select_category"
                             )}
-                            options={SERVICE_TYPES}
-                            value={SERVICE_TYPES.find(
+                            options={filteredServiceTypes}
+                            value={filteredServiceTypes.find(
                               (t) => t.value === field.value
+                            )}
+                            onChange={(option) => field.onChange(option?.value)}
+                            theme={(theme) => selectTheme(theme, isDarkMode)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+	                  />
+	                </div>
+
+                <div className="flex-1">
+                  <FormField
+                    control={form.control}
+                    name="booking_mode"
+                    rules={{ required: I18n.t("products.service.form.errors.booking_mode_required") }}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{I18n.t("products.service.form.booking_mode")}</FormLabel>
+                        <FormControl>
+                          <Select
+                            id="booking_mode"
+                            placeholder={I18n.t("products.service.form.select_booking_mode")}
+                            options={BOOKING_MODES}
+                            value={BOOKING_MODES.find(
+                              (mode) => mode.value === field.value
                             )}
                             onChange={(option) => field.onChange(option?.value)}
                             theme={(theme) => selectTheme(theme, isDarkMode)}
@@ -209,7 +612,7 @@ export default function ServiceForm({ product, isEditing = false }) {
                     <FormField
                       control={form.control}
                       name="delivery_method"
-                      rules={{ required: "Delivery method is required" }}
+                      rules={{ required: I18n.t("products.service.form.errors.delivery_method_required") }}
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel>
@@ -238,13 +641,13 @@ export default function ServiceForm({ product, isEditing = false }) {
                   </div>
 
                   <FormField
-                    control={form.control}
-                    name="duration_minutes"
-                    rules={{
-                      required: "Duration is required",
+                      control={form.control}
+                      name="duration_minutes"
+                      rules={{
+                      required: I18n.t("products.service.form.errors.duration_required"),
                       min: {
                         value: 15,
-                        message: "Duration must be at least 15 minutes",
+                        message: I18n.t("products.service.form.errors.duration_min"),
                       },
                     }}
                     render={({ field }) => (
@@ -291,15 +694,15 @@ export default function ServiceForm({ product, isEditing = false }) {
                 />
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  {category === "classes" && (
+                  {serviceKind === "education" && (
                     <FormField
                       control={form.control}
                       name="max_participants"
                       rules={{
-                        required: "Maximum participants is required",
+                        required: I18n.t("products.service.form.errors.max_participants_required"),
                         min: {
                           value: 1,
-                          message: "Must have at least 1 participant",
+                          message: I18n.t("products.service.form.errors.max_participants_min"),
                         },
                       }}
                       render={({ field }) => (
@@ -324,6 +727,110 @@ export default function ServiceForm({ product, isEditing = false }) {
                   )}
                 </div>
 
+                {serviceKind === "performance" && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>{I18n.t("products.service.form.show_details.title")}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="grid gap-4 sm:grid-cols-2">
+                        <FormField
+                          control={form.control}
+                          name="performance_format"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>{I18n.t("products.service.form.show_details.performance_format")}</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder={I18n.t("products.service.form.show_details.performance_format_placeholder")}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="available_countries"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>{I18n.t("products.service.form.show_details.available_countries")}</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder={I18n.t("products.service.form.show_details.available_countries_placeholder")}
+                                />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="home_city"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>{I18n.t("products.service.form.show_details.home_city")}</FormLabel>
+                              <FormControl>
+                                <Input {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="home_country"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>{I18n.t("products.service.form.show_details.home_country")}</FormLabel>
+                              <FormControl>
+                                <Input {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+
+                      <FormField
+                        control={form.control}
+                        name="technical_rider"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>{I18n.t("products.service.form.show_details.technical_rider")}</FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                placeholder={I18n.t("products.service.form.show_details.technical_rider_placeholder")}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      <FormField
+                        control={form.control}
+                        name="hospitality_rider"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>{I18n.t("products.service.form.show_details.hospitality_rider")}</FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                placeholder={I18n.t("products.service.form.show_details.hospitality_rider_placeholder")}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </CardContent>
+                  </Card>
+                )}
+
                 <PhotosSection
                   control={form.control}
                   setValue={form.setValue}
@@ -337,6 +844,8 @@ export default function ServiceForm({ product, isEditing = false }) {
                   form={form}
                   isPriceOnly={true}
                 />
+
+                <ServicePricingRules form={form} />
 
                 <Card>
                   <CardHeader>

@@ -6,6 +6,9 @@ json.service_bookings @service_bookings do |booking|
   json.service_product do
     json.id booking.service_product.id
     json.title booking.service_product.title
+    json.service_kind booking.service_product.service_kind
+    json.category booking.service_product.category
+    json.booking_mode booking.service_product.booking_mode
     json.delivery_method booking.service_product.delivery_method
   end
 
@@ -24,7 +27,7 @@ json.service_bookings @service_bookings do |booking|
 
   json.provider do
     json.id booking.provider.id
-    # json.name booking.provider.name
+    json.name booking.provider.full_name
     json.avatar_url booking.provider.avatar_url
   end
 
@@ -41,6 +44,16 @@ json.service_bookings @service_bookings do |booking|
 
   json.rating booking.rating
   json.feedback booking.feedback
+  json.payment do
+    json.status booking.payment_status
+    json.refund_status booking.refund_status
+    json.currency booking.currency
+    json.total_amount booking.total_amount
+    json.checkout_provider booking.checkout_provider
+    json.refunded_at booking.refunded_at
+    json.deposit_status booking.deposit_status
+    json.balance_status booking.balance_status
+  end
   json.cancelled_by do
     if booking.cancelled_by
       json.id booking.cancelled_by.id
