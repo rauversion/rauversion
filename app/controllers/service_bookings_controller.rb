@@ -1,7 +1,7 @@
 class ServiceBookingsController < ApplicationController
   before_action :authenticate_user!
-  before_action :set_service_booking, only: [:show, :confirm, :schedule_form, :schedule, :complete, :cancel, :refund, :update, :feedback_form, :mark_deposit_paid, :confirm_deposit, :mark_balance_paid, :confirm_balance]
-  before_action :ensure_customer_or_provider, only: [:show, :update, :feedback_form, :mark_deposit_paid, :confirm_deposit, :mark_balance_paid, :confirm_balance]
+  before_action :set_service_booking, only: [:show, :confirm, :schedule_form, :schedule, :complete, :cancel, :refund, :update, :feedback_form, :mark_deposit_paid, :confirm_deposit, :mark_balance_paid, :confirm_balance, :deposit_checkout, :balance_checkout]
+  before_action :ensure_customer_or_provider, only: [:show, :update, :feedback_form, :mark_deposit_paid, :confirm_deposit, :mark_balance_paid, :confirm_balance, :deposit_checkout, :balance_checkout]
   before_action :ensure_provider, only: [:confirm, :schedule_form, :schedule, :complete, :cancel, :refund]
 
   def index
@@ -251,6 +251,15 @@ class ServiceBookingsController < ApplicationController
     render json: { success: true, message: t('service_bookings.payment_tracking.success') }
   end
 
+  def deposit_checkout
+    unless @service_booking.may_pay_deposit_with_stripe?(current_user)
+      return render json: { success: false, error: t('service_bookings.payment_tracking.invalid_status') }, status: :unprocessable_entity
+    end
+
+    result = ServiceBookings::StripeCheckout.new(booking: @service_booking, milestone: :deposit).create_session
+    render_checkout_result(result)
+  end
+
   def confirm_deposit
     unless @service_booking.may_confirm_deposit?(current_user)
       return render json: { success: false, error: t('service_bookings.payment_tracking.invalid_status') }, status: :unprocessable_entity
@@ -267,6 +276,15 @@ class ServiceBookingsController < ApplicationController
 
     @service_booking.mark_balance_paid!(actor: current_user, notes: params[:notes])
     render json: { success: true, message: t('service_bookings.payment_tracking.success') }
+  end
+
+  def balance_checkout
+    unless @service_booking.may_pay_balance_with_stripe?(current_user)
+      return render json: { success: false, error: t('service_bookings.payment_tracking.invalid_status') }, status: :unprocessable_entity
+    end
+
+    result = ServiceBookings::StripeCheckout.new(booking: @service_booking, milestone: :balance).create_session
+    render_checkout_result(result)
   end
 
   def confirm_balance
@@ -324,5 +342,13 @@ class ServiceBookingsController < ApplicationController
     return unless purchase.product_purchase_items.count == 1
 
     purchase.update!(status: :refunded)
+  end
+
+  def render_checkout_result(result)
+    if result[:error].present?
+      render json: { success: false, error: result[:error] }, status: :unprocessable_entity
+    else
+      render json: { success: true, checkout_url: result[:checkout_url], checkout_session_id: result[:checkout_session_id] }
+    end
   end
 end

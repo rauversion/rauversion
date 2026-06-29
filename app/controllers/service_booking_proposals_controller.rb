@@ -29,6 +29,7 @@ class ServiceBookingProposalsController < ApplicationController
 
     @service_booking_proposal = ServiceBookingProposal.new(
       proposal_params.except(:service_product_id).merge(
+        currency: proposal_params[:currency].presence || service_product.currency,
         service_product: service_product,
         booker: current_user,
         artist: service_product.user,

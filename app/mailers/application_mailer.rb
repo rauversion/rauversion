@@ -1,4 +1,6 @@
 class ApplicationMailer < ActionMailer::Base
+  helper ApplicationHelper
+
   default from: -> { default_email_account }
   layout "mailer"
 

@@ -2,8 +2,9 @@ json.collection @products do |product|
   json.id product.id
   json.title product.title
   json.description sanitize(product.description, tags: %w(strong em))
-  json.formatted_price number_to_currency(product.price)
+  json.formatted_price formatted_product_price(product.price, product.currency)
   json.price product.price
+  json.currency product.currency
 
   json.category product.category
   json.service_kind product.service_kind if product.respond_to?(:service_kind)

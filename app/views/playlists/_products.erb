@@ -27,7 +27,7 @@
               <%= truncate( strip_tags(product.description), length: 180 ) %>
             </p>
             <p class="text-lg font-bold mb-2">
-              <%= number_to_currency(product.price) %>
+              <%= formatted_product_price(product.price, product.currency) %>
               <% if product.name_your_price %>
                 <span class="text-sm font-normal text-muted">(or more)</span>
               <% end %>

@@ -26,7 +26,7 @@
         </div>
         <div class="flex justify-between items-center mt-4">
           <span class="text-2xl font-bold">
-            <%= number_to_currency(product.price) %>
+            <%= formatted_product_price(product.price, product.currency) %>
             <% if product.name_your_price %>
               <span class="text-sm font-normal text-muted">(or more)</span>
             <% end %>

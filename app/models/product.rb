@@ -20,6 +20,7 @@ class Product < ApplicationRecord
 
   validates :title, presence: true
   validates :description, presence: true
+  validates :currency, presence: true
   # validates :price, presence: true, numericality: { greater_than_or_equal_to: 0 }
   # validates :stock_quantity, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   # validates :sku, presence: true, uniqueness: true
@@ -29,6 +30,8 @@ class Product < ApplicationRecord
   attribute :visibility, :string
   attribute :name_your_price, :boolean
   attribute :quantity, :integer
+
+  before_validation :normalize_currency
 
   enum :status, { 
     active: 'active', 
@@ -94,7 +97,7 @@ class Product < ApplicationRecord
   end
 
   def self.ransackable_attributes(auth_object = nil)
-    ["category", "created_at", "description", "id", "id_value", "include_digital_album", 
+    ["category", "created_at", "currency", "description", "id", "id_value", "include_digital_album",
      "limited_edition", "limited_edition_count", "name_your_price", "playlist_id", 
      "price", "quantity", "shipping_begins_on", "shipping_days", 
      "shipping_within_country_price", "shipping_worldwide_price", "sku", "status", 
@@ -111,6 +114,10 @@ class Product < ApplicationRecord
     active? && stock_quantity.to_i > 0
   end
 
+  def normalized_currency
+    currency.presence || "usd"
+  end
+
   def decrease_quantity(amount)
     return unless amount.positive?
 
@@ -123,5 +130,11 @@ class Product < ApplicationRecord
       #  raise ActiveRecord::RecordInvalid.new(self)
       # end
     end
+  end
+
+  private
+
+  def normalize_currency
+    self.currency = currency.to_s.downcase.presence || "usd"
   end
 end

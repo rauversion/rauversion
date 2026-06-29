@@ -2,6 +2,7 @@
   <h1 class="text-2xl font-bold mb-4">Your Cart</h1>
 
   <% if @cart.product_cart_items.any? %>
+    <% cart_currencies = @cart.product_cart_items.includes(:product).map { |item| item.product.currency }.compact.uniq %>
     <div class="space-y-4">
       <% @cart.product_cart_items.each do |item| %>
         <div class="flex items-center justify-between bg-default p-4 rounded-lg shadow border border-subtle">
@@ -10,7 +11,7 @@
               <%= link_to item.product.title, user_product_path(item.product.user.username, item.product), class: "text-link" %>
             </h3>
             <p>Quantity: <%= item.quantity %></p>
-            <p>Price: <%= number_to_currency(item.product.price) %></p>
+            <p>Price: <%= formatted_product_price(item.product.price, item.product.currency) %></p>
           </div>
           <%= button_to "Remove", product_cart_remove_path(product_id: item.product.id), method: :delete, data: {turbo_method: :delete, turbo_confirm: "delete item?", turbo_frame: "_top"}, class: "bg-red-500 text-default px-4 py-2 rounded" %>
         </div>
@@ -18,7 +19,9 @@
     </div>
 
     <div class="mt-8">
-      <p class="text-xl font-bold">Total: <%= number_to_currency(@cart.total_price) %></p>
+      <p class="text-xl font-bold">
+        Total: <%= cart_currencies.one? ? formatted_product_price(@cart.total_price, cart_currencies.first) : @cart.total_price %>
+      </p>
       <%= form_tag product_checkout_index_path, method: :post, data: {turbo: false } do %>
         <div class="w-36">
           <%= label_tag :promo_code %>

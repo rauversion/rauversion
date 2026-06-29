@@ -43,6 +43,7 @@ export default function AccessoryForm({ product, isEditing = false }) {
       brand: product?.brand || "",
       model: product?.model || "",
       price: product?.price || "",
+      currency: product?.currency || "usd",
       sku: product?.sku || "",
       stock_quantity: product?.stock_quantity || "",
       status: product?.status || "active",

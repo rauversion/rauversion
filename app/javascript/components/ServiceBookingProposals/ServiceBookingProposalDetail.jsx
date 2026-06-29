@@ -14,10 +14,13 @@ import { useToast } from "@/hooks/use-toast"
 import I18n from "@/stores/locales"
 
 const currency = (amount, code = "clp") => {
+  if (amount === null || amount === undefined || amount === "") return ""
+
   const value = Number(amount || 0)
   return value.toLocaleString(undefined, {
     style: "currency",
     currency: code.toUpperCase(),
+    currencyDisplay: "code",
     maximumFractionDigits: code.toLowerCase() === "clp" ? 0 : 2,
   })
 }
@@ -37,21 +40,25 @@ const termsFromProposal = (proposal) => ({
 })
 
 function OfferSummary({ proposal }) {
+  const formatted = (field, amountField) => (
+    proposal[field] || currency(proposal[amountField], proposal.currency)
+  )
+
   return (
     <div className="grid gap-3 text-sm md:grid-cols-2">
       <div>
         <div className="text-muted-foreground">{I18n.t("service_booking_proposals.labels.amount")}</div>
-        <div className="text-lg font-semibold">{currency(proposal.proposed_amount, proposal.currency)}</div>
+        <div className="text-lg font-semibold">{formatted("formatted_proposed_amount", "proposed_amount")}</div>
       </div>
       <div>
         <div className="text-muted-foreground">{I18n.t("service_booking_proposals.labels.deposit")}</div>
         <div className="font-semibold">
-          {proposal.deposit_percentage}% · {currency(proposal.deposit_amount, proposal.currency)}
+          {proposal.deposit_percentage}% · {formatted("formatted_deposit_amount", "deposit_amount")}
         </div>
       </div>
       <div>
         <div className="text-muted-foreground">{I18n.t("service_booking_proposals.labels.balance")}</div>
-        <div className="font-semibold">{currency(proposal.balance_amount, proposal.currency)}</div>
+        <div className="font-semibold">{formatted("formatted_balance_amount", "balance_amount")}</div>
       </div>
       <div>
         <div className="text-muted-foreground">{I18n.t("service_booking_proposals.labels.fee_type")}</div>
@@ -59,11 +66,11 @@ function OfferSummary({ proposal }) {
       </div>
       <div>
         <div className="text-muted-foreground">{I18n.t("service_booking_proposals.labels.artist_fee")}</div>
-        <div className="font-semibold">{currency(proposal.platform_fee_amount, proposal.currency)}</div>
+        <div className="font-semibold">{formatted("formatted_platform_fee_amount", "platform_fee_amount")}</div>
       </div>
       <div>
         <div className="text-muted-foreground">{I18n.t("service_booking_proposals.labels.artist_payout")}</div>
-        <div className="font-semibold">{currency(proposal.artist_payout_amount, proposal.currency)}</div>
+        <div className="font-semibold">{formatted("formatted_artist_payout_amount", "artist_payout_amount")}</div>
       </div>
     </div>
   )
@@ -90,7 +97,12 @@ function CounterForm({ proposal, onSubmit, pending }) {
     >
       <div className="grid gap-4 md:grid-cols-3">
         <div className="space-y-2">
-          <Label>{I18n.t("service_booking_proposals.form.amount")}</Label>
+          <div className="flex items-center justify-between gap-3">
+            <Label>{I18n.t("service_booking_proposals.form.amount")}</Label>
+            <span className="rounded-md border border-border bg-muted px-2 py-1 text-xs font-medium uppercase text-muted-foreground">
+              {proposal.currency || "clp"}
+            </span>
+          </div>
           <Input
             type="number"
             min="1"

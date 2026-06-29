@@ -2503,6 +2503,7 @@ en:
       country: Country
       fee_type: Fee type
       amount: Proposed fee
+      currency: Currency
       deposit_percentage: Deposit (%)
       payment_preview: Payment preview
       deposit_amount: Deposit
@@ -2561,6 +2562,7 @@ en:
       payment_intent: Payment intent
     payment_statuses:
       unpaid: Pending
+      checkout_created: Checkout created
       reported: Reported
       confirmed: Confirmed
     contract:
@@ -2575,11 +2577,17 @@ en:
     payment_tracking:
       success: Payment status updated
       error: Failed to update payment
+      stripe_error: Failed to create Stripe checkout
       invalid_status: This payment milestone cannot be updated yet
+      pay_deposit_with_stripe: Pay deposit with Stripe
       mark_deposit_paid: Mark deposit sent
       confirm_deposit: Confirm deposit
+      pay_balance_with_stripe: Pay balance with Stripe
       mark_balance_paid: Mark balance sent
       confirm_balance: Confirm balance
+      stripe_line_item:
+        deposit: "Deposit for %{title}"
+        balance: "Balance for %{title}"
     index:
       title: Service Reservations
       subtitle: Manage your reservations and service appointments

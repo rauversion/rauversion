@@ -53,6 +53,8 @@ json.service_bookings @service_bookings do |booking|
     json.refunded_at booking.refunded_at
     json.deposit_status booking.deposit_status
     json.balance_status booking.balance_status
+    json.deposit_checkout_session_id booking.deposit_checkout_session_id
+    json.balance_checkout_session_id booking.balance_checkout_session_id
   end
   json.cancelled_by do
     if booking.cancelled_by

@@ -70,7 +70,7 @@ module Products
 
     def product_params
       params.require(:product).permit(
-        :title, :description, :price, :service_kind, :category, :booking_mode,
+        :title, :description, :price, :currency, :service_kind, :category, :booking_mode,
         :delivery_method, :duration_minutes, :max_participants,
         :prerequisites, :what_to_expect, :cancellation_policy,
         :name_your_price, :status, :coupon_id,

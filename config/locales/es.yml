@@ -2559,6 +2559,7 @@ es:
       country: "País"
       fee_type: "Tipo de tarifa"
       amount: "Tarifa propuesta"
+      currency: "Moneda"
       deposit_percentage: "Adelanto (%)"
       payment_preview: "Vista de pago"
       deposit_amount: "Adelanto"
@@ -2617,6 +2618,7 @@ es:
       payment_intent: "Payment intent"
     payment_statuses:
       unpaid: "Pendiente"
+      checkout_created: "Checkout creado"
       reported: "Reportado"
       confirmed: "Confirmado"
     contract:
@@ -2631,11 +2633,17 @@ es:
     payment_tracking:
       success: "Estado de pago actualizado"
       error: "No se pudo actualizar el pago"
+      stripe_error: "No se pudo crear el checkout de Stripe"
       invalid_status: "Este hito de pago no se puede actualizar todavía"
+      pay_deposit_with_stripe: "Pagar adelanto con Stripe"
       mark_deposit_paid: "Marcar adelanto realizado"
       confirm_deposit: "Confirmar adelanto"
+      pay_balance_with_stripe: "Pagar saldo con Stripe"
       mark_balance_paid: "Marcar saldo realizado"
       confirm_balance: "Confirmar saldo"
+      stripe_line_item:
+        deposit: "Adelanto de %{title}"
+        balance: "Saldo de %{title}"
     index:
       title: "Reservas de Servicios"
       subtitle: "Gestiona tus reservas y citas de servicios"

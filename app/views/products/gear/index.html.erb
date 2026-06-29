@@ -107,7 +107,7 @@
                   <p class="text-sm text-gray-500 mb-2"><%= product.user.display_name %></p>
                   
                   <div class="flex items-center justify-between mb-2">
-                    <span class="text-primary font-bold"><%= number_to_currency(product.price) %></span>
+                    <span class="text-primary font-bold"><%= formatted_product_price(product.price, product.currency) %></span>
                     <span class="text-sm text-gray-500"><%= product.category&.titleize %></span>
                   </div>
 

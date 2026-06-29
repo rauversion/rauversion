@@ -45,6 +45,6 @@
         <% end %>
       </div>
     </div>
-    <span class="text-primary font-medium"><%= number_to_currency(product.price) %></span>
+    <span class="text-primary font-medium"><%= formatted_product_price(product.price, product.currency) %></span>
   </div>
 <% end %>

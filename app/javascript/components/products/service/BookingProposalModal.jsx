@@ -50,7 +50,7 @@ const initialForm = (product) => ({
   city: product.home_city || "",
   country: product.home_country || "Chile",
   proposed_amount: product.price || "",
-  currency: "clp",
+  currency: product.currency || "clp",
   deposit_percentage: 50,
   fee_type: product.performance_format === "no_landed_add_ons" ? "no_landed_add_ons" : "landed",
   transport_included: false,
@@ -68,6 +68,7 @@ const currency = (amount, code = "clp") => {
   return value.toLocaleString(undefined, {
     style: "currency",
     currency: code.toUpperCase(),
+    currencyDisplay: "code",
     maximumFractionDigits: code.toLowerCase() === "clp" ? 0 : 2,
   })
 }
@@ -263,7 +264,12 @@ export default function BookingProposalModal({ product }) {
 
           <div className="grid gap-4 md:grid-cols-[1fr_1fr_1.2fr]">
             <div className="space-y-2">
-              <Label htmlFor="proposal_amount">{I18n.t("service_booking_proposals.form.amount")}</Label>
+              <div className="flex items-center justify-between gap-3">
+                <Label htmlFor="proposal_amount">{I18n.t("service_booking_proposals.form.amount")}</Label>
+                <span className="rounded-md border border-border bg-muted px-2 py-1 text-xs font-medium uppercase text-muted-foreground">
+                  {form.currency || "clp"}
+                </span>
+              </div>
               <Input
                 id="proposal_amount"
                 type="number"

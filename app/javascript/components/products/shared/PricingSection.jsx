@@ -17,6 +17,7 @@ import I18n from '@/stores/locales'
 export default function PricingSection({ control, isPriceOnly, form  }) {
 
   const accepsBarter = form.watch('accept_barter')
+  const selectedCurrency = (form.watch('currency') || 'usd').toUpperCase()
 
   return (
     <Card>
@@ -24,35 +25,56 @@ export default function PricingSection({ control, isPriceOnly, form  }) {
         <CardTitle>{I18n.t('products.form.pricing.title')}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <FormField
-          control={control}
-          name="price"
-          rules={{ 
-            required: "Price is required",
-            min: {
-              value: 0,
-              message: "Price must be greater than or equal to 0"
-            }
-          }}
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{I18n.t('products.form.pricing.price')}</FormLabel>
-              <FormControl>
-                <CurrencyInput
-                  currencySymbol="$"
-                  currency="USD"
-                  placeholder="0.00"
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  {...field}
-                  onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="grid gap-4 md:grid-cols-[1fr_160px]">
+          <FormField
+            control={control}
+            name="price"
+            rules={{
+              required: "Price is required",
+              min: {
+                value: 0,
+                message: "Price must be greater than or equal to 0"
+              }
+            }}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{I18n.t('products.form.pricing.price')}</FormLabel>
+                <FormControl>
+                  <CurrencyInput
+                    currencySymbol="$"
+                    currency={selectedCurrency}
+                    placeholder="0.00"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    {...field}
+                    onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={control}
+            name="currency"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>{I18n.t('products.form.pricing.currency')}</FormLabel>
+                <FormControl>
+                  <Input
+                    {...field}
+                    value={field.value || ""}
+                    placeholder="usd"
+                    onChange={(event) => field.onChange(event.target.value.toLowerCase())}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         {!isPriceOnly && (
           <>

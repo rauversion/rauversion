@@ -1,5 +1,5 @@
 json.product do
-  json.extract! @product, :type, :id, :title, :description, :price, :category, :slug
+  json.extract! @product, :type, :id, :title, :description, :price, :currency, :category, :slug
 
   json.user do
     json.partial! 'users/user', user: @product.user, show_full_name: true
@@ -18,7 +18,7 @@ json.product do
   json.accept_barter @product.accept_barter if @product.respond_to?(:accept_barter)
   json.barter_description @product.barter_description if @product.accept_barter
 
-  json.formatted_price number_to_currency(@product.price) if @product.respond_to?(:price)
+  json.formatted_price formatted_product_price(@product.price, @product.currency) if @product.respond_to?(:price)
 
   json.product_images @product.product_images do |product_image|
     json.id product_image.id
@@ -32,8 +32,8 @@ json.product do
     json.base_cost product_shipping.base_cost
     json.additional_cost product_shipping.additional_cost
 
-    json.base_cost_formatted number_to_currency(product_shipping.base_cost)
-    json.additional_cost_formatted number_to_currency(product_shipping.additional_cost)
+    json.base_cost_formatted formatted_product_price(product_shipping.base_cost, @product.currency)
+    json.additional_cost_formatted formatted_product_price(product_shipping.additional_cost, @product.currency)
   end
 
 end

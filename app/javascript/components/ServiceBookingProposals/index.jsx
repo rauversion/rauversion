@@ -9,10 +9,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import I18n from "@/stores/locales"
 
 const currency = (amount, code = "clp") => {
+  if (amount === null || amount === undefined || amount === "") return ""
+
   const value = Number(amount || 0)
   return value.toLocaleString(undefined, {
     style: "currency",
     currency: code.toUpperCase(),
+    currencyDisplay: "code",
     maximumFractionDigits: code.toLowerCase() === "clp" ? 0 : 2,
   })
 }
@@ -80,7 +83,9 @@ export function ServiceBookingProposals() {
               </CardHeader>
               <CardContent className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div className="text-sm">
-                  <div className="font-semibold">{currency(proposal.proposed_amount, proposal.currency)}</div>
+                  <div className="font-semibold">
+                    {proposal.formatted_proposed_amount || currency(proposal.proposed_amount, proposal.currency)}
+                  </div>
                   <div className="text-muted-foreground">
                     {I18n.t("service_booking_proposals.labels.with_artist", {
                       artist: proposal.artist.name,

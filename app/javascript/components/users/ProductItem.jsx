@@ -63,7 +63,7 @@ export default function ProductItem({ product, elementRef }) {
               </h3>
             </Link>
             <p className="text-xl font-bold text-primary ml-3 whitespace-nowrap">
-              {product.price}
+              {product.formatted_price || product.price}
             </p>
           </div>
 

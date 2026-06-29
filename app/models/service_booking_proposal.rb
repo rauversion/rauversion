@@ -104,7 +104,6 @@ class ServiceBookingProposal < ApplicationRecord
         snapshot = build_contract_snapshot(booking: booking)
         booking.update!(agreement_snapshot: snapshot)
         update!(service_booking: booking, contract_snapshot: snapshot)
-        cancel_conflicting_proposals!(actor: actor)
         add_system_message!("#{actor.display_name.presence || actor.full_name} accepted the proposal. Booking ##{booking.id} was created.", actor: actor)
         booking.add_system_message!("Booking created from proposal ##{id}.", actor: actor)
         booking
@@ -178,16 +177,12 @@ class ServiceBookingProposal < ApplicationRecord
     }
   end
 
-  def auto_cancel!(actor:)
-    update_status_with_history!(status: :cancelled, action: "auto_cancelled", actor: actor)
-  end
-
   private
 
   def set_defaults
     self.artist ||= service_product&.user
     self.current_offer_by ||= booker
-    self.currency = currency.presence || "clp"
+    self.currency = currency.presence || service_product&.currency.presence || "usd"
     self.deposit_percentage = 50 if deposit_percentage.blank?
     self.platform_fee_rate = 0.05 if platform_fee_rate.blank?
     self.platform_fee_min_amount = 5000 if platform_fee_min_amount.blank?
@@ -278,15 +273,6 @@ class ServiceBookingProposal < ApplicationRecord
       platform_fee_amount: platform_fee_amount,
       artist_payout_amount: artist_payout_amount
     ).tap(&:set_service_product_conversation)
-  end
-
-  def cancel_conflicting_proposals!(actor:)
-    self.class.active
-      .where(artist_id: artist_id, event_date: event_date)
-      .where.not(id: id)
-      .find_each do |proposal|
-        proposal.auto_cancel!(actor: actor)
-      end
   end
 
   def create_proposal_conversation!

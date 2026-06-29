@@ -47,5 +47,27 @@ RSpec.describe ServiceBookingProposal, type: :model do
       expect(proposal.reload.service_booking).to eq(booking)
       expect(proposal).to be_accepted
     end
+
+    it "does not cancel other proposals for the same event" do
+      booker = create(:user)
+      event_date = 2.weeks.from_now.to_date
+      first_proposal = create(
+        :service_booking_proposal,
+        booker: booker,
+        event_name: "Multi DJ Night",
+        event_date: event_date
+      )
+      second_proposal = create(
+        :service_booking_proposal,
+        booker: booker,
+        event_name: "Multi DJ Night",
+        event_date: event_date
+      )
+
+      first_proposal.accept!(actor: first_proposal.artist)
+
+      expect(first_proposal.reload).to be_accepted
+      expect(second_proposal.reload).to be_pending_artist_response
+    end
   end
 end

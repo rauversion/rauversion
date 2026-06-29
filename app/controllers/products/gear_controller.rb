@@ -90,7 +90,7 @@ module Products
     def product_params
       permitted = params.require(:product).permit(
         :category, :brand, :model, :year, :condition, :title, :description,
-        :accept_barter, :barter_description, :price, :stock_quantity, :sku,
+        :accept_barter, :barter_description, :price, :currency, :stock_quantity, :sku,
         :status, :shipping_days, :shipping_begins_on, :visibility, :name_your_price, :quantity,
         product_images_attributes: [:id, :title, :description, :image, :_destroy],
         product_shippings_attributes: [:id, :country, :base_cost, :additional_cost, :_destroy]

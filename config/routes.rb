@@ -470,8 +470,10 @@ Rails.application.routes.draw do
       patch :complete
       patch :cancel
       patch :refund
+      post :deposit_checkout
       patch :mark_deposit_paid
       patch :confirm_deposit
+      post :balance_checkout
       patch :mark_balance_paid
       patch :confirm_balance
       get :feedback_form

@@ -75,6 +75,7 @@ es:
       pricing:
         title: "Precios"
         price: "Precio"
+        currency: "Moneda"
         sku: SKU
         stock_quantity: "Cantidad en Stock"
         compare_at_price: "Precio de comparación"

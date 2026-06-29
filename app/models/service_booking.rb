@@ -43,12 +43,14 @@ class ServiceBooking < ApplicationRecord
 
   enum :deposit_status, {
     unpaid: 'unpaid',
+    checkout_created: 'checkout_created',
     reported: 'reported',
     confirmed: 'confirmed'
   }, prefix: :deposit
 
   enum :balance_status, {
     unpaid: 'unpaid',
+    checkout_created: 'checkout_created',
     reported: 'reported',
     confirmed: 'confirmed'
   }, prefix: :balance
@@ -99,12 +101,20 @@ class ServiceBooking < ApplicationRecord
     customer == user && !cancelled? && !refunded? && !deposit_confirmed?
   end
 
+  def may_pay_deposit_with_stripe?(user)
+    customer == user && !cancelled? && !refunded? && !deposit_confirmed? && deposit_amount.to_d.positive?
+  end
+
   def may_confirm_deposit?(user)
     provider == user && deposit_reported? && !cancelled? && !refunded?
   end
 
   def may_mark_balance_paid?(user)
     customer == user && deposit_confirmed? && !balance_confirmed? && !cancelled? && !refunded?
+  end
+
+  def may_pay_balance_with_stripe?(user)
+    customer == user && deposit_confirmed? && !balance_confirmed? && !cancelled? && !refunded? && balance_due_amount.to_d.positive?
   end
 
   def may_confirm_balance?(user)
@@ -149,6 +159,36 @@ class ServiceBooking < ApplicationRecord
       payment_tracking_notes: notes.presence || payment_tracking_notes
     )
     add_system_message!("#{actor.display_name.presence || actor.full_name} confirmed the balance payment.", actor: actor)
+  end
+
+  def mark_deposit_paid_by_stripe!(checkout_session:)
+    update!(
+      deposit_status: :confirmed,
+      deposit_paid_at: Time.current,
+      deposit_confirmed_at: Time.current,
+      deposit_checkout_session_id: checkout_session.id,
+      deposit_payment_intent_id: checkout_session.payment_intent,
+      payment_session_id: checkout_session.id,
+      payment_intent_id: checkout_session.payment_intent,
+      checkout_provider: "stripe",
+      payment_status: balance_due_amount.to_d.positive? ? :pending : :paid
+    )
+    add_system_message!("Stripe confirmed the deposit payment for this booking.", actor: customer)
+  end
+
+  def mark_balance_paid_by_stripe!(checkout_session:)
+    update!(
+      balance_status: :confirmed,
+      balance_paid_at: Time.current,
+      balance_confirmed_at: Time.current,
+      balance_checkout_session_id: checkout_session.id,
+      balance_payment_intent_id: checkout_session.payment_intent,
+      payment_session_id: checkout_session.id,
+      payment_intent_id: checkout_session.payment_intent,
+      checkout_provider: "stripe",
+      payment_status: :paid
+    )
+    add_system_message!("Stripe confirmed the balance payment for this booking.", actor: customer)
   end
 
   def refund_amount_for_gateway

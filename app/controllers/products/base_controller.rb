@@ -26,7 +26,7 @@ module Products
         :limited_edition, :limited_edition_count, :include_digital_album, :visibility, 
         :name_your_price, :shipping_days, :shipping_begins_on, :shipping_within_country_price, 
         :shipping_worldwide_price, :quantity, :playlist_id,
-        :title, :description, :price, :sku, :category, :status, :stock_quantity,
+        :title, :description, :price, :currency, :sku, :category, :status, :stock_quantity,
         :condition, :brand, :model, :year, :accept_barter, :barter_description,
         :limited_edition, :limited_edition_count, :include_digital_album,
         :visibility, :name_your_price, :shipping_days, :shipping_begins_on,

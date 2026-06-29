@@ -53,6 +53,7 @@ en:
       pricing:
         title: Prices
         price: Price
+        currency: Currency
         sku: SKU
         stock_quantity: Quantity in Stock
         compare_at_price: Price comparison

@@ -22,14 +22,14 @@
           <tr>
             <td style="padding:8px 0;border-top:1px solid #e5e7eb;"><%= item.product.title %></td>
             <td style="padding:8px 0;text-align:center;border-top:1px solid #e5e7eb;"><%= item.quantity %></td>
-            <td style="padding:8px 0;text-align:right;border-top:1px solid #e5e7eb;"><%= number_to_currency(item.price) %></td>
+            <td style="padding:8px 0;text-align:right;border-top:1px solid #e5e7eb;"><%= formatted_product_price(item.price, item.currency) %></td>
           </tr>
         <% end %>
       </tbody>
       <tfoot>
         <tr>
           <td colspan="2" style="padding:12px 0;text-align:right;font-weight:bold;color:#334155;">Total:</td>
-          <td style="padding:12px 0;text-align:right;font-weight:bold;color:#334155;"><%= number_to_currency(@purchase.total_amount) %></td>
+          <td style="padding:12px 0;text-align:right;font-weight:bold;color:#334155;"><%= formatted_product_price(@purchase.total_amount, @purchase.currency) %></td>
         </tr>
       </tfoot>
     </table>

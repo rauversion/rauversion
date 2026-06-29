@@ -110,7 +110,7 @@ module Products
         product_purchase: purchase,
         product_purchase_item: item,
         status: :pending_confirmation,
-        currency: item.currency.presence || purchase.currency.presence || "usd",
+        currency: item.currency.presence || purchase.currency.presence || normalized_currency,
         subtotal_amount: subtotal_amount,
         total_amount: total_amount,
         payment_status: purchase.completed? ? :paid : :pending,

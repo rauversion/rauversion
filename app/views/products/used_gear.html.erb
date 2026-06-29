@@ -120,7 +120,7 @@
 
               <div class="mt-4 flex justify-between items-center">
                 <div class="text-lg font-medium text-default">
-                  <%= number_to_currency(product.price) %>
+                  <%= formatted_product_price(product.price, product.currency) %>
                 </div>
                 <% if product.accept_barter %>
                   <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">

@@ -58,6 +58,10 @@ json.service_booking do
     json.deposit_confirmed_at @service_booking.deposit_confirmed_at
     json.balance_paid_at @service_booking.balance_paid_at
     json.balance_confirmed_at @service_booking.balance_confirmed_at
+    json.deposit_checkout_session_id @service_booking.deposit_checkout_session_id
+    json.deposit_payment_intent_id @service_booking.deposit_payment_intent_id if @service_booking.provider == current_user
+    json.balance_checkout_session_id @service_booking.balance_checkout_session_id
+    json.balance_payment_intent_id @service_booking.balance_payment_intent_id if @service_booking.provider == current_user
     json.platform_fee_rate @service_booking.platform_fee_rate
     json.platform_fee_amount @service_booking.platform_fee_amount
     json.artist_payout_amount @service_booking.artist_payout_amount
@@ -97,8 +101,10 @@ json.service_booking do
     json.can_complete @service_booking.scheduled? && current_user == @service_booking.provider
     json.can_cancel @service_booking.may_cancel? && [@service_booking.customer, @service_booking.provider].include?(current_user)
     json.can_refund @service_booking.may_refund? && current_user == @service_booking.provider
+    json.can_pay_deposit_with_stripe @service_booking.may_pay_deposit_with_stripe?(current_user)
     json.can_mark_deposit_paid @service_booking.may_mark_deposit_paid?(current_user)
     json.can_confirm_deposit @service_booking.may_confirm_deposit?(current_user)
+    json.can_pay_balance_with_stripe @service_booking.may_pay_balance_with_stripe?(current_user)
     json.can_mark_balance_paid @service_booking.may_mark_balance_paid?(current_user)
     json.can_confirm_balance @service_booking.may_confirm_balance?(current_user)
     json.can_give_feedback @service_booking.completed? && current_user == @service_booking.customer && !@service_booking.rating

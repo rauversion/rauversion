@@ -99,6 +99,8 @@ class WebhooksController < ApplicationController
   def confirm_stripe_purchase(event_object)
     if event_object&.metadata&.source_type == "product"
       handle_product_purchase(event_object&.metadata)
+    elsif event_object&.metadata&.source_type == "service_booking"
+      handle_service_booking_checkout(event_object)
     elsif event_object&.metadata&.source_type == "track"
       handle_track_purchase(event_object&.metadata)
     elsif event_object&.metadata&.source_type == "playlist"
@@ -133,8 +135,9 @@ class WebhooksController < ApplicationController
       stripe_session = Stripe::Checkout::Session.retrieve(@purchase.stripe_session_id)
       
       if stripe_session.payment_status == 'paid'
-        shipping_cost = stripe_session.shipping_cost.amount_total / 100.0 rescue 0
-        total_amount = stripe_session.amount_total / 100.0
+        currency = stripe_session.currency.to_s.downcase.presence || "usd"
+        shipping_cost = stripe_amount_to_decimal(stripe_session.shipping_cost.amount_total, currency) rescue 0
+        total_amount = stripe_amount_to_decimal(stripe_session.amount_total, currency)
   
         payment_intent = Stripe::PaymentIntent.retrieve(stripe_session.payment_intent)
 
@@ -145,7 +148,7 @@ class WebhooksController < ApplicationController
           phone: stripe_session&.customer_details&.phone,
           shipping_cost: shipping_cost,
           total_amount: total_amount,
-          currency: stripe_session.currency,
+          currency: currency,
           payment_intent_id: payment_intent["id"]
         )
 
@@ -160,13 +163,13 @@ class WebhooksController < ApplicationController
             shipping = product.product_shippings.find_by(country: stripe_session.shipping_details.address.country) ||
                       product.product_shippings.find_by(country: 'Rest of World')
             
-            additional_shipping_cost = shipping ? (item.quantity - 1) * shipping.additional_cost.to_i : 0
+            additional_shipping_cost = shipping ? (item.quantity - 1) * shipping.additional_cost.to_d : 0
           end
           {
             product: product,
             quantity: item.quantity,
             price: product.price,
-            currency: stripe_session.currency,
+            currency: product.normalized_currency,
             shipping_cost: (shipping&.base_cost || 0) + additional_shipping_cost
           }
         })
@@ -182,6 +185,20 @@ class WebhooksController < ApplicationController
       else
         @purchase.update(status: :failed)
       end
+    end
+  end
+
+  def handle_service_booking_checkout(event_object)
+    metadata = event_object.metadata
+    booking = ServiceBooking.find_by(id: metadata.service_booking_id)
+    return unless booking
+    return unless event_object.payment_status == "paid"
+
+    case metadata.milestone
+    when "deposit"
+      booking.mark_deposit_paid_by_stripe!(checkout_session: event_object)
+    when "balance"
+      booking.mark_balance_paid_by_stripe!(checkout_session: event_object)
     end
   end
 
@@ -274,6 +291,7 @@ class WebhooksController < ApplicationController
     purchase.update(
       status: :completed,
       total_amount: payment_info["transaction_amount"],
+      currency: payment_info["currency_id"].to_s.downcase.presence || purchase.currency,
       payment_intent_id: payment_info["id"],
       payment_method: payment_info["payment_method_id"],
       installments: payment_info["installments"]
@@ -323,6 +341,7 @@ class WebhooksController < ApplicationController
         product: product,
         quantity: item["quantity"],
         price: item["unit_price"],
+        currency: item["currency_id"].to_s.downcase.presence || product.normalized_currency,
         title: item["title"],
         description: item["description"]
       }
@@ -347,5 +366,14 @@ class WebhooksController < ApplicationController
       status: :failed,
       payment_intent_id: payment_info["id"]
     )
+  end
+
+  def stripe_amount_to_decimal(amount, currency)
+    divisor = zero_decimal_currency?(currency) ? 1 : 100
+    BigDecimal(amount.to_s) / divisor
+  end
+
+  def zero_decimal_currency?(currency)
+    %w[bif clp djf gnf jpy kmf krw mga pyg rwf ugx vnd vuv xaf xof xpf].include?(currency.to_s.downcase)
   end
 end

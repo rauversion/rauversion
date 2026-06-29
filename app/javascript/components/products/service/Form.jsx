@@ -126,6 +126,7 @@ function ServicePricingRules({ form }) {
     keyName: "fieldId",
   });
   const watchedRules = form.watch("service_price_rules_attributes") || [];
+  const productCurrency = form.watch("currency") || "clp";
 
   const removeRule = (index) => {
     const persistedId = form.getValues(`service_price_rules_attributes.${index}.id`);
@@ -159,7 +160,7 @@ function ServicePricingRules({ form }) {
           type="button"
           variant="outline"
           size="sm"
-          onClick={() => append({ ...blankPriceRule, position: fields.length })}
+          onClick={() => append({ ...blankPriceRule, currency: productCurrency, position: fields.length })}
         >
           <Plus className="mr-2 h-4 w-4" />
           {I18n.t("products.service.form.price_rules.add")}
@@ -357,6 +358,7 @@ export default function ServiceForm({ product, isEditing = false }) {
         name: I18n.t("products.service.form.price_rules.base_price"),
         rule_type: "base",
         amount: product?.price || 0,
+        currency: product?.currency || "clp",
       },
     ];
 
@@ -368,6 +370,7 @@ export default function ServiceForm({ product, isEditing = false }) {
       delivery_method: product?.delivery_method || "",
       title: product?.title || "",
       description: product?.description || "",
+      currency: product?.currency || "clp",
       duration_minutes: product?.duration_minutes || 60,
       max_participants: product?.max_participants || 1,
       prerequisites: product?.prerequisites || "",

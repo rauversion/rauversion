@@ -12,9 +12,12 @@ json.city proposal.city
 json.country proposal.country
 json.proposed_amount proposal.proposed_amount
 json.currency proposal.currency
+json.formatted_proposed_amount formatted_product_price(proposal.proposed_amount, proposal.currency)
 json.deposit_percentage proposal.deposit_percentage
 json.deposit_amount proposal.deposit_amount
+json.formatted_deposit_amount formatted_product_price(proposal.deposit_amount, proposal.currency)
 json.balance_amount proposal.balance_amount
+json.formatted_balance_amount formatted_product_price(proposal.balance_amount, proposal.currency)
 json.fee_type proposal.fee_type
 json.transport_included proposal.transport_included
 json.accommodation_included proposal.accommodation_included
@@ -29,8 +32,11 @@ json.artist_counter_count proposal.artist_counter_count
 json.negotiation_history proposal.negotiation_history
 json.platform_fee_rate proposal.platform_fee_rate
 json.platform_fee_min_amount proposal.platform_fee_min_amount
+json.formatted_platform_fee_min_amount formatted_product_price(proposal.platform_fee_min_amount, proposal.currency)
 json.platform_fee_amount proposal.platform_fee_amount
+json.formatted_platform_fee_amount formatted_product_price(proposal.platform_fee_amount, proposal.currency)
 json.artist_payout_amount proposal.artist_payout_amount
+json.formatted_artist_payout_amount formatted_product_price(proposal.artist_payout_amount, proposal.currency)
 json.accepted_at proposal.accepted_at
 json.expires_at proposal.expires_at
 json.contract_snapshot proposal.contract_snapshot

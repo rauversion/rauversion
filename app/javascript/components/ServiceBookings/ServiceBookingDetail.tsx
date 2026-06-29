@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { format } from "date-fns"
-import { FileSignature, Loader2 } from "lucide-react"
+import { CreditCard, FileSignature, Loader2 } from "lucide-react"
 import {
   Dialog,
   DialogContent,
@@ -83,6 +83,10 @@ interface ServiceBooking {
     deposit_confirmed_at?: string
     balance_paid_at?: string
     balance_confirmed_at?: string
+    deposit_checkout_session_id?: string
+    deposit_payment_intent_id?: string
+    balance_checkout_session_id?: string
+    balance_payment_intent_id?: string
     platform_fee_rate?: number
     platform_fee_amount?: number
     artist_payout_amount?: number
@@ -112,8 +116,10 @@ interface ServiceBooking {
     can_complete: boolean
     can_cancel: boolean
     can_refund: boolean
+    can_pay_deposit_with_stripe: boolean
     can_mark_deposit_paid: boolean
     can_confirm_deposit: boolean
+    can_pay_balance_with_stripe: boolean
     can_mark_balance_paid: boolean
     can_confirm_balance: boolean
     can_give_feedback: boolean
@@ -254,6 +260,32 @@ export function ServiceBookingDetail() {
         variant: "destructive",
         title: I18n.t("service_bookings.messages.error"),
         description: I18n.t("service_bookings.payment_tracking.error"),
+      })
+    },
+  })
+
+  const stripeCheckoutMutation = useMutation({
+    mutationFn: async ({ action }: { action: string }) => {
+      const response = await post(`/service_bookings/${id}/${action}`, {
+        responseKind: "json",
+      })
+      const result = await response.json
+      if (!response.ok) throw new Error(result?.error || "checkout failed")
+      return result
+    },
+    onSuccess: (result) => {
+      if (result.checkout_url) {
+        window.location.href = result.checkout_url
+        return
+      }
+
+      queryClient.invalidateQueries({ queryKey: ["service_booking", id] })
+    },
+    onError: () => {
+      toast({
+        variant: "destructive",
+        title: I18n.t("service_bookings.messages.error"),
+        description: I18n.t("service_bookings.payment_tracking.stripe_error"),
       })
     },
   })
@@ -506,7 +538,7 @@ export function ServiceBookingDetail() {
               </div>
             )}
 
-            <div className="flex gap-4 mt-4">
+            <div className="flex flex-wrap gap-4 mt-4">
               {service_booking.actions.can_confirm && (
                 <Button
                   onClick={() => confirmMutation.mutate()}
@@ -609,6 +641,20 @@ export function ServiceBookingDetail() {
                 </Button>
               )}
 
+              {service_booking.actions.can_pay_deposit_with_stripe && (
+                <Button
+                  onClick={() => stripeCheckoutMutation.mutate({ action: "deposit_checkout" })}
+                  disabled={stripeCheckoutMutation.isPending}
+                >
+                  {stripeCheckoutMutation.isPending ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <CreditCard className="mr-2 h-4 w-4" />
+                  )}
+                  {I18n.t("service_bookings.payment_tracking.pay_deposit_with_stripe")}
+                </Button>
+              )}
+
               {service_booking.actions.can_mark_deposit_paid && (
                 <Button
                   variant="outline"
@@ -626,6 +672,20 @@ export function ServiceBookingDetail() {
                   disabled={paymentActionMutation.isPending}
                 >
                   {I18n.t("service_bookings.payment_tracking.confirm_deposit")}
+                </Button>
+              )}
+
+              {service_booking.actions.can_pay_balance_with_stripe && (
+                <Button
+                  onClick={() => stripeCheckoutMutation.mutate({ action: "balance_checkout" })}
+                  disabled={stripeCheckoutMutation.isPending}
+                >
+                  {stripeCheckoutMutation.isPending ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <CreditCard className="mr-2 h-4 w-4" />
+                  )}
+                  {I18n.t("service_bookings.payment_tracking.pay_balance_with_stripe")}
                 </Button>
               )}
 

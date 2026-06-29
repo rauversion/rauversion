@@ -1,7 +1,9 @@
 json.cart do
   json.id @cart.id
   #json.total_items @cart.product_items.sum(:quantity)
-  json.total_price number_to_currency(@cart.total_price)
+  cart_currency = @cart.product_cart_items.includes(:product).map { |item| item.product.currency }.compact.uniq
+  json.currency cart_currency.one? ? cart_currency.first : nil
+  json.total_price cart_currency.one? ? formatted_product_price(@cart.total_price, cart_currency.first) : @cart.total_price
 
   json.items @cart_items do |item|
     
@@ -9,13 +11,15 @@ json.cart do
       json.id item.id
       json.quantity item.quantity
       # json.price item.price
-      json.total_price number_to_currency(item.total_price)
+      json.total_price formatted_product_price(item.total_price, item.product.currency)
       
         product = item.product
         json.id product.id
         json.title product.title
         json.description product.description
-        json.price number_to_currency(product.price)
+        json.price product.price
+        json.currency product.currency
+        json.formatted_price formatted_product_price(product.price, product.currency)
         json.slug product.slug
         
         json.user do
@@ -35,5 +39,4 @@ json.cart do
     end
   end
 end
-
 

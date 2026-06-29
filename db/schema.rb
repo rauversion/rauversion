@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_28_120400) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_28_120600) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -908,6 +908,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_28_120400) do
     t.bigint "coupon_id"
     t.bigint "course_id"
     t.datetime "created_at", null: false
+    t.string "currency", default: "usd", null: false
     t.jsonb "data"
     t.datetime "deleted_at"
     t.text "description"
@@ -939,6 +940,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_28_120400) do
     t.index ["condition"], name: "index_products_on_condition"
     t.index ["coupon_id"], name: "index_products_on_coupon_id"
     t.index ["course_id"], name: "index_products_on_course_id"
+    t.index ["currency"], name: "index_products_on_currency"
     t.index ["deleted_at"], name: "index_products_on_deleted_at"
     t.index ["model"], name: "index_products_on_model"
     t.index ["playlist_id"], name: "index_products_on_playlist_id"
@@ -1121,9 +1123,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_28_120400) do
   create_table "service_bookings", force: :cascade do |t|
     t.jsonb "agreement_snapshot", default: {}, null: false
     t.decimal "artist_payout_amount", precision: 12, scale: 2
+    t.string "balance_checkout_session_id"
     t.datetime "balance_confirmed_at"
     t.decimal "balance_due_amount", precision: 10, scale: 2
     t.datetime "balance_paid_at"
+    t.string "balance_payment_intent_id"
     t.string "balance_status", default: "unpaid", null: false
     t.string "checkout_provider"
     t.string "city"
@@ -1134,8 +1138,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_28_120400) do
     t.string "currency", default: "usd", null: false
     t.bigint "customer_id", null: false
     t.decimal "deposit_amount", precision: 10, scale: 2
+    t.string "deposit_checkout_session_id"
     t.datetime "deposit_confirmed_at"
     t.datetime "deposit_paid_at"
+    t.string "deposit_payment_intent_id"
     t.string "deposit_status", default: "unpaid", null: false
     t.datetime "ends_at"
     t.text "feedback"
@@ -1161,9 +1167,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_28_120400) do
     t.datetime "updated_at", null: false
     t.string "venue_address"
     t.string "venue_name"
+    t.index ["balance_checkout_session_id"], name: "index_service_bookings_on_balance_checkout_session_id"
+    t.index ["balance_payment_intent_id"], name: "index_service_bookings_on_balance_payment_intent_id"
     t.index ["balance_status"], name: "index_service_bookings_on_balance_status"
     t.index ["contract_status"], name: "index_service_bookings_on_contract_status"
     t.index ["customer_id"], name: "index_service_bookings_on_customer_id"
+    t.index ["deposit_checkout_session_id"], name: "index_service_bookings_on_deposit_checkout_session_id"
+    t.index ["deposit_payment_intent_id"], name: "index_service_bookings_on_deposit_payment_intent_id"
     t.index ["deposit_status"], name: "index_service_bookings_on_deposit_status"
     t.index ["payment_intent_id"], name: "index_service_bookings_on_payment_intent_id"
     t.index ["payment_status"], name: "index_service_bookings_on_payment_status"

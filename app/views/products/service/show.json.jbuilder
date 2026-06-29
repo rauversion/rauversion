@@ -21,7 +21,8 @@ json.product do
   json.hospitality_rider @product.hospitality_rider
   json.price_notes @product.price_notes
   json.price @product.price
-  json.formatted_price number_to_currency(@product.price)
+  json.currency @product.currency
+  json.formatted_price formatted_product_price(@product.price, @product.currency)
   json.post_purchase_instructions @product.post_purchase_instructions
   json.stock_quantity @product.stock_quantity
   json.status @product.status

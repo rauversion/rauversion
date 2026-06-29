@@ -3,6 +3,7 @@ FactoryBot.define do
     title { "MyString" }
     description { "MyText" }
     price { "9.99" }
+    currency { "usd" }
     stock_quantity { 1 }
     sku { "MyString" }
     category { "MyString" }

@@ -2784,6 +2784,7 @@
           "barter_description": "Description of barter",
           "barter_description_placeholder": "Describe what type of equipment you would accept in exchange...",
           "compare_at_price": "Price comparison",
+          "currency": "Currency",
           "price": "Price",
           "sku": "SKU",
           "stock_quantity": "Quantity in Stock",
@@ -3563,6 +3564,7 @@
         "catering_included": "Backstage catering",
         "city": "City",
         "country": "Country",
+        "currency": "Currency",
         "deposit_amount": "Deposit",
         "deposit_percentage": "Deposit (%)",
         "description": "Set clear terms for %{artist}: date, fee, deposit, benefits, and rider.",
@@ -3748,6 +3750,7 @@
         "total": "Total"
       },
       "payment_statuses": {
+        "checkout_created": "Checkout created",
         "confirmed": "Confirmed",
         "reported": "Reported",
         "unpaid": "Pending"
@@ -3759,6 +3762,13 @@
         "invalid_status": "This payment milestone cannot be updated yet",
         "mark_balance_paid": "Mark balance sent",
         "mark_deposit_paid": "Mark deposit sent",
+        "pay_balance_with_stripe": "Pay balance with Stripe",
+        "pay_deposit_with_stripe": "Pay deposit with Stripe",
+        "stripe_error": "Failed to create Stripe checkout",
+        "stripe_line_item": {
+          "balance": "Balance for %{title}",
+          "deposit": "Deposit for %{title}"
+        },
         "success": "Payment status updated"
       },
       "refund": {
@@ -7704,6 +7714,7 @@
           "barter_description": "Descripción del trueque",
           "barter_description_placeholder": "Describe qué tipo de equipos aceptarías como trueque...",
           "compare_at_price": "Precio de comparación",
+          "currency": "Moneda",
           "price": "Precio",
           "sku": "SKU",
           "stock_quantity": "Cantidad en Stock",
@@ -8480,6 +8491,7 @@
         "catering_included": "Catering backstage",
         "city": "Ciudad",
         "country": "País",
+        "currency": "Moneda",
         "deposit_amount": "Adelanto",
         "deposit_percentage": "Adelanto (%)",
         "description": "Define condiciones claras para %{artist}: fecha, fee, adelanto, beneficios y rider.",
@@ -8665,6 +8677,7 @@
         "total": "Total"
       },
       "payment_statuses": {
+        "checkout_created": "Checkout creado",
         "confirmed": "Confirmado",
         "reported": "Reportado",
         "unpaid": "Pendiente"
@@ -8676,6 +8689,13 @@
         "invalid_status": "Este hito de pago no se puede actualizar todavía",
         "mark_balance_paid": "Marcar saldo realizado",
         "mark_deposit_paid": "Marcar adelanto realizado",
+        "pay_balance_with_stripe": "Pagar saldo con Stripe",
+        "pay_deposit_with_stripe": "Pagar adelanto con Stripe",
+        "stripe_error": "No se pudo crear el checkout de Stripe",
+        "stripe_line_item": {
+          "balance": "Saldo de %{title}",
+          "deposit": "Adelanto de %{title}"
+        },
         "success": "Estado de pago actualizado"
       },
       "refund": {
