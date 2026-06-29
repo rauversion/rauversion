@@ -99,6 +99,16 @@ class ServiceBooking < ApplicationRecord
     scheduled? && service_product.delivery_method == 'both'
   end
 
+  def scheduled_start_at
+    return starts_at if starts_at.present?
+    return unless scheduled_date.present? && scheduled_time.present?
+
+    zone = Time.find_zone(timezone.presence) || Time.zone
+    zone.parse("#{scheduled_date} #{scheduled_time}")
+  rescue ArgumentError
+    nil
+  end
+
   def may_cancel?
     !completed? && !cancelled? && !refunded?
   end
@@ -516,7 +526,6 @@ class ServiceBooking < ApplicationRecord
         ServiceBookingMailer.booking_confirmed_notification(self).deliver_later
       when :scheduled
         ServiceBookingMailer.booking_scheduled_notification(self).deliver_later
-        schedule_reminder_notification
       when :completed
         ServiceBookingMailer.service_completed_notification(self).deliver_later
       when :cancelled
@@ -529,20 +538,6 @@ class ServiceBooking < ApplicationRecord
     # Notify both customer and provider about cancellation
     ServiceBookingMailer.booking_cancelled_notification(self, customer).deliver_later
     ServiceBookingMailer.booking_cancelled_notification(self, provider).deliver_later
-  end
-
-  def schedule_reminder_notification
-    return unless scheduled_date && scheduled_time
-
-    scheduled_datetime = DateTime.parse("#{scheduled_date} #{scheduled_time}")
-    reminder_time = scheduled_datetime - 24.hours
-
-    if reminder_time > Time.current
-      ServiceBookingMailer.reminder_notification(self, customer)
-        .deliver_later(wait_until: reminder_time)
-      ServiceBookingMailer.reminder_notification(self, provider)
-        .deliver_later(wait_until: reminder_time)
-    end
   end
 
 end

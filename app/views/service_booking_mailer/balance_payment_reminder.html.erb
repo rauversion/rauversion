@@ -1,0 +1,23 @@
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+  <h1 style="color:#2d3748;margin:0 0 24px;">
+    <%= t(".greeting", customer: @customer.username) %>
+  </h1>
+
+  <p style="color:#4a5568;margin:0 0 16px;">
+    <%= t(".intro", service: @service.title, amount: @amount) %>
+  </p>
+
+  <div style="background-color:#f7fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin:24px 0;">
+    <p style="color:#4a5568;margin:0;"><strong><%= t(".service") %>:</strong> <%= @service.title %></p>
+    <p style="color:#4a5568;margin:8px 0 0;"><strong><%= t(".balance") %>:</strong> <%= @amount %></p>
+    <% if @scheduled_at.present? %>
+      <p style="color:#4a5568;margin:8px 0 0;"><strong><%= t(".scheduled_for") %>:</strong> <%= I18n.l(@scheduled_at, format: :long) %></p>
+    <% end %>
+  </div>
+
+  <p style="margin:24px 0;">
+    <%= link_to t(".pay_button"),
+        @booking_url,
+        style: "display:inline-block;background-color:#2d3748;color:white;padding:12px 18px;text-decoration:none;border-radius:6px;font-weight:600;" %>
+  </p>
+</div>

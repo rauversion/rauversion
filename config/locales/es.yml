@@ -2992,11 +2992,38 @@ es:
       reason: "Motivo"
       refund_info: "Si has realizado algún pago, será reembolsado en 5-7 días hábiles."
       view_booking_button: "Ver reserva"
+    provider_confirmation_reminder:
+      subject: "Tienes una reserva pendiente de confirmar para %{service}"
+      greeting: "¡Hola %{provider}!"
+      intro: "%{customer} está esperando tu confirmación para %{service}."
+      booking_details: "Detalles de la reserva"
+      service: "Servicio"
+      customer: "Cliente"
+      view_booking_button: "Revisar reserva"
+    deposit_payment_reminder:
+      subject: "Adelanto pendiente para %{service}: %{amount}"
+      greeting: "¡Hola %{customer}!"
+      intro: "El adelanto de %{amount} para %{service} sigue pendiente."
+      service: "Servicio"
+      deposit: "Adelanto"
+      artist: "Artista"
+      pay_button: "Pagar adelanto"
+    balance_payment_reminder:
+      subject: "Saldo pendiente para %{service}: %{amount}"
+      greeting: "¡Hola %{customer}!"
+      intro: "El saldo de %{amount} para %{service} sigue pendiente."
+      service: "Servicio"
+      balance: "Saldo"
+      scheduled_for: "Agendado para"
+      pay_button: "Pagar saldo"
 
     reminder_notification:
       subject: "Recordatorio: %{service} programado para %{time}"
-      greeting: "¡Hola!"
-      reminder_message: "Este es un recordatorio amistoso sobre tu próximo servicio."
+      greeting: "¡Hola %{recipient}!"
+      reminder_message: "Recordatorio: %{service} se realizará pronto."
+      service: "Servicio"
+      scheduled_for: "Agendado para"
+      location: "Ubicación"
       view_details_button: "Ver Detalles"
 
   store:

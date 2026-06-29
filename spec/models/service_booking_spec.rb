@@ -136,5 +136,21 @@ RSpec.describe ServiceBooking, type: :model do
         )
       end.to have_enqueued_mail(ServiceBookingMailer, :booking_cancelled_notification).exactly(2).times
     end
+
+    it "lets the lifecycle sweep own upcoming reminder delivery" do
+      service_product = create(:service_product, delivery_method: "in_person")
+      booking = create(:service_booking, service_product: service_product, status: "confirmed")
+      clear_enqueued_jobs
+
+      expect do
+        booking.update!(
+          status: "scheduled",
+          scheduled_date: 2.days.from_now.to_date.iso8601,
+          scheduled_time: "22:00",
+          timezone: "UTC",
+          meeting_location: "Club Rau"
+        )
+      end.not_to have_enqueued_mail(ServiceBookingMailer, :reminder_notification)
+    end
   end
 end

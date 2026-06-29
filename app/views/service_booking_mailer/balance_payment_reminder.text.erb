@@ -1,0 +1,11 @@
+<%= t(".greeting", customer: @customer.username) %>
+
+<%= t(".intro", service: @service.title, amount: @amount) %>
+
+<%= t(".service") %>: <%= @service.title %>
+<%= t(".balance") %>: <%= @amount %>
+<% if @scheduled_at.present? %>
+<%= t(".scheduled_for") %>: <%= I18n.l(@scheduled_at, format: :long) %>
+<% end %>
+
+<%= t(".pay_button") %>: <%= @booking_url %>

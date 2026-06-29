@@ -3467,6 +3467,15 @@
     "save": "Save",
     "see_everything": "See All",
     "service_booking_mailer": {
+      "balance_payment_reminder": {
+        "balance": "Balance",
+        "greeting": "Hi %{customer}!",
+        "intro": "The %{amount} balance for %{service} is still pending.",
+        "pay_button": "Pay balance",
+        "scheduled_for": "Scheduled for",
+        "service": "Service",
+        "subject": "Balance pending for %{service}: %{amount}"
+      },
       "booking_cancelled_notification": {
         "booking_details": "Booking details",
         "cancellation_message": "%{cancelled_by} cancelled the reservation for %{service}.",
@@ -3507,6 +3516,15 @@
         "timezone": "Time Zone",
         "view_booking_button": "View Reservation Details"
       },
+      "deposit_payment_reminder": {
+        "artist": "Artist",
+        "deposit": "Deposit",
+        "greeting": "Hi %{customer}!",
+        "intro": "The %{amount} deposit for %{service} is still pending.",
+        "pay_button": "Pay deposit",
+        "service": "Service",
+        "subject": "Deposit pending for %{service}: %{amount}"
+      },
       "new_booking_notification": {
         "action_required": "Please review and confirm this reservation request as soon as possible.",
         "booking_details": "Details of the Reservation",
@@ -3520,9 +3538,21 @@
         "subject": "Nueva solicitud de reserva para %{service} de %{customer}",
         "view_booking_button": "View Reservation Details"
       },
+      "provider_confirmation_reminder": {
+        "booking_details": "Booking details",
+        "customer": "Customer",
+        "greeting": "Hi %{provider}!",
+        "intro": "%{customer} is waiting for your confirmation for %{service}.",
+        "service": "Service",
+        "subject": "You have a booking to confirm for %{service}",
+        "view_booking_button": "Review booking"
+      },
       "reminder_notification": {
-        "greeting": "Hello!",
-        "reminder_message": "This is a friendly reminder about your upcoming service.",
+        "greeting": "Hi %{recipient}!",
+        "location": "Location",
+        "reminder_message": "Reminder: %{service} is coming up soon.",
+        "scheduled_for": "Scheduled for",
+        "service": "Service",
         "subject": "Recordatorio: %{service} programado para %{time}",
         "view_details_button": "See Details"
       },
@@ -8574,6 +8604,15 @@
     "save": "Guardar",
     "see_everything": "Ver Todo",
     "service_booking_mailer": {
+      "balance_payment_reminder": {
+        "balance": "Saldo",
+        "greeting": "¡Hola %{customer}!",
+        "intro": "El saldo de %{amount} para %{service} sigue pendiente.",
+        "pay_button": "Pagar saldo",
+        "scheduled_for": "Agendado para",
+        "service": "Servicio",
+        "subject": "Saldo pendiente para %{service}: %{amount}"
+      },
       "booking_cancelled_notification": {
         "booking_details": "Detalles de la reserva",
         "cancellation_message": "%{cancelled_by} canceló la reserva de %{service}.",
@@ -8614,6 +8653,15 @@
         "timezone": "Zona Horaria",
         "view_booking_button": "Ver Detalles de la Reserva"
       },
+      "deposit_payment_reminder": {
+        "artist": "Artista",
+        "deposit": "Adelanto",
+        "greeting": "¡Hola %{customer}!",
+        "intro": "El adelanto de %{amount} para %{service} sigue pendiente.",
+        "pay_button": "Pagar adelanto",
+        "service": "Servicio",
+        "subject": "Adelanto pendiente para %{service}: %{amount}"
+      },
       "new_booking_notification": {
         "action_required": "Por favor, revisa y confirma esta solicitud de reserva lo antes posible.",
         "booking_details": "Detalles de la Reserva",
@@ -8627,9 +8675,21 @@
         "subject": "Nueva solicitud de reserva para %{service} de %{customer}",
         "view_booking_button": "Ver Detalles de la Reserva"
       },
+      "provider_confirmation_reminder": {
+        "booking_details": "Detalles de la reserva",
+        "customer": "Cliente",
+        "greeting": "¡Hola %{provider}!",
+        "intro": "%{customer} está esperando tu confirmación para %{service}.",
+        "service": "Servicio",
+        "subject": "Tienes una reserva pendiente de confirmar para %{service}",
+        "view_booking_button": "Revisar reserva"
+      },
       "reminder_notification": {
-        "greeting": "¡Hola!",
-        "reminder_message": "Este es un recordatorio amistoso sobre tu próximo servicio.",
+        "greeting": "¡Hola %{recipient}!",
+        "location": "Ubicación",
+        "reminder_message": "Recordatorio: %{service} se realizará pronto.",
+        "scheduled_for": "Agendado para",
+        "service": "Servicio",
         "subject": "Recordatorio: %{service} programado para %{time}",
         "view_details_button": "Ver Detalles"
       },

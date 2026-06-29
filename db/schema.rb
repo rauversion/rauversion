@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_29_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_29_121000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -659,45 +659,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_29_120000) do
     t.index ["plain_conversation_id"], name: "index_plain_messages_on_plain_conversation_id"
   end
 
-  create_table "playlist_gen_library_uploads", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.text "error_message"
-    t.string "source", null: false
-    t.string "status", default: "pending", null: false
-    t.integer "total_tracks_imported"
-    t.datetime "updated_at", null: false
-    t.index ["source"], name: "index_playlist_gen_library_uploads_on_source"
-    t.index ["status"], name: "index_playlist_gen_library_uploads_on_status"
-  end
-
-  create_table "playlist_gen_playlist_tracks", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.bigint "playlist_id", null: false
-    t.integer "position", null: false
-    t.bigint "track_id", null: false
-    t.datetime "updated_at", null: false
-    t.index ["playlist_id", "position"], name: "index_playlist_gen_playlist_tracks_on_playlist_id_and_position"
-    t.index ["playlist_id", "track_id"], name: "index_playlist_gen_playlist_tracks_on_playlist_id_and_track_id", unique: true
-    t.index ["playlist_id"], name: "index_playlist_gen_playlist_tracks_on_playlist_id"
-    t.index ["track_id"], name: "index_playlist_gen_playlist_tracks_on_track_id"
-  end
-
-  create_table "playlist_gen_playlists", force: :cascade do |t|
-    t.decimal "bpm_max", precision: 5, scale: 2
-    t.decimal "bpm_min", precision: 5, scale: 2
-    t.datetime "created_at", null: false
-    t.integer "duration_seconds"
-    t.string "energy_curve"
-    t.datetime "generated_at"
-    t.string "name", null: false
-    t.text "prompt"
-    t.string "status", default: "draft", null: false
-    t.integer "total_tracks"
-    t.datetime "updated_at", null: false
-    t.index ["generated_at"], name: "index_playlist_gen_playlists_on_generated_at"
-    t.index ["status"], name: "index_playlist_gen_playlists_on_status"
-  end
-
 # Could not dump table "playlist_gen_tracks" because of following StandardError
 #   Unknown type 'vector(1536)' for column 'embedding'
 
@@ -1152,6 +1113,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_29_120000) do
     t.decimal "balance_due_amount", precision: 10, scale: 2
     t.datetime "balance_paid_at"
     t.string "balance_payment_intent_id"
+    t.datetime "balance_payment_reminder_sent_at"
     t.string "balance_status", default: "unpaid", null: false
     t.bigint "cancelled_by_id"
     t.string "checkout_provider"
@@ -1167,6 +1129,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_29_120000) do
     t.datetime "deposit_confirmed_at"
     t.datetime "deposit_paid_at"
     t.string "deposit_payment_intent_id"
+    t.datetime "deposit_payment_reminder_sent_at"
     t.string "deposit_status", default: "unpaid", null: false
     t.datetime "ends_at"
     t.text "feedback"
@@ -1179,6 +1142,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_29_120000) do
     t.decimal "platform_fee_rate", precision: 5, scale: 4, default: "0.05"
     t.bigint "product_purchase_id"
     t.bigint "product_purchase_item_id"
+    t.datetime "provider_confirmation_reminder_sent_at"
     t.bigint "provider_id", null: false
     t.integer "rating"
     t.string "refund_id"
@@ -1189,26 +1153,31 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_29_120000) do
     t.string "status", null: false
     t.decimal "subtotal_amount", precision: 10, scale: 2
     t.decimal "total_amount", precision: 10, scale: 2
+    t.datetime "upcoming_reminder_sent_at"
     t.datetime "updated_at", null: false
     t.string "venue_address"
     t.string "venue_name"
     t.index ["balance_checkout_session_id"], name: "index_service_bookings_on_balance_checkout_session_id"
     t.index ["balance_payment_intent_id"], name: "index_service_bookings_on_balance_payment_intent_id"
+    t.index ["balance_payment_reminder_sent_at"], name: "index_service_bookings_on_balance_payment_reminder_sent_at"
     t.index ["balance_status"], name: "index_service_bookings_on_balance_status"
     t.index ["cancelled_by_id"], name: "index_service_bookings_on_cancelled_by_id"
     t.index ["contract_status"], name: "index_service_bookings_on_contract_status"
     t.index ["customer_id"], name: "index_service_bookings_on_customer_id"
     t.index ["deposit_checkout_session_id"], name: "index_service_bookings_on_deposit_checkout_session_id"
     t.index ["deposit_payment_intent_id"], name: "index_service_bookings_on_deposit_payment_intent_id"
+    t.index ["deposit_payment_reminder_sent_at"], name: "index_service_bookings_on_deposit_payment_reminder_sent_at"
     t.index ["deposit_status"], name: "index_service_bookings_on_deposit_status"
     t.index ["payment_intent_id"], name: "index_service_bookings_on_payment_intent_id"
     t.index ["payment_status"], name: "index_service_bookings_on_payment_status"
     t.index ["product_purchase_id"], name: "index_service_bookings_on_product_purchase_id"
     t.index ["product_purchase_item_id"], name: "index_service_bookings_on_product_purchase_item_id"
+    t.index ["provider_confirmation_reminder_sent_at"], name: "idx_on_provider_confirmation_reminder_sent_at_9c9c998357"
     t.index ["provider_id"], name: "index_service_bookings_on_provider_id"
     t.index ["refund_status"], name: "index_service_bookings_on_refund_status"
     t.index ["service_product_id"], name: "index_service_bookings_on_service_product_id"
     t.index ["status"], name: "index_service_bookings_on_status"
+    t.index ["upcoming_reminder_sent_at"], name: "index_service_bookings_on_upcoming_reminder_sent_at"
   end
 
   create_table "service_price_rules", force: :cascade do |t|
@@ -1525,8 +1494,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_29_120000) do
   add_foreign_key "participants", "users"
   add_foreign_key "photos", "users"
   add_foreign_key "plain_messages", "plain_conversations"
-  add_foreign_key "playlist_gen_playlist_tracks", "playlist_gen_playlists", column: "playlist_id"
-  add_foreign_key "playlist_gen_playlist_tracks", "playlist_gen_tracks", column: "track_id"
   add_foreign_key "playlists", "users"
   add_foreign_key "podcaster_hosts", "podcaster_infos"
   add_foreign_key "podcaster_hosts", "users"

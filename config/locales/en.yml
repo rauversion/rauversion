@@ -2934,10 +2934,37 @@ en:
       reason: Reason
       refund_info: If you have made any payment, it will be refunded within 5-7 business days.
       view_booking_button: View booking
+    provider_confirmation_reminder:
+      subject: "You have a booking to confirm for %{service}"
+      greeting: "Hi %{provider}!"
+      intro: "%{customer} is waiting for your confirmation for %{service}."
+      booking_details: Booking details
+      service: Service
+      customer: Customer
+      view_booking_button: Review booking
+    deposit_payment_reminder:
+      subject: "Deposit pending for %{service}: %{amount}"
+      greeting: "Hi %{customer}!"
+      intro: "The %{amount} deposit for %{service} is still pending."
+      service: Service
+      deposit: Deposit
+      artist: Artist
+      pay_button: Pay deposit
+    balance_payment_reminder:
+      subject: "Balance pending for %{service}: %{amount}"
+      greeting: "Hi %{customer}!"
+      intro: "The %{amount} balance for %{service} is still pending."
+      service: Service
+      balance: Balance
+      scheduled_for: Scheduled for
+      pay_button: Pay balance
     reminder_notification:
       subject: "Recordatorio: %{service} programado para %{time}"
-      greeting: Hello!
-      reminder_message: This is a friendly reminder about your upcoming service.
+      greeting: "Hi %{recipient}!"
+      reminder_message: "Reminder: %{service} is coming up soon."
+      service: Service
+      scheduled_for: Scheduled for
+      location: Location
       view_details_button: See Details
   store:
     index:
