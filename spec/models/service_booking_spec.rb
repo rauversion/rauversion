@@ -14,4 +14,83 @@ RSpec.describe ServiceBooking, type: :model do
       expect(booking.refund_amount_for_gateway).to eq(25_000)
     end
   end
+
+  describe "ledger entries" do
+    it "records creation and initial paid snapshot entries" do
+      booking = create(
+        :service_booking,
+        payment_status: "paid",
+        total_amount: 120,
+        currency: "usd",
+        checkout_provider: "stripe",
+        payment_session_id: "cs_initial",
+        payment_intent_id: "pi_initial"
+      )
+
+      expect(booking.ledger_entries.pluck(:entry_type)).to include("booking_created", "payment_confirmed")
+
+      payment_entry = booking.ledger_entries.find_by(entry_type: "payment_confirmed", milestone: "booking")
+      expect(payment_entry.amount).to eq(120)
+      expect(payment_entry.currency).to eq("usd")
+      expect(payment_entry.gateway).to eq("stripe")
+      expect(payment_entry.gateway_reference).to eq("cs_initial")
+    end
+
+    it "records deposit and balance milestone transitions" do
+      booking = create(
+        :service_booking,
+        payment_status: "pending",
+        total_amount: 100,
+        deposit_amount: 40,
+        balance_due_amount: 60,
+        deposit_status: "unpaid",
+        balance_status: "unpaid"
+      )
+
+      booking.mark_deposit_paid!(actor: booking.customer)
+      booking.confirm_deposit!(actor: booking.provider)
+      booking.mark_balance_paid!(actor: booking.customer)
+      booking.confirm_balance!(actor: booking.provider)
+
+      entries = booking.ledger_entries.where(entry_type: ["payment_reported", "payment_confirmed"]).order(:occurred_at, :id)
+
+      expect(entries.map(&:milestone)).to include("deposit", "balance")
+      expect(entries.find_by(entry_type: "payment_confirmed", milestone: "deposit").amount).to eq(40)
+      expect(entries.find_by(entry_type: "payment_confirmed", milestone: "balance").amount).to eq(60)
+      expect(booking.reload.payment_status).to eq("paid")
+    end
+
+    it "keeps stripe payment confirmations idempotent" do
+      booking = create(
+        :service_booking,
+        payment_status: "pending",
+        total_amount: 100,
+        deposit_amount: 50,
+        balance_due_amount: 50,
+        deposit_status: "checkout_created"
+      )
+      checkout_session = OpenStruct.new(id: "cs_deposit", payment_intent: "pi_deposit", payment_status: "paid")
+
+      booking.mark_deposit_paid_by_stripe!(checkout_session: checkout_session)
+      booking.mark_deposit_paid_by_stripe!(checkout_session: checkout_session)
+
+      expect(
+        booking.ledger_entries.where(entry_type: "payment_confirmed", milestone: "deposit").count
+      ).to eq(1)
+    end
+
+    it "records refund processing and completion" do
+      booking = create(:service_booking, payment_status: "paid", total_amount: 100, currency: "usd")
+
+      booking.mark_refund_processing!(actor: booking.provider)
+      booking.mark_refunded!(refund_id: "re_123", actor: booking.provider)
+
+      expect(booking.ledger_entries.find_by(entry_type: "refund_processing")).to be_present
+
+      refund_entry = booking.ledger_entries.find_by(entry_type: "refund_completed")
+      expect(refund_entry.amount).to eq(100)
+      expect(refund_entry.direction).to eq("outgoing")
+      expect(refund_entry.gateway_reference).to eq("re_123")
+    end
+  end
 end

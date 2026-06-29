@@ -128,6 +128,22 @@ module ServiceBookings
       end
 
       booking.update!(attributes)
+      booking.record_ledger_entry!(
+        entry_type: :checkout_created,
+        milestone: milestone,
+        amount: amount,
+        direction: :neutral,
+        actor: booking.customer,
+        status: "#{milestone}_checkout_created",
+        gateway: "stripe",
+        gateway_reference: session.id,
+        idempotency_key: "stripe:service_booking:#{booking.id}:#{milestone}:checkout_created:#{session.id}",
+        metadata: {
+          checkout_session_id: session.id,
+          checkout_url: session.url,
+          transfer_mode: ENV.fetch("SERVICE_BOOKING_STRIPE_TRANSFER_MODE", "platform_hold")
+        }
+      )
     end
   end
 end

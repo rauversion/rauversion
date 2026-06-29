@@ -2585,6 +2585,24 @@ en:
       not_generated: Not generated
       auto_signed: Automatically signed
       voided: Voided
+    ledger:
+      title: Payment ledger
+      description: Append-only audit trail for deposits, balances, refunds, and payout calculations.
+      entry_types:
+        booking_created: Booking created
+        checkout_created: Checkout created
+        payment_reported: Payment reported
+        payment_confirmed: Payment confirmed
+        refund_processing: Refund processing
+        refund_completed: Refund completed
+        refund_failed: Refund failed
+        payout_calculated: Payout calculated
+      milestones:
+        booking: Booking
+        deposit: Deposit
+        balance: Balance
+        refund: Refund
+        payout: Payout
     payment_tracking:
       success: Payment status updated
       error: Failed to update payment

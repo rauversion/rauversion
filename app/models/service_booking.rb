@@ -7,6 +7,10 @@ class ServiceBooking < ApplicationRecord
   belongs_to :product_purchase, optional: true
   belongs_to :product_purchase_item, optional: true
   has_one :service_booking_proposal, dependent: :nullify
+  has_many :ledger_entries,
+    -> { order(:occurred_at, :id) },
+    class_name: "ServiceBookingLedgerEntry",
+    dependent: :delete_all
 
   enum :status, {
     pending_confirmation: 'pending_confirmation',   # Initial state when customer books
@@ -78,6 +82,7 @@ class ServiceBooking < ApplicationRecord
 
 
   before_validation :set_initial_status, on: :create
+  after_create :record_initial_ledger_entries
   after_create :notify_new_booking
   after_update :notify_status_change
 
@@ -128,6 +133,16 @@ class ServiceBooking < ApplicationRecord
       payment_status: :pending,
       payment_tracking_notes: notes.presence || payment_tracking_notes
     )
+    record_ledger_entry!(
+      entry_type: :payment_reported,
+      milestone: :deposit,
+      amount: deposit_amount,
+      direction: :incoming,
+      actor: actor,
+      status: deposit_status,
+      idempotency_key: "service_booking:#{id}:deposit_reported",
+      metadata: { notes: notes }
+    )
     add_system_message!("#{actor.display_name.presence || actor.full_name} reported the deposit payment.", actor: actor)
   end
 
@@ -138,6 +153,7 @@ class ServiceBooking < ApplicationRecord
       payment_status: balance_due_amount.to_d.positive? ? :pending : :paid,
       payment_tracking_notes: notes.presence || payment_tracking_notes
     )
+    record_deposit_confirmed_ledger_entry!(actor: actor, notes: notes)
     add_system_message!("#{actor.display_name.presence || actor.full_name} confirmed the deposit payment.", actor: actor)
   end
 
@@ -147,6 +163,16 @@ class ServiceBooking < ApplicationRecord
       balance_paid_at: Time.current,
       payment_status: :pending,
       payment_tracking_notes: notes.presence || payment_tracking_notes
+    )
+    record_ledger_entry!(
+      entry_type: :payment_reported,
+      milestone: :balance,
+      amount: balance_due_amount,
+      direction: :incoming,
+      actor: actor,
+      status: balance_status,
+      idempotency_key: "service_booking:#{id}:balance_reported",
+      metadata: { notes: notes }
     )
     add_system_message!("#{actor.display_name.presence || actor.full_name} reported the balance payment.", actor: actor)
   end
@@ -158,6 +184,7 @@ class ServiceBooking < ApplicationRecord
       payment_status: :paid,
       payment_tracking_notes: notes.presence || payment_tracking_notes
     )
+    record_balance_confirmed_ledger_entry!(actor: actor, notes: notes)
     add_system_message!("#{actor.display_name.presence || actor.full_name} confirmed the balance payment.", actor: actor)
   end
 
@@ -172,6 +199,12 @@ class ServiceBooking < ApplicationRecord
       payment_intent_id: checkout_session.payment_intent,
       checkout_provider: "stripe",
       payment_status: balance_due_amount.to_d.positive? ? :pending : :paid
+    )
+    record_deposit_confirmed_ledger_entry!(
+      actor: customer,
+      gateway: "stripe",
+      gateway_reference: checkout_session.id,
+      metadata: stripe_checkout_metadata(checkout_session)
     )
     add_system_message!("Stripe confirmed the deposit payment for this booking.", actor: customer)
   end
@@ -188,7 +221,43 @@ class ServiceBooking < ApplicationRecord
       checkout_provider: "stripe",
       payment_status: :paid
     )
+    record_balance_confirmed_ledger_entry!(
+      actor: customer,
+      gateway: "stripe",
+      gateway_reference: checkout_session.id,
+      metadata: stripe_checkout_metadata(checkout_session)
+    )
     add_system_message!("Stripe confirmed the balance payment for this booking.", actor: customer)
+  end
+
+  def mark_refund_processing!(actor:)
+    update!(refund_status: :processing)
+    record_ledger_entry!(
+      entry_type: :refund_processing,
+      milestone: :refund,
+      amount: total_amount,
+      direction: :outgoing,
+      actor: actor,
+      status: refund_status,
+      gateway: checkout_provider,
+      gateway_reference: payment_intent_id,
+      metadata: { payment_intent_id: payment_intent_id }
+    )
+  end
+
+  def mark_refund_failed!(actor:, error:, gateway_reference: nil)
+    update!(refund_status: :failed)
+    record_ledger_entry!(
+      entry_type: :refund_failed,
+      milestone: :refund,
+      amount: total_amount,
+      direction: :neutral,
+      actor: actor,
+      status: refund_status,
+      gateway: checkout_provider,
+      gateway_reference: gateway_reference || payment_intent_id,
+      metadata: { error: error, payment_intent_id: payment_intent_id }
+    )
   end
 
   def refund_amount_for_gateway
@@ -202,7 +271,7 @@ class ServiceBooking < ApplicationRecord
     end
   end
 
-  def mark_refunded!(refund_id: nil)
+  def mark_refunded!(refund_id: nil, actor: nil)
     update!(
       status: :refunded,
       payment_status: :refunded,
@@ -210,6 +279,34 @@ class ServiceBooking < ApplicationRecord
       refund_id: refund_id,
       refunded_at: Time.current
     )
+    record_refund_completed_ledger_entry!(actor: actor, refund_id: refund_id)
+  end
+
+  def record_ledger_entry!(entry_type:, milestone: nil, amount: nil, direction: :neutral, actor: nil, status: nil, gateway: nil, gateway_reference: nil, idempotency_key: nil, metadata: {})
+    ServiceBookingLedgerEntry.record!(
+      service_booking: self,
+      actor: actor,
+      entry_type: entry_type,
+      milestone: milestone,
+      direction: direction,
+      amount: amount,
+      currency: currency,
+      status: status,
+      gateway: gateway,
+      gateway_reference: gateway_reference,
+      idempotency_key: idempotency_key,
+      metadata: metadata.to_h.compact,
+      occurred_at: Time.current
+    )
+  end
+
+  def backfill_ledger_entries!
+    record_booking_created_ledger_entry!
+    record_initial_payment_confirmed_ledger_entry! if payment_paid? && total_amount.to_d.positive?
+    record_deposit_confirmed_ledger_entry! if deposit_confirmed?
+    record_balance_confirmed_ledger_entry! if balance_confirmed?
+    record_payout_calculated_ledger_entry! if artist_payout_amount.to_d.positive?
+    record_refund_completed_ledger_entry!(refund_id: refund_id) if refund_refunded? || refunded?
   end
 
   def set_service_product_conversation
@@ -247,6 +344,126 @@ class ServiceBooking < ApplicationRecord
   end
 
   private
+
+  def record_initial_ledger_entries
+    record_booking_created_ledger_entry!
+    record_initial_payment_confirmed_ledger_entry! if payment_paid? && total_amount.to_d.positive?
+    record_payout_calculated_ledger_entry! if artist_payout_amount.to_d.positive?
+  end
+
+  def record_booking_created_ledger_entry!
+    record_ledger_entry!(
+      entry_type: :booking_created,
+      milestone: :booking,
+      amount: total_amount || subtotal_amount,
+      direction: :neutral,
+      status: status,
+      idempotency_key: "service_booking:#{id}:booking_created",
+      metadata: {
+        service_product_id: service_product_id,
+        product_purchase_id: product_purchase_id,
+        product_purchase_item_id: product_purchase_item_id,
+        payment_status: payment_status
+      }
+    )
+  end
+
+  def record_initial_payment_confirmed_ledger_entry!
+    record_ledger_entry!(
+      entry_type: :payment_confirmed,
+      milestone: :booking,
+      amount: total_amount,
+      direction: :incoming,
+      status: payment_status,
+      gateway: checkout_provider,
+      gateway_reference: payment_session_id || payment_intent_id,
+      idempotency_key: "service_booking:#{id}:initial_payment_confirmed",
+      metadata: {
+        payment_intent_id: payment_intent_id,
+        payment_session_id: payment_session_id,
+        source: "initial_snapshot"
+      }
+    )
+  end
+
+  def record_deposit_confirmed_ledger_entry!(actor: nil, gateway: checkout_provider, gateway_reference: deposit_checkout_session_id, notes: nil, metadata: {})
+    record_ledger_entry!(
+      entry_type: :payment_confirmed,
+      milestone: :deposit,
+      amount: deposit_amount,
+      direction: :incoming,
+      actor: actor,
+      status: deposit_status,
+      gateway: gateway,
+      gateway_reference: gateway_reference,
+      idempotency_key: "service_booking:#{id}:deposit_confirmed",
+      metadata: {
+        notes: notes,
+        checkout_session_id: deposit_checkout_session_id,
+        payment_intent_id: deposit_payment_intent_id
+      }.merge(metadata.to_h)
+    )
+  end
+
+  def record_balance_confirmed_ledger_entry!(actor: nil, gateway: checkout_provider, gateway_reference: balance_checkout_session_id, notes: nil, metadata: {})
+    record_ledger_entry!(
+      entry_type: :payment_confirmed,
+      milestone: :balance,
+      amount: balance_due_amount,
+      direction: :incoming,
+      actor: actor,
+      status: balance_status,
+      gateway: gateway,
+      gateway_reference: gateway_reference,
+      idempotency_key: "service_booking:#{id}:balance_confirmed",
+      metadata: {
+        notes: notes,
+        checkout_session_id: balance_checkout_session_id,
+        payment_intent_id: balance_payment_intent_id
+      }.merge(metadata.to_h)
+    )
+  end
+
+  def record_payout_calculated_ledger_entry!
+    record_ledger_entry!(
+      entry_type: :payout_calculated,
+      milestone: :payout,
+      amount: artist_payout_amount,
+      direction: :outgoing,
+      status: "calculated",
+      idempotency_key: "service_booking:#{id}:payout_calculated",
+      metadata: {
+        platform_fee_rate: platform_fee_rate,
+        platform_fee_amount: platform_fee_amount
+      }
+    )
+  end
+
+  def record_refund_completed_ledger_entry!(actor: nil, refund_id: nil)
+    record_ledger_entry!(
+      entry_type: :refund_completed,
+      milestone: :refund,
+      amount: total_amount,
+      direction: :outgoing,
+      actor: actor,
+      status: refund_status,
+      gateway: checkout_provider,
+      gateway_reference: refund_id || self.refund_id,
+      idempotency_key: "service_booking:#{id}:refund_completed",
+      metadata: {
+        refund_id: refund_id || self.refund_id,
+        payment_intent_id: payment_intent_id
+      }
+    )
+  end
+
+  def stripe_checkout_metadata(checkout_session)
+    {
+      checkout_session_id: checkout_session.id,
+      payment_intent_id: checkout_session.payment_intent,
+      payment_status: checkout_session.payment_status
+    }
+  end
 
   def text_default_for_start_of_conversation(service_product)
     buyer = customer

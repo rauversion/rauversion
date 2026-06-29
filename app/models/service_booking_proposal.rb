@@ -35,7 +35,7 @@ class ServiceBookingProposal < ApplicationRecord
   scope :for_user, ->(user) { where("booker_id = :id OR artist_id = :id", id: user.id) }
 
   before_validation :set_defaults
-  before_save :calculate_financials
+  before_validation :calculate_financials
   before_create :seed_initial_history
   after_create :create_proposal_conversation!
 

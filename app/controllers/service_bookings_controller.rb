@@ -173,12 +173,15 @@ class ServiceBookingsController < ApplicationController
       end
     end
 
-    @service_booking.update!(refund_status: :processing)
+    @service_booking.mark_refund_processing!(actor: current_user)
 
     refund_id = nil
     if @service_booking.checkout_provider == "stripe"
       if @service_booking.payment_intent_id.blank?
-        @service_booking.update(refund_status: :failed)
+        @service_booking.mark_refund_failed!(
+          actor: current_user,
+          error: "payment intent not found"
+        )
         return respond_to do |format|
           format.html do
             flash[:alert] = "Refund failed: payment intent not found"
@@ -196,7 +199,7 @@ class ServiceBookingsController < ApplicationController
     end
 
     ActiveRecord::Base.transaction do
-      @service_booking.mark_refunded!(refund_id: refund_id)
+      @service_booking.mark_refunded!(refund_id: refund_id, actor: current_user)
       mark_product_purchase_refunded_if_complete!
       @service_booking.add_system_message!(
         "#{current_user.display_name} processed a refund for this booking.",
@@ -212,7 +215,7 @@ class ServiceBookingsController < ApplicationController
       format.json { render json: { success: true, message: t('.success') } }
     end
   rescue Stripe::StripeError => e
-    @service_booking.update(refund_status: :failed)
+    @service_booking.mark_refund_failed!(actor: current_user, error: e.message)
 
     respond_to do |format|
       format.html do

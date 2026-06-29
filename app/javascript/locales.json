@@ -3731,6 +3731,27 @@
         "scheduled_for": "Scheduled for",
         "view_conversation": "View conversation"
       },
+      "ledger": {
+        "description": "Append-only audit trail for deposits, balances, refunds, and payout calculations.",
+        "entry_types": {
+          "booking_created": "Booking created",
+          "checkout_created": "Checkout created",
+          "payment_confirmed": "Payment confirmed",
+          "payment_reported": "Payment reported",
+          "payout_calculated": "Payout calculated",
+          "refund_completed": "Refund completed",
+          "refund_failed": "Refund failed",
+          "refund_processing": "Refund processing"
+        },
+        "milestones": {
+          "balance": "Balance",
+          "booking": "Booking",
+          "deposit": "Deposit",
+          "payout": "Payout",
+          "refund": "Refund"
+        },
+        "title": "Payment ledger"
+      },
       "messages": {
         "error": "Error",
         "success": "Success"
@@ -8671,6 +8692,27 @@
         "schedule_details": "Detalles de agenda",
         "scheduled_for": "Agendado para",
         "view_conversation": "Ver conversación"
+      },
+      "ledger": {
+        "description": "Historial auditable y append-only de adelantos, saldos, reembolsos y cálculo de payout.",
+        "entry_types": {
+          "booking_created": "Booking creado",
+          "checkout_created": "Checkout creado",
+          "payment_confirmed": "Pago confirmado",
+          "payment_reported": "Pago reportado",
+          "payout_calculated": "Payout calculado",
+          "refund_completed": "Reembolso completado",
+          "refund_failed": "Reembolso fallido",
+          "refund_processing": "Reembolso en proceso"
+        },
+        "milestones": {
+          "balance": "Saldo",
+          "booking": "Booking",
+          "deposit": "Adelanto",
+          "payout": "Payout",
+          "refund": "Reembolso"
+        },
+        "title": "Ledger de pagos"
       },
       "messages": {
         "error": "Error",

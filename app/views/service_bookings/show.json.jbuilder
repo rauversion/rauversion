@@ -95,6 +95,29 @@ json.service_booking do
     json.created_at conversation.created_at
   end
 
+  json.ledger_entries @service_booking.ledger_entries do |entry|
+    json.id entry.id
+    json.entry_type entry.entry_type
+    json.milestone entry.milestone
+    json.direction entry.direction
+    json.amount entry.amount
+    json.currency entry.currency
+    json.status entry.status
+    json.gateway entry.gateway
+    if @service_booking.provider == current_user
+      json.gateway_reference entry.gateway_reference
+      json.metadata entry.metadata
+    end
+    json.occurred_at entry.occurred_at
+    json.created_at entry.created_at
+    json.actor do
+      if entry.actor
+        json.id entry.actor.id
+        json.name entry.actor.full_name
+      end
+    end
+  end
+
   json.actions do
     json.can_confirm @service_booking.pending_confirmation? && current_user == @service_booking.provider
     json.can_schedule @service_booking.confirmed? && current_user == @service_booking.provider

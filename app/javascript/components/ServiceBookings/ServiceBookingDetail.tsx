@@ -44,6 +44,22 @@ interface Conversation {
   created_at: string
 }
 
+interface LedgerEntry {
+  id: number
+  entry_type: string
+  milestone?: string
+  direction: string
+  amount?: number | string
+  currency: string
+  status?: string
+  gateway?: string
+  occurred_at: string
+  actor?: {
+    id: number
+    name: string
+  }
+}
+
 interface ServiceBooking {
   id: number
   status: string
@@ -137,6 +153,7 @@ interface ServiceBooking {
     can_give_feedback: boolean
   }
   conversations: Conversation[]
+  ledger_entries?: LedgerEntry[]
 }
 
 type Tone = "neutral" | "primary" | "accent" | "secondary" | "success" | "destructive"
@@ -216,6 +233,17 @@ const contractStatusTone: Record<string, Tone> = {
   voided: "destructive",
 }
 
+const ledgerEntryTone: Record<string, Tone> = {
+  booking_created: "neutral",
+  checkout_created: "accent",
+  payment_reported: "primary",
+  payment_confirmed: "success",
+  refund_processing: "secondary",
+  refund_completed: "destructive",
+  refund_failed: "destructive",
+  payout_calculated: "secondary",
+}
+
 const humanize = (value?: string) =>
   (value || "")
     .split("_")
@@ -236,7 +264,7 @@ const formatDate = (value?: string, pattern = "PPP") => {
   }
 }
 
-const formatMoney = (amount?: number, currency = "usd") => {
+const formatMoney = (amount?: number | string, currency = "usd") => {
   if (amount === null || amount === undefined) return null
 
   const currencyCode = String(currency || "usd").toUpperCase()
@@ -743,6 +771,60 @@ export function ServiceBookingDetail() {
                     <DetailRow label="Refund ID" value={payment.refund_id} />
                   </div>
                 </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {service_booking.ledger_entries && service_booking.ledger_entries.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ReceiptText className="h-5 w-5" />
+                  {I18n.t("service_bookings.ledger.title")}
+                </CardTitle>
+                <CardDescription>{I18n.t("service_bookings.ledger.description")}</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {service_booking.ledger_entries.map((entry) => {
+                  const tone = ledgerEntryTone[entry.entry_type] || "neutral"
+
+                  return (
+                    <div key={entry.id} className={`rounded-lg border p-4 ${toneClasses[tone].panel}`}>
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div className="space-y-2">
+                          <StatusPill
+                            label={translated("service_bookings.ledger.entry_types", entry.entry_type)}
+                            tone={tone}
+                          />
+                          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                            {entry.milestone && (
+                              <span>{translated("service_bookings.ledger.milestones", entry.milestone)}</span>
+                            )}
+                            {entry.gateway && (
+                              <span>{humanize(entry.gateway)}</span>
+                            )}
+                            {entry.actor?.name && (
+                              <span>{entry.actor.name}</span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-semibold text-foreground">
+                            {formatMoney(entry.amount, entry.currency) || "-"}
+                          </div>
+                          <div className="mt-1 text-xs text-muted-foreground">
+                            {formatDate(entry.occurred_at, "PPp")}
+                          </div>
+                        </div>
+                      </div>
+                      {entry.status && (
+                        <div className="mt-3 text-xs text-muted-foreground">
+                          {humanize(entry.status)}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
               </CardContent>
             </Card>
           )}

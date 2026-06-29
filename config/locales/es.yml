@@ -2641,6 +2641,24 @@ es:
       not_generated: "No generado"
       auto_signed: "Firmado automáticamente"
       voided: "Anulado"
+    ledger:
+      title: "Ledger de pagos"
+      description: "Historial auditable y append-only de adelantos, saldos, reembolsos y cálculo de payout."
+      entry_types:
+        booking_created: "Booking creado"
+        checkout_created: "Checkout creado"
+        payment_reported: "Pago reportado"
+        payment_confirmed: "Pago confirmado"
+        refund_processing: "Reembolso en proceso"
+        refund_completed: "Reembolso completado"
+        refund_failed: "Reembolso fallido"
+        payout_calculated: "Payout calculado"
+      milestones:
+        booking: "Booking"
+        deposit: "Adelanto"
+        balance: "Saldo"
+        refund: "Reembolso"
+        payout: "Payout"
     payment_tracking:
       success: "Estado de pago actualizado"
       error: "No se pudo actualizar el pago"

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_28_120600) do
+ActiveRecord::Schema[8.1].define(version: 2026_06_28_120700) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -1067,6 +1067,30 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_28_120600) do
     t.index ["event_schedule_id"], name: "index_schedule_schedulings_on_event_schedule_id"
   end
 
+  create_table "service_booking_ledger_entries", force: :cascade do |t|
+    t.bigint "actor_id"
+    t.decimal "amount", precision: 12, scale: 2
+    t.datetime "created_at", null: false
+    t.string "currency", default: "usd", null: false
+    t.string "direction", default: "neutral", null: false
+    t.string "entry_type", null: false
+    t.string "gateway"
+    t.string "gateway_reference"
+    t.string "idempotency_key"
+    t.jsonb "metadata", default: {}, null: false
+    t.string "milestone"
+    t.datetime "occurred_at", null: false
+    t.bigint "service_booking_id", null: false
+    t.string "status"
+    t.datetime "updated_at", null: false
+    t.index ["actor_id"], name: "idx_svc_booking_ledger_actor"
+    t.index ["gateway", "gateway_reference"], name: "idx_svc_booking_ledger_gateway_ref"
+    t.index ["idempotency_key"], name: "idx_svc_booking_ledger_idem", unique: true, where: "(idempotency_key IS NOT NULL)"
+    t.index ["service_booking_id", "entry_type"], name: "idx_svc_booking_ledger_booking_type"
+    t.index ["service_booking_id", "occurred_at"], name: "idx_svc_booking_ledger_booking_time"
+    t.index ["service_booking_id"], name: "idx_svc_booking_ledger_booking"
+  end
+
   create_table "service_booking_proposals", force: :cascade do |t|
     t.datetime "accepted_at"
     t.bigint "accepted_by_id"
@@ -1535,6 +1559,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_28_120600) do
   add_foreign_key "reposts", "tracks"
   add_foreign_key "reposts", "users"
   add_foreign_key "schedule_schedulings", "event_schedules"
+  add_foreign_key "service_booking_ledger_entries", "service_bookings"
+  add_foreign_key "service_booking_ledger_entries", "users", column: "actor_id"
   add_foreign_key "service_booking_proposals", "products", column: "service_product_id"
   add_foreign_key "service_booking_proposals", "service_bookings"
   add_foreign_key "service_booking_proposals", "users", column: "accepted_by_id"
