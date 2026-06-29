@@ -2562,9 +2562,20 @@ en:
       payment_intent: Payment intent
     payment_statuses:
       unpaid: Pending
+      pending: Pending
       checkout_created: Checkout created
       reported: Reported
       confirmed: Confirmed
+      paid: Paid
+      partially_refunded: Partially refunded
+      refunded: Refunded
+      failed: Failed
+    refund_statuses:
+      not_requested: Not requested
+      requested: Requested
+      processing: Processing
+      refunded: Refunded
+      failed: Failed
     contract:
       title: Contract
       status: Status
@@ -2691,6 +2702,8 @@ en:
     show:
       title: Details of the Reservation
       provider_section: Actions of the Provider
+      actions: Actions
+      no_actions: No actions are available for this booking.
       confirm_button: Confirm Reservation
       schedule_button: Schedule Service
       complete_button: Mark as Completed

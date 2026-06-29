@@ -2618,9 +2618,20 @@ es:
       payment_intent: "Payment intent"
     payment_statuses:
       unpaid: "Pendiente"
+      pending: "Pendiente"
       checkout_created: "Checkout creado"
       reported: "Reportado"
       confirmed: "Confirmado"
+      paid: "Pagado"
+      partially_refunded: "Reembolsado parcial"
+      refunded: "Reembolsado"
+      failed: "Fallido"
+    refund_statuses:
+      not_requested: "No solicitado"
+      requested: "Solicitado"
+      processing: "Procesando"
+      refunded: "Reembolsado"
+      failed: "Fallido"
     contract:
       title: "Contrato"
       status: "Estado"
@@ -2750,6 +2761,8 @@ es:
     show:
       title: "Detalles de la Reserva"
       provider_section: "Acciones del Proveedor"
+      actions: "Acciones"
+      no_actions: "No hay acciones disponibles para esta reserva."
       confirm_button: "Confirmar Reserva"
       schedule_button: "Programar Servicio"
       complete_button: "Marcar como Completado"

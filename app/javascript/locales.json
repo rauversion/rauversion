@@ -3752,6 +3752,11 @@
       "payment_statuses": {
         "checkout_created": "Checkout created",
         "confirmed": "Confirmed",
+        "failed": "Failed",
+        "paid": "Paid",
+        "partially_refunded": "Partially refunded",
+        "pending": "Pending",
+        "refunded": "Refunded",
         "reported": "Reported",
         "unpaid": "Pending"
       },
@@ -3777,6 +3782,13 @@
         "error": "Failed to process refund",
         "invalid_status": "This booking cannot be refunded",
         "success": "The booking refund has been processed"
+      },
+      "refund_statuses": {
+        "failed": "Failed",
+        "not_requested": "Not requested",
+        "processing": "Processing",
+        "refunded": "Refunded",
+        "requested": "Requested"
       },
       "schedule": {
         "error": "Failed to schedule service",
@@ -3807,6 +3819,7 @@
         "timezone": "Time Zone"
       },
       "show": {
+        "actions": "Actions",
         "cancel_button": "Cancel Reservation",
         "complete_button": "Mark as Completed",
         "confirm_button": "Confirm Reservation",
@@ -3814,6 +3827,7 @@
           "special_requirements": "Special Requirements",
           "title": "Customer Information"
         },
+        "no_actions": "No actions are available for this booking.",
         "provider_section": "Actions of the Provider",
         "schedule_button": "Schedule Service",
         "scheduling": {
@@ -8679,6 +8693,11 @@
       "payment_statuses": {
         "checkout_created": "Checkout creado",
         "confirmed": "Confirmado",
+        "failed": "Fallido",
+        "paid": "Pagado",
+        "partially_refunded": "Reembolsado parcial",
+        "pending": "Pendiente",
+        "refunded": "Reembolsado",
         "reported": "Reportado",
         "unpaid": "Pendiente"
       },
@@ -8704,6 +8723,13 @@
         "error": "No se pudo procesar el reembolso",
         "invalid_status": "Esta reserva no puede ser reembolsada",
         "success": "El reembolso de la reserva ha sido procesado"
+      },
+      "refund_statuses": {
+        "failed": "Fallido",
+        "not_requested": "No solicitado",
+        "processing": "Procesando",
+        "refunded": "Reembolsado",
+        "requested": "Solicitado"
       },
       "schedule": {
         "error": "No se pudo programar el servicio",
@@ -8734,6 +8760,7 @@
         "timezone": "Zona Horaria"
       },
       "show": {
+        "actions": "Acciones",
         "cancel_button": "Cancelar Reserva",
         "complete_button": "Marcar como Completado",
         "confirm_button": "Confirmar Reserva",
@@ -8741,6 +8768,7 @@
           "special_requirements": "Requerimientos Especiales",
           "title": "Información del Cliente"
         },
+        "no_actions": "No hay acciones disponibles para esta reserva.",
         "provider_section": "Acciones del Proveedor",
         "schedule_button": "Programar Servicio",
         "scheduling": {

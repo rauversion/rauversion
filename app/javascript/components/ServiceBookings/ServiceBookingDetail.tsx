@@ -2,13 +2,30 @@ import React from "react"
 import { useParams } from "react-router-dom"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { get, post, patch } from "@rails/request.js"
-import { useToast } from "@/hooks/use-toast"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { format } from "date-fns"
-import { CreditCard, FileSignature, Loader2 } from "lucide-react"
+import {
+  Banknote,
+  CalendarDays,
+  CheckCircle2,
+  Clock3,
+  CreditCard,
+  FileSignature,
+  Link as LinkIcon,
+  Loader2,
+  MapPin,
+  MessageCircle,
+  ReceiptText,
+  ShieldCheck,
+  Star,
+  UserRound,
+  WalletCards,
+  XCircle,
+} from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
@@ -19,7 +36,6 @@ import {
 import { ScheduleForm } from "./ScheduleForm"
 import { FeedbackForm } from "./FeedbackForm"
 import I18n from "@/stores/locales"
-
 
 interface Conversation {
   id: number
@@ -117,24 +133,256 @@ interface ServiceBooking {
     can_cancel: boolean
     can_refund: boolean
     can_pay_deposit_with_stripe: boolean
-    can_mark_deposit_paid: boolean
-    can_confirm_deposit: boolean
     can_pay_balance_with_stripe: boolean
-    can_mark_balance_paid: boolean
-    can_confirm_balance: boolean
     can_give_feedback: boolean
   }
   conversations: Conversation[]
 }
 
-const statusColors = {
-  pending_confirmation: "bg-yellow-100 text-yellow-800",
-  confirmed: "bg-blue-100 text-blue-800",
-  scheduled: "bg-purple-100 text-purple-800",
-  in_progress: "bg-indigo-100 text-indigo-800",
-  completed: "bg-green-100 text-green-800",
-  cancelled: "bg-red-100 text-red-800",
-  refunded: "bg-muted text-foreground",
+type Tone = "neutral" | "primary" | "accent" | "secondary" | "success" | "destructive"
+
+const toneClasses: Record<Tone, { pill: string; panel: string; dot: string; accent: string }> = {
+  neutral: {
+    pill: "border-border bg-muted text-muted-foreground",
+    panel: "border-border bg-muted/40",
+    dot: "bg-muted-foreground",
+    accent: "text-muted-foreground",
+  },
+  primary: {
+    pill: "border-chart-1/30 bg-chart-1/10 text-foreground",
+    panel: "border-chart-1/20 bg-chart-1/10",
+    dot: "bg-chart-1",
+    accent: "text-chart-1",
+  },
+  accent: {
+    pill: "border-chart-3/30 bg-chart-3/10 text-foreground",
+    panel: "border-chart-3/20 bg-chart-3/10",
+    dot: "bg-chart-3",
+    accent: "text-chart-3",
+  },
+  secondary: {
+    pill: "border-chart-4/30 bg-chart-4/10 text-foreground",
+    panel: "border-chart-4/20 bg-chart-4/10",
+    dot: "bg-chart-4",
+    accent: "text-chart-4",
+  },
+  success: {
+    pill: "border-chart-2/30 bg-chart-2/10 text-foreground",
+    panel: "border-chart-2/20 bg-chart-2/10",
+    dot: "bg-chart-2",
+    accent: "text-chart-2",
+  },
+  destructive: {
+    pill: "border-destructive/30 bg-destructive/10 text-destructive",
+    panel: "border-destructive/20 bg-destructive/10",
+    dot: "bg-destructive",
+    accent: "text-destructive",
+  },
+}
+
+const bookingStatusTone: Record<string, Tone> = {
+  pending_confirmation: "primary",
+  confirmed: "primary",
+  scheduled: "secondary",
+  in_progress: "accent",
+  completed: "success",
+  cancelled: "destructive",
+  refunded: "neutral",
+}
+
+const paymentStatusTone: Record<string, Tone> = {
+  unpaid: "neutral",
+  pending: "primary",
+  checkout_created: "accent",
+  reported: "primary",
+  confirmed: "success",
+  paid: "success",
+  partially_refunded: "secondary",
+  refunded: "neutral",
+  failed: "destructive",
+}
+
+const refundStatusTone: Record<string, Tone> = {
+  not_requested: "neutral",
+  requested: "primary",
+  processing: "accent",
+  refunded: "success",
+  failed: "destructive",
+}
+
+const contractStatusTone: Record<string, Tone> = {
+  not_generated: "neutral",
+  auto_signed: "success",
+  voided: "destructive",
+}
+
+const humanize = (value?: string) =>
+  (value || "")
+    .split("_")
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ")
+
+const translated = (scope: string, value?: string) =>
+  value ? I18n.t(`${scope}.${value}`, { defaultValue: humanize(value) }) : ""
+
+const formatDate = (value?: string, pattern = "PPP") => {
+  if (!value) return null
+
+  try {
+    return format(new Date(value), pattern)
+  } catch (_error) {
+    return value
+  }
+}
+
+const formatMoney = (amount?: number, currency = "usd") => {
+  if (amount === null || amount === undefined) return null
+
+  const currencyCode = String(currency || "usd").toUpperCase()
+  return Number(amount).toLocaleString(undefined, {
+    style: "currency",
+    currency: currencyCode,
+    currencyDisplay: "code",
+    maximumFractionDigits: currencyCode === "CLP" ? 0 : 2,
+  })
+}
+
+function StatusPill({
+  label,
+  tone = "neutral",
+  icon: Icon,
+}: {
+  label: string
+  tone?: Tone
+  icon?: React.ComponentType<{ className?: string }>
+}) {
+  return (
+    <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold ${toneClasses[tone].pill}`}>
+      {Icon && <Icon className="h-3.5 w-3.5" />}
+      {label}
+    </span>
+  )
+}
+
+function MetricTile({
+  label,
+  value,
+  tone = "neutral",
+  icon: Icon,
+}: {
+  label: string
+  value?: string | null
+  tone?: Tone
+  icon: React.ComponentType<{ className?: string }>
+}) {
+  return (
+    <div className={`rounded-lg border p-4 ${toneClasses[tone].panel}`}>
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</span>
+        <Icon className={`h-4 w-4 ${toneClasses[tone].accent}`} />
+      </div>
+      <div className="text-xl font-semibold text-foreground">{value || "-"}</div>
+    </div>
+  )
+}
+
+function PersonCard({
+  title,
+  person,
+  tone,
+}: {
+  title: string
+  person: { name: string; avatar_url: string }
+  tone: Tone
+}) {
+  return (
+    <div className={`rounded-lg border p-4 ${toneClasses[tone].panel}`}>
+      <div className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">{title}</div>
+      <div className="flex items-center gap-3">
+        <Avatar className="h-11 w-11 border border-background">
+          <AvatarImage src={person.avatar_url} />
+          <AvatarFallback>{person.name?.[0]}</AvatarFallback>
+        </Avatar>
+        <div className="min-w-0">
+          <div className="truncate font-semibold text-foreground">{person.name}</div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function DetailRow({
+  label,
+  value,
+  href,
+}: {
+  label: string
+  value?: React.ReactNode
+  href?: string
+}) {
+  if (!value) return null
+
+  return (
+    <div className="flex items-start justify-between gap-4 border-b border-border/60 py-3 last:border-0">
+      <span className="text-sm text-muted-foreground">{label}</span>
+      {href ? (
+        <a className="max-w-[65%] break-all text-right text-sm font-medium text-primary underline-offset-4 hover:underline" href={href} target="_blank" rel="noreferrer">
+          {value}
+        </a>
+      ) : (
+        <span className="max-w-[65%] break-words text-right text-sm font-medium text-foreground">{value}</span>
+      )}
+    </div>
+  )
+}
+
+function MilestoneCard({
+  title,
+  amount,
+  status,
+  paidAt,
+  confirmedAt,
+  sessionId,
+  action,
+  tone,
+}: {
+  title: string
+  amount?: string | null
+  status?: string
+  paidAt?: string
+  confirmedAt?: string
+  sessionId?: string
+  action?: React.ReactNode
+  tone: Tone
+}) {
+  return (
+    <div className={`rounded-xl border p-4 ${toneClasses[tone].panel}`}>
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <div>
+          <div className="text-sm font-semibold text-foreground">{title}</div>
+          <div className="mt-1 text-2xl font-semibold text-foreground">{amount || "-"}</div>
+        </div>
+        <StatusPill
+          label={translated("service_bookings.payment_statuses", status)}
+          tone={tone}
+        />
+      </div>
+      <div className="space-y-2 text-xs text-muted-foreground">
+        <div className="flex items-center gap-2">
+          <span className={`h-2 w-2 rounded-full ${toneClasses[tone].dot}`} />
+          <span>{confirmedAt ? formatDate(confirmedAt, "PPp") : paidAt ? formatDate(paidAt, "PPp") : translated("service_bookings.payment_statuses", status)}</span>
+        </div>
+        {sessionId && (
+          <div className="flex items-center gap-2">
+            <ReceiptText className="h-3.5 w-3.5" />
+            <span className="truncate font-mono">{sessionId}</span>
+          </div>
+        )}
+      </div>
+      {action && <div className="mt-4">{action}</div>}
+    </div>
+  )
 }
 
 export function ServiceBookingDetail() {
@@ -241,29 +489,6 @@ export function ServiceBookingDetail() {
     },
   })
 
-  const paymentActionMutation = useMutation({
-    mutationFn: async ({ action, notes }: { action: string; notes?: string }) => {
-      await patch(`/service_bookings/${id}/${action}`, {
-        responseKind: "json",
-        body: notes ? { notes } : undefined,
-      })
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["service_booking", id] })
-      toast({
-        title: I18n.t("service_bookings.messages.success"),
-        description: I18n.t("service_bookings.payment_tracking.success"),
-      })
-    },
-    onError: () => {
-      toast({
-        variant: "destructive",
-        title: I18n.t("service_bookings.messages.error"),
-        description: I18n.t("service_bookings.payment_tracking.error"),
-      })
-    },
-  })
-
   const stripeCheckoutMutation = useMutation({
     mutationFn: async ({ action }: { action: string }) => {
       const response = await post(`/service_bookings/${id}/${action}`, {
@@ -292,7 +517,7 @@ export function ServiceBookingDetail() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex h-64 items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     )
@@ -301,252 +526,353 @@ export function ServiceBookingDetail() {
   if (!booking) return null
 
   const { service_booking } = booking
-  const statusLabel = I18n.t(`service_bookings.status.${service_booking.status}`, {
-    defaultValue: service_booking.status,
-  })
+  const payment = service_booking.payment
+  const contract = service_booking.contract
+  const bookingTone = bookingStatusTone[service_booking.status] || "neutral"
+  const paymentTone = paymentStatusTone[payment?.status || "unpaid"] || "neutral"
+  const refundTone = refundStatusTone[payment?.refund_status || "not_requested"] || "neutral"
+  const contractTone = contractStatusTone[contract?.status || "not_generated"] || "neutral"
+  const currencyCode = payment?.currency || "usd"
+  const totalAmount = formatMoney(payment?.total_amount, currencyCode)
+  const depositAmount = formatMoney(payment?.deposit_amount, currencyCode)
+  const balanceAmount = formatMoney(payment?.balance_due_amount, currencyCode)
+  const platformFee = formatMoney(payment?.platform_fee_amount, currencyCode)
+  const artistPayout = formatMoney(payment?.artist_payout_amount, currencyCode)
+  const eventDate = service_booking.venue?.starts_at || service_booking.metadata.scheduled_date
+  const eventLocation = [
+    service_booking.venue?.name || service_booking.metadata.meeting_location,
+    service_booking.venue?.city,
+    service_booking.venue?.country,
+  ].filter(Boolean).join(", ")
+  const actionCount = [
+    service_booking.actions.can_confirm,
+    service_booking.actions.can_schedule,
+    service_booking.actions.can_complete,
+    service_booking.actions.can_give_feedback,
+    service_booking.actions.can_cancel,
+    service_booking.actions.can_refund,
+  ].filter(Boolean).length
+
+  const stripeButton = (action: "deposit_checkout" | "balance_checkout", label: string) => (
+    <Button
+      className="w-full"
+      onClick={() => stripeCheckoutMutation.mutate({ action })}
+      disabled={stripeCheckoutMutation.isPending}
+    >
+      {stripeCheckoutMutation.isPending ? (
+        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+      ) : (
+        <CreditCard className="mr-2 h-4 w-4" />
+      )}
+      {label}
+    </Button>
+  )
 
   return (
-    <div className="container mx-auto py-6">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0">
-          <div>
-            <CardTitle>{service_booking.service_product.title}</CardTitle>
-            <p className="text-sm text-muted-foreground mt-1">
-              {I18n.t("service_bookings.labels.created_on", {
-                date: format(new Date(service_booking.created_at), "PPP"),
-              })}
-            </p>
-          </div>
-          <Badge
-            className={
-              statusColors[service_booking.status as keyof typeof statusColors]
-            }
-          >
-            {statusLabel}
-          </Badge>
-        </CardHeader>
-
-        <CardContent>
-          <div className="grid gap-6">
-
-            {service_booking.conversations && service_booking.conversations.length > 0 && (
-              <div>
-                <h3 className="font-medium mb-2">{I18n.t("service_bookings.labels.conversations")}</h3>
-                <div className="flex flex-col gap-2">
-                  {service_booking.conversations.map((conversation) => (
-                    <a
-                      key={conversation.id}
-                      href={`/conversations/${conversation.id}`}
-                      className="text-xs underline text-blue-600 hover:text-blue-800"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {conversation.subject || I18n.t("service_bookings.labels.view_conversation")}
-                    </a>
-                  ))}
-                </div>
+    <div className="container mx-auto max-w-7xl py-6">
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+        <div className="border-b border-border bg-muted/40 px-6 py-6 text-foreground">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+            <div className="min-w-0">
+              <div className="mb-3 flex flex-wrap items-center gap-2">
+                {service_booking.service_product.service_kind && (
+                  <Badge variant="secondary">
+                    {humanize(service_booking.service_product.service_kind)}
+                  </Badge>
+                )}
+                {service_booking.service_product.category && (
+                  <Badge variant="outline">
+                    {humanize(service_booking.service_product.category)}
+                  </Badge>
+                )}
               </div>
-            )}
-
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="font-medium mb-2">{I18n.t("service_bookings.labels.provider")}</h3>
-                <div className="flex items-center space-x-2">
-                  <Avatar>
-                    <AvatarImage src={service_booking.provider.avatar_url} />
-                    <AvatarFallback>
-                      {service_booking.provider.name[0]}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span>{service_booking.provider.name}</span>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="font-medium mb-2">{I18n.t("service_bookings.labels.customer")}</h3>
-                <div className="flex items-center space-x-2">
-                  <Avatar>
-                    <AvatarImage src={service_booking.customer.avatar_url} />
-                    <AvatarFallback>
-                      {service_booking.customer.name[0]}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span>{service_booking.customer.name}</span>
-                </div>
-              </div>
+              <h1 className="truncate text-3xl font-semibold tracking-tight">
+                {service_booking.service_product.title}
+              </h1>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {I18n.t("service_bookings.labels.created_on", {
+                  date: formatDate(service_booking.created_at),
+                })}
+              </p>
             </div>
 
-            {service_booking.metadata.scheduled_date && (
-              <div>
-                <h3 className="font-medium mb-2">{I18n.t("service_bookings.labels.schedule_details")}</h3>
-                <p>
-                  {I18n.t("service_bookings.schedule_modal.date")}:{" "}
-                  {format(
-                    new Date(service_booking.metadata.scheduled_date),
-                    "PPP"
-                  )}
-                </p>
+            <div className="flex flex-wrap gap-2 lg:justify-end">
+              <StatusPill
+                label={translated("service_bookings.status", service_booking.status)}
+                tone={bookingTone}
+                icon={ShieldCheck}
+              />
+              {payment && (
+                <StatusPill
+                  label={translated("service_bookings.payment_statuses", payment.status)}
+                  tone={paymentTone}
+                  icon={WalletCards}
+                />
+              )}
+              {payment?.refund_status && (
+                <StatusPill
+                  label={translated("service_bookings.refund_statuses", payment.refund_status)}
+                  tone={refundTone}
+                  icon={ReceiptText}
+                />
+              )}
+              {contract && contract.status !== "not_generated" && (
+                <StatusPill
+                  label={translated("service_bookings.contract_status", contract.status)}
+                  tone={contractTone}
+                  icon={FileSignature}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="grid gap-4 p-6 md:grid-cols-2 xl:grid-cols-4">
+          <MetricTile label={I18n.t("service_bookings.payment.total")} value={totalAmount} tone="success" icon={Banknote} />
+          <MetricTile label={I18n.t("service_bookings.payment.deposit")} value={depositAmount} tone={paymentStatusTone[payment?.deposit_status || "unpaid"] || "neutral"} icon={CreditCard} />
+          <MetricTile label={I18n.t("service_bookings.payment.balance")} value={balanceAmount} tone={paymentStatusTone[payment?.balance_status || "unpaid"] || "neutral"} icon={WalletCards} />
+          <MetricTile label={I18n.t("service_bookings.payment.artist_payout")} value={artistPayout} tone="secondary" icon={ReceiptText} />
+        </div>
+      </div>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-[1.35fr_0.85fr]">
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CalendarDays className="h-5 w-5" />
+                {I18n.t("service_bookings.labels.schedule_details")}
+              </CardTitle>
+              <CardDescription>{service_booking.service_product.description}</CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-5 md:grid-cols-2">
+              <div className="rounded-lg border border-border bg-background/70 p-4">
+                <div className="mb-3 flex items-center gap-2 text-sm font-semibold">
+                  <Clock3 className="h-4 w-4 text-primary" />
+                  {I18n.t("service_bookings.labels.scheduled_for")}
+                </div>
+                <div className="text-lg font-semibold">
+                  {formatDate(eventDate) || I18n.t("service_bookings.index.not_scheduled")}
+                </div>
                 {service_booking.metadata.scheduled_time && (
-                  <p>{I18n.t("service_bookings.schedule_modal.time")}: {service_booking.metadata.scheduled_time}</p>
+                  <div className="mt-1 text-sm text-muted-foreground">{service_booking.metadata.scheduled_time}</div>
                 )}
                 {service_booking.metadata.timezone && (
-                  <p>{I18n.t("service_bookings.schedule_modal.timezone")}: {service_booking.metadata.timezone}</p>
+                  <div className="mt-1 text-sm text-muted-foreground">{service_booking.metadata.timezone}</div>
+                )}
+              </div>
+
+              <div className="rounded-lg border border-border bg-background/70 p-4">
+                <div className="mb-3 flex items-center gap-2 text-sm font-semibold">
+                  <MapPin className="h-4 w-4 text-primary" />
+                  {I18n.t("service_bookings.labels.location")}
+                </div>
+                <div className="text-lg font-semibold">{eventLocation || "-"}</div>
+                {service_booking.venue?.address && (
+                  <div className="mt-1 text-sm text-muted-foreground">{service_booking.venue.address}</div>
                 )}
                 {service_booking.metadata.meeting_link && (
-                  <p>
-                    {I18n.t("service_bookings.schedule_modal.meeting_link")}:{" "}
-                    <a
-                      href={service_booking.metadata.meeting_link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline"
-                    >
-                      {I18n.t("service_bookings.index.online_meeting")}
-                    </a>
-                  </p>
-                )}
-                {service_booking.metadata.meeting_location && (
-                  <p>{I18n.t("service_bookings.labels.location")}: {service_booking.metadata.meeting_location}</p>
+                  <a
+                    href={service_booking.metadata.meeting_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary underline-offset-4 hover:underline"
+                  >
+                    <LinkIcon className="h-3.5 w-3.5" />
+                    {I18n.t("service_bookings.index.online_meeting")}
+                  </a>
                 )}
               </div>
-            )}
+            </CardContent>
+          </Card>
 
-            {service_booking.payment && (
-              <div>
-                <h3 className="font-medium mb-2">{I18n.t("service_bookings.payment.title")}</h3>
-                <div className="grid gap-2 text-sm md:grid-cols-2">
-                  <p>{I18n.t("service_bookings.payment.status")}: {service_booking.payment.status}</p>
-                  <p>{I18n.t("service_bookings.payment.refund")}: {service_booking.payment.refund_status}</p>
-                  {service_booking.payment.deposit_status && (
-                    <p>{I18n.t("service_bookings.payment.deposit_status")}: {I18n.t(`service_bookings.payment_statuses.${service_booking.payment.deposit_status}`)}</p>
-                  )}
-                  {service_booking.payment.balance_status && (
-                    <p>{I18n.t("service_bookings.payment.balance_status")}: {I18n.t(`service_bookings.payment_statuses.${service_booking.payment.balance_status}`)}</p>
-                  )}
-                  {service_booking.payment.total_amount && (
-                    <p>
-                      {I18n.t("service_bookings.payment.total")}:{" "}
-                      {Number(service_booking.payment.total_amount).toLocaleString(undefined, {
-                        style: "currency",
-                        currency: (service_booking.payment.currency || "usd").toUpperCase(),
-                      })}
-                    </p>
-                  )}
-                  {service_booking.payment.deposit_amount && (
-                    <p>
-                      {I18n.t("service_bookings.payment.deposit")}:{" "}
-                      {Number(service_booking.payment.deposit_amount).toLocaleString(undefined, {
-                        style: "currency",
-                        currency: (service_booking.payment.currency || "usd").toUpperCase(),
-                      })}
-                    </p>
-                  )}
-                  {service_booking.payment.balance_due_amount && (
-                    <p>
-                      {I18n.t("service_bookings.payment.balance")}:{" "}
-                      {Number(service_booking.payment.balance_due_amount).toLocaleString(undefined, {
-                        style: "currency",
-                        currency: (service_booking.payment.currency || "usd").toUpperCase(),
-                      })}
-                    </p>
-                  )}
-                  {service_booking.payment.platform_fee_amount && (
-                    <p>
-                      {I18n.t("service_bookings.payment.artist_fee")}:{" "}
-                      {Number(service_booking.payment.platform_fee_amount).toLocaleString(undefined, {
-                        style: "currency",
-                        currency: (service_booking.payment.currency || "usd").toUpperCase(),
-                      })}
-                    </p>
-                  )}
-                  {service_booking.payment.artist_payout_amount && (
-                    <p>
-                      {I18n.t("service_bookings.payment.artist_payout")}:{" "}
-                      {Number(service_booking.payment.artist_payout_amount).toLocaleString(undefined, {
-                        style: "currency",
-                        currency: (service_booking.payment.currency || "usd").toUpperCase(),
-                      })}
-                    </p>
-                  )}
-                  {service_booking.payment.checkout_provider && (
-                    <p>{I18n.t("service_bookings.payment.provider")}: {service_booking.payment.checkout_provider}</p>
-                  )}
-                  {service_booking.payment.payment_intent_id && (
-                    <p className="break-all">{I18n.t("service_bookings.payment.payment_intent")}: {service_booking.payment.payment_intent_id}</p>
-                  )}
+          {payment && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <WalletCards className="h-5 w-5" />
+                  {I18n.t("service_bookings.payment.title")}
+                </CardTitle>
+                <CardDescription>
+                  {payment.checkout_provider ? humanize(payment.checkout_provider) : translated("service_bookings.payment_statuses", payment.status)}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-5">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <MilestoneCard
+                    title={I18n.t("service_bookings.payment.deposit")}
+                    amount={depositAmount}
+                    status={payment.deposit_status}
+                    paidAt={payment.deposit_paid_at}
+                    confirmedAt={payment.deposit_confirmed_at}
+                    sessionId={payment.deposit_checkout_session_id}
+                    tone={paymentStatusTone[payment.deposit_status || "unpaid"] || "neutral"}
+                    action={
+                      service_booking.actions.can_pay_deposit_with_stripe
+                        ? stripeButton("deposit_checkout", I18n.t("service_bookings.payment_tracking.pay_deposit_with_stripe"))
+                        : null
+                    }
+                  />
+                  <MilestoneCard
+                    title={I18n.t("service_bookings.payment.balance")}
+                    amount={balanceAmount}
+                    status={payment.balance_status}
+                    paidAt={payment.balance_paid_at}
+                    confirmedAt={payment.balance_confirmed_at}
+                    sessionId={payment.balance_checkout_session_id}
+                    tone={paymentStatusTone[payment.balance_status || "unpaid"] || "neutral"}
+                    action={
+                      service_booking.actions.can_pay_balance_with_stripe
+                        ? stripeButton("balance_checkout", I18n.t("service_bookings.payment_tracking.pay_balance_with_stripe"))
+                        : null
+                    }
+                  />
                 </div>
-              </div>
-            )}
 
-            {service_booking.contract && service_booking.contract.status !== "not_generated" && (
-              <div>
-                <h3 className="mb-2 flex items-center gap-2 font-medium">
-                  <FileSignature className="h-4 w-4" />
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="rounded-lg border border-border p-4">
+                    <DetailRow label={I18n.t("service_bookings.payment.status")} value={<StatusPill label={translated("service_bookings.payment_statuses", payment.status)} tone={paymentTone} />} />
+                    <DetailRow label={I18n.t("service_bookings.payment.refund")} value={<StatusPill label={translated("service_bookings.refund_statuses", payment.refund_status)} tone={refundTone} />} />
+                    <DetailRow label={I18n.t("service_bookings.payment.artist_fee")} value={platformFee} />
+                    <DetailRow label={I18n.t("service_bookings.payment.artist_payout")} value={artistPayout} />
+                  </div>
+                  <div className="rounded-lg border border-border p-4">
+                    <DetailRow label={I18n.t("service_bookings.payment.provider")} value={payment.checkout_provider ? humanize(payment.checkout_provider) : null} />
+                    <DetailRow label={I18n.t("service_bookings.payment.payment_intent")} value={payment.payment_intent_id} />
+                    <DetailRow label="Session" value={payment.payment_session_id} />
+                    <DetailRow label="Refund ID" value={payment.refund_id} />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {(service_booking.metadata.special_requirements || service_booking.metadata.provider_notes || service_booking.cancelled_by || service_booking.rating) && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ReceiptText className="h-5 w-5" />
+                  {I18n.t("service_bookings.show.title")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {service_booking.metadata.special_requirements && (
+                  <div className="rounded-lg border border-border p-4">
+                    <div className="mb-1 text-sm font-medium">{I18n.t("service_bookings.show.customer_info.special_requirements")}</div>
+                    <p className="text-sm text-muted-foreground">{service_booking.metadata.special_requirements}</p>
+                  </div>
+                )}
+                {service_booking.metadata.provider_notes && (
+                  <div className="rounded-lg border border-border p-4">
+                    <div className="mb-1 text-sm font-medium">{I18n.t("service_bookings.index.provider_notes")}</div>
+                    <p className="text-sm text-muted-foreground">{service_booking.metadata.provider_notes}</p>
+                  </div>
+                )}
+                {service_booking.cancelled_by && (
+                  <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-4">
+                    <div className="mb-1 flex items-center gap-2 text-sm font-medium text-destructive">
+                      <XCircle className="h-4 w-4" />
+                      {I18n.t("service_bookings.labels.cancellation_details")}
+                    </div>
+                    <p className="text-sm text-destructive">
+                      {I18n.t("service_bookings.labels.cancelled_by")}: {service_booking.cancelled_by.name}
+                      {service_booking.metadata.cancellation_reason && (
+                        <>
+                          <br />
+                          {I18n.t("service_bookings.labels.reason")}: {service_booking.metadata.cancellation_reason}
+                        </>
+                      )}
+                    </p>
+                  </div>
+                )}
+                {service_booking.rating && (
+                  <div className="rounded-lg border border-primary/20 bg-primary/10 p-4">
+                    <div className="mb-1 flex items-center gap-2 text-sm font-medium text-primary">
+                      <Star className="h-4 w-4" />
+                      {I18n.t("service_bookings.feedback_form.feedback")}
+                    </div>
+                    <p className="text-sm text-primary">
+                      {I18n.t("service_bookings.feedback_form.rating")}: {service_booking.rating}/5
+                    </p>
+                    {service_booking.feedback && <p className="mt-2 text-sm text-primary">{service_booking.feedback}</p>}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <UserRound className="h-5 w-5" />
+                {I18n.t("service_booking_proposals.show.parties")}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-4">
+              <PersonCard title={I18n.t("service_bookings.labels.provider")} person={service_booking.provider} tone="primary" />
+              <PersonCard title={I18n.t("service_bookings.labels.customer")} person={service_booking.customer} tone="success" />
+            </CardContent>
+          </Card>
+
+          {contract && contract.status !== "not_generated" && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileSignature className="h-5 w-5" />
                   {I18n.t("service_bookings.contract.title")}
-                </h3>
-                <div className="grid gap-2 text-sm md:grid-cols-2">
-                  <p>{I18n.t("service_bookings.contract.status")}: {I18n.t(`service_bookings.contract_status.${service_booking.contract.status}`)}</p>
-                  {service_booking.contract.signed_at && (
-                    <p>{I18n.t("service_bookings.contract.signed_at")}: {format(new Date(service_booking.contract.signed_at), "PPP")}</p>
-                  )}
-                  {service_booking.contract.proposal_id && (
-                    <p>
-                      {I18n.t("service_bookings.contract.proposal")}:{" "}
-                      <a className="text-blue-600 underline" href={`/service_booking_proposals/${service_booking.contract.proposal_id}`}>
-                        #{service_booking.contract.proposal_id}
-                      </a>
-                    </p>
-                  )}
-                </div>
-              </div>
-            )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <DetailRow label={I18n.t("service_bookings.contract.status")} value={<StatusPill label={translated("service_bookings.contract_status", contract.status)} tone={contractTone} />} />
+                <DetailRow label={I18n.t("service_bookings.contract.signed_at")} value={formatDate(contract.signed_at)} />
+                <DetailRow
+                  label={I18n.t("service_bookings.contract.proposal")}
+                  value={contract.proposal_id ? `#${contract.proposal_id}` : null}
+                  href={contract.proposal_id ? `/service_booking_proposals/${contract.proposal_id}` : undefined}
+                />
+              </CardContent>
+            </Card>
+          )}
 
-            {service_booking.metadata.special_requirements && (
-              <div>
-                <h3 className="font-medium mb-2">{I18n.t("service_bookings.show.customer_info.special_requirements")}</h3>
-                <p>{service_booking.metadata.special_requirements}</p>
-              </div>
-            )}
+          {service_booking.conversations && service_booking.conversations.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MessageCircle className="h-5 w-5" />
+                  {I18n.t("service_bookings.labels.conversations")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {service_booking.conversations.map((conversation) => (
+                  <a
+                    key={conversation.id}
+                    href={`/conversations/${conversation.id}`}
+                    className="flex items-center justify-between gap-3 rounded-lg border border-border px-4 py-3 text-sm transition-colors hover:bg-muted"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <span className="truncate font-medium">{conversation.subject || I18n.t("service_bookings.labels.view_conversation")}</span>
+                    <StatusPill label={humanize(conversation.status)} tone="accent" />
+                  </a>
+                ))}
+              </CardContent>
+            </Card>
+          )}
 
-            {service_booking.metadata.provider_notes && (
-              <div>
-                <h3 className="font-medium mb-2">{I18n.t("service_bookings.index.provider_notes")}</h3>
-                <p>{service_booking.metadata.provider_notes}</p>
-              </div>
-            )}
-
-            {service_booking.cancelled_by && (
-              <div>
-                <h3 className="font-medium mb-2">{I18n.t("service_bookings.labels.cancellation_details")}</h3>
-                <p>
-                  {I18n.t("service_bookings.labels.cancelled_by")}: {service_booking.cancelled_by.name}
-                  {service_booking.metadata.cancellation_reason && (
-                    <>
-                      <br />
-                      {I18n.t("service_bookings.labels.reason")}: {service_booking.metadata.cancellation_reason}
-                    </>
-                  )}
-                </p>
-              </div>
-            )}
-
-            {service_booking.rating && (
-              <div>
-                <h3 className="font-medium mb-2">{I18n.t("service_bookings.feedback_form.feedback")}</h3>
-                <p>{I18n.t("service_bookings.feedback_form.rating")}: {service_booking.rating}/5</p>
-                {service_booking.feedback && <p>{service_booking.feedback}</p>}
-              </div>
-            )}
-
-            <div className="flex flex-wrap gap-4 mt-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>{I18n.t("service_bookings.show.actions")}</CardTitle>
+              <CardDescription>
+                {actionCount > 0 ? translated("service_bookings.status", service_booking.status) : I18n.t("service_bookings.show.no_actions")}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-2">
               {service_booking.actions.can_confirm && (
-                <Button
-                  onClick={() => confirmMutation.mutate()}
-                  disabled={confirmMutation.isPending}
-                >
-                  {confirmMutation.isPending && (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  )}
+                <Button onClick={() => confirmMutation.mutate()} disabled={confirmMutation.isPending}>
+                  {confirmMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  <CheckCircle2 className="mr-2 h-4 w-4" />
                   {I18n.t("service_bookings.show.confirm_button")}
                 </Button>
               )}
@@ -554,7 +880,10 @@ export function ServiceBookingDetail() {
               {service_booking.actions.can_schedule && (
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button>{I18n.t("service_bookings.show.schedule_button")}</Button>
+                    <Button>
+                      <CalendarDays className="mr-2 h-4 w-4" />
+                      {I18n.t("service_bookings.show.schedule_button")}
+                    </Button>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
@@ -563,9 +892,7 @@ export function ServiceBookingDetail() {
                     <ScheduleForm
                       bookingId={service_booking.id}
                       onSuccess={() => {
-                        queryClient.invalidateQueries({
-                          queryKey: ["service_booking", id],
-                        })
+                        queryClient.invalidateQueries({ queryKey: ["service_booking", id] })
                       }}
                     />
                   </DialogContent>
@@ -573,13 +900,9 @@ export function ServiceBookingDetail() {
               )}
 
               {service_booking.actions.can_complete && (
-                <Button
-                  onClick={() => completeMutation.mutate()}
-                  disabled={completeMutation.isPending}
-                >
-                  {completeMutation.isPending && (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  )}
+                <Button onClick={() => completeMutation.mutate()} disabled={completeMutation.isPending}>
+                  {completeMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  <CheckCircle2 className="mr-2 h-4 w-4" />
                   {I18n.t("service_bookings.show.complete_button")}
                 </Button>
               )}
@@ -587,7 +910,10 @@ export function ServiceBookingDetail() {
               {service_booking.actions.can_give_feedback && (
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button>{I18n.t("service_bookings.feedback_form.add_feedback")}</Button>
+                    <Button>
+                      <Star className="mr-2 h-4 w-4" />
+                      {I18n.t("service_bookings.feedback_form.add_feedback")}
+                    </Button>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
@@ -596,31 +922,11 @@ export function ServiceBookingDetail() {
                     <FeedbackForm
                       bookingId={service_booking.id}
                       onSuccess={() => {
-                        queryClient.invalidateQueries({
-                          queryKey: ["service_booking", id],
-                        })
+                        queryClient.invalidateQueries({ queryKey: ["service_booking", id] })
                       }}
                     />
                   </DialogContent>
                 </Dialog>
-              )}
-
-              {service_booking.actions.can_cancel && (
-                <Button
-                  variant="destructive"
-                  onClick={() => {
-                    const reason = window.prompt(I18n.t("service_bookings.cancel.reason_prompt"))
-                    if (reason) {
-                      cancelMutation.mutate(reason)
-                    }
-                  }}
-                  disabled={cancelMutation.isPending}
-                >
-                  {cancelMutation.isPending && (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  )}
-                  {I18n.t("service_bookings.show.cancel_button")}
-                </Button>
               )}
 
               {service_booking.actions.can_refund && (
@@ -628,90 +934,38 @@ export function ServiceBookingDetail() {
                   variant="destructive"
                   onClick={() => {
                     const confirmed = window.confirm(I18n.t("service_bookings.refund.confirm"))
-                    if (confirmed) {
-                      refundMutation.mutate()
-                    }
+                    if (confirmed) refundMutation.mutate()
                   }}
                   disabled={refundMutation.isPending}
                 >
-                  {refundMutation.isPending && (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  )}
+                  {refundMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   {I18n.t("service_bookings.refund.button")}
                 </Button>
               )}
 
-              {service_booking.actions.can_pay_deposit_with_stripe && (
-                <Button
-                  onClick={() => stripeCheckoutMutation.mutate({ action: "deposit_checkout" })}
-                  disabled={stripeCheckoutMutation.isPending}
-                >
-                  {stripeCheckoutMutation.isPending ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <CreditCard className="mr-2 h-4 w-4" />
-                  )}
-                  {I18n.t("service_bookings.payment_tracking.pay_deposit_with_stripe")}
-                </Button>
-              )}
-
-              {service_booking.actions.can_mark_deposit_paid && (
+              {service_booking.actions.can_cancel && (
                 <Button
                   variant="outline"
-                  onClick={() => paymentActionMutation.mutate({ action: "mark_deposit_paid" })}
-                  disabled={paymentActionMutation.isPending}
+                  onClick={() => {
+                    const reason = window.prompt(I18n.t("service_bookings.cancel.reason_prompt"))
+                    if (reason) cancelMutation.mutate(reason)
+                  }}
+                  disabled={cancelMutation.isPending}
                 >
-                  {I18n.t("service_bookings.payment_tracking.mark_deposit_paid")}
+                  {cancelMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {I18n.t("service_bookings.show.cancel_button")}
                 </Button>
               )}
 
-              {service_booking.actions.can_confirm_deposit && (
-                <Button
-                  variant="outline"
-                  onClick={() => paymentActionMutation.mutate({ action: "confirm_deposit" })}
-                  disabled={paymentActionMutation.isPending}
-                >
-                  {I18n.t("service_bookings.payment_tracking.confirm_deposit")}
-                </Button>
+              {actionCount === 0 && (
+                <div className="rounded-lg border border-border bg-muted px-4 py-3 text-sm text-muted-foreground">
+                  {I18n.t("service_bookings.show.no_actions")}
+                </div>
               )}
-
-              {service_booking.actions.can_pay_balance_with_stripe && (
-                <Button
-                  onClick={() => stripeCheckoutMutation.mutate({ action: "balance_checkout" })}
-                  disabled={stripeCheckoutMutation.isPending}
-                >
-                  {stripeCheckoutMutation.isPending ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  ) : (
-                    <CreditCard className="mr-2 h-4 w-4" />
-                  )}
-                  {I18n.t("service_bookings.payment_tracking.pay_balance_with_stripe")}
-                </Button>
-              )}
-
-              {service_booking.actions.can_mark_balance_paid && (
-                <Button
-                  variant="outline"
-                  onClick={() => paymentActionMutation.mutate({ action: "mark_balance_paid" })}
-                  disabled={paymentActionMutation.isPending}
-                >
-                  {I18n.t("service_bookings.payment_tracking.mark_balance_paid")}
-                </Button>
-              )}
-
-              {service_booking.actions.can_confirm_balance && (
-                <Button
-                  variant="outline"
-                  onClick={() => paymentActionMutation.mutate({ action: "confirm_balance" })}
-                  disabled={paymentActionMutation.isPending}
-                >
-                  {I18n.t("service_bookings.payment_tracking.confirm_balance")}
-                </Button>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   )
 }

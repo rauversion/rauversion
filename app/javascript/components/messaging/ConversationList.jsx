@@ -53,11 +53,11 @@ const ConversationItem = ({ conversation, isSelected, onClick }) => {
           )}
 
           <div className="flex items-center gap-2 mt-2">
-            <Badge 
+            <Badge
               variant={
                 conversation.status === 'active' ? 'default' :
-                conversation.status === 'archived' ? 'secondary' :
-                'outline'
+                  conversation.status === 'archived' ? 'secondary' :
+                    'outline'
               }
               className="text-[10px] px-1"
             >
@@ -65,8 +65,8 @@ const ConversationItem = ({ conversation, isSelected, onClick }) => {
             </Badge>
 
             {conversation.messageable_type && (
-              <Badge 
-                variant="outline" 
+              <Badge
+                variant="outline"
                 className="text-[10px] px-1"
               >
                 {conversation.messageable_type}
@@ -81,12 +81,12 @@ const ConversationItem = ({ conversation, isSelected, onClick }) => {
 
 const ConversationList = ({ selectedId, onSelect }) => {
   const { subscribe, unsubscribe } = useActionCable()
-  const { 
-    conversations, 
-    loading, 
-    error, 
+  const {
+    conversations,
+    loading,
+    error,
     fetchConversations,
-    appendMessage 
+    appendMessage
   } = useConversationStore()
 
   useEffect(() => {
@@ -140,7 +140,7 @@ const ConversationList = ({ selectedId, onSelect }) => {
   })
 
   return (
-    <ScrollArea className="h-[calc(100vh-22rem)]">
+    <ScrollArea className="h-[calc(100vh-23rem)]">
       <div className="divide-y">
         {sortedConversations.length === 0 ? (
           <div className="p-4 text-center text-muted-foreground">
