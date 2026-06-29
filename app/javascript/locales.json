@@ -3595,7 +3595,10 @@
         "rejected": "Rejected"
       },
       "index": {
+        "count_label": "Proposals",
+        "date_pending": "Date pending",
         "empty": "You do not have show proposals yet.",
+        "location_pending": "Location pending",
         "open": "View proposal",
         "subtitle": "Negotiate, accept, and close performance bookings.",
         "title": "Show proposals",
@@ -3609,6 +3612,8 @@
         "balance": "Balance",
         "booker": "Booker",
         "conversation": "Conversation",
+        "counters": "Counteroffers",
+        "created_on": "Created %{date}",
         "deposit": "Deposit",
         "fee_type": "Fee type",
         "with_artist": "with %{artist}"
@@ -8557,7 +8562,10 @@
         "rejected": "Rechazada"
       },
       "index": {
+        "count_label": "Propuestas",
+        "date_pending": "Fecha pendiente",
         "empty": "Aún no tienes propuestas de shows.",
+        "location_pending": "Ubicación pendiente",
         "open": "Ver propuesta",
         "subtitle": "Negocia, acepta y cierra bookings para performances.",
         "title": "Propuestas de shows",
@@ -8571,6 +8579,8 @@
         "balance": "Saldo",
         "booker": "Booker",
         "conversation": "Conversación",
+        "counters": "Contrapropuestas",
+        "created_on": "Creada el %{date}",
         "deposit": "Adelanto",
         "fee_type": "Tipo de tarifa",
         "with_artist": "con %{artist}"

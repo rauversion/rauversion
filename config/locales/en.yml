@@ -2438,6 +2438,9 @@ en:
       empty: You do not have show proposals yet.
       open: View proposal
       view_bookings: View bookings
+      count_label: Proposals
+      date_pending: Date pending
+      location_pending: Location pending
     viewer:
       artist: DJ view
       booker: Booker view
@@ -2473,6 +2476,8 @@ en:
       artist: DJ / performer
       conversation: Conversation
       with_artist: with %{artist}
+      created_on: "Created %{date}"
+      counters: Counteroffers
     fee_type_labels:
       landed: Landed fee
       landed_hospitalities: Landed + hospitalities

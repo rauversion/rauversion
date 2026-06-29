@@ -2494,6 +2494,9 @@ es:
       empty: "Aún no tienes propuestas de shows."
       open: "Ver propuesta"
       view_bookings: "Ver bookings"
+      count_label: "Propuestas"
+      date_pending: "Fecha pendiente"
+      location_pending: "Ubicación pendiente"
     viewer:
       artist: "Vista DJ"
       booker: "Vista booker"
@@ -2529,6 +2532,8 @@ es:
       artist: "DJ / performer"
       conversation: "Conversación"
       with_artist: "con %{artist}"
+      created_on: "Creada el %{date}"
+      counters: "Contrapropuestas"
     fee_type_labels:
       landed: "Tarifa landed"
       landed_hospitalities: "Landed + hospitalities"
