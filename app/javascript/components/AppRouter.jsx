@@ -132,6 +132,7 @@ import { cn } from "@/lib/utils"
 import AdminLayout from "./admin/AdminLayout"
 import AdminDashboardPage from "./admin/AdminDashboardPage"
 import AdminEventSalesPage from "./admin/AdminEventSalesPage"
+import AdminBookingsPage from "./admin/AdminBookingsPage"
 import AdminListeningPage from "./admin/AdminListeningPage"
 import AdminResourceListPage from "./admin/AdminResourceListPage"
 import AdminResourceFormPage from "./admin/AdminResourceFormPage"
@@ -347,6 +348,7 @@ function AppContent() {
         <Route path="commerce" element={<AdminDashboardPage />} />
         <Route path="listening" element={<AdminListeningPage />} />
         <Route path="event-sales" element={<AdminEventSalesPage />} />
+        <Route path="bookings" element={<AdminBookingsPage />} />
         <Route path="pages" element={<PagesTable />} />
         <Route path="pages/:id/edit" element={<PagesEditor />} />
         <Route path=":resourceKey" element={<AdminResourceListPage />} />

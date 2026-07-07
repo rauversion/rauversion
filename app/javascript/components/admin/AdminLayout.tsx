@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import {
   Bell,
+  CalendarCheck,
   CalendarDays,
   Disc3,
   FileText,
@@ -29,6 +30,7 @@ const icons: Record<string, React.ComponentType<any>> = {
   Newspaper,
   FileText,
   Bell,
+  CalendarCheck,
   Disc3,
   CalendarDays,
   Headphones,

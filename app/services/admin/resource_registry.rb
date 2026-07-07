@@ -27,6 +27,13 @@ module Admin
             path: "/admin/event-sales"
           },
           {
+            key: "bookings",
+            label: "Bookings",
+            kind: "dashboard",
+            icon: "CalendarCheck",
+            path: "/admin/bookings"
+          },
+          {
             key: "pages",
             label: "Pages",
             kind: "resource",

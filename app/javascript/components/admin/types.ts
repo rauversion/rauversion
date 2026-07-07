@@ -255,3 +255,121 @@ export type EventSalesDashboardData = {
     event_path?: string
   }>
 }
+
+export type BookingsDashboardData = {
+  range: {
+    from: string
+    to: string
+    days: number
+  }
+  summary: {
+    bookings_created: number
+    active_bookings: number
+    upcoming_bookings: number
+    pending_deposits: number
+    pending_balances: number
+    open_proposals: number
+    counteroffers: number
+    cancellations: number
+    refund_cases: number
+    latest_booking_at?: string | null
+    latest_proposal_at?: string | null
+    latest_ledger_at?: string | null
+  }
+  booking_amounts_by_currency: Array<{ currency: string; amount: number }>
+  calculated_payouts_by_currency: Array<{ currency: string; amount: number }>
+  platform_fees_by_currency: Array<{ currency: string; amount: number }>
+  refunds_by_currency: Array<{ currency: string; amount: number }>
+  proposal_volume_by_currency: Array<{ currency: string; amount: number }>
+  booking_status_counts: Array<{ status: string; count: number }>
+  payment_status_counts: Array<{ status: string; count: number }>
+  proposal_status_counts: Array<{ status: string; count: number }>
+  ledger_activity_counts: Array<{ entry_type: string; count: number }>
+  action_queue: Array<{
+    key: string
+    label: string
+    count: number
+    amounts: Array<{ currency: string; amount: number }>
+  }>
+  recent_bookings: AdminBookingSummary[]
+  recent_proposals: AdminProposalSummary[]
+  counter_activity: AdminProposalSummary[]
+  recent_cancellations: AdminBookingSummary[]
+  recent_ledger_entries: Array<{
+    id: number
+    service_booking_id: number
+    event_name?: string | null
+    entry_type: string
+    milestone?: string | null
+    direction: string
+    amount?: number | null
+    currency: string
+    status?: string | null
+    gateway?: string | null
+    gateway_reference?: string | null
+    occurred_at?: string | null
+    actor?: AdminPersonSummary | null
+  }>
+}
+
+export type AdminPersonSummary = {
+  id: number
+  name: string
+  username?: string | null
+  email?: string | null
+  path?: string | null
+}
+
+export type AdminBookingSummary = {
+  id: number
+  event_name?: string | null
+  product_title?: string | null
+  status: string
+  payment_status: string
+  deposit_status: string
+  balance_status: string
+  refund_status: string
+  contract_status: string
+  total_amount?: number | null
+  deposit_amount?: number | null
+  balance_due_amount?: number | null
+  platform_fee_amount?: number | null
+  artist_payout_amount?: number | null
+  currency: string
+  starts_at?: string | null
+  ends_at?: string | null
+  created_at?: string | null
+  updated_at?: string | null
+  venue?: string | null
+  checkout_provider?: string | null
+  payment_intent_id?: string | null
+  cancellation_reason?: string | null
+  proposal_id?: number | null
+  provider?: AdminPersonSummary | null
+  customer?: AdminPersonSummary | null
+}
+
+export type AdminProposalSummary = {
+  id: number
+  event_name: string
+  status: string
+  fee_type: string
+  proposed_amount?: number | null
+  deposit_amount?: number | null
+  balance_amount?: number | null
+  platform_fee_amount?: number | null
+  artist_payout_amount?: number | null
+  currency: string
+  event_date?: string | null
+  starts_at?: string | null
+  venue?: string | null
+  artist_counter_count: number
+  booker_counter_count: number
+  total_counter_count: number
+  created_at?: string | null
+  updated_at?: string | null
+  service_booking_id?: number | null
+  booker?: AdminPersonSummary | null
+  artist?: AdminPersonSummary | null
+  current_offer_by?: AdminPersonSummary | null
+}
