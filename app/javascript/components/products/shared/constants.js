@@ -133,6 +133,46 @@ export const DELIVERY_METHODS = [
   { value: 'both', label: I18n.t('products.service.delivery_methods.hybrid') }
 ]
 
+export const PRODUCT_CURRENCY_CODES = [
+  'clp',
+  'usd',
+  'eur',
+  'gbp',
+  'cad',
+  'aud',
+  'mxn',
+  'brl',
+  'jpy',
+  'nzd'
+]
+
+export const PRODUCT_CURRENCY_LABELS = {
+  clp: I18n.t('events.edit.tickets.currency.clp'),
+  usd: I18n.t('events.edit.tickets.currency.usd'),
+  eur: I18n.t('events.edit.tickets.currency.eur'),
+  gbp: I18n.t('events.edit.tickets.currency.gbp'),
+  cad: I18n.t('events.edit.tickets.currency.cad'),
+  aud: I18n.t('events.edit.tickets.currency.aud'),
+  mxn: I18n.t('events.edit.tickets.currency.mxn'),
+  brl: I18n.t('events.edit.tickets.currency.brl'),
+  jpy: I18n.t('events.edit.tickets.currency.jpy'),
+  nzd: I18n.t('events.edit.tickets.currency.nzd')
+}
+
+export function buildProductCurrencyOptions(selectedCurrencies = []) {
+  const codes = new Set(PRODUCT_CURRENCY_CODES)
+  const selectedCodes = Array.isArray(selectedCurrencies) ? selectedCurrencies : [selectedCurrencies]
+
+  selectedCodes.forEach((currency) => {
+    if (currency) codes.add(currency.toLowerCase())
+  })
+
+  return Array.from(codes).map((code) => ({
+    value: code,
+    label: PRODUCT_CURRENCY_LABELS[code] || code.toUpperCase()
+  }))
+}
+
 export const CATEGORY_ICONS = {
   't-shirts': <Shirt className="h-4 w-4" />,
   'hoodies': <Shirt className="h-4 w-4" />,

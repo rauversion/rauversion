@@ -1,6 +1,7 @@
 module Products
   class BaseController < ApplicationController
     before_action :authenticate_user!, except: [:index, :show]
+    before_action :require_product_sales_setup!, only: [:new, :create]
     before_action :set_product, only: [:edit, :update, :destroy]
     before_action :authorize_user, only: [:edit, :update, :destroy]
 

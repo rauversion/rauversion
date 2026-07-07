@@ -138,6 +138,10 @@ const useAuthStore = create((set, get) => ({
     return get().currentUser?.can_sell_products || false
   },
 
+  canCreateProducts: () => {
+    return get().currentUser?.can_create_products || false
+  },
+
   isLabel: () => {
     return get().currentUser?.label || false
   },

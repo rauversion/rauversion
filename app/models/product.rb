@@ -9,12 +9,13 @@ class Product < ApplicationRecord
   belongs_to :user
   belongs_to :album, class_name: 'Playlist', optional: true, foreign_key: :playlist_id
   belongs_to :coupon, optional: true
+  belongs_to :deleted_by, class_name: 'User', optional: true
 
-  has_many :product_variants, dependent: :destroy
-  has_many :product_options, dependent: :destroy
+  has_many :product_variants
+  has_many :product_options
   has_many :product_images
   has_many :purchased_items, as: :purchased_item
-  has_many :product_shippings, dependent: :destroy
+  has_many :product_shippings
   has_many :product_purchase_items
   has_many :product_purchases, through: :product_purchase_items
 
@@ -26,6 +27,7 @@ class Product < ApplicationRecord
   # validates :sku, presence: true, uniqueness: true
   validates :category, presence: true
   validates :status, presence: true
+  validate :type_cannot_change, on: :update
 
   attribute :visibility, :string
   attribute :name_your_price, :boolean
@@ -118,6 +120,15 @@ class Product < ApplicationRecord
     currency.presence || "usd"
   end
 
+  def destroy_with_audit!(actor:, reason: nil)
+    update_columns(
+      deleted_by_id: actor&.id,
+      deletion_reason: reason.presence,
+      updated_at: Time.current
+    )
+    destroy
+  end
+
   def decrease_quantity(amount)
     return unless amount.positive?
 
@@ -136,5 +147,11 @@ class Product < ApplicationRecord
 
   def normalize_currency
     self.currency = currency.to_s.downcase.presence || "usd"
+  end
+
+  def type_cannot_change
+    return unless will_save_change_to_type?
+
+    errors.add(:type, :immutable)
   end
 end

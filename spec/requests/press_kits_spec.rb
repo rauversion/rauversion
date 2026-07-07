@@ -34,6 +34,64 @@ RSpec.describe "PressKits", type: :request do
         expect(json_response['press_kit']).to be_nil
       end
     end
+
+    it "returns active performance services for booking from the press kit" do
+      user.create_press_kit!(data: { artistName: "Test", published: true })
+      performance = create(
+        :service_product,
+        user: user,
+        title: "Festival DJ Set",
+        description: "A club-ready DJ set.",
+        service_kind: "performance",
+        category: "dj_set",
+        booking_mode: "request_quote",
+        delivery_method: "in_person",
+        price: 800_000,
+        currency: "clp",
+        duration_minutes: 90,
+        performance_format: "DJ set",
+        home_city: "Santiago",
+        home_country: "Chile"
+      )
+      create(
+        :service_price_rule,
+        service_product: performance,
+        name: "Extra hour",
+        rule_type: "extra_hour",
+        amount: 150_000,
+        currency: "clp"
+      )
+      create(:service_product, user: user, service_kind: "advisory", status: "active")
+      create(:service_product, user: user, service_kind: "performance", status: "inactive")
+      create(:service_product, service_kind: "performance", status: "active")
+
+      get "/#{user.username}/press-kit.json"
+
+      expect(response).to have_http_status(:success)
+      json_response = JSON.parse(response.body)
+      services = json_response.dig("press_kit", "performer_services")
+
+      expect(services.length).to eq(1)
+      expect(services.first).to include(
+        "id" => performance.id,
+        "title" => "Festival DJ Set",
+        "category" => "dj_set",
+        "service_kind" => "performance",
+        "booking_mode" => "request_quote"
+      )
+      expect(services.first["formatted_price"]).to include("CLP")
+      expect(services.first["formatted_price"]).to match(/800[,.]000/)
+      expect(services.first["path"]).to eq("/#{user.username}/products/#{performance.slug}")
+      expect(services.first["user"]).to include(
+        "id" => user.id,
+        "username" => user.username
+      )
+      expect(services.first["service_price_rules"].first).to include(
+        "name" => "Extra hour"
+      )
+      expect(services.first["service_price_rules"].first["formatted_amount"]).to include("CLP")
+      expect(services.first["service_price_rules"].first["formatted_amount"]).to match(/150[,.]000/)
+    end
   end
 
   describe "PATCH /:username/press-kit" do
@@ -174,6 +232,7 @@ RSpec.describe "PressKits", type: :request do
         photo_ids = json_response['press_kit']['photos'].map { |p| p['id'] }
         expect(photo_ids).to match_array([photo1.id, photo2.id])
       end
+
     end
   end
 end

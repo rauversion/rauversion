@@ -10,6 +10,8 @@ if current_user
     json.is_admin current_user.is_admin?
     json.is_creator current_user.is_creator?
     json.can_sell_products current_user.can_sell_products?
+    json.stripe_account_connected current_user.stripe_account_connected?
+    json.can_create_products current_user.can_create_products?
     json.can_send_newsletter current_user.can_access_newsletter?
     json.mastering_allowed current_user.can_access_mastering?
     json.newsletter_broadcast_recipient_limit current_user.newsletter_broadcast_recipient_limit

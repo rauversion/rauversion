@@ -22,6 +22,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Form } from "@/components/ui/form";
+import {
+  Select as UiSelect,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import Select from "react-select";
 import { useThemeStore } from "@/stores/theme";
 import selectTheme from "@/components/ui/selectTheme";
@@ -38,6 +45,7 @@ import PublishSection from "../shared/PublishSection";
 
 import {
   BOOKING_MODES,
+  buildProductCurrencyOptions,
   SERVICE_KIND_OPTIONS,
   SERVICE_TYPES,
   DELIVERY_METHODS,
@@ -76,7 +84,7 @@ function serviceKindForCategory(category) {
   return SERVICE_TYPES.find((type) => type.value === category)?.serviceKind || "advisory";
 }
 
-function ServiceKindSelector({ value, onChange }) {
+function ServiceKindSelector({ value, onChange, disabled = false }) {
   return (
     <div className="grid gap-3 md:grid-cols-4">
       {SERVICE_KIND_OPTIONS.map((option) => {
@@ -87,12 +95,15 @@ function ServiceKindSelector({ value, onChange }) {
           <button
             type="button"
             key={option.value}
-            onClick={() => onChange(option.value)}
+            disabled={disabled}
+            onClick={() => {
+              if (!disabled) onChange(option.value);
+            }}
             className={`group flex min-h-[132px] flex-col justify-between rounded-lg border p-4 text-left transition ${
               selected
                 ? "border-primary bg-primary text-primary-foreground shadow-sm"
                 : "border-border bg-background hover:border-primary/60 hover:bg-muted/50"
-            }`}
+            } ${disabled ? "cursor-not-allowed opacity-70 hover:border-border hover:bg-background" : ""}`}
           >
             <span className="flex items-center justify-between">
               <Icon className="h-5 w-5" />
@@ -127,6 +138,13 @@ function ServicePricingRules({ form }) {
   });
   const watchedRules = form.watch("service_price_rules_attributes") || [];
   const productCurrency = form.watch("currency") || "clp";
+  const priceRuleCurrencyOptions = React.useMemo(
+    () => buildProductCurrencyOptions([
+      productCurrency,
+      ...watchedRules.map((rule) => rule?.currency),
+    ]),
+    [productCurrency, watchedRules]
+  );
 
   const removeRule = (index) => {
     const persistedId = form.getValues(`service_price_rules_attributes.${index}.id`);
@@ -258,12 +276,23 @@ function ServicePricingRules({ form }) {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>{I18n.t("products.service.form.price_rules.currency")}</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        placeholder={I18n.t("products.service.form.price_rules.currency_placeholder")}
-                      />
-                    </FormControl>
+                    <UiSelect
+                      onValueChange={(value) => field.onChange(value.toLowerCase())}
+                      value={field.value ? field.value.toLowerCase() : undefined}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder={I18n.t("events.edit.tickets.ticket_currency.placeholder")} />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {priceRuleCurrencyOptions.map((currency) => (
+                          <SelectItem key={currency.value} value={currency.value}>
+                            {currency.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </UiSelect>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -405,11 +434,31 @@ export default function ServiceForm({ product, isEditing = false }) {
   });
 
   const serviceKind = form.watch("service_kind");
+  const isPerformanceService = serviceKind === "performance";
   const filteredServiceTypes = SERVICE_TYPES.filter(
     (type) => type.serviceKind === serviceKind
   );
+  const bookingModeOptions = React.useMemo(() => {
+    if (!isPerformanceService) return BOOKING_MODES;
+
+    return BOOKING_MODES.filter((mode) =>
+      ["request_quote", "deposit_then_balance"].includes(mode.value)
+    );
+  }, [isPerformanceService]);
+  const deliveryMethodOptions = React.useMemo(() => {
+    if (!isPerformanceService) return DELIVERY_METHODS;
+
+    return DELIVERY_METHODS.filter((method) => method.value !== "online");
+  }, [isPerformanceService]);
+  const productCurrency = form.watch("currency") || "clp";
+  const productCurrencyOptions = React.useMemo(
+    () => buildProductCurrencyOptions(productCurrency),
+    [productCurrency]
+  );
 
   const handleServiceKindChange = (value) => {
+    if (isEditing) return;
+
     form.setValue("service_kind", value, { shouldDirty: true, shouldValidate: true });
 
     const currentCategory = form.getValues("category");
@@ -424,6 +473,24 @@ export default function ServiceForm({ product, isEditing = false }) {
       });
     }
   };
+
+  React.useEffect(() => {
+    if (!isPerformanceService) return;
+
+    if (form.getValues("booking_mode") === "instant_checkout") {
+      form.setValue("booking_mode", "deposit_then_balance", {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
+
+    if (["", "online", null, undefined].includes(form.getValues("delivery_method"))) {
+      form.setValue("delivery_method", "in_person", {
+        shouldDirty: true,
+        shouldValidate: true,
+      });
+    }
+  }, [form, isPerformanceService]);
 
   // Reset form errors when any field changes
   React.useEffect(() => {
@@ -523,12 +590,18 @@ export default function ServiceForm({ product, isEditing = false }) {
                       <FormControl>
                         <ServiceKindSelector
                           value={field.value}
+                          disabled={isEditing}
                           onChange={(value) => {
                             field.onChange(value);
                             handleServiceKindChange(value);
                           }}
                         />
                       </FormControl>
+                      {isEditing && (
+                        <p className="mt-3 text-sm text-muted-foreground">
+                          {I18n.t("products.service.form.service_type_locked")}
+                        </p>
+                      )}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -596,14 +669,19 @@ export default function ServiceForm({ product, isEditing = false }) {
                           <Select
                             id="booking_mode"
                             placeholder={I18n.t("products.service.form.select_booking_mode")}
-                            options={BOOKING_MODES}
-                            value={BOOKING_MODES.find(
+                            options={bookingModeOptions}
+                            value={bookingModeOptions.find(
                               (mode) => mode.value === field.value
                             )}
                             onChange={(option) => field.onChange(option?.value)}
                             theme={(theme) => selectTheme(theme, isDarkMode)}
                           />
                         </FormControl>
+                        {isPerformanceService && (
+                          <p className="text-xs leading-5 text-muted-foreground">
+                            {I18n.t("products.service.form.booking_mode_performance_help")}
+                          </p>
+                        )}
                         <FormMessage />
                       </FormItem>
                     )}
@@ -627,8 +705,8 @@ export default function ServiceForm({ product, isEditing = false }) {
                               placeholder={I18n.t(
                                 "products.service.form.select_delivery_method"
                               )}
-                              options={DELIVERY_METHODS}
-                              value={DELIVERY_METHODS.find(
+                              options={deliveryMethodOptions}
+                              value={deliveryMethodOptions.find(
                                 (m) => m.value === field.value
                               )}
                               onChange={(option) =>
@@ -637,6 +715,11 @@ export default function ServiceForm({ product, isEditing = false }) {
                               theme={(theme) => selectTheme(theme, isDarkMode)}
                             />
                           </FormControl>
+                          {isPerformanceService && (
+                            <p className="text-xs leading-5 text-muted-foreground">
+                              {I18n.t("products.service.form.delivery_method_performance_help")}
+                            </p>
+                          )}
                           <FormMessage />
                         </FormItem>
                       )}
@@ -846,6 +929,7 @@ export default function ServiceForm({ product, isEditing = false }) {
                   control={form.control}
                   form={form}
                   isPriceOnly={true}
+                  currencyOptions={productCurrencyOptions}
                 />
 
                 <ServicePricingRules form={form} />

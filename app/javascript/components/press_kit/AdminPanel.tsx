@@ -635,11 +635,11 @@ export function AdminPanel({ isOpen, onClose, data, photos = [], onSave }: Admin
                       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {photos.map((p) => (
                           <div key={p.id} className="relative border border-border rounded-lg overflow-hidden">
-                            <div className="aspect-[4/3] bg-secondary">
+                            <div className="flex aspect-[4/3] items-center justify-center bg-secondary p-2">
                               <img
                                 src={p.url}
                                 alt={p.description || i18n.t("press_kit.press_photos.press_photo_alt")}
-                                className="w-full h-full object-cover"
+                                className="max-h-full max-w-full object-contain"
                               />
                             </div>
                             {p.description && (
@@ -659,6 +659,15 @@ export function AdminPanel({ isOpen, onClose, data, photos = [], onSave }: Admin
                       preview={true}
                       enableCropper={true}
                       imageUrl={null}
+                      aspectRatio={4 / 3}
+                      cropAspectRatios={[
+                        { label: i18n.t("press_kit.press_photos.crop_formats.horizontal"), value: 4 / 3 },
+                        { label: i18n.t("press_kit.press_photos.crop_formats.wide"), value: 16 / 9 },
+                        { label: i18n.t("press_kit.press_photos.crop_formats.vertical"), value: 4 / 5 },
+                        { label: i18n.t("press_kit.press_photos.crop_formats.story"), value: 9 / 16 },
+                        { label: i18n.t("press_kit.press_photos.crop_formats.square"), value: 1 },
+                        { label: i18n.t("press_kit.press_photos.crop_formats.free"), value: "free" },
+                      ]}
                       onUploadComplete={async (signed_id: any, cropData: any) => {
                         try {
                           await onSave({ ...formData, pressPhotos: [{ signed_id, cropData }] } as any)

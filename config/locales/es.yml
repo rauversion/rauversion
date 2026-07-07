@@ -2536,18 +2536,18 @@ es:
       created_on: "Creada el %{date}"
       counters: "Contrapropuestas"
     fee_type_labels:
-      landed: "Tarifa landed"
-      landed_hospitalities: "Landed + hospitalities"
-      no_landed_add_ons: "No landed + add-ons"
+      landed: "Tarifa cerrada"
+      landed_hospitalities: "Tarifa cerrada + rider"
+      no_landed_add_ons: "Fee artístico + extras"
     fee_types:
       landed:
-        title: "Landed"
-        description: "Fee artístico con transporte terrestre incluido."
+        title: "Tarifa cerrada"
+        description: "Fee artístico con traslado local incluido."
       landed_hospitalities:
-        title: "Landed + hospitalities"
-        description: "Incluye transporte, alojamiento o beneficios backstage."
+        title: "Tarifa cerrada + rider"
+        description: "Incluye traslado, alojamiento o beneficios backstage."
       no_landed_add_ons:
-        title: "No landed + add-ons"
+        title: "Fee artístico + extras"
         description: "Solo honorarios; extras los cubre el booker."
     form:
       trigger: "Enviar propuesta de show"
@@ -3449,6 +3449,13 @@ es:
       image_uploaded: Imagen subida y adjuntada
       failed_to_attach: Error al adjuntar foto
       press_photo_alt: Foto de prensa
+      crop_formats:
+        horizontal: Horizontal 4:3
+        wide: Panoramica 16:9
+        vertical: Vertical 4:5
+        story: Historia 9:16
+        square: Cuadrado 1:1
+        free: Recorte libre
     contacts:
       title: Información de Contacto
       add: Agregar Contacto
@@ -3499,6 +3506,7 @@ es:
       intro: Intro
       bio: Biografía
       music: Lanzamientos Recientes
+      booking: Booking
       photos: Fotos de Prensa
       press: Prensa y Reseñas
       contact: Ponte en Contacto
@@ -3514,6 +3522,18 @@ es:
       available_for_bookings: Disponible para Reservas
       stream_on_platforms: Escucha en plataformas
       featured_in: Destacado en
+    booking:
+      title: Proponer un Show
+      description: Elige el formato de show que calza con tu evento y abre el servicio para solicitar una reserva o iniciar una propuesta negociada.
+      available_services:
+        one: "%{count} show reservable"
+        other: "%{count} shows reservables"
+      format: Formato
+      base: Base
+      price_notes: Notas de precio
+      price_rules: Criterios de precio
+      cta_hint: Los detalles del evento, adelanto, saldo, rider y condiciones del acuerdo continúan en el flujo de booking.
+      request_booking: Solicitar booking
     empty_state:
       title: Aún no hay Kit de Prensa
       description: Este artista aún no ha creado un kit de prensa. Cuando esté listo, encontrarás su biografía, lanzamientos, fotos y detalles de contacto aquí.

@@ -5,6 +5,7 @@ import I18n from '@/stores/locales'
 import { PRODUCT_TYPES } from './shared/constants'
 import { InterestAlert } from '../shared/alerts'
 import { useToast } from "@/hooks/use-toast"
+import StripeSellerSetupDialog from './shared/StripeSellerSetupDialog'
 
 
 export default function ProductNew() {
@@ -28,6 +29,10 @@ export default function ProductNew() {
         />
       </div>
     )
+  }
+
+  if (!currentUser?.can_create_products) {
+    return <StripeSellerSetupDialog backPath={`/${currentUser.username}/products`} />
   }
 
   return (

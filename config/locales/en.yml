@@ -2481,18 +2481,18 @@ en:
       created_on: "Created %{date}"
       counters: Counteroffers
     fee_type_labels:
-      landed: Landed fee
-      landed_hospitalities: Landed + hospitalities
-      no_landed_add_ons: No landed + add-ons
+      landed: Fixed fee
+      landed_hospitalities: Fixed fee + rider
+      no_landed_add_ons: Artist fee + extras
     fee_types:
       landed:
-        title: Landed
-        description: Artist fee with ground transport included.
+        title: Fixed fee
+        description: Artist fee with local ground transport included.
       landed_hospitalities:
-        title: Landed + hospitalities
+        title: Fixed fee + rider
         description: Includes transport, accommodation, or backstage benefits.
       no_landed_add_ons:
-        title: No landed + add-ons
+        title: Artist fee + extras
         description: Artist fee only; extras are handled by the booker.
     form:
       trigger: Send show proposal
@@ -3391,6 +3391,13 @@ en:
       image_uploaded: Image uploaded and attached
       failed_to_attach: Failed to attach photo
       press_photo_alt: Press photo
+      crop_formats:
+        horizontal: Horizontal 4:3
+        wide: Wide 16:9
+        vertical: Vertical 4:5
+        story: Story 9:16
+        square: Square 1:1
+        free: Free crop
     contacts:
       title: Contact Information
       add: Add Contact
@@ -3441,6 +3448,7 @@ en:
       intro: Intro
       bio: Biography
       music: Recent Releases
+      booking: Booking
       photos: Press Photos
       press: Press & Reviews
       contact: Get in Touch
@@ -3456,6 +3464,18 @@ en:
       available_for_bookings: Available for Bookings
       stream_on_platforms: Stream on platforms
       featured_in: Featured in
+    booking:
+      title: Book this performer
+      description: Choose the show format that fits your event and open the service page to request a booking or start a negotiated proposal.
+      available_services:
+        one: "%{count} bookable show"
+        other: "%{count} bookable shows"
+      format: Format
+      base: Base
+      price_notes: Price notes
+      price_rules: Pricing criteria
+      cta_hint: Event details, deposit, balance, rider and agreement terms continue in the booking flow.
+      request_booking: Request booking
     empty_state:
       title: No Press Kit yet
       description: This artist hasn't created a press kit yet. When it's ready, you'll find their bio, releases, photos and contact details here.

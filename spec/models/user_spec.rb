@@ -169,6 +169,28 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe "#can_create_products?" do
+    it "requires seller access and a connected Stripe account" do
+      user = build(:user, seller: true, stripe_account_id: nil)
+
+      expect(user.can_sell_products?).to be(true)
+      expect(user.stripe_account_connected?).to be(false)
+      expect(user.can_create_products?).to be(false)
+
+      user.stripe_account_id = "acct_123"
+
+      expect(user.stripe_account_connected?).to be(true)
+      expect(user.can_create_products?).to be(true)
+    end
+
+    it "stays disabled for non-sellers even with Stripe connected" do
+      user = build(:user, seller: false, stripe_account_id: "acct_123")
+
+      expect(user.can_sell_products?).to be(false)
+      expect(user.can_create_products?).to be(false)
+    end
+  end
+
   describe "#unread_messages_count" do
     it "returns 0 when user has no conversations" do
       user = FactoryBot.create(:user)

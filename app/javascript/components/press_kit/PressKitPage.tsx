@@ -8,6 +8,41 @@ import { useToast } from "@/hooks/use-toast"
 import useAuthStore from "@/stores/authStore"
 import { useParams } from "react-router-dom"
 import { useLocaleStore } from "stores/locales"
+import { ArrowUpRight, BadgeDollarSign, Clock, MapPin, Radio } from "lucide-react"
+import BookingProposalModal from "@/components/products/service/BookingProposalModal"
+
+interface PerformerServicePriceRule {
+  id: number
+  name: string
+  rule_type: string
+  formatted_amount: string
+  duration_minutes?: number | null
+  location_scope?: string | null
+}
+
+interface PerformerService {
+  id: number
+  title: string
+  slug: string
+  path: string
+  short_description?: string
+  category?: string
+  booking_mode?: string
+  delivery_method?: string
+  duration_minutes?: number
+  formatted_price?: string
+  performance_format?: string
+  home_city?: string
+  home_country?: string
+  price_notes?: string
+  cover_url?: string | null
+  user: {
+    id: number
+    username: string
+    name: string
+  }
+  service_price_rules?: PerformerServicePriceRule[]
+}
 
 export default function PressKitPage() {
   const { username } = useParams()
@@ -16,7 +51,7 @@ export default function PressKitPage() {
   const { i18n } = useLocaleStore
   const [isDark, setIsDark] = useState(true)
   const [activeSection, setActiveSection] = useState("")
-  const sectionsRef = useRef<(HTMLElement | null)[]>([])
+  const sectionsRef = useRef<Record<string, HTMLElement | null>>({})
   const [isAdminOpen, setIsAdminOpen] = useState(false)
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -41,11 +76,57 @@ export default function PressKitPage() {
   const [playlists, setPlaylists] = useState<any[]>([])
   const [tracks, setTracks] = useState<any[]>([])
   const [photos, setPhotos] = useState<any[]>([])
+  const [performerServices, setPerformerServices] = useState<PerformerService[]>([])
   const [animatedSections, setAnimatedSections] = useState<string[]>([])
   const [hasPressKit, setHasPressKit] = useState<boolean | null>(null)
   const S = (v: any) => (v ?? "").toString()
+  const present = (v: any) => S(v).trim().length > 0
 
   const isOwner = currentUser && currentUser.username === username
+  const setSectionRef = (id: string) => (el: HTMLElement | null) => {
+    sectionsRef.current[id] = el
+  }
+  const humanize = (value?: string | null) => S(value).replace(/_/g, " ").replace(/\b\w/g, (char) => char.toUpperCase())
+  const translated = (key: string, fallback: string) => {
+    const value = i18n.t(key)
+    return value === key ? fallback : value
+  }
+  const serviceCategoryLabel = (value?: string) => translated(`products.service.categories.${value}`, humanize(value))
+  const bookingModeLabel = (value?: string) => translated(`products.service.booking_modes.${value}`, humanize(value))
+  const deliveryMethodLabel = (value?: string) => translated(`products.service.delivery_methods.${value}`, humanize(value))
+  const priceRuleTypeLabel = (value?: string) => translated(`products.service.price_rule_types.${value}`, humanize(value))
+  const formatDuration = (minutes?: number) => {
+    if (!minutes) return null
+
+    const hours = Math.floor(minutes / 60)
+    const remainingMinutes = minutes % 60
+    if (hours === 0) return i18n.t("products.service.show.duration_minutes", { count: minutes })
+    if (remainingMinutes === 0) return i18n.t("products.service.show.duration_hours", { count: hours })
+    return i18n.t("products.service.show.duration_hours_minutes", { hours, minutes: remainingMinutes })
+  }
+  const bio = pressKitData.bio || { intro: "", career: "", sound: "" }
+  const achievements = (pressKitData.achievements || []).filter(present)
+  const genres = (pressKitData.genres || []).filter(present)
+  const externalMusicLinks = (pressKitData.externalMusicLinks || []).filter((link) => present(link.url))
+  const contacts = (pressKitData.contacts || []).filter((contact) => present(contact.email))
+  const socialLinks = (pressKitData.socialLinks || []).filter((social) => present(social.url))
+  const tourDates = (pressKitData.tourDates || []).filter((tour) => present(tour.date) || present(tour.venue) || present(tour.city))
+  const visiblePhotos = photos.filter((photo) => present(photo.url))
+  const hasBioText = [bio.intro, bio.career, bio.sound].some(present)
+  const hasBioSection = hasBioText || achievements.some(present) || genres.some(present)
+  const hasMusicSection = playlists.length > 0 || tracks.length > 0 || externalMusicLinks.length > 0
+  const hasBookingSection = performerServices.length > 0
+  const hasPhotosSection = visiblePhotos.length > 0
+  const hasContactSection = contacts.length > 0 || socialLinks.length > 0 || tourDates.length > 0
+  const bookingTargetId = hasBookingSection ? "booking" : hasContactSection ? "contact" : "intro"
+  const visibleSectionIds = [
+    "intro",
+    ...(hasBioSection ? ["bio"] : []),
+    ...(hasMusicSection ? ["music"] : []),
+    ...(hasBookingSection ? ["booking"] : []),
+    ...(hasPhotosSection ? ["photos"] : []),
+    ...(hasContactSection ? ["contact"] : []),
+  ]
 
   useEffect(() => {
     loadPressKit()
@@ -67,8 +148,10 @@ export default function PressKitPage() {
         if (data.press_kit && data.press_kit.photos) {
           setPhotos(data.press_kit.photos)
         }
+        setPerformerServices(data.press_kit?.performer_services || [])
       } else {
         setHasPressKit(false)
+        setPerformerServices([])
       }
     } catch (error) {
       console.error('Error loading press kit:', error)
@@ -194,15 +277,14 @@ export default function PressKitPage() {
     )
 
     // Prefer refs, fallback to querying DOM by known ids if refs not attached
-    const sections = sectionsRef.current.filter(Boolean) as HTMLElement[]
+    const sections = Object.values(sectionsRef.current).filter(Boolean) as HTMLElement[]
     if (sections.length > 0) {
       sections.forEach((section) => {
         console.log("PressKit: observing section ->", section.id)
         observer.observe(section)
       })
     } else {
-      const ids = ["intro", "bio", "music", "photos", "press", "contact"]
-      ids.forEach((id) => {
+      visibleSectionIds.forEach((id) => {
         const el = document.getElementById(id)
         if (el) {
           console.log("PressKit: fallback observing ->", id)
@@ -213,7 +295,7 @@ export default function PressKitPage() {
 
     return () => {
       try {
-        const observed = sectionsRef.current.filter(Boolean) as HTMLElement[]
+        const observed = Object.values(sectionsRef.current).filter(Boolean) as HTMLElement[]
         observed.forEach((section) => {
           observer.unobserve(section)
         })
@@ -222,7 +304,7 @@ export default function PressKitPage() {
       }
       observer.disconnect()
     }
-  }, [loading])
+  }, [loading, visibleSectionIds.join("|")])
 
   const toggleTheme = () => {
     setIsDark(!isDark)
@@ -613,7 +695,7 @@ export default function PressKitPage() {
 
       <nav className="fixed left-8 top-1/2 -translate-y-1/2 z-10 hidden lg:block">
         <div className="flex flex-col gap-4">
-          {["intro", "bio", "music", "photos", "press", "contact"].map((section) => (
+          {visibleSectionIds.map((section) => (
             <button
               key={section}
               onClick={() => document.getElementById(section)?.scrollIntoView({ behavior: "smooth" })}
@@ -629,7 +711,7 @@ export default function PressKitPage() {
       <main className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-16">
         <header
           id="intro"
-          ref={(el) => (sectionsRef.current[0] = el)}
+          ref={setSectionRef("intro")}
           className={`min-h-screen flex items-center ${animatedSections.includes("intro") ? "animate-fade-in-up opacity-100" : "opacity-0"}`}
         >
           <div className="w-full">
@@ -646,57 +728,70 @@ export default function PressKitPage() {
               </div>
 
               <div className="max-w-2xl space-y-6">
-                <p className="text-xl sm:text-2xl text-muted-foreground leading-relaxed">
-                  {pressKitData.bio.intro}
-                </p>
+                {present(bio.intro) && (
+                  <p className="text-xl sm:text-2xl text-muted-foreground leading-relaxed">
+                    {bio.intro}
+                  </p>
+                )}
 
-                <div className="flex flex-wrap items-center gap-4 text-sm">
-                  <div className="flex items-center gap-2">
-                    <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
-                    <span className="text-muted-foreground">{i18n.t("press_kit.display.available_for_bookings")}</span>
+                {(hasBookingSection || present(pressKitData.location) || present(pressKitData.listeners)) && (
+                  <div className="flex flex-wrap items-center gap-4 text-sm">
+                    {hasBookingSection && (
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-primary rounded-full animate-pulse"></div>
+                        <span className="text-muted-foreground">{i18n.t("press_kit.display.available_for_bookings")}</span>
+                      </div>
+                    )}
+                    {present(pressKitData.location) && <div className="text-muted-foreground">{pressKitData.location}</div>}
+                    {present(pressKitData.listeners) && <div className="text-muted-foreground">{pressKitData.listeners}</div>}
                   </div>
-                  <div className="text-muted-foreground">{pressKitData.location}</div>
-                  <div className="text-muted-foreground">{pressKitData.listeners}</div>
-                </div>
+                )}
 
                 <div className="flex flex-wrap gap-3 pt-4">
-                  <Button
-                    onClick={() => document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" })}
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground"
-                  >
-                    {i18n.t("press_kit.buttons.book_now")}
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => document.getElementById("music")?.scrollIntoView({ behavior: "smooth" })}
-                  >
-                    {i18n.t("press_kit.buttons.listen")}
-                  </Button>
+                  {(hasBookingSection || hasContactSection) && (
+                    <Button
+                      onClick={() => document.getElementById(bookingTargetId)?.scrollIntoView({ behavior: "smooth" })}
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground"
+                    >
+                      {i18n.t("press_kit.buttons.book_now")}
+                    </Button>
+                  )}
+                  {hasMusicSection && (
+                    <Button
+                      variant="outline"
+                      onClick={() => document.getElementById("music")?.scrollIntoView({ behavior: "smooth" })}
+                    >
+                      {i18n.t("press_kit.buttons.listen")}
+                    </Button>
+                  )}
                 </div>
               </div>
             </div>
           </div>
         </header>
 
-        <section id="bio" ref={(el) => (sectionsRef.current[1] = el)} className={`min-h-screen py-20 sm:py-32 ${animatedSections.includes("bio") ? "animate-fade-in-up opacity-100" : "opacity-0"}`}>
+        {hasBioSection && (
+        <section id="bio" ref={setSectionRef("bio")} className={`min-h-screen py-20 sm:py-32 ${animatedSections.includes("bio") ? "animate-fade-in-up opacity-100" : "opacity-0"}`}>
           <div className="space-y-12">
             <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
               <h2 className="text-4xl sm:text-5xl font-bold">{i18n.t("press_kit.navigation.bio")}</h2>
             </div>
 
             <div className="grid lg:grid-cols-2 gap-12">
-              <div className="space-y-6 text-lg leading-relaxed text-muted-foreground">
-                <p>{pressKitData.bio.intro}</p>
-                <p>{pressKitData.bio.career}</p>
-                <p className="text-foreground">{pressKitData.bio.sound}</p>
-              </div>
+              {hasBioText && (
+                <div className="space-y-6 text-lg leading-relaxed text-muted-foreground">
+                  {present(bio.intro) && <p>{bio.intro}</p>}
+                  {present(bio.career) && <p>{bio.career}</p>}
+                  {present(bio.sound) && <p className="text-foreground">{bio.sound}</p>}
+                </div>
+              )}
 
               <div className="space-y-8">
-                {pressKitData.achievements.length > 0 && (
+                {achievements.length > 0 && (
                   <div className="space-y-4">
                     <h3 className="text-sm text-muted-foreground font-mono tracking-wider uppercase">{i18n.t("press_kit.achievements.title")}</h3>
                     <ul className="space-y-3">
-                      {pressKitData.achievements.map((achievement, index) => (
+                      {achievements.map((achievement, index) => (
                         <li key={index} className="flex items-start gap-3">
                           <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0"></div>
                           <span className="text-foreground">{achievement}</span>
@@ -706,11 +801,11 @@ export default function PressKitPage() {
                   </div>
                 )}
 
-                {pressKitData.genres.length > 0 && (
+                {genres.length > 0 && (
                   <div className="space-y-4">
                     <h3 className="text-sm text-muted-foreground font-mono tracking-wider uppercase">{i18n.t("press_kit.genres.title")}</h3>
                     <div className="flex flex-wrap gap-2">
-                      {pressKitData.genres.map((genre) => (
+                      {genres.map((genre) => (
                         <span
                           key={genre}
                           className="px-4 py-2 text-sm bg-secondary/50 border border-border rounded-full hover:border-primary/50 transition-colors duration-300"
@@ -725,10 +820,12 @@ export default function PressKitPage() {
             </div>
           </div>
         </section>
+        )}
 
+        {hasMusicSection && (
         <section
           id="music"
-          ref={(el) => (sectionsRef.current[2] = el)}
+          ref={setSectionRef("music")}
           className={`min-h-screen py-20 sm:py-32 ${animatedSections.includes("music") ? "animate-fade-in-up opacity-100" : "opacity-0"}`}
         >
           <div className="space-y-12">
@@ -787,11 +884,11 @@ export default function PressKitPage() {
               </div>
             )}
 
-            {(pressKitData.externalMusicLinks || []).length > 0 && (
+            {externalMusicLinks.length > 0 && (
               <div className="space-y-6">
                 <h3 className="text-2xl font-semibold">{i18n.t("press_kit.music.available_on")}</h3>
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {(pressKitData.externalMusicLinks || []).map((link, index) => (
+                  {externalMusicLinks.map((link, index) => (
                     <a
                       key={index}
                       href={link.url}
@@ -827,16 +924,160 @@ export default function PressKitPage() {
                 </div>
               </div>
             )}
-
-            {playlists.length === 0 && tracks.length === 0 && (pressKitData.externalMusicLinks || []).length === 0 && (
-              <p className="text-muted-foreground">{i18n.t("press_kit.music.no_releases")}</p>
-            )}
           </div>
         </section>
+        )}
 
+        {hasBookingSection && (
+          <section
+            id="booking"
+            ref={setSectionRef("booking")}
+            className={`min-h-screen py-20 sm:py-32 ${animatedSections.includes("booking") ? "animate-fade-in-up opacity-100" : "opacity-0"}`}
+          >
+            <div className="space-y-10">
+              <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+                <div className="space-y-4 max-w-2xl">
+                  <h2 className="text-4xl sm:text-5xl font-bold">{i18n.t("press_kit.booking.title")}</h2>
+                  <p className="text-lg text-muted-foreground">{i18n.t("press_kit.booking.description")}</p>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  {i18n.t("press_kit.booking.available_services", { count: performerServices.length })}
+                </div>
+              </div>
+
+              <div className="grid gap-6">
+                {performerServices.map((service) => {
+                  const duration = formatDuration(service.duration_minutes)
+                  const location = [service.home_city, service.home_country].filter(Boolean).join(", ")
+                  const priceRules = service.service_price_rules || []
+
+                  return (
+                    <article
+                      key={service.id}
+                      className="group overflow-hidden rounded-lg border border-border bg-background hover:border-primary/60 transition-colors duration-300"
+                    >
+                      <div className="grid md:grid-cols-[240px_1fr]">
+                        <div className="relative aspect-[4/3] md:aspect-auto min-h-56 overflow-hidden bg-secondary">
+                          {service.cover_url ? (
+                            <img
+                              src={service.cover_url}
+                              alt={service.title}
+                              className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                          ) : (
+                            <div className="h-full w-full flex items-center justify-center text-muted-foreground">
+                              <Radio className="h-10 w-10" />
+                            </div>
+                          )}
+                        </div>
+
+                        <div className="p-6 sm:p-8 space-y-6">
+                          <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-5">
+                            <div className="space-y-3">
+                              <div className="flex flex-wrap items-center gap-2">
+                                {service.category && (
+                                  <span className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">
+                                    {serviceCategoryLabel(service.category)}
+                                  </span>
+                                )}
+                                {service.delivery_method && (
+                                  <span className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">
+                                    <MapPin className="h-3.5 w-3.5" />
+                                    {deliveryMethodLabel(service.delivery_method)}
+                                  </span>
+                                )}
+                                {duration && (
+                                  <span className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1 text-xs text-muted-foreground">
+                                    <Clock className="h-3.5 w-3.5" />
+                                    {duration}
+                                  </span>
+                                )}
+                              </div>
+
+                              <div className="space-y-2">
+                                <Link to={service.path} className="inline-flex items-center gap-2 text-2xl font-semibold hover:text-primary transition-colors">
+                                  {service.title}
+                                  <ArrowUpRight className="h-5 w-5" />
+                                </Link>
+                                {service.short_description && (
+                                  <p className="text-muted-foreground leading-relaxed max-w-2xl">{service.short_description}</p>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="lg:text-right space-y-1">
+                              <div className="text-2xl font-bold">{service.formatted_price}</div>
+                              {service.booking_mode && (
+                                <div className="text-sm text-muted-foreground">{bookingModeLabel(service.booking_mode)}</div>
+                              )}
+                            </div>
+                          </div>
+
+                          {(service.performance_format || location || service.price_notes) && (
+                            <div className="grid gap-3 sm:grid-cols-3 text-sm">
+                              {service.performance_format && (
+                                <div className="rounded-md border border-border p-3">
+                                  <div className="text-muted-foreground">{i18n.t("press_kit.booking.format")}</div>
+                                  <div className="font-medium mt-1">{service.performance_format}</div>
+                                </div>
+                              )}
+                              {location && (
+                                <div className="rounded-md border border-border p-3">
+                                  <div className="text-muted-foreground">{i18n.t("press_kit.booking.base")}</div>
+                                  <div className="font-medium mt-1">{location}</div>
+                                </div>
+                              )}
+                              {service.price_notes && (
+                                <div className="rounded-md border border-border p-3">
+                                  <div className="text-muted-foreground">{i18n.t("press_kit.booking.price_notes")}</div>
+                                  <div className="font-medium mt-1 line-clamp-2">{service.price_notes}</div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          {priceRules.length > 0 && (
+                            <div className="space-y-3">
+                              <div className="flex items-center gap-2 text-sm font-medium">
+                                <BadgeDollarSign className="h-4 w-4 text-primary" />
+                                {i18n.t("press_kit.booking.price_rules")}
+                              </div>
+                              <div className="grid gap-2 sm:grid-cols-2">
+                                {priceRules.slice(0, 4).map((rule) => (
+                                  <div key={rule.id} className="flex items-start justify-between gap-4 rounded-md border border-border px-3 py-2 text-sm">
+                                    <div>
+                                      <div className="font-medium">{rule.name}</div>
+                                      <div className="text-muted-foreground">
+                                        {[priceRuleTypeLabel(rule.rule_type), rule.location_scope].filter(Boolean).join(" · ")}
+                                      </div>
+                                    </div>
+                                    <div className="font-semibold whitespace-nowrap">{rule.formatted_amount}</div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pt-2">
+                            <p className="text-sm text-muted-foreground">{i18n.t("press_kit.booking.cta_hint")}</p>
+                            <div className="sm:w-56">
+                              <BookingProposalModal product={service} />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </article>
+                  )
+                })}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {hasPhotosSection && (
         <section
           id="photos"
-          ref={(el) => (sectionsRef.current[3] = el)}
+          ref={setSectionRef("photos")}
           className={`min-h-screen py-20 sm:py-32 ${animatedSections.includes("photos") ? "animate-fade-in-up opacity-100" : "opacity-0"}`}
         >
           <div className="space-y-12">
@@ -851,54 +1092,43 @@ export default function PressKitPage() {
               are queryable through the press_kit.photos association.
               The photos state variable contains the full Photo records for potential future use.
             */}
-            {photos.length > 0 && (
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                {photos.map((photo, index) => (
-                  <div
-                    key={index}
-                    className="group relative overflow-hidden rounded-lg border border-border hover:border-primary/50 transition-all duration-500 cursor-pointer"
-                  >
-                    <div className="aspect-[4/3] relative overflow-hidden bg-secondary">
-                      <img
-                        src={photo.url || "/placeholder.svg"}
-                        alt={photo.description || "Press photo"}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-6">
-                        <div className="space-y-2 w-full">
-                          <div className="text-lg font-semibold">{photo.title}</div>
-                          <div className="flex items-center justify-between">
-                            {photo.description && <span className="text-sm text-muted-foreground">{photo.description}</span>}
-                            <span className="text-sm text-primary">Download ↓</span>
-                          </div>
-                        </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {visiblePhotos.map((photo, index) => (
+                <div
+                  key={index}
+                  className="group overflow-hidden rounded-lg border border-border bg-secondary/40 hover:border-primary/50 transition-all duration-500 cursor-pointer"
+                >
+                  <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-muted/60 p-2 sm:p-3">
+                    <img
+                      src={photo.url || "/placeholder.svg"}
+                      alt={photo.description || "Press photo"}
+                      className="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
+                    />
+                  </div>
+                  <div className="border-t border-border bg-background/80 p-4">
+                    <div className="space-y-2">
+                      {photo.title && <div className="text-base font-semibold">{photo.title}</div>}
+                      <div className="flex items-center justify-between gap-3">
+                        {photo.description && <span className="text-sm text-muted-foreground line-clamp-2">{photo.description}</span>}
+                        <span className="ml-auto whitespace-nowrap text-sm text-primary">Download ↓</span>
                       </div>
                     </div>
                   </div>
-                ))}
-              </div>
-            )}
+                </div>
+              ))}
+            </div>
           </div>
         </section>
+        )}
 
-        <section
-          id="press"
-          ref={(el) => (sectionsRef.current[4] = el)}
-          className={`min-h-screen py-20 sm:py-32 ${animatedSections.includes("press") ? "animate-fade-in-up opacity-100" : "opacity-0"}`}
-        >
-          <div className="space-y-12">
-            <h2 className="text-4xl sm:text-5xl font-bold">{i18n.t("press_kit.press_reviews.title")}</h2>
-            <p className="text-muted-foreground">{i18n.t("press_kit.press_reviews.empty")}</p>
-          </div>
-        </section>
-
-        <section id="contact" ref={(el) => (sectionsRef.current[5] = el)} className={`py-20 sm:py-32 ${animatedSections.includes("contact") ? "animate-fade-in-up opacity-100" : "opacity-0"}`}>
+        {hasContactSection && (
+        <section id="contact" ref={setSectionRef("contact")} className={`py-20 sm:py-32 ${animatedSections.includes("contact") ? "animate-fade-in-up opacity-100" : "opacity-0"}`}>
           <div className="grid lg:grid-cols-2 gap-12 sm:gap-16">
             <div className="space-y-8">
               <h2 className="text-4xl sm:text-5xl font-bold">{i18n.t("press_kit.navigation.contact")}</h2>
 
               <div className="space-y-8">
-                {pressKitData.contacts.map((contact, index) => (
+                {contacts.map((contact, index) => (
                   <div key={index} className="space-y-4">
                     <h3 className="text-sm text-muted-foreground font-mono tracking-wider uppercase">{contact.type}</h3>
                     <div className="space-y-3">
@@ -929,12 +1159,12 @@ export default function PressKitPage() {
             </div>
 
             <div className="space-y-8">
-              {pressKitData.socialLinks.length > 0 && (
+              {socialLinks.length > 0 && (
                 <div className="space-y-4">
                   <h3 className="text-sm text-muted-foreground font-mono tracking-wider uppercase">Social & Streaming</h3>
 
                   <div className="grid grid-cols-2 gap-4">
-                    {pressKitData.socialLinks.map((social) => (
+                    {socialLinks.map((social) => (
                       <a
                         key={social.name}
                         href={social.url}
@@ -954,11 +1184,11 @@ export default function PressKitPage() {
                 </div>
               )}
 
-              {pressKitData.tourDates.length > 0 && (
+              {tourDates.length > 0 && (
                 <div className="space-y-4 pt-4">
                   <h3 className="text-sm text-muted-foreground font-mono tracking-wider uppercase">Tour Dates</h3>
                   <div className="space-y-3">
-                    {pressKitData.tourDates.map((show, index) => (
+                    {tourDates.map((show, index) => (
                       <div
                         key={index}
                         className="flex items-center justify-between py-3 border-b border-border hover:border-primary/50 transition-colors duration-300"
@@ -976,6 +1206,7 @@ export default function PressKitPage() {
             </div>
           </div>
         </section>
+        )}
 
         <footer className="py-12 sm:py-16 border-t border-border">
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 sm:gap-8">

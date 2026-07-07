@@ -73,6 +73,37 @@ class ApplicationController < ActionController::Base
     render inline: "", layout: "react"
   end
 
+  def require_product_sales_setup!
+    return if current_user&.can_create_products?
+
+    code = current_user&.can_sell_products? ? "stripe_required" : "seller_required"
+    message = if code == "stripe_required"
+                I18n.t("products.stripe_gate.api_error")
+              else
+                I18n.t("products.stripe_gate.not_allowed")
+              end
+    redirect_path = if code == "stripe_required"
+                      "/#{current_user.username}/settings/stripe"
+                    elsif current_user
+                      "/#{current_user.username}/products/new"
+                    else
+                      new_user_session_path
+                    end
+    response_status = code == "stripe_required" ? :payment_required : :forbidden
+
+    respond_to do |format|
+      format.html { redirect_to redirect_path, alert: message }
+      format.json do
+        render json: {
+          code: code,
+          error: message,
+          errors: { base: [message] },
+          redirect_to: redirect_path
+        }, status: response_status
+      end
+    end
+  end
+
   def disable_footer
     @disable_footer = true
   end

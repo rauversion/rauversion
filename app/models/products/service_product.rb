@@ -62,11 +62,13 @@ module Products
     #}, prefix: true
 
 
-    has_many :service_bookings, class_name: 'ServiceBooking', foreign_key: :service_product_id, dependent: :destroy
-    has_many :service_booking_proposals, foreign_key: :service_product_id, dependent: :destroy
-    has_many :service_price_rules, foreign_key: :service_product_id, dependent: :destroy, inverse_of: :service_product
+    has_many :service_bookings, class_name: 'ServiceBooking', foreign_key: :service_product_id
+    has_many :service_booking_proposals, foreign_key: :service_product_id
+    has_many :service_price_rules, foreign_key: :service_product_id, inverse_of: :service_product
 
     accepts_nested_attributes_for :service_price_rules, allow_destroy: true
+
+    before_validation :apply_performance_booking_defaults
 
     validates :service_kind, presence: true
     validates :booking_mode, presence: true
@@ -75,6 +77,8 @@ module Products
     validates :duration_minutes, presence: true, numericality: { greater_than: 0 }
     validates :max_participants, presence: true, numericality: { greater_than: 0 }, if: :classes?
     validates :price, presence: true, numericality: { greater_than_or_equal_to: 0 }
+    validate :service_kind_cannot_change, on: :update
+    validate :performance_booking_configuration_is_supported
     # validates :stock_quantity, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
     # validates :sku, presence: true, uniqueness: true
 
@@ -148,6 +152,28 @@ module Products
       #     raise ActiveRecord::RecordInvalid.new(self)
       #   end
       # end
+    end
+
+    private
+
+    def apply_performance_booking_defaults
+      return unless service_kind == 'performance'
+
+      self.booking_mode = 'deposit_then_balance' if booking_mode.blank? || booking_mode == 'instant_checkout'
+      self.delivery_method = 'in_person' if delivery_method.blank? || delivery_method == 'online'
+    end
+
+    def service_kind_cannot_change
+      return unless will_save_change_to_service_kind?
+
+      errors.add(:service_kind, :immutable)
+    end
+
+    def performance_booking_configuration_is_supported
+      return unless service_kind == 'performance'
+
+      errors.add(:booking_mode, :invalid) if booking_mode == 'instant_checkout'
+      errors.add(:delivery_method, :invalid) if delivery_method == 'online'
     end
   end
 end

@@ -2561,6 +2561,20 @@
         "sound_placeholder": "Describe your sound and artistic vision...",
         "title": "Biography"
       },
+      "booking": {
+        "available_services": {
+          "one": "%{count} bookable show",
+          "other": "%{count} bookable shows"
+        },
+        "base": "Base",
+        "cta_hint": "Event details, deposit, balance, rider and agreement terms continue in the booking flow.",
+        "description": "Choose the show format that fits your event and open the service page to request a booking or start a negotiated proposal.",
+        "format": "Format",
+        "price_notes": "Price notes",
+        "price_rules": "Pricing criteria",
+        "request_booking": "Request booking",
+        "title": "Book this performer"
+      },
       "buttons": {
         "book_now": "Book Now",
         "listen": "Listen",
@@ -2635,6 +2649,7 @@
       },
       "navigation": {
         "bio": "Biography",
+        "booking": "Booking",
         "contact": "Get in Touch",
         "intro": "Intro",
         "music": "Recent Releases",
@@ -2643,6 +2658,14 @@
       },
       "press_photos": {
         "add": "Add Photo",
+        "crop_formats": {
+          "free": "Free crop",
+          "horizontal": "Horizontal 4:3",
+          "square": "Square 1:1",
+          "story": "Story 9:16",
+          "vertical": "Vertical 4:5",
+          "wide": "Wide 16:9"
+        },
         "current_photos": "Current Photos",
         "download_all": "Download All Press Photos (ZIP)",
         "failed_to_attach": "Failed to attach photo",
@@ -2771,7 +2794,14 @@
       "form": {
         "cancel": "Cancel",
         "delete": "Delete",
-        "delete_confirm": "Are you sure you want to delete this product? This action cannot be undone.",
+        "delete_confirm": "This product will be archived with its booking and purchase history intact. You can keep a reason for audit purposes.",
+        "delete_error_description": "Try again or contact support if the problem continues.",
+        "delete_error_title": "Could not archive product",
+        "delete_reason": "Reason",
+        "delete_reason_placeholder": "Duplicate, no longer available, replaced by a new service...",
+        "delete_success_description": "The product was archived and its history was preserved.",
+        "delete_success_title": "Product archived",
+        "delete_title": "Archive product?",
         "edit": "Edit",
         "photos": {
           "drag_or_click": "Drag photos or click to upload them",
@@ -2789,6 +2819,15 @@
           "sku": "SKU",
           "stock_quantity": "Quantity in Stock",
           "title": "Prices"
+        },
+        "publish": {
+          "active_description": "This product is visible in your store and can be purchased or booked.",
+          "active_label": "Live",
+          "inactive_description": "Keep it hidden while you finish pricing, photos, and booking details.",
+          "inactive_label": "Draft",
+          "title": "Store visibility",
+          "toast_active": "Product is now live",
+          "toast_inactive": "Product moved to draft"
         },
         "shipping": {
           "add_shipping_option": "Add Shipping Option",
@@ -3057,10 +3096,12 @@
         },
         "form": {
           "booking_mode": "Booking mode",
+          "booking_mode_performance_help": "Performers use the proposal flow. The booker sends event terms and the final agreement can collect deposit and balance payments.",
           "cancellation_policy": "Cancellation Policy",
           "cancellation_policy_placeholder": "Describe your cancellation and refund policy...",
           "category": "Type of service",
           "delivery_method": "Delivery method",
+          "delivery_method_performance_help": "Performer bookings are tied to a venue or hybrid show. The agreement will request event location details.",
           "description": "Description",
           "details": "Details of the service",
           "duration": "Duration (minutes)",
@@ -3106,6 +3147,7 @@
           "select_category": "Select type of service",
           "select_delivery_method": "Select delivery method",
           "service_type": "Service type",
+          "service_type_locked": "The service type is locked after creation so existing bookings and proposal rules keep their meaning.",
           "show_details": {
             "available_countries": "Available countries",
             "available_countries_placeholder": "CL, AR, MX...",
@@ -3212,6 +3254,15 @@
       "stock": {
         "low_stock": "Solo quedan %{count} en stock",
         "out_of_stock": "Out of stock"
+      },
+      "stripe_gate": {
+        "api_error": "Connect Stripe before creating products.",
+        "back": "Back to products",
+        "body": "This protects the checkout flow: buyers can pay by card, deposits and balances can be tracked, and payouts can be sent to your seller account.\n",
+        "cta": "Configure Stripe",
+        "description": "Before publishing products or bookable services, connect a Stripe account so Rauversion can collect payments and route payouts correctly.\n",
+        "not_allowed": "You need seller access before creating products.",
+        "title": "Connect Stripe to create products"
       }
     },
     "profile": {
@@ -3660,22 +3711,22 @@
         "venue": "Venue"
       },
       "fee_type_labels": {
-        "landed": "Landed fee",
-        "landed_hospitalities": "Landed + hospitalities",
-        "no_landed_add_ons": "No landed + add-ons"
+        "landed": "Fixed fee",
+        "landed_hospitalities": "Fixed fee + rider",
+        "no_landed_add_ons": "Artist fee + extras"
       },
       "fee_types": {
         "landed": {
-          "description": "Artist fee with ground transport included.",
-          "title": "Landed"
+          "description": "Artist fee with local ground transport included.",
+          "title": "Fixed fee"
         },
         "landed_hospitalities": {
           "description": "Includes transport, accommodation, or backstage benefits.",
-          "title": "Landed + hospitalities"
+          "title": "Fixed fee + rider"
         },
         "no_landed_add_ons": {
           "description": "Artist fee only; extras are handled by the booker.",
-          "title": "No landed + add-ons"
+          "title": "Artist fee + extras"
         }
       },
       "form": {
@@ -7703,6 +7754,20 @@
         "sound_placeholder": "Describe tu sonido y visión artística...",
         "title": "Biografía"
       },
+      "booking": {
+        "available_services": {
+          "one": "%{count} show reservable",
+          "other": "%{count} shows reservables"
+        },
+        "base": "Base",
+        "cta_hint": "Los detalles del evento, adelanto, saldo, rider y condiciones del acuerdo continúan en el flujo de booking.",
+        "description": "Elige el formato de show que calza con tu evento y abre el servicio para solicitar una reserva o iniciar una propuesta negociada.",
+        "format": "Formato",
+        "price_notes": "Notas de precio",
+        "price_rules": "Criterios de precio",
+        "request_booking": "Solicitar booking",
+        "title": "Proponer un Show"
+      },
       "buttons": {
         "book_now": "Reservar Ahora",
         "listen": "Escuchar",
@@ -7777,6 +7842,7 @@
       },
       "navigation": {
         "bio": "Biografía",
+        "booking": "Booking",
         "contact": "Ponte en Contacto",
         "intro": "Intro",
         "music": "Lanzamientos Recientes",
@@ -7785,6 +7851,14 @@
       },
       "press_photos": {
         "add": "Agregar Foto",
+        "crop_formats": {
+          "free": "Recorte libre",
+          "horizontal": "Horizontal 4:3",
+          "square": "Cuadrado 1:1",
+          "story": "Historia 9:16",
+          "vertical": "Vertical 4:5",
+          "wide": "Panoramica 16:9"
+        },
         "current_photos": "Fotos Actuales",
         "download_all": "Descargar Todas las Fotos de Prensa (ZIP)",
         "failed_to_attach": "Error al adjuntar foto",
@@ -7913,6 +7987,14 @@
       "form": {
         "cancel": "Cancelar",
         "delete": "Eliminar",
+        "delete_confirm": "Este producto se archivará manteniendo su historial de reservas y compras. Puedes guardar un motivo para auditoría.",
+        "delete_error_description": "Intenta nuevamente o contacta soporte si el problema continúa.",
+        "delete_error_title": "No se pudo archivar el producto",
+        "delete_reason": "Motivo",
+        "delete_reason_placeholder": "Duplicado, ya no disponible, reemplazado por un nuevo servicio...",
+        "delete_success_description": "El producto fue archivado y su historial quedó preservado.",
+        "delete_success_title": "Producto archivado",
+        "delete_title": "¿Archivar producto?",
         "photos": {
           "drag_or_click": "Arrastra fotos o haz clic para subirlas",
           "drop_here": "Suelta las fotos aquí",
@@ -7929,6 +8011,15 @@
           "sku": "SKU",
           "stock_quantity": "Cantidad en Stock",
           "title": "Precios"
+        },
+        "publish": {
+          "active_description": "Este producto está visible en tu tienda y puede comprarse o reservarse.",
+          "active_label": "Publicado",
+          "inactive_description": "Déjalo oculto mientras terminas precios, fotos y detalles de booking.",
+          "inactive_label": "Borrador",
+          "title": "Visibilidad en tienda",
+          "toast_active": "Producto publicado",
+          "toast_inactive": "Producto movido a borrador"
         },
         "shipping": {
           "add_shipping_option": "Agregar Opción de Envío",
@@ -8194,10 +8285,12 @@
         },
         "form": {
           "booking_mode": "Modo de reserva",
+          "booking_mode_performance_help": "Los performers usan el flujo de propuesta. El booker envía las condiciones del evento y el acuerdo final puede cobrar adelanto y saldo.",
           "cancellation_policy": "Política de cancelación",
           "cancellation_policy_placeholder": "Describe tu política de cancelación y reembolsos...",
           "category": "Tipo de servicio",
           "delivery_method": "Método de entrega",
+          "delivery_method_performance_help": "Las reservas de performers están asociadas a un venue o show híbrido. El acuerdo pedirá los datos de ubicación del evento.",
           "description": "Descripción",
           "details": "Detalles del servicio",
           "duration": "Duración (minutos)",
@@ -8243,6 +8336,7 @@
           "select_category": "Seleccionar tipo de servicio",
           "select_delivery_method": "Seleccionar método de entrega",
           "service_type": "Tipo de servicio",
+          "service_type_locked": "El tipo de servicio queda bloqueado después de crear el producto para que las reservas y propuestas existentes mantengan su significado.",
           "show_details": {
             "available_countries": "Países disponibles",
             "available_countries_placeholder": "CL, AR, MX...",
@@ -8349,6 +8443,15 @@
       "stock": {
         "low_stock": "Solo quedan %{count} en stock",
         "out_of_stock": "Agotado"
+      },
+      "stripe_gate": {
+        "api_error": "Conecta Stripe antes de crear productos.",
+        "back": "Volver a productos",
+        "body": "Esto protege el checkout: los compradores pueden pagar con tarjeta, los adelantos y saldos quedan trazables, y los payouts pueden enviarse a tu cuenta vendedora.",
+        "cta": "Configurar Stripe",
+        "description": "Antes de publicar productos o servicios reservables, conecta una cuenta Stripe para que Rauversion pueda cobrar y enrutar payouts correctamente.",
+        "not_allowed": "Necesitas acceso de vendedor antes de crear productos.",
+        "title": "Configura Stripe para crear productos"
       }
     },
     "profile": {
@@ -8797,22 +8900,22 @@
         "venue": "Venue"
       },
       "fee_type_labels": {
-        "landed": "Tarifa landed",
-        "landed_hospitalities": "Landed + hospitalities",
-        "no_landed_add_ons": "No landed + add-ons"
+        "landed": "Tarifa cerrada",
+        "landed_hospitalities": "Tarifa cerrada + rider",
+        "no_landed_add_ons": "Fee artístico + extras"
       },
       "fee_types": {
         "landed": {
-          "description": "Fee artístico con transporte terrestre incluido.",
-          "title": "Landed"
+          "description": "Fee artístico con traslado local incluido.",
+          "title": "Tarifa cerrada"
         },
         "landed_hospitalities": {
-          "description": "Incluye transporte, alojamiento o beneficios backstage.",
-          "title": "Landed + hospitalities"
+          "description": "Incluye traslado, alojamiento o beneficios backstage.",
+          "title": "Tarifa cerrada + rider"
         },
         "no_landed_add_ons": {
           "description": "Solo honorarios; extras los cubre el booker.",
-          "title": "No landed + add-ons"
+          "title": "Fee artístico + extras"
         }
       },
       "form": {

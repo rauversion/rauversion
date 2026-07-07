@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_29_121000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_07_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -872,6 +872,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_29_121000) do
     t.string "currency", default: "usd", null: false
     t.jsonb "data"
     t.datetime "deleted_at"
+    t.bigint "deleted_by_id"
+    t.text "deletion_reason"
     t.text "description"
     t.boolean "include_digital_album", default: false
     t.boolean "limited_edition", default: false
@@ -903,6 +905,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_29_121000) do
     t.index ["course_id"], name: "index_products_on_course_id"
     t.index ["currency"], name: "index_products_on_currency"
     t.index ["deleted_at"], name: "index_products_on_deleted_at"
+    t.index ["deleted_by_id"], name: "index_products_on_deleted_by_id"
     t.index ["model"], name: "index_products_on_model"
     t.index ["playlist_id"], name: "index_products_on_playlist_id"
     t.index ["slug"], name: "index_products_on_slug"
@@ -1515,6 +1518,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_29_121000) do
   add_foreign_key "products", "coupons"
   add_foreign_key "products", "playlists"
   add_foreign_key "products", "users"
+  add_foreign_key "products", "users", column: "deleted_by_id"
   add_foreign_key "products_images", "products"
   add_foreign_key "purchased_items", "purchases"
   add_foreign_key "purchases", "users"

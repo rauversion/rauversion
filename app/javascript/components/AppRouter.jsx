@@ -94,6 +94,7 @@ import AlbumsIndex from "./albums/Index"
 import StoreIndex from "./store/Index"
 import ProductNew from "./products/New"
 import ProductEdit from "./products/Edit"
+import StripeSellerSetupDialog from "./products/shared/StripeSellerSetupDialog"
 import GearForm from "./products/gear/Form"
 import MusicForm from "./products/music/Form"
 import MerchForm from "./products/merch/Form"
@@ -203,6 +204,29 @@ function RequireAdmin({ children }) {
 
   if (!currentUser.is_admin) {
     return <Navigate to="/" replace />
+  }
+
+  return children
+}
+
+function RequireProductSellerSetup({ children }) {
+  const { currentUser, loading: currentUserLoading } = useAuthStore()
+  const location = useLocation()
+
+  if (currentUserLoading) {
+    return <LoadingSpinner />
+  }
+
+  if (!currentUser) {
+    return <Navigate to="/users/sign_in" state={{ from: location }} replace />
+  }
+
+  if (!currentUser.can_sell_products) {
+    return <Navigate to={`/${currentUser.username}/products/new`} replace />
+  }
+
+  if (!currentUser.can_create_products) {
+    return <StripeSellerSetupDialog backPath={`/${currentUser.username}/products`} />
   }
 
   return children
@@ -419,11 +443,11 @@ function AppContent() {
       <Route path="/store/:type" element={<CategoryView />} />
       <Route path="/demo/alerts" element={<InterestAlertDemo />} />
       <Route path="/:username/products/new" element={<RequireAuth><ProductNew /></RequireAuth>} />
-      <Route path="/:username/products/gear/new" element={<RequireAuth><GearForm /></RequireAuth>} />
-      <Route path="/:username/products/music/new" element={<RequireAuth><MusicForm /></RequireAuth>} />
-      <Route path="/:username/products/merch/new" element={<RequireAuth><MerchForm /></RequireAuth>} />
-      <Route path="/:username/products/accessory/new" element={<RequireAuth><AccessoryForm /></RequireAuth>} />
-      <Route path="/:username/products/service/new" element={<RequireAuth><ServiceForm /></RequireAuth>} />
+      <Route path="/:username/products/gear/new" element={<RequireProductSellerSetup><GearForm /></RequireProductSellerSetup>} />
+      <Route path="/:username/products/music/new" element={<RequireProductSellerSetup><MusicForm /></RequireProductSellerSetup>} />
+      <Route path="/:username/products/merch/new" element={<RequireProductSellerSetup><MerchForm /></RequireProductSellerSetup>} />
+      <Route path="/:username/products/accessory/new" element={<RequireProductSellerSetup><AccessoryForm /></RequireProductSellerSetup>} />
+      <Route path="/:username/products/service/new" element={<RequireProductSellerSetup><ServiceForm /></RequireProductSellerSetup>} />
       <Route path="/:username/products/:slug/edit" element={<RequireAuth><ProductEdit /></RequireAuth>} />
       <Route path="/:username/podcasts" element={<PodcastLayout />}>
         <Route index element={<PodcastsIndex />} />

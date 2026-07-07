@@ -301,6 +301,14 @@ class User < ApplicationRecord
     seller? || label? || admin?
   end
 
+  def stripe_account_connected?
+    stripe_account_id.present?
+  end
+
+  def can_create_products?
+    can_sell_products? && stripe_account_connected?
+  end
+
   def user_sales_for(kind = "Track")
     case kind
     when "Product"

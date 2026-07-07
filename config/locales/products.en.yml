@@ -39,6 +39,18 @@ en:
       search: Search
       no_products_found: No products were found
       try_different_filters: Try different filters or remove some to find more products
+    stripe_gate:
+      title: Connect Stripe to create products
+      description: >
+        Before publishing products or bookable services, connect a Stripe account
+        so Rauversion can collect payments and route payouts correctly.
+      body: >
+        This protects the checkout flow: buyers can pay by card, deposits and
+        balances can be tracked, and payouts can be sent to your seller account.
+      cta: Configure Stripe
+      back: Back to products
+      api_error: Connect Stripe before creating products.
+      not_allowed: You need seller access before creating products.
     form:
       update: "Update"
       submit: Save
@@ -47,9 +59,24 @@ en:
       edit: Edit
       cancel: Cancel
       delete: Delete
+      delete_title: Archive product?
       delete_confirm:
-        Are you sure you want to delete this product? This action
-        cannot be undone.
+        This product will be archived with its booking and purchase history intact.
+        You can keep a reason for audit purposes.
+      delete_reason: Reason
+      delete_reason_placeholder: Duplicate, no longer available, replaced by a new service...
+      delete_success_title: Product archived
+      delete_success_description: The product was archived and its history was preserved.
+      delete_error_title: Could not archive product
+      delete_error_description: Try again or contact support if the problem continues.
+      publish:
+        title: Store visibility
+        active_label: Live
+        inactive_label: Draft
+        active_description: This product is visible in your store and can be purchased or booked.
+        inactive_description: Keep it hidden while you finish pricing, photos, and booking details.
+        toast_active: Product is now live
+        toast_inactive: Product moved to draft
       pricing:
         title: Prices
         price: Price
@@ -141,6 +168,18 @@ en:
         select_category: Select type of service
         delivery_method: Delivery method
         select_delivery_method: Select delivery method
+        booking_mode: Booking mode
+        select_booking_mode: Select booking mode
+        booking_mode_performance_help:
+          Performers use the proposal flow. The booker sends event terms and the
+          final agreement can collect deposit and balance payments.
+        delivery_method_performance_help:
+          Performer bookings are tied to a venue or hybrid show. The agreement
+          will request event location details.
+        service_type: Service type
+        service_type_locked:
+          The service type is locked after creation so existing bookings and
+          proposal rules keep their meaning.
         title: Title
         prerequisities: Requirements prior
         description: Description

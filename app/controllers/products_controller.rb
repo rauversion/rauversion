@@ -1,5 +1,6 @@
 class ProductsController < ApplicationController
   before_action :authenticate_user!, except: [:index, :show, :used_gear]
+  before_action :require_product_sales_setup!, only: [:new, :create]
   before_action :set_product, only: [:edit, :update, :destroy]
   before_action :authorize_user, only: [:edit, :update, :destroy]
 
@@ -196,7 +197,11 @@ class ProductsController < ApplicationController
   end
 
   def destroy
-    @product.destroy
+    @product.destroy_with_audit!(
+      actor: current_user,
+      reason: params[:deletion_reason] || params[:reason]
+    )
+
     respond_to do |format|
       format.html { redirect_to products_url, notice: 'Product was successfully deleted.' }
       format.json { render json: { success: true } }

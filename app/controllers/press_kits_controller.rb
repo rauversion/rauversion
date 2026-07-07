@@ -121,8 +121,60 @@ class PressKitsController < ApplicationController
           tags: photo.tags
         }
       end,
+      performer_services: performer_services_json(press_kit.user),
       created_at: press_kit.created_at,
       updated_at: press_kit.updated_at
+    }
+  end
+
+  def performer_services_json(user)
+    user.products
+        .where(type: "Products::ServiceProduct", service_kind: "performance", status: "active")
+        .includes(:service_price_rules, product_images: { image_attachment: :blob })
+        .order(created_at: :desc)
+        .map { |product| performer_service_json(product) }
+  end
+
+  def performer_service_json(product)
+    cover_image = product.product_images.detect { |image| image.image.attached? }
+
+    {
+      id: product.id,
+      title: product.title,
+      slug: product.slug,
+      path: user_product_path(product.user.username, product),
+      description: helpers.strip_tags(product.description.to_s).squish,
+      short_description: helpers.strip_tags(product.description.to_s).squish.truncate(180),
+      category: product.category,
+      service_kind: product.service_kind,
+      booking_mode: product.booking_mode,
+      delivery_method: product.delivery_method,
+      duration_minutes: product.duration_minutes,
+      price: product.price,
+      currency: product.currency,
+      formatted_price: helpers.formatted_product_price(product.price, product.currency),
+      performance_format: product.performance_format,
+      home_city: product.home_city,
+      home_country: product.home_country,
+      price_notes: product.price_notes,
+      cover_url: cover_image&.image&.attached? ? url_for(cover_image.image) : nil,
+      user: {
+        id: product.user.id,
+        username: product.user.username,
+        name: product.user.display_name.presence || product.user.full_name.presence || product.user.username
+      },
+      service_price_rules: product.service_price_rules.ordered.active.map do |rule|
+        {
+          id: rule.id,
+          name: rule.name,
+          rule_type: rule.rule_type,
+          amount: rule.amount,
+          currency: rule.currency,
+          formatted_amount: helpers.formatted_product_price(rule.amount, rule.currency),
+          duration_minutes: rule.duration_minutes,
+          location_scope: rule.location_scope
+        }
+      end
     }
   end
 end
