@@ -2521,7 +2521,20 @@ en:
       accommodation_included: Accommodation included
       hospitality_included: Hospitality included
       catering_included: Backstage catering
+      transport_requested: Transport to coordinate
+      accommodation_requested: Accommodation to coordinate
+      hospitality_requested: Hospitality to coordinate
+      catering_requested: Backstage catering to coordinate
       guest_list_count: Guest list
+      landed_terms_title: Fixed terms
+      landed_terms_description: This fee includes the artist fee and local ground transport. No extras or rider items are added to this proposal.
+      landed_hospitalities_terms_title: Included rider
+      landed_hospitalities_terms_description: Select only the terms that are included inside the fixed fee.
+      no_landed_add_ons_terms_title: Extras to coordinate
+      no_landed_add_ons_terms_description: Select the extras the booker will cover separately from the artist fee.
+      transport_locked_included: Local ground transport is included by the selected fee type.
+      landed_hospitalities_guest_list_help: Tickets or spots included as part of the rider.
+      no_landed_add_ons_guest_list_help: Tickets or spots the booker must coordinate outside the artist fee.
       benefits: Benefits and terms
       technical_notes: Technical rider / notes
       message: Message

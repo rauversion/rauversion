@@ -40,28 +40,71 @@ const feeTypes = [
   },
 ]
 
-const initialForm = (product) => ({
-  event_name: "",
-  event_date: "",
-  start_time: "",
-  end_time: "",
-  venue_name: "",
-  venue_address: "",
-  city: product.home_city || "",
-  country: product.home_country || "Chile",
-  proposed_amount: product.price || "",
-  currency: product.currency || "clp",
-  deposit_percentage: 50,
-  fee_type: product.performance_format === "no_landed_add_ons" ? "no_landed_add_ons" : "landed",
-  transport_included: false,
-  accommodation_included: false,
-  hospitality_included: false,
-  catering_included: false,
-  guest_list_count: 0,
-  benefits: "",
-  technical_notes: "",
-  message: "",
-})
+const feeTypeValues = feeTypes.map(({ value }) => value)
+
+const defaultFeeTypeFor = (product) => {
+  if (feeTypeValues.includes(product.performance_format)) return product.performance_format
+
+  return "landed"
+}
+
+const feeTermsDefaults = (feeType) => {
+  if (feeType === "landed") {
+    return {
+      transport_included: true,
+      accommodation_included: false,
+      hospitality_included: false,
+      catering_included: false,
+      guest_list_count: 0,
+    }
+  }
+
+  if (feeType === "landed_hospitalities") {
+    return { transport_included: true }
+  }
+
+  return { transport_included: false }
+}
+
+const includedRiderFields = [
+  ["accommodation_included", I18n.t("service_booking_proposals.form.accommodation_included")],
+  ["hospitality_included", I18n.t("service_booking_proposals.form.hospitality_included")],
+  ["catering_included", I18n.t("service_booking_proposals.form.catering_included")],
+]
+
+const requestedExtrasFields = [
+  ["transport_included", I18n.t("service_booking_proposals.form.transport_requested")],
+  ["accommodation_included", I18n.t("service_booking_proposals.form.accommodation_requested")],
+  ["hospitality_included", I18n.t("service_booking_proposals.form.hospitality_requested")],
+  ["catering_included", I18n.t("service_booking_proposals.form.catering_requested")],
+]
+
+const initialForm = (product) => {
+  const feeType = defaultFeeTypeFor(product)
+
+  return {
+    event_name: "",
+    event_date: "",
+    start_time: "",
+    end_time: "",
+    venue_name: "",
+    venue_address: "",
+    city: product.home_city || "",
+    country: product.home_country || "Chile",
+    proposed_amount: product.price || "",
+    currency: product.currency || "clp",
+    deposit_percentage: 50,
+    fee_type: feeType,
+    ...feeTermsDefaults(feeType),
+    accommodation_included: false,
+    hospitality_included: false,
+    catering_included: false,
+    guest_list_count: 0,
+    benefits: "",
+    technical_notes: "",
+    message: "",
+  }
+}
 
 const currency = (amount, code = "clp") => {
   const value = Number(amount || 0)
@@ -116,6 +159,14 @@ export default function BookingProposalModal({ product }) {
 
   const update = (field, value) => {
     setForm((current) => ({ ...current, [field]: value }))
+  }
+
+  const selectFeeType = (feeType) => {
+    setForm((current) => ({
+      ...current,
+      fee_type: feeType,
+      ...feeTermsDefaults(feeType),
+    }))
   }
 
   const submit = async (event) => {
@@ -270,7 +321,7 @@ export default function BookingProposalModal({ product }) {
                   <button
                     key={feeType.value}
                     type="button"
-                    onClick={() => update("fee_type", feeType.value)}
+                    onClick={() => selectFeeType(feeType.value)}
                     className={`rounded-lg border p-4 text-left transition ${
                       selected
                         ? "border-primary bg-primary/10 shadow-sm"
@@ -333,38 +384,78 @@ export default function BookingProposalModal({ product }) {
             </div>
           </div>
 
-          <div className="grid gap-3 rounded-lg border border-border p-4 md:grid-cols-2">
-            {[
-              ["transport_included", I18n.t("service_booking_proposals.form.transport_included")],
-              ["accommodation_included", I18n.t("service_booking_proposals.form.accommodation_included")],
-              ["hospitality_included", I18n.t("service_booking_proposals.form.hospitality_included")],
-              ["catering_included", I18n.t("service_booking_proposals.form.catering_included")],
-            ].map(([field, label]) => (
-              <div key={field} className="flex items-center space-x-2">
-                <Checkbox
-                  id={`proposal_${field}`}
-                  checked={Boolean(form[field])}
-                  onCheckedChange={(checked) => update(field, checked === true)}
-                />
-                <Label htmlFor={`proposal_${field}`} className="text-sm font-normal">
-                  {label}
-                </Label>
+          {form.fee_type === "landed" && (
+            <div className="rounded-lg border border-border bg-muted/30 p-4">
+              <div className="flex gap-3">
+                <MapPinned className="mt-0.5 h-5 w-5 text-primary" />
+                <div>
+                  <div className="font-medium">{I18n.t("service_booking_proposals.form.landed_terms_title")}</div>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {I18n.t("service_booking_proposals.form.landed_terms_description")}
+                  </p>
+                </div>
               </div>
-            ))}
-            <div className="space-y-2 md:col-span-2">
-              <Label htmlFor="proposal_guest_list" className="flex items-center gap-2">
-                <Users className="h-4 w-4" />
-                {I18n.t("service_booking_proposals.form.guest_list_count")}
-              </Label>
-              <Input
-                id="proposal_guest_list"
-                type="number"
-                min="0"
-                value={form.guest_list_count}
-                onChange={(event) => update("guest_list_count", event.target.value)}
-              />
             </div>
-          </div>
+          )}
+
+          {["landed_hospitalities", "no_landed_add_ons"].includes(form.fee_type) && (
+            <div className="rounded-lg border border-border p-4">
+              <div className="mb-4 flex gap-3">
+                {form.fee_type === "landed_hospitalities" ? (
+                  <Hotel className="mt-0.5 h-5 w-5 text-primary" />
+                ) : (
+                  <Banknote className="mt-0.5 h-5 w-5 text-primary" />
+                )}
+                <div>
+                  <div className="font-medium">
+                    {I18n.t(`service_booking_proposals.form.${form.fee_type}_terms_title`)}
+                  </div>
+                  <p className="mt-1 text-sm text-muted-foreground">
+                    {I18n.t(`service_booking_proposals.form.${form.fee_type}_terms_description`)}
+                  </p>
+                </div>
+              </div>
+
+              {form.fee_type === "landed_hospitalities" && (
+                <div className="mb-4 rounded-md border border-border bg-muted/30 px-3 py-2 text-sm text-muted-foreground">
+                  {I18n.t("service_booking_proposals.form.transport_locked_included")}
+                </div>
+              )}
+
+              <div className="grid gap-3 md:grid-cols-2">
+                {(form.fee_type === "landed_hospitalities" ? includedRiderFields : requestedExtrasFields).map(
+                  ([field, label]) => (
+                    <div key={field} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`proposal_${field}`}
+                        checked={Boolean(form[field])}
+                        onCheckedChange={(checked) => update(field, checked === true)}
+                      />
+                      <Label htmlFor={`proposal_${field}`} className="text-sm font-normal">
+                        {label}
+                      </Label>
+                    </div>
+                  ),
+                )}
+                <div className="space-y-2 md:col-span-2">
+                  <Label htmlFor="proposal_guest_list" className="flex items-center gap-2">
+                    <Users className="h-4 w-4" />
+                    {I18n.t("service_booking_proposals.form.guest_list_count")}
+                  </Label>
+                  <Input
+                    id="proposal_guest_list"
+                    type="number"
+                    min="0"
+                    value={form.guest_list_count}
+                    onChange={(event) => update("guest_list_count", event.target.value)}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {I18n.t(`service_booking_proposals.form.${form.fee_type}_guest_list_help`)}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
