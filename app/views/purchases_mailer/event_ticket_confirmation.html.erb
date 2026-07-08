@@ -52,7 +52,7 @@
             <tr>
               <td style="padding-bottom: 10px;">
                 <p style="margin: 0; font-size: 15px; color: #555555;">
-                  <strong style="color: #1a1a1a;">📅 Fecha:</strong> <%= item.purchased_item.event.event_start %>
+                  <strong style="color: #1a1a1a;">📅 Fecha:</strong> <%= event_time_formatted(item.purchased_item.event.event_start, item.purchased_item.event.timezone, format: :event_long_with_zone) %>
                 </p>
               </td>
             </tr>

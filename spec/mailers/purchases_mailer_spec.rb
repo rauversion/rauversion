@@ -89,6 +89,34 @@ RSpec.describe PurchasesMailer, type: :mailer do
       end
     end
 
+    context 'with an event timezone' do
+      before do
+        event.update!(
+          timezone: "Asia/Tokyo",
+          event_start: Time.utc(2024, 12, 12, 12, 30, 0),
+          event_ends: Time.utc(2024, 12, 12, 14, 0, 0)
+        )
+      end
+
+      let(:formatted_event_start) do
+        I18n.l(event.event_start.in_time_zone(event.timezone), format: :event_long_with_zone)
+      end
+
+      it 'renders the event start time in the event timezone in HTML' do
+        html_body = mail.html_part.body.decoded
+
+        expect(html_body).to include(formatted_event_start)
+        expect(html_body).not_to include(event.event_start.to_s)
+      end
+
+      it 'renders the event start time in the event timezone in text' do
+        text_body = mail.text_part.body.decoded
+
+        expect(text_body).to include(formatted_event_start)
+        expect(text_body).not_to include(event.event_start.to_s)
+      end
+    end
+
     context 'with inviter' do
       let(:inviter) { FactoryBot.create(:user, first_name: 'John', last_name: 'Doe') }
       

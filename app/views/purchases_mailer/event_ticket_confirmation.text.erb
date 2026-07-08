@@ -41,7 +41,7 @@ TICKET #<%= index + 1 %>: <%= item.purchased_item.title %>
 <%= item.purchased_item.after_purchase_message %>
 
 <% end %>
-📅 Fecha: <%= item.purchased_item.event.event_start %>
+📅 Fecha: <%= event_time_formatted(item.purchased_item.event.event_start, item.purchased_item.event.timezone, format: :event_long_with_zone) %>
 🌍 Zona horaria: <%= item.purchased_item.event.timezone %>
 📍 Ubicación: <%= item.purchased_item.event.location %>
 <% unless item.purchased_item.disable_qr %>

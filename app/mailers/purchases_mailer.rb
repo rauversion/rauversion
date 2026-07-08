@@ -1,5 +1,6 @@
 class PurchasesMailer < ApplicationMailer
   require "rqrcode"
+  helper EventsHelper
 
   def event_ticket_confirmation(purchase:, inviter: nil, message: nil)
     @purchase = purchase
