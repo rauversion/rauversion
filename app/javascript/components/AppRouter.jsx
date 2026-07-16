@@ -82,6 +82,8 @@ import StripeSettings from "./users/settings/StripeSettings"
 import TransbankSettings from "./users/settings/TransbankSettings"
 import InvitationsSettings from "./users/settings/InvitationsSettings"
 import SecuritySettings from "./users/settings/SecuritySettings"
+import RadioSettings from "./users/settings/RadioSettings"
+import RadioPage from "./users/RadioPage"
 
 import ReleasesList from "./releases/ReleasesList"
 import ReleaseForm from "./releases/ReleaseForm"
@@ -294,9 +296,11 @@ function AppContent() {
   const isPageShowRoute = /^\/pages\/[^/]+$/.test(location.pathname)
   const isEmailTemplateEditRoute = /^\/email-templates\/[^/]+\/edit$/.test(location.pathname)
   const isAdminRoute = location.pathname === "/admin" || location.pathname.startsWith("/admin/")
+  const isRadioRoute = /^\/[^/]+\/radio$/.test(location.pathname)
 
   const shouldShowMusicLibraryLayout =
     !isAdminRoute &&
+    !isRadioRoute &&
     !isAdmissionRoute &&
     !isEventShowRoute &&
     !isArticleEditRoute &&
@@ -429,6 +433,7 @@ function AppContent() {
       </Route>
       <Route path="/:username/about" element={<UserAbout />} />
       <Route path="/:username/links" element={<UserLinks />} />
+      <Route path="/:username/radio" element={<RadioPage />} />
       <Route path="/:username/settings" element={<MySettings />}>
         <Route index element={<ProfileForm />} />
         <Route path="profile" element={<ProfileForm />} />
@@ -436,6 +441,7 @@ function AppContent() {
         <Route path="notifications" element={<NotificationSettings />} />
         <Route path="social_links" element={<SocialLinksSettings />} />
         <Route path="podcast" element={<PodcastSettings />} />
+        <Route path="radio" element={<RadioSettings />} />
         <Route path="integrations" element={<IntegrationsSettings />} />
         <Route path="stripe" element={<StripeSettings />} />
         <Route path="transbank" element={<TransbankSettings />} />
@@ -476,8 +482,8 @@ function AppContent() {
 
   return (
     <>
-      {!isAdminRoute && !isAdmissionRoute && <UserMenu />}
-      <div className={cn(!isAdminRoute && !isAdmissionRoute && "pb-24", shouldShowMusicLibraryLayout && "px-4 py-4 sm:px-6 lg:px-8")}>
+      {!isAdminRoute && !isAdmissionRoute && !isRadioRoute && <UserMenu />}
+      <div className={cn(!isAdminRoute && !isAdmissionRoute && !isRadioRoute && "pb-24", shouldShowMusicLibraryLayout && "px-4 py-4 sm:px-6 lg:px-8")}>
         {shouldShowMusicLibraryLayout ? (
           <AppMusicLibraryLayout>{routes}</AppMusicLibraryLayout>
         ) : (
@@ -486,7 +492,7 @@ function AppContent() {
       </div>
 
       <Toaster />
-      {!isAdminRoute && !isAdmissionRoute && <AudioPlayer />}
+      {!isAdminRoute && !isAdmissionRoute && !isRadioRoute && <AudioPlayer />}
 
       {
         !isAdminRoute &&
@@ -500,6 +506,7 @@ function AppContent() {
         !location.pathname.includes('conversations') &&
         !location.pathname.includes('press-kit') &&
         !isAdmissionRoute &&
+        !isRadioRoute &&
         (
           <Footer />
         )

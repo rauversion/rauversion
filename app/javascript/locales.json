@@ -4433,6 +4433,32 @@
         "subtitle": "Update your personal information and profile details",
         "title": "Profile Information"
       },
+      "radio": {
+        "buttons": {
+          "save": "Save live signal",
+          "saving": "Saving signal…",
+          "view": "View my radio"
+        },
+        "card_title": "Connect your Icecast signal",
+        "disable_help": "To take the radio page off air, clear the URL and save again.",
+        "form": {
+          "stream_url": {
+            "help": "Use the direct audio mount, for example http://radio.example.com:8000/live.mp3.",
+            "label": "Icecast live URL"
+          }
+        },
+        "messages": {
+          "error": "The Icecast URL could not be saved. Use a complete HTTP or HTTPS URL.",
+          "success": "Your public radio page is ready.",
+          "success_title": "Signal connected"
+        },
+        "metadata": {
+          "description": "Rauversion derives the Icecast status endpoint from the stream host and refreshes the artist, title and listener count.",
+          "title": "Automatic now-playing metadata"
+        },
+        "subtitle": "Paste the public live mount URL. Rauversion will create your radio page and refresh Icecast metadata automatically.",
+        "title": "Live Radio"
+      },
       "security": {
         "buttons": {
           "update": "Update Password"
@@ -4531,6 +4557,7 @@
       "sub_invitations": "Invite other artists to your account.",
       "sub_notifications": "Change your notification preferences.",
       "sub_podcasts": "Manage your podcaster information.",
+      "sub_radio": "Connect your Icecast live stream.",
       "sub_social_links": "Manage your social media links.",
       "sub_transbank": "Manage your Transbank commerce (Chile only).",
       "title_account": "Account",
@@ -4538,6 +4565,7 @@
       "title_integrations": "Integrations",
       "title_invitations": "Invitations",
       "title_notifications": "Notifications",
+      "title_radio": "Live Radio",
       "title_security": "Security",
       "title_social_links": "Social Networks",
       "title_transbank": "Settings Transbank",
@@ -8958,6 +8986,32 @@
         "subtitle": "Actualiza tu información personal y detalles del perfil",
         "title": "Información del Perfil"
       },
+      "radio": {
+        "buttons": {
+          "save": "Guardar señal live",
+          "saving": "Guardando señal…",
+          "view": "Ver mi radio"
+        },
+        "card_title": "Conecta tu señal de Icecast",
+        "disable_help": "Para apagar la página de radio, borra la URL y vuelve a guardar.",
+        "form": {
+          "stream_url": {
+            "help": "Usa el mount directo de audio, por ejemplo http://radio.example.com:8000/live.mp3.",
+            "label": "URL live de Icecast"
+          }
+        },
+        "messages": {
+          "error": "No pudimos guardar la URL de Icecast. Usa una URL HTTP o HTTPS completa.",
+          "success": "Tu página pública de radio está lista.",
+          "success_title": "Señal conectada"
+        },
+        "metadata": {
+          "description": "Rauversion deriva el endpoint de estado desde el host del stream y refresca artista, título y cantidad de oyentes.",
+          "title": "Metadata now-playing automática"
+        },
+        "subtitle": "Pega la URL pública del mount live. Rauversion creará tu página de radio y actualizará automáticamente la metadata de Icecast.",
+        "title": "Radio en Vivo"
+      },
       "security": {
         "buttons": {
           "update": "Actualizar Contraseña"
@@ -9056,6 +9110,7 @@
       "sub_invitations": "Invitar otros artistas a tu cuenta.",
       "sub_notifications": "Cambiar tus preferencias de notificación.",
       "sub_podcasts": "Gestiona tu información de podcaster.",
+      "sub_radio": "Conecta tu transmisión live de Icecast.",
       "sub_social_links": "Gestiona tus enlaces a redes sociales.",
       "sub_transbank": "Gestionar tu comercio transbank (solo Chile).",
       "title_account": "Cuenta",
@@ -9063,6 +9118,7 @@
       "title_integrations": "Integraciones",
       "title_invitations": "Invitaciones",
       "title_notifications": "Notificaciones",
+      "title_radio": "Radio en Vivo",
       "title_security": "Seguridad",
       "title_social_links": "Redes Sociales",
       "title_transbank": "Configuraciones Transbank",

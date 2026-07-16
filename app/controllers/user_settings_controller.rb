@@ -104,6 +104,7 @@ class UserSettingsController < ApplicationController
       :social_description,
       :sensitive_content,
       :age_restriction,
+      :radio_stream_url,
 
       podcaster_info_attributes: [
         :id,

@@ -10,6 +10,7 @@ json.user do
   json.city @user.city
   json.email @user.email
   json.stripe_account_id @user.stripe_account_id
+  json.radio_stream_url @user.radio_stream_url
   json.avatar_url do
     json.small @user.avatar_url(:small)
     json.medium @user.avatar_url(:medium)
@@ -100,6 +101,13 @@ json.menu_items [
     namespace: "podcast",
     title: I18n.t("user_settings.podcaster_info"),
     sub: I18n.t("user_settings.sub_podcasts"),
+    hidden: !is_creator
+  },
+  {
+    to: "/settings/radio",
+    namespace: "radio",
+    title: I18n.t("user_settings.title_radio"),
+    sub: I18n.t("user_settings.sub_radio"),
     hidden: !is_creator
   },
   {

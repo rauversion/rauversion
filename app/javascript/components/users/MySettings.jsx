@@ -12,7 +12,7 @@ import { useToast } from "@/hooks/use-toast"
 import { 
   User, Mail, Bell, Link as LinkIcon, Podcast, 
   CreditCard, Users, Settings2, ChevronRight,
-  Wallet 
+  Wallet, RadioTower
 } from 'lucide-react'
 import { cn } from "@/lib/utils"
 
@@ -22,6 +22,7 @@ const menuIcons = {
   notifications: Bell,
   social_links: LinkIcon,
   podcast: Podcast,
+  radio: RadioTower,
   stripe: Wallet,
   transbank: CreditCard,
   invitations: Users,
@@ -51,8 +52,8 @@ export default function MySettings() {
 
   return (
     <div className="container mx-auto py-10">
-      <div className="flex gap-6">
-        <aside className="w-72 shrink-0">
+      <div className="flex flex-col gap-6 lg:flex-row">
+        <aside className="w-full shrink-0 lg:w-72">
           <Card>
             <CardContent className="p-4">
               <nav className="space-y-1">

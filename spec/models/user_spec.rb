@@ -169,6 +169,28 @@ RSpec.describe User, type: :model do
     end
   end
 
+  describe "radio settings" do
+    it "stores a valid Icecast live URL in the settings store" do
+      user = create(:user, radio_stream_url: "http://radio.example.com:8000/live.mp3")
+
+      user.reload
+
+      expect(user.radio_stream_url).to eq("http://radio.example.com:8000/live.mp3")
+      expect(user.settings).to include("radio_stream_url" => "http://radio.example.com:8000/live.mp3")
+      expect(user).to be_radio_configured
+    end
+
+    it "rejects non-HTTP URLs and URLs containing credentials" do
+      non_http_user = build(:user, radio_stream_url: "ftp://radio.example.com/live.mp3")
+      credentialed_user = build(:user, radio_stream_url: "http://source:hackme@radio.example.com/live.mp3")
+
+      expect(non_http_user).not_to be_valid
+      expect(non_http_user.errors[:radio_stream_url]).to be_present
+      expect(credentialed_user).not_to be_valid
+      expect(credentialed_user.errors[:radio_stream_url]).to be_present
+    end
+  end
+
   describe "#unread_messages_count" do
     it "returns 0 when user has no conversations" do
       user = FactoryBot.create(:user)

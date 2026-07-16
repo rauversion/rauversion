@@ -8,6 +8,7 @@ json.user do
   json.country @user.country
   json.city @user.city
   json.stripe_account_id @user.stripe_account_id
+  json.radio_stream_url @user.radio_stream_url
   # json.website @user.website
   json.hide_username_from_profile @user.hide_username_from_profile
   json.avatar_url do

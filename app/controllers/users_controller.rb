@@ -263,6 +263,41 @@ class UsersController < ApplicationController
     end
   end
 
+  def radio
+    @disable_footer = true
+    @disable_player = true
+    @disable_user_menu = true
+
+    set_meta_tags(
+      title: "#{@user.display_name} Radio — Live on Rauversion",
+      description: "Listen live to #{@user.display_name} Radio on Rauversion.",
+      image: @user.avatar_url(:large)
+    )
+
+    respond_to do |format|
+      format.html { render_blank }
+      format.json
+    end
+  end
+
+  def radio_status
+    unless @user.radio_configured?
+      return render json: { configured: false, online: false }
+    end
+
+    status = Rails.cache.fetch(
+      ["icecast-radio-status", @user.id, @user.radio_stream_url],
+      expires_in: 5.seconds
+    ) do
+      Icecast::StatusFetcher.new(@user.radio_stream_url).call
+    end
+
+    render json: status.merge(configured: true)
+  rescue Icecast::StatusFetcher::Error => error
+    Rails.logger.info("Icecast status unavailable for user #{@user.id}: #{error.message}")
+    render json: { configured: true, online: false, error: "signal_unavailable" }
+  end
+
   def articles
     @articles = @user.posts.published.order("id desc").page(params[:page]).per(params[:per] || 10)
 

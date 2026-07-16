@@ -556,6 +556,8 @@ Rails.application.routes.draw do
       get "/reposts", to: "users#reposts"
       get "/albums", to: "users#albums"
       get "/about", to: "users#about"
+      get "/radio", to: "users#radio", as: :radio
+      get "/radio/status", to: "users#radio_status", as: :radio_status, defaults: { format: :json }
       get "/label_artists", to: "users#artists", as: :label_artists
 
       get "/articles", to: "users#articles"

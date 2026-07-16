@@ -1,3 +1,5 @@
+require "uri"
+
 class User < ApplicationRecord
   NEWSLETTER_BROADCAST_RECIPIENT_LIMIT_DEFAULT = 1_000
 
@@ -71,6 +73,7 @@ class User < ApplicationRecord
 
   normalizes :username, with: -> username { username.parameterize }
   normalizes :display_name, with: -> display_name { display_name&.strip }
+  normalizes :radio_stream_url, with: -> url { url&.strip }
   validates :username, uniqueness: { message: "Username already exists" }
 
   validates_presence_of :username, on: :update, message: "can't be blank"
@@ -101,6 +104,7 @@ class User < ApplicationRecord
   store_attribute :settings, :can_send_newsletter, :boolean, default: false
   store_attribute :settings, :newsletter_broadcast_recipient_limit, :integer, default: NEWSLETTER_BROADCAST_RECIPIENT_LIMIT_DEFAULT
   store_attribute :settings, :mastering_allowed, :boolean, default: false
+  store_attribute :settings, :radio_stream_url, :string
 
 
   store_attribute :social_links_settings, :email_sign_up, :boolean
@@ -120,12 +124,17 @@ class User < ApplicationRecord
   validates :newsletter_broadcast_recipient_limit,
     numericality: { only_integer: true, greater_than: 0 },
     if: :can_send_newsletter
+  validate :radio_stream_url_must_be_http
 
   scope :artists, -> { where(role: "artist").where.not(username: nil) }
   
   
   def full_name
     [first_name, last_name].compact.join(" ").strip
+  end
+
+  def radio_configured?
+    radio_stream_url.present?
   end
 
   def display_name
@@ -420,6 +429,17 @@ class User < ApplicationRecord
   end
 
   private
+
+  def radio_stream_url_must_be_http
+    return if radio_stream_url.blank?
+
+    uri = URI.parse(radio_stream_url)
+    valid_url = uri.is_a?(URI::HTTP) && uri.host.present? && uri.userinfo.blank?
+
+    errors.add(:radio_stream_url, :invalid) unless valid_url
+  rescue URI::InvalidURIError
+    errors.add(:radio_stream_url, :invalid)
+  end
 
   def sync_display_name_from_username
     return if username.blank?

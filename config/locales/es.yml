@@ -1808,11 +1808,33 @@ es:
     sub_notifications: Cambiar tus preferencias de notificación.
     title_integrations: Integraciones
     sub_integrations: Gestionar tus integraciones externas.
+    title_radio: Radio en Vivo
+    sub_radio: Conecta tu transmisión live de Icecast.
     title_transbank: Configuraciones Transbank
     sub_transbank: Gestionar tu comercio transbank (solo Chile).
     title_invitations: Invitaciones
     sub_invitations: Invitar otros artistas a tu cuenta.
     podcast_info: Podcast Info
+    radio:
+      title: Radio en Vivo
+      card_title: Conecta tu señal de Icecast
+      subtitle: Pega la URL pública del mount live. Rauversion creará tu página de radio y actualizará automáticamente la metadata de Icecast.
+      form:
+        stream_url:
+          label: URL live de Icecast
+          help: Usa el mount directo de audio, por ejemplo http://radio.example.com:8000/live.mp3.
+      metadata:
+        title: Metadata now-playing automática
+        description: Rauversion deriva el endpoint de estado desde el host del stream y refresca artista, título y cantidad de oyentes.
+      buttons:
+        save: Guardar señal live
+        saving: Guardando señal…
+        view: Ver mi radio
+      messages:
+        success_title: Señal conectada
+        success: Tu página pública de radio está lista.
+        error: No pudimos guardar la URL de Icecast. Usa una URL HTTP o HTTPS completa.
+      disable_help: Para apagar la página de radio, borra la URL y vuelve a guardar.
     profile:
       title: Información del Perfil
       subtitle: Actualiza tu información personal y detalles del perfil
