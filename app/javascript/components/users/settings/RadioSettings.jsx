@@ -12,7 +12,7 @@ import I18n from "@/stores/locales"
 
 function metadataUrl(streamUrl) {
   try {
-    return new URL("/status-json.xsl", streamUrl).toString()
+    return new URL("status-json.xsl", streamUrl).toString()
   } catch (_error) {
     return null
   }

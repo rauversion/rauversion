@@ -74,7 +74,8 @@ module Icecast
 
     def status_uri
       uri = @stream_uri.dup
-      uri.path = "/status-json.xsl"
+      stream_path = uri.path.presence || "/"
+      uri.path = stream_path.sub(%r{[^/]*\z}, "status-json.xsl")
       uri.query = nil
       uri.fragment = nil
       uri

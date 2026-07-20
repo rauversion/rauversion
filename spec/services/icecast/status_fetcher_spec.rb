@@ -44,6 +44,50 @@ RSpec.describe Icecast::StatusFetcher do
     end
   end
 
+  context "when the stream mount is inside a nested path" do
+    subject(:fetcher) do
+      described_class.new(
+        "https://broadcast.rauversion.com/radio/72632e733e18978240ce4443/radio.mp3"
+      )
+    end
+
+    let(:http) { double("Net::HTTP") }
+    let(:response_body) do
+      {
+        icestats: {
+          source: {
+            server_name: "Rau Studio Radio",
+            title: "Artista — Canción",
+            listeners: 2,
+            listenurl: "https://broadcast.rauversion.com/radio/72632e733e18978240ce4443/radio.mp3"
+          }
+        }
+      }.to_json
+    end
+
+    before do
+      allow(Resolv).to receive(:getaddresses)
+        .with("broadcast.rauversion.com")
+        .and_return(["203.0.113.11"])
+      allow(Net::HTTP).to receive(:new)
+        .with("broadcast.rauversion.com", 443)
+        .and_return(http)
+      allow(http).to receive(:use_ssl=).with(true)
+      allow(http).to receive(:open_timeout=).with(2)
+      allow(http).to receive(:read_timeout=).with(3)
+      allow(http).to receive(:start).and_yield(http)
+      allow(http).to receive(:request).and_return(response)
+    end
+
+    it "keeps status-json.xsl beside the configured stream mount" do
+      fetcher.call
+
+      expect(http).to have_received(:request) do |request|
+        expect(request.path).to eq("/radio/72632e733e18978240ce4443/status-json.xsl")
+      end
+    end
+  end
+
   context "when Icecast returns several mounts" do
     let(:response_body) do
       {
