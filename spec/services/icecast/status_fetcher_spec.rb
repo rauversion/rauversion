@@ -119,6 +119,28 @@ RSpec.describe Icecast::StatusFetcher do
     end
   end
 
+  context "when Icecast returns HTML entities in its metadata" do
+    let(:response_body) do
+      {
+        icestats: {
+          source: {
+            server_name: "Rau &amp; Studio Radio",
+            title: "Borne &#8725;Scrufizzer &#8212; Original Style",
+            listeners: 2,
+            listenurl: "http://radio.example.com:8000/live.mp3"
+          }
+        }
+      }.to_json
+    end
+
+    it "decodes the station name and now-playing title as plain text" do
+      expect(fetcher.call).to include(
+        server_name: "Rau & Studio Radio",
+        title: "Borne ∕Scrufizzer — Original Style"
+      )
+    end
+  end
+
   it "rejects invalid JSON responses" do
     allow(response).to receive(:body).and_return("not-json")
 

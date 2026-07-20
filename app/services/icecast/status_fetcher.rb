@@ -1,3 +1,4 @@
+require "cgi"
 require "ipaddr"
 require "json"
 require "net/http"
@@ -51,8 +52,8 @@ module Icecast
 
       {
         online: true,
-        server_name: source["server_name"].presence,
-        title: source["title"].presence,
+        server_name: decode_metadata(source["server_name"]),
+        title: decode_metadata(source["title"]),
         listeners: source["listeners"].to_i,
         listenurl: source["listenurl"].presence
       }
@@ -133,6 +134,10 @@ module Icecast
       URI.parse(source["listenurl"].to_s).path
     rescue URI::InvalidURIError
       nil
+    end
+
+    def decode_metadata(value)
+      CGI.unescapeHTML(value.to_s).presence
     end
 
     def offline_status
