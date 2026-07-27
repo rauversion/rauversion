@@ -10,6 +10,7 @@ import { ArrowRight } from "lucide-react"
 import useAuthStore from "@/stores/authStore"
 import { fetchPublicEventSite } from "@/lib/event-sites"
 import { EditorPageView } from "@/components/page-editor/page-view"
+import { useEventTracking } from "@/hooks/use-event-tracking"
 
 
 function TicketButton({ onClick }) {
@@ -60,6 +61,8 @@ export default function EventShow() {
   // Get ticket_token from URL params
   const searchParams = new URLSearchParams(window.location.search)
   const ticketToken = searchParams.get('ticket_token')
+
+  useEventTracking(event)
 
   useEffect(() => {
     const fetchEvent = async () => {

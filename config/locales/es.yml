@@ -528,6 +528,7 @@ es:
         tabs:
           general: General
           privacy: Privacidad
+          tracking: Píxeles y Analítica
           danger: Zona de Peligro
 
         danger:
@@ -593,6 +594,28 @@ es:
           social_sharing:
             label: Compartir en Redes
             description: Habilitar botones para compartir en redes sociales
+        tracking:
+          title: Píxeles y Analítica
+          description: Conecta tu evento con plataformas de analítica y publicidad
+          scope: Estas integraciones funcionan tanto en la página default del evento como en sus páginas custom.
+          google_analytics:
+            label: ID de medición de Google Analytics
+            description: Mide visitas y comportamiento con una propiedad de GA4.
+            placeholder: G-XXXXXXXXXX
+          meta_pixel:
+            label: ID del píxel de Meta
+            description: Mide visitas y conversiones publicitarias con Meta.
+            placeholder: "123456789012345"
+          google_tag_manager:
+            label: ID del contenedor de Google Tag Manager
+            description: Administra otras etiquetas de analítica y marketing desde un contenedor de GTM.
+            placeholder: GTM-XXXXXXX
+        validation:
+          slug_min: El slug debe tener al menos 2 caracteres.
+          slug_format: El slug solo puede contener letras minúsculas, números y guiones.
+          google_analytics_id: Ingresa un ID de medición GA4 válido, por ejemplo G-XXXXXXXXXX.
+          meta_pixel_id: Ingresa un ID numérico válido del píxel de Meta.
+          google_tag_manager_id: Ingresa un ID de contenedor válido, por ejemplo GTM-XXXXXXX.
       streaming:
         title: Transmisión en Vivo
         description: Configurar ajustes de transmisión en vivo

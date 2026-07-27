@@ -172,4 +172,37 @@ RSpec.describe Event, type: :model do
       end
     end
   end
+
+  describe "tracking settings" do
+    let(:event) { FactoryBot.create(:event, user: user) }
+
+    it "normalizes and persists supported tracking IDs" do
+      event.update!(
+        google_analytics_id: " g-abc123def4 ",
+        meta_pixel_id: " 123456789012345 ",
+        google_tag_manager_id: " gtm-abc1234 "
+      )
+
+      event.reload
+
+      expect(event.google_analytics_id).to eq("G-ABC123DEF4")
+      expect(event.meta_pixel_id).to eq("123456789012345")
+      expect(event.google_tag_manager_id).to eq("GTM-ABC1234")
+    end
+
+    it "rejects malformed tracking IDs" do
+      event.assign_attributes(
+        google_analytics_id: "analytics-script",
+        meta_pixel_id: "<script>",
+        google_tag_manager_id: "container"
+      )
+
+      expect(event).not_to be_valid
+      expect(event.errors).to include(
+        :google_analytics_id,
+        :meta_pixel_id,
+        :google_tag_manager_id
+      )
+    end
+  end
 end

@@ -92,6 +92,9 @@ json.attendee_list_settings @event.attendee_list_settings if @event.attendee_lis
 json.ticket_currency @event.ticket_currency
 json.site_mode @event.site_mode
 json.site_pages @event.site_pages
+json.google_analytics_id @event.google_analytics_id
+json.meta_pixel_id @event.meta_pixel_id
+json.google_tag_manager_id @event.google_tag_manager_id
 
 if @event.streaming_service.present?
   json.streaming_service do

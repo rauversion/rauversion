@@ -463,6 +463,7 @@ en:
         tabs:
           general: General
           privacy: Privacy and Access
+          tracking: Pixels and Analytics
           danger: Danger Zone
         danger:
           title: Danger Zone
@@ -508,6 +509,28 @@ en:
           require_login:
             label: Require Login
             description: Users must log in to see the event details
+        tracking:
+          title: Pixels and Analytics
+          description: Connect your event to analytics and advertising platforms
+          scope: These integrations run on both the default event page and custom event pages.
+          google_analytics:
+            label: Google Analytics measurement ID
+            description: Track visits and user behavior with a GA4 property.
+            placeholder: G-XXXXXXXXXX
+          meta_pixel:
+            label: Meta Pixel ID
+            description: Measure visits and advertising conversions with Meta.
+            placeholder: "123456789012345"
+          google_tag_manager:
+            label: Google Tag Manager container ID
+            description: Manage other analytics and marketing tags from a GTM container.
+            placeholder: GTM-XXXXXXX
+        validation:
+          slug_min: The slug must have at least 2 characters.
+          slug_format: The slug can only contain lowercase letters, numbers, and hyphens.
+          google_analytics_id: Enter a valid GA4 measurement ID, such as G-XXXXXXXXXX.
+          meta_pixel_id: Enter a valid numeric Meta Pixel ID.
+          google_tag_manager_id: Enter a valid container ID, such as GTM-XXXXXXX.
       attendees:
         export_csv: Export CSV
         subtitle: Manage attendees and their status

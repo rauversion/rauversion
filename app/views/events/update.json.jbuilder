@@ -79,6 +79,9 @@ json.event do
   json.tax_rates_settings @event.tax_rates_settings
   json.site_mode @event.site_mode
   json.site_pages @event.site_pages
+  json.google_analytics_id @event.google_analytics_id
+  json.meta_pixel_id @event.meta_pixel_id
+  json.google_tag_manager_id @event.google_tag_manager_id
   
   # Stats
   json.event_hosts_count @event.event_hosts.size

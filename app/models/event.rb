@@ -57,9 +57,33 @@ class Event < ApplicationRecord
   store_accessor :event_settings, :social_sharing, :boolean, default: true
   store_accessor :event_settings, :require_login, :boolean, default: false
   store_accessor :event_settings, :custom_fee, :integer
+  store_accessor :event_settings, :google_analytics_id, :string
+  store_accessor :event_settings, :meta_pixel_id, :string
+  store_accessor :event_settings, :google_tag_manager_id, :string
 
   store_attribute :site_data, :site_mode, :string, default: "default"
   store_attribute :site_data, :site_pages, :json, default: []
+
+  before_validation :normalize_tracking_ids
+
+  validates :google_analytics_id,
+    format: {
+      with: /\AG-[A-Z0-9]{10,}\z/,
+      message: "must be a valid Google Analytics measurement ID"
+    },
+    allow_blank: true
+  validates :meta_pixel_id,
+    format: {
+      with: /\A\d{5,20}\z/,
+      message: "must be a valid Meta Pixel ID"
+    },
+    allow_blank: true
+  validates :google_tag_manager_id,
+    format: {
+      with: /\AGTM-[A-Z0-9]{4,}\z/,
+      message: "must be a valid Google Tag Manager container ID"
+    },
+    allow_blank: true
 
 
   scope :drafts, -> { where(state: "draft") }
@@ -72,6 +96,12 @@ class Event < ApplicationRecord
 
   def hide_location_until_purchase=(value)
     super(ActiveModel::Type::Boolean.new.cast(value))
+  end
+
+  def normalize_tracking_ids
+    self.google_analytics_id = google_analytics_id.strip.upcase.presence unless google_analytics_id.nil?
+    self.meta_pixel_id = meta_pixel_id.strip.presence unless meta_pixel_id.nil?
+    self.google_tag_manager_id = google_tag_manager_id.strip.upcase.presence unless google_tag_manager_id.nil?
   end
 
   scope :upcoming, -> { where('event_start >= ?', Time.current).order(event_start: :asc) }

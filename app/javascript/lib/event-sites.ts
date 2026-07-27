@@ -99,6 +99,9 @@ export interface EventSiteRecord {
   event_schedules: EventSiteSchedule[]
   siteMode: EventSiteMode
   sitePages: Page[]
+  googleAnalyticsId?: string
+  metaPixelId?: string
+  googleTagManagerId?: string
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -312,6 +315,9 @@ export function normalizeEventSiteRecord(payload: unknown): EventSiteRecord {
       : [],
     siteMode: normalizeSiteMode(value.site_mode ?? siteData.site_mode),
     sitePages: normalizePages(value.site_pages ?? siteData.site_pages),
+    googleAnalyticsId: normalizeOptionalString(value.google_analytics_id),
+    metaPixelId: normalizeOptionalString(value.meta_pixel_id),
+    googleTagManagerId: normalizeOptionalString(value.google_tag_manager_id),
   }
 }
 

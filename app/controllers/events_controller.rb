@@ -151,6 +151,8 @@ class EventsController < ApplicationController
 
     if @event.update(event_params)
       flash.now[:notice] = "yes!"
+    else
+      render :update, status: :unprocessable_entity
     end
   end
 
@@ -286,6 +288,7 @@ class EventsController < ApplicationController
       :ticket_currency, :location, :lat, :lng, :country, :city, :province,
       :participant_label, :participant_description, :scheduling_label,
       :scheduling_description, :cover,
+      :google_analytics_id, :meta_pixel_id, :google_tag_manager_id,
       :requires_shipping, :show_remaining_count,
       :ticket_currency, :hide_location_until_purchase,
       :site_mode,

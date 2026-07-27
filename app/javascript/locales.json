@@ -1192,9 +1192,37 @@
           "tabs": {
             "danger": "Danger Zone",
             "general": "General",
-            "privacy": "Privacy and Access"
+            "privacy": "Privacy and Access",
+            "tracking": "Pixels and Analytics"
           },
-          "title": "Configuration"
+          "title": "Configuration",
+          "tracking": {
+            "description": "Connect your event to analytics and advertising platforms",
+            "google_analytics": {
+              "description": "Track visits and user behavior with a GA4 property.",
+              "label": "Google Analytics measurement ID",
+              "placeholder": "G-XXXXXXXXXX"
+            },
+            "google_tag_manager": {
+              "description": "Manage other analytics and marketing tags from a GTM container.",
+              "label": "Google Tag Manager container ID",
+              "placeholder": "GTM-XXXXXXX"
+            },
+            "meta_pixel": {
+              "description": "Measure visits and advertising conversions with Meta.",
+              "label": "Meta Pixel ID",
+              "placeholder": "123456789012345"
+            },
+            "scope": "These integrations run on both the default event page and custom event pages.",
+            "title": "Pixels and Analytics"
+          },
+          "validation": {
+            "google_analytics_id": "Enter a valid GA4 measurement ID, such as G-XXXXXXXXXX.",
+            "google_tag_manager_id": "Enter a valid container ID, such as GTM-XXXXXXX.",
+            "meta_pixel_id": "Enter a valid numeric Meta Pixel ID.",
+            "slug_format": "The slug can only contain lowercase letters, numbers, and hyphens.",
+            "slug_min": "The slug must have at least 2 characters."
+          }
         },
         "streaming": {
           "description": "Configure live streaming services for your event",
@@ -5793,9 +5821,37 @@
           "tabs": {
             "danger": "Zona de Peligro",
             "general": "General",
-            "privacy": "Privacidad"
+            "privacy": "Privacidad",
+            "tracking": "Píxeles y Analítica"
           },
-          "title": "Configuracion"
+          "title": "Configuracion",
+          "tracking": {
+            "description": "Conecta tu evento con plataformas de analítica y publicidad",
+            "google_analytics": {
+              "description": "Mide visitas y comportamiento con una propiedad de GA4.",
+              "label": "ID de medición de Google Analytics",
+              "placeholder": "G-XXXXXXXXXX"
+            },
+            "google_tag_manager": {
+              "description": "Administra otras etiquetas de analítica y marketing desde un contenedor de GTM.",
+              "label": "ID del contenedor de Google Tag Manager",
+              "placeholder": "GTM-XXXXXXX"
+            },
+            "meta_pixel": {
+              "description": "Mide visitas y conversiones publicitarias con Meta.",
+              "label": "ID del píxel de Meta",
+              "placeholder": "123456789012345"
+            },
+            "scope": "Estas integraciones funcionan tanto en la página default del evento como en sus páginas custom.",
+            "title": "Píxeles y Analítica"
+          },
+          "validation": {
+            "google_analytics_id": "Ingresa un ID de medición GA4 válido, por ejemplo G-XXXXXXXXXX.",
+            "google_tag_manager_id": "Ingresa un ID de contenedor válido, por ejemplo GTM-XXXXXXX.",
+            "meta_pixel_id": "Ingresa un ID numérico válido del píxel de Meta.",
+            "slug_format": "El slug solo puede contener letras minúsculas, números y guiones.",
+            "slug_min": "El slug debe tener al menos 2 caracteres."
+          }
         },
         "streaming": {
           "description": "Configurar ajustes de transmisión en vivo",

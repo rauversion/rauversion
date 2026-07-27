@@ -80,6 +80,24 @@ RSpec.describe "Events", type: :request do
         "invitation_pending" => false
       )
     end
+
+    it "includes the event tracking settings" do
+      event.update!(
+        google_analytics_id: "G-ABC123DEF4",
+        meta_pixel_id: "123456789012345",
+        google_tag_manager_id: "GTM-ABC1234"
+      )
+      sign_in user
+
+      get edit_event_path(event, format: :json)
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)).to include(
+        "google_analytics_id" => "G-ABC123DEF4",
+        "meta_pixel_id" => "123456789012345",
+        "google_tag_manager_id" => "GTM-ABC1234"
+      )
+    end
   end
 
   describe "PUT /events/:id.json" do
@@ -145,6 +163,59 @@ RSpec.describe "Events", type: :request do
 
       expect(response).to have_http_status(:ok)
       expect(JSON.parse(response.body).fetch("tickets")).to eq([])
+    end
+
+    it "persists tracking settings and returns them in the update payload" do
+      put event_path(event, format: :json), params: {
+        event: {
+          google_analytics_id: "g-abc123def4",
+          meta_pixel_id: "123456789012345",
+          google_tag_manager_id: "gtm-abc1234"
+        }
+      }, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body).fetch("event")).to include(
+        "google_analytics_id" => "G-ABC123DEF4",
+        "meta_pixel_id" => "123456789012345",
+        "google_tag_manager_id" => "GTM-ABC1234"
+      )
+    end
+
+    it "returns tracking validation errors for the React form" do
+      put event_path(event, format: :json), params: {
+        event: {
+          meta_pixel_id: "not-a-pixel"
+        }
+      }, as: :json
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(JSON.parse(response.body).fetch("errors")).to include("meta_pixel_id")
+    end
+  end
+
+  describe "GET /events/:id.json" do
+    let(:user) { create(:user, confirmed_at: Time.current) }
+    let(:event) do
+      create(
+        :event,
+        user: user,
+        state: "published",
+        google_analytics_id: "G-ABC123DEF4",
+        meta_pixel_id: "123456789012345",
+        google_tag_manager_id: "GTM-ABC1234"
+      )
+    end
+
+    it "exposes tracking IDs to the React event page for default and custom sites" do
+      get event_path(event, format: :json)
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)).to include(
+        "google_analytics_id" => "G-ABC123DEF4",
+        "meta_pixel_id" => "123456789012345",
+        "google_tag_manager_id" => "GTM-ABC1234"
+      )
     end
   end
 

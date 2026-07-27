@@ -76,6 +76,9 @@ const settingsSchema = z.object({
   show_remaining_tickets: z.boolean().default(true),
   social_sharing: z.boolean().default(true),
   require_login: z.boolean().default(false),
+  google_analytics_id: z.string().trim(),
+  meta_pixel_id: z.string().trim(),
+  google_tag_manager_id: z.string().trim(),
 })
 
 const visibilityOptions = [
@@ -126,6 +129,9 @@ export default function Settings() {
         show_remaining_tickets: data.show_remaining_tickets ?? true,
         social_sharing: data.social_sharing ?? true,
         require_login: data.require_login ?? false,
+        google_analytics_id: data.google_analytics_id || "",
+        meta_pixel_id: data.meta_pixel_id || "",
+        google_tag_manager_id: data.google_tag_manager_id || "",
       }
     }
   })
@@ -222,6 +228,7 @@ export default function Settings() {
         <TabsList>
           <TabsTrigger value="general">{I18n.t('events.edit.settings.tabs.general')}</TabsTrigger>
           <TabsTrigger value="privacy">{I18n.t('events.edit.settings.tabs.privacy')}</TabsTrigger>
+          <TabsTrigger value="tracking">{I18n.t('events.edit.settings.tabs.tracking')}</TabsTrigger>
           <TabsTrigger value="danger">{I18n.t('events.edit.settings.tabs.danger')}</TabsTrigger>
         </TabsList>
 
@@ -489,6 +496,87 @@ export default function Settings() {
                             onCheckedChange={field.onChange}
                           />
                         </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="tracking">
+              <Card>
+                <CardHeader>
+                  <CardTitle>{I18n.t('events.edit.settings.tracking.title')}</CardTitle>
+                  <CardDescription>
+                    {I18n.t('events.edit.settings.tracking.description')}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <Alert>
+                    <AlertDescription>
+                      {I18n.t('events.edit.settings.tracking.scope')}
+                    </AlertDescription>
+                  </Alert>
+
+                  <FormField
+                    control={form.control}
+                    name="google_analytics_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{I18n.t('events.edit.settings.tracking.google_analytics.label')}</FormLabel>
+                        <FormDescription>
+                          {I18n.t('events.edit.settings.tracking.google_analytics.description')}
+                        </FormDescription>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            autoCapitalize="characters"
+                            placeholder={I18n.t('events.edit.settings.tracking.google_analytics.placeholder')}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="meta_pixel_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{I18n.t('events.edit.settings.tracking.meta_pixel.label')}</FormLabel>
+                        <FormDescription>
+                          {I18n.t('events.edit.settings.tracking.meta_pixel.description')}
+                        </FormDescription>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            inputMode="numeric"
+                            placeholder={I18n.t('events.edit.settings.tracking.meta_pixel.placeholder')}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="google_tag_manager_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>{I18n.t('events.edit.settings.tracking.google_tag_manager.label')}</FormLabel>
+                        <FormDescription>
+                          {I18n.t('events.edit.settings.tracking.google_tag_manager.description')}
+                        </FormDescription>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            autoCapitalize="characters"
+                            placeholder={I18n.t('events.edit.settings.tracking.google_tag_manager.placeholder')}
+                          />
+                        </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
