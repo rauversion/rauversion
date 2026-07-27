@@ -165,6 +165,26 @@ RSpec.describe "Events", type: :request do
       expect(JSON.parse(response.body).fetch("tickets")).to eq([])
     end
 
+    it "persists the ticket order sent by the editor" do
+      general_ticket = create(:event_ticket, event: event, title: "General")
+      vip_ticket = create(:event_ticket, event: event, title: "VIP")
+
+      put event_path(event, format: :json), params: {
+        event: {
+          event_tickets_attributes: [
+            { id: general_ticket.id, position: 2 },
+            { id: vip_ticket.id, position: 1 }
+          ]
+        }
+      }, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(event.reload.event_tickets.pluck(:id)).to eq([vip_ticket.id, general_ticket.id])
+
+      response_ticket_ids = JSON.parse(response.body).fetch("tickets").map { |ticket| ticket.fetch("id") }
+      expect(response_ticket_ids).to eq([vip_ticket.id, general_ticket.id])
+    end
+
     it "persists tracking settings and returns them in the update payload" do
       put event_path(event, format: :json), params: {
         event: {

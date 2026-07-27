@@ -1392,6 +1392,7 @@
             "usd": "US Dollar (USD)"
           },
           "description": "Create and manage tickets for your event",
+          "drag_to_reorder": "Drag to reorder ticket",
           "email_lists": {
             "description": "Manage email lists for restricted ticket access",
             "title": "Email Lists"
@@ -1493,6 +1494,7 @@
             "update_success": "Tickets updated successfully"
           },
           "new_ticket": "New Ticket",
+          "reorder_hint": "Drag tickets to reorder them. This order is used on the event page and during checkout.",
           "save_tickets": "Save Tickets",
           "ticket_currency": {
             "description": "Choose the currency attendees will use to purchase tickets.",
@@ -6019,6 +6021,7 @@
             "usd": "Dólar Estadounidense (USD)"
           },
           "description": "Crea y gestiona las entradas de tu evento",
+          "drag_to_reorder": "Arrastrar para reordenar la entrada",
           "email_lists": {
             "description": "Gestiona listas de correos para acceso restringido a tickets",
             "title": "Listas de Correos"
@@ -6120,6 +6123,7 @@
             "update_success": "Entradas actualizadas exitosamente"
           },
           "new_ticket": "Nueva Entrada",
+          "reorder_hint": "Arrastra las entradas para reordenarlas. Este orden se usa en la página del evento y durante la compra.",
           "save_tickets": "Guardar Entradas",
           "ticket_currency": {
             "description": "Elige la moneda que los asistentes utilizarán para comprar las entradas.",

@@ -363,6 +363,8 @@ es:
         add_ticket: Agregar Entrada
         save_tickets: Guardar Entradas
         new_ticket: Nueva Entrada
+        reorder_hint: Arrastra las entradas para reordenarlas. Este orden se usa en la página del evento y durante la compra.
+        drag_to_reorder: Arrastrar para reordenar la entrada
         email_lists:
           title: Listas de Correos
           description: Gestiona listas de correos para acceso restringido a tickets

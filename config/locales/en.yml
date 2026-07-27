@@ -338,6 +338,8 @@ en:
         add_ticket: Add Ticket
         save_tickets: Save Tickets
         new_ticket: New Ticket
+        reorder_hint: Drag tickets to reorder them. This order is used on the event page and during checkout.
+        drag_to_reorder: Drag to reorder ticket
         email_lists:
           title: Email Lists
           description: Manage email lists for restricted ticket access

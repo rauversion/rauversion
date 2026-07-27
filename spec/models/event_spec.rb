@@ -96,6 +96,18 @@ RSpec.describe Event, type: :model do
 
         expect(event.available_tickets).to include(ticket)
       end
+
+      it "assigns positions and returns tickets in the configured order" do
+        general_ticket = FactoryBot.create(:event_ticket, event: event, title: "General")
+        vip_ticket = FactoryBot.create(:event_ticket, event: event, title: "VIP")
+
+        expect([general_ticket.position, vip_ticket.position]).to eq([1, 2])
+
+        general_ticket.update!(position: 2)
+        vip_ticket.update!(position: 1)
+
+        expect(event.reload.event_tickets.pluck(:title)).to eq(["VIP", "General"])
+      end
     end
   end
 

@@ -66,6 +66,26 @@ RSpec.describe "EventPurchases", type: :request do
       expect(ticket["quantity"]).to eq(9)
       expect(ticket["sold_out?"]).to eq(false)
     end
+
+    it "returns tickets in the order configured in the event editor" do
+      vip_ticket = FactoryBot.create(
+        :event_ticket,
+        event: event,
+        title: "VIP",
+        qty: 5,
+        price: 20,
+        selling_start: 1.day.ago,
+        position: 1
+      )
+      paid_ticket.update!(position: 2)
+
+      get new_event_event_purchase_path(event, format: :json)
+
+      expect(response).to have_http_status(:success)
+
+      ticket_ids = JSON.parse(response.body).fetch("tickets").map { |ticket| ticket.fetch("id") }
+      expect(ticket_ids).to eq([vip_ticket.id, paid_ticket.id])
+    end
   end
 
   describe "POST /create with free tickets" do

@@ -5,6 +5,19 @@ import { toNestErrors, validateFieldsNatively } from "@hookform/resolvers"
 import * as z from "zod"
 import { format } from "date-fns"
 import { get, put } from '@rails/request.js'
+import {
+  DndContext,
+  PointerSensor,
+  closestCenter,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core"
+import {
+  SortableContext,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
 import I18n from '@/stores/locales'
@@ -35,10 +48,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 
-import { Plus, Ticket, Trash2, Link2, Copy, CheckCircle2 } from "lucide-react"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { cn } from "classnames"
+import { Plus, Ticket, Trash2, Link2, Copy, CheckCircle2, GripVertical } from "lucide-react"
 import { formatDateSafely } from "@/hooks/safeDate"
 
 const nullableNonNegativeNumber = z.preprocess((arg) => {
@@ -82,6 +99,7 @@ const zodResolverCompat = (schema) => async (values, _context, options) => {
 
 const ticketSchema = z.object({
   id: z.number().optional(),
+  position: z.coerce.number().int().positive().optional(),
   title: z.string().min(2, {
     message: I18n.t('events.edit.tickets.validation.title_min'),
   }),
@@ -168,11 +186,76 @@ const STRIPE_CURRENCY_CODES = Array.from(
 
 const DEFAULT_TICKET_CURRENCY = "usd"
 
+function SortableTicketItem({ id, header, onRemove, children }) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  }
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={isDragging ? "relative z-20 opacity-80" : ""}
+    >
+      <AccordionItem
+        value={id}
+        className="mb-3 overflow-hidden rounded-lg border bg-card"
+      >
+        <div className="flex items-center gap-2 bg-muted/30 px-3">
+          <button
+            type="button"
+            className="cursor-grab rounded-md p-2 text-muted-foreground hover:bg-muted hover:text-foreground active:cursor-grabbing"
+            aria-label={I18n.t('events.edit.tickets.drag_to_reorder')}
+            onClick={(event) => event.stopPropagation()}
+            {...attributes}
+            {...listeners}
+          >
+            <GripVertical className="h-5 w-5" />
+          </button>
+
+          <AccordionTrigger className="min-w-0 flex-1 py-3 hover:no-underline">
+            {header}
+          </AccordionTrigger>
+
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            className="shrink-0 text-destructive hover:bg-destructive/10 hover:text-destructive"
+            onClick={(event) => {
+              event.preventDefault()
+              event.stopPropagation()
+              onRemove()
+            }}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
+
+        <AccordionContent className="border-t px-4 pb-5 pt-5">
+          {children}
+        </AccordionContent>
+      </AccordionItem>
+    </div>
+  )
+}
+
 const ticketFormValue = (ticket) => {
   const settings = ticket.settings || {}
 
   return {
     id: ticket.id,
+    position: ticket.position,
     title: ticket.title,
     short_description: ticket.short_description,
     price: ticket.price,
@@ -209,6 +292,13 @@ export default function Tickets() {
   const [event, setEvent] = React.useState(null)
   const [copiedTicketId, setCopiedTicketId] = React.useState(null)
   const [eventLists, setEventLists] = React.useState([])
+  const [expandedTickets, setExpandedTickets] = React.useState([])
+  const openNewTicketRef = React.useRef(false)
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: { distance: 8 },
+    })
+  )
 
   const form = useForm({
     resolver: zodResolverCompat(formSchema),
@@ -218,10 +308,14 @@ export default function Tickets() {
     }
   })
 
-  const { fields, append, remove, update } = useFieldArray({
+  const { fields, append, remove, update, move } = useFieldArray({
     control: form.control,
     name: "tickets"
   })
+  const watchedTickets = form.watch("tickets") || []
+  const sortableTicketIds = fields
+    .filter((field) => !field.hidden_in_form)
+    .map((field) => field.id)
 
   const paymentGateway = React.useMemo(() => {
     if (!event) return null
@@ -254,6 +348,7 @@ export default function Tickets() {
         console.log('Fetched tickets data:', data)
         // Reset form with current tickets
         form.reset(ticketFormValues(data))
+        setExpandedTickets([])
         
         // Fetch event lists
         fetchEventLists()
@@ -270,6 +365,16 @@ export default function Tickets() {
     fetchTickets()
   }, [slug])
 
+  React.useEffect(() => {
+    if (!openNewTicketRef.current || fields.length === 0) return
+
+    const newTicketId = fields[fields.length - 1].id
+    setExpandedTickets((current) => (
+      current.includes(newTicketId) ? current : [...current, newTicketId]
+    ))
+    openNewTicketRef.current = false
+  }, [fields])
+
   const fetchEventLists = async () => {
     try {
       const response = await get(`/events/${slug}/event_lists.json`)
@@ -281,7 +386,9 @@ export default function Tickets() {
   }
 
   const addTicket = () => {
+    openNewTicketRef.current = true
     append({
+      position: fields.length + 1,
       title: "",
       short_description: "",
       price: 0,
@@ -308,6 +415,12 @@ export default function Tickets() {
 
   const removeTicket = (index) => {
     const ticket = form.getValues(`tickets.${index}`)
+    const fieldId = fields[index]?.id
+
+    if (fieldId) {
+      setExpandedTickets((current) => current.filter((id) => id !== fieldId))
+    }
+
     if (ticket.id) {
       // If ticket has an ID, mark it for destruction instead of removing
       update(index, {
@@ -319,6 +432,17 @@ export default function Tickets() {
       // If it's a new ticket (no ID), just remove it from the form
       remove(index)
     }
+  }
+
+  const reorderTickets = ({ active, over }) => {
+    if (!over || active.id === over.id) return
+
+    const oldIndex = fields.findIndex((field) => field.id === active.id)
+    const newIndex = fields.findIndex((field) => field.id === over.id)
+
+    if (oldIndex === -1 || newIndex === -1) return
+
+    move(oldIndex, newIndex)
   }
 
   const generateSecretLink = async (ticketId) => {
@@ -355,8 +479,9 @@ export default function Tickets() {
       const formattedData = {
         ...data,
         ticket_currency: ticketCurrency,
-        tickets: data.tickets.map(ticket => ({
+        tickets: data.tickets.map((ticket, index) => ({
           ...ticket,
+          position: index + 1,
           suggested_price: ticket.suggested_price ?? null,
           selling_start: ticket.selling_start ? ticket.selling_start.toISOString() : null,
           selling_end: ticket.selling_end ? ticket.selling_end.toISOString() : null,
@@ -377,16 +502,22 @@ export default function Tickets() {
 
       if (response.ok && !responseData.errors) {
         form.reset(ticketFormValues(responseData))
+        setExpandedTickets([])
         toast({
           title: I18n.t('events.edit.tickets.messages.success'),
           description: I18n.t('events.edit.tickets.messages.update_success'),
         })
       } else {
         // Handle nested errors
+        const invalidTicketIds = []
+
         Object.keys(responseData.errors || {}).forEach(key => {
           const match = key.match(/event_tickets_attributes\.(\d+)\.(.+)/)
           if (match) {
             const [_, index, field] = match
+            const fieldId = fields[Number(index)]?.id
+            if (fieldId) invalidTicketIds.push(fieldId)
+
             form.setError(`tickets.${index}.${field}`, {
               type: 'server',
               message: responseData.errors[key][0]
@@ -399,6 +530,13 @@ export default function Tickets() {
             })
           }
         })
+
+        if (invalidTicketIds.length > 0) {
+          setExpandedTickets((current) => Array.from(new Set([
+            ...current,
+            ...invalidTicketIds,
+          ])))
+        }
 
         toast({
           title: I18n.t('events.edit.tickets.messages.error'),
@@ -416,7 +554,18 @@ export default function Tickets() {
     }
   }
 
-  const onInvalidSubmit = () => {
+  const onInvalidSubmit = (errors) => {
+    const invalidTicketIds = Object.keys(errors.tickets || {})
+      .map((index) => fields[Number(index)]?.id)
+      .filter(Boolean)
+
+    if (invalidTicketIds.length > 0) {
+      setExpandedTickets((current) => Array.from(new Set([
+        ...current,
+        ...invalidTicketIds,
+      ])))
+    }
+
     toast({
       title: I18n.t('events.edit.tickets.messages.error'),
       description: I18n.t('events.edit.tickets.messages.update_error_check_form'),
@@ -487,33 +636,58 @@ export default function Tickets() {
                 )}
               />
 
-              {fields.map((field, index) => {
-                // Skip rendering tickets marked for destruction
-                if (field.hidden_in_form) {
-                  return null
-                }
+              <p className="text-sm text-muted-foreground">
+                {I18n.t('events.edit.tickets.reorder_hint')}
+              </p>
 
-                return (
-                  <Card key={field.id}>
-                    <CardHeader>
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-2">
-                          <Ticket className="h-5 w-5" />
-                          <CardTitle className="text-lg">
-                            {field.title || I18n.t('events.edit.tickets.new_ticket')}
-                          </CardTitle>
-                        </div>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => removeTicket(index)}
+              <DndContext
+                sensors={sensors}
+                collisionDetection={closestCenter}
+                onDragEnd={reorderTickets}
+              >
+                <SortableContext
+                  items={sortableTicketIds}
+                  strategy={verticalListSortingStrategy}
+                >
+                  <Accordion
+                    type="multiple"
+                    value={expandedTickets}
+                    onValueChange={setExpandedTickets}
+                    className="w-full"
+                  >
+                    {fields.map((field, index) => {
+                      // Skip rendering tickets marked for destruction
+                      if (field.hidden_in_form) {
+                        return null
+                      }
+
+                      const ticket = watchedTickets[index] || field
+                      const title = ticket.title || I18n.t('events.edit.tickets.new_ticket')
+                      const price = Number(ticket.price) || 0
+                      const quantity = Number(ticket.qty) || 0
+
+                      return (
+                        <SortableTicketItem
+                          key={field.id}
+                          id={field.id}
+                          onRemove={() => removeTicket(index)}
+                          header={(
+                            <div className="min-w-0 flex-1 pr-3 text-left">
+                              <div className="flex items-center gap-2">
+                                <Ticket className="h-4 w-4 shrink-0" />
+                                <span className="truncate font-medium">{title}</span>
+                                {ticket.hidden && (
+                                  <span className="shrink-0 rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
+                                    {I18n.t('events.edit.tickets.form.hidden.label')}
+                                  </span>
+                                )}
+                              </div>
+                              <div className="mt-1 truncate text-xs font-normal text-muted-foreground">
+                                {selectedCurrency.toUpperCase()} {price.toLocaleString()} · {I18n.t('events.edit.tickets.form.qty.label')}: {quantity}
+                              </div>
+                            </div>
+                          )}
                         >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
                       <div className="space-y-6">
                         <div className="grid grid-cols-2 gap-4">
                           {/* Basic Info */}
@@ -976,10 +1150,12 @@ export default function Tickets() {
                           </div>
                         </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                )
-              })}
+                        </SortableTicketItem>
+                      )
+                    })}
+                  </Accordion>
+                </SortableContext>
+              </DndContext>
 
               {fields.length > 0 && (
                 <Button type="submit" disabled={form.formState.isSubmitting}>

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_06_22_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_07_27_190000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -298,6 +298,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_120000) do
     t.decimal "early_bird_price"
     t.bigint "event_id", null: false
     t.bigint "event_list_id"
+    t.integer "position", null: false
     t.decimal "price"
     t.integer "qty"
     t.datetime "selling_end"
@@ -308,6 +309,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_06_22_120000) do
     t.string "title"
     t.datetime "updated_at", null: false
     t.index ["deleted_at"], name: "index_event_tickets_on_deleted_at"
+    t.index ["event_id", "position"], name: "index_event_tickets_on_event_id_and_position"
     t.index ["event_id"], name: "index_event_tickets_on_event_id"
     t.index ["event_list_id"], name: "index_event_tickets_on_event_list_id"
   end

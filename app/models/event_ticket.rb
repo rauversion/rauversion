@@ -31,12 +31,15 @@ class EventTicket < ApplicationRecord
   validates :title, presence: true
   validates :price, presence: true
   validates :qty, presence: true
+  validates :position, presence: true, numericality: { only_integer: true, greater_than: 0 }
   # validates :selling_start, presence: true
   # validates :selling_end, presence: true
   validates :short_description, presence: true
   validate :selling_start_before_selling_end
   validate :minimum_price_present_if_pwyw
   validate :suggested_price_valid
+
+  before_validation :assign_position, on: :create
 
   def free?
     price.to_i == 0
@@ -68,6 +71,12 @@ class EventTicket < ApplicationRecord
   end
 
   private
+
+  def assign_position
+    return if position.present?
+
+    self.position = event&.event_tickets&.maximum(:position).to_i + 1
+  end
 
   def selling_start_before_selling_end
     return if selling_start.blank? || selling_end.blank?

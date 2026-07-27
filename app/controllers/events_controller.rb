@@ -298,6 +298,7 @@ class EventsController < ApplicationController
       ],
       event_tickets_attributes: [
         :id,
+        :position,
         :title, :_destroy, :show_sell_until,
         :price, :qty, :selling_start, :selling_end, :short_description,
         :show_after_sold_out, :hidden, :min_tickets_per_order,
