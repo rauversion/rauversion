@@ -21,6 +21,9 @@ if @event.errors.any?
       end
     end
   end
+else
+  json.ticket_currency @event.ticket_currency
+  json.tickets @event.event_tickets.reload
 end
 
 json.event do

@@ -168,6 +168,41 @@ const STRIPE_CURRENCY_CODES = Array.from(
 
 const DEFAULT_TICKET_CURRENCY = "usd"
 
+const ticketFormValue = (ticket) => {
+  const settings = ticket.settings || {}
+
+  return {
+    id: ticket.id,
+    title: ticket.title,
+    short_description: ticket.short_description,
+    price: ticket.price,
+    qty: ticket.qty,
+    selling_start: formatDateSafely(ticket.selling_start),
+    selling_end: formatDateSafely(ticket.selling_end),
+    min_tickets_per_order: settings.min_tickets_per_order ?? 1,
+    max_tickets_per_order: settings.max_tickets_per_order ?? 1,
+    max_tickets_per_user: settings.max_tickets_per_user ?? null,
+    requires_shipping: ticket.requires_shipping ?? settings.requires_shipping ?? false,
+    show_remaining_count: ticket.show_remaining_count ?? settings.show_remaining_count ?? true,
+    show_sell_until: settings.show_sell_until ?? false,
+    show_after_sold_out: settings.show_after_sold_out ?? true,
+    hidden: settings.hidden ?? false,
+    disable_qr: settings.disable_qr ?? false,
+    requires_login: settings.requires_login ?? false,
+    after_purchase_message: settings.after_purchase_message || "",
+    sales_channel: settings.sales_channel || "all",
+    pay_what_you_want: settings.pay_what_you_want ?? false,
+    minimum_price: settings.minimum_price ?? 0,
+    suggested_price: settings.suggested_price ?? null,
+    event_list_id: ticket.event_list_id || null,
+  }
+}
+
+const ticketFormValues = (data) => ({
+  ticket_currency: (data.ticket_currency || DEFAULT_TICKET_CURRENCY).toLowerCase(),
+  tickets: data.tickets?.map(ticketFormValue) || [],
+})
+
 export default function Tickets() {
   const { slug } = useParams()
   const { toast } = useToast()
@@ -183,7 +218,7 @@ export default function Tickets() {
     }
   })
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, update } = useFieldArray({
     control: form.control,
     name: "tickets"
   })
@@ -218,34 +253,7 @@ export default function Tickets() {
 
         console.log('Fetched tickets data:', data)
         // Reset form with current tickets
-        form.reset({
-          ticket_currency: (data.ticket_currency || DEFAULT_TICKET_CURRENCY).toLowerCase(),
-          tickets: data.tickets?.map(ticket => ({
-            id: ticket.id,
-            title: ticket.title,
-            short_description: ticket.short_description,
-            price: ticket.price,
-            qty: ticket.qty,
-            selling_start: formatDateSafely(ticket.selling_start),
-            selling_end: formatDateSafely(ticket.selling_end),
-            min_tickets_per_order: ticket.settings.min_tickets_per_order,
-            max_tickets_per_order: ticket.settings.max_tickets_per_order,
-            max_tickets_per_user: ticket.settings.max_tickets_per_user || null,
-            requires_shipping: ticket.requires_shipping,
-            show_remaining_count: ticket.show_remaining_count,
-            show_sell_until: ticket.settings.show_sell_until,
-            show_after_sold_out: ticket.settings.show_after_sold_out,
-            hidden: ticket.settings.hidden,
-            disable_qr: ticket.settings.disable_qr || false,
-            requires_login: ticket.settings.requires_login || false,
-            after_purchase_message: ticket.settings.after_purchase_message,
-            sales_channel: ticket.settings.sales_channel,
-            pay_what_you_want: ticket.settings.pay_what_you_want || false,
-            minimum_price: ticket.settings.minimum_price || 0,
-            suggested_price: ticket.settings.suggested_price ?? null,
-            event_list_id: ticket.event_list_id || null,
-          })) || []
-        })
+        form.reset(ticketFormValues(data))
         
         // Fetch event lists
         fetchEventLists()
@@ -302,9 +310,11 @@ export default function Tickets() {
     const ticket = form.getValues(`tickets.${index}`)
     if (ticket.id) {
       // If ticket has an ID, mark it for destruction instead of removing
-      form.setValue(`tickets.${index}._destroy`, true)
-      // Optionally hide the ticket in the UI
-      form.setValue(`tickets.${index}.hidden_in_form`, true)
+      update(index, {
+        ...ticket,
+        _destroy: true,
+        hidden_in_form: true,
+      })
     } else {
       // If it's a new ticket (no ID), just remove it from the form
       remove(index)
@@ -366,6 +376,7 @@ export default function Tickets() {
       const responseData = await response.json
 
       if (response.ok && !responseData.errors) {
+        form.reset(ticketFormValues(responseData))
         toast({
           title: I18n.t('events.edit.tickets.messages.success'),
           description: I18n.t('events.edit.tickets.messages.update_success'),
@@ -436,7 +447,15 @@ export default function Tickets() {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit, onInvalidSubmit)} className="space-y-6">
+            <form
+              onSubmit={form.handleSubmit(onSubmit, onInvalidSubmit)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && event.target.tagName === "INPUT") {
+                  event.preventDefault()
+                }
+              }}
+              className="space-y-6"
+            >
               <FormField
                 control={form.control}
                 name="ticket_currency"
@@ -470,7 +489,7 @@ export default function Tickets() {
 
               {fields.map((field, index) => {
                 // Skip rendering tickets marked for destruction
-                if (form.getValues(`tickets.${index}.hidden_in_form`)) {
+                if (field.hidden_in_form) {
                   return null
                 }
 
@@ -963,7 +982,9 @@ export default function Tickets() {
               })}
 
               {fields.length > 0 && (
-                <Button type="submit">{I18n.t('events.edit.tickets.save_tickets')}</Button>
+                <Button type="submit" disabled={form.formState.isSubmitting}>
+                  {I18n.t('events.edit.tickets.save_tickets')}
+                </Button>
               )}
             </form>
           </Form>

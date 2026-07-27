@@ -82,6 +82,72 @@ RSpec.describe "Events", type: :request do
     end
   end
 
+  describe "PUT /events/:id.json" do
+    let(:user) { create(:user, confirmed_at: Time.current) }
+    let(:event) { create(:event, user: user, ticket_currency: "usd") }
+
+    before do
+      sign_in user
+    end
+
+    it "returns persisted ticket IDs so subsequent saves update instead of duplicate" do
+      expect {
+        put event_path(event, format: :json), params: {
+          event: {
+            ticket_currency: "usd",
+            event_tickets_attributes: [{
+              title: "General",
+              short_description: "General admission",
+              price: 10,
+              qty: 20
+            }]
+          }
+        }, as: :json
+      }.to change { event.event_tickets.count }.by(1)
+
+      expect(response).to have_http_status(:ok)
+      persisted_ticket = JSON.parse(response.body).fetch("tickets").sole
+
+      expect(persisted_ticket.fetch("id")).to be_present
+
+      expect {
+        put event_path(event, format: :json), params: {
+          event: {
+            ticket_currency: "usd",
+            event_tickets_attributes: [{
+              id: persisted_ticket.fetch("id"),
+              title: "General actualizado",
+              short_description: "General admission",
+              price: 10,
+              qty: 20
+            }]
+          }
+        }, as: :json
+      }.not_to change { event.event_tickets.count }
+
+      expect(response).to have_http_status(:ok)
+      expect(event.event_tickets.sole.reload.title).to eq("General actualizado")
+    end
+
+    it "returns the remaining tickets after deleting one" do
+      ticket = create(:event_ticket, event: event)
+
+      expect {
+        put event_path(event, format: :json), params: {
+          event: {
+            event_tickets_attributes: [{
+              id: ticket.id,
+              _destroy: true
+            }]
+          }
+        }, as: :json
+      }.to change { event.event_tickets.count }.from(1).to(0)
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body).fetch("tickets")).to eq([])
+    end
+  end
+
   describe "GET /index" do
     it "responds successfully" do
       get events_path
