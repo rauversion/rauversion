@@ -194,7 +194,9 @@ export default function PressKitPage() {
           }
         })
       },
-      { threshold: 0.3, rootMargin: "0px 0px -20% 0px" },
+      // A percentage threshold can never be reached by tall, stacked sections on
+      // mobile. Reveal a section as soon as it enters the usable viewport.
+      { threshold: 0, rootMargin: "0px 0px -10% 0px" },
     )
 
     // Prefer refs, fallback to querying DOM by known ids if refs not attached
@@ -932,8 +934,10 @@ export default function PressKitPage() {
                   >
                     <div className="aspect-[4/3] relative overflow-hidden bg-secondary">
                       <img
-                        src={photo.url || "/placeholder.svg"}
+                        src={photo.pdf_url || photo.url || "/placeholder.svg"}
                         alt={photo.description || "Press photo"}
+                        loading="lazy"
+                        decoding="async"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 flex items-end p-6">
