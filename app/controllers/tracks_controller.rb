@@ -1,12 +1,19 @@
 class TracksController < ApplicationController
-  before_action :authenticate_user!, except: [:index, :dj_sets, :show, :private_access, :appears_on]
+  before_action :authenticate_user!, except: [:index, :by_id, :dj_sets, :show, :private_access, :appears_on]
   before_action :check_activated_account, only: [:new, :create, :update, :delete]
 
   layout :layout_by_resource
 
   def by_id
     ids = params[:ids].to_s.split(",")
-    @tracks = Track
+    scope = Track.published
+    if current_user.present?
+      scope = scope
+        .or(Track.where(user_id: current_user.id))
+        .or(Track.where(label_id: current_user.id))
+    end
+
+    @tracks = scope
       .where(id: ids)
       .with_attached_cover
       .includes(

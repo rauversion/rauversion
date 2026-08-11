@@ -182,8 +182,7 @@ class PlaylistsController < ApplicationController
 
 
   def albums
-    base_query = Playlist
-      .where(playlist_type: ["album", "ep"])
+    base_query = visible_playlist_scope
       .with_attached_cover
       .includes(user: {avatar_attachment: :blob})
       .includes(tracks: {cover_attachment: :blob})
@@ -191,7 +190,9 @@ class PlaylistsController < ApplicationController
     if params[:ids].present?
       @playlists = base_query.where(id: params[:ids].split(",")).limit(50)
     else
-      @playlists = base_query.ransack(title_cont: params[:q]).result
+      @playlists = base_query
+        .where(playlist_type: ["album", "ep"])
+        .ransack(title_cont: params[:q]).result
       @playlists = @playlists.page(params[:page]).per(10)
     end
 

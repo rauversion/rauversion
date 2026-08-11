@@ -1,6 +1,38 @@
 require "rails_helper"
 
 RSpec.describe "Playlists", type: :request do
+  describe "GET /playlists/albums.json with IDs" do
+    let(:artist) { create(:user, confirmed_at: Time.current, role: :artist) }
+    let!(:public_mix) do
+      Playlist.create!(user: artist, title: "Public mix", playlist_type: "playlist", private: false)
+    end
+    let!(:public_album) do
+      Playlist.create!(user: artist, title: "Public album", playlist_type: "album", private: false)
+    end
+    let!(:private_mix) do
+      Playlist.create!(user: artist, title: "Private mix", playlist_type: "playlist", private: true)
+    end
+
+    it "returns selected public playlists regardless of release type" do
+      get albums_playlists_path(
+        format: :json,
+        ids: [public_mix.id, public_album.id, private_mix.id].join(",")
+      )
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body).fetch("collection").pluck("id")).to match_array([public_mix.id, public_album.id])
+    end
+
+    it "also returns a private selected playlist to its owner" do
+      sign_in artist
+
+      get albums_playlists_path(format: :json, ids: private_mix.id)
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body).fetch("collection").pluck("id")).to eq([private_mix.id])
+    end
+  end
+
   describe "GET /playlists/:id.json" do
     let(:artist) { create(:user, confirmed_at: Time.current, role: :artist) }
     let(:listener) { create(:user, confirmed_at: Time.current) }

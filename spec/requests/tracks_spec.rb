@@ -1,6 +1,38 @@
 require "rails_helper"
 
 RSpec.describe "Tracks", type: :request do
+  describe "GET /tracks/by_id.json" do
+    let(:artist) { create(:user, confirmed_at: Time.current) }
+    let(:listener) { create(:user, confirmed_at: Time.current) }
+    let!(:public_mix) { create(:track, user: artist, title: "Public mix", private: false, dj_set: true) }
+    let!(:private_mix) { create(:track, user: artist, title: "Private mix", private: true, dj_set: true) }
+
+    it "returns only published mixes to guests" do
+      get by_id_tracks_path(format: :json, ids: [public_mix.id, private_mix.id].join(","))
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body).fetch("collection").pluck("id")).to eq([public_mix.id])
+    end
+
+    it "also returns private mixes owned by the authenticated user" do
+      sign_in artist
+
+      get by_id_tracks_path(format: :json, ids: [public_mix.id, private_mix.id].join(","))
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body).fetch("collection").pluck("id")).to match_array([public_mix.id, private_mix.id])
+    end
+
+    it "does not expose private mixes to another authenticated user" do
+      sign_in listener
+
+      get by_id_tracks_path(format: :json, ids: [public_mix.id, private_mix.id].join(","))
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body).fetch("collection").pluck("id")).to eq([public_mix.id])
+    end
+  end
+
   describe "GET /tracks.json" do
     let(:artist) { create(:user, confirmed_at: Time.current) }
     let!(:techno_track) do
