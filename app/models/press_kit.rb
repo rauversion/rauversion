@@ -22,6 +22,7 @@ class PressKit < ApplicationRecord
       socialLinks: [],
       contacts: [],
       tourDates: [],
+      technicalRider: "",
       playlist_ids: [],
       track_ids: [],
       externalMusicLinks: [

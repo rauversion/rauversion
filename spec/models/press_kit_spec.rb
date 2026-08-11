@@ -13,6 +13,10 @@ RSpec.describe PressKit, type: :model do
   end
 
   describe "default data" do
+    it "includes a technical rider field" do
+      expect(described_class.default_data[:technicalRider]).to eq("")
+    end
+
     xit "initializes with default data structure" do
       press_kit = user.build_press_kit
       

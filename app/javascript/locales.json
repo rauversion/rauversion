@@ -2690,6 +2690,7 @@
         "music": "Music",
         "photos": "Press Photos",
         "social": "Social Links",
+        "technical_rider": "Technical Rider",
         "tours": "Tour Dates"
       },
       "social_links": {
@@ -2703,6 +2704,12 @@
         "title": "Social & Streaming Platforms",
         "url": "URL",
         "url_placeholder": "https://..."
+      },
+      "technical_rider": {
+        "description": "Detail the equipment, audio, monitoring, stage, power and setup requirements for your performance.",
+        "label": "Technical requirements",
+        "placeholder": "Example: 2 CDJ-3000 players, 1 DJM-900NXS2 mixer, stereo booth monitors at ear level...",
+        "title": "Technical Rider"
       },
       "title": "Press Kit",
       "tour_dates": {
@@ -7289,6 +7296,7 @@
         "music": "Música",
         "photos": "Fotos de Prensa",
         "social": "Enlaces Sociales",
+        "technical_rider": "Rider Técnico",
         "tours": "Fechas de Gira"
       },
       "social_links": {
@@ -7302,6 +7310,12 @@
         "title": "Plataformas Sociales y Streaming",
         "url": "URL",
         "url_placeholder": "https://..."
+      },
+      "technical_rider": {
+        "description": "Detalla los requisitos de equipamiento, audio, monitoreo, escenario, energía y montaje para tu presentación.",
+        "label": "Requisitos técnicos",
+        "placeholder": "Ejemplo: 2 reproductores CDJ-3000, 1 mixer DJM-900NXS2, monitores estéreo de cabina a la altura de los oídos...",
+        "title": "Rider Técnico"
       },
       "title": "Kit de Prensa",
       "tour_dates": {

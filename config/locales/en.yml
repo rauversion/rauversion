@@ -2843,6 +2843,7 @@ en:
       music: Music
       social: Social Links
       photos: Press Photos
+      technical_rider: Technical Rider
       contacts: Contact Info
       tours: Tour Dates
     artist_info:
@@ -2896,6 +2897,11 @@ en:
       image_uploaded: Image uploaded and attached
       failed_to_attach: Failed to attach photo
       press_photo_alt: Press photo
+    technical_rider:
+      title: Technical Rider
+      description: Detail the equipment, audio, monitoring, stage, power and setup requirements for your performance.
+      label: Technical requirements
+      placeholder: "Example: 2 CDJ-3000 players, 1 DJM-900NXS2 mixer, stereo booth monitors at ear level..."
     contacts:
       title: Contact Information
       add: Add Contact

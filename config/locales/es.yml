@@ -2899,6 +2899,7 @@ es:
       music: Música
       social: Enlaces Sociales
       photos: Fotos de Prensa
+      technical_rider: Rider Técnico
       contacts: Información de Contacto
       tours: Fechas de Gira
     artist_info:
@@ -2952,6 +2953,11 @@ es:
       image_uploaded: Imagen subida y adjuntada
       failed_to_attach: Error al adjuntar foto
       press_photo_alt: Foto de prensa
+    technical_rider:
+      title: Rider Técnico
+      description: Detalla los requisitos de equipamiento, audio, monitoreo, escenario, energía y montaje para tu presentación.
+      label: Requisitos técnicos
+      placeholder: "Ejemplo: 2 reproductores CDJ-3000, 1 mixer DJM-900NXS2, monitores estéreo de cabina a la altura de los oídos..."
     contacts:
       title: Información de Contacto
       add: Agregar Contacto

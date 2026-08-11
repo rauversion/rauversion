@@ -117,6 +117,7 @@ class PressKitsController < ApplicationController
         {
           id: photo.id,
           url: photo.image.attached? ? url_for(photo.image) : nil,
+          pdf_url: photo.image.attached? ? rails_storage_proxy_path(photo.image) : nil,
           description: photo.description,
           tags: photo.tags
         }

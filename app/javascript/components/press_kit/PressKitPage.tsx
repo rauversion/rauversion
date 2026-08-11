@@ -35,6 +35,7 @@ export default function PressKitPage() {
     socialLinks: [],
     contacts: [],
     tourDates: [],
+    technicalRider: "",
     pressPhotos: [],
     externalMusicLinks: [],
   })
@@ -44,6 +45,8 @@ export default function PressKitPage() {
   const [animatedSections, setAnimatedSections] = useState<string[]>([])
   const [hasPressKit, setHasPressKit] = useState<boolean | null>(null)
   const S = (v: any) => (v ?? "").toString()
+  const hasTechnicalRider = Boolean(pressKitData.technicalRider?.trim())
+  const navigationSections = ["intro", "bio", "music", "photos", ...(hasTechnicalRider ? ["technical-rider"] : []), "contact"]
 
   const isOwner = currentUser && currentUser.username === username
 
@@ -92,6 +95,7 @@ export default function PressKitPage() {
         // Update press kit data from the response (includes cleaned up photo URLs)
         if (data.press_kit && data.press_kit.data) {
           setPressKitData(data.press_kit.data)
+          setHasPressKit(true)
         }
         // Update photos from the queryable association
         if (data.press_kit && data.press_kit.photos) {
@@ -201,8 +205,7 @@ export default function PressKitPage() {
         observer.observe(section)
       })
     } else {
-      const ids = ["intro", "bio", "music", "photos", "press", "contact"]
-      ids.forEach((id) => {
+      navigationSections.forEach((id) => {
         const el = document.getElementById(id)
         if (el) {
           console.log("PressKit: fallback observing ->", id)
@@ -222,7 +225,7 @@ export default function PressKitPage() {
       }
       observer.disconnect()
     }
-  }, [loading])
+  }, [loading, hasTechnicalRider])
 
   const toggleTheme = () => {
     setIsDark(!isDark)
@@ -241,10 +244,56 @@ export default function PressKitPage() {
     setIsGeneratingPDF(true)
     console.log("[v0] Starting PDF generation...")
     try {
-      const [html2canvas, jsPDF] = await Promise.all([import("html2canvas"), import("jspdf")])
+      const { jsPDF: PDF } = await import("jspdf")
 
-      const canvas = html2canvas.default
-      const { jsPDF: PDF } = jsPDF
+      const imageUrlToJpeg = async (url: string) => {
+        const response = await fetch(url)
+        if (!response.ok) throw new Error(`Unable to load image (${response.status})`)
+
+        const objectUrl = URL.createObjectURL(await response.blob())
+        try {
+          const image = document.createElement("img")
+          image.src = objectUrl
+          await new Promise<void>((resolve, reject) => {
+            image.onload = () => resolve()
+            image.onerror = () => reject(new Error("Unable to decode image"))
+          })
+
+          const targetWidth = 1200
+          const targetHeight = 900
+          const imageCanvas = document.createElement("canvas")
+          imageCanvas.width = targetWidth
+          imageCanvas.height = targetHeight
+          const context = imageCanvas.getContext("2d")
+          if (!context || !image.naturalWidth || !image.naturalHeight) {
+            throw new Error("Unable to prepare image for PDF")
+          }
+
+          const scale = Math.max(targetWidth / image.naturalWidth, targetHeight / image.naturalHeight)
+          const sourceWidth = targetWidth / scale
+          const sourceHeight = targetHeight / scale
+          const sourceX = (image.naturalWidth - sourceWidth) / 2
+          const sourceY = (image.naturalHeight - sourceHeight) / 2
+
+          context.fillStyle = "#1a1a1a"
+          context.fillRect(0, 0, targetWidth, targetHeight)
+          context.drawImage(
+            image,
+            sourceX,
+            sourceY,
+            sourceWidth,
+            sourceHeight,
+            0,
+            0,
+            targetWidth,
+            targetHeight,
+          )
+
+          return imageCanvas.toDataURL("image/jpeg", 0.85)
+        } finally {
+          URL.revokeObjectURL(objectUrl)
+        }
+      }
 
       // Create PDF in A4 format
       const pdf = new PDF({
@@ -257,13 +306,9 @@ export default function PressKitPage() {
       const pageHeight = pdf.internal.pageSize.getHeight()
       const margin = 20
 
-      // Helper to add a new page
-      let isFirstPage = true
+      // Every call happens after the cover has already been drawn.
       const addNewPage = () => {
-        if (!isFirstPage) {
-          pdf.addPage()
-        }
-        isFirstPage = false
+        pdf.addPage()
       }
 
       // Page 1: Cover Page
@@ -379,27 +424,31 @@ export default function PressKitPage() {
       const photoWidth = (pageWidth - 3 * margin) / 2
       const photoHeight = photoWidth * 0.75
 
-      for (let i = 0; i < Math.min(4, photos.length); i++) {
+      for (let i = 0; i < photos.length; i++) {
+        if (i > 0 && i % 4 === 0) {
+          addNewPage()
+          pdf.setFillColor(10, 10, 10)
+          pdf.rect(0, 0, pageWidth, pageHeight, "F")
+
+          yPos = margin
+          pdf.setTextColor(255, 255, 255)
+          pdf.setFontSize(24)
+          pdf.setFont(undefined, "bold")
+          pdf.text("Press Photos", margin, yPos)
+          yPos += 15
+        }
+
         const photo = photos[i]
-        const col = i % 2
-        const row = Math.floor(i / 2)
+        const pageIndex = i % 4
+        const col = pageIndex % 2
+        const row = Math.floor(pageIndex / 2)
         const x = margin + col * (photoWidth + margin)
         const y = yPos + row * (photoHeight + 15)
 
         try {
-          const img = document.createElement("img")
-          img.crossOrigin = "anonymous"
-          img.src = photo.url
-          await new Promise((resolve) => {
-            img.onload = resolve
-            img.onerror = resolve
-          })
-
-          const imgCanvas = await canvas(img, {
-            backgroundColor: "#1a1a1a",
-            scale: 1,
-          })
-          const imgData = imgCanvas.toDataURL("image/jpeg", 0.8)
+          const imageUrl = photo.pdf_url || photo.url
+          if (!imageUrl) throw new Error("Photo does not have a URL")
+          const imgData = await imageUrlToJpeg(imageUrl)
 
           pdf.setDrawColor(51, 51, 51)
           pdf.setLineWidth(0.3)
@@ -422,7 +471,30 @@ export default function PressKitPage() {
         }
       }
 
-      // Page 4: Contact Information
+      if (hasTechnicalRider) {
+        addNewPage()
+        pdf.setFillColor(10, 10, 10)
+        pdf.rect(0, 0, pageWidth, pageHeight, "F")
+
+        yPos = margin
+        pdf.setTextColor(255, 255, 255)
+        pdf.setFontSize(32)
+        pdf.setFont(undefined, "bold")
+        pdf.text("Technical Rider", margin, yPos)
+
+        pdf.setDrawColor(168, 85, 247)
+        pdf.setLineWidth(0.5)
+        pdf.line(margin, yPos + 3, pageWidth - margin, yPos + 3)
+
+        yPos += 15
+        pdf.setTextColor(204, 204, 204)
+        pdf.setFontSize(11)
+        pdf.setFont(undefined, "normal")
+        const riderText = pdf.splitTextToSize(S(pressKitData.technicalRider), pageWidth - 2 * margin)
+        pdf.text(riderText, margin, yPos)
+      }
+
+      // Contact Information
       addNewPage()
       pdf.setFillColor(10, 10, 10)
       pdf.rect(0, 0, pageWidth, pageHeight, "F")
@@ -613,7 +685,7 @@ export default function PressKitPage() {
 
       <nav className="fixed left-8 top-1/2 -translate-y-1/2 z-10 hidden lg:block">
         <div className="flex flex-col gap-4">
-          {["intro", "bio", "music", "photos", "press", "contact"].map((section) => (
+          {navigationSections.map((section) => (
             <button
               key={section}
               onClick={() => document.getElementById(section)?.scrollIntoView({ behavior: "smooth" })}
@@ -881,16 +953,22 @@ export default function PressKitPage() {
           </div>
         </section>
 
-        <section
-          id="press"
-          ref={(el) => (sectionsRef.current[4] = el)}
-          className={`min-h-screen py-20 sm:py-32 ${animatedSections.includes("press") ? "animate-fade-in-up opacity-100" : "opacity-0"}`}
-        >
-          <div className="space-y-12">
-            <h2 className="text-4xl sm:text-5xl font-bold">{i18n.t("press_kit.press_reviews.title")}</h2>
-            <p className="text-muted-foreground">{i18n.t("press_kit.press_reviews.empty")}</p>
-          </div>
-        </section>
+        {hasTechnicalRider && (
+          <section
+            id="technical-rider"
+            ref={(el) => (sectionsRef.current[4] = el)}
+            className={`min-h-screen py-20 sm:py-32 ${animatedSections.includes("technical-rider") ? "animate-fade-in-up opacity-100" : "opacity-0"}`}
+          >
+            <div className="space-y-12">
+              <h2 className="text-4xl sm:text-5xl font-bold">{i18n.t("press_kit.technical_rider.title")}</h2>
+              <div className="max-w-4xl rounded-lg border border-border bg-secondary/20 p-6 sm:p-8">
+                <p className="whitespace-pre-wrap text-lg leading-relaxed text-muted-foreground">
+                  {pressKitData.technicalRider}
+                </p>
+              </div>
+            </div>
+          </section>
+        )}
 
         <section id="contact" ref={(el) => (sectionsRef.current[5] = el)} className={`py-20 sm:py-32 ${animatedSections.includes("contact") ? "animate-fade-in-up opacity-100" : "opacity-0"}`}>
           <div className="grid lg:grid-cols-2 gap-12 sm:gap-16">

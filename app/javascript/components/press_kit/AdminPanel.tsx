@@ -47,6 +47,7 @@ export interface PressKitData {
     venue: string
     city: string
   }[]
+  technicalRider?: string
   pressPhotos: {
     title: string
     resolution: string
@@ -320,6 +321,12 @@ export function AdminPanel({ isOpen, onClose, data, photos = [], onSave }: Admin
                 className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
               >
                 {i18n.t("press_kit.sections.photos")}
+              </TabsTrigger>
+              <TabsTrigger
+                value="technical-rider"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
+              >
+                {i18n.t("press_kit.sections.technical_rider")}
               </TabsTrigger>
               <TabsTrigger
                 value="contacts"
@@ -668,6 +675,27 @@ export function AdminPanel({ isOpen, onClose, data, photos = [], onSave }: Admin
                           toast({ title: i18n.t("press_kit.error"), description: e?.message || i18n.t("press_kit.press_photos.failed_to_attach"), variant: "destructive" })
                         }
                       }}
+                    />
+                  </div>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="technical-rider" className="space-y-6 mt-0">
+                <div className="space-y-4">
+                  <div className="space-y-1">
+                    <h3 className="text-lg font-semibold">{i18n.t("press_kit.technical_rider.title")}</h3>
+                    <p className="text-sm text-muted-foreground">
+                      {i18n.t("press_kit.technical_rider.description")}
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>{i18n.t("press_kit.technical_rider.label")}</Label>
+                    <Textarea
+                      value={formData.technicalRider || ""}
+                      onChange={(e) => setFormData({ ...formData, technicalRider: e.target.value })}
+                      placeholder={i18n.t("press_kit.technical_rider.placeholder")}
+                      rows={12}
                     />
                   </div>
                 </div>

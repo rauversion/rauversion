@@ -47,7 +47,8 @@ RSpec.describe "PressKits", type: :request do
           press_kit: {
             data: JSON.generate({
               artistName: "New Artist Name",
-              tagline: "New Tagline"
+              tagline: "New Tagline",
+              technicalRider: "2 CDJ-3000 and 1 DJM-900NXS2"
             })
           }
         }
@@ -55,6 +56,7 @@ RSpec.describe "PressKits", type: :request do
         expect(response).to have_http_status(:success)
         json_response = JSON.parse(response.body)
         expect(json_response['press_kit']['data']['artistName']).to eq("New Artist Name")
+        expect(json_response['press_kit']['data']['technicalRider']).to eq("2 CDJ-3000 and 1 DJM-900NXS2")
         
         user.reload
         expect(user.press_kit).to be_present
@@ -158,6 +160,7 @@ RSpec.describe "PressKits", type: :request do
         expect(json_response['press_kit']['photos'][0]['id']).to eq(photo.id)
         expect(json_response['press_kit']['photos'][0]['description']).to eq("Test photo")
         expect(json_response['press_kit']['photos'][0]['url']).to be_present
+        expect(json_response['press_kit']['photos'][0]['pdf_url']).to be_present
       end
 
       it "allows querying photos through the press_kit.photos association" do
