@@ -13,6 +13,13 @@ class User < ApplicationRecord
     :recoverable, :rememberable, :validatable, :confirmable,
     :invitable, :omniauthable, :trackable, :lockable
 
+  has_many :memberships, dependent: :destroy
+  has_many :tenants, through: :memberships
+
+  after_create :create_initial_membership
+  after_update :sync_legacy_role_to_central_membership,
+    if: -> { saved_change_to_role? || saved_change_to_editor? }
+
   has_many :participants
   has_many :conversations, through: :participants
   has_many :tracks
@@ -127,6 +134,30 @@ class User < ApplicationRecord
   validate :radio_stream_url_must_be_http
 
   scope :artists, -> { where(role: "artist").where.not(username: nil) }
+
+  def membership_for(tenant = Current.tenant)
+    return if tenant.blank?
+
+    memberships.find_by(tenant: tenant)
+  end
+
+  def role_for(tenant = Current.tenant)
+    membership_for(tenant)&.role
+  end
+
+  def create_initial_membership
+    tenant = Current.tenant || Tenant.find_by(central: true)
+    return if tenant.blank?
+
+    memberships.find_or_create_by!(tenant: tenant) do |membership|
+      membership.role = Membership.role_for_user(self)
+    end
+  end
+
+  def sync_legacy_role_to_central_membership
+    membership = memberships.joins(:tenant).find_by(tenants: { central: true })
+    membership&.update!(role: Membership.role_for_user(self))
+  end
   
   
   def full_name

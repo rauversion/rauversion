@@ -135,6 +135,8 @@ import AdminListeningPage from "./admin/AdminListeningPage"
 import AdminResourceListPage from "./admin/AdminResourceListPage"
 import AdminResourceFormPage from "./admin/AdminResourceFormPage"
 import AdminTrackShowPage from "./admin/AdminTrackShowPage"
+import TenantOnboarding from "./tenants/TenantOnboarding"
+import TenantDashboard from "./tenants/TenantDashboard"
 
 function RequireAuth({ children }) {
   const { currentUser, loading: currentUserLoading } = useAuthStore()
@@ -346,6 +348,8 @@ function AppContent() {
       <Route path="/users/invitation/accept" element={<AcceptInvitation />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/users/password/edit" element={<EditPassword />} />
+      <Route path="/tenants/new" element={<RequireAuth><TenantOnboarding /></RequireAuth>} />
+      <Route path="/tenants" element={<RequireAuth><TenantDashboard /></RequireAuth>} />
 
 
       <Route path="/" element={<Home />} />

@@ -1,4 +1,6 @@
 class ApplicationController < ActionController::Base
+  before_action :set_current_tenant
+
   before_action do
     ActiveStorage::Current.url_options = {protocol: request.protocol, host: request.host, port: request.port}
     # ActiveStorage::Current.url_options = { protocol: "http://", host: "localhost", port: "3000" }
@@ -7,7 +9,15 @@ class ApplicationController < ActionController::Base
 
   before_action :set_locale
 
-  helper_method :flash_stream
+  helper_method :flash_stream, :current_tenant, :current_membership
+
+  def current_tenant
+    Current.tenant
+  end
+
+  def current_membership
+    Current.membership
+  end
 
   layout :layout_by_resource
 
@@ -40,7 +50,8 @@ class ApplicationController < ActionController::Base
   end
 
   def guard_artist
-    return if current_user.artist? or current_user.admin? or current_user.editor?
+    return if current_membership&.can_manage_content?
+
     redirect_to root_url
   end
 
@@ -78,6 +89,25 @@ class ApplicationController < ActionController::Base
   end
 
   protected
+
+  def set_current_tenant
+    Current.tenant = tenant_from_host || tenant_from_session || Tenant.central
+    Current.user = current_user
+    Current.membership = current_user&.membership_for(Current.tenant)
+  end
+
+  def tenant_from_host
+    slug = request.subdomains.first
+    return if slug.blank? || slug.in?(%w[www app])
+
+    Tenant.find_by(slug: slug)
+  end
+
+  def tenant_from_session
+    return if current_user.blank? || session[:tenant_id].blank?
+
+    current_user.memberships.find_by(tenant_id: session[:tenant_id])&.tenant
+  end
 
   def start_impersonation(actor:, user:)
     session[:parent_user] ||= actor.id

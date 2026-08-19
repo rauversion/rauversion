@@ -82,6 +82,16 @@ Rails.application.routes.draw do
   get "/search", to: "application#render_blank"
   get "/forgot-password", to: "application#render_blank"
   get "/library/likes", to: "application#render_blank"
+  get "/tenants/new", to: "application#render_blank"
+
+  resources :tenants, only: [:index, :create] do
+    collection do
+      get :availability
+    end
+    member do
+      post :activate
+    end
+  end
 
 
   # Stripe Connect routes

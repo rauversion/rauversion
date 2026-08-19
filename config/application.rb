@@ -20,6 +20,7 @@ module RauversionRor
     config.mission_control.jobs.base_controller_class = "Admin::JobsController"
 
     config.hosts << "www.example.com" if Rails.env.test?
+    config.hosts << ".lvh.me" if Rails.env.development?
 
     config.active_storage.track_variants = true
 

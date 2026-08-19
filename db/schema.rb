@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_07_27_190000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_18_000000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -447,6 +447,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_27_190000) do
     t.string "utm_medium"
     t.string "utm_source"
     t.string "utm_term"
+  end
+
+  create_table "memberships", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "role", default: "member", null: false
+    t.bigint "tenant_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["tenant_id", "role"], name: "index_memberships_on_tenant_id_and_role"
+    t.index ["tenant_id", "user_id"], name: "index_memberships_on_tenant_id_and_user_id", unique: true
+    t.index ["tenant_id"], name: "index_memberships_on_tenant_id"
+    t.index ["user_id"], name: "index_memberships_on_user_id"
   end
 
   create_table "mentions", force: :cascade do |t|
@@ -1254,6 +1266,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_27_190000) do
     t.index ["user_id"], name: "index_spotlights_on_user_id"
   end
 
+  create_table "tenants", force: :cascade do |t|
+    t.boolean "central", default: false, null: false
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.string "slug", null: false
+    t.datetime "updated_at", null: false
+    t.index ["central"], name: "index_tenants_on_single_central", unique: true, where: "(central = true)"
+    t.index ["slug"], name: "index_tenants_on_slug", unique: true
+  end
+
   create_table "terms_and_conditions", force: :cascade do |t|
     t.string "category"
     t.text "content"
@@ -1519,6 +1541,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_07_27_190000) do
   add_foreign_key "events", "users"
   add_foreign_key "interest_alerts", "users"
   add_foreign_key "lessons", "course_modules"
+  add_foreign_key "memberships", "tenants"
+  add_foreign_key "memberships", "users"
   add_foreign_key "message_reads", "messages"
   add_foreign_key "message_reads", "participants"
   add_foreign_key "messages", "conversations"
