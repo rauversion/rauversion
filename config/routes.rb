@@ -83,8 +83,9 @@ Rails.application.routes.draw do
   get "/forgot-password", to: "application#render_blank"
   get "/library/likes", to: "application#render_blank"
   get "/tenants/new", to: "application#render_blank"
+  get "/tenants/:id/settings", to: "application#render_blank"
 
-  resources :tenants, only: [:index, :create] do
+  resources :tenants, only: [:index, :show, :create, :update] do
     collection do
       get :availability
     end

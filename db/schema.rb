@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_19_010000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_19_020000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -679,44 +679,44 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_19_010000) do
     t.index ["plain_conversation_id"], name: "index_plain_messages_on_plain_conversation_id"
   end
 
-  # create_table "playlist_gen_library_uploads", force: :cascade do |t|
-  #   t.datetime "created_at", null: false
-  #   t.text "error_message"
-  #   t.string "source", null: false
-  #   t.string "status", default: "pending", null: false
-  #   t.integer "total_tracks_imported"
-  #   t.datetime "updated_at", null: false
-  #   t.index ["source"], name: "index_playlist_gen_library_uploads_on_source"
-  #   t.index ["status"], name: "index_playlist_gen_library_uploads_on_status"
-  # end
-# 
-  # create_table "playlist_gen_playlist_tracks", force: :cascade do |t|
-  #   t.datetime "created_at", null: false
-  #   t.bigint "playlist_id", null: false
-  #   t.integer "position", null: false
-  #   t.bigint "track_id", null: false
-  #   t.datetime "updated_at", null: false
-  #   t.index ["playlist_id", "position"], name: "index_playlist_gen_playlist_tracks_on_playlist_id_and_position"
-  #   t.index ["playlist_id", "track_id"], name: "index_playlist_gen_playlist_tracks_on_playlist_id_and_track_id", unique: true
-  #   t.index ["playlist_id"], name: "index_playlist_gen_playlist_tracks_on_playlist_id"
-  #   t.index ["track_id"], name: "index_playlist_gen_playlist_tracks_on_track_id"
-  # end
-# 
-  # create_table "playlist_gen_playlists", force: :cascade do |t|
-  #   t.decimal "bpm_max", precision: 5, scale: 2
-  #   t.decimal "bpm_min", precision: 5, scale: 2
-  #   t.datetime "created_at", null: false
-  #   t.integer "duration_seconds"
-  #   t.string "energy_curve"
-  #   t.datetime "generated_at"
-  #   t.string "name", null: false
-  #   t.text "prompt"
-  #   t.string "status", default: "draft", null: false
-  #   t.integer "total_tracks"
-  #   t.datetime "updated_at", null: false
-  #   t.index ["generated_at"], name: "index_playlist_gen_playlists_on_generated_at"
-  #   t.index ["status"], name: "index_playlist_gen_playlists_on_status"
-  # end
+  create_table "playlist_gen_library_uploads", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.text "error_message"
+    t.string "source", null: false
+    t.string "status", default: "pending", null: false
+    t.integer "total_tracks_imported"
+    t.datetime "updated_at", null: false
+    t.index ["source"], name: "index_playlist_gen_library_uploads_on_source"
+    t.index ["status"], name: "index_playlist_gen_library_uploads_on_status"
+  end
+
+  create_table "playlist_gen_playlist_tracks", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "playlist_id", null: false
+    t.integer "position", null: false
+    t.bigint "track_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["playlist_id", "position"], name: "index_playlist_gen_playlist_tracks_on_playlist_id_and_position"
+    t.index ["playlist_id", "track_id"], name: "index_playlist_gen_playlist_tracks_on_playlist_id_and_track_id", unique: true
+    t.index ["playlist_id"], name: "index_playlist_gen_playlist_tracks_on_playlist_id"
+    t.index ["track_id"], name: "index_playlist_gen_playlist_tracks_on_track_id"
+  end
+
+  create_table "playlist_gen_playlists", force: :cascade do |t|
+    t.decimal "bpm_max", precision: 5, scale: 2
+    t.decimal "bpm_min", precision: 5, scale: 2
+    t.datetime "created_at", null: false
+    t.integer "duration_seconds"
+    t.string "energy_curve"
+    t.datetime "generated_at"
+    t.string "name", null: false
+    t.text "prompt"
+    t.string "status", default: "draft", null: false
+    t.integer "total_tracks"
+    t.datetime "updated_at", null: false
+    t.index ["generated_at"], name: "index_playlist_gen_playlists_on_generated_at"
+    t.index ["status"], name: "index_playlist_gen_playlists_on_status"
+  end
 
 # Could not dump table "playlist_gen_tracks" because of following StandardError
 #   Unknown type 'vector(1536)' for column 'embedding'
@@ -1306,6 +1306,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_19_010000) do
     t.boolean "central", default: false, null: false
     t.datetime "created_at", null: false
     t.string "name", null: false
+    t.jsonb "settings", default: {}, null: false
     t.string "slug", null: false
     t.datetime "updated_at", null: false
     t.index ["central"], name: "index_tenants_on_single_central", unique: true, where: "(central = true)"
@@ -1603,8 +1604,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_19_010000) do
   add_foreign_key "participants", "users"
   add_foreign_key "photos", "users"
   add_foreign_key "plain_messages", "plain_conversations"
-  #add_foreign_key "playlist_gen_playlist_tracks", "playlist_gen_playlists", column: "playlist_id"
-  #add_foreign_key "playlist_gen_playlist_tracks", "playlist_gen_tracks", column: "track_id"
+  add_foreign_key "playlist_gen_playlist_tracks", "playlist_gen_playlists", column: "playlist_id"
+  add_foreign_key "playlist_gen_playlist_tracks", "playlist_gen_tracks", column: "track_id"
   add_foreign_key "playlists", "tenants"
   add_foreign_key "playlists", "users"
   add_foreign_key "podcaster_hosts", "podcaster_infos"

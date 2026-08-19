@@ -11,6 +11,7 @@ import {
   Loader2,
   Plus,
   Radio,
+  Settings2,
   ShieldCheck,
   Users2,
 } from "lucide-react"
@@ -30,6 +31,7 @@ type Tenant = {
   central: boolean
   role: "member" | "artist" | "editor" | "admin" | "owner"
   preview_url: string
+  can_manage_settings: boolean
 }
 
 const roleLabels: Record<Tenant["role"], string> = {
@@ -86,7 +88,7 @@ function TenantCard({
           <span className="flex items-center gap-1.5"><Users2 className="h-3.5 w-3.5" /> Acceso verificado</span>
           <span>{tenant.central ? "Plataforma central" : "Tenant privado"}</span>
         </div>
-        <div className="grid grid-cols-[1fr_auto] gap-2">
+        <div className="grid grid-cols-[1fr_auto_auto] gap-2">
           <Button
             type="button"
             disabled={active || activating}
@@ -98,6 +100,13 @@ function TenantCard({
             {active ? "Tenant activo" : "Entrar al tenant"}
             {!active && !activating && <ChevronRight className="ml-2 h-4 w-4" />}
           </Button>
+          {tenant.can_manage_settings && (
+            <Button type="button" variant="outline" size="icon" asChild title="Configurar tenant">
+              <a href={`/tenants/${tenant.id}/settings`}>
+                <Settings2 className="h-4 w-4" />
+              </a>
+            </Button>
+          )}
           <Button type="button" variant="outline" size="icon" asChild title="Abrir host del tenant">
             <a href={tenant.preview_url} target="_blank" rel="noreferrer">
               <ArrowUpRight className="h-4 w-4" />

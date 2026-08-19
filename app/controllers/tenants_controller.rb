@@ -1,5 +1,7 @@
 class TenantsController < ApplicationController
   before_action :authenticate_user!
+  before_action :set_membership, only: [:show, :update, :activate]
+  before_action :authorize_tenant_settings!, only: [:update]
 
   def index
     memberships = current_user.memberships
@@ -31,6 +33,13 @@ class TenantsController < ApplicationController
     }
   end
 
+  def show
+    respond_to do |format|
+      format.html { render inline: "", layout: "react" }
+      format.json { render json: { tenant: tenant_payload(@membership) } }
+    end
+  end
+
   def create
     tenant = Tenant.new(tenant_params)
 
@@ -54,19 +63,59 @@ class TenantsController < ApplicationController
   end
 
   def activate
-    membership = current_user.memberships.includes(:tenant).find_by!(tenant_id: params[:id])
-    session[:tenant_id] = membership.tenant_id
+    session[:tenant_id] = @membership.tenant_id
 
     render json: {
-      tenant: tenant_payload(membership),
+      tenant: tenant_payload(@membership),
       message: "Tenant activated"
     }
+  end
+
+  def update
+    attributes = tenant_settings_params
+    logo = attributes.delete(:logo)
+    remove_logo = ActiveModel::Type::Boolean.new.cast(attributes.delete(:remove_logo))
+
+    Tenant.transaction do
+      @tenant.update!(attributes)
+      @tenant.logo.attach(logo) if logo.present?
+      @tenant.logo.purge if remove_logo && logo.blank? && @tenant.logo.attached?
+    end
+
+    render json: { tenant: tenant_payload(@membership.reload) }
+  rescue ActiveRecord::RecordInvalid => error
+    render json: { errors: error.record.errors.to_hash(true) }, status: :unprocessable_entity
   end
 
   private
 
   def tenant_params
     params.require(:tenant).permit(:name, :slug)
+  end
+
+  def tenant_settings_params
+    params.require(:tenant).permit(
+      :name,
+      :tagline,
+      :template,
+      :primary_color,
+      :accent_color,
+      :background_color,
+      :heading_font,
+      :logo,
+      :remove_logo
+    )
+  end
+
+  def set_membership
+    @membership = current_user.memberships.includes(:tenant).find_by!(tenant_id: params[:id])
+    @tenant = @membership.tenant
+  end
+
+  def authorize_tenant_settings!
+    return if @membership.role.in?(%w[owner admin])
+
+    render json: { errors: { base: ["You cannot manage this tenant"] } }, status: :forbidden
   end
 
   def tenant_base_domain
@@ -82,7 +131,17 @@ class TenantsController < ApplicationController
       slug: tenant.slug,
       central: tenant.central?,
       role: membership.role,
-      preview_url: tenant_preview_url(tenant)
+      preview_url: tenant_preview_url(tenant),
+      can_manage_settings: membership.role.in?(%w[owner admin]),
+      logo_url: tenant.logo.attached? ? url_for(tenant.logo) : nil,
+      settings: {
+        tagline: tenant.tagline,
+        template: tenant.template,
+        primary_color: tenant.primary_color,
+        accent_color: tenant.accent_color,
+        background_color: tenant.background_color,
+        heading_font: tenant.heading_font
+      }
     }
   end
 

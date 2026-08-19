@@ -1,4 +1,8 @@
 class Tenant < ApplicationRecord
+  TEMPLATES = %w[amplifier editorial waveform].freeze
+  HEADING_FONTS = %w[space_grotesk archivo_clash ibm_plex].freeze
+  COLOR_FORMAT = /\A#[0-9a-fA-F]{6}\z/
+
   RESERVED_SLUGS = %w[
     admin api app assets backstage billing domains help mail newsletter
     secure settings status support www
@@ -14,6 +18,14 @@ class Tenant < ApplicationRecord
   has_many :posts, dependent: :restrict_with_exception
   has_many :courses, dependent: :restrict_with_exception
   has_many :releases, dependent: :restrict_with_exception
+  has_one_attached :logo
+
+  store_attribute :settings, :tagline, :string
+  store_attribute :settings, :template, :string, default: "amplifier"
+  store_attribute :settings, :primary_color, :string, default: "#34d399"
+  store_attribute :settings, :accent_color, :string, default: "#22d3ee"
+  store_attribute :settings, :background_color, :string, default: "#09090b"
+  store_attribute :settings, :heading_font, :string, default: "space_grotesk"
 
   normalizes :slug, with: ->(slug) { normalize_slug(slug) }
 
@@ -24,6 +36,10 @@ class Tenant < ApplicationRecord
     length: { minimum: 3, maximum: 63 },
     exclusion: { in: RESERVED_SLUGS, message: "is reserved" },
     format: { with: /\A[a-z0-9]+(?:-[a-z0-9]+)*\z/ }
+  validates :template, inclusion: { in: TEMPLATES }
+  validates :heading_font, inclusion: { in: HEADING_FONTS }
+  validates :primary_color, :accent_color, :background_color, format: { with: COLOR_FORMAT }
+  validates :tagline, length: { maximum: 160 }, allow_blank: true
 
   def self.central
     find_by!(central: true)
