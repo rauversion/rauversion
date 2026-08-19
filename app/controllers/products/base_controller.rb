@@ -7,7 +7,7 @@ module Products
     private
 
     def set_product
-      @product = current_user.products.friendly.find(params[:id])
+      @product = current_user.products.for_tenant.friendly.find(params[:id])
     end
 
     def authorize_user
@@ -17,7 +17,7 @@ module Products
     end
 
     def find_product
-      product_class.friendly.find(params[:id])
+      product_class.for_tenant.friendly.find(params[:id])
     end
 
     def product_params

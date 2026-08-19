@@ -6,6 +6,7 @@ class Product < ApplicationRecord
 
   self.inheritance_column = 'type'
 
+  belongs_to :tenant
   belongs_to :user
   belongs_to :album, class_name: 'Playlist', optional: true, foreign_key: :playlist_id
   belongs_to :coupon, optional: true
@@ -25,6 +26,9 @@ class Product < ApplicationRecord
   # validates :sku, presence: true, uniqueness: true
   validates :category, presence: true
   validates :status, presence: true
+  validate :album_belongs_to_tenant
+
+  before_validation -> { self.tenant ||= Current.tenant }, on: :create
 
   attribute :visibility, :string
   attribute :name_your_price, :boolean
@@ -46,8 +50,9 @@ class Product < ApplicationRecord
     poor: 'poor'
   }, prefix: true
 
-  scope :visibles, -> { where(status: 'active') }
-  scope :active, -> { where(status: 'active') }
+  scope :for_tenant, ->(tenant = Current.tenant) { tenant.present? ? where(tenant_id: tenant.id) : none }
+  scope :visibles, -> { for_tenant.where(status: 'active') }
+  scope :active, -> { for_tenant.where(status: 'active') }
   scope :by_category, ->(category) { where(category: category) }
 
   accepts_nested_attributes_for :product_variants, allow_destroy: true
@@ -122,5 +127,13 @@ class Product < ApplicationRecord
       #  raise ActiveRecord::RecordInvalid.new(self)
       # end
     end
+  end
+
+  private
+
+  def album_belongs_to_tenant
+    return if album.blank? || album.tenant_id == tenant_id
+
+    errors.add(:album, "must belong to the same tenant")
   end
 end

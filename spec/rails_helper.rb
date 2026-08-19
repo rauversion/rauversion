@@ -62,6 +62,16 @@ RSpec.configure do |config|
   config.before(:each) do
     DatabaseCleaner.strategy = :transaction
     DatabaseCleaner.clean_with(:truncation)
+    Current.tenant = FactoryBot.create(
+      :tenant,
+      name: "Rauversion",
+      slug: "rauversion",
+      central: true
+    )
+  end
+
+  config.after(:each) do
+    Current.reset
   end
 #
   #config.around(:each) do |example|

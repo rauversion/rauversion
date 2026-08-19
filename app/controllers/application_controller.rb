@@ -94,6 +94,7 @@ class ApplicationController < ActionController::Base
     Current.tenant = tenant_from_host || tenant_from_session || Tenant.central
     Current.user = current_user
     Current.membership = current_user&.membership_for(Current.tenant)
+    Current.tenant_profile = current_user&.tenant_profile_for(Current.tenant)
   end
 
   def tenant_from_host

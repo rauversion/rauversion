@@ -1,6 +1,6 @@
 class StoreController < ApplicationController
   def index
-    @products = Product.all.includes(
+    @products = Product.for_tenant.includes(
       product_images: {image_attachment: :blob}
     ).page(params[:page]).per(12)
     respond_to do |format|

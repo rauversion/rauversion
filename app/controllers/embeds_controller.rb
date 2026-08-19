@@ -4,8 +4,8 @@ class EmbedsController < ApplicationController
   before_action :remove_frame_options_header
 
   def show
-    @track = Track.friendly.find(params[:track_id]) if params[:track_id].present?
-    @playlist = Playlist.friendly.find(params[:playlist_id]) if params[:playlist_id].present?
+    @track = Track.for_tenant.friendly.find(params[:track_id]) if params[:track_id].present?
+    @playlist = Playlist.for_tenant.friendly.find(params[:playlist_id]) if params[:playlist_id].present?
   end
 
   #  def show
@@ -31,11 +31,11 @@ class EmbedsController < ApplicationController
 
   def oembed_show
     if params[:track_id]
-      @track = Track.friendly.find(params[:track_id])
+      @track = Track.for_tenant.friendly.find(params[:track_id])
       return render status: 404, plain: "This track is private or not found" unless @track
       render json: data_for_oembed_track(@track)
     else
-      @playlist = Playlist.friendly.find(params[:playlist_id])
+      @playlist = Playlist.for_tenant.friendly.find(params[:playlist_id])
       return render status: 404, plain: "This playlist is private or not found" unless @playlist
       render json: data_for_oembed_playlist(@playlist)
     end

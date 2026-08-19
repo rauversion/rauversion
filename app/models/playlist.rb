@@ -18,6 +18,7 @@ class Playlist < ApplicationRecord
   extend FriendlyId
   friendly_id :title, use: :slugged
 
+  belongs_to :tenant
   belongs_to :user
   belongs_to :label, class_name: "User", optional: true
 
@@ -39,13 +40,15 @@ class Playlist < ApplicationRecord
   belongs_to :label, class_name: "User", optional: true
   attr_accessor :enable_label
   before_save :check_label
+  before_validation -> { self.tenant ||= Current.tenant }, on: :create
 
   def check_label
    self.label_id = Current.label_user.id if enable_label && Current.label_user 
   end
 
   scope :latests, -> { order("id desc") }
-  scope :published, -> { where(private: [false, nil]) }
+  scope :for_tenant, ->(tenant = Current.tenant) { tenant.present? ? where(tenant_id: tenant.id) : none }
+  scope :published, -> { for_tenant.where(private: [false, nil]) }
   scope :albums, -> { where(playlist_type: "album") }
   store_accessor :metadata, :buy_link, :string
   store_accessor :metadata, :buy_link_title, :string
@@ -152,7 +155,7 @@ class Playlist < ApplicationRecord
     #  .group("playlists.id")
 
 
-    Playlist
+    Playlist.for_tenant
       .select("playlists.*, SUM(CASE WHEN track_playlists.track_id = #{track_id} THEN 1 ELSE 0 END) as track_count")
       .left_outer_joins(:track_playlists)
       .where(user_id: user_id)

@@ -4,7 +4,10 @@ class Course < ApplicationRecord
 
   friendly_id :title, use: :slugged
   
+  belongs_to :tenant
   belongs_to :user
+
+  before_validation -> { self.tenant ||= Current.tenant }, on: :create
 
   has_one :course_product, class_name: "Products::CourseProduct", dependent: :nullify
   has_one_attached :thumbnail
@@ -20,7 +23,8 @@ class Course < ApplicationRecord
   has_many :course_module_lessons, through: :course_modules
   has_many :course_enrollments
 
-  scope :published, -> { where(published: true) }
+  scope :for_tenant, ->(tenant = Current.tenant) { tenant.present? ? where(tenant_id: tenant.id) : none }
+  scope :published, -> { for_tenant.where(published: true) }
 
   def enrolled?(user)
     course_enrollments.exists?(user_id: user.id)
@@ -37,6 +41,7 @@ class Course < ApplicationRecord
       )
     else
       Products::CourseProduct.create!(
+        tenant: tenant,
         user: user,
         course: self,
         title: title,

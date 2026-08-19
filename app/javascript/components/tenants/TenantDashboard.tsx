@@ -186,7 +186,7 @@ export default function TenantDashboard() {
           </div>
           <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-4">
             <p className="text-xs text-zinc-500">Aislamiento de catálogo</p>
-            <p className="mt-2 flex items-center gap-2 text-sm font-medium text-amber-300"><CircleAlert className="h-4 w-4" /> Próximo corte</p>
+            <p className="mt-2 flex items-center gap-2 text-sm font-medium text-emerald-300"><ShieldCheck className="h-4 w-4" /> Contenido aislado</p>
           </div>
         </div>
 

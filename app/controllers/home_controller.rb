@@ -66,7 +66,7 @@ class HomeController < ApplicationController
   end
 
   def fetch_artists
-    User.artists
+    User.artists_for
       .with_attached_avatar
       .order("id desc")
       .page(params[:page])

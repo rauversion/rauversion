@@ -14,7 +14,7 @@ class CoursesController < ApplicationController
   def mine
     respond_to do |format|
       format.json { 
-        @courses = current_user.courses.page(params[:page]).per(10)
+        @courses = current_user.courses.for_tenant.page(params[:page]).per(10)
         render :index 
       }
       format.html { render_blank }
@@ -22,9 +22,9 @@ class CoursesController < ApplicationController
   end
 
   def show
-    @course = current_user.courses.friendly.find(params[:id]) if current_user
+    @course = current_user.courses.for_tenant.friendly.find(params[:id]) if current_user
     if @course.nil?
-      @course = Course.friendly.find(params[:id])
+      @course = Course.for_tenant.friendly.find(params[:id])
     end
     if params[:get_enrollment] && current_user
       @course_enrollment = CourseEnrollment.find_by(
@@ -60,7 +60,7 @@ class CoursesController < ApplicationController
   end
 
   def edit
-    @course = current_user.courses.friendly.find(params[:id])
+    @course = current_user.courses.for_tenant.friendly.find(params[:id])
     respond_to do |format|
       format.json { render json: @course }
       format.html { render_blank }
@@ -68,7 +68,7 @@ class CoursesController < ApplicationController
   end
 
   def update
-    @course = current_user.courses.friendly.find(params[:id])
+    @course = current_user.courses.for_tenant.friendly.find(params[:id])
     @course.assign_attributes(course_params.except(:price))
     @course.product_price = course_params[:price]
     if @course.save
@@ -79,9 +79,9 @@ class CoursesController < ApplicationController
   end
 
   def show_lesson
-    @course = current_user.courses.friendly.find(params[:course_id]) if current_user
+    @course = current_user.courses.for_tenant.friendly.find(params[:course_id]) if current_user
     if @course.nil?
-      @course = Course.friendly.find(params[:course_id])
+      @course = Course.for_tenant.friendly.find(params[:course_id])
     end
 
     if @course
@@ -106,7 +106,7 @@ class CoursesController < ApplicationController
 
   # GET /courses/:id/enrollments
   def enrollments
-    @course = current_user.courses.friendly.find(params[:id])
+    @course = current_user.courses.for_tenant.friendly.find(params[:id])
     if @course
       @enrollments = @course.course_enrollments.includes(:user)
       respond_to do |format|
@@ -148,9 +148,9 @@ class CoursesController < ApplicationController
 
   def set_course
 
-    @course = current_user.courses.friendly.find(params[:id]) if current_user
+    @course = current_user.courses.for_tenant.friendly.find(params[:id]) if current_user
     if @course.nil?
-      @course = Course.friendly.find(params[:id])
+      @course = Course.for_tenant.friendly.find(params[:id])
     end
   end
 

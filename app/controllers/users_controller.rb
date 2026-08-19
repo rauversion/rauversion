@@ -60,7 +60,7 @@ class UsersController < ApplicationController
   end
 
   def search_tracks
-    @q = @user.tracks.ransack(title_cont: params[:q])
+    @q = @user.tracks.for_tenant.ransack(title_cont: params[:q])
     @tracks = @q.result
       .with_attached_cover
       .includes(cover_attachment: :blob)
@@ -76,9 +76,9 @@ class UsersController < ApplicationController
 
     @kind = params[:kind].present? ? params[:kind].split(",") : Category.playlist_types
 
-    ownership_scope = Playlist
+    ownership_scope = Playlist.for_tenant
       .where(user_id: @user.id)
-      .or(Playlist.where(label_id: @user.id))
+      .or(Playlist.for_tenant.where(label_id: @user.id))
 
     @playlists = ownership_scope
       .where(playlist_type: @kind)
@@ -117,8 +117,8 @@ class UsersController < ApplicationController
   def playlists
     @title = "Playlists"
     @section = "playlists"
-    @collection = Playlist
-    .where(user_id: @user.id).or(Playlist.where(label_id: @user.id))
+    @collection = Playlist.for_tenant
+    .where(user_id: @user.id).or(Playlist.for_tenant.where(label_id: @user.id))
     .where.not(playlist_type: ["album", "ep"])
     .with_attached_cover
         .includes(
@@ -153,9 +153,9 @@ class UsersController < ApplicationController
   def albums
     @title = "Albums"
     @section = "albums"
-    @collection = Playlist
+    @collection = Playlist.for_tenant
       .where(user_id: @user.id)
-      .or(Playlist.where(label_id: @user.id))
+      .or(Playlist.for_tenant.where(label_id: @user.id))
       .where(playlist_type: ["album", "ep"])
       .with_attached_cover
         .includes(
@@ -192,9 +192,9 @@ class UsersController < ApplicationController
   def all_playlists
     @title = "Albums"
     @section = "albums"
-    @collection = Playlist
+    @collection = Playlist.for_tenant
       .where(user_id: @user.id)
-      .or(Playlist.where(label_id: @user.id))
+      .or(Playlist.for_tenant.where(label_id: @user.id))
       .with_attached_cover
       .includes(
           user: { avatar_attachment: :blob },
@@ -323,8 +323,7 @@ class UsersController < ApplicationController
   private
 
   def artist_directory_scope
-    User.where(role: "artist")
-      .where.not(username: nil)
+    User.artists_for
       .with_attached_avatar
       .select(
         "users.*",
@@ -339,6 +338,7 @@ class UsersController < ApplicationController
         SELECT COUNT(*)
         FROM tracks
         WHERE tracks.user_id = users.id
+          AND tracks.tenant_id = #{Current.tenant.id.to_i}
           AND tracks.private = FALSE
       )
     SQL
@@ -368,6 +368,7 @@ class UsersController < ApplicationController
 
   def get_tracks
     @tracks = @user.tracks
+      .for_tenant
       .without_dj_sets
       .with_attached_cover
       .includes(user: { avatar_attachment: :blob })
@@ -380,7 +381,7 @@ class UsersController < ApplicationController
     query = User.track_preloaded_by_user(
       current_user_id: current_user&.id,
       user: @user
-    ).public_send(scope)
+    ).for_tenant.public_send(scope)
 
     query = query.published if current_user.blank? || current_user != @user
     @q = query.ransack(params[:q])
@@ -390,9 +391,9 @@ class UsersController < ApplicationController
   end
 
   def get_playlists
-    @playlists = Playlist
+    @playlists = Playlist.for_tenant
       .where(user_id: @user.id)
-      .or(Playlist.where(label_id: @user.id))
+      .or(Playlist.for_tenant.where(label_id: @user.id))
       .where(private: false)
       .with_attached_cover
       .includes(user: {avatar_attachment: :blob})
@@ -401,7 +402,15 @@ class UsersController < ApplicationController
   end
 
   def find_user
-    @user = User.find_by(username: params[:id] || params[:user_id])
+    @tenant_profile = TenantProfile.for_tenant
+      .includes(:user)
+      .find_by(username: params[:id] || params[:user_id])
+    @user = @tenant_profile&.user
+    @user&.assign_attributes(
+      @tenant_profile.attributes.slice(
+        "username", "display_name", "first_name", "last_name", "country", "city", "bio"
+      )
+    )
   end
 
   def paginated_render

@@ -1,5 +1,7 @@
 FactoryBot.define do
   factory :event do
+    tenant { Current.tenant || association(:tenant) }
+    association :user
     title { "MyString" }
     description { "MyText" }
     # slug { "MyString" }
@@ -32,7 +34,6 @@ FactoryBot.define do
     # scheduling_settings { "" }
     # event_settings { "" }
     # tickets { "" }
-    user { nil }
     # streaming_service { "" }
   end
 end

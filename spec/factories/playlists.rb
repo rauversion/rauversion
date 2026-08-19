@@ -1,6 +1,7 @@
 FactoryBot.define do
   factory :playlist do
-    # user { nil }
+    tenant { Current.tenant || association(:tenant) }
+    association :user
     title { "MyString" }
     # slug { "MyString" }
     description { "MyText" }

@@ -49,7 +49,7 @@ class EventHostsController < ApplicationController
   private
 
   def set_event
-    @event = current_user.events.friendly.find(params[:event_id])
+    @event = current_user.events.for_tenant.friendly.find(params[:event_id])
   end
 
   def create_multiple_hosts

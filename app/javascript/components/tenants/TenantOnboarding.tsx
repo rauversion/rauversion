@@ -127,9 +127,9 @@ function SuccessView({ tenant }: { tenant: CreatedTenant }) {
             <CopyValue value={tenant.url} />
             <Alert className="border-amber-400/20 bg-amber-400/5">
               <CircleDashed className="h-4 w-4 text-amber-300" />
-              <AlertTitle>Activación de subdominio pendiente</AlertTitle>
+              <AlertTitle>Tenant listo para recibir contenido</AlertTitle>
               <AlertDescription className="text-muted-foreground">
-                El tenant ya existe y tus datos quedarán aislados. La resolución por host se habilitará en el siguiente corte del backend.
+                El backend ya resuelve el contexto por host y mantiene el contenido del espacio aislado. En producción todavía debes configurar el DNS wildcard.
               </AlertDescription>
             </Alert>
             <Button asChild className="w-full bg-emerald-400 text-zinc-950 hover:bg-emerald-300">
@@ -361,7 +361,7 @@ export default function TenantOnboarding() {
                   <ShieldCheck className="h-4 w-4 text-cyan-300" />
                   <AlertTitle>Qué ocurrirá al continuar</AlertTitle>
                   <AlertDescription className="text-zinc-500">
-                    Crearemos el tenant y una membresía <strong className="text-zinc-300">owner</strong> para tu cuenta. Ningún contenido se moverá todavía.
+                    Crearemos el tenant y una membresía <strong className="text-zinc-300">owner</strong> para tu cuenta. El nuevo espacio comenzará con un catálogo vacío.
                   </AlertDescription>
                 </Alert>
 

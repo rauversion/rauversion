@@ -1,5 +1,7 @@
 FactoryBot.define do
   factory :product do
+    tenant { Current.tenant || association(:tenant) }
+    association :user
     title { "MyString" }
     description { "MyText" }
     price { "9.99" }
@@ -7,6 +9,5 @@ FactoryBot.define do
     sku { "MyString" }
     category { "MyString" }
     status { "active" }
-    user { nil }
   end
 end

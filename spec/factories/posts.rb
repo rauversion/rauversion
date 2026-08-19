@@ -1,5 +1,6 @@
 FactoryBot.define do
   factory :post do
+    tenant { Current.tenant || association(:tenant) }
     association :user
     body { { "content" => [] } }
     settings { {} }

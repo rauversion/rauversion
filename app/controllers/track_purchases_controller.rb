@@ -37,7 +37,7 @@ class TrackPurchasesController < ApplicationController
   private
 
   def set_track
-    @track = Track.friendly.find(params[:track_id])
+    @track = Track.for_tenant.friendly.find(params[:track_id])
   end
 
   def ensure_track_is_monetizable!
@@ -60,7 +60,7 @@ class TrackPurchasesController < ApplicationController
   end
 
   def success
-    @track = Track.friendly.find(params[:track_id])
+    @track = Track.for_tenant.friendly.find(params[:track_id])
     @purchase = current_user.purchases.find(params[:id])
 
     if params[:enc].present?
@@ -72,7 +72,7 @@ class TrackPurchasesController < ApplicationController
   end
 
   def failure
-    @track = Track.friendly.find(params[:track_id])
+    @track = Track.for_tenant.friendly.find(params[:track_id])
     @purchase = current_user.purchases.find(params[:id])
     render "show"
   end

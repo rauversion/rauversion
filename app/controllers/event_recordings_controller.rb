@@ -44,7 +44,7 @@ class EventRecordingsController < ApplicationController
   private
 
   def set_event
-    @event = Event.find_by!(slug: params[:event_id])
+    @event = Event.for_tenant.find_by!(slug: params[:event_id])
   end
 
   def set_event_recording

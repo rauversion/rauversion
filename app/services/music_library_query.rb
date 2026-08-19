@@ -161,7 +161,7 @@ class MusicLibraryQuery
         []
       else
         artists_by_id = User
-          .artists
+          .artists_for
           .where(id: followed_artist_rows.map(&:first))
           .includes(avatar_attachment: :blob)
           .index_by(&:id)
@@ -247,9 +247,9 @@ class MusicLibraryQuery
   end
 
   def library_playlists
-    @library_playlists ||= Playlist
+    @library_playlists ||= Playlist.for_tenant
       .where(user_id: user.id)
-      .or(Playlist.where(label_id: user.id))
+      .or(Playlist.for_tenant.where(label_id: user.id))
       .with_attached_cover
       .includes(:track_playlists, user: { avatar_attachment: :blob })
       .order(updated_at: :desc)
@@ -263,7 +263,7 @@ class MusicLibraryQuery
         .order(created_at: :desc)
         .pluck(:likeable_id)
 
-      tracks_by_id = Track
+      tracks_by_id = Track.for_tenant
         .where(id: liked_track_ids)
         .includes(user: { avatar_attachment: :blob }, artists: { avatar_attachment: :blob })
         .index_by(&:id)

@@ -9,8 +9,8 @@ class TracksController < ApplicationController
     scope = Track.published
     if current_user.present?
       scope = scope
-        .or(Track.where(user_id: current_user.id))
-        .or(Track.where(label_id: current_user.id))
+        .or(Track.for_tenant.where(user_id: current_user.id))
+        .or(Track.for_tenant.where(label_id: current_user.id))
     end
 
     @tracks = scope
@@ -94,13 +94,13 @@ class TracksController < ApplicationController
   end
 
   def edit
-    @track = current_user.tracks.friendly.find(params[:id])
+    @track = current_user.tracks.for_tenant.friendly.find(params[:id])
     @tab = params[:tab] || "basic-info-tab"
     @track.tab = @tab
   end
 
   def update
-    @track = current_user.tracks.friendly.find(params[:id])
+    @track = current_user.tracks.for_tenant.friendly.find(params[:id])
     @tab = params[:track][:tab] || "basic-info-tab"
     media_reprocess_requested = params[:track][:audio].present? || params[:track][:video].present?
     @track.assign_attributes(track_params)
@@ -125,6 +125,7 @@ class TracksController < ApplicationController
 
   def private_access
     @track = Track.find_signed(params[:id])
+    raise ActiveRecord::RecordNotFound unless @track&.tenant_id == Current.tenant.id
     get_meta_tags
     render "show"
   end
@@ -149,7 +150,7 @@ class TracksController < ApplicationController
   end
 
   def destroy
-    @track = current_user.tracks.friendly.find(params[:id])
+    @track = current_user.tracks.for_tenant.friendly.find(params[:id])
     @track.destroy
     head :no_content
   end
@@ -198,9 +199,9 @@ class TracksController < ApplicationController
     @meta = discovery[:meta]
     @popular_tags = @facets[:tags]
 
-    @labels = User.where(label: true).order("id desc").limit(10)
+    @labels = User.for_tenant.where(label: true).order("users.id desc").limit(10)
 
-    @artists = User.featured_artists.limit(5)
+    @artists = User.artists_for.where(featured: true).limit(5)
 
     @highlighted_playlist = Playlist.published
       .includes(:releases)
@@ -210,16 +211,17 @@ class TracksController < ApplicationController
   end
 
   def load_track_for_show
-    track = Track.friendly.find(params[:id])
+    track = Track.for_tenant.friendly.find(params[:id])
     @user = track.user
     @track = User.track_preloaded_by_user(
       current_user_id: current_user&.id,
       user: @user
-    ).friendly.find(params[:id])
+    ).for_tenant.friendly.find(params[:id])
   end
 
   def visible_playlists_for(track)
     playlists = track.playlists
+      .for_tenant
       .includes(:user, :track_playlists, cover_attachment: :blob)
 
     playlists = if current_user.present?

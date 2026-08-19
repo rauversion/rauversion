@@ -8,6 +8,7 @@ class Track < ApplicationRecord
 
   friendly_id :title, use: :slugged
 
+  belongs_to :tenant
   belongs_to :user
   has_many :track_artists, dependent: :destroy
   has_many :artists, through: :track_artists, source: :user
@@ -29,6 +30,7 @@ class Track < ApplicationRecord
   attr_accessor :enable_label
   before_save :check_label
   before_validation :apply_dj_set_defaults
+  before_validation -> { self.tenant ||= Current.tenant }, on: :create
 
   def check_label
    self.label_id = Current.label_user.id if enable_label && Current.label_user 
@@ -52,7 +54,8 @@ class Track < ApplicationRecord
 
   attr_accessor :step, :tab
 
-  scope :published, -> { where(private: false) }
+  scope :for_tenant, ->(tenant = Current.tenant) { tenant.present? ? where(tenant_id: tenant.id) : none }
+  scope :published, -> { for_tenant.where(private: false) }
   # scope :private, -> { where.not(:private => true)}
   scope :latests, -> { order("id desc") }
 

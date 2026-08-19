@@ -2,7 +2,7 @@ class RepostsController < ApplicationController
   before_action :authenticate_user!
 
   def create
-    @track = Track.friendly.find(params[:track_id])
+    @track = Track.for_tenant.friendly.find(params[:track_id])
     if reposts = current_user.reposts.where(track: @track) and reposts.any?
       reposts.delete_all
       @button_class = "button"

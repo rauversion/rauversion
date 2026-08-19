@@ -1,6 +1,6 @@
 class PlayerController < ApplicationController
   def update
-    @tracks = Track.where(id: params[:player][:ids])
+    @tracks = Track.for_tenant.where(id: params[:player][:ids])
       .with_attached_cover
       .includes(user: {avatar_attachment: :blob})
   end
@@ -30,7 +30,7 @@ class PlayerController < ApplicationController
     if params[:ids].present?
       # Find tracks by IDs and maintain the order they were sent in
       track_ids = params[:ids]
-      @tracks = Track.where(id: track_ids)
+      @tracks = Track.for_tenant.where(id: track_ids)
                     .with_attached_cover
                     .includes(user: {avatar_attachment: :blob})
       
@@ -46,13 +46,13 @@ class PlayerController < ApplicationController
   end
 
   def next_track(id)
-    Track.where("id > ?", id).order(id: :asc).first
+    Track.for_tenant.where("id > ?", id).order(id: :asc).first
       .with_attached_cover
       .includes(user: {avatar_attachment: :blob})
   end
 
   def previous(id)
-    Track.where("id < ?", id).order(id: :desc).first
+    Track.for_tenant.where("id < ?", id).order(id: :desc).first
       .with_attached_cover
       .includes(user: {avatar_attachment: :blob})
   end
@@ -60,7 +60,7 @@ class PlayerController < ApplicationController
   private
 
   def load_track_for_player
-    base_track = Track
+    base_track = Track.for_tenant
       .friendly
       .with_attached_cover
       .includes(:artists, :playlists, user: { avatar_attachment: :blob })
@@ -70,9 +70,9 @@ class PlayerController < ApplicationController
       User.track_preloaded_by_user(
         current_user_id: current_user.id,
         user: base_track.user
-      ).find(base_track.id)
+      ).for_tenant.find(base_track.id)
     else
-      User.track_preloaded_by_user_n(user: base_track.user).find(base_track.id)
+      User.track_preloaded_by_user_n(user: base_track.user).for_tenant.find(base_track.id)
     end
   end
 end

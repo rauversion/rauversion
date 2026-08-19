@@ -5,6 +5,8 @@ class Membership < ApplicationRecord
   belongs_to :tenant
   belongs_to :user
 
+  after_create :create_tenant_profile
+
   enum :role, ROLES.index_with(&:itself)
 
   validates :role, inclusion: { in: ROLES }
@@ -22,5 +24,9 @@ class Membership < ApplicationRecord
     return "editor" if user.editor?
 
     "member"
+  end
+
+  def create_tenant_profile
+    TenantProfile.create_for_membership!(self)
   end
 end

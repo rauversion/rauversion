@@ -6,6 +6,14 @@ class Tenant < ApplicationRecord
 
   has_many :memberships, dependent: :restrict_with_exception
   has_many :users, through: :memberships
+  has_many :tenant_profiles, dependent: :restrict_with_exception
+  has_many :tracks, dependent: :restrict_with_exception
+  has_many :playlists, dependent: :restrict_with_exception
+  has_many :events, dependent: :restrict_with_exception
+  has_many :products, dependent: :restrict_with_exception
+  has_many :posts, dependent: :restrict_with_exception
+  has_many :courses, dependent: :restrict_with_exception
+  has_many :releases, dependent: :restrict_with_exception
 
   normalizes :slug, with: ->(slug) { normalize_slug(slug) }
 

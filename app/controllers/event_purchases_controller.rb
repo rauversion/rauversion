@@ -42,7 +42,7 @@ class EventPurchasesController < ApplicationController
   end
 
   def show
-    @event = Event.friendly.find(params[:event_id])
+    @event = Event.for_tenant.friendly.find(params[:event_id])
     if current_user
       @purchase = current_user.purchases.find(params[:id])
     else
@@ -62,6 +62,29 @@ class EventPurchasesController < ApplicationController
   def create
     # Try to find by signed_id first (for private event access), then fall back to regular lookup
     @event = find_event_for_purchase(params[:event_id])
+    @tickets = @event.available_tickets(Time.zone.now)
+    available_tickets_by_id = @tickets.index_by(&:id)
+
+    if !current_user
+      login_required_ticket = ticket_request_params.filter_map do |ticket_param|
+        next if ticket_param[:quantity].to_i <= 0
+
+        available_tickets_by_id[ticket_param[:id].to_i]
+      end.find(&:requires_login)
+
+      if login_required_ticket
+        @purchase = Purchase.new(purchasable: @event)
+        @purchase.errors.add(
+          :base,
+          I18n.t('event_purchases.errors.requires_login', ticket_title: login_required_ticket.title)
+        )
+        respond_to do |format|
+          format.html { render_blank }
+          format.json { render :create, status: :unprocessable_entity }
+        end
+        return
+      end
+    end
 
     # Handle guest purchase or regular user purchase
     if current_user
@@ -115,9 +138,6 @@ class EventPurchasesController < ApplicationController
       @customer = user
     end
 
-    @tickets = @event.available_tickets(Time.zone.now)
-    available_tickets_by_id = @tickets.index_by(&:id)
-    
     # Get the email to validate against event lists
     validation_email = current_user ? current_user.email : params[:guest_email]
     
@@ -132,17 +152,6 @@ class EventPurchasesController < ApplicationController
       unless ticket.can_redeem_with_email?(validation_email)
         @purchase = Purchase.new(purchasable: @event)
         @purchase.errors.add(:base, I18n.t('event_purchases.errors.email_not_in_list', ticket_title: ticket.title))
-        respond_to do |format|
-          format.html { render_blank }
-          format.json { render :create, status: :unprocessable_entity }
-        end
-        return
-      end
-
-      # Validate requires_login setting
-      if ticket.requires_login && !current_user
-        @purchase = Purchase.new(purchasable: @event)
-        @purchase.errors.add(:base, I18n.t('event_purchases.errors.requires_login', ticket_title: ticket.title))
         respond_to do |format|
           format.html { render_blank }
           format.json { render :create, status: :unprocessable_entity }
@@ -216,7 +225,7 @@ class EventPurchasesController < ApplicationController
   end
 
   def success
-    @event = Event.friendly.find(params[:event_id])
+    @event = Event.for_tenant.friendly.find(params[:event_id])
     if current_user
       @purchase = current_user.purchases.find_signed(params[:id])
     else
@@ -235,7 +244,7 @@ class EventPurchasesController < ApplicationController
   end
 
   def failure
-    @event = Event.friendly.find(params[:event_id])
+    @event = Event.for_tenant.friendly.find(params[:event_id])
     if current_user
       @purchase = current_user.purchases.find(params[:id])
     else

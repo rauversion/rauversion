@@ -9,7 +9,7 @@ FactoryBot.define do
     # selling_end { "2023-07-26 18:20:42" }
     short_description { "MyString" }
     # settings { "" }
-    event { nil }
+    association :event
     created_at { "2023-07-26 18:20:42" }
     updated_at { "2023-07-26 18:20:42" }
 

@@ -55,6 +55,7 @@ class TrackBulkCreator
       track_attributes = attributes.to_h.symbolize_keys
       blob = ActiveStorage::Blob.find_signed(track_attributes[:audio])
       t = Track.new(track_attributes.except(:audio))
+      t.tenant = Current.tenant
       t.title = File.basename(blob.filename.to_s, File.extname(blob.filename.to_s)) unless t.title.present?
       t.user = user
       t.private = ActiveRecord::Type::Boolean.new.cast(track_attributes[:private])
@@ -79,6 +80,7 @@ class TrackBulkCreator
 
   def create_playlist!
     self.playlist = user.playlists.create!(
+      tenant: Current.tenant,
       title: playlist_title.to_s.strip,
       private: playlist_private?,
       playlist_type: playlist_type_value

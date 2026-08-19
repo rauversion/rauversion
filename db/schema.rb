@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_18_000000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_19_010000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -151,9 +151,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_18_000000) do
     t.string "seo_keywords"
     t.string "seo_title"
     t.string "slug"
+    t.bigint "tenant_id", null: false
     t.string "title"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.index ["tenant_id", "slug"], name: "index_courses_on_tenant_id_and_slug"
+    t.index ["tenant_id"], name: "index_courses_on_tenant_id"
     t.index ["user_id"], name: "index_courses_on_user_id"
   end
 
@@ -344,6 +347,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_18_000000) do
     t.string "street"
     t.string "street_number"
     t.jsonb "tax_rates_settings"
+    t.bigint "tenant_id", null: false
     t.jsonb "tickets"
     t.string "timezone"
     t.string "title"
@@ -353,6 +357,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_18_000000) do
     t.string "visibility", default: "public"
     t.jsonb "widget_button"
     t.boolean "will_call"
+    t.index ["tenant_id", "slug"], name: "index_events_on_tenant_id_and_slug"
+    t.index ["tenant_id"], name: "index_events_on_tenant_id"
     t.index ["user_id"], name: "index_events_on_user_id"
   end
 
@@ -673,44 +679,44 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_18_000000) do
     t.index ["plain_conversation_id"], name: "index_plain_messages_on_plain_conversation_id"
   end
 
-  create_table "playlist_gen_library_uploads", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.text "error_message"
-    t.string "source", null: false
-    t.string "status", default: "pending", null: false
-    t.integer "total_tracks_imported"
-    t.datetime "updated_at", null: false
-    t.index ["source"], name: "index_playlist_gen_library_uploads_on_source"
-    t.index ["status"], name: "index_playlist_gen_library_uploads_on_status"
-  end
-
-  create_table "playlist_gen_playlist_tracks", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.bigint "playlist_id", null: false
-    t.integer "position", null: false
-    t.bigint "track_id", null: false
-    t.datetime "updated_at", null: false
-    t.index ["playlist_id", "position"], name: "index_playlist_gen_playlist_tracks_on_playlist_id_and_position"
-    t.index ["playlist_id", "track_id"], name: "index_playlist_gen_playlist_tracks_on_playlist_id_and_track_id", unique: true
-    t.index ["playlist_id"], name: "index_playlist_gen_playlist_tracks_on_playlist_id"
-    t.index ["track_id"], name: "index_playlist_gen_playlist_tracks_on_track_id"
-  end
-
-  create_table "playlist_gen_playlists", force: :cascade do |t|
-    t.decimal "bpm_max", precision: 5, scale: 2
-    t.decimal "bpm_min", precision: 5, scale: 2
-    t.datetime "created_at", null: false
-    t.integer "duration_seconds"
-    t.string "energy_curve"
-    t.datetime "generated_at"
-    t.string "name", null: false
-    t.text "prompt"
-    t.string "status", default: "draft", null: false
-    t.integer "total_tracks"
-    t.datetime "updated_at", null: false
-    t.index ["generated_at"], name: "index_playlist_gen_playlists_on_generated_at"
-    t.index ["status"], name: "index_playlist_gen_playlists_on_status"
-  end
+  # create_table "playlist_gen_library_uploads", force: :cascade do |t|
+  #   t.datetime "created_at", null: false
+  #   t.text "error_message"
+  #   t.string "source", null: false
+  #   t.string "status", default: "pending", null: false
+  #   t.integer "total_tracks_imported"
+  #   t.datetime "updated_at", null: false
+  #   t.index ["source"], name: "index_playlist_gen_library_uploads_on_source"
+  #   t.index ["status"], name: "index_playlist_gen_library_uploads_on_status"
+  # end
+# 
+  # create_table "playlist_gen_playlist_tracks", force: :cascade do |t|
+  #   t.datetime "created_at", null: false
+  #   t.bigint "playlist_id", null: false
+  #   t.integer "position", null: false
+  #   t.bigint "track_id", null: false
+  #   t.datetime "updated_at", null: false
+  #   t.index ["playlist_id", "position"], name: "index_playlist_gen_playlist_tracks_on_playlist_id_and_position"
+  #   t.index ["playlist_id", "track_id"], name: "index_playlist_gen_playlist_tracks_on_playlist_id_and_track_id", unique: true
+  #   t.index ["playlist_id"], name: "index_playlist_gen_playlist_tracks_on_playlist_id"
+  #   t.index ["track_id"], name: "index_playlist_gen_playlist_tracks_on_track_id"
+  # end
+# 
+  # create_table "playlist_gen_playlists", force: :cascade do |t|
+  #   t.decimal "bpm_max", precision: 5, scale: 2
+  #   t.decimal "bpm_min", precision: 5, scale: 2
+  #   t.datetime "created_at", null: false
+  #   t.integer "duration_seconds"
+  #   t.string "energy_curve"
+  #   t.datetime "generated_at"
+  #   t.string "name", null: false
+  #   t.text "prompt"
+  #   t.string "status", default: "draft", null: false
+  #   t.integer "total_tracks"
+  #   t.datetime "updated_at", null: false
+  #   t.index ["generated_at"], name: "index_playlist_gen_playlists_on_generated_at"
+  #   t.index ["status"], name: "index_playlist_gen_playlists_on_status"
+  # end
 
 # Could not dump table "playlist_gen_tracks" because of following StandardError
 #   Unknown type 'vector(1536)' for column 'embedding'
@@ -730,12 +736,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_18_000000) do
     t.datetime "release_date"
     t.string "slug"
     t.string "tags", default: [], array: true
+    t.bigint "tenant_id", null: false
     t.string "title"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["label_id"], name: "index_playlists_on_label_id"
     t.index ["slug"], name: "index_playlists_on_slug"
     t.index ["tags"], name: "index_playlists_on_tags", using: :gin
+    t.index ["tenant_id", "slug"], name: "index_playlists_on_tenant_id_and_slug"
+    t.index ["tenant_id"], name: "index_playlists_on_tenant_id"
     t.index ["user_id"], name: "index_playlists_on_user_id"
   end
 
@@ -774,11 +783,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_18_000000) do
     t.string "slug"
     t.string "state"
     t.string "tags", default: [], array: true
+    t.bigint "tenant_id", null: false
     t.string "title"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["category_id"], name: "index_posts_on_category_id"
     t.index ["slug"], name: "index_posts_on_slug"
+    t.index ["tenant_id", "slug"], name: "index_posts_on_tenant_id_and_slug"
+    t.index ["tenant_id"], name: "index_posts_on_tenant_id"
     t.index ["user_id"], name: "index_posts_on_user_id"
   end
 
@@ -945,6 +957,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_18_000000) do
     t.string "slug"
     t.string "status"
     t.integer "stock_quantity"
+    t.bigint "tenant_id", null: false
     t.string "title"
     t.string "type"
     t.datetime "updated_at", null: false
@@ -962,6 +975,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_18_000000) do
     t.index ["model"], name: "index_products_on_model"
     t.index ["playlist_id"], name: "index_products_on_playlist_id"
     t.index ["slug"], name: "index_products_on_slug"
+    t.index ["tenant_id", "slug"], name: "index_products_on_tenant_id_and_slug"
+    t.index ["tenant_id"], name: "index_products_on_tenant_id"
     t.index ["type", "booking_mode"], name: "index_products_on_type_and_booking_mode"
     t.index ["type", "service_kind"], name: "index_products_on_type_and_service_kind"
     t.index ["user_id"], name: "index_products_on_user_id"
@@ -1056,11 +1071,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_18_000000) do
     t.bigint "product_id"
     t.boolean "published"
     t.string "slug"
+    t.bigint "tenant_id", null: false
     t.string "title"
     t.datetime "updated_at", null: false
     t.bigint "user_id"
     t.index ["playlist_id"], name: "index_releases_on_playlist_id"
     t.index ["product_id"], name: "index_releases_on_product_id"
+    t.index ["tenant_id", "slug"], name: "index_releases_on_tenant_id_and_slug"
+    t.index ["tenant_id"], name: "index_releases_on_tenant_id"
     t.index ["user_id"], name: "index_releases_on_user_id"
   end
 
@@ -1266,6 +1284,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_18_000000) do
     t.index ["user_id"], name: "index_spotlights_on_user_id"
   end
 
+  create_table "tenant_profiles", force: :cascade do |t|
+    t.text "bio"
+    t.string "city"
+    t.string "country"
+    t.datetime "created_at", null: false
+    t.string "display_name"
+    t.string "first_name"
+    t.string "last_name"
+    t.bigint "tenant_id", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.string "username"
+    t.index ["tenant_id", "user_id"], name: "index_tenant_profiles_on_tenant_id_and_user_id", unique: true
+    t.index ["tenant_id", "username"], name: "index_tenant_profiles_on_tenant_id_and_username", unique: true, where: "(username IS NOT NULL)"
+    t.index ["tenant_id"], name: "index_tenant_profiles_on_tenant_id"
+    t.index ["user_id"], name: "index_tenant_profiles_on_user_id"
+  end
+
   create_table "tenants", force: :cascade do |t|
     t.boolean "central", default: false, null: false
     t.datetime "created_at", null: false
@@ -1376,6 +1412,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_18_000000) do
     t.string "slug"
     t.string "state"
     t.string "tags", default: [], array: true
+    t.bigint "tenant_id", null: false
     t.string "title"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
@@ -1383,6 +1420,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_18_000000) do
     t.index ["label_id"], name: "index_tracks_on_label_id"
     t.index ["slug"], name: "index_tracks_on_slug"
     t.index ["tags"], name: "index_tracks_on_tags", using: :gin
+    t.index ["tenant_id", "slug"], name: "index_tracks_on_tenant_id_and_slug"
+    t.index ["tenant_id"], name: "index_tracks_on_tenant_id"
     t.index ["user_id"], name: "index_tracks_on_user_id"
   end
 
@@ -1523,6 +1562,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_18_000000) do
   add_foreign_key "course_enrollments", "courses"
   add_foreign_key "course_enrollments", "users"
   add_foreign_key "course_modules", "courses"
+  add_foreign_key "courses", "tenants"
   add_foreign_key "courses", "users"
   add_foreign_key "editor_templates", "users"
   add_foreign_key "email_templates", "users"
@@ -1538,6 +1578,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_18_000000) do
   add_foreign_key "event_schedules", "events"
   add_foreign_key "event_tickets", "event_lists", on_delete: :nullify
   add_foreign_key "event_tickets", "events"
+  add_foreign_key "events", "tenants"
   add_foreign_key "events", "users"
   add_foreign_key "interest_alerts", "users"
   add_foreign_key "lessons", "course_modules"
@@ -1562,13 +1603,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_18_000000) do
   add_foreign_key "participants", "users"
   add_foreign_key "photos", "users"
   add_foreign_key "plain_messages", "plain_conversations"
-  add_foreign_key "playlist_gen_playlist_tracks", "playlist_gen_playlists", column: "playlist_id"
-  add_foreign_key "playlist_gen_playlist_tracks", "playlist_gen_tracks", column: "track_id"
+  #add_foreign_key "playlist_gen_playlist_tracks", "playlist_gen_playlists", column: "playlist_id"
+  #add_foreign_key "playlist_gen_playlist_tracks", "playlist_gen_tracks", column: "track_id"
+  add_foreign_key "playlists", "tenants"
   add_foreign_key "playlists", "users"
   add_foreign_key "podcaster_hosts", "podcaster_infos"
   add_foreign_key "podcaster_hosts", "users"
   add_foreign_key "podcaster_infos", "users"
   add_foreign_key "posts", "categories"
+  add_foreign_key "posts", "tenants"
   add_foreign_key "posts", "users"
   add_foreign_key "press_kits", "users"
   add_foreign_key "press_kits-old", "users"
@@ -1584,6 +1627,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_18_000000) do
   add_foreign_key "product_variants", "products"
   add_foreign_key "products", "coupons"
   add_foreign_key "products", "playlists"
+  add_foreign_key "products", "tenants"
   add_foreign_key "products", "users"
   add_foreign_key "products", "users", column: "deleted_by_id"
   add_foreign_key "products_images", "products"
@@ -1595,6 +1639,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_18_000000) do
   add_foreign_key "release_sections", "releases"
   add_foreign_key "releases", "playlists"
   add_foreign_key "releases", "products"
+  add_foreign_key "releases", "tenants"
   add_foreign_key "releases", "users"
   add_foreign_key "reposts", "tracks"
   add_foreign_key "reposts", "users"
@@ -1615,6 +1660,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_18_000000) do
   add_foreign_key "service_bookings", "users", column: "provider_id"
   add_foreign_key "service_price_rules", "products", column: "service_product_id"
   add_foreign_key "spotlights", "users"
+  add_foreign_key "tenant_profiles", "tenants"
+  add_foreign_key "tenant_profiles", "users"
   add_foreign_key "tickets", "events"
   add_foreign_key "track_artists", "tracks"
   add_foreign_key "track_artists", "users"
@@ -1624,6 +1671,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_18_000000) do
   add_foreign_key "track_peaks", "tracks"
   add_foreign_key "track_playlists", "playlists"
   add_foreign_key "track_playlists", "tracks"
+  add_foreign_key "tracks", "tenants"
   add_foreign_key "tracks", "users"
   add_foreign_key "user_links", "users"
   add_foreign_key "venue_rating_stats", "venues"

@@ -15,10 +15,12 @@ class User < ApplicationRecord
 
   has_many :memberships, dependent: :destroy
   has_many :tenants, through: :memberships
+  has_many :tenant_profiles, dependent: :destroy
 
   after_create :create_initial_membership
   after_update :sync_legacy_role_to_central_membership,
     if: -> { saved_change_to_role? || saved_change_to_editor? }
+  after_update :sync_username_to_tenant_profiles, if: :saved_change_to_username?
 
   has_many :participants
   has_many :conversations, through: :participants
@@ -135,6 +137,18 @@ class User < ApplicationRecord
 
   scope :artists, -> { where(role: "artist").where.not(username: nil) }
 
+  def self.for_tenant(tenant = Current.tenant)
+    return none if tenant.blank?
+
+    joins(:memberships).where(memberships: { tenant_id: tenant.id }).distinct
+  end
+
+  def self.artists_for(tenant = Current.tenant)
+    for_tenant(tenant)
+      .where(memberships: { role: "artist" })
+      .where.not(username: nil)
+  end
+
   def membership_for(tenant = Current.tenant)
     return if tenant.blank?
 
@@ -143,6 +157,12 @@ class User < ApplicationRecord
 
   def role_for(tenant = Current.tenant)
     membership_for(tenant)&.role
+  end
+
+  def tenant_profile_for(tenant = Current.tenant)
+    return if tenant.blank?
+
+    tenant_profiles.find_by(tenant: tenant)
   end
 
   def create_initial_membership
@@ -157,6 +177,10 @@ class User < ApplicationRecord
   def sync_legacy_role_to_central_membership
     membership = memberships.joins(:tenant).find_by(tenants: { central: true })
     membership&.update!(role: Membership.role_for_user(self))
+  end
+
+  def sync_username_to_tenant_profiles
+    tenant_profiles.update_all(username: username, updated_at: Time.current)
   end
   
   

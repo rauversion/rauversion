@@ -24,7 +24,7 @@ class EventTicketsController < ApplicationController
   end
 
   def secret_link
-    @event = Event.friendly.find(params[:event_id])
+    @event = Event.for_tenant.friendly.find(params[:event_id])
     @ticket = @event.event_tickets.find(params[:id])
     
     # Verify user is the event owner

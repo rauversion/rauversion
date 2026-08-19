@@ -1,6 +1,14 @@
 json.collection @artists do |artist|
-  json.extract! artist, :id, :username, :full_name, :first_name, :last_name, :role, :created_at, :city, :country, :bio, :featured, :label
-  json.display_name artist.display_name
+  profile = artist.tenant_profile_for(Current.tenant)
+  json.extract! artist, :id, :role, :created_at, :featured, :label
+  json.username profile&.username
+  json.full_name [profile&.first_name, profile&.last_name].compact.join(" ")
+  json.first_name profile&.first_name
+  json.last_name profile&.last_name
+  json.city profile&.city
+  json.country profile&.country
+  json.bio profile&.bio
+  json.display_name profile&.display_name
   json.tracks_count artist.read_attribute(:tracks_count).to_i
   json.followers_count artist.read_attribute(:followers_count).to_i
   json.avatar_url do

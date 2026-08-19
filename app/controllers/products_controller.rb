@@ -4,10 +4,10 @@ class ProductsController < ApplicationController
   before_action :authorize_user, only: [:edit, :update, :destroy]
 
   def index
-    @profile = User.find_by(username: params[:id] || params[:user_id])
+    @profile = TenantProfile.for_tenant.find_by(username: params[:id] || params[:user_id])&.user
 
     if @profile == current_user
-      @q = @profile.products 
+      @q = @profile.products.for_tenant
     else
       @q = @profile.products.active
     end
@@ -29,12 +29,12 @@ class ProductsController < ApplicationController
   end
 
   def used_gear
-    @profile = User.find_by(username: params[:id] || params[:user_id])
+    @profile = TenantProfile.for_tenant.find_by(username: params[:id] || params[:user_id])&.user
     
     @q = if @profile
-           @profile.products.merge(Products::GearProduct.used_gear).active
+           @profile.products.for_tenant.merge(Products::GearProduct.used_gear).active
          else
-           Products::GearProduct.used_gear.active
+           Products::GearProduct.for_tenant.merge(Products::GearProduct.used_gear).active
          end
 
     @q = @q.includes(:user).ransack(params[:q])
@@ -55,7 +55,7 @@ class ProductsController < ApplicationController
   def show
     #@profile = User.find_by(username: params[:user_id])
     #@product = @profile.products.friendly.find(params[:id])
-    @product = Product.friendly.find(params[:id])
+    @product = Product.for_tenant.friendly.find(params[:id])
 
     if @product.inactive? && current_user&.id != @product.user_id
       head :not_found
@@ -206,7 +206,7 @@ class ProductsController < ApplicationController
   private
 
   def set_product
-    @product = current_user.products.friendly.find(params[:id])
+    @product = current_user.products.for_tenant.friendly.find(params[:id])
   end
 
   def authorize_user

@@ -1,13 +1,13 @@
 json.user do
   json.id @user.id
   json.username @user.username
-  json.display_name @user.display_name
+  json.display_name @tenant_profile.display_name
   json.hide_username_from_profile @user.hide_username_from_profile
-  json.first_name @user.first_name
-  json.last_name @user.last_name
-  json.bio @user.bio
-  json.country @user.country
-  json.city @user.city
+  json.first_name @tenant_profile.first_name
+  json.last_name @tenant_profile.last_name
+  json.bio @tenant_profile.bio
+  json.country @tenant_profile.country
+  json.city @tenant_profile.city
   json.email @user.email
   json.stripe_account_id @user.stripe_account_id
   json.radio_stream_url @user.radio_stream_url

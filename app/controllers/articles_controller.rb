@@ -28,7 +28,7 @@ class ArticlesController < ApplicationController
    
     # Get all categories with post counts
     @categories = Category.joins(:posts)
-      .where(posts: { state: "published" })
+      .where(posts: { state: "published", tenant_id: Current.tenant.id })
       .select('categories.*, COUNT(posts.id) as posts_count')
       .group('categories.id')
       .order('posts_count DESC')
@@ -63,7 +63,7 @@ class ArticlesController < ApplicationController
   end
 
   def new
-    @article = current_user.posts.new
+    @article = current_user.posts.for_tenant.new
   end
 
   def show
@@ -99,11 +99,12 @@ class ArticlesController < ApplicationController
 
   def preview
     @post = Post.find_signed(params[:id])
+    raise ActiveRecord::RecordNotFound unless @post&.tenant_id == Current.tenant.id
     render "show"
   end
 
   def create
-    @article = current_user.posts.new(article_params)
+    @article = current_user.posts.for_tenant.new(article_params)
 
     respond_to do |format|
       if @article.save
@@ -117,11 +118,11 @@ class ArticlesController < ApplicationController
   end
 
   def edit
-    @article = current_user.posts.friendly.find(params[:id])
+    @article = current_user.posts.for_tenant.friendly.find(params[:id])
   end
 
   def update
-    @article = current_user.posts.friendly.find(params[:id])
+    @article = current_user.posts.for_tenant.friendly.find(params[:id])
     
     # Handle cover attachment if blob_id is present
     if params.dig(:post, :cover_blob_id).present?
@@ -143,7 +144,7 @@ class ArticlesController < ApplicationController
   end
 
   def destroy
-    @article = current_user.posts.find(params[:id])
+    @article = current_user.posts.for_tenant.find(params[:id])
     @article.destroy
 
     respond_to do |format|
@@ -160,7 +161,7 @@ class ArticlesController < ApplicationController
     when "draft"
       current_user.posts.draft
     else
-      current_user.posts
+      current_user.posts.for_tenant
     end
 
     @posts = @posts

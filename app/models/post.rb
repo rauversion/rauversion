@@ -3,6 +3,7 @@ class Post < ApplicationRecord
   extend FriendlyId
   friendly_id :title, use: :slugged
   has_one_attached :cover
+  belongs_to :tenant
   belongs_to :user
   belongs_to :category, optional: true
   has_one_attached :cover
@@ -17,12 +18,15 @@ class Post < ApplicationRecord
     cropped_image_setup(attached_attribute: :cover, crop_data_attribute: :crop_data, fallback: fallback)
   end
 
+  before_validation -> { self.tenant ||= Current.tenant }, on: :create
+
+  scope :for_tenant, ->(tenant = Current.tenant) { tenant.present? ? where(tenant_id: tenant.id) : none }
   scope :published, -> {
-    where(state: "published")
+    for_tenant.where(state: "published")
       .where(private: false)
   }
 
-  scope :draft, -> { where(state: "draft") }
+  scope :draft, -> { for_tenant.where(state: "draft") }
   scope :latests, -> { order("created_at desc") }
 
   after_commit :notify_followers_if_published, on: [:create, :update]
