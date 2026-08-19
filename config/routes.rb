@@ -1,6 +1,10 @@
 require_relative "../lib/constraints/username_route_contrainer"
 
 Rails.application.routes.draw do
+  if Rails.env.development?
+    get "/sign_in/:id", to: "development_sessions#create", as: :development_tenant_sign_in
+  end
+
   resources :pages do
     collection do
       get :menus

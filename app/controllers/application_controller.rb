@@ -91,7 +91,7 @@ class ApplicationController < ActionController::Base
   protected
 
   def set_current_tenant
-    Current.tenant = tenant_from_host || tenant_from_session || Tenant.central
+    Current.tenant = tenant_from_host || Tenant.central
     Current.user = current_user
     Current.membership = current_user&.membership_for(Current.tenant)
     Current.tenant_profile = current_user&.tenant_profile_for(Current.tenant)
@@ -102,12 +102,6 @@ class ApplicationController < ActionController::Base
     return if slug.blank? || slug.in?(%w[www app])
 
     Tenant.find_by(slug: slug)
-  end
-
-  def tenant_from_session
-    return if current_user.blank? || session[:tenant_id].blank?
-
-    current_user.memberships.find_by(tenant_id: session[:tenant_id])&.tenant
   end
 
   def start_impersonation(actor:, user:)

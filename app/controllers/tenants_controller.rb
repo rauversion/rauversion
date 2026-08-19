@@ -63,11 +63,9 @@ class TenantsController < ApplicationController
   end
 
   def activate
-    session[:tenant_id] = @membership.tenant_id
-
     render json: {
       tenant: tenant_payload(@membership),
-      message: "Tenant activated"
+      message: "Tenant resolved by host"
     }
   end
 
@@ -132,6 +130,7 @@ class TenantsController < ApplicationController
       central: tenant.central?,
       role: membership.role,
       preview_url: tenant_preview_url(tenant),
+      admin_url: tenant_admin_url(tenant),
       can_manage_settings: membership.role.in?(%w[owner admin]),
       logo_url: tenant.logo.attached? ? url_for(tenant.logo) : nil,
       settings: {
@@ -146,13 +145,17 @@ class TenantsController < ApplicationController
   end
 
   def tenant_preview_url(tenant)
-    return request.base_url if tenant.central?
-
     if Rails.env.development?
-      "#{request.protocol}#{tenant.slug}.lvh.me:#{request.port}"
+      host = tenant.central? ? "lvh.me" : "#{tenant.slug}.lvh.me"
+      "#{request.protocol}#{host}:#{request.port}"
     else
-      "https://#{tenant.slug}.#{tenant_base_domain}"
+      host = tenant.central? ? tenant_base_domain : "#{tenant.slug}.#{tenant_base_domain}"
+      "https://#{host}"
     end
+  end
+
+  def tenant_admin_url(tenant)
+    "#{tenant_preview_url(tenant)}/admin"
   end
 
   def availability_reason(valid:, reserved:, taken:)

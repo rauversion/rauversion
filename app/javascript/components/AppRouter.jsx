@@ -204,10 +204,6 @@ function RequireAdmin({ children }) {
     return <Navigate to="/users/sign_in" state={{ from: location }} replace />
   }
 
-  if (!currentUser.is_admin) {
-    return <Navigate to="/" replace />
-  }
-
   return children
 }
 

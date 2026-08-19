@@ -82,6 +82,26 @@ export type AdminRecordResponse = {
 
 export type AdminMetaResponse = {
   navigation: AdminNavItem[]
+  context: {
+    tenant: {
+      id: number
+      name: string
+      slug: string
+      central: boolean
+      role?: string | null
+      preview_url: string
+      admin_url: string
+      settings_path: string
+    }
+    platform_admin: boolean
+    available_tenants: Array<{
+      id: number
+      name: string
+      slug: string
+      role: string
+      admin_url: string
+    }>
+  }
 }
 
 export type CommerceDashboardData = {

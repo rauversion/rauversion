@@ -1,5 +1,5 @@
 import React from "react"
-import { get, post } from "@rails/request.js"
+import { get } from "@rails/request.js"
 import {
   ArrowUpRight,
   Building2,
@@ -31,6 +31,7 @@ type Tenant = {
   central: boolean
   role: "member" | "artist" | "editor" | "admin" | "owner"
   preview_url: string
+  admin_url: string
   can_manage_settings: boolean
 }
 
@@ -148,19 +149,10 @@ export default function TenantDashboard() {
     return () => { active = false }
   }, [])
 
-  const activate = async (tenant: Tenant) => {
+  const activate = (tenant: Tenant) => {
     setActivatingId(tenant.id)
     setError(null)
-
-    try {
-      const response = await post(`/tenants/${tenant.id}/activate.json`, { responseKind: "json" })
-      if (!response.ok) throw new Error("activation_failed")
-      setCurrentTenantId(tenant.id)
-    } catch (_requestError) {
-      setError("No pudimos entrar a ese tenant. Comprueba tu membresía.")
-    } finally {
-      setActivatingId(null)
-    }
+    window.location.assign(tenant.admin_url)
   }
 
   return (
@@ -231,7 +223,7 @@ export default function TenantDashboard() {
           <ShieldCheck className="h-4 w-4 text-cyan-300" />
           <AlertTitle>Cómo probar el tenant “test” en Rails development</AlertTitle>
           <AlertDescription className="mt-2 space-y-2 text-zinc-400">
-            <p>Usa <strong className="text-zinc-200">Entrar al tenant</strong> para cambiar el contexto de tu sesión.</p>
+            <p>Usa <strong className="text-zinc-200">Entrar al tenant</strong> para abrir su admin en el host correspondiente.</p>
             <p>Usa el botón externo para abrir <code className="rounded bg-black/30 px-1.5 py-0.5 text-cyan-200">test.lvh.me:3000</code>; lvh.me resuelve automáticamente a 127.0.0.1.</p>
           </AlertDescription>
         </Alert>

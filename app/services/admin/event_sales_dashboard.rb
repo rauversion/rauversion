@@ -9,8 +9,9 @@ module Admin
     ORGANIZERS_JOIN = "LEFT JOIN users organizers ON organizers.id = events.user_id".freeze
     ORGANIZER_NAME_SQL = "COALESCE(NULLIF(organizers.display_name, ''), organizers.username, organizers.email)".freeze
 
-    def initialize(scope: PurchasedItem.where(purchased_item_type: "EventTicket"), from: nil, to: nil)
+    def initialize(scope: PurchasedItem.where(purchased_item_type: "EventTicket"), event_scope: Event.all, from: nil, to: nil)
       @scope = scope
+      @event_scope = event_scope
       @from = from
       @to = to
     end
@@ -28,7 +29,7 @@ module Admin
 
     private
 
-    attr_reader :scope
+    attr_reader :scope, :event_scope
 
     def range
       {
@@ -239,7 +240,10 @@ module Admin
     end
 
     def event_tickets_scope
-      @event_tickets_scope ||= EventTicket.respond_to?(:with_deleted) ? EventTicket.with_deleted : EventTicket.unscoped
+      @event_tickets_scope ||= begin
+        tickets = EventTicket.respond_to?(:with_deleted) ? EventTicket.with_deleted : EventTicket.unscoped
+        tickets.where(event_id: event_scope.select(:id))
+      end
     end
 
     def from_date

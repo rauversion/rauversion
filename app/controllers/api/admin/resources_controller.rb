@@ -34,7 +34,7 @@ module Api
           return render json: { error: "Create not allowed for this resource" }, status: :forbidden
         end
 
-        record = @resource[:model].new(permitted_attributes)
+        record = resource_relation.new(permitted_attributes)
 
         if record.save
           render json: {
@@ -95,17 +95,31 @@ module Api
       def set_resource_definition
         @resource_key = params[:resource_key].to_sym
         @resource = ::Admin::ResourceRegistry.fetch!(@resource_key)
+        return if platform_admin? || ::Admin::ResourceRegistry.tenant_resource?(@resource_key)
+
+        raise ::Admin::ResourceRegistry::ResourceNotFound, "Unknown admin resource: #{@resource_key}"
       end
 
       def set_record
-        @record = @resource[:model].find(params[:id])
+        @record = resource_relation.find(params[:id])
       end
 
       def scoped_relation
-        relation = @resource[:model].all
+        relation = resource_relation
         relation = active_scope[:apply].call(relation)
         relation = apply_search(relation)
         @resource[:order].call(relation)
+      end
+
+      def resource_relation
+        relation = @resource[:model].all
+        return relation if platform_admin?
+
+        if @resource[:model].columns_hash.key?("tenant_id")
+          relation.where(tenant_id: Current.tenant.id)
+        else
+          relation.none
+        end
       end
 
       def active_scope
