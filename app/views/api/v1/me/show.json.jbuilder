@@ -41,6 +41,7 @@ end
 json.tenant do
   json.extract! Current.tenant, :id, :name, :slug, :central
   json.logo_url Current.tenant.logo.attached? ? url_for(Current.tenant.logo) : nil
+  json.role Current.membership&.role
 end
 json.env do
   json.app_name ENV["APP_NAME"]

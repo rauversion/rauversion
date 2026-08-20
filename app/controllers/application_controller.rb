@@ -8,6 +8,7 @@ class ApplicationController < ActionController::Base
   end
 
   before_action :set_locale
+  before_action :ensure_current_tenant_access!
 
   helper_method :flash_stream, :current_tenant, :current_membership
 
@@ -95,6 +96,37 @@ class ApplicationController < ActionController::Base
     Current.user = current_user
     Current.membership = current_user&.membership_for(Current.tenant)
     Current.tenant_profile = current_user&.tenant_profile_for(Current.tenant)
+  end
+
+  def ensure_current_tenant_access!
+    return if Current.tenant.access_policy.accessible?
+    return if tenant_access_exempt_request?
+
+    if request.format.json?
+      render json: {
+        error: "Tenant subscription required",
+        code: "tenant_subscription_required",
+        billing_path: "/billing"
+      }, status: :payment_required
+    else
+      redirect_to tenant_inactive_path
+    end
+  end
+
+  def tenant_access_exempt_request?
+    path = request.path
+
+    path == "/billing" ||
+      path == "/inactive" ||
+      path.start_with?("/tenant_billing") ||
+      path == "/admin" ||
+      path.start_with?("/admin/") ||
+      path == "/api/admin/meta" ||
+      path.start_with?("/api/v1/me") ||
+      path == "/tenants" ||
+      path.start_with?("/tenants/") ||
+      path.start_with?("/users/") ||
+      path.start_with?("/sign_in/")
   end
 
   def tenant_from_host

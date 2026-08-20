@@ -89,6 +89,7 @@ Rails.application.routes.draw do
   get "/tenants/new", to: "application#render_blank"
   get "/tenants/:id/settings", to: "application#render_blank"
   get "/billing", to: "application#render_blank", as: :billing
+  get "/inactive", to: "application#render_blank", as: :tenant_inactive
 
   resource :tenant_billing, controller: "tenant_billing", only: [:show] do
     post :checkout

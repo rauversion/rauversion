@@ -139,6 +139,7 @@ import TenantOnboarding from "./tenants/TenantOnboarding"
 import TenantDashboard from "./tenants/TenantDashboard"
 import TenantSettings from "./tenants/TenantSettings"
 import TenantBilling from "./tenants/TenantBilling"
+import TenantInactive from "./tenants/TenantInactive"
 
 function RequireAuth({ children }) {
   const { currentUser, loading: currentUserLoading } = useAuthStore()
@@ -296,10 +297,12 @@ function AppContent() {
   const isPageShowRoute = /^\/pages\/[^/]+$/.test(location.pathname)
   const isEmailTemplateEditRoute = /^\/email-templates\/[^/]+\/edit$/.test(location.pathname)
   const isAdminRoute = location.pathname === "/admin" || location.pathname.startsWith("/admin/")
+  const isTenantInactiveRoute = location.pathname === "/inactive"
   const isRadioRoute = /^\/[^/]+\/radio$/.test(location.pathname)
 
   const shouldShowMusicLibraryLayout =
     !isAdminRoute &&
+    !isTenantInactiveRoute &&
     !isRadioRoute &&
     !isAdmissionRoute &&
     !isEventShowRoute &&
@@ -350,6 +353,7 @@ function AppContent() {
       <Route path="/tenants" element={<RequireAuth><TenantDashboard /></RequireAuth>} />
       <Route path="/tenants/:id/settings" element={<RequireAuth><TenantSettings /></RequireAuth>} />
       <Route path="/billing" element={<RequireAuth><TenantBilling /></RequireAuth>} />
+      <Route path="/inactive" element={<TenantInactive />} />
 
 
       <Route path="/" element={<Home />} />

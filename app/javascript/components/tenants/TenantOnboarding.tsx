@@ -87,10 +87,10 @@ function CopyValue({ value }: { value: string }) {
   }
 
   return (
-    <div className="flex items-center gap-2 rounded-xl border border-border/70 bg-black/20 p-2 pl-3">
+    <div className="flex items-center gap-2 rounded-xl border border-border/70 bg-muted/40 p-2 pl-3">
       <code className="min-w-0 flex-1 truncate text-xs text-foreground sm:text-sm">{value}</code>
       <Button type="button" variant="ghost" size="icon" onClick={copy} aria-label="Copiar valor">
-        {copied ? <Check className="h-4 w-4 text-emerald-400" /> : <Clipboard className="h-4 w-4" />}
+        {copied ? <Check className="h-4 w-4 text-primary" /> : <Clipboard className="h-4 w-4" />}
       </Button>
     </div>
   )
@@ -101,7 +101,7 @@ function SuccessView({ tenant }: { tenant: CreatedTenant }) {
     <div className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6 lg:py-16">
       <div className="mb-8 flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <div className="grid h-11 w-11 place-items-center rounded-2xl bg-emerald-400 text-zinc-950 shadow-[0_0_32px_rgba(52,211,153,0.24)]">
+          <div className="grid h-11 w-11 place-items-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/15">
             <Check className="h-6 w-6" />
           </div>
           <div>
@@ -109,30 +109,30 @@ function SuccessView({ tenant }: { tenant: CreatedTenant }) {
             <h1 className="text-2xl font-semibold tracking-tight">{tenant.name}</h1>
           </div>
         </div>
-        <Badge variant="outline" className="border-emerald-400/30 bg-emerald-400/10 text-emerald-300">
+        <Badge variant="outline" className="border-primary/30 bg-primary/10 text-primary">
           Owner
         </Badge>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1.15fr_.85fr]">
         <Card className="overflow-hidden border-border/70 bg-card/80 shadow-2xl shadow-black/20">
-          <CardHeader className="border-b border-border/60 bg-gradient-to-br from-emerald-400/10 via-transparent to-cyan-400/5">
+          <CardHeader className="border-b border-border/60 bg-gradient-to-br from-primary/10 via-transparent to-chart-2/10">
             <CardTitle className="flex items-center gap-2">
-              <Globe2 className="h-5 w-5 text-emerald-400" />
+              <Globe2 className="h-5 w-5 text-primary" />
               Tu dirección Rauversion
             </CardTitle>
             <CardDescription>Esta será la entrada canónica mientras conectas tu dominio.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-5 p-6">
             <CopyValue value={tenant.url} />
-            <Alert className="border-amber-400/20 bg-amber-400/5">
-              <CircleDashed className="h-4 w-4 text-amber-300" />
+            <Alert className="border-chart-4/20 bg-chart-4/10">
+              <CircleDashed className="h-4 w-4 text-chart-4" />
               <AlertTitle>Tenant listo para recibir contenido</AlertTitle>
               <AlertDescription className="text-muted-foreground">
                 El backend ya resuelve el contexto por host y mantiene el contenido del espacio aislado. En producción todavía debes configurar el DNS wildcard.
               </AlertDescription>
             </Alert>
-            <Button asChild className="w-full bg-emerald-400 text-zinc-950 hover:bg-emerald-300">
+            <Button asChild className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
               <a href="/">Volver a Rauversion <ArrowRight className="ml-2 h-4 w-4" /></a>
             </Button>
           </CardContent>
@@ -258,20 +258,20 @@ export default function TenantOnboarding() {
   const progress = form.formState.isValid && statusIsPositive ? 100 : name.length >= 2 ? 58 : 25
 
   return (
-    <div className="relative min-h-[calc(100vh-8rem)] overflow-hidden rounded-[2rem] border border-border/50 bg-zinc-950 text-zinc-50">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_10%,rgba(52,211,153,.16),transparent_35%),radial-gradient(circle_at_85%_85%,rgba(34,211,238,.10),transparent_30%)]" />
-      <div className="pointer-events-none absolute inset-0 opacity-[0.06] [background-image:linear-gradient(rgba(255,255,255,.35)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.35)_1px,transparent_1px)] [background-size:44px_44px]" />
+    <div className="relative min-h-[calc(100vh-8rem)] overflow-hidden rounded-[2rem] border border-border/50 bg-background text-foreground">
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-accent/10" />
+      <div className="pointer-events-none absolute inset-0 opacity-[0.06] [background-image:linear-gradient(var(--border)_1px,transparent_1px),linear-gradient(90deg,var(--border)_1px,transparent_1px)] [background-size:44px_44px]" />
 
       <div className="relative mx-auto grid min-h-[calc(100vh-8rem)] max-w-6xl items-center gap-10 px-5 py-10 lg:grid-cols-[.8fr_1.2fr] lg:px-10">
         <section className="space-y-8 lg:pr-6">
-          <Badge className="border border-emerald-300/20 bg-emerald-300/10 text-emerald-300 hover:bg-emerald-300/10">
+          <Badge className="border border-primary/20 bg-primary/10 text-primary hover:bg-primary/90/10">
             <Sparkles className="mr-1.5 h-3.5 w-3.5" /> Rauversion for teams
           </Badge>
           <div>
             <h1 className="max-w-lg text-4xl font-semibold leading-[1.05] tracking-[-0.04em] sm:text-5xl">
               Tu catálogo. Tu equipo. Tu dirección.
             </h1>
-            <p className="mt-5 max-w-md text-base leading-relaxed text-zinc-400">
+            <p className="mt-5 max-w-md text-base leading-relaxed text-muted-foreground">
               Crea un espacio independiente para tu sello, colectivo o proyecto. Tú controlas quién entra y qué se publica.
             </p>
           </div>
@@ -283,11 +283,11 @@ export default function TenantOnboarding() {
             ].map(([Icon, title, description]) => {
               const FeatureIcon = Icon as React.ElementType
               return (
-                <div key={title as string} className="flex gap-3 rounded-2xl border border-white/5 bg-white/[0.025] p-4">
-                  <FeatureIcon className="mt-0.5 h-5 w-5 shrink-0 text-emerald-400" />
+                <div key={title as string} className="flex gap-3 rounded-2xl border border-border/60 bg-card/60 p-4">
+                  <FeatureIcon className="mt-0.5 h-5 w-5 shrink-0 text-primary" />
                   <div>
                     <p className="text-sm font-medium">{title as string}</p>
-                    <p className="mt-1 text-xs leading-relaxed text-zinc-500">{description as string}</p>
+                    <p className="mt-1 text-xs leading-relaxed text-foreground0">{description as string}</p>
                   </div>
                 </div>
               )
@@ -295,16 +295,16 @@ export default function TenantOnboarding() {
           </div>
         </section>
 
-        <Card className="border-white/10 bg-zinc-900/90 text-zinc-50 shadow-[0_35px_90px_rgba(0,0,0,.45)] backdrop-blur-xl">
-          <CardHeader className="space-y-5 border-b border-white/10">
+        <Card className="border-border bg-card/90 text-foreground shadow-2xl shadow-foreground/10 backdrop-blur-xl">
+          <CardHeader className="space-y-5 border-b border-border">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <CardTitle className="text-2xl tracking-tight">Crear un tenant</CardTitle>
-                <CardDescription className="mt-1.5 text-zinc-400">Primero define su identidad y dirección interna.</CardDescription>
+                <CardDescription className="mt-1.5 text-muted-foreground">Primero define su identidad y dirección interna.</CardDescription>
               </div>
-              <span className="text-xs font-medium text-zinc-500">Paso 1 de 2</span>
+              <span className="text-xs font-medium text-foreground0">Paso 1 de 2</span>
             </div>
-            <Progress value={progress} className="h-1.5 bg-white/10 [&>div]:bg-emerald-400" />
+            <Progress value={progress} className="h-1.5 bg-muted [&>div]:bg-primary" />
           </CardHeader>
 
           <CardContent className="p-6 sm:p-8">
@@ -315,11 +315,11 @@ export default function TenantOnboarding() {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-zinc-200">Nombre del espacio</FormLabel>
+                      <FormLabel className="text-foreground">Nombre del espacio</FormLabel>
                       <FormControl>
-                        <Input {...field} autoFocus placeholder="Ej. Sello Cordillera" className="h-12 border-white/10 bg-black/20 text-base placeholder:text-zinc-600" />
+                        <Input {...field} autoFocus placeholder="Ej. Sello Cordillera" className="h-12 border-border bg-muted/40 text-base placeholder:text-muted-foreground/60" />
                       </FormControl>
-                      <FormDescription className="text-zinc-500">Puedes cambiar el nombre visible más adelante.</FormDescription>
+                      <FormDescription className="text-foreground0">Puedes cambiar el nombre visible más adelante.</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -330,9 +330,9 @@ export default function TenantOnboarding() {
                   name="slug"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-zinc-200">Subdominio Rauversion</FormLabel>
+                      <FormLabel className="text-foreground">Subdominio Rauversion</FormLabel>
                       <FormControl>
-                        <div className="flex h-12 overflow-hidden rounded-md border border-white/10 bg-black/20 focus-within:ring-2 focus-within:ring-emerald-400/50">
+                        <div className="flex h-12 overflow-hidden rounded-md border border-border bg-muted/40 focus-within:ring-2 focus-within:ring-ring/50">
                           <Input
                             {...field}
                             onChange={(event) => {
@@ -342,13 +342,13 @@ export default function TenantOnboarding() {
                             placeholder="sello-cordillera"
                             className="h-full min-w-0 flex-1 rounded-none border-0 bg-transparent text-base focus-visible:ring-0"
                           />
-                          <div className="flex items-center border-l border-white/10 px-3 text-sm text-zinc-500">.rauversion.com</div>
+                          <div className="flex items-center border-l border-border px-3 text-sm text-foreground0">.rauversion.com</div>
                         </div>
                       </FormControl>
                       <div className="flex min-h-5 items-center gap-2 text-xs">
-                        {availability === "checking" && <Loader2 className="h-3.5 w-3.5 animate-spin text-zinc-400" />}
-                        {statusIsPositive && <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400" />}
-                        <span className={cn(statusIsPositive ? "text-emerald-400" : "text-zinc-500", ["taken", "reserved", "invalid", "error"].includes(availability) && "text-red-400")}>
+                        {availability === "checking" && <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />}
+                        {statusIsPositive && <CheckCircle2 className="h-3.5 w-3.5 text-primary" />}
+                        <span className={cn(statusIsPositive ? "text-primary" : "text-foreground0", ["taken", "reserved", "invalid", "error"].includes(availability) && "text-destructive")}>
                           {availabilityCopy[availability]}
                         </span>
                       </div>
@@ -357,20 +357,20 @@ export default function TenantOnboarding() {
                   )}
                 />
 
-                <Alert className="border-cyan-300/15 bg-cyan-300/[0.04] text-zinc-300">
-                  <ShieldCheck className="h-4 w-4 text-cyan-300" />
+                <Alert className="border-chart-2/20 bg-chart-2/10 text-foreground/80">
+                  <ShieldCheck className="h-4 w-4 text-chart-2" />
                   <AlertTitle>Qué ocurrirá al continuar</AlertTitle>
-                  <AlertDescription className="text-zinc-500">
-                    Crearemos el tenant y una membresía <strong className="text-zinc-300">owner</strong> para tu cuenta. El nuevo espacio comenzará con un catálogo vacío.
+                  <AlertDescription className="text-foreground0">
+                    Crearemos el tenant y una membresía <strong className="text-foreground/80">owner</strong> para tu cuenta. El nuevo espacio comenzará con un catálogo vacío.
                   </AlertDescription>
                 </Alert>
 
-                {serverError && <p role="alert" className="text-sm text-red-400">{serverError}</p>}
+                {serverError && <p role="alert" className="text-sm text-destructive">{serverError}</p>}
 
                 <Button
                   type="submit"
                   disabled={form.formState.isSubmitting || availability !== "available"}
-                  className="h-12 w-full bg-emerald-400 text-base font-semibold text-zinc-950 hover:bg-emerald-300 disabled:bg-zinc-700 disabled:text-zinc-400"
+                  className="h-12 w-full bg-primary text-base font-semibold text-primary-foreground hover:bg-primary/90 disabled:bg-muted disabled:text-muted-foreground"
                 >
                   {form.formState.isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                   Crear mi espacio
