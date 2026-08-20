@@ -93,6 +93,9 @@ es:
         waveform:
           name: Waveform
           description: Interfaz compacta orientada a catálogo, playlists y escucha continua.
+        broadcast:
+          name: Broadcast
+          description: Grilla editorial audaz, gráfica de señal y la energía visual de Rau Radio.
       preview:
         music: Música
         events: Eventos
@@ -128,9 +131,42 @@ es:
       typography: Tipografía
       template: Plantilla
       template_description: Elige la dirección visual del storefront.
+      theme_json: Theme shadcn en JSON
+      theme_json_description: Aplica tokens CSS semánticos usando el formato registry:theme. El preview usa la paleta light.
+      theme_json_error: Ingresa un JSON registry:theme válido con cssVars light y dark.
+      rau_radio_theme_description: "Papel, tinta, verde ácido y coral: el lenguaje visual de /radio."
+      apply_theme_json: Aplicar JSON al preview
       saved: Cambios guardados
       configuration: Configuración del tenant
       preview_help: La vista previa se actualiza antes de publicar.
+    storefront:
+      broadcast:
+        fallback_tagline: Cultura musical independiente
+        navigation: Navegación principal
+        releases: Lanzamientos
+        events: Eventos
+        stories: Historias
+        store: Tienda
+        artists: Artistas
+        network: Red de transmisión independiente
+        description: "%{name} es un espacio independiente para artistas, lanzamientos, eventos y cultura compartida."
+        explore: Explorar catálogo
+        release: Lanzamiento destacado
+        article: Historia destacada
+        event: Evento destacado
+        selected: Señal seleccionada
+        now_presenting: Presentando ahora
+        empty_title: La próxima señal está por llegar
+        empty_description: Aquí aparecerán nueva música, eventos e historias.
+        open: Abrir destacado
+        independent_signal: Señal musical independiente
+        latest_releases: Últimos lanzamientos
+        upcoming_events: Próximos eventos
+        latest_stories: Últimas historias
+        view_all: Ver todo
+        story: Historia
+        date_tba: Fecha por confirmar
+        footer: Música y cultura independiente
     billing:
       unavailable: Billing no disponible
       section: Plan del tenant

@@ -4598,6 +4598,7 @@
       },
       "settings": {
         "accent": "Accent",
+        "apply_theme_json": "Apply JSON to preview",
         "background": "Background",
         "configuration": "Tenant configuration",
         "description": "Define the tenant identity. These values are available to the storefront and its templates.",
@@ -4623,6 +4624,7 @@
         },
         "preview_help": "The preview updates before publishing.",
         "primary": "Primary",
+        "rau_radio_theme_description": "Paper, ink, acid green, and coral—the visual language of /radio.",
         "save_error": "We could not save. Review the colors and try again.",
         "saved": "Changes saved",
         "studio": "Brand studio",
@@ -4635,6 +4637,10 @@
             "description": "Large artwork, featured releases, and independent-label energy.",
             "name": "Amplifier"
           },
+          "broadcast": {
+            "description": "Bold editorial grid, signal graphics, and the visual energy of Rau Radio.",
+            "name": "Broadcast"
+          },
           "editorial": {
             "description": "Expressive typography, magazine rhythm, and room for stories.",
             "name": "Editorial"
@@ -4644,12 +4650,45 @@
             "name": "Waveform"
           }
         },
+        "theme_json": "Shadcn theme JSON",
+        "theme_json_description": "Apply semantic CSS tokens using the registry:theme format. The preview uses the light palette.",
+        "theme_json_error": "Enter a valid registry:theme JSON with light and dark cssVars.",
         "title": "Customize %{name}",
         "typography": "Typography",
         "unavailable": "Configuration unavailable",
         "unsaved_title": "Changes were not saved",
         "upload_logo": "Upload logo",
         "view_site": "View site"
+      },
+      "storefront": {
+        "broadcast": {
+          "article": "Featured story",
+          "artists": "Artists",
+          "date_tba": "Date TBA",
+          "description": "%{name} is an independent home for artists, releases, events, and shared culture.",
+          "empty_description": "New music, events, and stories will appear here.",
+          "empty_title": "The next signal is coming",
+          "event": "Featured event",
+          "events": "Events",
+          "explore": "Explore catalog",
+          "fallback_tagline": "Independent music culture",
+          "footer": "Independent music and culture",
+          "independent_signal": "Independent music signal",
+          "latest_releases": "Latest releases",
+          "latest_stories": "Latest stories",
+          "navigation": "Main navigation",
+          "network": "Independent broadcast network",
+          "now_presenting": "Now presenting",
+          "open": "Open feature",
+          "release": "Featured release",
+          "releases": "Releases",
+          "selected": "Selected signal",
+          "store": "Store",
+          "stories": "Stories",
+          "story": "Story",
+          "upcoming_events": "Upcoming events",
+          "view_all": "View all"
+        }
       }
     },
     "tickets": {
@@ -10077,6 +10116,7 @@
       },
       "settings": {
         "accent": "Acento",
+        "apply_theme_json": "Aplicar JSON al preview",
         "background": "Fondo",
         "configuration": "Configuración del tenant",
         "description": "Define la identidad del tenant. Estos valores quedan disponibles para el storefront y sus futuras plantillas.",
@@ -10102,6 +10142,7 @@
         },
         "preview_help": "La vista previa se actualiza antes de publicar.",
         "primary": "Primario",
+        "rau_radio_theme_description": "Papel, tinta, verde ácido y coral: el lenguaje visual de /radio.",
         "save_error": "No pudimos guardar. Revisa los colores y vuelve a intentarlo.",
         "saved": "Cambios guardados",
         "studio": "Estudio de marca",
@@ -10114,6 +10155,10 @@
             "description": "Portadas grandes, lanzamientos al frente y energía de sello independiente.",
             "name": "Amplifier"
           },
+          "broadcast": {
+            "description": "Grilla editorial audaz, gráfica de señal y la energía visual de Rau Radio.",
+            "name": "Broadcast"
+          },
           "editorial": {
             "description": "Tipografía protagonista, ritmo de revista y espacio para historias.",
             "name": "Editorial"
@@ -10123,12 +10168,45 @@
             "name": "Waveform"
           }
         },
+        "theme_json": "Theme shadcn en JSON",
+        "theme_json_description": "Aplica tokens CSS semánticos usando el formato registry:theme. El preview usa la paleta light.",
+        "theme_json_error": "Ingresa un JSON registry:theme válido con cssVars light y dark.",
         "title": "Personaliza %{name}",
         "typography": "Tipografía",
         "unavailable": "Configuración no disponible",
         "unsaved_title": "No se guardaron los cambios",
         "upload_logo": "Subir logo",
         "view_site": "Ver sitio"
+      },
+      "storefront": {
+        "broadcast": {
+          "article": "Historia destacada",
+          "artists": "Artistas",
+          "date_tba": "Fecha por confirmar",
+          "description": "%{name} es un espacio independiente para artistas, lanzamientos, eventos y cultura compartida.",
+          "empty_description": "Aquí aparecerán nueva música, eventos e historias.",
+          "empty_title": "La próxima señal está por llegar",
+          "event": "Evento destacado",
+          "events": "Eventos",
+          "explore": "Explorar catálogo",
+          "fallback_tagline": "Cultura musical independiente",
+          "footer": "Música y cultura independiente",
+          "independent_signal": "Señal musical independiente",
+          "latest_releases": "Últimos lanzamientos",
+          "latest_stories": "Últimas historias",
+          "navigation": "Navegación principal",
+          "network": "Red de transmisión independiente",
+          "now_presenting": "Presentando ahora",
+          "open": "Abrir destacado",
+          "release": "Lanzamiento destacado",
+          "releases": "Lanzamientos",
+          "selected": "Señal seleccionada",
+          "store": "Tienda",
+          "stories": "Historias",
+          "story": "Historia",
+          "upcoming_events": "Próximos eventos",
+          "view_all": "Ver todo"
+        }
       }
     },
     "tickets": {

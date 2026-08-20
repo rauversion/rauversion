@@ -74,7 +74,7 @@ class HomeController < ApplicationController
   end
 
   def fetch_posts
-    Post.published
+    Post.published.for_tenant
       .with_attached_cover
       .includes(user: { avatar_attachment: :blob })
       .latests
@@ -83,7 +83,7 @@ class HomeController < ApplicationController
   end
 
   def fetch_releases
-    Release
+    Release.for_tenant
       .where(published: true)
       .order("id desc")
       .page(params[:page])
@@ -91,7 +91,7 @@ class HomeController < ApplicationController
   end
 
   def fetch_albums
-    Playlist.published
+    Playlist.published.for_tenant
       .latests
       .where(playlist_type: ["ep", "album"])
       .with_attached_cover
@@ -114,7 +114,7 @@ class HomeController < ApplicationController
   end
 
   def fetch_playlists
-    Playlist.published
+    Playlist.published.for_tenant
       .latests
       .with_attached_cover
       .includes(
@@ -137,7 +137,7 @@ class HomeController < ApplicationController
   end
 
   def fetch_podcasts
-    Track.published
+    Track.published.for_tenant
     .latests
     .with_attached_cover
     .where(podcast: true)
@@ -147,7 +147,7 @@ class HomeController < ApplicationController
   end
 
   def fetch_latest_releases
-    Track.published
+    Track.published.for_tenant
       .latests
       .with_attached_cover
       .with_attached_mp3_audio
@@ -161,7 +161,7 @@ class HomeController < ApplicationController
   end
 
   def fetch_events
-    Event.public_events
+    Event.public_events.for_tenant
       .upcoming
       .includes(:user)
       .with_attached_cover

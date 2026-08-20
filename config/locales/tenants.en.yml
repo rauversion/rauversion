@@ -93,6 +93,9 @@ en:
         waveform:
           name: Waveform
           description: A compact interface focused on catalog, playlists, and continuous listening.
+        broadcast:
+          name: Broadcast
+          description: Bold editorial grid, signal graphics, and the visual energy of Rau Radio.
       preview:
         music: Music
         events: Events
@@ -128,9 +131,42 @@ en:
       typography: Typography
       template: Template
       template_description: Choose the storefront visual direction.
+      theme_json: Shadcn theme JSON
+      theme_json_description: Apply semantic CSS tokens using the registry:theme format. The preview uses the light palette.
+      theme_json_error: Enter a valid registry:theme JSON with light and dark cssVars.
+      rau_radio_theme_description: Paper, ink, acid green, and coral—the visual language of /radio.
+      apply_theme_json: Apply JSON to preview
       saved: Changes saved
       configuration: Tenant configuration
       preview_help: The preview updates before publishing.
+    storefront:
+      broadcast:
+        fallback_tagline: Independent music culture
+        navigation: Main navigation
+        releases: Releases
+        events: Events
+        stories: Stories
+        store: Store
+        artists: Artists
+        network: Independent broadcast network
+        description: "%{name} is an independent home for artists, releases, events, and shared culture."
+        explore: Explore catalog
+        release: Featured release
+        article: Featured story
+        event: Featured event
+        selected: Selected signal
+        now_presenting: Now presenting
+        empty_title: The next signal is coming
+        empty_description: New music, events, and stories will appear here.
+        open: Open feature
+        independent_signal: Independent music signal
+        latest_releases: Latest releases
+        upcoming_events: Upcoming events
+        latest_stories: Latest stories
+        view_all: View all
+        story: Story
+        date_tba: Date TBA
+        footer: Independent music and culture
     billing:
       unavailable: Billing unavailable
       section: Tenant plan

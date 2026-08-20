@@ -4,6 +4,7 @@ import { get, patch } from "@rails/request.js"
 import {
   ArrowLeft,
   ArrowUpRight,
+  Braces,
   Check,
   CircleAlert,
   Image as ImageIcon,
@@ -27,8 +28,19 @@ import { Separator } from "@/components/ui/separator"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 
-type TemplateKey = "amplifier" | "editorial" | "waveform"
+type TemplateKey = "amplifier" | "editorial" | "waveform" | "broadcast"
 type HeadingFont = "space_grotesk" | "archivo_clash" | "ibm_plex"
+
+type ThemeSchema = {
+  $schema?: string
+  name: string
+  type: "registry:theme"
+  cssVars: {
+    theme?: Record<string, string>
+    light: Record<string, string>
+    dark: Record<string, string>
+  }
+}
 
 type Branding = {
   tagline: string
@@ -37,6 +49,7 @@ type Branding = {
   accent_color: string
   background_color: string
   heading_font: HeadingFont
+  theme_schema: ThemeSchema
 }
 
 type Tenant = {
@@ -54,7 +67,35 @@ const templates: Array<{ key: TemplateKey; name: string; description: string }> 
   { key: "amplifier", name: I18n.t("tenants.settings.templates.amplifier.name"), description: I18n.t("tenants.settings.templates.amplifier.description") },
   { key: "editorial", name: I18n.t("tenants.settings.templates.editorial.name"), description: I18n.t("tenants.settings.templates.editorial.description") },
   { key: "waveform", name: I18n.t("tenants.settings.templates.waveform.name"), description: I18n.t("tenants.settings.templates.waveform.description") },
+  { key: "broadcast", name: I18n.t("tenants.settings.templates.broadcast.name"), description: I18n.t("tenants.settings.templates.broadcast.description") },
 ]
+
+const RAU_RADIO_THEME: ThemeSchema = {
+  $schema: "https://ui.shadcn.com/schema/registry-item.json",
+  name: "rau-radio",
+  type: "registry:theme",
+  cssVars: {
+    theme: {
+      radius: "0rem",
+      "font-sans": "'Host Grotesk', sans-serif",
+      "font-heading": "'Host Grotesk', sans-serif",
+    },
+    light: {
+      background: "#f1efe6", foreground: "#0a0a0a", card: "#f1efe6", "card-foreground": "#0a0a0a",
+      primary: "#dfff24", "primary-foreground": "#0a0a0a", secondary: "#0a0a0a", "secondary-foreground": "#f1efe6",
+      muted: "#dedbcf", "muted-foreground": "#55534d", accent: "#ff4b26", "accent-foreground": "#0a0a0a",
+      border: "#0a0a0a", input: "#0a0a0a", ring: "#ff4b26",
+    },
+    dark: {
+      background: "#0a0a0a", foreground: "#f1efe6", card: "#171717", "card-foreground": "#f1efe6",
+      primary: "#dfff24", "primary-foreground": "#0a0a0a", secondary: "#f1efe6", "secondary-foreground": "#0a0a0a",
+      muted: "#282828", "muted-foreground": "#b8b4aa", accent: "#ff4b26", "accent-foreground": "#0a0a0a",
+      border: "#f1efe6", input: "#f1efe6", ring: "#dfff24",
+    },
+  },
+}
+
+const cloneRauRadioTheme = () => JSON.parse(JSON.stringify(RAU_RADIO_THEME)) as ThemeSchema
 
 const fontLabels: Record<HeadingFont, string> = {
   space_grotesk: "Space Grotesk",
@@ -80,53 +121,59 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
 }
 
 function BrandPreview({ tenant, branding, logoPreview }: { tenant: Tenant; branding: Branding; logoPreview: string | null }) {
+  const theme = branding.theme_schema?.cssVars?.light || {}
+  const previewBackground = branding.template === "broadcast" ? theme.background || branding.background_color : branding.background_color
+  const previewForeground = branding.template === "broadcast" ? theme.foreground || "#ffffff" : "#ffffff"
+  const previewPrimary = branding.template === "broadcast" ? theme.primary || branding.primary_color : branding.primary_color
+  const previewAccent = branding.template === "broadcast" ? theme.accent || branding.accent_color : branding.accent_color
   const templateClass = {
     amplifier: "rounded-[2rem]",
     editorial: "rounded-none",
     waveform: "rounded-xl",
+    broadcast: "rounded-none border-2",
   }[branding.template]
 
   return (
     <div
       className={cn("relative isolate min-h-[31rem] overflow-hidden border border-border p-7 shadow-2xl", templateClass)}
-      style={{ backgroundColor: branding.background_color }}
+      style={{ backgroundColor: previewBackground, color: previewForeground }}
     >
       <div
         className="pointer-events-none absolute -right-24 -top-20 h-72 w-72 rounded-full opacity-20 blur-3xl"
-        style={{ backgroundColor: branding.primary_color }}
+        style={{ backgroundColor: previewPrimary }}
       />
       <div className="relative flex items-center justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3">
           {logoPreview ? (
             <img src={logoPreview} alt={I18n.t("tenants.settings.logo")} className="h-11 w-11 rounded-xl object-contain" />
           ) : (
-            <div className="grid h-11 w-11 place-items-center rounded-xl font-bold text-primary-foreground" style={{ backgroundColor: branding.primary_color }}>
+            <div className="grid h-11 w-11 place-items-center rounded-xl font-bold" style={{ backgroundColor: previewPrimary, color: theme["primary-foreground"] || "#000000" }}>
               {tenant.name.slice(0, 1).toUpperCase()}
             </div>
           )}
-          <span className="truncate text-sm font-semibold text-white">{tenant.name}</span>
+          <span className="truncate text-sm font-semibold" style={{ color: previewForeground }}>{tenant.name}</span>
         </div>
-        <div className="flex gap-4 text-[10px] uppercase tracking-[0.18em] text-white/50">
+        <div className="flex gap-4 text-[10px] uppercase tracking-[0.18em] opacity-50" style={{ color: previewForeground }}>
           <span>{I18n.t("tenants.settings.preview.music")}</span><span>{I18n.t("tenants.settings.preview.events")}</span><span>{I18n.t("tenants.settings.preview.store")}</span>
         </div>
       </div>
 
-      <div className={cn("relative mt-24", branding.template === "editorial" && "mt-16 border-l pl-6")} style={{ borderColor: branding.accent_color }}>
-        <Badge className="border-0 text-primary-foreground" style={{ backgroundColor: branding.accent_color }}>{I18n.t("tenants.settings.preview.season")}</Badge>
-        <h2 className="mt-5 max-w-md text-5xl font-black leading-[0.92] tracking-[-0.06em] text-white sm:text-6xl">
+      <div className={cn("relative mt-24", branding.template === "editorial" && "mt-16 border-l pl-6", branding.template === "broadcast" && "mt-14 border-t-2 pt-5")} style={{ borderColor: previewAccent }}>
+        <Badge className="border-0" style={{ backgroundColor: previewAccent, color: theme["accent-foreground"] || "#000000" }}>{I18n.t("tenants.settings.preview.season")}</Badge>
+        <h2 className="mt-5 max-w-md text-5xl font-black leading-[0.92] tracking-[-0.06em] sm:text-6xl" style={{ color: previewForeground }}>
           {branding.tagline || I18n.t("tenants.settings.preview.fallback_tagline")}
         </h2>
-        <p className="mt-5 max-w-sm text-sm leading-relaxed text-white/55">
+        <p className="mt-5 max-w-sm text-sm leading-relaxed opacity-55" style={{ color: previewForeground }}>
           {I18n.t("tenants.settings.preview.description")}
         </p>
-        <Button className="mt-7 border-0 text-primary-foreground" style={{ backgroundColor: branding.primary_color }}>{I18n.t("tenants.settings.preview.explore")}</Button>
+        <Button className={cn("mt-7 border-0", branding.template === "broadcast" && "rounded-none font-black uppercase tracking-wider")} style={{ backgroundColor: previewPrimary, color: theme["primary-foreground"] || "#000000" }}>{I18n.t("tenants.settings.preview.explore")}</Button>
       </div>
 
       <div className="absolute inset-x-7 bottom-7 grid grid-cols-3 gap-2">
         {[I18n.t("tenants.settings.preview.latest_release"), I18n.t("tenants.settings.preview.next_event"), I18n.t("tenants.settings.preview.selection")].map((label, index) => (
           <div key={label} className="rounded-lg border border-border bg-muted/40 p-3">
-            <div className="mb-3 h-1 rounded-full bg-muted"><div className="h-full rounded-full" style={{ width: `${82 - index * 18}%`, backgroundColor: index === 1 ? branding.accent_color : branding.primary_color }} /></div>
-            <p className="text-[10px] text-white/45">{label}</p>
+            <div className="mb-3 h-1 rounded-full bg-muted"><div className="h-full rounded-full" style={{ width: `${82 - index * 18}%`, backgroundColor: index === 1 ? previewAccent : previewPrimary }} /></div>
+            <p className="text-[10px] opacity-45" style={{ color: previewForeground }}>{label}</p>
           </div>
         ))}
       </div>
@@ -145,6 +192,8 @@ export default function TenantSettings() {
   const [saving, setSaving] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const [saved, setSaved] = React.useState(false)
+  const [themeDraft, setThemeDraft] = React.useState("")
+  const [themeError, setThemeError] = React.useState<string | null>(null)
 
   React.useEffect(() => {
     let active = true
@@ -158,6 +207,7 @@ export default function TenantSettings() {
         setBranding(body.tenant.settings)
         setName(body.tenant.name)
         setLogoPreview(body.tenant.logo_url)
+        setThemeDraft(JSON.stringify(body.tenant.settings.theme_schema, null, 2))
       })
       .catch(() => active && setError(I18n.t("tenants.settings.load_error")))
       .finally(() => active && setLoading(false))
@@ -177,6 +227,29 @@ export default function TenantSettings() {
     setSaved(false)
   }
 
+  const applyTheme = (theme: ThemeSchema) => {
+    updateBranding("theme_schema", theme)
+    setThemeDraft(JSON.stringify(theme, null, 2))
+    setThemeError(null)
+  }
+
+  const applyThemeDraft = () => {
+    try {
+      const parsed = JSON.parse(themeDraft) as ThemeSchema
+      if (parsed.type !== "registry:theme" || !parsed.cssVars?.light || !parsed.cssVars?.dark) throw new Error("invalid_theme")
+      updateBranding("theme_schema", parsed)
+      setThemeDraft(JSON.stringify(parsed, null, 2))
+      setThemeError(null)
+    } catch (_parseError) {
+      setThemeError(I18n.t("tenants.settings.theme_json_error"))
+    }
+  }
+
+  const selectTemplate = (template: TemplateKey) => {
+    updateBranding("template", template)
+    if (template === "broadcast") applyTheme(cloneRauRadioTheme())
+  }
+
   const save = async (event: React.FormEvent) => {
     event.preventDefault()
     if (!branding) return
@@ -187,7 +260,9 @@ export default function TenantSettings() {
 
     const body = new FormData()
     body.append("tenant[name]", name)
-    Object.entries(branding).forEach(([key, value]) => body.append(`tenant[${key}]`, value))
+    Object.entries(branding).forEach(([key, value]) => {
+      body.append(`tenant[${key}]`, key === "theme_schema" ? JSON.stringify(value) : String(value))
+    })
     if (logoFile) body.append("tenant[logo]", logoFile)
 
     try {
@@ -197,8 +272,14 @@ export default function TenantSettings() {
       setTenant(payload.tenant)
       setBranding(payload.tenant.settings)
       setLogoPreview(payload.tenant.logo_url)
+      setThemeDraft(JSON.stringify(payload.tenant.settings.theme_schema, null, 2))
       setLogoFile(null)
       setSaved(true)
+      if (Number(window.ENV?.TENANT_ID) === payload.tenant.id) {
+        window.ENV.TENANT_TEMPLATE = payload.tenant.settings.template
+        window.ENV.TENANT_THEME = payload.tenant.settings.theme_schema
+        window.dispatchEvent(new CustomEvent("tenant-theme:change", { detail: payload.tenant.settings.theme_schema }))
+      }
     } catch (_requestError) {
       setError(I18n.t("tenants.settings.save_error"))
     } finally {
@@ -268,13 +349,35 @@ export default function TenantSettings() {
           <div className="space-y-5 xl:sticky xl:top-5 xl:self-start">
             <Card className="border-border bg-card">
               <CardHeader><CardTitle>{I18n.t("tenants.settings.template")}</CardTitle><CardDescription>{I18n.t("tenants.settings.template_description")}</CardDescription></CardHeader>
-              <CardContent className="grid gap-3 sm:grid-cols-3">
+              <CardContent className="grid gap-3 sm:grid-cols-2">
                 {templates.map((template) => (
-                  <button key={template.key} type="button" onClick={() => updateBranding("template", template.key)} className={cn("relative rounded-xl border p-4 text-left transition", branding.template === template.key ? "border-primary/50 bg-primary/10" : "border-border bg-muted/30 hover:border-border")}>
+                  <button key={template.key} type="button" onClick={() => selectTemplate(template.key)} className={cn("relative rounded-xl border p-4 text-left transition", branding.template === template.key ? "border-primary/50 bg-primary/10" : "border-border bg-muted/30 hover:border-border")}>
                     {branding.template === template.key && <span className="absolute right-3 top-3 grid h-5 w-5 place-items-center rounded-full bg-primary text-primary-foreground"><Check className="h-3 w-3" /></span>}
                     <p className="text-sm font-semibold">{template.name}</p><p className="mt-2 text-xs leading-relaxed text-foreground0">{template.description}</p>
                   </button>
                 ))}
+              </CardContent>
+            </Card>
+
+            <Card className="border-border bg-card">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2"><Braces className="h-5 w-5 text-primary" /> {I18n.t("tenants.settings.theme_json")}</CardTitle>
+                <CardDescription>{I18n.t("tenants.settings.theme_json_description")}</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <button type="button" onClick={() => applyTheme(cloneRauRadioTheme())} className="flex w-full items-center justify-between rounded-xl border border-border bg-muted/30 p-4 text-left transition hover:border-primary/50">
+                  <div><p className="text-sm font-semibold">Rau Radio</p><p className="mt-1 text-xs text-foreground0">{I18n.t("tenants.settings.rau_radio_theme_description")}</p></div>
+                  {branding.theme_schema?.name === "rau-radio" && <Check className="h-5 w-5 text-primary" />}
+                </button>
+                <Textarea
+                  value={themeDraft}
+                  onChange={(event) => { setThemeDraft(event.target.value); setThemeError(null); setSaved(false) }}
+                  className="min-h-72 resize-y font-mono text-xs leading-relaxed"
+                  spellCheck={false}
+                  aria-invalid={Boolean(themeError)}
+                />
+                {themeError && <p className="text-sm font-medium text-destructive">{themeError}</p>}
+                <Button type="button" variant="outline" onClick={applyThemeDraft}><Braces className="mr-2 h-4 w-4" /> {I18n.t("tenants.settings.apply_theme_json")}</Button>
               </CardContent>
             </Card>
 

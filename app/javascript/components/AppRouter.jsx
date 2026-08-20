@@ -124,6 +124,7 @@ import LessonShow from "./courses/lessonShow"
 
 import SpinningVideo from "./spinning-video"
 import AppMusicLibraryLayout from "./shared/AppMusicLibraryLayout"
+import TenantThemeProvider from "./tenants/TenantThemeProvider"
 import LikedTracks from "./library/LikedTracks"
 
 
@@ -326,11 +327,16 @@ function AppContent() {
   const isAdminRoute = location.pathname === "/admin" || location.pathname.startsWith("/admin/")
   const isTenantInactiveRoute = location.pathname === "/inactive"
   const isRadioRoute = /^\/[^/]+\/radio$/.test(location.pathname)
+  const isBroadcastHomeRoute =
+    location.pathname === "/" &&
+    window.ENV?.TENANT_TEMPLATE === "broadcast" &&
+    !window.ENV?.TENANT_CENTRAL
+  const isImmersiveStorefrontRoute = isRadioRoute || isBroadcastHomeRoute
 
   const shouldShowMusicLibraryLayout =
     !isAdminRoute &&
     !isTenantInactiveRoute &&
-    !isRadioRoute &&
+    !isImmersiveStorefrontRoute &&
     !isAdmissionRoute &&
     !isEventShowRoute &&
     !isArticleEditRoute &&
@@ -520,8 +526,8 @@ function AppContent() {
 
   return (
     <>
-      {!isAdminRoute && !isAdmissionRoute && !isRadioRoute && <UserMenu />}
-      <div className={cn(!isAdminRoute && !isAdmissionRoute && !isRadioRoute && "pb-24", shouldShowMusicLibraryLayout && "px-4 py-4 sm:px-6 lg:px-8")}>
+      {!isAdminRoute && !isAdmissionRoute && !isImmersiveStorefrontRoute && <UserMenu />}
+      <div className={cn(!isAdminRoute && !isAdmissionRoute && !isImmersiveStorefrontRoute && "pb-24", shouldShowMusicLibraryLayout && "px-4 py-4 sm:px-6 lg:px-8")}>
         {shouldShowMusicLibraryLayout ? (
           <AppMusicLibraryLayout>{routes}</AppMusicLibraryLayout>
         ) : (
@@ -530,7 +536,7 @@ function AppContent() {
       </div>
 
       <Toaster />
-      {!isAdminRoute && !isAdmissionRoute && !isRadioRoute && <AudioPlayer />}
+      {!isAdminRoute && !isAdmissionRoute && !isImmersiveStorefrontRoute && <AudioPlayer />}
 
       {
         !isAdminRoute &&
@@ -544,7 +550,7 @@ function AppContent() {
         !location.pathname.includes('conversations') &&
         !location.pathname.includes('press-kit') &&
         !isAdmissionRoute &&
-        !isRadioRoute &&
+        !isImmersiveStorefrontRoute &&
         (
           <Footer />
         )
@@ -554,10 +560,14 @@ function AppContent() {
 }
 
 export default function AppRouter() {
+  const tenantTheme = window.ENV?.TENANT_CENTRAL ? null : window.ENV?.TENANT_THEME
+
   return (
-    <BrowserRouter>
-      <ScrollRestoration />
-      <AppContent />
-    </BrowserRouter>
+    <TenantThemeProvider theme={tenantTheme}>
+      <BrowserRouter>
+        <ScrollRestoration />
+        <AppContent />
+      </BrowserRouter>
+    </TenantThemeProvider>
   )
 }

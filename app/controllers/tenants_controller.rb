@@ -83,6 +83,8 @@ class TenantsController < ApplicationController
     render json: { tenant: tenant_payload(@membership.reload) }
   rescue ActiveRecord::RecordInvalid => error
     render json: { errors: error.record.errors.to_hash(true) }, status: :unprocessable_entity
+  rescue JSON::ParserError
+    render json: { errors: { theme_schema: ["must be valid JSON"] } }, status: :unprocessable_entity
   end
 
   private
@@ -92,7 +94,7 @@ class TenantsController < ApplicationController
   end
 
   def tenant_settings_params
-    params.require(:tenant).permit(
+    permitted = params.require(:tenant).permit(
       :name,
       :tagline,
       :template,
@@ -100,9 +102,18 @@ class TenantsController < ApplicationController
       :accent_color,
       :background_color,
       :heading_font,
+      :theme_schema,
       :logo,
-      :remove_logo
+      :remove_logo,
+      theme_schema: {}
     )
+
+    if params[:tenant].key?(:theme_schema)
+      value = params[:tenant][:theme_schema]
+      permitted[:theme_schema] = value.is_a?(String) ? JSON.parse(value) : normalize_json_param(value)
+    end
+
+    permitted
   end
 
   def set_membership
@@ -139,7 +150,8 @@ class TenantsController < ApplicationController
         primary_color: tenant.primary_color,
         accent_color: tenant.accent_color,
         background_color: tenant.background_color,
-        heading_font: tenant.heading_font
+        heading_font: tenant.heading_font,
+        theme_schema: tenant.theme_schema
       }
     }
   end
@@ -164,5 +176,16 @@ class TenantsController < ApplicationController
     return "taken" if taken
 
     "available"
+  end
+
+  def normalize_json_param(value)
+    case value
+    when ActionController::Parameters
+      value.to_unsafe_h.transform_values { |item| normalize_json_param(item) }
+    when Array
+      value.map { |item| normalize_json_param(item) }
+    else
+      value
+    end
   end
 end
