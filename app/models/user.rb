@@ -16,6 +16,10 @@ class User < ApplicationRecord
   has_many :memberships, dependent: :destroy
   has_many :tenants, through: :memberships
   has_many :tenant_profiles, dependent: :destroy
+  has_many :billed_tenant_subscriptions,
+    class_name: "TenantSubscription",
+    foreign_key: :subscriber_id,
+    dependent: :restrict_with_exception
 
   after_create :create_initial_membership
   after_update :sync_legacy_role_to_central_membership,

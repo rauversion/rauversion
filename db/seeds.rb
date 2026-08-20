@@ -11,3 +11,5 @@ categories = Category.create([
   {name: "reviews"},
   {name: "interviews"}
 ])
+
+load Rails.root.join("db/seeds/tenant_plans.rb")

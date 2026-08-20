@@ -5,7 +5,7 @@ session_options = {
 
 if Rails.env.development?
   session_options[:domain] = :all
-  session_options[:tld_length] = 1
+  session_options[:tld_length] = 2
 elsif ENV["SESSION_COOKIE_DOMAIN"].present?
   session_options[:domain] = ENV["SESSION_COOKIE_DOMAIN"]
 end

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_19_020000) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_19_030000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -41,6 +41,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_19_020000) do
     t.bigint "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "billing_events", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "event_type", null: false
+    t.jsonb "payload", default: {}, null: false
+    t.datetime "processed_at"
+    t.text "processing_error"
+    t.string "provider", null: false
+    t.string "provider_event_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["provider", "provider_event_id"], name: "index_billing_events_on_provider_and_provider_event_id", unique: true
   end
 
   create_table "categories", force: :cascade do |t|
@@ -679,6 +691,32 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_19_020000) do
     t.index ["plain_conversation_id"], name: "index_plain_messages_on_plain_conversation_id"
   end
 
+  create_table "plan_prices", force: :cascade do |t|
+    t.boolean "active", default: true, null: false
+    t.integer "amount_cents", null: false
+    t.string "billing_interval", default: "month", null: false
+    t.datetime "created_at", null: false
+    t.string "currency", default: "usd", null: false
+    t.bigint "plan_id", null: false
+    t.string "provider", default: "stripe", null: false
+    t.string "provider_price_id"
+    t.datetime "updated_at", null: false
+    t.index ["plan_id"], name: "index_plan_prices_on_plan_id"
+    t.index ["provider_price_id"], name: "index_plan_prices_on_provider_price_id", unique: true, where: "(provider_price_id IS NOT NULL)"
+  end
+
+  create_table "plans", force: :cascade do |t|
+    t.boolean "active", default: true, null: false
+    t.string "code", null: false
+    t.datetime "created_at", null: false
+    t.text "description"
+    t.jsonb "entitlements", default: {}, null: false
+    t.string "name", null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "updated_at", null: false
+    t.index ["code"], name: "index_plans_on_code", unique: true
+  end
+
   create_table "playlist_gen_library_uploads", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.text "error_message"
@@ -1302,6 +1340,33 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_19_020000) do
     t.index ["user_id"], name: "index_tenant_profiles_on_user_id"
   end
 
+  create_table "tenant_subscriptions", force: :cascade do |t|
+    t.boolean "cancel_at_period_end", default: false, null: false
+    t.datetime "canceled_at"
+    t.datetime "created_at", null: false
+    t.datetime "current_period_ends_at"
+    t.datetime "current_period_starts_at"
+    t.jsonb "entitlements_snapshot", default: {}, null: false
+    t.datetime "grace_period_ends_at"
+    t.bigint "plan_id", null: false
+    t.bigint "plan_price_id", null: false
+    t.string "provider", default: "stripe", null: false
+    t.string "provider_checkout_session_id"
+    t.string "provider_customer_id"
+    t.string "provider_subscription_id"
+    t.string "status", default: "pending", null: false
+    t.bigint "subscriber_id", null: false
+    t.bigint "tenant_id", null: false
+    t.datetime "trial_ends_at"
+    t.datetime "updated_at", null: false
+    t.index ["plan_id"], name: "index_tenant_subscriptions_on_plan_id"
+    t.index ["plan_price_id"], name: "index_tenant_subscriptions_on_plan_price_id"
+    t.index ["provider_checkout_session_id"], name: "index_tenant_subscriptions_on_provider_checkout_session_id", unique: true, where: "(provider_checkout_session_id IS NOT NULL)"
+    t.index ["provider_subscription_id"], name: "index_tenant_subscriptions_on_provider_subscription_id", unique: true, where: "(provider_subscription_id IS NOT NULL)"
+    t.index ["subscriber_id"], name: "index_tenant_subscriptions_on_subscriber_id"
+    t.index ["tenant_id"], name: "index_tenant_subscriptions_on_tenant_id", unique: true
+  end
+
   create_table "tenants", force: :cascade do |t|
     t.boolean "central", default: false, null: false
     t.datetime "created_at", null: false
@@ -1604,6 +1669,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_19_020000) do
   add_foreign_key "participants", "users"
   add_foreign_key "photos", "users"
   add_foreign_key "plain_messages", "plain_conversations"
+  add_foreign_key "plan_prices", "plans"
   add_foreign_key "playlist_gen_playlist_tracks", "playlist_gen_playlists", column: "playlist_id"
   add_foreign_key "playlist_gen_playlist_tracks", "playlist_gen_tracks", column: "track_id"
   add_foreign_key "playlists", "tenants"
@@ -1663,6 +1729,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_19_020000) do
   add_foreign_key "spotlights", "users"
   add_foreign_key "tenant_profiles", "tenants"
   add_foreign_key "tenant_profiles", "users"
+  add_foreign_key "tenant_subscriptions", "plan_prices"
+  add_foreign_key "tenant_subscriptions", "plans"
+  add_foreign_key "tenant_subscriptions", "tenants"
+  add_foreign_key "tenant_subscriptions", "users", column: "subscriber_id"
   add_foreign_key "tickets", "events"
   add_foreign_key "track_artists", "tracks"
   add_foreign_key "track_artists", "users"

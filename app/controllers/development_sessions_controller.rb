@@ -9,7 +9,7 @@ class DevelopmentSessionsController < ApplicationController
     sign_in(:user, membership.user)
     session[:parent_user] = nil
 
-    redirect_to tenant_admin_url(tenant),
+    redirect_to tenant_admin_url(tenant), allow_other_host: true,
       notice: "Signed in as #{membership.user.username} on #{tenant.name} (#{membership.role})"
   end
 

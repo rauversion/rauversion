@@ -19,6 +19,15 @@ class Tenant < ApplicationRecord
   has_many :courses, dependent: :restrict_with_exception
   has_many :releases, dependent: :restrict_with_exception
   has_one_attached :logo
+  has_one :tenant_subscription, dependent: :restrict_with_exception
+
+  def access_policy
+    TenantAccessPolicy.new(self)
+  end
+
+  def entitled?(key)
+    access_policy.entitled?(key)
+  end
 
   store_attribute :settings, :tagline, :string
   store_attribute :settings, :template, :string, default: "amplifier"

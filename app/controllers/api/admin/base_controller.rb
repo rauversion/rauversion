@@ -4,6 +4,7 @@ module Api
       layout false
 
       before_action :ensure_admin!
+      before_action :ensure_active_tenant_subscription!
 
       rescue_from ::Admin::ResourceRegistry::ResourceNotFound, with: :render_not_found
 
@@ -22,6 +23,16 @@ module Api
 
       def tenant_admin?
         Current.membership&.role.in?(%w[owner admin])
+      end
+
+      def ensure_active_tenant_subscription!
+        return if platform_admin? || Current.tenant.access_policy.accessible?
+
+        render json: {
+          error: "Tenant subscription required",
+          code: "tenant_subscription_required",
+          billing_path: "/billing"
+        }, status: :payment_required
       end
 
       def tenant_preview_url(tenant)

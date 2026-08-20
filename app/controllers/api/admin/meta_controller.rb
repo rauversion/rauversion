@@ -1,6 +1,8 @@
 module Api
   module Admin
     class MetaController < BaseController
+      skip_before_action :ensure_active_tenant_subscription!
+
       def show
         manageable_memberships = current_user.memberships
           .includes(:tenant)
@@ -21,6 +23,8 @@ module Api
               settings_path: "/tenants/#{Current.tenant.id}/settings"
             },
             platform_admin: platform_admin?,
+            subscription_accessible: Current.tenant.access_policy.accessible?,
+            billing_path: "/billing",
             available_tenants: manageable_memberships.map do |membership|
               {
                 id: membership.tenant.id,
@@ -44,6 +48,13 @@ module Api
           kind: "resource",
           icon: "Settings2",
           path: "/tenants/#{Current.tenant.id}/settings"
+        }
+        items << {
+          key: "tenant_billing",
+          label: "Billing",
+          kind: "resource",
+          icon: "CreditCard",
+          path: "/billing"
         }
         items
       end

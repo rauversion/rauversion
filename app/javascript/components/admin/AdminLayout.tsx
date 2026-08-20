@@ -10,6 +10,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/co
 import {
   Bell,
   CalendarDays,
+  CreditCard,
   Disc3,
   ExternalLink,
   FileText,
@@ -37,6 +38,7 @@ const icons: Record<string, React.ComponentType<any>> = {
   Headphones,
   Ticket,
   Settings2,
+  CreditCard,
 }
 
 function NavItems({ navigation, pathname, onNavigate }: { navigation: AdminNavItem[]; pathname: string; onNavigate?: () => void }) {
@@ -81,6 +83,7 @@ export default function AdminLayout() {
         const data = await adminGetJson<AdminMetaResponse>("/api/admin/meta")
         setNavigation(data.navigation)
         setContext(data.context)
+        if (!data.context.subscription_accessible) window.location.replace(data.context.billing_path)
       } catch (error: any) {
         toast({
           title: "Admin metadata failed",

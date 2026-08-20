@@ -138,6 +138,7 @@ import AdminTrackShowPage from "./admin/AdminTrackShowPage"
 import TenantOnboarding from "./tenants/TenantOnboarding"
 import TenantDashboard from "./tenants/TenantDashboard"
 import TenantSettings from "./tenants/TenantSettings"
+import TenantBilling from "./tenants/TenantBilling"
 
 function RequireAuth({ children }) {
   const { currentUser, loading: currentUserLoading } = useAuthStore()
@@ -348,6 +349,7 @@ function AppContent() {
       <Route path="/tenants/new" element={<RequireAuth><TenantOnboarding /></RequireAuth>} />
       <Route path="/tenants" element={<RequireAuth><TenantDashboard /></RequireAuth>} />
       <Route path="/tenants/:id/settings" element={<RequireAuth><TenantSettings /></RequireAuth>} />
+      <Route path="/billing" element={<RequireAuth><TenantBilling /></RequireAuth>} />
 
 
       <Route path="/" element={<Home />} />

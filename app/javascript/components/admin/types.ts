@@ -94,6 +94,8 @@ export type AdminMetaResponse = {
       settings_path: string
     }
     platform_admin: boolean
+    subscription_accessible: boolean
+    billing_path: string
     available_tenants: Array<{
       id: number
       name: string

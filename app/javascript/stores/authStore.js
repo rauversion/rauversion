@@ -9,6 +9,7 @@ const useAuthStore = create((set, get) => ({
   cartItemCount: 0,
   unreadMessagesCount: 0,
   i18n: { locale: 'en' },
+  tenant: null,
   env: {},
   loading: true,
   error: null,
@@ -33,6 +34,7 @@ const useAuthStore = create((set, get) => ({
           cartItemCount: data.cart_item_count,
           unreadMessagesCount: data.current_user?.unread_messages_count || 0,
           i18n: data.i18n,
+          tenant: data.tenant,
           env: data.env,
           loading: false,
           error: null

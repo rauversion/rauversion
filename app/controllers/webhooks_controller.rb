@@ -35,6 +35,11 @@ class WebhooksController < ApplicationController
       return
     end
 
+    if TenantSubscriptions::StripeWebhookProcessor.handles?(event)
+      TenantSubscriptions::StripeWebhookProcessor.call(event)
+      return render json: {message: :success}
+    end
+
     # Handle the event
     case event.type
     when "payment_intent.succeeded"

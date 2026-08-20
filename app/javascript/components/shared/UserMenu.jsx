@@ -100,6 +100,21 @@ const ListItem = React.forwardRef(
 );
 ListItem.displayName = "ListItem";
 
+function TenantBrand() {
+  const tenant = useAuthStore((state) => state.tenant);
+
+  return (
+    <>
+      <img
+        src={tenant?.logo_url || "/logo.png"}
+        className="h-8 sm:h-12 w-auto max-w-40 object-contain"
+        alt={tenant?.name ? `${tenant.name} logo` : "Logo"}
+      />
+      <span className="hidden md:block">{tenant?.name || window.ENV.APP_NAME}</span>
+    </>
+  );
+}
+
 // MobileNavigation and NavSection components
 export function MobileNavigation({ currentUser, authLoading, storeNavItems, eventsNavItems, magazineNavItems, musicNavItems }) {
   const [open, setOpen] = React.useState(false);
@@ -421,12 +436,7 @@ export default function UserMenu() {
                   to="/"
                   className="flex items-center space-x-3 text-default sm:text-2xl text-sm font-extrabold"
                 >
-                  <img
-                    src={"/logo.png"}
-                    className="h-8 sm:h-12 w-auto"
-                    alt="Logo"
-                  />
-                  <span className="hidden md:block">{window.ENV.APP_NAME}</span>
+                  <TenantBrand />
                 </Link>
               </div>
               {!hideMainMenu && (

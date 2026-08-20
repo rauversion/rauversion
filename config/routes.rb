@@ -88,6 +88,12 @@ Rails.application.routes.draw do
   get "/library/likes", to: "application#render_blank"
   get "/tenants/new", to: "application#render_blank"
   get "/tenants/:id/settings", to: "application#render_blank"
+  get "/billing", to: "application#render_blank", as: :billing
+
+  resource :tenant_billing, controller: "tenant_billing", only: [:show] do
+    post :checkout
+    post :portal
+  end
 
   resources :tenants, only: [:index, :show, :create, :update] do
     collection do
