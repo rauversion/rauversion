@@ -107,7 +107,7 @@ module PaymentProviders
       }
 
       payload = {
-        items: [options],
+        items: [options] + build_service_fee_items(purchase.price, purchase.currency, source_type),
         payer: {
           email: Rails.env.development? ? "aaa-#{user.email}" : user.email,
           first_name: user.first_name || user.full_name,
@@ -150,7 +150,7 @@ module PaymentProviders
 
     def build_preference_data(promo_code)
       {
-        items: build_items,
+        items: build_items + build_service_fee_items(cart.total_price, cart_currency, "product"),
         payer: {
           email: Rails.env.development? ? "aaa-#{user.email}" : user.email,
           phone: {
@@ -176,6 +176,25 @@ module PaymentProviders
           source_type: "product"
         }
       }
+    end
+
+    def build_service_fee_items(base_amount, currency, source_type)
+      fee_amount = rounded_platform_fee(base_amount, currency)
+      return [] unless fee_amount.positive?
+
+      [{
+        title: service_fee_name,
+        quantity: 1,
+        currency_id: currency.to_s.upcase,
+        unit_price: fee_amount.to_f,
+        description: service_fee_description(source_type),
+        category_id: "services"
+      }]
+    end
+
+    def rounded_platform_fee(base_amount, currency)
+      exponent = Money::Currency.new(currency).exponent
+      platform_fee_for(base_amount).round(exponent)
     end
 
     def build_items

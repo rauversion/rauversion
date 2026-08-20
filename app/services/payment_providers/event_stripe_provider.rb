@@ -122,8 +122,8 @@ module PaymentProviders
             "currency" => event.ticket_currency,
             "tax_behavior" => ticket_tax_behavior,
             "product_data" => {
-              "name" => "Cargo por servicio",
-              "description" => "Cargo de servicio de Rauversion para la compra de tickets",
+              "name" => service_fee_name,
+              "description" => service_fee_description("event"),
               "tax_code" => service_fee_tax_code
             }
           }

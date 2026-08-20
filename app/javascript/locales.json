@@ -4278,7 +4278,7 @@
             "label": "Allow fans to pay more if they wish"
           },
           "price": {
-            "hint": "$0 or more. We apply a fee when the price is greater than $0.",
+            "hint": "$0 or more. This is the amount the seller receives; the service fee is added for the buyer at checkout.",
             "label": "Price"
           }
         },
@@ -9795,7 +9795,7 @@
             "label": "Permitir que los fans paguen más si lo desean"
           },
           "price": {
-            "hint": "$0 o más. Aplicamos una tarifa cuando el precio es mayor que $0.",
+            "hint": "$0 o más. Este es el monto que recibe el vendedor; la comisión de servicio se agrega al comprador al pagar.",
             "label": "Precio"
           }
         },

@@ -2403,7 +2403,7 @@ en:
       pricing:
         price:
           label: Price
-          hint: "$0 or more. We apply a fee when the price is greater than $0."
+          hint: "$0 or more. This is the amount the seller receives; the service fee is added for the buyer at checkout."
         name_your_price:
           label: Allow fans to pay more if they wish
       share:

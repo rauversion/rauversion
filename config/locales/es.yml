@@ -2460,7 +2460,7 @@ es:
       pricing:
         price:
           label: Precio
-          hint: $0 o más. Aplicamos una tarifa cuando el precio es mayor que $0.
+          hint: $0 o más. Este es el monto que recibe el vendedor; la comisión de servicio se agrega al comprador al pagar.
         name_your_price:
           label: Permitir que los fans paguen más si lo desean
       share:

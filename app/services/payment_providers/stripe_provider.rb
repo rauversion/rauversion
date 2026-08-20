@@ -81,6 +81,7 @@ module PaymentProviders
       purchasable = purchase.purchasable
       user = purchase.user
       currency = purchase.currency.presence || purchasable_currency
+      fee_amount = stripe_amount(platform_fee_for(purchase.price), currency)
     
       params = {
         payment_method_types: ["card"],
@@ -94,7 +95,7 @@ module PaymentProviders
               "description" => "#{purchasable.title} from #{purchasable.user.username}"
             }
           }
-        }],
+        }] + build_service_fee_line_items(fee_amount, currency, source_type),
         mode: "payment",
         success_url: success_url(purchase_id: purchase.id),
         cancel_url: cancel_url,
@@ -108,17 +109,6 @@ module PaymentProviders
       }
     
       if account
-        # Assuming ENV['PLATFORM_EVENTS_FEE'] is a percentage, e.g., 10 for 10%
-        fee_percentage = ENV.fetch('PLATFORM_EVENTS_FEE', 10).to_f / 100.0
-        fee_amount = stripe_amount(purchase.price * fee_percentage, currency)
-    
-        #params[:payment_intent_data] = {
-        #  application_fee_amount: fee_amount,
-          #transfer_data: {
-          #  destination: account # this is the connected account ID (acct_XXXX)
-          #}
-        #}
-
         params[:payment_intent_data] = {
           application_fee_amount: fee_amount,
           transfer_data: {
@@ -136,6 +126,7 @@ module PaymentProviders
       connected_accounts = cart.products.map{|o| o.user.stripe_account_id}
       connected_account_id = connected_accounts.first
       currency = cart_currency
+      fee_amount = stripe_amount(platform_fee_for(cart.total_price), currency)
 
       #return render json: {
       #  error: "Multiple connected accounts not supported"
@@ -143,7 +134,7 @@ module PaymentProviders
 
       params = {
         payment_method_types: ['card'],
-        line_items: build_line_items,
+        line_items: build_line_items + build_service_fee_line_items(fee_amount, currency, "product"),
         mode: 'payment',
         success_url: success_url(purchase_id: purchase.id),
         cancel_url: cancel_url,
@@ -169,9 +160,6 @@ module PaymentProviders
       end
     
       if connected_account_id.present?
-        fee_percentage = ENV.fetch('PLATFORM_EVENTS_FEE', 10).to_f / 100.0
-        fee_amount = stripe_amount(cart.total_price * fee_percentage, currency)
-    
         params[:payment_intent_data] = {
           application_fee_amount: fee_amount,
           transfer_data: {
@@ -181,6 +169,22 @@ module PaymentProviders
       end
     
       params
+    end
+
+    def build_service_fee_line_items(fee_amount, currency, source_type)
+      return [] unless fee_amount.positive?
+
+      [{
+        "quantity" => 1,
+        "price_data" => {
+          "unit_amount" => fee_amount,
+          "currency" => currency,
+          "product_data" => {
+            "name" => service_fee_name,
+            "description" => service_fee_description(source_type)
+          }
+        }
+      }]
     end
     
 
