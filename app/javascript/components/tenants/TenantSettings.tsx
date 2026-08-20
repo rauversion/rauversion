@@ -6,6 +6,7 @@ import {
   ArrowUpRight,
   Braces,
   Check,
+  ChevronDown,
   CircleAlert,
   Image as ImageIcon,
   Loader2,
@@ -27,6 +28,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Separator } from "@/components/ui/separator"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
+import amplifierThemeJson from "@/themes/tenant/amplifier.json"
+import editorialThemeJson from "@/themes/tenant/editorial.json"
+import waveformThemeJson from "@/themes/tenant/waveform.json"
+import broadcastThemeJson from "@/themes/tenant/broadcast.json"
 
 type TemplateKey = "amplifier" | "editorial" | "waveform" | "broadcast"
 type HeadingFont = "space_grotesk" | "archivo_clash" | "ibm_plex"
@@ -34,6 +39,8 @@ type HeadingFont = "space_grotesk" | "archivo_clash" | "ibm_plex"
 type ThemeSchema = {
   $schema?: string
   name: string
+  title?: string
+  description?: string
   type: "registry:theme"
   cssVars: {
     theme?: Record<string, string>
@@ -70,32 +77,14 @@ const templates: Array<{ key: TemplateKey; name: string; description: string }> 
   { key: "broadcast", name: I18n.t("tenants.settings.templates.broadcast.name"), description: I18n.t("tenants.settings.templates.broadcast.description") },
 ]
 
-const RAU_RADIO_THEME: ThemeSchema = {
-  $schema: "https://ui.shadcn.com/schema/registry-item.json",
-  name: "rau-radio",
-  type: "registry:theme",
-  cssVars: {
-    theme: {
-      radius: "0rem",
-      "font-sans": "'Host Grotesk', sans-serif",
-      "font-heading": "'Host Grotesk', sans-serif",
-    },
-    light: {
-      background: "#f1efe6", foreground: "#0a0a0a", card: "#f1efe6", "card-foreground": "#0a0a0a",
-      primary: "#dfff24", "primary-foreground": "#0a0a0a", secondary: "#0a0a0a", "secondary-foreground": "#f1efe6",
-      muted: "#dedbcf", "muted-foreground": "#55534d", accent: "#ff4b26", "accent-foreground": "#0a0a0a",
-      border: "#0a0a0a", input: "#0a0a0a", ring: "#ff4b26",
-    },
-    dark: {
-      background: "#0a0a0a", foreground: "#f1efe6", card: "#171717", "card-foreground": "#f1efe6",
-      primary: "#dfff24", "primary-foreground": "#0a0a0a", secondary: "#f1efe6", "secondary-foreground": "#0a0a0a",
-      muted: "#282828", "muted-foreground": "#b8b4aa", accent: "#ff4b26", "accent-foreground": "#0a0a0a",
-      border: "#f1efe6", input: "#f1efe6", ring: "#dfff24",
-    },
-  },
+const themePresets: Record<TemplateKey, ThemeSchema> = {
+  amplifier: amplifierThemeJson as ThemeSchema,
+  editorial: editorialThemeJson as ThemeSchema,
+  waveform: waveformThemeJson as ThemeSchema,
+  broadcast: broadcastThemeJson as ThemeSchema,
 }
 
-const cloneRauRadioTheme = () => JSON.parse(JSON.stringify(RAU_RADIO_THEME)) as ThemeSchema
+const cloneThemePreset = (template: TemplateKey) => JSON.parse(JSON.stringify(themePresets[template])) as ThemeSchema
 
 const fontLabels: Record<HeadingFont, string> = {
   space_grotesk: "Space Grotesk",
@@ -114,7 +103,7 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
           onChange={(event) => onChange(event.target.value)}
           className="h-10 w-14 cursor-pointer p-1"
         />
-        <Input value={value} onChange={(event) => onChange(event.target.value)} className="font-mono uppercase" maxLength={7} />
+        <Input value={value} onChange={(event) => onChange(event.target.value)} className="min-w-0 flex-1 font-mono uppercase" maxLength={7} />
       </div>
     </div>
   )
@@ -122,10 +111,10 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
 
 function BrandPreview({ tenant, branding, logoPreview }: { tenant: Tenant; branding: Branding; logoPreview: string | null }) {
   const theme = branding.theme_schema?.cssVars?.light || {}
-  const previewBackground = branding.template === "broadcast" ? theme.background || branding.background_color : branding.background_color
-  const previewForeground = branding.template === "broadcast" ? theme.foreground || "#ffffff" : "#ffffff"
-  const previewPrimary = branding.template === "broadcast" ? theme.primary || branding.primary_color : branding.primary_color
-  const previewAccent = branding.template === "broadcast" ? theme.accent || branding.accent_color : branding.accent_color
+  const previewBackground = theme.background || branding.background_color
+  const previewForeground = theme.foreground || "#ffffff"
+  const previewPrimary = theme.primary || branding.primary_color
+  const previewAccent = theme.accent || branding.accent_color
   const templateClass = {
     amplifier: "rounded-[2rem]",
     editorial: "rounded-none",
@@ -190,6 +179,7 @@ export default function TenantSettings() {
   const [logoPreview, setLogoPreview] = React.useState<string | null>(null)
   const [loading, setLoading] = React.useState(true)
   const [saving, setSaving] = React.useState(false)
+  const [templateSaving, setTemplateSaving] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
   const [saved, setSaved] = React.useState(false)
   const [themeDraft, setThemeDraft] = React.useState("")
@@ -228,26 +218,110 @@ export default function TenantSettings() {
   }
 
   const applyTheme = (theme: ThemeSchema) => {
-    updateBranding("theme_schema", theme)
+    const light = theme.cssVars.light || {}
+    setBranding((current) => current ? {
+      ...current,
+      theme_schema: theme,
+      primary_color: light.primary || current.primary_color,
+      accent_color: light.accent || current.accent_color,
+      background_color: light.background || current.background_color,
+    } : current)
+    setSaved(false)
     setThemeDraft(JSON.stringify(theme, null, 2))
     setThemeError(null)
+  }
+
+  const updatePaletteColor = (
+    legacyKey: "primary_color" | "accent_color" | "background_color",
+    token: "primary" | "accent" | "background",
+    value: string
+  ) => {
+    if (!branding) return
+    const theme = JSON.parse(JSON.stringify(branding.theme_schema)) as ThemeSchema
+    theme.name = `${branding.template}-custom`
+    theme.cssVars.light[token] = value
+    if (token !== "background") theme.cssVars.dark[token] = value
+    setBranding({ ...branding, [legacyKey]: value, theme_schema: theme })
+    setThemeDraft(JSON.stringify(theme, null, 2))
+    setThemeError(null)
+    setSaved(false)
   }
 
   const applyThemeDraft = () => {
     try {
       const parsed = JSON.parse(themeDraft) as ThemeSchema
       if (parsed.type !== "registry:theme" || !parsed.cssVars?.light || !parsed.cssVars?.dark) throw new Error("invalid_theme")
-      updateBranding("theme_schema", parsed)
-      setThemeDraft(JSON.stringify(parsed, null, 2))
-      setThemeError(null)
+      applyTheme(parsed)
     } catch (_parseError) {
       setThemeError(I18n.t("tenants.settings.theme_json_error"))
     }
   }
 
-  const selectTemplate = (template: TemplateKey) => {
-    updateBranding("template", template)
-    if (template === "broadcast") applyTheme(cloneRauRadioTheme())
+  const activateRuntimeTheme = (payload: { tenant: Tenant }) => {
+    if (Number(window.ENV?.TENANT_ID) !== payload.tenant.id) return
+
+    window.ENV.TENANT_TEMPLATE = payload.tenant.settings.template
+    window.ENV.TENANT_THEME = payload.tenant.settings.theme_schema
+    window.dispatchEvent(new CustomEvent("tenant-theme:change", { detail: payload.tenant.settings.theme_schema }))
+  }
+
+  const selectTemplate = async (template: TemplateKey) => {
+    if (!branding || templateSaving) return
+
+    const previousTheme = {
+      template: branding.template,
+      primary_color: branding.primary_color,
+      accent_color: branding.accent_color,
+      background_color: branding.background_color,
+      theme_schema: branding.theme_schema,
+    }
+    const theme = cloneThemePreset(template)
+    const light = theme.cssVars.light
+    const nextTheme = {
+      template,
+      primary_color: light.primary || branding.primary_color,
+      accent_color: light.accent || branding.accent_color,
+      background_color: light.background || branding.background_color,
+      theme_schema: theme,
+    }
+
+    setBranding({ ...branding, ...nextTheme })
+    setThemeDraft(JSON.stringify(theme, null, 2))
+    setThemeError(null)
+    setTemplateSaving(true)
+    setSaved(false)
+    setError(null)
+
+    const body = new FormData()
+    body.append("tenant[template]", nextTheme.template)
+    body.append("tenant[primary_color]", nextTheme.primary_color)
+    body.append("tenant[accent_color]", nextTheme.accent_color)
+    body.append("tenant[background_color]", nextTheme.background_color)
+    body.append("tenant[theme_schema]", JSON.stringify(nextTheme.theme_schema))
+
+    try {
+      const response = await patch(`/tenants/${id}.json`, { body, responseKind: "json" })
+      const payload = await response.json
+      if (!response.ok) throw new Error("save_failed")
+
+      setTenant(payload.tenant)
+      setBranding((current) => current ? {
+        ...current,
+        template: payload.tenant.settings.template,
+        primary_color: payload.tenant.settings.primary_color,
+        accent_color: payload.tenant.settings.accent_color,
+        background_color: payload.tenant.settings.background_color,
+        theme_schema: payload.tenant.settings.theme_schema,
+      } : current)
+      setThemeDraft(JSON.stringify(payload.tenant.settings.theme_schema, null, 2))
+      activateRuntimeTheme(payload)
+    } catch (_requestError) {
+      setBranding((current) => current ? { ...current, ...previousTheme } : current)
+      setThemeDraft(JSON.stringify(previousTheme.theme_schema, null, 2))
+      setError(I18n.t("tenants.settings.save_error"))
+    } finally {
+      setTemplateSaving(false)
+    }
   }
 
   const save = async (event: React.FormEvent) => {
@@ -275,11 +349,7 @@ export default function TenantSettings() {
       setThemeDraft(JSON.stringify(payload.tenant.settings.theme_schema, null, 2))
       setLogoFile(null)
       setSaved(true)
-      if (Number(window.ENV?.TENANT_ID) === payload.tenant.id) {
-        window.ENV.TENANT_TEMPLATE = payload.tenant.settings.template
-        window.ENV.TENANT_THEME = payload.tenant.settings.theme_schema
-        window.dispatchEvent(new CustomEvent("tenant-theme:change", { detail: payload.tenant.settings.theme_schema }))
-      }
+      activateRuntimeTheme(payload)
     } catch (_requestError) {
       setError(I18n.t("tenants.settings.save_error"))
     } finally {
@@ -321,8 +391,8 @@ export default function TenantSettings() {
                 <div className="space-y-2">
                   <Label htmlFor="tenant-logo">{I18n.t("tenants.settings.logo")}</Label>
                   <label htmlFor="tenant-logo" className="flex cursor-pointer items-center gap-4 rounded-xl border border-dashed border-border bg-muted/40 p-4 transition hover:border-primary/40">
-                    <div className="grid h-12 w-12 place-items-center overflow-hidden rounded-xl bg-muted/50">{logoPreview ? <img src={logoPreview} alt="Logo" className="h-full w-full object-contain" /> : <Upload className="h-5 w-5 text-foreground0" />}</div>
-                    <div><p className="text-sm font-medium">{logoFile?.name || I18n.t("tenants.settings.upload_logo")}</p><p className="mt-1 text-xs text-foreground0">{I18n.t("tenants.settings.logo_help")}</p></div>
+                    <div className="grid h-12 w-12 place-items-center overflow-hidden rounded-xl bg-muted/50">{logoPreview ? <img src={logoPreview} alt="Logo" className="h-full w-full object-contain" /> : <Upload className="h-5 w-5 text-muted-foreground" />}</div>
+                    <div><p className="text-sm font-medium">{logoFile?.name || I18n.t("tenants.settings.upload_logo")}</p><p className="mt-1 text-xs text-muted-foreground">{I18n.t("tenants.settings.logo_help")}</p></div>
                   </label>
                   <Input id="tenant-logo" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" className="hidden" onChange={(event) => { setLogoFile(event.target.files?.[0] || null); setSaved(false) }} />
                 </div>
@@ -331,10 +401,10 @@ export default function TenantSettings() {
 
             <Card className="border-border bg-card">
               <CardHeader><CardTitle className="flex items-center gap-2"><Palette className="h-5 w-5 text-chart-2" /> {I18n.t("tenants.settings.palette")}</CardTitle><CardDescription>{I18n.t("tenants.settings.palette_description")}</CardDescription></CardHeader>
-              <CardContent className="grid gap-5 sm:grid-cols-2">
-                <ColorField label={I18n.t("tenants.settings.primary")} value={branding.primary_color} onChange={(value) => updateBranding("primary_color", value)} />
-                <ColorField label={I18n.t("tenants.settings.accent")} value={branding.accent_color} onChange={(value) => updateBranding("accent_color", value)} />
-                <div className="sm:col-span-2"><ColorField label={I18n.t("tenants.settings.background")} value={branding.background_color} onChange={(value) => updateBranding("background_color", value)} /></div>
+              <CardContent className="grid gap-5 sm:grid-cols-3">
+                <ColorField label={I18n.t("tenants.settings.primary")} value={branding.primary_color} onChange={(value) => updatePaletteColor("primary_color", "primary", value)} />
+                <ColorField label={I18n.t("tenants.settings.accent")} value={branding.accent_color} onChange={(value) => updatePaletteColor("accent_color", "accent", value)} />
+                <ColorField label={I18n.t("tenants.settings.background")} value={branding.background_color} onChange={(value) => updatePaletteColor("background_color", "background", value)} />
               </CardContent>
             </Card>
 
@@ -350,41 +420,64 @@ export default function TenantSettings() {
             <Card className="border-border bg-card">
               <CardHeader><CardTitle>{I18n.t("tenants.settings.template")}</CardTitle><CardDescription>{I18n.t("tenants.settings.template_description")}</CardDescription></CardHeader>
               <CardContent className="grid gap-3 sm:grid-cols-2">
-                {templates.map((template) => (
-                  <button key={template.key} type="button" onClick={() => selectTemplate(template.key)} className={cn("relative rounded-xl border p-4 text-left transition", branding.template === template.key ? "border-primary/50 bg-primary/10" : "border-border bg-muted/30 hover:border-border")}>
-                    {branding.template === template.key && <span className="absolute right-3 top-3 grid h-5 w-5 place-items-center rounded-full bg-primary text-primary-foreground"><Check className="h-3 w-3" /></span>}
-                    <p className="text-sm font-semibold">{template.name}</p><p className="mt-2 text-xs leading-relaxed text-foreground0">{template.description}</p>
-                  </button>
-                ))}
+                {templates.map((template) => {
+                  const selected = branding.template === template.key
+                  const presetColors = themePresets[template.key].cssVars.light
+                  const colors = selected ? branding.theme_schema.cssVars.light : presetColors
+
+                  return (
+                    <button
+                      key={template.key}
+                      type="button"
+                      onClick={() => selectTemplate(template.key)}
+                      disabled={templateSaving}
+                      aria-pressed={selected}
+                      className={cn(
+                        "relative min-h-40 rounded-xl border p-4 text-left transition hover:-translate-y-0.5 hover:border-primary/40 disabled:cursor-wait disabled:opacity-70",
+                        selected ? "border-primary/60 bg-primary/10 shadow-sm" : "border-border bg-muted/30"
+                      )}
+                    >
+                      {selected && <span className="absolute right-3 top-3 grid h-5 w-5 place-items-center rounded-full bg-primary text-primary-foreground">{templateSaving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}</span>}
+                      <div className="mb-4 flex gap-1.5" aria-hidden="true">
+                        {[colors.background, colors.foreground, colors.primary, colors.accent].map((color, index) => (
+                          <span key={`${color}-${index}`} className="h-5 w-5 rounded-full border border-border shadow-sm" style={{ backgroundColor: color }} />
+                        ))}
+                      </div>
+                      <p className="pr-7 text-sm font-semibold">{template.name}</p>
+                      <p className="mt-2 text-xs leading-relaxed text-muted-foreground">{template.description}</p>
+                    </button>
+                  )
+                })}
               </CardContent>
             </Card>
 
             <Card className="border-border bg-card">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Braces className="h-5 w-5 text-primary" /> {I18n.t("tenants.settings.theme_json")}</CardTitle>
-                <CardDescription>{I18n.t("tenants.settings.theme_json_description")}</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <button type="button" onClick={() => applyTheme(cloneRauRadioTheme())} className="flex w-full items-center justify-between rounded-xl border border-border bg-muted/30 p-4 text-left transition hover:border-primary/50">
-                  <div><p className="text-sm font-semibold">Rau Radio</p><p className="mt-1 text-xs text-foreground0">{I18n.t("tenants.settings.rau_radio_theme_description")}</p></div>
-                  {branding.theme_schema?.name === "rau-radio" && <Check className="h-5 w-5 text-primary" />}
-                </button>
-                <Textarea
-                  value={themeDraft}
-                  onChange={(event) => { setThemeDraft(event.target.value); setThemeError(null); setSaved(false) }}
-                  className="min-h-72 resize-y font-mono text-xs leading-relaxed"
-                  spellCheck={false}
-                  aria-invalid={Boolean(themeError)}
-                />
-                {themeError && <p className="text-sm font-medium text-destructive">{themeError}</p>}
-                <Button type="button" variant="outline" onClick={applyThemeDraft}><Braces className="mr-2 h-4 w-4" /> {I18n.t("tenants.settings.apply_theme_json")}</Button>
-              </CardContent>
+              <details className="group">
+                <summary className="flex cursor-pointer list-none items-center justify-between gap-4 p-6 [&::-webkit-details-marker]:hidden">
+                  <div>
+                    <CardTitle className="flex items-center gap-2"><Braces className="h-5 w-5 text-primary" /> {I18n.t("tenants.settings.theme_json")}</CardTitle>
+                    <CardDescription className="mt-2">{I18n.t("tenants.settings.theme_json_description")}</CardDescription>
+                  </div>
+                  <ChevronDown className="h-5 w-5 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
+                </summary>
+                <CardContent className="space-y-4 border-t border-border pt-6">
+                  <Textarea
+                    value={themeDraft}
+                    onChange={(event) => { setThemeDraft(event.target.value); setThemeError(null); setSaved(false) }}
+                    className="min-h-64 resize-y font-mono text-xs leading-relaxed"
+                    spellCheck={false}
+                    aria-invalid={Boolean(themeError)}
+                  />
+                  {themeError && <p className="text-sm font-medium text-destructive">{themeError}</p>}
+                  <Button type="button" variant="outline" onClick={applyThemeDraft}><Braces className="mr-2 h-4 w-4" /> {I18n.t("tenants.settings.apply_theme_json")}</Button>
+                </CardContent>
+              </details>
             </Card>
 
             <BrandPreview tenant={{ ...tenant, name }} branding={branding} logoPreview={logoPreview} />
 
             <div className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-card/90 p-4 shadow-xl backdrop-blur">
-              <div><p className="text-sm font-medium">{saved ? I18n.t("tenants.settings.saved") : I18n.t("tenants.settings.configuration")}</p><p className="mt-1 text-xs text-foreground0">{I18n.t("tenants.settings.preview_help")}</p></div>
+              <div><p className="text-sm font-medium">{saved ? I18n.t("tenants.settings.saved") : I18n.t("tenants.settings.configuration")}</p><p className="mt-1 text-xs text-muted-foreground">{I18n.t("tenants.settings.preview_help")}</p></div>
               <Button type="submit" disabled={saving || !tenant.can_manage_settings} className="bg-primary text-primary-foreground hover:bg-primary/90">{saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />} {I18n.t("tenants.common.save")}</Button>
             </div>
           </div>

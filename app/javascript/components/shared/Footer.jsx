@@ -1,6 +1,7 @@
 import React from 'react'
 
 const Footer = () => {
+  return ("")
   return (
     <footer className="bg-default mt-4" aria-labelledby="footer-heading">
       <h2 id="footer-heading" className="sr-only">Footer</h2>

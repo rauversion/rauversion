@@ -266,7 +266,7 @@ function SidebarArtwork({ item, className, iconClassName }) {
     return (
       <div
         className={cn(
-          "flex items-center justify-center rounded-2xl bg-gradient-to-br from-fuchsia-500 via-indigo-500 to-cyan-400 shadow-lg shadow-fuchsia-500/20",
+          "flex items-center justify-center rounded-2xl bg-gradient-to-br from-primary via-accent to-chart-2 shadow-lg shadow-primary/20",
           className
         )}
       >
@@ -513,7 +513,7 @@ function FilterPills({ counts, filter, onFilterChange }) {
                 className={cn(
                   "inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm transition-colors",
                   isActive
-                    ? "border-emerald-400/60 bg-emerald-400/20 text-emerald-950 dark:text-emerald-50"
+                    ? "border-primary/60 bg-primary/15 text-primary"
                     : "border-border bg-muted/30 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                 )}
               >
@@ -523,7 +523,7 @@ function FilterPills({ counts, filter, onFilterChange }) {
                   className={cn(
                     "rounded-full px-2 py-0.5 text-xs",
                     isActive
-                      ? "bg-emerald-950/10 text-emerald-950 dark:bg-emerald-50/10 dark:text-emerald-50"
+                      ? "bg-primary/10 text-primary"
                       : "bg-background/70 text-muted-foreground"
                   )}
                 >
@@ -571,7 +571,7 @@ function LibrarySortMenu({ sortMode, viewMode, onSortChange, onViewModeChange })
               className={cn(
                 "flex w-full items-center justify-between rounded-2xl px-2 py-2.5 text-left text-[15px] transition-colors",
                 sortMode === option.id
-                  ? "bg-emerald-400/10 text-emerald-400"
+                  ? "bg-primary/10 text-primary"
                   : "text-foreground hover:bg-accent/70"
               )}
             >
@@ -600,7 +600,7 @@ function LibrarySortMenu({ sortMode, viewMode, onSortChange, onViewModeChange })
                 className={cn(
                   "flex h-10 items-center justify-center rounded-xl border text-muted-foreground transition-colors",
                   viewMode === mode.id
-                    ? "border-emerald-400/30 bg-emerald-400/15 text-emerald-400"
+                    ? "border-primary/30 bg-primary/15 text-primary"
                     : "border-transparent bg-background/60 hover:bg-accent"
                 )}
               >
@@ -630,7 +630,7 @@ function MusicLibraryListItem({
       className={cn(
         "rounded-3xl border border-border bg-card/60 transition-colors hover:bg-accent/40",
         compact ? "p-2" : "p-3",
-        isActive && "border-emerald-300/50 bg-emerald-400/10"
+        isActive && "border-primary/50 bg-primary/10"
       )}
     >
       <div className="flex items-center gap-3">
@@ -715,7 +715,7 @@ function MusicLibraryGridItem({
       className={cn(
         "rounded-[24px] border border-border bg-card/60 p-2 transition-colors hover:bg-accent/40",
         compact ? "p-1.5" : "p-2.5",
-        isActive && "border-emerald-300/50 bg-emerald-400/10"
+        isActive && "border-primary/50 bg-primary/10"
       )}
     >
       <SidebarArtwork
@@ -835,7 +835,7 @@ function MusicLibraryRailItem({ item, isActive, onOpen, onPlay }) {
           className={cn(
             "group flex items-center justify-center rounded-[20px] border border-transparent p-1 transition-colors hover:bg-accent/70",
             (item.href || item.playable) && "cursor-pointer",
-            isActive && "border-emerald-300/60 bg-emerald-400/10"
+            isActive && "border-primary/60 bg-primary/10"
           )}
         >
           <SidebarArtwork
@@ -1072,7 +1072,13 @@ function MusicLibrarySidebar({ onNavigate, onExpand, elevated = false }) {
         elevated && "shadow-[0_24px_80px_rgba(0,0,0,0.35)]"
       )}
     >
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(34,197,94,0.18),_transparent_28%)]" />
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle at top left, color-mix(in srgb, var(--primary) 18%, transparent), transparent 28%)",
+        }}
+      />
 
       {isRailView ? (
         <TooltipProvider delayDuration={80}>
@@ -1157,7 +1163,7 @@ function MusicLibrarySidebar({ onNavigate, onExpand, elevated = false }) {
           <div className="relative border-b border-border px-4 py-4 sm:px-5">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-xs uppercase tracking-[0.28em] text-emerald-300/80">
+                <p className="text-xs uppercase tracking-[0.28em] text-primary/80">
                   {t("library_label")}
                 </p>
                 <h2 className="mt-1 text-2xl font-semibold text-foreground">
@@ -1475,15 +1481,15 @@ export default function AppMusicLibraryLayout({ children }) {
                 id="music-library-sidebar-panel"
                 ref={sidebarPanelRef}
                 order={1}
-                defaultSize={24}
-                minSize={10}
+                defaultSize={6}
+                minSize={6}
                 maxSize={34}
               >
                 <div ref={sidebarSlotRef} className={cn("relative", SIDEBAR_MIN_HEIGHT_CLASS)}>
                   <div className={sidebarDock.dockClassName} style={sidebarDock.dockStyle}>
                     <MusicLibrarySidebar
                       elevated={sidebarDock.dock.mode === "fixed"}
-                      onExpand={() => sidebarPanelRef.current?.resize(24)}
+                      onExpand={() => sidebarPanelRef.current?.resize(34)}
                     />
                   </div>
                 </div>

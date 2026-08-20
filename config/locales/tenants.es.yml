@@ -124,18 +124,17 @@ es:
       upload_logo: Subir logo
       logo_help: PNG, JPG, WebP o SVG. Recomendado 512 x 512.
       palette: Paleta
-      palette_description: Colores base usados por botones, acentos y fondos.
+      palette_description: Ajusta los colores principales del tema seleccionado.
       primary: Primario
       accent: Acento
       background: Fondo
       typography: Tipografía
-      template: Plantilla
-      template_description: Elige la dirección visual del storefront.
-      theme_json: Theme shadcn en JSON
-      theme_json_description: Aplica tokens CSS semánticos usando el formato registry:theme. El preview usa la paleta light.
+      template: Plantilla y tema
+      template_description: Elige una dirección visual. La plantilla y su paleta se guardan automáticamente.
+      theme_json: Configuración avanzada del tema
+      theme_json_description: Edita directamente los tokens de shadcn/ui en formato registry:theme.
       theme_json_error: Ingresa un JSON registry:theme válido con cssVars light y dark.
-      rau_radio_theme_description: "Papel, tinta, verde ácido y coral: el lenguaje visual de /radio."
-      apply_theme_json: Aplicar JSON al preview
+      apply_theme_json: Aplicar cambios del JSON
       saved: Cambios guardados
       configuration: Configuración del tenant
       preview_help: La vista previa se actualiza antes de publicar.

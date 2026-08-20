@@ -53,7 +53,7 @@ export default function EventCheckoutSuccess() {
             animate={{ scale: 1 }}
             transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
           >
-            <CheckCircle className="w-20 h-20 text-green-500 mx-auto" />
+            <CheckCircle className="w-20 h-20 text-success mx-auto" />
           </motion.div>
 
           <motion.div

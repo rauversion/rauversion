@@ -72,7 +72,7 @@ export default function InvitationsSettings() {
   const getStatusIcon = (status) => {
     switch (status) {
       case "accepted":
-        return <CheckCircle2 className="text-green-500" />
+        return <CheckCircle2 className="text-success" />
       case "pending":
         return <Clock className="text-yellow-500" />
       case "not_sent":

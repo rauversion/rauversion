@@ -231,7 +231,7 @@ export default function StripeSettings() {
               <Alert variant={statusData.charges_enabled && statusData.payouts_enabled ? "default" : "warning"} 
                 className="max-w-md mx-auto bg-default">
                 {statusData.charges_enabled && statusData.payouts_enabled ? (
-                  <CheckCircle2 className="h-4 w-4 text-green-600" />
+                  <CheckCircle2 className="h-4 w-4 text-success" />
                 ) : (
                   <AlertCircle className="h-4 w-4 text-yellow-600" />
                 )}
@@ -239,15 +239,15 @@ export default function StripeSettings() {
                 <AlertDescription className="mt-2 mb-4">
                   <div className="space-y-2">
                     <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${statusData.charges_enabled ? 'bg-green-500' : 'bg-red-500'}`} />
+                      <div className={`w-2 h-2 rounded-full ${statusData.charges_enabled ? 'bg-success' : 'bg-destructive'}`} />
                       <span>Charges: {statusData.charges_enabled ? 'Enabled' : 'Disabled'}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${statusData.payouts_enabled ? 'bg-green-500' : 'bg-red-500'}`} />
+                      <div className={`w-2 h-2 rounded-full ${statusData.payouts_enabled ? 'bg-success' : 'bg-destructive'}`} />
                       <span>Payouts: {statusData.payouts_enabled ? 'Enabled' : 'Disabled'}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${statusData.details_submitted ? 'bg-green-500' : 'bg-yellow-500'}`} />
+                      <div className={`w-2 h-2 rounded-full ${statusData.details_submitted ? 'bg-success' : 'bg-yellow-500'}`} />
                       <span>Details: {statusData.details_submitted ? 'Submitted' : 'Pending'}</span>
                     </div>
                   </div>

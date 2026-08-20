@@ -329,8 +329,7 @@ function AppContent() {
   const isRadioRoute = /^\/[^/]+\/radio$/.test(location.pathname)
   const isBroadcastHomeRoute =
     location.pathname === "/" &&
-    window.ENV?.TENANT_TEMPLATE === "broadcast" &&
-    !window.ENV?.TENANT_CENTRAL
+    window.ENV?.TENANT_TEMPLATE === "broadcast"
   const isImmersiveStorefrontRoute = isRadioRoute || isBroadcastHomeRoute
 
   const shouldShowMusicLibraryLayout =
@@ -560,10 +559,8 @@ function AppContent() {
 }
 
 export default function AppRouter() {
-  const tenantTheme = window.ENV?.TENANT_CENTRAL ? null : window.ENV?.TENANT_THEME
-
   return (
-    <TenantThemeProvider theme={tenantTheme}>
+    <TenantThemeProvider theme={window.ENV?.TENANT_THEME}>
       <BrowserRouter>
         <ScrollRestoration />
         <AppContent />

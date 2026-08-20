@@ -11,6 +11,20 @@ export type TenantThemeSchema = {
   }
 }
 
+type TenantThemeInput = TenantThemeSchema | string | null | undefined
+
+function normalizeTheme(theme: TenantThemeInput): TenantThemeSchema | null {
+  if (!theme) return null
+  if (typeof theme !== "string") return theme
+
+  try {
+    const parsed = JSON.parse(theme)
+    return parsed?.type === "registry:theme" && parsed?.cssVars ? parsed : null
+  } catch (_error) {
+    return null
+  }
+}
+
 function currentColorMode() {
   return document.documentElement.classList.contains("dark") ? "dark" : "light"
 }
@@ -32,17 +46,17 @@ export default function TenantThemeProvider({
   theme,
   children,
 }: {
-  theme?: TenantThemeSchema | null
+  theme?: TenantThemeInput
   children: React.ReactNode
 }) {
-  const [activeTheme, setActiveTheme] = React.useState(theme)
+  const [activeTheme, setActiveTheme] = React.useState<TenantThemeSchema | null>(() => normalizeTheme(theme))
   const [mode, setMode] = React.useState<"light" | "dark">(() => currentColorMode())
 
-  React.useEffect(() => setActiveTheme(theme), [theme])
+  React.useEffect(() => setActiveTheme(normalizeTheme(theme)), [theme])
 
   React.useEffect(() => {
     const updateTheme = (event: Event) => {
-      setActiveTheme((event as CustomEvent<TenantThemeSchema>).detail)
+      setActiveTheme(normalizeTheme((event as CustomEvent<TenantThemeInput>).detail))
     }
     window.addEventListener("tenant-theme:change", updateTheme)
     return () => window.removeEventListener("tenant-theme:change", updateTheme)

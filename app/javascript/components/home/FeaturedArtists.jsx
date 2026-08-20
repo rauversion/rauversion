@@ -54,9 +54,9 @@ const ArtistCard = ({ artist }) => {
                 className="text-3xl md:text-4xl font-default tracking-tight text-foreground mix-blend-difference"
                 animate={isHovered ? {
                   textShadow: [
-                    "2px 2px 0px rgba(255,0,0,0.5), -2px -2px 0px rgba(0,255,255,0.5)",
-                    "2px -2px 0px rgba(255,0,0,0.5), -2px 2px 0px rgba(0,255,255,0.5)",
-                    "2px 2px 0px rgba(255,0,0,0.5), -2px -2px 0px rgba(0,255,255,0.5)"
+                    "2px 2px 0 color-mix(in srgb, var(--primary) 50%, transparent), -2px -2px 0 color-mix(in srgb, var(--accent) 50%, transparent)",
+                    "2px -2px 0 color-mix(in srgb, var(--primary) 50%, transparent), -2px 2px 0 color-mix(in srgb, var(--accent) 50%, transparent)",
+                    "2px 2px 0 color-mix(in srgb, var(--primary) 50%, transparent), -2px -2px 0 color-mix(in srgb, var(--accent) 50%, transparent)"
                   ]
                 } : {}}
                 transition={{ duration: 0.2, repeat: isHovered ? Infinity : 0 }}
@@ -105,9 +105,9 @@ const ArtistCard = ({ artist }) => {
             initial={false}
             animate={isHovered ? {
               background: [
-                "radial-gradient(circle at center, rgba(var(--primary-rgb), 0.3) 0%, transparent 70%)",
-                "radial-gradient(circle at center, rgba(var(--primary-rgb), 0.4) 0%, transparent 70%)",
-                "radial-gradient(circle at center, rgba(var(--primary-rgb), 0.3) 0%, transparent 70%)"
+                "radial-gradient(circle at center, color-mix(in srgb, var(--primary) 30%, transparent) 0%, transparent 70%)",
+                "radial-gradient(circle at center, color-mix(in srgb, var(--primary) 40%, transparent) 0%, transparent 70%)",
+                "radial-gradient(circle at center, color-mix(in srgb, var(--primary) 30%, transparent) 0%, transparent 70%)"
               ]
             } : {}}
             transition={{ duration: 2, repeat: Infinity }}

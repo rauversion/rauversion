@@ -29,7 +29,7 @@ const toastVariants = cva(
       variant: {
         default: "border bg-background text-foreground",
         success:
-          "success group border-emerald-500/40 bg-emerald-500 text-white",
+          "success group border-success/40 bg-success text-success-foreground",
         destructive:
           "destructive group border-destructive bg-destructive text-white",
       },
@@ -63,7 +63,7 @@ const ToastAction = React.forwardRef<
     ref={ref}
     className={cn(
       "inline-flex h-8 shrink-0 items-center justify-center rounded-md border bg-transparent px-3 text-sm font-medium transition-colors hover:bg-secondary focus:outline-none focus:ring-1 focus:ring-ring disabled:pointer-events-none disabled:opacity-50 group-[.destructive]:border-muted/40 group-[.destructive]:hover:border-destructive/30 group-[.destructive]:hover:bg-destructive group-[.destructive]:hover:text-destructive-foreground group-[.destructive]:focus:ring-destructive",
-      "group-[.success]:border-emerald-200/30 group-[.success]:hover:border-emerald-200/40 group-[.success]:hover:bg-emerald-400/20 group-[.success]:hover:text-white group-[.success]:focus:ring-emerald-200/40",
+      "group-[.success]:border-success-foreground/30 group-[.success]:hover:border-success-foreground/40 group-[.success]:hover:bg-success-foreground/15 group-[.success]:hover:text-success-foreground group-[.success]:focus:ring-success-foreground/40",
       className
     )}
     {...props}
@@ -79,7 +79,7 @@ const ToastClose = React.forwardRef<
     ref={ref}
     className={cn(
       "absolute right-1 top-1 rounded-md p-1 text-foreground/50 opacity-0 transition-opacity hover:text-foreground focus:opacity-100 focus:outline-none focus:ring-1 group-hover:opacity-100 group-[.destructive]:text-red-300 group-[.destructive]:hover:text-red-50 group-[.destructive]:focus:ring-red-400 group-[.destructive]:focus:ring-offset-red-600",
-      "group-[.success]:text-emerald-100/80 group-[.success]:hover:text-white group-[.success]:focus:ring-emerald-200/40 group-[.success]:focus:ring-offset-emerald-600",
+      "group-[.success]:text-success-foreground/80 group-[.success]:hover:text-success-foreground group-[.success]:focus:ring-success-foreground/40 group-[.success]:focus:ring-offset-success",
       className
     )}
     toast-close=""

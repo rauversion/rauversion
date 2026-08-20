@@ -4598,7 +4598,7 @@
       },
       "settings": {
         "accent": "Accent",
-        "apply_theme_json": "Apply JSON to preview",
+        "apply_theme_json": "Apply JSON changes",
         "background": "Background",
         "configuration": "Tenant configuration",
         "description": "Define the tenant identity. These values are available to the storefront and its templates.",
@@ -4609,7 +4609,7 @@
         "logo_help": "PNG, JPG, WebP, or SVG. Recommended 512 x 512.",
         "name": "Name",
         "palette": "Palette",
-        "palette_description": "Base colors used by buttons, accents, and backgrounds.",
+        "palette_description": "Fine-tune the main colors of the selected theme.",
         "preview": {
           "description": "An independent home for artists, releases, and community.",
           "events": "Events",
@@ -4624,14 +4624,13 @@
         },
         "preview_help": "The preview updates before publishing.",
         "primary": "Primary",
-        "rau_radio_theme_description": "Paper, ink, acid green, and coral—the visual language of /radio.",
         "save_error": "We could not save. Review the colors and try again.",
         "saved": "Changes saved",
         "studio": "Brand studio",
         "tagline": "Tagline",
         "tagline_placeholder": "The idea behind your catalog",
-        "template": "Template",
-        "template_description": "Choose the storefront visual direction.",
+        "template": "Template and theme",
+        "template_description": "Choose a visual direction. Its template and palette are saved automatically.",
         "templates": {
           "amplifier": {
             "description": "Large artwork, featured releases, and independent-label energy.",
@@ -4650,8 +4649,8 @@
             "name": "Waveform"
           }
         },
-        "theme_json": "Shadcn theme JSON",
-        "theme_json_description": "Apply semantic CSS tokens using the registry:theme format. The preview uses the light palette.",
+        "theme_json": "Advanced theme settings",
+        "theme_json_description": "Edit the shadcn/ui tokens directly using the registry:theme format.",
         "theme_json_error": "Enter a valid registry:theme JSON with light and dark cssVars.",
         "title": "Customize %{name}",
         "typography": "Typography",
@@ -10116,7 +10115,7 @@
       },
       "settings": {
         "accent": "Acento",
-        "apply_theme_json": "Aplicar JSON al preview",
+        "apply_theme_json": "Aplicar cambios del JSON",
         "background": "Fondo",
         "configuration": "Configuración del tenant",
         "description": "Define la identidad del tenant. Estos valores quedan disponibles para el storefront y sus futuras plantillas.",
@@ -10127,7 +10126,7 @@
         "logo_help": "PNG, JPG, WebP o SVG. Recomendado 512 x 512.",
         "name": "Nombre",
         "palette": "Paleta",
-        "palette_description": "Colores base usados por botones, acentos y fondos.",
+        "palette_description": "Ajusta los colores principales del tema seleccionado.",
         "preview": {
           "description": "Un hogar independiente para artistas, lanzamientos y comunidad.",
           "events": "Eventos",
@@ -10142,14 +10141,13 @@
         },
         "preview_help": "La vista previa se actualiza antes de publicar.",
         "primary": "Primario",
-        "rau_radio_theme_description": "Papel, tinta, verde ácido y coral: el lenguaje visual de /radio.",
         "save_error": "No pudimos guardar. Revisa los colores y vuelve a intentarlo.",
         "saved": "Cambios guardados",
         "studio": "Estudio de marca",
         "tagline": "Tagline",
         "tagline_placeholder": "La idea que define tu catálogo",
-        "template": "Plantilla",
-        "template_description": "Elige la dirección visual del storefront.",
+        "template": "Plantilla y tema",
+        "template_description": "Elige una dirección visual. La plantilla y su paleta se guardan automáticamente.",
         "templates": {
           "amplifier": {
             "description": "Portadas grandes, lanzamientos al frente y energía de sello independiente.",
@@ -10168,8 +10166,8 @@
             "name": "Waveform"
           }
         },
-        "theme_json": "Theme shadcn en JSON",
-        "theme_json_description": "Aplica tokens CSS semánticos usando el formato registry:theme. El preview usa la paleta light.",
+        "theme_json": "Configuración avanzada del tema",
+        "theme_json_description": "Edita directamente los tokens de shadcn/ui en formato registry:theme.",
         "theme_json_error": "Ingresa un JSON registry:theme válido con cssVars light y dark.",
         "title": "Personaliza %{name}",
         "typography": "Tipografía",

@@ -79,8 +79,8 @@ const STATUS_CONFIG = {
   valid: {
     label: I18n.t("events.admission.status.valid", { defaultValue: "Listo para ingresar" }),
     badgeVariant: "success",
-    surfaceClassName: "border-emerald-500/30 bg-emerald-500/10 text-emerald-100",
-    accentClassName: "text-emerald-300",
+    surfaceClassName: "border-success/30 bg-success/10 text-success",
+    accentClassName: "text-success",
     buttonLabel: I18n.t("events.admission.actions.check_in", { defaultValue: "Registrar ingreso" }),
   },
   already_checked_in: {
@@ -147,10 +147,13 @@ function ProcessingOverlay({ operation }) {
       className="fixed inset-0 z-[140] flex items-center justify-center bg-zinc-950/92 px-4 backdrop-blur-md"
     >
       <div className="w-full max-w-xl rounded-[32px] border border-white/10 bg-zinc-900/95 p-6 text-center shadow-[0_40px_120px_rgba(0,0,0,0.55)] sm:p-8">
-        <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full border border-emerald-400/25 bg-emerald-400/10 shadow-[0_0_60px_rgba(52,211,153,0.18)] sm:h-28 sm:w-28">
-          <Loader2 className="h-12 w-12 animate-spin text-emerald-300 sm:h-14 sm:w-14" />
+        <div
+          className="mx-auto flex h-24 w-24 items-center justify-center rounded-full border border-success/25 bg-success/10 sm:h-28 sm:w-28"
+          style={{ boxShadow: "0 0 60px color-mix(in srgb, var(--success) 18%, transparent)" }}
+        >
+          <Loader2 className="h-12 w-12 animate-spin text-success sm:h-14 sm:w-14" />
         </div>
-        <div className="mt-6 text-xs font-medium uppercase tracking-[0.34em] text-emerald-300/85">
+        <div className="mt-6 text-xs font-medium uppercase tracking-[0.34em] text-success/85">
           {I18n.t("events.admission.processing.wait", { defaultValue: "No cierres esta pantalla" })}
         </div>
         <h2 className="mt-3 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
@@ -169,7 +172,7 @@ function SummaryStat({ label, value, tone = "default" }) {
     <div
       className={cn(
         "rounded-2xl border px-4 py-3",
-        tone === "success" && "border-emerald-500/20 bg-emerald-500/10",
+        tone === "success" && "border-success/20 bg-success/10",
         tone === "warning" && "border-amber-500/20 bg-amber-500/10",
         tone === "default" && "border-white/10 bg-white/5"
       )}
@@ -287,7 +290,7 @@ function SettingsPanelContent({
         <Button
           type="button"
           variant="outline"
-          className="h-12 border-emerald-400/30 bg-emerald-400/10 text-emerald-50 hover:bg-emerald-400/15"
+          className="h-12 border-success/30 bg-success/10 text-success hover:bg-success/15"
           onClick={onNextScan}
           disabled={isBusy}
         >
@@ -330,7 +333,7 @@ function ValidationPanelContent({
       {!ticketResult && !lookupError && (
         <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.03] p-6 text-sm text-zinc-400">
           <div className="flex items-center gap-3 text-zinc-200">
-            <QrCode className="h-5 w-5 text-emerald-300" />
+            <QrCode className="h-5 w-5 text-success" />
             <span className="font-medium">
               {I18n.t("events.admission.empty.title", { defaultValue: "Listo para recibir tickets" })}
             </span>
@@ -418,7 +421,7 @@ function ValidationPanelContent({
               type="button"
               variant="outline"
               className={cn(
-                "h-12 border-emerald-400/30 bg-emerald-400/10 text-emerald-50 hover:bg-emerald-400/15",
+                "h-12 border-success/30 bg-success/10 text-success hover:bg-success/15",
                 nextButtonClassName
               )}
               onClick={onNextScan}
@@ -1023,7 +1026,13 @@ export default function EventAdmission() {
     <>
       <ProcessingOverlay operation={pendingOperation} />
 
-      <div className="min-h-screen bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.08),_transparent_35%),linear-gradient(180deg,_#111827_0%,_#09090b_100%)] px-4 py-4 text-zinc-100 sm:px-6 lg:px-8">
+      <div
+        className="min-h-screen bg-background px-4 py-4 text-foreground sm:px-6 lg:px-8"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle at top, color-mix(in srgb, var(--foreground) 8%, transparent), transparent 35%), linear-gradient(180deg, var(--background), color-mix(in srgb, var(--card) 72%, var(--background)))",
+        }}
+      >
         <div className="mx-auto flex max-w-7xl flex-col gap-4">
           <div className="flex flex-col gap-4 rounded-3xl border border-white/10 bg-white/5 p-4 shadow-2xl backdrop-blur sm:p-5">
             <div className="flex items-start justify-between gap-4">
@@ -1127,11 +1136,14 @@ export default function EventAdmission() {
 
                   <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,rgba(9,9,11,0.18),rgba(9,9,11,0.28))]" />
                   <div className="pointer-events-none absolute inset-4 rounded-[24px] border border-white/8 sm:inset-6">
-                    <div className="absolute left-0 top-0 h-12 w-12 rounded-tl-[24px] border-l-4 border-t-4 border-emerald-400 sm:h-14 sm:w-14" />
-                    <div className="absolute right-0 top-0 h-12 w-12 rounded-tr-[24px] border-r-4 border-t-4 border-emerald-400 sm:h-14 sm:w-14" />
-                    <div className="absolute bottom-0 left-0 h-12 w-12 rounded-bl-[24px] border-b-4 border-l-4 border-emerald-400 sm:h-14 sm:w-14" />
-                    <div className="absolute bottom-0 right-0 h-12 w-12 rounded-br-[24px] border-b-4 border-r-4 border-emerald-400 sm:h-14 sm:w-14" />
-                    <div className="absolute left-4 right-4 top-1/2 h-px -translate-y-1/2 bg-emerald-400/70 shadow-[0_0_18px_rgba(52,211,153,0.55)] sm:left-6 sm:right-6" />
+                    <div className="absolute left-0 top-0 h-12 w-12 rounded-tl-[24px] border-l-4 border-t-4 border-success sm:h-14 sm:w-14" />
+                    <div className="absolute right-0 top-0 h-12 w-12 rounded-tr-[24px] border-r-4 border-t-4 border-success sm:h-14 sm:w-14" />
+                    <div className="absolute bottom-0 left-0 h-12 w-12 rounded-bl-[24px] border-b-4 border-l-4 border-success sm:h-14 sm:w-14" />
+                    <div className="absolute bottom-0 right-0 h-12 w-12 rounded-br-[24px] border-b-4 border-r-4 border-success sm:h-14 sm:w-14" />
+                    <div
+                      className="absolute left-4 right-4 top-1/2 h-px -translate-y-1/2 bg-success/70 sm:left-6 sm:right-6"
+                      style={{ boxShadow: "0 0 18px color-mix(in srgb, var(--success) 55%, transparent)" }}
+                    />
                   </div>
                 </div>
               </div>
@@ -1147,7 +1159,8 @@ export default function EventAdmission() {
               <div className="mt-4 lg:hidden">
                 <Button
                   type="button"
-                  className="h-14 w-full rounded-2xl bg-emerald-400 text-base font-semibold text-zinc-950 shadow-[0_18px_45px_rgba(52,211,153,0.22)] hover:bg-emerald-300"
+                  className="h-14 w-full rounded-2xl bg-success text-base font-semibold text-success-foreground hover:bg-success/90"
+                  style={{ boxShadow: "0 18px 45px color-mix(in srgb, var(--success) 22%, transparent)" }}
                   onClick={() => void handleNextScan()}
                   disabled={Boolean(pendingOperation)}
                 >
@@ -1265,7 +1278,7 @@ export default function EventAdmission() {
                 isUpdating={isUpdating}
                 onNextScan={() => void handleNextScan()}
                 onToggleCheckIn={() => void handleToggleCheckIn()}
-                nextButtonClassName="border-transparent bg-emerald-400 text-zinc-950 shadow-[0_16px_36px_rgba(52,211,153,0.22)] hover:bg-emerald-300"
+                nextButtonClassName="border-transparent bg-success text-success-foreground hover:bg-success/90"
               />
             </div>
           </DrawerContent>

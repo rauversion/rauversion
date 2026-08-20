@@ -76,7 +76,7 @@ const InterestAlert: React.FC<InterestAlertProps> = ({ type, onSubmit }) => {
 
   if (hasPendingRequest) {
     return (
-      <Card className="p-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+      <Card className="bg-gradient-to-r from-primary to-accent p-6 text-primary-foreground">
         <div className="space-y-4">
           <h3 className="text-2xl font-bold">
             {I18n.t("interest_alert.review.title")}
@@ -98,7 +98,7 @@ const InterestAlert: React.FC<InterestAlertProps> = ({ type, onSubmit }) => {
           exit={{ opacity: 0, scale: 0.95 }}
           transition={{ duration: 0.3 }}
         >
-          <Card className="p-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white">
+          <Card className="bg-gradient-to-r from-primary to-accent p-6 text-primary-foreground">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -150,7 +150,7 @@ const InterestAlert: React.FC<InterestAlertProps> = ({ type, onSubmit }) => {
               duration: 0.8,
               ease: "easeInOut",
             }}
-            className="w-16 h-16 rounded-full bg-green-500 flex items-center justify-center"
+            className="w-16 h-16 rounded-full bg-success text-success-foreground flex items-center justify-center"
           >
             <svg
               className="w-8 h-8 text-white"

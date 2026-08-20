@@ -5,7 +5,7 @@ class Tenant < ApplicationRecord
   THEME_COLOR_TOKENS = %w[
     background foreground card card-foreground popover popover-foreground
     primary primary-foreground secondary secondary-foreground muted muted-foreground
-    accent accent-foreground destructive destructive-foreground border input ring
+    accent accent-foreground destructive destructive-foreground success success-foreground border input ring
     chart-1 chart-2 chart-3 chart-4 chart-5 sidebar sidebar-foreground
     sidebar-primary sidebar-primary-foreground sidebar-accent sidebar-accent-foreground
     sidebar-border sidebar-ring
@@ -15,52 +15,11 @@ class Tenant < ApplicationRecord
   THEME_RADIUS_VALUE_FORMAT = /\A\d+(?:\.\d+)?(?:rem|px)\z/
   THEME_FONT_VALUE_FORMAT = /\A(?:[\w\s,'"-]+|var\(--[a-z0-9-]+\))\z/
 
-  DEFAULT_THEME_SCHEMA = {
-    "$schema" => "https://ui.shadcn.com/schema/registry-item.json",
-    "name" => "rau-radio",
-    "type" => "registry:theme",
-    "cssVars" => {
-      "theme" => {
-        "radius" => "0rem",
-        "font-sans" => "'Host Grotesk', sans-serif",
-        "font-heading" => "'Host Grotesk', sans-serif"
-      },
-      "light" => {
-        "background" => "#f1efe6",
-        "foreground" => "#0a0a0a",
-        "card" => "#f1efe6",
-        "card-foreground" => "#0a0a0a",
-        "primary" => "#dfff24",
-        "primary-foreground" => "#0a0a0a",
-        "secondary" => "#0a0a0a",
-        "secondary-foreground" => "#f1efe6",
-        "muted" => "#dedbcf",
-        "muted-foreground" => "#55534d",
-        "accent" => "#ff4b26",
-        "accent-foreground" => "#0a0a0a",
-        "border" => "#0a0a0a",
-        "input" => "#0a0a0a",
-        "ring" => "#ff4b26"
-      },
-      "dark" => {
-        "background" => "#0a0a0a",
-        "foreground" => "#f1efe6",
-        "card" => "#171717",
-        "card-foreground" => "#f1efe6",
-        "primary" => "#dfff24",
-        "primary-foreground" => "#0a0a0a",
-        "secondary" => "#f1efe6",
-        "secondary-foreground" => "#0a0a0a",
-        "muted" => "#282828",
-        "muted-foreground" => "#b8b4aa",
-        "accent" => "#ff4b26",
-        "accent-foreground" => "#0a0a0a",
-        "border" => "#f1efe6",
-        "input" => "#f1efe6",
-        "ring" => "#dfff24"
-      }
-    }
-  }.freeze
+  THEME_PRESETS = TEMPLATES.index_with do |template|
+    path = Rails.root.join("app/javascript/themes/tenant/#{template}.json")
+    JSON.parse(File.read(path)).freeze
+  end.freeze
+  DEFAULT_THEME_SCHEMA = THEME_PRESETS.fetch("amplifier")
 
   RESERVED_SLUGS = %w[
     admin api app assets backstage billing domains help mail newsletter
@@ -120,6 +79,10 @@ class Tenant < ApplicationRecord
       .to_s
       .encode(Encoding::UTF_8, invalid: :replace, undef: :replace, replace: "")
       .parameterize
+  end
+
+  def self.theme_preset(template)
+    THEME_PRESETS.fetch(template.to_s).deep_dup
   end
 
   private

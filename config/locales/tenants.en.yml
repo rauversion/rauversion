@@ -124,18 +124,17 @@ en:
       upload_logo: Upload logo
       logo_help: PNG, JPG, WebP, or SVG. Recommended 512 x 512.
       palette: Palette
-      palette_description: Base colors used by buttons, accents, and backgrounds.
+      palette_description: Fine-tune the main colors of the selected theme.
       primary: Primary
       accent: Accent
       background: Background
       typography: Typography
-      template: Template
-      template_description: Choose the storefront visual direction.
-      theme_json: Shadcn theme JSON
-      theme_json_description: Apply semantic CSS tokens using the registry:theme format. The preview uses the light palette.
+      template: Template and theme
+      template_description: Choose a visual direction. Its template and palette are saved automatically.
+      theme_json: Advanced theme settings
+      theme_json_description: Edit the shadcn/ui tokens directly using the registry:theme format.
       theme_json_error: Enter a valid registry:theme JSON with light and dark cssVars.
-      rau_radio_theme_description: Paper, ink, acid green, and coral—the visual language of /radio.
-      apply_theme_json: Apply JSON to preview
+      apply_theme_json: Apply JSON changes
       saved: Changes saved
       configuration: Tenant configuration
       preview_help: The preview updates before publishing.

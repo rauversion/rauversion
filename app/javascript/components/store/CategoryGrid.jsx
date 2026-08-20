@@ -39,7 +39,7 @@ const CATEGORY_ICONS = [
     name: 'Services',
     icon: HandHeart,
     path: '/store/services',
-    color: 'bg-green-500'
+    color: 'bg-chart-2'
   },
   {
     id: 'performers',

@@ -71,7 +71,7 @@ export default function CourseEnrollmentForm({
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
         className="flex flex-col items-center justify-center py-8"
       >
-        <CheckCircle className="h-16 w-16 text-green-500 mb-4 animate-bounce" />
+        <CheckCircle className="h-16 w-16 text-success mb-4 animate-bounce" />
         <h2 className="text-2xl font-bold mb-2">{I18n.t("courses.enrollment_form.enrolled_title")}</h2>
         <p className="text-muted-foreground mb-4">{I18n.t("courses.enrollment_form.enrolled_message")}</p>
       </motion.div>
@@ -99,7 +99,7 @@ export default function CourseEnrollmentForm({
         <ul className="mb-6 text-left text-base text-foreground space-y-2 max-w-xs">
           {whatYouGet.map((item, i) => (
             <li key={i} className="flex items-start gap-2">
-              <span className="text-green-600 text-lg">•</span>
+              <span className="text-primary text-lg">•</span>
               <span className="text-default">{item}</span>
             </li>
           ))}
@@ -110,7 +110,7 @@ export default function CourseEnrollmentForm({
         <motion.button
           whileHover={{ scale: 1.08, boxShadow: "0 0 0 4px #a21caf44" }}
           whileTap={{ scale: 0.96 }}
-          className="bg-gradient-to-r from-yellow-400 to-fuchsia-600 text-white font-bold text-xl px-8 py-4 rounded-full shadow-lg flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-fuchsia-400"
+          className="flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-8 py-4 text-xl font-bold text-primary-foreground shadow-lg focus:outline-none focus:ring-2 focus:ring-ring"
           onClick={handleAddToCart}
           disabled={addingToCart || addedToCart}
         >
@@ -138,7 +138,7 @@ export default function CourseEnrollmentForm({
         <ul className="mb-6 text-left text-base text-foreground space-y-2 max-w-xs">
           {whatYouGet.map((item, i) => (
             <li key={i} className="flex items-start gap-2">
-              <span className="text-green-600 text-lg">•</span>
+              <span className="text-primary text-lg">•</span>
               <span>{item}</span>
             </li>
           ))}
@@ -146,7 +146,7 @@ export default function CourseEnrollmentForm({
         <motion.button
           whileHover={{ scale: 1.08, boxShadow: "0 0 0 4px #a21caf44" }}
           whileTap={{ scale: 0.96 }}
-          className="bg-gradient-to-r from-fuchsia-600 to-pink-500 text-white font-bold text-xl px-8 py-4 rounded-full shadow-lg flex items-center gap-2 focus:outline-none focus:ring-2 focus:ring-fuchsia-400"
+          className="flex items-center gap-2 rounded-full bg-gradient-to-r from-accent to-chart-2 px-8 py-4 text-xl font-bold text-accent-foreground shadow-lg focus:outline-none focus:ring-2 focus:ring-ring"
           onClick={handleEnroll}
           disabled={enrolling}
         >

@@ -2,15 +2,24 @@ require "rails_helper"
 
 RSpec.describe Tenant, type: :model do
   describe "storefront themes" do
-    it "provides the Rau Radio shadcn theme by default" do
+    it "provides the theme matching the default Amplifier template" do
       tenant = build(:tenant)
 
       expect(tenant.theme_schema).to include(
         "type" => "registry:theme",
-        "name" => "rau-radio"
+        "name" => "amplifier-electric"
       )
-      expect(tenant.theme_schema.dig("cssVars", "light", "primary")).to eq("#dfff24")
+      expect(tenant.theme_schema.dig("cssVars", "light", "primary")).to eq("#5b32ff")
       expect(tenant).to be_valid
+    end
+
+    it "ships a valid registry theme for every storefront template" do
+      Tenant::TEMPLATES.each do |template|
+        tenant = build(:tenant, template: template, theme_schema: Tenant.theme_preset(template))
+        expect(tenant.theme_schema.dig("cssVars", "light", "success")).to be_present
+        expect(tenant.theme_schema.dig("cssVars", "dark", "success-foreground")).to be_present
+        expect(tenant).to be_valid, "expected #{template} theme to be valid: #{tenant.errors.full_messages.join(', ')}"
+      end
     end
 
     it "supports the broadcast storefront template" do

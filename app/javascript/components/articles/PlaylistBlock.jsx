@@ -83,7 +83,7 @@ export default function PlaylistBlock(props) {
       contentEditable={false}
       className={cn(
         "graf--figure graf--playlist-block relative rounded-2xl border border-border/60 bg-card/40 p-4 text-sm shadow-sm",
-        props.selected && "is-selected is-mediaFocused ring-1 ring-emerald-400/40"
+        props.selected && "is-selected is-mediaFocused ring-1 ring-primary/40"
       )}
       tabIndex={0}
     >
@@ -152,9 +152,9 @@ export default function PlaylistBlock(props) {
             type="button"
             onMouseDown={stopEditorEvent}
             onClick={openSelector}
-            className="flex w-full flex-col items-center justify-center rounded-2xl border border-dashed border-border/70 bg-muted/20 px-6 py-10 text-center transition hover:border-emerald-400/60 hover:bg-emerald-400/5"
+            className="flex w-full flex-col items-center justify-center rounded-2xl border border-dashed border-border/70 bg-muted/20 px-6 py-10 text-center transition hover:border-primary/60 hover:bg-primary/5"
           >
-            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-400/10 text-emerald-500">
+            <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary">
               <ListMusic className="h-6 w-6" />
             </div>
             <h3 className="text-base font-semibold text-foreground">Inserta una playlist en el artículo</h3>

@@ -103,12 +103,11 @@ export function SectionBlock({ block, pageStyle, isEditing = false }: SectionBlo
   const palette = buildPalette(pageStyle, themeMode)
   const mobileOverlayHidden = !isEditing
   const isLightMode = themeMode === "light" || (themeMode === "inherit" && pageStyle?.darkMode === false)
-  const overlayBase = isLightMode
-    ? "linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.16) 35%, rgba(255,255,255,0.46) 100%)"
-    : "linear-gradient(180deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.28) 35%, rgba(0,0,0,0.64) 100%)"
-  const overlayHover = isLightMode
-    ? "linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.10) 35%, rgba(255,255,255,0.30) 100%)"
-    : "linear-gradient(180deg, rgba(0,0,0,0.03) 0%, rgba(0,0,0,0.16) 35%, rgba(0,0,0,0.42) 100%)"
+  const overlayTone = themeMode === "inherit"
+    ? "var(--background)"
+    : isLightMode ? "#ffffff" : "#000000"
+  const overlayBase = `linear-gradient(180deg, color-mix(in srgb, ${overlayTone} ${isLightMode ? 4 : 8}%, transparent) 0%, color-mix(in srgb, ${overlayTone} ${isLightMode ? 16 : 28}%, transparent) 35%, color-mix(in srgb, ${overlayTone} ${isLightMode ? 46 : 64}%, transparent) 100%)`
+  const overlayHover = `linear-gradient(180deg, color-mix(in srgb, ${overlayTone} ${isLightMode ? 2 : 3}%, transparent) 0%, color-mix(in srgb, ${overlayTone} ${isLightMode ? 10 : 16}%, transparent) 35%, color-mix(in srgb, ${overlayTone} ${isLightMode ? 30 : 42}%, transparent) 100%)`
 
   const renderLeftVariant = () => (
     <div

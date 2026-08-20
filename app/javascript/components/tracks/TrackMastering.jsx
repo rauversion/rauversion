@@ -797,7 +797,7 @@ export default function TrackMastering() {
             <section className="space-y-6">
               <div className="rounded-lg border border-border bg-card p-6">
                 <div className="flex items-start gap-3">
-                  <CheckCircle2 className="mt-0.5 h-5 w-5 text-green-500" />
+                  <CheckCircle2 className="mt-0.5 h-5 w-5 text-success" />
                   <div className="min-w-0 flex-1">
                     <h2 className="text-lg font-semibold text-foreground">Archivo listo</h2>
                     <p className="mt-2 text-sm text-muted-foreground">{recipe.artist_message_es}</p>

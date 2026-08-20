@@ -116,8 +116,8 @@ export default function Reports() {
             <div className="flex items-center gap-2">
               {isEventEnded ? (
                 <>
-                  <CheckCircle className="h-5 w-5 text-green-600" />
-                  <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                  <CheckCircle className="h-5 w-5 text-success" />
+                  <Badge variant="outline" className="border-success/30 bg-success/10 text-success">
                     {I18n.t("events.edit.reports.event_status.ended")}
                   </Badge>
                 </>
@@ -180,7 +180,7 @@ export default function Reports() {
             <CardTitle className="text-sm font-medium">
               {I18n.t("events.edit.reports.status.paid")}
             </CardTitle>
-            <CheckCircle className="h-4 w-4 text-green-600" />
+            <CheckCircle className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">${stats.paid.total.toLocaleString()}</div>

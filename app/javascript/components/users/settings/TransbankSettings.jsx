@@ -114,7 +114,7 @@ export default function TransbankSettings() {
           <div className="flex items-center space-x-2 p-4 rounded-lg bg-muted">
             <div className="p-2 bg-background rounded-full">
               {verificationStatus === 'verified' ? (
-                <CheckCircle2 className="h-5 w-5 text-green-500" />
+                <CheckCircle2 className="h-5 w-5 text-success" />
               ) : verificationStatus === 'error' ? (
                 <AlertTriangle className="h-5 w-5 text-red-500" />
               ) : (

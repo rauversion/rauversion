@@ -117,7 +117,7 @@ export function EmailTestSendDialog({ document }: EmailTestSendDialogProps) {
               className={cn(
                 "rounded-2xl border px-4 py-3 text-sm",
                 status === "processing" && "border-sky-200 bg-sky-50 text-sky-900",
-                status === "sent" && "border-emerald-200 bg-emerald-50 text-emerald-900",
+                status === "sent" && "border-success/30 bg-success/10 text-success",
                 status === "error" && "border-rose-200 bg-rose-50 text-rose-900"
               )}
             >

@@ -84,8 +84,8 @@ export function ButtonBlock({ block, isEditing = false }: ButtonBlockProps) {
     ),
     glow: cn(
       "bg-primary text-primary-foreground rounded-md",
-      "shadow-[0_0_20px_rgba(var(--primary-rgb),0.5)]",
-      "hover:shadow-[0_0_30px_rgba(var(--primary-rgb),0.7)]",
+      "shadow-[0_0_20px_color-mix(in_srgb,var(--primary)_50%,transparent)]",
+      "hover:shadow-[0_0_30px_color-mix(in_srgb,var(--primary)_70%,transparent)]",
       "active:scale-[0.98] transition-all duration-300"
     ),
     pill: cn(
