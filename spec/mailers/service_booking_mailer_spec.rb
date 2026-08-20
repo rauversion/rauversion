@@ -2,7 +2,7 @@ require "rails_helper"
 
 RSpec.describe ServiceBookingMailer, type: :mailer do
   let(:customer) { create(:user, username: "booker", email: "booker@example.com") }
-  let(:provider) { create(:user, username: "dj", email: "dj@example.com") }
+  let(:provider) { create(:user, username: "dj-provider", email: "dj@example.com") }
   let(:service_product) { create(:service_product, user: provider, title: "DJ set", delivery_method: "in_person") }
   let(:booking) do
     create(

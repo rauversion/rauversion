@@ -10,7 +10,6 @@ FactoryBot.define do
     sku { "MyString" }
     category { "MyString" }
     status { "active" }
-    user { nil }
 
     factory :service_product, class: "Products::ServiceProduct" do
       association :user

@@ -12,7 +12,11 @@ module TenantSubscriptions
       return true if event.type.in?(SUBSCRIPTION_EVENTS)
       return false unless event.type == "checkout.session.completed"
 
-      event.data.object.metadata&.source_type == "tenant_subscription"
+      checkout = event.data.object
+      metadata = checkout.respond_to?(:metadata) ? checkout.metadata : checkout[:metadata]
+      source_type = metadata.respond_to?(:source_type) ? metadata.source_type : metadata&.[](:source_type) || metadata&.[]("source_type")
+
+      source_type == "tenant_subscription"
     end
 
     def self.call(event)
