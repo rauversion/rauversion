@@ -10,8 +10,10 @@ module PaymentProviders
 
     def create_checkout_session(promo_code: nil)
       return { error: "Cart is empty" } unless validate_cart!
+      return { error: "Cart contains products with multiple currencies" } unless validate_single_currency!
       return { error: "Invalid promo code" } unless validate_promo_code!(promo_code)
 
+      purchase.update(currency: cart_currency) if purchase.respond_to?(:currency=)
       checkout_params = build_checkout_params(promo_code)
 
       begin
@@ -35,7 +37,7 @@ module PaymentProviders
       return { error: "Invalid purchasable" } unless purchasable
 
       final_price = calculate_price
-      purchase = create_purchase(final_price)
+      purchase = create_purchase(final_price, purchasable_currency)
       
       begin
         account = purchasable.user.stripe_account_id # oauth_credentials.find_by(provider: "stripe_connect")
@@ -65,8 +67,8 @@ module PaymentProviders
       base_price
     end
 
-    def create_purchase(final_price)
-      purchase = user.purchases.new(purchasable: purchasable, price: final_price)
+    def create_purchase(final_price, currency)
+      purchase = user.purchases.new(purchasable: purchasable, price: final_price, currency: currency)
       purchase.virtual_purchased = [
         VirtualPurchasedItem.new({resource: purchasable, quantity: 1})
       ]
@@ -78,14 +80,15 @@ module PaymentProviders
     def build_digital_checkout_params(purchase, source_type, account)
       purchasable = purchase.purchasable
       user = purchase.user
+      currency = purchase.currency.presence || purchasable_currency
     
       params = {
         payment_method_types: ["card"],
         line_items: [{
           "quantity" => 1,
           "price_data" => {
-            "unit_amount" => (purchase.price * 100).to_i,
-            "currency" => "USD",
+            "unit_amount" => stripe_amount(purchase.price, currency),
+            "currency" => currency,
             "product_data" => {
               "name" => purchasable.title,
               "description" => "#{purchasable.title} from #{purchasable.user.username}"
@@ -107,7 +110,7 @@ module PaymentProviders
       if account
         # Assuming ENV['PLATFORM_EVENTS_FEE'] is a percentage, e.g., 10 for 10%
         fee_percentage = ENV.fetch('PLATFORM_EVENTS_FEE', 10).to_f / 100.0
-        fee_amount = (purchase.price * fee_percentage * 100).to_i # Convert to cents
+        fee_amount = stripe_amount(purchase.price * fee_percentage, currency)
     
         #params[:payment_intent_data] = {
         #  application_fee_amount: fee_amount,
@@ -132,6 +135,7 @@ module PaymentProviders
       # TODO: handle multiple connected user products in cart
       connected_accounts = cart.products.map{|o| o.user.stripe_account_id}
       connected_account_id = connected_accounts.first
+      currency = cart_currency
 
       #return render json: {
       #  error: "Multiple connected accounts not supported"
@@ -166,7 +170,7 @@ module PaymentProviders
     
       if connected_account_id.present?
         fee_percentage = ENV.fetch('PLATFORM_EVENTS_FEE', 10).to_f / 100.0
-        fee_amount = (cart.total_price * fee_percentage * 100).to_i # Convert to cents
+        fee_amount = stripe_amount(cart.total_price * fee_percentage, currency)
     
         params[:payment_intent_data] = {
           application_fee_amount: fee_amount,
@@ -182,13 +186,15 @@ module PaymentProviders
 
     def build_line_items
       cart.product_cart_items.includes(:product).map do |item|
+        currency = product_currency(item.product)
+
         {
           price_data: {
-            currency: 'usd',
+            currency: currency,
             product_data: {
               name: item.product.title,
             },
-            unit_amount: (item.product.price * 100).to_i,
+            unit_amount: stripe_amount(item.product.price, currency),
           },
           quantity: item.quantity,
         }
@@ -204,6 +210,7 @@ module PaymentProviders
     def generate_shipping_options
       # Aggregate shipping costs per country
       country_shipping_totals = {}
+      currency = cart_currency
 
       cart.product_cart_items.each do |item|
         product = item.product
@@ -221,15 +228,14 @@ module PaymentProviders
             base_cost
           end
 
-          # Convert to cents for Stripe
-          total_cost_cents = (total_cost * 100).to_i
+          total_cost_amount = stripe_amount(total_cost, currency)
 
           # Aggregate per country
           if country_shipping_totals[country]
-            country_shipping_totals[country][:amount] += total_cost_cents
+            country_shipping_totals[country][:amount] += total_cost_amount
           else
             country_shipping_totals[country] = {
-              amount: total_cost_cents,
+              amount: total_cost_amount,
               delivery_estimate: {
                 minimum: { unit: 'business_day', value: 5 },
                 maximum: { unit: 'business_day', value: 10 }
@@ -246,7 +252,7 @@ module PaymentProviders
             type: 'fixed_amount',
             fixed_amount: {
               amount: data[:amount],
-              currency: 'usd'
+              currency: currency
             },
             display_name: "Shipping to #{country}",
             delivery_estimate: data[:delivery_estimate]
@@ -255,6 +261,40 @@ module PaymentProviders
       end
 
       shipping_options
+    end
+
+    def validate_single_currency!
+      cart_currencies.one?
+    end
+
+    def cart_currencies
+      @cart_currencies ||= cart.product_cart_items.includes(:product).map { |item| product_currency(item.product) }.uniq
+    end
+
+    def cart_currency
+      cart_currencies.first.presence || "usd"
+    end
+
+    def product_currency(product)
+      return product.normalized_currency if product.respond_to?(:normalized_currency)
+
+      product.currency.to_s.downcase.presence || "usd"
+    end
+
+    def purchasable_currency
+      return purchasable.normalized_currency if purchasable.respond_to?(:normalized_currency)
+      return purchasable.currency.to_s.downcase if purchasable.respond_to?(:currency) && purchasable.currency.present?
+
+      "usd"
+    end
+
+    def stripe_amount(value, currency)
+      multiplier = zero_decimal_currency?(currency) ? 1 : 100
+      (BigDecimal(value.to_s) * multiplier).round.to_i
+    end
+
+    def zero_decimal_currency?(currency)
+      %w[bif clp djf gnf jpy kmf krw mga pyg rwf ugx vnd vuv xaf xof xpf].include?(currency.to_s.downcase)
     end
   end
 end

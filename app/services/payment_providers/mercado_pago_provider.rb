@@ -10,9 +10,11 @@ module PaymentProviders
 
     def create_checkout_session(promo_code: nil)
       return { error: "Cart is empty" } unless validate_cart!
+      return { error: "Cart contains products with multiple currencies" } unless validate_single_currency!
       return { error: "Invalid promo code" } unless validate_promo_code!(promo_code)
 
       begin
+        purchase.update(currency: cart_currency) if purchase.respond_to?(:currency=)
         preference_data = build_preference_data(promo_code)
         sdk = Mercadopago::SDK.new(ENV["MERCADO_PAGO_ACCESS_TOKEN"])
         preference_response = sdk.preference.create(preference_data)
@@ -82,7 +84,7 @@ module PaymentProviders
     end
 
     def create_purchase(final_price)
-      purchase = user.purchases.new(purchasable: purchasable, price: final_price)
+      purchase = user.purchases.new(purchasable: purchasable, price: final_price, currency: purchasable_currency)
       purchase.virtual_purchased = [
         VirtualPurchasedItem.new({resource: purchasable, quantity: 1})
       ]
@@ -98,7 +100,7 @@ module PaymentProviders
         category_id: "physical_goods",
         title: purchasable.title,
         quantity: 1,
-        currency_id: "USD",
+        currency_id: purchase.currency.to_s.upcase,
         unit_price: purchase.price.to_f,
         description: "#{purchasable.title} from #{purchasable.user.username}",
         #category_id: "digital_goods"
@@ -181,12 +183,37 @@ module PaymentProviders
         {
           title: item.product.title,
           quantity: item.quantity,
-          currency_id: "USD",
+          currency_id: product_currency(item.product).upcase,
           unit_price: item.product.price.to_f,
           description: item.product.title,
           category_id: "physical_goods"
         }
       end
+    end
+
+    def validate_single_currency!
+      cart_currencies.one?
+    end
+
+    def cart_currencies
+      @cart_currencies ||= cart.product_cart_items.includes(:product).map { |item| product_currency(item.product) }.uniq
+    end
+
+    def cart_currency
+      cart_currencies.first.presence || "usd"
+    end
+
+    def product_currency(product)
+      return product.normalized_currency if product.respond_to?(:normalized_currency)
+
+      product.currency.to_s.downcase.presence || "usd"
+    end
+
+    def purchasable_currency
+      return purchasable.normalized_currency if purchasable.respond_to?(:normalized_currency)
+      return purchasable.currency.to_s.downcase if purchasable.respond_to?(:currency) && purchasable.currency.present?
+
+      "usd"
     end
   end
 end

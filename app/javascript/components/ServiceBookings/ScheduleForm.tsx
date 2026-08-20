@@ -17,11 +17,12 @@ import {
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Loader2 } from "lucide-react"
+import I18n from "@/stores/locales"
 
 const formSchema = z.object({
-  scheduled_date: z.string().min(1, "Date is required"),
-  scheduled_time: z.string().min(1, "Time is required"),
-  timezone: z.string().min(1, "Timezone is required"),
+  scheduled_date: z.string().min(1, I18n.t("service_bookings.schedule_modal.errors.date_required")),
+  scheduled_time: z.string().min(1, I18n.t("service_bookings.schedule_modal.errors.time_required")),
+  timezone: z.string().min(1, I18n.t("service_bookings.schedule_modal.errors.timezone_required")),
   meeting_link: z.string().optional(),
   meeting_location: z.string().optional(),
   provider_notes: z.string().optional(),
@@ -58,16 +59,16 @@ export function ScheduleForm({ bookingId, onSuccess }: Props) {
     },
     onSuccess: () => {
       toast({
-        title: "Success",
-        description: "Service scheduled successfully",
+        title: I18n.t("service_bookings.messages.success"),
+        description: I18n.t("service_bookings.schedule.success"),
       })
       onSuccess()
     },
     onError: () => {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to schedule service",
+        title: I18n.t("service_bookings.messages.error"),
+        description: I18n.t("service_bookings.schedule.error"),
       })
     },
   })
@@ -84,7 +85,7 @@ export function ScheduleForm({ bookingId, onSuccess }: Props) {
           name="scheduled_date"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Date</FormLabel>
+              <FormLabel>{I18n.t("service_bookings.schedule_modal.date")}</FormLabel>
               <FormControl>
                 <Input type="date" {...field} />
               </FormControl>
@@ -98,7 +99,7 @@ export function ScheduleForm({ bookingId, onSuccess }: Props) {
           name="scheduled_time"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Time</FormLabel>
+              <FormLabel>{I18n.t("service_bookings.schedule_modal.time")}</FormLabel>
               <FormControl>
                 <Input type="time" {...field} />
               </FormControl>
@@ -112,7 +113,7 @@ export function ScheduleForm({ bookingId, onSuccess }: Props) {
           name="timezone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Timezone</FormLabel>
+              <FormLabel>{I18n.t("service_bookings.schedule_modal.timezone")}</FormLabel>
               <FormControl>
                 <Input {...field} />
               </FormControl>
@@ -126,9 +127,13 @@ export function ScheduleForm({ bookingId, onSuccess }: Props) {
           name="meeting_link"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Meeting Link (for online services)</FormLabel>
+              <FormLabel>{I18n.t("service_bookings.schedule_modal.meeting_link")}</FormLabel>
               <FormControl>
-                <Input type="url" placeholder="https://..." {...field} />
+                <Input
+                  type="url"
+                  placeholder={I18n.t("service_bookings.schedule_modal.meeting_link_placeholder")}
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -140,9 +145,12 @@ export function ScheduleForm({ bookingId, onSuccess }: Props) {
           name="meeting_location"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Meeting Location (for in-person services)</FormLabel>
+              <FormLabel>{I18n.t("service_bookings.schedule_modal.meeting_location")}</FormLabel>
               <FormControl>
-                <Input placeholder="Address or location details" {...field} />
+                <Input
+                  placeholder={I18n.t("service_bookings.schedule_modal.meeting_location_placeholder")}
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -154,10 +162,10 @@ export function ScheduleForm({ bookingId, onSuccess }: Props) {
           name="provider_notes"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Provider Notes (optional)</FormLabel>
+              <FormLabel>{I18n.t("service_bookings.schedule_modal.provider_notes")}</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Add any notes or instructions for the service..."
+                  placeholder={I18n.t("service_bookings.schedule_modal.provider_notes_placeholder")}
                   {...field}
                 />
               </FormControl>
@@ -174,7 +182,7 @@ export function ScheduleForm({ bookingId, onSuccess }: Props) {
           {scheduleMutation.isPending && (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           )}
-          Schedule Service
+          {I18n.t("service_bookings.schedule_modal.schedule_button")}
         </Button>
       </form>
     </Form>

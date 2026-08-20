@@ -1,4 +1,5 @@
 import React from "react"
+import I18n from "@/stores/locales"
 import { get } from "@rails/request.js"
 import {
   ArrowUpRight,
@@ -36,11 +37,11 @@ type Tenant = {
 }
 
 const roleLabels: Record<Tenant["role"], string> = {
-  member: "Miembro",
-  artist: "Artista",
-  editor: "Editor",
-  admin: "Admin",
-  owner: "Owner",
+  member: I18n.t("tenants.roles.member"),
+  artist: I18n.t("tenants.roles.artist"),
+  editor: I18n.t("tenants.roles.editor"),
+  admin: I18n.t("tenants.roles.admin"),
+  owner: I18n.t("tenants.roles.owner"),
 }
 
 function TenantCard({
@@ -86,8 +87,8 @@ function TenantCard({
       <CardContent className="space-y-4">
         <Separator />
         <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span className="flex items-center gap-1.5"><Users2 className="h-3.5 w-3.5" /> Acceso verificado</span>
-          <span>{tenant.central ? "Plataforma central" : "Tenant privado"}</span>
+          <span className="flex items-center gap-1.5"><Users2 className="h-3.5 w-3.5" /> {I18n.t("tenants.dashboard.verified_access")}</span>
+          <span>{tenant.central ? I18n.t("tenants.dashboard.central_platform") : I18n.t("tenants.dashboard.private_tenant")}</span>
         </div>
         <div className="grid grid-cols-[1fr_auto_auto] gap-2">
           <Button
@@ -98,17 +99,17 @@ function TenantCard({
             variant={active ? "outline" : "default"}
           >
             {activating ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-            {active ? "Tenant activo" : "Entrar al tenant"}
+            {active ? I18n.t("tenants.dashboard.active_tenant") : I18n.t("tenants.dashboard.enter_tenant")}
             {!active && !activating && <ChevronRight className="ml-2 h-4 w-4" />}
           </Button>
           {tenant.can_manage_settings && (
-            <Button type="button" variant="outline" size="icon" asChild title="Configurar tenant">
+            <Button type="button" variant="outline" size="icon" asChild title={I18n.t("tenants.dashboard.configure")}>
               <a href={`/tenants/${tenant.id}/settings`}>
                 <Settings2 className="h-4 w-4" />
               </a>
             </Button>
           )}
-          <Button type="button" variant="outline" size="icon" asChild title="Abrir host del tenant">
+          <Button type="button" variant="outline" size="icon" asChild title={I18n.t("tenants.dashboard.open_host")}>
             <a href={tenant.preview_url} target="_blank" rel="noreferrer">
               <ArrowUpRight className="h-4 w-4" />
             </a>
@@ -139,7 +140,7 @@ export default function TenantDashboard() {
         setTenants(body.tenants)
         setCurrentTenantId(body.current_tenant_id)
       } catch (_requestError) {
-        if (active) setError("No pudimos cargar tus tenants.")
+        if (active) setError(I18n.t("tenants.dashboard.load_error"))
       } finally {
         if (active) setLoading(false)
       }
@@ -164,37 +165,37 @@ export default function TenantDashboard() {
             <div className="mb-4 flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-primary">
               <Globe2 className="h-4 w-4" /> Control de espacios
             </div>
-            <h1 className="text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">Tus tenants</h1>
+            <h1 className="text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">{I18n.t("tenants.dashboard.title")}</h1>
             <p className="mt-3 max-w-xl text-sm leading-relaxed text-muted-foreground sm:text-base">
               Cambia el contexto de administración o abre el host público de cada proyecto.
             </p>
           </div>
           <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
-            <a href="/tenants/new"><Plus className="mr-2 h-4 w-4" /> Nuevo tenant</a>
+            <a href="/tenants/new"><Plus className="mr-2 h-4 w-4" /> {I18n.t("tenants.dashboard.new_tenant")}</a>
           </Button>
         </header>
 
         <div className="mt-8 grid gap-4 sm:grid-cols-3">
           <div className="rounded-2xl border border-border bg-card p-4">
-            <p className="text-xs text-foreground0">Espacios disponibles</p>
+            <p className="text-xs text-foreground0">{I18n.t("tenants.dashboard.available_spaces")}</p>
             <p className="mt-2 text-2xl font-semibold">{loading ? "—" : tenants.length}</p>
           </div>
           <div className="rounded-2xl border border-border bg-card p-4">
-            <p className="text-xs text-foreground0">Contexto actual</p>
+            <p className="text-xs text-foreground0">{I18n.t("tenants.dashboard.current_context")}</p>
             <p className="mt-2 truncate text-sm font-medium text-foreground">
-              {loading ? "Cargando…" : tenants.find((tenant) => tenant.id === currentTenantId)?.name || "Sin seleccionar"}
+              {loading ? I18n.t("tenants.common.loading") : tenants.find((tenant) => tenant.id === currentTenantId)?.name || I18n.t("tenants.dashboard.none_selected")}
             </p>
           </div>
           <div className="rounded-2xl border border-border bg-card p-4">
-            <p className="text-xs text-foreground0">Aislamiento de catálogo</p>
-            <p className="mt-2 flex items-center gap-2 text-sm font-medium text-primary"><ShieldCheck className="h-4 w-4" /> Contenido aislado</p>
+            <p className="text-xs text-foreground0">{I18n.t("tenants.dashboard.catalog_isolation")}</p>
+            <p className="mt-2 flex items-center gap-2 text-sm font-medium text-primary"><ShieldCheck className="h-4 w-4" /> {I18n.t("tenants.dashboard.isolated_content")}</p>
           </div>
         </div>
 
         {error && (
           <Alert variant="destructive" className="mt-6">
             <CircleAlert className="h-4 w-4" />
-            <AlertTitle>No se pudo completar la operación</AlertTitle>
+            <AlertTitle>{I18n.t("tenants.common.operation_failed")}</AlertTitle>
             <AlertDescription>{error}</AlertDescription>
           </Alert>
         )}
@@ -221,10 +222,10 @@ export default function TenantDashboard() {
 
         <Alert className="mt-8 border-chart-2/20 bg-chart-2/10 text-foreground/80">
           <ShieldCheck className="h-4 w-4 text-chart-2" />
-          <AlertTitle>Cómo probar el tenant “test” en Rails development</AlertTitle>
+          <AlertTitle>{I18n.t("tenants.dashboard.development_title")}</AlertTitle>
           <AlertDescription className="mt-2 space-y-2 text-muted-foreground">
-            <p>Usa <strong className="text-foreground">Entrar al tenant</strong> para abrir su admin en el host correspondiente.</p>
-            <p>Usa el botón externo para abrir <code className="rounded bg-black/30 px-1.5 py-0.5 text-chart-2">test.lvh.me:3000</code>; lvh.me resuelve automáticamente a 127.0.0.1.</p>
+            <p dangerouslySetInnerHTML={{ __html: I18n.t("tenants.dashboard.development_enter_html") }} />
+            <p dangerouslySetInnerHTML={{ __html: I18n.t("tenants.dashboard.development_host_html") }} />
           </AlertDescription>
         </Alert>
       </div>

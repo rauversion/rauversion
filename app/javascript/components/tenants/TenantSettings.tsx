@@ -1,4 +1,5 @@
 import React from "react"
+import I18n from "@/stores/locales"
 import { get, patch } from "@rails/request.js"
 import {
   ArrowLeft,
@@ -50,9 +51,9 @@ type Tenant = {
 }
 
 const templates: Array<{ key: TemplateKey; name: string; description: string }> = [
-  { key: "amplifier", name: "Amplifier", description: "Portadas grandes, lanzamientos al frente y energía de sello independiente." },
-  { key: "editorial", name: "Editorial", description: "Tipografía protagonista, ritmo de revista y espacio para historias." },
-  { key: "waveform", name: "Waveform", description: "Interfaz compacta orientada a catálogo, playlists y escucha continua." },
+  { key: "amplifier", name: I18n.t("tenants.settings.templates.amplifier.name"), description: I18n.t("tenants.settings.templates.amplifier.description") },
+  { key: "editorial", name: I18n.t("tenants.settings.templates.editorial.name"), description: I18n.t("tenants.settings.templates.editorial.description") },
+  { key: "waveform", name: I18n.t("tenants.settings.templates.waveform.name"), description: I18n.t("tenants.settings.templates.waveform.description") },
 ]
 
 const fontLabels: Record<HeadingFont, string> = {
@@ -97,7 +98,7 @@ function BrandPreview({ tenant, branding, logoPreview }: { tenant: Tenant; brand
       <div className="relative flex items-center justify-between gap-4">
         <div className="flex min-w-0 items-center gap-3">
           {logoPreview ? (
-            <img src={logoPreview} alt="Logo del tenant" className="h-11 w-11 rounded-xl object-contain" />
+            <img src={logoPreview} alt={I18n.t("tenants.settings.logo")} className="h-11 w-11 rounded-xl object-contain" />
           ) : (
             <div className="grid h-11 w-11 place-items-center rounded-xl font-bold text-primary-foreground" style={{ backgroundColor: branding.primary_color }}>
               {tenant.name.slice(0, 1).toUpperCase()}
@@ -106,23 +107,23 @@ function BrandPreview({ tenant, branding, logoPreview }: { tenant: Tenant; brand
           <span className="truncate text-sm font-semibold text-white">{tenant.name}</span>
         </div>
         <div className="flex gap-4 text-[10px] uppercase tracking-[0.18em] text-white/50">
-          <span>Música</span><span>Eventos</span><span>Tienda</span>
+          <span>{I18n.t("tenants.settings.preview.music")}</span><span>{I18n.t("tenants.settings.preview.events")}</span><span>{I18n.t("tenants.settings.preview.store")}</span>
         </div>
       </div>
 
       <div className={cn("relative mt-24", branding.template === "editorial" && "mt-16 border-l pl-6")} style={{ borderColor: branding.accent_color }}>
-        <Badge className="border-0 text-primary-foreground" style={{ backgroundColor: branding.accent_color }}>Nueva temporada</Badge>
+        <Badge className="border-0 text-primary-foreground" style={{ backgroundColor: branding.accent_color }}>{I18n.t("tenants.settings.preview.season")}</Badge>
         <h2 className="mt-5 max-w-md text-5xl font-black leading-[0.92] tracking-[-0.06em] text-white sm:text-6xl">
-          {branding.tagline || "Sonido propio. Espacio propio."}
+          {branding.tagline || I18n.t("tenants.settings.preview.fallback_tagline")}
         </h2>
         <p className="mt-5 max-w-sm text-sm leading-relaxed text-white/55">
-          Un hogar independiente para artistas, lanzamientos y comunidad.
+          {I18n.t("tenants.settings.preview.description")}
         </p>
-        <Button className="mt-7 border-0 text-primary-foreground" style={{ backgroundColor: branding.primary_color }}>Explorar catálogo</Button>
+        <Button className="mt-7 border-0 text-primary-foreground" style={{ backgroundColor: branding.primary_color }}>{I18n.t("tenants.settings.preview.explore")}</Button>
       </div>
 
       <div className="absolute inset-x-7 bottom-7 grid grid-cols-3 gap-2">
-        {["Último release", "Próximo evento", "Selección"].map((label, index) => (
+        {[I18n.t("tenants.settings.preview.latest_release"), I18n.t("tenants.settings.preview.next_event"), I18n.t("tenants.settings.preview.selection")].map((label, index) => (
           <div key={label} className="rounded-lg border border-border bg-muted/40 p-3">
             <div className="mb-3 h-1 rounded-full bg-muted"><div className="h-full rounded-full" style={{ width: `${82 - index * 18}%`, backgroundColor: index === 1 ? branding.accent_color : branding.primary_color }} /></div>
             <p className="text-[10px] text-white/45">{label}</p>
@@ -158,7 +159,7 @@ export default function TenantSettings() {
         setName(body.tenant.name)
         setLogoPreview(body.tenant.logo_url)
       })
-      .catch(() => active && setError("No pudimos cargar la configuración del tenant."))
+      .catch(() => active && setError(I18n.t("tenants.settings.load_error")))
       .finally(() => active && setLoading(false))
 
     return () => { active = false }
@@ -199,7 +200,7 @@ export default function TenantSettings() {
       setLogoFile(null)
       setSaved(true)
     } catch (_requestError) {
-      setError("No pudimos guardar. Revisa los colores y vuelve a intentarlo.")
+      setError(I18n.t("tenants.settings.save_error"))
     } finally {
       setSaving(false)
     }
@@ -210,7 +211,7 @@ export default function TenantSettings() {
   }
 
   if (!tenant || !branding) {
-    return <Alert variant="destructive"><CircleAlert className="h-4 w-4" /><AlertTitle>Configuración no disponible</AlertTitle><AlertDescription>{error}</AlertDescription></Alert>
+    return <Alert variant="destructive"><CircleAlert className="h-4 w-4" /><AlertTitle>{I18n.t("tenants.settings.unavailable")}</AlertTitle><AlertDescription>{error}</AlertDescription></Alert>
   }
 
   return (
@@ -219,28 +220,28 @@ export default function TenantSettings() {
       <div className="relative mx-auto max-w-7xl">
         <header className="mb-8 flex flex-col justify-between gap-5 md:flex-row md:items-end">
           <div>
-            <Button variant="ghost" asChild className="-ml-3 mb-4 text-muted-foreground hover:text-accent-foreground"><a href="/tenants"><ArrowLeft className="mr-2 h-4 w-4" /> Tenants</a></Button>
-            <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-primary"><Sparkles className="h-4 w-4" /> Estudio de marca</div>
-            <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">Configura {tenant.name}</h1>
-            <p className="mt-2 max-w-2xl text-sm text-muted-foreground">Define la identidad del tenant. Estos valores quedan disponibles para el storefront y sus futuras plantillas.</p>
+            <Button variant="ghost" asChild className="-ml-3 mb-4 text-muted-foreground hover:text-accent-foreground"><a href="/tenants"><ArrowLeft className="mr-2 h-4 w-4" /> {I18n.t("tenants.common.back_to_tenants")}</a></Button>
+            <div className="flex items-center gap-2 text-xs font-medium uppercase tracking-[0.2em] text-primary"><Sparkles className="h-4 w-4" /> {I18n.t("tenants.settings.studio")}</div>
+            <h1 className="mt-3 text-3xl font-semibold tracking-[-0.04em] sm:text-4xl">{I18n.t("tenants.settings.title", { name: tenant.name })}</h1>
+            <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{I18n.t("tenants.settings.description")}</p>
           </div>
-          <Button variant="outline" asChild><a href={tenant.preview_url} target="_blank" rel="noreferrer">Ver sitio <ArrowUpRight className="ml-2 h-4 w-4" /></a></Button>
+          <Button variant="outline" asChild><a href={tenant.preview_url} target="_blank" rel="noreferrer">{I18n.t("tenants.settings.view_site")} <ArrowUpRight className="ml-2 h-4 w-4" /></a></Button>
         </header>
 
-        {error && <Alert variant="destructive" className="mb-6"><CircleAlert className="h-4 w-4" /><AlertTitle>No se guardaron los cambios</AlertTitle><AlertDescription>{error}</AlertDescription></Alert>}
+        {error && <Alert variant="destructive" className="mb-6"><CircleAlert className="h-4 w-4" /><AlertTitle>{I18n.t("tenants.settings.unsaved_title")}</AlertTitle><AlertDescription>{error}</AlertDescription></Alert>}
 
         <form onSubmit={save} className="grid gap-7 xl:grid-cols-[minmax(0,0.88fr)_minmax(30rem,1.12fr)]">
           <div className="space-y-5">
             <Card className="border-border bg-card">
-              <CardHeader><CardTitle className="flex items-center gap-2"><ImageIcon className="h-5 w-5 text-primary" /> Identidad</CardTitle><CardDescription>Nombre, mensaje y logo principal.</CardDescription></CardHeader>
+              <CardHeader><CardTitle className="flex items-center gap-2"><ImageIcon className="h-5 w-5 text-primary" /> {I18n.t("tenants.settings.identity")}</CardTitle><CardDescription>{I18n.t("tenants.settings.identity_description")}</CardDescription></CardHeader>
               <CardContent className="space-y-5">
-                <div className="space-y-2"><Label htmlFor="tenant-name">Nombre</Label><Input id="tenant-name" value={name} onChange={(event) => { setName(event.target.value); setSaved(false) }} maxLength={80} /></div>
-                <div className="space-y-2"><Label htmlFor="tenant-tagline">Tagline</Label><Textarea id="tenant-tagline" value={branding.tagline || ""} onChange={(event) => updateBranding("tagline", event.target.value)} maxLength={160} placeholder="La idea que define tu catálogo" /></div>
+                <div className="space-y-2"><Label htmlFor="tenant-name">{I18n.t("tenants.settings.name")}</Label><Input id="tenant-name" value={name} onChange={(event) => { setName(event.target.value); setSaved(false) }} maxLength={80} /></div>
+                <div className="space-y-2"><Label htmlFor="tenant-tagline">{I18n.t("tenants.settings.tagline")}</Label><Textarea id="tenant-tagline" value={branding.tagline || ""} onChange={(event) => updateBranding("tagline", event.target.value)} maxLength={160} placeholder={I18n.t("tenants.settings.tagline_placeholder")} /></div>
                 <div className="space-y-2">
-                  <Label htmlFor="tenant-logo">Logo</Label>
+                  <Label htmlFor="tenant-logo">{I18n.t("tenants.settings.logo")}</Label>
                   <label htmlFor="tenant-logo" className="flex cursor-pointer items-center gap-4 rounded-xl border border-dashed border-border bg-muted/40 p-4 transition hover:border-primary/40">
                     <div className="grid h-12 w-12 place-items-center overflow-hidden rounded-xl bg-muted/50">{logoPreview ? <img src={logoPreview} alt="Logo" className="h-full w-full object-contain" /> : <Upload className="h-5 w-5 text-foreground0" />}</div>
-                    <div><p className="text-sm font-medium">{logoFile?.name || "Subir logo"}</p><p className="mt-1 text-xs text-foreground0">PNG, JPG, WebP o SVG. Recomendado 512 x 512.</p></div>
+                    <div><p className="text-sm font-medium">{logoFile?.name || I18n.t("tenants.settings.upload_logo")}</p><p className="mt-1 text-xs text-foreground0">{I18n.t("tenants.settings.logo_help")}</p></div>
                   </label>
                   <Input id="tenant-logo" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" className="hidden" onChange={(event) => { setLogoFile(event.target.files?.[0] || null); setSaved(false) }} />
                 </div>
@@ -248,16 +249,16 @@ export default function TenantSettings() {
             </Card>
 
             <Card className="border-border bg-card">
-              <CardHeader><CardTitle className="flex items-center gap-2"><Palette className="h-5 w-5 text-chart-2" /> Paleta</CardTitle><CardDescription>Colores base usados por botones, acentos y fondos.</CardDescription></CardHeader>
+              <CardHeader><CardTitle className="flex items-center gap-2"><Palette className="h-5 w-5 text-chart-2" /> {I18n.t("tenants.settings.palette")}</CardTitle><CardDescription>{I18n.t("tenants.settings.palette_description")}</CardDescription></CardHeader>
               <CardContent className="grid gap-5 sm:grid-cols-2">
-                <ColorField label="Primario" value={branding.primary_color} onChange={(value) => updateBranding("primary_color", value)} />
-                <ColorField label="Acento" value={branding.accent_color} onChange={(value) => updateBranding("accent_color", value)} />
-                <div className="sm:col-span-2"><ColorField label="Fondo" value={branding.background_color} onChange={(value) => updateBranding("background_color", value)} /></div>
+                <ColorField label={I18n.t("tenants.settings.primary")} value={branding.primary_color} onChange={(value) => updateBranding("primary_color", value)} />
+                <ColorField label={I18n.t("tenants.settings.accent")} value={branding.accent_color} onChange={(value) => updateBranding("accent_color", value)} />
+                <div className="sm:col-span-2"><ColorField label={I18n.t("tenants.settings.background")} value={branding.background_color} onChange={(value) => updateBranding("background_color", value)} /></div>
               </CardContent>
             </Card>
 
             <Card className="border-border bg-card">
-              <CardHeader><CardTitle className="flex items-center gap-2"><Type className="h-5 w-5 text-chart-4" /> Tipografía</CardTitle></CardHeader>
+              <CardHeader><CardTitle className="flex items-center gap-2"><Type className="h-5 w-5 text-chart-4" /> {I18n.t("tenants.settings.typography")}</CardTitle></CardHeader>
               <CardContent>
                 <Select value={branding.heading_font} onValueChange={(value) => updateBranding("heading_font", value as HeadingFont)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{Object.entries(fontLabels).map(([key, label]) => <SelectItem key={key} value={key}>{label}</SelectItem>)}</SelectContent></Select>
               </CardContent>
@@ -266,7 +267,7 @@ export default function TenantSettings() {
 
           <div className="space-y-5 xl:sticky xl:top-5 xl:self-start">
             <Card className="border-border bg-card">
-              <CardHeader><CardTitle>Plantilla</CardTitle><CardDescription>Elige la dirección visual del storefront.</CardDescription></CardHeader>
+              <CardHeader><CardTitle>{I18n.t("tenants.settings.template")}</CardTitle><CardDescription>{I18n.t("tenants.settings.template_description")}</CardDescription></CardHeader>
               <CardContent className="grid gap-3 sm:grid-cols-3">
                 {templates.map((template) => (
                   <button key={template.key} type="button" onClick={() => updateBranding("template", template.key)} className={cn("relative rounded-xl border p-4 text-left transition", branding.template === template.key ? "border-primary/50 bg-primary/10" : "border-border bg-muted/30 hover:border-border")}>
@@ -280,8 +281,8 @@ export default function TenantSettings() {
             <BrandPreview tenant={{ ...tenant, name }} branding={branding} logoPreview={logoPreview} />
 
             <div className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-card/90 p-4 shadow-xl backdrop-blur">
-              <div><p className="text-sm font-medium">{saved ? "Cambios guardados" : "Configuración del tenant"}</p><p className="mt-1 text-xs text-foreground0">La vista previa se actualiza antes de publicar.</p></div>
-              <Button type="submit" disabled={saving || !tenant.can_manage_settings} className="bg-primary text-primary-foreground hover:bg-primary/90">{saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />} Guardar</Button>
+              <div><p className="text-sm font-medium">{saved ? I18n.t("tenants.settings.saved") : I18n.t("tenants.settings.configuration")}</p><p className="mt-1 text-xs text-foreground0">{I18n.t("tenants.settings.preview_help")}</p></div>
+              <Button type="submit" disabled={saving || !tenant.can_manage_settings} className="bg-primary text-primary-foreground hover:bg-primary/90">{saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />} {I18n.t("tenants.common.save")}</Button>
             </div>
           </div>
         </form>

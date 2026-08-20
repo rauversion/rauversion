@@ -54,6 +54,9 @@ es:
   more: Más
   save: Guardar
   back: "Volver"
+  cancel: "Cancelar"
+  yes: "Sí"
+  no: "No"
   view_all: "Ver todo"
   view: Ver
   add_to_cart: "Agregar al carrito"
@@ -97,7 +100,10 @@ es:
     language: Idioma
     dark_mode: Modo oscuro
     light_mode: Modo claro
-    service_bookings: "Bookings"
+    service_bookings: "Reservas"
+    service_booking_proposals: "Propuestas de shows"
+    messages: Mensajes
+    newsletter: Newsletter
 
 
     my_label: Mi sello
@@ -159,6 +165,7 @@ es:
         title: "Lanzamientos"
         description: "Los lanzamientos musicales recientes."     
     store:
+      title: Marketplace Rau
       descr: Recibe feedback o tutorías directas de expertos en música electrónica en un par de clics.
       music:
         title: "Música"
@@ -166,12 +173,18 @@ es:
       services:
         title: "Advisors"
         description: "Agenda clases, asesorías y otros servicios de aprendizaje creativo."
+      performers:
+        title: "Performers"
+        description: "Agenda DJs, lives, hosts y artistas listos para shows."
       merch:
         title: "Merch"
         description: "Pilla ropa, objetos y merch edición limitada."
       gear:
         title: "Equipos Musicales"
         description: "Encuentra equipos, instrumentos y usados únicos."
+      accessories:
+        title: "Accesorios"
+        description: "Encuentra cables, cases, stands y complementos útiles."
       
   notifications:
     title: Notificaciones
@@ -2516,10 +2529,331 @@ es:
   invitations:
     left: Te quedan %{count} invitaciones
 
+  service_booking_proposals:
+    messages:
+      success: "Listo"
+      error: "Error"
+      updated: "Propuesta actualizada"
+      update_error: "No se pudo actualizar la propuesta"
+    index:
+      title: "Propuestas de shows"
+      subtitle: "Negocia, acepta y cierra bookings para performances."
+      empty: "Aún no tienes propuestas de shows."
+      open: "Ver propuesta"
+      view_bookings: "Ver bookings"
+      count_label: "Propuestas"
+      date_pending: "Fecha pendiente"
+      location_pending: "Ubicación pendiente"
+    viewer:
+      artist: "Vista DJ"
+      booker: "Vista booker"
+    status:
+      pending_artist_response: "Esperando respuesta del DJ"
+      countered_by_artist: "Contrapropuesta del DJ"
+      countered_by_booker: "Contrapropuesta del booker"
+      accepted: "Aceptada"
+      rejected: "Rechazada"
+      cancelled: "Cancelada"
+      expired: "Expirada"
+    history:
+      created: "Propuesta enviada"
+      countered: "Contrapropuesta"
+      accepted: "Aceptada"
+      rejected: "Rechazada"
+      cancelled: "Cancelada"
+      auto_cancelled: "Cancelada automáticamente"
+    actions:
+      accept: "Aceptar y cerrar acuerdo"
+      reject: "Rechazar"
+      cancel: "Cancelar propuesta"
+      counter: "Enviar contrapropuesta"
+      view_booking: "Ver booking"
+      view_contract: "Ver contrato"
+    labels:
+      amount: "Tarifa"
+      deposit: "Adelanto"
+      balance: "Saldo"
+      fee_type: "Tipo de tarifa"
+      artist_fee: "Comisión del artista"
+      artist_payout: "Pago neto al artista"
+      booker: "Booker"
+      artist: "DJ / performer"
+      conversation: "Conversación"
+      with_artist: "con %{artist}"
+      created_on: "Creada el %{date}"
+      counters: "Contrapropuestas"
+    fee_type_labels:
+      landed: "Tarifa cerrada"
+      landed_hospitalities: "Tarifa cerrada + rider"
+      no_landed_add_ons: "Fee artístico + extras"
+    fee_types:
+      landed:
+        title: "Tarifa cerrada"
+        description: "Fee artístico con traslado local incluido."
+      landed_hospitalities:
+        title: "Tarifa cerrada + rider"
+        description: "Incluye traslado, alojamiento o beneficios backstage."
+      no_landed_add_ons:
+        title: "Fee artístico + extras"
+        description: "Solo honorarios; extras los cubre el booker."
+    form:
+      trigger: "Enviar propuesta de show"
+      title: "Propuesta para contratar DJ"
+      description: "Define condiciones claras para %{artist}: fecha, fee, adelanto, beneficios y rider."
+      submit: "Enviar propuesta"
+      submit_error: "No se pudo enviar la propuesta"
+      event_name: "Nombre del evento"
+      event_date: "Fecha"
+      start_time: "Hora de inicio"
+      end_time: "Hora de término"
+      venue_name: "Venue"
+      venue_address: "Dirección"
+      city: "Ciudad"
+      country: "País"
+      fee_type: "Tipo de tarifa"
+      amount: "Tarifa propuesta"
+      currency: "Moneda"
+      deposit_percentage: "Adelanto (%)"
+      payment_preview: "Vista de pago"
+      deposit_amount: "Adelanto"
+      balance_amount: "Saldo"
+      artist_fee: "Comisión DJ"
+      artist_payout: "Neto DJ"
+      transport_included: "Transporte incluido"
+      accommodation_included: "Alojamiento incluido"
+      hospitality_included: "Hospitality incluido"
+      catering_included: "Catering backstage"
+      transport_requested: "Transporte a coordinar"
+      accommodation_requested: "Alojamiento a coordinar"
+      hospitality_requested: "Hospitality a coordinar"
+      catering_requested: "Catering backstage a coordinar"
+      guest_list_count: "Guest list"
+      landed_terms_title: "Condiciones cerradas"
+      landed_terms_description: "Esta tarifa incluye el fee artístico y el traslado local. No se agregan extras ni rider en esta propuesta."
+      landed_hospitalities_terms_title: "Rider incluido"
+      landed_hospitalities_terms_description: "Marca solo las condiciones que quedan incluidas dentro de la tarifa cerrada."
+      no_landed_add_ons_terms_title: "Extras a coordinar"
+      no_landed_add_ons_terms_description: "Marca los extras que el booker cubrirá aparte del fee artístico."
+      transport_locked_included: "El traslado local queda incluido por el tipo de tarifa seleccionado."
+      landed_hospitalities_guest_list_help: "Entradas o cupos que quedan incluidos como parte del rider."
+      no_landed_add_ons_guest_list_help: "Entradas o cupos que el booker debe coordinar fuera del fee artístico."
+      benefits: "Beneficios y condiciones"
+      technical_notes: "Rider técnico / notas"
+      message: "Mensaje"
+    show:
+      current_offer: "Oferta actual"
+      current_offer_by: "Propuesta por %{name}"
+      counter_title: "Contrapropuesta"
+      counter_description: "Cada parte puede contraofertar una vez para mantener la negociación rápida."
+      history: "Historial de negociación"
+      parties: "Partes"
+      actions: "Acciones"
+      no_actions: "No hay acciones disponibles para tu rol en este estado."
+      contract: "Contrato digital"
+      contract_preview: "Previsualización de las condiciones actuales. Todavía no está firmado."
+      contract_preview_description: "Previsualiza el acuerdo que se generará si esta propuesta es aceptada."
+      contract_signed: "Contrato generado y firmado automáticamente al aceptar la propuesta."
+    contract_sections:
+      event: "Evento"
+      venue: "Venue"
+      parties: "Partes"
+      financials: "Condiciones financieras"
+      terms: "Condiciones del acuerdo"
+      signature: "Firma"
+      proposal: "Propuesta"
+      booking: "Booking"
+      accepted_at: "Aceptado el"
+      statement: "Declaración"
+      booker_username: "Usuario booker"
+      artist_username: "Usuario artista"
+
+  service_booking_proposal_mailer:
+    proposal_created:
+      subject: "Nueva propuesta de show para %{event} de %{booker}"
+      greeting: "Hola %{recipient},"
+      intro: "%{booker} te envió una nueva propuesta de show para %{event}."
+      proposal_details: "Detalles de la propuesta"
+      service: "Servicio"
+      date: "Fecha"
+      venue: "Venue"
+      amount: "Tarifa propuesta"
+      deposit: "Adelanto"
+      balance: "Saldo"
+      message: "Mensaje"
+      view_proposal: "Ver propuesta"
+      action_required: "Revisa la propuesta para aceptar, rechazar o enviar una contrapropuesta."
+    counterproposal_received:
+      subject: "Contrapropuesta para %{event} de %{actor}"
+      greeting: "Hola %{recipient},"
+      intro: "%{actor} envió una contrapropuesta para %{event}."
+      proposal_details: "Condiciones actualizadas"
+      service: "Servicio"
+      date: "Fecha"
+      venue: "Venue"
+      amount: "Tarifa propuesta"
+      deposit: "Adelanto"
+      balance: "Saldo"
+      message: "Mensaje"
+      view_proposal: "Ver propuesta"
+      action_required: "Revisa la contrapropuesta para aceptar, rechazar o continuar la negociación."
+    proposal_accepted:
+      subject: "%{actor} aceptó la propuesta de show para %{event}"
+      greeting: "Hola %{recipient},"
+      intro: "%{actor} aceptó la propuesta para %{event}. El contrato quedó firmado y se creó el booking."
+      agreement_details: "Detalles del acuerdo"
+      service: "Servicio"
+      date: "Fecha"
+      venue: "Venue"
+      amount: "Tarifa acordada"
+      deposit: "Adelanto"
+      balance: "Saldo"
+      booking: "Booking"
+      view_booking: "Ver booking"
+      view_proposal: "Ver propuesta"
+      action_required: "Revisa el booking para continuar con el pago y la coordinación del show."
+    proposal_rejected:
+      subject: "%{actor} rechazó la propuesta de show para %{event}"
+      greeting: "Hola %{recipient},"
+      intro: "%{actor} rechazó la propuesta para %{event}."
+      proposal_details: "Detalles de la propuesta"
+      service: "Servicio"
+      date: "Fecha"
+      venue: "Venue"
+      amount: "Tarifa propuesta"
+      view_proposal: "Ver propuesta"
+      action_required: "Esta propuesta quedó cerrada. Puedes iniciar una nueva propuesta si las condiciones deben cambiar."
+    proposal_cancelled:
+      subject: "%{actor} canceló la propuesta de show para %{event}"
+      greeting: "Hola %{recipient},"
+      intro: "%{actor} canceló la propuesta para %{event}."
+      proposal_details: "Detalles de la propuesta"
+      service: "Servicio"
+      date: "Fecha"
+      venue: "Venue"
+      amount: "Tarifa propuesta"
+      view_proposal: "Ver propuesta"
+      action_required: "Esta propuesta quedó cerrada. No se creó un booking desde ella."
+
   service_bookings:
+    messages:
+      success: "Listo"
+      error: "Error"
+    labels:
+      provider: "Proveedor"
+      customer: "Cliente"
+      scheduled_for: "Agendado para"
+      at: "a las"
+      view_conversation: "Ver conversación"
+      created_on: "Creado el %{date}"
+      conversations: "Conversaciones"
+      schedule_details: "Detalles de agenda"
+      location: "Ubicación"
+      cancellation_details: "Detalles de cancelación"
+      cancelled_by: "Cancelado por"
+      reason: "Motivo"
+    payment:
+      title: "Pago"
+      status: "Estado"
+      refund: "Reembolso"
+      total: "Total"
+      deposit: "Adelanto"
+      balance: "Saldo"
+      deposit_status: "Estado del adelanto"
+      balance_status: "Estado del saldo"
+      artist_fee: "Comisión del artista"
+      artist_payout: "Pago neto al artista"
+      provider: "Proveedor"
+      payment_intent: "Payment intent"
+    payment_statuses:
+      unpaid: "Pendiente"
+      pending: "Pendiente"
+      checkout_created: "Checkout creado"
+      reported: "Reportado"
+      confirmed: "Confirmado"
+      paid: "Pagado"
+      partially_refunded: "Reembolsado parcial"
+      refunded: "Reembolsado"
+      failed: "Fallido"
+    refund_statuses:
+      not_requested: "No solicitado"
+      requested: "Solicitado"
+      processing: "Procesando"
+      refunded: "Reembolsado"
+      failed: "Fallido"
+    contract:
+      title: "Contrato"
+      status: "Estado"
+      signed_at: "Firmado el"
+      proposal: "Propuesta"
+    contract_status:
+      not_generated: "No generado"
+      auto_signed: "Firmado automáticamente"
+      voided: "Anulado"
+    status_pills:
+      booking:
+        pending_confirmation: "Reserva por confirmar"
+        confirmed: "Reserva confirmada"
+        scheduled: "Reserva agendada"
+        in_progress: "Reserva en curso"
+        completed: "Reserva completada"
+        cancelled: "Reserva cancelada"
+        refunded: "Reserva reembolsada"
+      payment:
+        unpaid: "Pago pendiente"
+        pending: "Pago pendiente"
+        checkout_created: "Pago listo para checkout"
+        reported: "Pago reportado"
+        confirmed: "Pago confirmado"
+        paid: "Pago pagado"
+        partially_refunded: "Pago reembolsado parcial"
+        refunded: "Pago reembolsado"
+        failed: "Pago fallido"
+      refund:
+        not_requested: "Reembolso no solicitado"
+        requested: "Reembolso solicitado"
+        processing: "Reembolso procesando"
+        refunded: "Reembolso completado"
+        failed: "Reembolso fallido"
+      contract:
+        not_generated: "Contrato no generado"
+        auto_signed: "Contrato firmado"
+        voided: "Contrato anulado"
+    ledger:
+      title: "Ledger de pagos"
+      description: "Historial auditable y append-only de adelantos, saldos, reembolsos y cálculo de payout."
+      entry_types:
+        booking_created: "Booking creado"
+        checkout_created: "Checkout creado"
+        payment_reported: "Pago reportado"
+        payment_confirmed: "Pago confirmado"
+        refund_processing: "Reembolso en proceso"
+        refund_completed: "Reembolso completado"
+        refund_failed: "Reembolso fallido"
+        payout_calculated: "Payout calculado"
+      milestones:
+        booking: "Booking"
+        deposit: "Adelanto"
+        balance: "Saldo"
+        refund: "Reembolso"
+        payout: "Payout"
+    payment_tracking:
+      success: "Estado de pago actualizado"
+      error: "No se pudo actualizar el pago"
+      stripe_error: "No se pudo crear el checkout de Stripe"
+      invalid_status: "Este hito de pago no se puede actualizar todavía"
+      pay_deposit_with_stripe: "Pagar adelanto con Stripe"
+      mark_deposit_paid: "Marcar adelanto realizado"
+      confirm_deposit: "Confirmar adelanto"
+      pay_balance_with_stripe: "Pagar saldo con Stripe"
+      mark_balance_paid: "Marcar saldo realizado"
+      confirm_balance: "Confirmar saldo"
+      stripe_line_item:
+        deposit: "Adelanto de %{title}"
+        balance: "Saldo de %{title}"
     index:
       title: "Reservas de Servicios"
       subtitle: "Gestiona tus reservas y citas de servicios"
+      load_error: "No se pudieron cargar las reservas"
       all: "Todas las Reservas"
       as_customer: "Mis Reservas"
       as_provider: "Vista de Proveedor"
@@ -2557,30 +2891,65 @@ es:
       provider_notes_help: "Estas notas serán visibles para el cliente"
       schedule_button: "Programar Servicio"
       cancel_button: "Cancelar"
+      errors:
+        date_required: "La fecha es obligatoria"
+        time_required: "La hora es obligatoria"
+        timezone_required: "La zona horaria es obligatoria"
 
     feedback_form:
       add_feedback: "Agrega tu Opinión"
       rating: "Califica tu experiencia"
+      rating_placeholder: "Selecciona una calificación"
       feedback: "Tu opinión"
       feedback_placeholder: "Cuéntanos sobre tu experiencia..."
       submit: "Enviar Opinión"
+      stars:
+        one: "%{count} estrella"
+        other: "%{count} estrellas"
+      errors:
+        rating_required: "La calificación es obligatoria"
+        feedback_required: "El feedback es obligatorio"
+        feedback_too_long: "El feedback debe tener menos de 1000 caracteres"
     update:
       feedback_submitted: "¡Gracias por tu opinión!"
+      feedback_error: "No se pudo enviar el feedback"
     confirm:
       success: "La reserva ha sido confirmada exitosamente"
       invalid_status: "Esta reserva no puede ser confirmada"
+      error: "No se pudo confirmar la reserva"
 
     schedule:
       success: "El servicio ha sido programado exitosamente"
       invalid_status: "Esta reserva no puede ser programada"
+      error: "No se pudo programar el servicio"
 
     complete:
       success: "El servicio ha sido marcado como completado"
       invalid_status: "Este servicio no puede ser marcado como completado aún"
+      error: "No se pudo completar el servicio"
 
     cancel:
       success: "La reserva ha sido cancelada"
       invalid_status: "Esta reserva no puede ser cancelada"
+      error: "No se pudo cancelar la reserva"
+      reason_prompt: "Indica el motivo de cancelación"
+      dialog_title: "Cancelar reserva"
+      dialog_description: "Esta acción cerrará el booking y notificará a las partes involucradas."
+      reason_label: "Motivo de cancelación"
+      reason_placeholder: "Ej: cambio de fecha del evento, problemas de disponibilidad, acuerdo cancelado..."
+      reason_help: "Este motivo quedará visible en el historial de la reserva."
+      keep_booking: "Mantener reserva"
+      confirm_button: "Confirmar cancelación"
+      completed_title: "Reserva cancelada"
+      completed_description: "La reserva quedó cancelada y se enviaron correos de notificación a las partes."
+      close_button: "Entendido"
+
+    refund:
+      success: "El reembolso de la reserva ha sido procesado"
+      invalid_status: "Esta reserva no puede ser reembolsada"
+      error: "No se pudo procesar el reembolso"
+      confirm: "¿Procesar un reembolso para esta reserva?"
+      button: "Reembolsar reserva"
 
     status:
       pending_confirmation: "Pendiente de Confirmación"
@@ -2597,6 +2966,8 @@ es:
     show:
       title: "Detalles de la Reserva"
       provider_section: "Acciones del Proveedor"
+      actions: "Acciones"
+      no_actions: "No hay acciones disponibles para esta reserva."
       confirm_button: "Confirmar Reserva"
       schedule_button: "Programar Servicio"
       complete_button: "Marcar como Completado"
@@ -2671,14 +3042,48 @@ es:
     booking_cancelled_notification:
 
       subject: "Reserva de %{service} cancelada por %{cancelled_by}"
-      greeting: "¡Hola!"
-      cancellation_message: "La reserva ha sido cancelada."
+      greeting: "¡Hola %{recipient}!"
+      cancellation_message: "%{cancelled_by} canceló la reserva de %{service}."
+      booking_details: "Detalles de la reserva"
+      service: "Servicio"
+      provider: "Proveedor"
+      customer: "Cliente"
+      date: "Fecha"
+      reason: "Motivo"
       refund_info: "Si has realizado algún pago, será reembolsado en 5-7 días hábiles."
+      view_booking_button: "Ver reserva"
+    provider_confirmation_reminder:
+      subject: "Tienes una reserva pendiente de confirmar para %{service}"
+      greeting: "¡Hola %{provider}!"
+      intro: "%{customer} está esperando tu confirmación para %{service}."
+      booking_details: "Detalles de la reserva"
+      service: "Servicio"
+      customer: "Cliente"
+      view_booking_button: "Revisar reserva"
+    deposit_payment_reminder:
+      subject: "Adelanto pendiente para %{service}: %{amount}"
+      greeting: "¡Hola %{customer}!"
+      intro: "El adelanto de %{amount} para %{service} sigue pendiente."
+      service: "Servicio"
+      deposit: "Adelanto"
+      artist: "Artista"
+      pay_button: "Pagar adelanto"
+    balance_payment_reminder:
+      subject: "Saldo pendiente para %{service}: %{amount}"
+      greeting: "¡Hola %{customer}!"
+      intro: "El saldo de %{amount} para %{service} sigue pendiente."
+      service: "Servicio"
+      balance: "Saldo"
+      scheduled_for: "Agendado para"
+      pay_button: "Pagar saldo"
 
     reminder_notification:
       subject: "Recordatorio: %{service} programado para %{time}"
-      greeting: "¡Hola!"
-      reminder_message: "Este es un recordatorio amistoso sobre tu próximo servicio."
+      greeting: "¡Hola %{recipient}!"
+      reminder_message: "Recordatorio: %{service} se realizará pronto."
+      service: "Servicio"
+      scheduled_for: "Agendado para"
+      location: "Ubicación"
       view_details_button: "Ver Detalles"
 
   store:
@@ -2694,6 +3099,42 @@ es:
       services_description: "Servicios profesionales y educación musical"
       accessories: "Accesorios"
       services: "Servicios"
+    filters:
+      open_menu: "Abrir filtros"
+      no_products: "No se encontraron productos en esta categoría"
+      gear:
+        title: "Equipos"
+        subcategories:
+          all: "Todos los equipos"
+          audio_gear: "Audio"
+          dj_gear: "Equipos DJ"
+          instrument: "Instrumentos"
+          synth: "Sintetizadores"
+          keyboard: "Teclados"
+          controller: "Controladores"
+          console: "Consolas"
+          effect: "Efectos"
+      services:
+        title: "Servicios"
+        subcategories:
+          all: "Todos los servicios"
+      performers:
+        title: "Performers"
+        subcategories:
+          all: "Todos los performers"
+      music:
+        title: "Música"
+        subcategories:
+          all: "Toda la música"
+      accessories:
+        title: "Accesorios"
+        subcategories:
+          all: "Todos los accesorios"
+      merch:
+        title: "Merch"
+        subcategories:
+          all: "Todo el merch"
+          merch: "General"
 
   music:
     index:
@@ -2775,15 +3216,131 @@ es:
       delivery_methods:
         online: "Reunión Virtual"
         in_person: "Presencial"
+        hybrid: "Híbrido"
+      service_kinds:
+        advisory:
+          label: "Asesoría"
+          description: "Mentoría, coaching, feedback y guía creativa."
+        education:
+          label: "Educación"
+          description: "Clases, cursos, workshops y sesiones grupales."
+        performance:
+          label: "Performance"
+          description: "DJ sets, lives, hosts y shows reservables."
+        studio_service:
+          label: "Servicio de Estudio"
+          description: "Mezcla, mastering, producción y grabación."
+      booking_modes:
+        instant_checkout: "Pago inmediato"
+        request_quote: "Solicitar cotización"
+        deposit_then_balance: "Depósito + saldo"
+      categories:
+        coaching: "Coaching"
+        feedback: "Feedback"
+        event_consulting: "Consultoría de eventos"
+        classes: "Clases"
+        one_on_one_class: "Clase 1:1"
+        workshop: "Workshop"
+        dj_set: "DJ set"
+        live_act: "Live act"
+        hybrid_live: "Live híbrido"
+        vocalist: "Vocalista"
+        host_mc: "Host / MC"
+        mastering: "Mastering"
+        mixing: "Mezcla"
+        production: "Producción"
+        recording: "Grabación"
+        songwriting: "Composición"
+        sound_design: "Diseño sonoro"
+        voice_over: "Voice over"
+        other: "Otro"
+      price_rule_types:
+        base: "Base"
+        extra_hour: "Hora extra"
+        travel: "Traslado"
+        rider: "Rider"
+        deposit: "Depósito"
+        custom: "Custom"
+      form:
+        service_type: "Tipo de servicio"
+        booking_mode: "Modo de reserva"
+        select_booking_mode: "Selecciona modo de reserva"
+        title: "Título"
+        category: "Categoría"
+        select_category: "Selecciona una categoría"
+        delivery_method: "Modalidad"
+        select_delivery_method: "Selecciona modalidad"
+        duration: "Duración"
+        description: "Descripción"
+        max_participants: "Máximo de participantes"
+        details: "Detalles"
+        prerequisites: "Requisitos"
+        what_to_expect: "Qué esperar"
+        cancellation_policy: "Política de cancelación"
+        post_purchase_instructions: "Instrucciones post compra"
+        show_details:
+          title: "Detalles del show"
+          performance_format: "Formato de performance"
+          performance_format_placeholder: "DJ set, live act, híbrido..."
+          available_countries: "Países disponibles"
+          available_countries_placeholder: "CL, AR, MX..."
+          home_city: "Ciudad base"
+          home_country: "País base"
+          technical_rider: "Rider técnico"
+          technical_rider_placeholder: "CDJs, mixer, monitores, necesidades de escenario..."
+          hospitality_rider: "Rider de hospitalidad"
+          hospitality_rider_placeholder: "Viaje, alojamiento, comidas o notas de camarín..."
+        price_rules:
+          title: "Criterios de precio"
+          description: "Publica las reglas de precio que la persona debe entender antes de reservar."
+          add: "Agregar regla"
+          remove: "Eliminar regla"
+          rule: "Regla %{number}"
+          base_price: "Precio base"
+          name: "Nombre"
+          name_placeholder: "DJ set local, hora extra..."
+          type: "Tipo"
+          amount: "Monto"
+          currency: "Moneda"
+          currency_placeholder: "usd"
+          duration_minutes: "Duración en minutos"
+          min_notice_days: "Días mínimos de anticipación"
+          location_scope: "Alcance geográfico"
+          location_scope_placeholder: "Online, Santiago, fuera de ciudad, LATAM..."
+        errors:
+          service_type_required: "El tipo de servicio es obligatorio"
+          title_required: "El título es obligatorio"
+          category_required: "La categoría es obligatoria"
+          booking_mode_required: "El modo de reserva es obligatorio"
+          delivery_method_required: "La modalidad es obligatoria"
+          duration_required: "La duración es obligatoria"
+          duration_min: "La duración debe ser de al menos 15 minutos"
+          max_participants_required: "El máximo de participantes es obligatorio"
+          max_participants_min: "Debe haber al menos 1 participante"
+          rule_name_required: "El nombre de la regla es obligatorio"
+          amount_min: "El monto debe ser mayor o igual a 0"
+          unexpected: "Ocurrió un error inesperado"
       show:
         about: "Acerca de"
         what_you_get: "Lo que Recibes"
         what_to_expect: "Qué Esperar"
         description: "Descripción"
+        prerequisites: "Requisitos"
         cancellation_policy: "Política de Cancelación"
         duration: "Duración"
+        duration_minutes:
+          one: "%{count} minuto"
+          other: "%{count} minutos"
+        duration_hours:
+          one: "%{count} hora"
+          other: "%{count} horas"
+        duration_hours_minutes: "%{hours}h %{minutes}m"
+        max_participants: "Máximo de participantes"
         book_now: "Reservar Ahora"
         details: "Detalles"
+        price_rules:
+          title: "Criterios de precio"
+          description: "Pueden aplicar precios distintos según el show o el alcance del servicio."
 
   artists:
     no_artists: "No se encontraron artistas"
@@ -2953,6 +3510,13 @@ es:
       image_uploaded: Imagen subida y adjuntada
       failed_to_attach: Error al adjuntar foto
       press_photo_alt: Foto de prensa
+      crop_formats:
+        horizontal: Horizontal 4:3
+        wide: Panoramica 16:9
+        vertical: Vertical 4:5
+        story: Historia 9:16
+        square: Cuadrado 1:1
+        free: Recorte libre
     technical_rider:
       title: Rider Técnico
       description: Detalla los requisitos de equipamiento, audio, monitoreo, escenario, energía y montaje para tu presentación.
@@ -3008,6 +3572,7 @@ es:
       intro: Intro
       bio: Biografía
       music: Lanzamientos Recientes
+      booking: Booking
       photos: Fotos de Prensa
       press: Prensa y Reseñas
       contact: Ponte en Contacto
@@ -3023,6 +3588,18 @@ es:
       available_for_bookings: Disponible para Reservas
       stream_on_platforms: Escucha en plataformas
       featured_in: Destacado en
+    booking:
+      title: Proponer un Show
+      description: Elige el formato de show que calza con tu evento y abre el servicio para solicitar una reserva o iniciar una propuesta negociada.
+      available_services:
+        one: "%{count} show reservable"
+        other: "%{count} shows reservables"
+      format: Formato
+      base: Base
+      price_notes: Notas de precio
+      price_rules: Criterios de precio
+      cta_hint: Los detalles del evento, adelanto, saldo, rider y condiciones del acuerdo continúan en el flujo de booking.
+      request_booking: Solicitar booking
     empty_state:
       title: Aún no hay Kit de Prensa
       description: Este artista aún no ha creado un kit de prensa. Cuando esté listo, encontrarás su biografía, lanzamientos, fotos y detalles de contacto aquí.

@@ -42,7 +42,7 @@
       <div class="mt-4 lg:row-span-3 lg:mt-0">
         <h2 class="sr-only">Product information</h2>
         <p class="text-3xl tracking-tight text-default">
-          <%= number_to_currency(@product.price) %>
+          <%= formatted_product_price(@product.price, @product.currency) %>
         </p>
 
         <!-- Reviews -->

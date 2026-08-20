@@ -2,13 +2,18 @@ json.array! @cart_items do |item|
   json.id item.id
   json.quantity item.quantity
   json.price item.price
+  json.currency item.product.currency
+  json.formatted_price formatted_product_price(item.price, item.product.currency)
   json.total_price item.total_price
+  json.formatted_total_price formatted_product_price(item.total_price, item.product.currency)
   
   json.product do
     json.id item.product.id
     json.title item.product.title
     json.description item.product.description
     json.price item.product.price
+    json.currency item.product.currency
+    json.formatted_price formatted_product_price(item.product.price, item.product.currency)
     json.slug item.product.slug
     
     json.user do

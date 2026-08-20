@@ -23,10 +23,13 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Loader2 } from "lucide-react"
+import I18n from "@/stores/locales"
 
 const formSchema = z.object({
-  rating: z.string().min(1, "Rating is required"),
-  feedback: z.string().min(1, "Feedback is required").max(1000, "Feedback must be less than 1000 characters"),
+  rating: z.string().min(1, I18n.t("service_bookings.feedback_form.errors.rating_required")),
+  feedback: z.string()
+    .min(1, I18n.t("service_bookings.feedback_form.errors.feedback_required"))
+    .max(1000, I18n.t("service_bookings.feedback_form.errors.feedback_too_long")),
 })
 
 type FormValues = z.infer<typeof formSchema>
@@ -56,16 +59,16 @@ export function FeedbackForm({ bookingId, onSuccess }: Props) {
     },
     onSuccess: () => {
       toast({
-        title: "Success",
-        description: "Feedback submitted successfully",
+        title: I18n.t("service_bookings.messages.success"),
+        description: I18n.t("service_bookings.update.feedback_submitted"),
       })
       onSuccess()
     },
     onError: () => {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to submit feedback",
+        title: I18n.t("service_bookings.messages.error"),
+        description: I18n.t("service_bookings.update.feedback_error"),
       })
     },
   })
@@ -82,17 +85,17 @@ export function FeedbackForm({ bookingId, onSuccess }: Props) {
           name="rating"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Rating</FormLabel>
+              <FormLabel>{I18n.t("service_bookings.feedback_form.rating")}</FormLabel>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
                   <SelectTrigger>
-                    <SelectValue placeholder="Select a rating" />
+                    <SelectValue placeholder={I18n.t("service_bookings.feedback_form.rating_placeholder")} />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
                   {[1, 2, 3, 4, 5].map((rating) => (
                     <SelectItem key={rating} value={rating.toString()}>
-                      {rating} Star{rating !== 1 ? "s" : ""}
+                      {I18n.t("service_bookings.feedback_form.stars", { count: rating })}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -107,10 +110,10 @@ export function FeedbackForm({ bookingId, onSuccess }: Props) {
           name="feedback"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Feedback</FormLabel>
+              <FormLabel>{I18n.t("service_bookings.feedback_form.feedback")}</FormLabel>
               <FormControl>
                 <Textarea
-                  placeholder="Share your experience with this service..."
+                  placeholder={I18n.t("service_bookings.feedback_form.feedback_placeholder")}
                   className="min-h-[100px]"
                   {...field}
                 />
@@ -128,7 +131,7 @@ export function FeedbackForm({ bookingId, onSuccess }: Props) {
           {feedbackMutation.isPending && (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           )}
-          Submit Feedback
+          {I18n.t("service_bookings.feedback_form.submit")}
         </Button>
       </form>
     </Form>

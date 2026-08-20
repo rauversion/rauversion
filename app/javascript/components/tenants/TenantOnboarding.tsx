@@ -1,4 +1,5 @@
 import React from "react"
+import I18n from "@/stores/locales"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { get, post } from "@rails/request.js"
 import {
@@ -37,13 +38,13 @@ import { Separator } from "@/components/ui/separator"
 import { cn } from "@/lib/utils"
 
 const tenantSchema = z.object({
-  name: z.string().trim().min(2, "Ingresa al menos 2 caracteres").max(80, "Máximo 80 caracteres"),
+  name: z.string().trim().min(2, I18n.t("tenants.onboarding.validation.name_min")).max(80, I18n.t("tenants.onboarding.validation.name_max")),
   slug: z
     .string()
     .trim()
-    .min(3, "Usa al menos 3 caracteres")
-    .max(63, "Máximo 63 caracteres")
-    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Usa minúsculas, números y guiones"),
+    .min(3, I18n.t("tenants.onboarding.validation.slug_min"))
+    .max(63, I18n.t("tenants.onboarding.validation.slug_max"))
+    .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, I18n.t("tenants.onboarding.validation.slug_format")),
 })
 
 type TenantForm = z.infer<typeof tenantSchema>
@@ -58,13 +59,13 @@ type CreatedTenant = {
 }
 
 const availabilityCopy: Record<Availability, string> = {
-  idle: "Elige la dirección de tu espacio",
-  checking: "Comprobando disponibilidad…",
-  available: "Disponible",
-  taken: "Ese nombre ya está en uso",
-  reserved: "Ese nombre está reservado por Rauversion",
-  invalid: "Revisa el formato del subdominio",
-  error: "No pudimos validar ahora; inténtalo nuevamente",
+  idle: I18n.t("tenants.onboarding.availability.idle"),
+  checking: I18n.t("tenants.onboarding.availability.checking"),
+  available: I18n.t("tenants.onboarding.availability.available"),
+  taken: I18n.t("tenants.onboarding.availability.taken"),
+  reserved: I18n.t("tenants.onboarding.availability.reserved"),
+  invalid: I18n.t("tenants.onboarding.availability.invalid"),
+  error: I18n.t("tenants.onboarding.availability.error"),
 }
 
 function slugify(value: string) {
@@ -89,7 +90,7 @@ function CopyValue({ value }: { value: string }) {
   return (
     <div className="flex items-center gap-2 rounded-xl border border-border/70 bg-muted/40 p-2 pl-3">
       <code className="min-w-0 flex-1 truncate text-xs text-foreground sm:text-sm">{value}</code>
-      <Button type="button" variant="ghost" size="icon" onClick={copy} aria-label="Copiar valor">
+      <Button type="button" variant="ghost" size="icon" onClick={copy} aria-label={I18n.t("tenants.onboarding.copy_value")}>
         {copied ? <Check className="h-4 w-4 text-primary" /> : <Clipboard className="h-4 w-4" />}
       </Button>
     </div>
@@ -105,7 +106,7 @@ function SuccessView({ tenant }: { tenant: CreatedTenant }) {
             <Check className="h-6 w-6" />
           </div>
           <div>
-            <p className="text-sm text-muted-foreground">Espacio creado</p>
+            <p className="text-sm text-muted-foreground">{I18n.t("tenants.onboarding.created")}</p>
             <h1 className="text-2xl font-semibold tracking-tight">{tenant.name}</h1>
           </div>
         </div>
@@ -121,34 +122,34 @@ function SuccessView({ tenant }: { tenant: CreatedTenant }) {
               <Globe2 className="h-5 w-5 text-primary" />
               Tu dirección Rauversion
             </CardTitle>
-            <CardDescription>Esta será la entrada canónica mientras conectas tu dominio.</CardDescription>
+            <CardDescription>{I18n.t("tenants.onboarding.canonical_description")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-5 p-6">
             <CopyValue value={tenant.url} />
             <Alert className="border-chart-4/20 bg-chart-4/10">
               <CircleDashed className="h-4 w-4 text-chart-4" />
-              <AlertTitle>Tenant listo para recibir contenido</AlertTitle>
+              <AlertTitle>{I18n.t("tenants.onboarding.ready_title")}</AlertTitle>
               <AlertDescription className="text-muted-foreground">
                 El backend ya resuelve el contexto por host y mantiene el contenido del espacio aislado. En producción todavía debes configurar el DNS wildcard.
               </AlertDescription>
             </Alert>
             <Button asChild className="w-full bg-primary text-primary-foreground hover:bg-primary/90">
-              <a href="/">Volver a Rauversion <ArrowRight className="ml-2 h-4 w-4" /></a>
+              <a href="/">{I18n.t("tenants.onboarding.back_to_rauversion")} <ArrowRight className="ml-2 h-4 w-4" /></a>
             </Button>
           </CardContent>
         </Card>
 
         <Card className="border-border/70 bg-card/70">
           <CardHeader>
-            <CardTitle className="text-lg">Conectar un dominio propio</CardTitle>
-            <CardDescription>Guía anticipada; todavía no debes cambiar tu DNS.</CardDescription>
+            <CardTitle className="text-lg">{I18n.t("tenants.onboarding.custom_domain_title")}</CardTitle>
+            <CardDescription>{I18n.t("tenants.onboarding.custom_domain_description")}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-5">
             <div className="space-y-4 text-sm">
               {[
-                ["1", "Verificar propiedad", "Publicaremos un registro TXT único para tu dominio."],
-                ["2", "Apuntar el tráfico", "Configurarás un CNAME hacia domains.rauversion.com."],
-                ["3", "Activar HTTPS", "Rauversion solicitará y renovará el certificado automáticamente."],
+                ["1", I18n.t("tenants.onboarding.domain_steps.verify_title"), I18n.t("tenants.onboarding.domain_steps.verify_description")],
+                ["2", I18n.t("tenants.onboarding.domain_steps.traffic_title"), I18n.t("tenants.onboarding.domain_steps.traffic_description")],
+                ["3", I18n.t("tenants.onboarding.domain_steps.https_title"), I18n.t("tenants.onboarding.domain_steps.https_description")],
               ].map(([number, title, description]) => (
                 <div key={number} className="flex gap-3">
                   <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-border bg-muted text-xs font-semibold">{number}</span>
@@ -225,7 +226,7 @@ export default function TenantOnboarding() {
     setServerError(null)
 
     if (availability !== "available") {
-      form.setError("slug", { message: "Elige un subdominio disponible" })
+      form.setError("slug", { message: I18n.t("tenants.onboarding.choose_available_slug") })
       return
     }
 
@@ -246,9 +247,9 @@ export default function TenantOnboarding() {
           form.setError(field, { message: (messages as string[]).join(", ") })
         }
       })
-      setServerError("No pudimos crear el espacio. Revisa los datos e inténtalo nuevamente.")
+      setServerError(I18n.t("tenants.onboarding.create_error"))
     } catch (_error) {
-      setServerError("No pudimos comunicarnos con Rauversion. Inténtalo nuevamente.")
+      setServerError(I18n.t("tenants.onboarding.connection_error"))
     }
   }
 
@@ -277,9 +278,9 @@ export default function TenantOnboarding() {
           </div>
           <div className="grid gap-3 sm:grid-cols-3 lg:grid-cols-1">
             {[
-              [LockKeyhole, "Datos aislados", "Tu catálogo no aparece en el tenant central."],
-              [Users2, "Roles por equipo", "Serás owner y podrás sumar artistas después."],
-              [Music2, "Listo para crecer", "Álbumes, tracks y ventas vivirán en este espacio."],
+              [LockKeyhole, I18n.t("tenants.onboarding.features.isolated_title"), I18n.t("tenants.onboarding.features.isolated_description")],
+              [Users2, I18n.t("tenants.onboarding.features.roles_title"), I18n.t("tenants.onboarding.features.roles_description")],
+              [Music2, I18n.t("tenants.onboarding.features.growth_title"), I18n.t("tenants.onboarding.features.growth_description")],
             ].map(([Icon, title, description]) => {
               const FeatureIcon = Icon as React.ElementType
               return (
@@ -299,10 +300,10 @@ export default function TenantOnboarding() {
           <CardHeader className="space-y-5 border-b border-border">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <CardTitle className="text-2xl tracking-tight">Crear un tenant</CardTitle>
-                <CardDescription className="mt-1.5 text-muted-foreground">Primero define su identidad y dirección interna.</CardDescription>
+                <CardTitle className="text-2xl tracking-tight">{I18n.t("tenants.onboarding.create_title")}</CardTitle>
+                <CardDescription className="mt-1.5 text-muted-foreground">{I18n.t("tenants.onboarding.create_description")}</CardDescription>
               </div>
-              <span className="text-xs font-medium text-foreground0">Paso 1 de 2</span>
+              <span className="text-xs font-medium text-foreground0">{I18n.t("tenants.onboarding.step")}</span>
             </div>
             <Progress value={progress} className="h-1.5 bg-muted [&>div]:bg-primary" />
           </CardHeader>
@@ -315,11 +316,11 @@ export default function TenantOnboarding() {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-foreground">Nombre del espacio</FormLabel>
+                      <FormLabel className="text-foreground">{I18n.t("tenants.onboarding.name_label")}</FormLabel>
                       <FormControl>
-                        <Input {...field} autoFocus placeholder="Ej. Sello Cordillera" className="h-12 border-border bg-muted/40 text-base placeholder:text-muted-foreground/60" />
+                        <Input {...field} autoFocus placeholder={I18n.t("tenants.onboarding.name_placeholder")} className="h-12 border-border bg-muted/40 text-base placeholder:text-muted-foreground/60" />
                       </FormControl>
-                      <FormDescription className="text-foreground0">Puedes cambiar el nombre visible más adelante.</FormDescription>
+                      <FormDescription className="text-foreground0">{I18n.t("tenants.onboarding.name_help")}</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -330,7 +331,7 @@ export default function TenantOnboarding() {
                   name="slug"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="text-foreground">Subdominio Rauversion</FormLabel>
+                      <FormLabel className="text-foreground">{I18n.t("tenants.onboarding.subdomain_label")}</FormLabel>
                       <FormControl>
                         <div className="flex h-12 overflow-hidden rounded-md border border-border bg-muted/40 focus-within:ring-2 focus-within:ring-ring/50">
                           <Input
@@ -359,10 +360,11 @@ export default function TenantOnboarding() {
 
                 <Alert className="border-chart-2/20 bg-chart-2/10 text-foreground/80">
                   <ShieldCheck className="h-4 w-4 text-chart-2" />
-                  <AlertTitle>Qué ocurrirá al continuar</AlertTitle>
-                  <AlertDescription className="text-foreground0">
-                    Crearemos el tenant y una membresía <strong className="text-foreground/80">owner</strong> para tu cuenta. El nuevo espacio comenzará con un catálogo vacío.
-                  </AlertDescription>
+                  <AlertTitle>{I18n.t("tenants.onboarding.continue_title")}</AlertTitle>
+                  <AlertDescription
+                    className="text-foreground0"
+                    dangerouslySetInnerHTML={{ __html: I18n.t("tenants.onboarding.continue_description_html") }}
+                  />
                 </Alert>
 
                 {serverError && <p role="alert" className="text-sm text-destructive">{serverError}</p>}

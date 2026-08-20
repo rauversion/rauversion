@@ -96,6 +96,7 @@ import AlbumsIndex from "./albums/Index"
 import StoreIndex from "./store/Index"
 import ProductNew from "./products/New"
 import ProductEdit from "./products/Edit"
+import StripeSellerSetupDialog from "./products/shared/StripeSellerSetupDialog"
 import GearForm from "./products/gear/Form"
 import MusicForm from "./products/music/Form"
 import MerchForm from "./products/merch/Form"
@@ -103,6 +104,8 @@ import AccessoryForm from "./products/accessory/Form"
 import ServiceForm from "./products/service/Form"
 import { ServiceBookings } from "./ServiceBookings"
 import { ServiceBookingDetail } from "./ServiceBookings/ServiceBookingDetail"
+import { ServiceBookingProposals } from "./ServiceBookingProposals"
+import { ServiceBookingProposalDetail } from "./ServiceBookingProposals/ServiceBookingProposalDetail"
 import NewTrack from "./tracks/NewTrack"
 import CategoryView from "./store/CategoryView"
 import { InterestAlertDemo } from "./shared/alerts"
@@ -131,6 +134,7 @@ import { cn } from "@/lib/utils"
 import AdminLayout from "./admin/AdminLayout"
 import AdminDashboardPage from "./admin/AdminDashboardPage"
 import AdminEventSalesPage from "./admin/AdminEventSalesPage"
+import AdminBookingsPage from "./admin/AdminBookingsPage"
 import AdminListeningPage from "./admin/AdminListeningPage"
 import AdminResourceListPage from "./admin/AdminResourceListPage"
 import AdminResourceFormPage from "./admin/AdminResourceFormPage"
@@ -204,6 +208,29 @@ function RequireAdmin({ children }) {
 
   if (!currentUser) {
     return <Navigate to="/users/sign_in" state={{ from: location }} replace />
+  }
+
+  return children
+}
+
+function RequireProductSellerSetup({ children }) {
+  const { currentUser, loading: currentUserLoading } = useAuthStore()
+  const location = useLocation()
+
+  if (currentUserLoading) {
+    return <LoadingSpinner />
+  }
+
+  if (!currentUser) {
+    return <Navigate to="/users/sign_in" state={{ from: location }} replace />
+  }
+
+  if (!currentUser.can_sell_products) {
+    return <Navigate to={`/${currentUser.username}/products/new`} replace />
+  }
+
+  if (!currentUser.can_create_products) {
+    return <StripeSellerSetupDialog backPath={`/${currentUser.username}/products`} />
   }
 
   return children
@@ -328,6 +355,7 @@ function AppContent() {
         <Route path="commerce" element={<AdminDashboardPage />} />
         <Route path="listening" element={<AdminListeningPage />} />
         <Route path="event-sales" element={<AdminEventSalesPage />} />
+        <Route path="bookings" element={<AdminBookingsPage />} />
         <Route path="pages" element={<PagesTable />} />
         <Route path="pages/:id/edit" element={<PagesEditor />} />
         <Route path=":resourceKey" element={<AdminResourceListPage />} />
@@ -429,11 +457,11 @@ function AppContent() {
       <Route path="/store/:type" element={<CategoryView />} />
       <Route path="/demo/alerts" element={<InterestAlertDemo />} />
       <Route path="/:username/products/new" element={<RequireAuth><ProductNew /></RequireAuth>} />
-      <Route path="/:username/products/gear/new" element={<RequireAuth><GearForm /></RequireAuth>} />
-      <Route path="/:username/products/music/new" element={<RequireAuth><MusicForm /></RequireAuth>} />
-      <Route path="/:username/products/merch/new" element={<RequireAuth><MerchForm /></RequireAuth>} />
-      <Route path="/:username/products/accessory/new" element={<RequireAuth><AccessoryForm /></RequireAuth>} />
-      <Route path="/:username/products/service/new" element={<RequireAuth><ServiceForm /></RequireAuth>} />
+      <Route path="/:username/products/gear/new" element={<RequireProductSellerSetup><GearForm /></RequireProductSellerSetup>} />
+      <Route path="/:username/products/music/new" element={<RequireProductSellerSetup><MusicForm /></RequireProductSellerSetup>} />
+      <Route path="/:username/products/merch/new" element={<RequireProductSellerSetup><MerchForm /></RequireProductSellerSetup>} />
+      <Route path="/:username/products/accessory/new" element={<RequireProductSellerSetup><AccessoryForm /></RequireProductSellerSetup>} />
+      <Route path="/:username/products/service/new" element={<RequireProductSellerSetup><ServiceForm /></RequireProductSellerSetup>} />
       <Route path="/:username/products/:slug/edit" element={<RequireAuth><ProductEdit /></RequireAuth>} />
       <Route path="/:username/podcasts" element={<PodcastLayout />}>
         <Route index element={<PodcastsIndex />} />
@@ -468,6 +496,8 @@ function AppContent() {
       <Route path="/library/likes" element={<RequireAuth><LikedTracks /></RequireAuth>} />
       <Route path="/service_bookings" element={<RequireAuth><ServiceBookings /></RequireAuth>} />
       <Route path="/service_bookings/:id" element={<RequireAuth><ServiceBookingDetail /></RequireAuth>} />
+      <Route path="/service_booking_proposals" element={<RequireAuth><ServiceBookingProposals /></RequireAuth>} />
+      <Route path="/service_booking_proposals/:id" element={<RequireAuth><ServiceBookingProposalDetail /></RequireAuth>} />
       <Route path="/account_connections/new" element={<RequireAuth><AccountConnectionForm /></RequireAuth>} />
 
       <Route path="/:username/press-kit" element={<PressKitPage />} />

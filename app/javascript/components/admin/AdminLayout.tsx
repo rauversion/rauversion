@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import {
   Bell,
+  CalendarCheck,
   CalendarDays,
   CreditCard,
   Disc3,
@@ -33,6 +34,7 @@ const icons: Record<string, React.ComponentType<any>> = {
   Newspaper,
   FileText,
   Bell,
+  CalendarCheck,
   Disc3,
   CalendarDays,
   Headphones,

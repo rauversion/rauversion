@@ -28,7 +28,7 @@
 
           <div class="text-right">
             <div class="text-2xl font-bold mb-2">
-              <%= number_to_currency(@product.price) %>
+              <%= formatted_product_price(@product.price, @product.currency) %>
             </div>
             <% if @product.name_your_price? %>
               <div class="text-sm text-gray-500">Name your price enabled</div>
@@ -54,7 +54,7 @@
                   <div class="flex justify-between items-start mb-2">
                     <h4 class="font-medium"><%= variant.name %></h4>
                     <span class="text-primary font-medium">
-                      <%= number_to_currency(variant.price) %>
+                      <%= formatted_product_price(variant.price, @product.currency) %>
                     </span>
                   </div>
                   <p class="text-sm text-gray-500">
@@ -84,7 +84,7 @@
                       <% end %>
                     </div>
                     <span class="text-primary font-medium">
-                      <%= number_to_currency(shipping.price) %>
+                      <%= formatted_product_price(shipping.price, @product.currency) %>
                     </span>
                   </div>
                 </div>

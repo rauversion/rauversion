@@ -5,7 +5,8 @@ json.product do
   json.type @product.type
   json.description @product.description
   json.price @product.price
-  json.formatted_price number_to_currency(@product.price)
+  json.currency @product.currency
+  json.formatted_price formatted_product_price(@product.price, @product.currency)
 
   # Product photos
   json.photos @product.product_images do |photo|

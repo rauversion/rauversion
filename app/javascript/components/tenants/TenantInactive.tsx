@@ -1,4 +1,5 @@
 import React from "react"
+import I18n from "@/stores/locales"
 import { CreditCard, LogIn, Settings2 } from "lucide-react"
 import useAuthStore from "@/stores/authStore"
 import { Button } from "@/components/ui/button"
@@ -28,40 +29,40 @@ export default function TenantInactive() {
             <img
               src={tenant?.logo_url || "/logo.png"}
               className="max-h-12 max-w-32 object-contain"
-              alt={tenant?.name ? `Logo de ${tenant.name}` : "Logo"}
+              alt={tenant?.name ? I18n.t("tenants.inactive.logo_alt", { name: tenant.name }) : I18n.t("tenants.common.logo")}
             />
           </div>
           <div className="min-w-0">
             <p className="text-xs font-semibold uppercase tracking-[0.28em] text-primary">Rauversion</p>
-            <h1 className="mt-1 truncate text-2xl font-semibold">{tenant?.name || "Tenant"}</h1>
+            <h1 className="mt-1 truncate text-2xl font-semibold">{tenant?.name || I18n.t("tenants.common.tenant")}</h1>
           </div>
         </div>
 
         <div className="my-9 h-px bg-gradient-to-r from-primary/50 via-border to-transparent" />
 
-        <p className="text-sm font-medium uppercase tracking-[0.22em] text-foreground0">Espacio temporalmente inactivo</p>
-        <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">Este catálogo no está disponible.</h2>
+        <p className="text-sm font-medium uppercase tracking-[0.22em] text-foreground0">{I18n.t("tenants.inactive.eyebrow")}</p>
+        <h2 className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl">{I18n.t("tenants.inactive.title")}</h2>
         <p className="mt-4 max-w-md leading-7 text-muted-foreground">
-          La publicación de este tenant está pausada. Su contenido volverá a estar disponible cuando el espacio sea reactivado.
+          {I18n.t("tenants.inactive.description")}
         </p>
 
         <div className="mt-9 flex flex-wrap gap-3">
           {canManageBilling ? (
             <>
               <Button asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
-                <a href="/billing"><CreditCard className="mr-2 h-4 w-4" /> Reactivar tenant</a>
+                <a href="/billing"><CreditCard className="mr-2 h-4 w-4" /> {I18n.t("tenants.inactive.reactivate")}</a>
               </Button>
               <Button asChild variant="outline" className="border-border bg-transparent text-foreground hover:bg-muted/50 hover:text-accent-foreground">
-                <a href="/admin"><Settings2 className="mr-2 h-4 w-4" /> Abrir administración</a>
+                <a href="/admin"><Settings2 className="mr-2 h-4 w-4" /> {I18n.t("tenants.inactive.open_admin")}</a>
               </Button>
             </>
           ) : currentUser ? (
             <Button asChild variant="outline" className="border-border bg-transparent text-foreground hover:bg-muted/50 hover:text-accent-foreground">
-              <a href="/tenants">Ver mis tenants</a>
+              <a href="/tenants">{I18n.t("tenants.inactive.view_tenants")}</a>
             </Button>
           ) : (
             <Button asChild variant="outline" className="border-border bg-transparent text-foreground hover:bg-muted/50 hover:text-accent-foreground">
-              <a href="/users/sign_in"><LogIn className="mr-2 h-4 w-4" /> Iniciar sesión</a>
+              <a href="/users/sign_in"><LogIn className="mr-2 h-4 w-4" /> {I18n.t("tenants.inactive.sign_in")}</a>
             </Button>
           )}
         </div>

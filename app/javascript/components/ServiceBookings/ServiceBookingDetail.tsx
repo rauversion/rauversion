@@ -2,29 +2,66 @@ import React from "react"
 import { useParams } from "react-router-dom"
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { get, post, patch } from "@rails/request.js"
-import { useToast } from "@/hooks/use-toast"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { format } from "date-fns"
-import { Loader2 } from "lucide-react"
+import {
+  Banknote,
+  CalendarDays,
+  CheckCircle2,
+  Clock3,
+  CreditCard,
+  FileSignature,
+  Link as LinkIcon,
+  Loader2,
+  MapPin,
+  MessageCircle,
+  ReceiptText,
+  ShieldCheck,
+  Star,
+  UserRound,
+  WalletCards,
+  XCircle,
+} from "lucide-react"
+import { useToast } from "@/hooks/use-toast"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
 import { ScheduleForm } from "./ScheduleForm"
 import { FeedbackForm } from "./FeedbackForm"
-
+import I18n from "@/stores/locales"
 
 interface Conversation {
   id: number
   subject: string
   status: string
   created_at: string
+}
+
+interface LedgerEntry {
+  id: number
+  entry_type: string
+  milestone?: string
+  direction: string
+  amount?: number | string
+  currency: string
+  status?: string
+  gateway?: string
+  occurred_at: string
+  actor?: {
+    id: number
+    name: string
+  }
 }
 
 interface ServiceBooking {
@@ -34,6 +71,9 @@ interface ServiceBooking {
   service_product: {
     id: number
     title: string
+    service_kind?: string
+    category?: string
+    booking_mode?: string
     delivery_method: string
     description: string
     price: number
@@ -60,6 +100,48 @@ interface ServiceBooking {
   }
   rating?: number
   feedback?: string
+  payment?: {
+    status: string
+    refund_status: string
+    currency: string
+    subtotal_amount?: number
+    total_amount?: number
+    deposit_amount?: number
+    balance_due_amount?: number
+    checkout_provider?: string
+    payment_intent_id?: string
+    payment_session_id?: string
+    refund_id?: string
+    refunded_at?: string
+    deposit_status?: string
+    balance_status?: string
+    deposit_paid_at?: string
+    deposit_confirmed_at?: string
+    balance_paid_at?: string
+    balance_confirmed_at?: string
+    deposit_checkout_session_id?: string
+    deposit_payment_intent_id?: string
+    balance_checkout_session_id?: string
+    balance_payment_intent_id?: string
+    platform_fee_rate?: number
+    platform_fee_amount?: number
+    artist_payout_amount?: number
+    tracking_notes?: string
+  }
+  contract?: {
+    status: string
+    signed_at?: string
+    agreement_snapshot?: Record<string, any>
+    proposal_id?: number
+  }
+  venue?: {
+    starts_at?: string
+    ends_at?: string
+    name?: string
+    address?: string
+    city?: string
+    country?: string
+  }
   cancelled_by?: {
     id: number
     name: string
@@ -69,35 +151,425 @@ interface ServiceBooking {
     can_schedule: boolean
     can_complete: boolean
     can_cancel: boolean
+    can_refund: boolean
+    can_pay_deposit_with_stripe: boolean
+    can_pay_balance_with_stripe: boolean
     can_give_feedback: boolean
   }
   conversations: Conversation[]
+  ledger_entries?: LedgerEntry[]
 }
 
-const statusColors = {
-  pending_confirmation: "bg-yellow-100 text-yellow-800",
-  confirmed: "bg-blue-100 text-blue-800",
-  scheduled: "bg-purple-100 text-purple-800",
-  in_progress: "bg-indigo-100 text-indigo-800",
-  completed: "bg-green-100 text-green-800",
-  cancelled: "bg-red-100 text-red-800",
-  refunded: "bg-muted text-foreground",
+type Tone = "neutral" | "primary" | "accent" | "secondary" | "success" | "destructive"
+
+const toneClasses: Record<Tone, { pill: string; panel: string; dot: string; accent: string }> = {
+  neutral: {
+    pill: "border-border bg-muted text-muted-foreground",
+    panel: "border-border bg-muted/40",
+    dot: "bg-muted-foreground",
+    accent: "text-muted-foreground",
+  },
+  primary: {
+    pill: "border-chart-1/30 bg-chart-1/10 text-foreground",
+    panel: "border-chart-1/20 bg-chart-1/10",
+    dot: "bg-chart-1",
+    accent: "text-chart-1",
+  },
+  accent: {
+    pill: "border-chart-3/30 bg-chart-3/10 text-foreground",
+    panel: "border-chart-3/20 bg-chart-3/10",
+    dot: "bg-chart-3",
+    accent: "text-chart-3",
+  },
+  secondary: {
+    pill: "border-chart-4/30 bg-chart-4/10 text-foreground",
+    panel: "border-chart-4/20 bg-chart-4/10",
+    dot: "bg-chart-4",
+    accent: "text-chart-4",
+  },
+  success: {
+    pill: "border-chart-2/30 bg-chart-2/10 text-foreground",
+    panel: "border-chart-2/20 bg-chart-2/10",
+    dot: "bg-chart-2",
+    accent: "text-chart-2",
+  },
+  destructive: {
+    pill: "border-destructive/30 bg-destructive/10 text-destructive",
+    panel: "border-destructive/20 bg-destructive/10",
+    dot: "bg-destructive",
+    accent: "text-destructive",
+  },
 }
 
-const statusLabels = {
-  pending_confirmation: "Pending Confirmation",
-  confirmed: "Confirmed",
-  scheduled: "Scheduled",
-  in_progress: "In Progress",
-  completed: "Completed",
-  cancelled: "Cancelled",
-  refunded: "Refunded",
+const bookingStatusTone: Record<string, Tone> = {
+  pending_confirmation: "primary",
+  confirmed: "primary",
+  scheduled: "secondary",
+  in_progress: "accent",
+  completed: "success",
+  cancelled: "destructive",
+  refunded: "neutral",
+}
+
+const paymentStatusTone: Record<string, Tone> = {
+  unpaid: "neutral",
+  pending: "primary",
+  checkout_created: "accent",
+  reported: "primary",
+  confirmed: "success",
+  paid: "success",
+  partially_refunded: "secondary",
+  refunded: "neutral",
+  failed: "destructive",
+}
+
+const refundStatusTone: Record<string, Tone> = {
+  not_requested: "neutral",
+  requested: "primary",
+  processing: "accent",
+  refunded: "success",
+  failed: "destructive",
+}
+
+const contractStatusTone: Record<string, Tone> = {
+  not_generated: "neutral",
+  auto_signed: "success",
+  voided: "destructive",
+}
+
+const ledgerEntryTone: Record<string, Tone> = {
+  booking_created: "neutral",
+  checkout_created: "accent",
+  payment_reported: "primary",
+  payment_confirmed: "success",
+  refund_processing: "secondary",
+  refund_completed: "destructive",
+  refund_failed: "destructive",
+  payout_calculated: "secondary",
+}
+
+const humanize = (value?: string) =>
+  (value || "")
+    .split("_")
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ")
+
+const translated = (scope: string, value?: string) =>
+  value ? I18n.t(`${scope}.${value}`, { defaultValue: humanize(value) }) : ""
+
+const contextualStatusLabel = (context: string, fallbackScope: string, value?: string) =>
+  value
+    ? I18n.t(`service_bookings.status_pills.${context}.${value}`, {
+        defaultValue: translated(fallbackScope, value),
+      })
+    : ""
+
+const formatDate = (value?: string, pattern = "PPP") => {
+  if (!value) return null
+
+  try {
+    const date = /^\d{4}-\d{2}-\d{2}$/.test(value) ? new Date(`${value}T00:00:00`) : new Date(value)
+    return format(date, pattern)
+  } catch (_error) {
+    return value
+  }
+}
+
+const formatMoney = (amount?: number | string, currency = "usd") => {
+  if (amount === null || amount === undefined) return null
+
+  const currencyCode = String(currency || "usd").toUpperCase()
+  const numericAmount = Number(amount)
+
+  if (Number.isNaN(numericAmount)) {
+    return `${amount} ${currencyCode}`
+  }
+
+  return numericAmount.toLocaleString(undefined, {
+    style: "currency",
+    currency: currencyCode,
+    currencyDisplay: "code",
+    maximumFractionDigits: currencyCode === "CLP" ? 0 : 2,
+  })
+}
+
+function StatusPill({
+  label,
+  tone = "neutral",
+  icon: Icon,
+}: {
+  label: string
+  tone?: Tone
+  icon?: React.ComponentType<{ className?: string }>
+}) {
+  return (
+    <span className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold ${toneClasses[tone].pill}`}>
+      {Icon && <Icon className="h-3.5 w-3.5" />}
+      {label}
+    </span>
+  )
+}
+
+function MetricTile({
+  label,
+  value,
+  tone = "neutral",
+  icon: Icon,
+}: {
+  label: string
+  value?: string | null
+  tone?: Tone
+  icon: React.ComponentType<{ className?: string }>
+}) {
+  return (
+    <div className={`rounded-lg border p-4 ${toneClasses[tone].panel}`}>
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <span className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</span>
+        <Icon className={`h-4 w-4 ${toneClasses[tone].accent}`} />
+      </div>
+      <div className="text-xl font-semibold text-foreground">{value || "-"}</div>
+    </div>
+  )
+}
+
+function PersonCard({
+  title,
+  person,
+  tone,
+}: {
+  title: string
+  person: { name: string; avatar_url: string }
+  tone: Tone
+}) {
+  return (
+    <div className={`rounded-lg border p-4 ${toneClasses[tone].panel}`}>
+      <div className="mb-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">{title}</div>
+      <div className="flex items-center gap-3">
+        <Avatar className="h-11 w-11 border border-background">
+          <AvatarImage src={person.avatar_url} />
+          <AvatarFallback>{person.name?.[0]}</AvatarFallback>
+        </Avatar>
+        <div className="min-w-0">
+          <div className="truncate font-semibold text-foreground">{person.name}</div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function DetailRow({
+  label,
+  value,
+  href,
+}: {
+  label: string
+  value?: React.ReactNode
+  href?: string
+}) {
+  if (!value) return null
+
+  return (
+    <div className="flex items-start justify-between gap-4 border-b border-border/60 py-3 last:border-0">
+      <span className="text-sm text-muted-foreground">{label}</span>
+      {href ? (
+        <a className="max-w-[65%] break-all text-right text-sm font-medium text-primary underline-offset-4 hover:underline" href={href} target="_blank" rel="noreferrer">
+          {value}
+        </a>
+      ) : (
+        <span className="max-w-[65%] break-words text-right text-sm font-medium text-foreground">{value}</span>
+      )}
+    </div>
+  )
+}
+
+function ContractRow({
+  label,
+  value,
+}: {
+  label: string
+  value?: React.ReactNode
+}) {
+  if (value === null || value === undefined || value === "") return null
+
+  return (
+    <div className="flex items-start justify-between gap-4 border-b border-border/60 py-2 last:border-0">
+      <span className="text-sm text-muted-foreground">{label}</span>
+      <span className="max-w-[65%] break-words text-right text-sm font-medium text-foreground">{value}</span>
+    </div>
+  )
+}
+
+function ContractSection({
+  title,
+  children,
+}: {
+  title: string
+  children: React.ReactNode
+}) {
+  return (
+    <section className="rounded-lg border border-border bg-background/70 p-4">
+      <h3 className="mb-3 text-sm font-semibold text-foreground">{title}</h3>
+      <div>{children}</div>
+    </section>
+  )
+}
+
+function AgreementContractDialog({
+  snapshot,
+}: {
+  snapshot?: Record<string, any>
+}) {
+  if (!snapshot) return null
+
+  const financials = snapshot.financials || {}
+  const terms = snapshot.terms || {}
+  const venue = snapshot.venue || {}
+  const parties = snapshot.parties || {}
+  const contractCurrency = financials.currency || "usd"
+  const yesNo = (value?: boolean) => I18n.t(value ? "yes" : "no")
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline" className="mt-4 w-full">
+          <FileSignature className="mr-2 h-4 w-4" />
+          {I18n.t("service_booking_proposals.actions.view_contract")}
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-h-[90vh] max-w-4xl overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle>{I18n.t("service_bookings.contract.title")}</DialogTitle>
+          <DialogDescription>{I18n.t("service_booking_proposals.show.contract_signed")}</DialogDescription>
+        </DialogHeader>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <ContractSection title={I18n.t("service_booking_proposals.contract_sections.event")}>
+            <ContractRow label={I18n.t("service_booking_proposals.form.event_name")} value={snapshot.event_name} />
+            <ContractRow label={I18n.t("service_booking_proposals.form.event_date")} value={formatDate(snapshot.event_date)} />
+            <ContractRow label={I18n.t("service_booking_proposals.form.start_time")} value={formatDate(snapshot.starts_at, "PPp")} />
+            <ContractRow label={I18n.t("service_booking_proposals.form.end_time")} value={formatDate(snapshot.ends_at, "PPp")} />
+            <ContractRow label={I18n.t("service_booking_proposals.contract_sections.proposal")} value={snapshot.proposal_id ? `#${snapshot.proposal_id}` : null} />
+            <ContractRow label={I18n.t("service_booking_proposals.contract_sections.booking")} value={snapshot.service_booking_id ? `#${snapshot.service_booking_id}` : null} />
+          </ContractSection>
+
+          <ContractSection title={I18n.t("service_booking_proposals.contract_sections.venue")}>
+            <ContractRow label={I18n.t("service_booking_proposals.form.venue_name")} value={venue.name} />
+            <ContractRow label={I18n.t("service_booking_proposals.form.venue_address")} value={venue.address} />
+            <ContractRow label={I18n.t("service_booking_proposals.form.city")} value={venue.city} />
+            <ContractRow label={I18n.t("service_booking_proposals.form.country")} value={venue.country} />
+          </ContractSection>
+
+          <ContractSection title={I18n.t("service_booking_proposals.contract_sections.parties")}>
+            <ContractRow label={I18n.t("service_booking_proposals.labels.booker")} value={parties.booker?.name} />
+            <ContractRow label={I18n.t("service_booking_proposals.contract_sections.booker_username")} value={parties.booker?.username} />
+            <ContractRow label={I18n.t("service_booking_proposals.labels.artist")} value={parties.artist?.name} />
+            <ContractRow label={I18n.t("service_booking_proposals.contract_sections.artist_username")} value={parties.artist?.username} />
+          </ContractSection>
+
+          <ContractSection title={I18n.t("service_booking_proposals.contract_sections.financials")}>
+            <ContractRow label={I18n.t("service_booking_proposals.form.currency")} value={String(contractCurrency).toUpperCase()} />
+            <ContractRow label={I18n.t("service_booking_proposals.labels.amount")} value={formatMoney(financials.proposed_amount, contractCurrency)} />
+            <ContractRow label={I18n.t("service_booking_proposals.labels.deposit")} value={`${financials.deposit_percentage || 0}% · ${formatMoney(financials.deposit_amount, contractCurrency)}`} />
+            <ContractRow label={I18n.t("service_booking_proposals.labels.balance")} value={formatMoney(financials.balance_amount, contractCurrency)} />
+            <ContractRow label={I18n.t("service_booking_proposals.labels.artist_fee")} value={formatMoney(financials.platform_fee_amount, contractCurrency)} />
+            <ContractRow label={I18n.t("service_booking_proposals.labels.artist_payout")} value={formatMoney(financials.artist_payout_amount, contractCurrency)} />
+          </ContractSection>
+
+          <ContractSection title={I18n.t("service_booking_proposals.contract_sections.terms")}>
+            <ContractRow label={I18n.t("service_booking_proposals.labels.fee_type")} value={translated("service_booking_proposals.fee_type_labels", terms.fee_type)} />
+            <ContractRow label={I18n.t("service_booking_proposals.form.transport_included")} value={yesNo(terms.transport_included)} />
+            <ContractRow label={I18n.t("service_booking_proposals.form.accommodation_included")} value={yesNo(terms.accommodation_included)} />
+            <ContractRow label={I18n.t("service_booking_proposals.form.hospitality_included")} value={yesNo(terms.hospitality_included)} />
+            <ContractRow label={I18n.t("service_booking_proposals.form.catering_included")} value={yesNo(terms.catering_included)} />
+            <ContractRow label={I18n.t("service_booking_proposals.form.guest_list_count")} value={terms.guest_list_count} />
+          </ContractSection>
+
+          <ContractSection title={I18n.t("service_booking_proposals.contract_sections.signature")}>
+            <ContractRow label={I18n.t("service_booking_proposals.contract_sections.accepted_at")} value={formatDate(snapshot.accepted_at, "PPp")} />
+            <ContractRow label={I18n.t("service_booking_proposals.contract_sections.statement")} value={snapshot.digital_signature_statement} />
+          </ContractSection>
+        </div>
+
+        {(terms.benefits || terms.technical_notes || terms.message) && (
+          <div className="grid gap-4">
+            {terms.benefits && (
+              <ContractSection title={I18n.t("service_booking_proposals.form.benefits")}>
+                <p className="whitespace-pre-wrap text-sm text-foreground">{terms.benefits}</p>
+              </ContractSection>
+            )}
+            {terms.technical_notes && (
+              <ContractSection title={I18n.t("service_booking_proposals.form.technical_notes")}>
+                <p className="whitespace-pre-wrap text-sm text-foreground">{terms.technical_notes}</p>
+              </ContractSection>
+            )}
+            {terms.message && (
+              <ContractSection title={I18n.t("service_booking_proposals.form.message")}>
+                <p className="whitespace-pre-wrap text-sm text-foreground">{terms.message}</p>
+              </ContractSection>
+            )}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
+  )
+}
+
+function MilestoneCard({
+  title,
+  amount,
+  status,
+  paidAt,
+  confirmedAt,
+  sessionId,
+  action,
+  tone,
+}: {
+  title: string
+  amount?: string | null
+  status?: string
+  paidAt?: string
+  confirmedAt?: string
+  sessionId?: string
+  action?: React.ReactNode
+  tone: Tone
+}) {
+  return (
+    <div className={`rounded-xl border p-4 ${toneClasses[tone].panel}`}>
+      <div className="mb-4 flex items-start justify-between gap-3">
+        <div>
+          <div className="text-sm font-semibold text-foreground">{title}</div>
+          <div className="mt-1 text-2xl font-semibold text-foreground">{amount || "-"}</div>
+        </div>
+        <StatusPill
+          label={translated("service_bookings.payment_statuses", status)}
+          tone={tone}
+        />
+      </div>
+      <div className="space-y-2 text-xs text-muted-foreground">
+        <div className="flex items-center gap-2">
+          <span className={`h-2 w-2 rounded-full ${toneClasses[tone].dot}`} />
+          <span>{confirmedAt ? formatDate(confirmedAt, "PPp") : paidAt ? formatDate(paidAt, "PPp") : translated("service_bookings.payment_statuses", status)}</span>
+        </div>
+        {sessionId && (
+          <div className="flex items-center gap-2">
+            <ReceiptText className="h-3.5 w-3.5" />
+            <span className="truncate font-mono">{sessionId}</span>
+          </div>
+        )}
+      </div>
+      {action && <div className="mt-4">{action}</div>}
+    </div>
+  )
 }
 
 export function ServiceBookingDetail() {
   const { id } = useParams()
   const { toast } = useToast()
   const queryClient = useQueryClient()
+  const [cancelDialogOpen, setCancelDialogOpen] = React.useState(false)
+  const [cancelReason, setCancelReason] = React.useState("")
+  const [cancelCompleted, setCancelCompleted] = React.useState(false)
 
   const { data: booking, isLoading } = useQuery<{ service_booking: ServiceBooking }>({
     queryKey: ["service_booking", id],
@@ -118,15 +590,15 @@ export function ServiceBookingDetail() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["service_booking", id] })
       toast({
-        title: "Success",
-        description: "Booking confirmed successfully",
+        title: I18n.t("service_bookings.messages.success"),
+        description: I18n.t("service_bookings.confirm.success"),
       })
     },
     onError: () => {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to confirm booking",
+        title: I18n.t("service_bookings.messages.error"),
+        description: I18n.t("service_bookings.confirm.error"),
       })
     },
   })
@@ -140,15 +612,15 @@ export function ServiceBookingDetail() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["service_booking", id] })
       toast({
-        title: "Success",
-        description: "Service marked as completed",
+        title: I18n.t("service_bookings.messages.success"),
+        description: I18n.t("service_bookings.complete.success"),
       })
     },
     onError: () => {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to complete service",
+        title: I18n.t("service_bookings.messages.error"),
+        description: I18n.t("service_bookings.complete.error"),
       })
     },
   })
@@ -161,24 +633,88 @@ export function ServiceBookingDetail() {
       })
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["service_booking", id] })
+      setCancelCompleted(true)
       toast({
-        title: "Success",
-        description: "Booking cancelled successfully",
+        title: I18n.t("service_bookings.messages.success"),
+        description: I18n.t("service_bookings.cancel.success"),
       })
     },
     onError: () => {
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to cancel booking",
+        title: I18n.t("service_bookings.messages.error"),
+        description: I18n.t("service_bookings.cancel.error"),
+      })
+    },
+  })
+
+  const handleCancelDialogOpenChange = (open: boolean) => {
+    setCancelDialogOpen(open)
+
+    if (open) {
+      setCancelCompleted(false)
+      return
+    }
+
+    setCancelReason("")
+
+    if (cancelCompleted) {
+      queryClient.invalidateQueries({ queryKey: ["service_booking", id] })
+      setCancelCompleted(false)
+    }
+  }
+
+  const refundMutation = useMutation({
+    mutationFn: async () => {
+      await patch(`/service_bookings/${id}/refund`, {
+        responseKind: "json",
+      })
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["service_booking", id] })
+      toast({
+        title: I18n.t("service_bookings.messages.success"),
+        description: I18n.t("service_bookings.refund.success"),
+      })
+    },
+    onError: () => {
+      toast({
+        variant: "destructive",
+        title: I18n.t("service_bookings.messages.error"),
+        description: I18n.t("service_bookings.refund.error"),
+      })
+    },
+  })
+
+  const stripeCheckoutMutation = useMutation({
+    mutationFn: async ({ action }: { action: string }) => {
+      const response = await post(`/service_bookings/${id}/${action}`, {
+        responseKind: "json",
+      })
+      const result = await response.json
+      if (!response.ok) throw new Error(result?.error || "checkout failed")
+      return result
+    },
+    onSuccess: (result) => {
+      if (result.checkout_url) {
+        window.location.href = result.checkout_url
+        return
+      }
+
+      queryClient.invalidateQueries({ queryKey: ["service_booking", id] })
+    },
+    onError: () => {
+      toast({
+        variant: "destructive",
+        title: I18n.t("service_bookings.messages.error"),
+        description: I18n.t("service_bookings.payment_tracking.stripe_error"),
       })
     },
   })
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
+      <div className="flex h-64 items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
       </div>
     )
@@ -187,176 +723,428 @@ export function ServiceBookingDetail() {
   if (!booking) return null
 
   const { service_booking } = booking
+  const payment = service_booking.payment
+  const contract = service_booking.contract
+  const bookingTone = bookingStatusTone[service_booking.status] || "neutral"
+  const paymentTone = paymentStatusTone[payment?.status || "unpaid"] || "neutral"
+  const refundTone = refundStatusTone[payment?.refund_status || "not_requested"] || "neutral"
+  const contractTone = contractStatusTone[contract?.status || "not_generated"] || "neutral"
+  const currencyCode = payment?.currency || "usd"
+  const totalAmount = formatMoney(payment?.total_amount, currencyCode)
+  const depositAmount = formatMoney(payment?.deposit_amount, currencyCode)
+  const balanceAmount = formatMoney(payment?.balance_due_amount, currencyCode)
+  const platformFee = formatMoney(payment?.platform_fee_amount, currencyCode)
+  const artistPayout = formatMoney(payment?.artist_payout_amount, currencyCode)
+  const eventDate = service_booking.venue?.starts_at || service_booking.metadata.scheduled_date
+  const eventLocation = [
+    service_booking.venue?.name || service_booking.metadata.meeting_location,
+    service_booking.venue?.city,
+    service_booking.venue?.country,
+  ].filter(Boolean).join(", ")
+  const actionCount = [
+    service_booking.actions.can_confirm,
+    service_booking.actions.can_schedule,
+    service_booking.actions.can_complete,
+    service_booking.actions.can_give_feedback,
+    service_booking.actions.can_cancel,
+    service_booking.actions.can_refund,
+  ].filter(Boolean).length
+
+  const stripeButton = (action: "deposit_checkout" | "balance_checkout", label: string) => (
+    <Button
+      className="w-full"
+      onClick={() => stripeCheckoutMutation.mutate({ action })}
+      disabled={stripeCheckoutMutation.isPending}
+    >
+      {stripeCheckoutMutation.isPending ? (
+        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+      ) : (
+        <CreditCard className="mr-2 h-4 w-4" />
+      )}
+      {label}
+    </Button>
+  )
 
   return (
-    <div className="container mx-auto py-6">
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0">
-          <div>
-            <CardTitle>{service_booking.service_product.title}</CardTitle>
-            <p className="text-sm text-muted-foreground mt-1">
-              Created on {format(new Date(service_booking.created_at), "PPP")}
-            </p>
-          </div>
-          <Badge
-            className={
-              statusColors[service_booking.status as keyof typeof statusColors]
-            }
-          >
-            {statusLabels[service_booking.status as keyof typeof statusLabels]}
-          </Badge>
-        </CardHeader>
-
-        <CardContent>
-          <div className="grid gap-6">
-
-            {service_booking.conversations && service_booking.conversations.length > 0 && (
-              <div>
-                <h3 className="font-medium mb-2">Conversations</h3>
-                <div className="flex flex-col gap-2">
-                  {service_booking.conversations.map((conversation) => (
-                    <a
-                      key={conversation.id}
-                      href={`/conversations/${conversation.id}`}
-                      className="text-xs underline text-blue-600 hover:text-blue-800"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      {conversation.subject || "View Conversation"}
-                    </a>
-                  ))}
-                </div>
+    <div className="container mx-auto max-w-7xl py-6">
+      <div className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+        <div className="border-b border-border bg-muted/40 px-6 py-6 text-foreground">
+          <div className="flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+            <div className="min-w-0">
+              <div className="mb-3 flex flex-wrap items-center gap-2">
+                {service_booking.service_product.service_kind && (
+                  <Badge variant="secondary">
+                    {humanize(service_booking.service_product.service_kind)}
+                  </Badge>
+                )}
+                {service_booking.service_product.category && (
+                  <Badge variant="outline">
+                    {humanize(service_booking.service_product.category)}
+                  </Badge>
+                )}
               </div>
-            )}
-
-            <div className="flex justify-between items-start">
-              <div>
-                <h3 className="font-medium mb-2">Provider</h3>
-                <div className="flex items-center space-x-2">
-                  <Avatar>
-                    <AvatarImage src={service_booking.provider.avatar_url} />
-                    <AvatarFallback>
-                      {service_booking.provider.name[0]}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span>{service_booking.provider.name}</span>
-                </div>
-              </div>
-
-              <div>
-                <h3 className="font-medium mb-2">Customer</h3>
-                <div className="flex items-center space-x-2">
-                  <Avatar>
-                    <AvatarImage src={service_booking.customer.avatar_url} />
-                    <AvatarFallback>
-                      {service_booking.customer.name[0]}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span>{service_booking.customer.name}</span>
-                </div>
-              </div>
+              <h1 className="truncate text-3xl font-semibold tracking-tight">
+                {service_booking.service_product.title}
+              </h1>
+              <p className="mt-2 text-sm text-muted-foreground">
+                {I18n.t("service_bookings.labels.created_on", {
+                  date: formatDate(service_booking.created_at),
+                })}
+              </p>
             </div>
 
-            {service_booking.metadata.scheduled_date && (
-              <div>
-                <h3 className="font-medium mb-2">Schedule Details</h3>
-                <p>
-                  Date:{" "}
-                  {format(
-                    new Date(service_booking.metadata.scheduled_date),
-                    "PPP"
-                  )}
-                </p>
+            <div className="flex flex-wrap gap-2 lg:justify-end">
+              <StatusPill
+                label={contextualStatusLabel("booking", "service_bookings.status", service_booking.status)}
+                tone={bookingTone}
+                icon={ShieldCheck}
+              />
+              {payment && (
+                <StatusPill
+                  label={contextualStatusLabel("payment", "service_bookings.payment_statuses", payment.status)}
+                  tone={paymentTone}
+                  icon={WalletCards}
+                />
+              )}
+              {payment?.refund_status && (
+                <StatusPill
+                  label={contextualStatusLabel("refund", "service_bookings.refund_statuses", payment.refund_status)}
+                  tone={refundTone}
+                  icon={ReceiptText}
+                />
+              )}
+              {contract && contract.status !== "not_generated" && (
+                <StatusPill
+                  label={contextualStatusLabel("contract", "service_bookings.contract_status", contract.status)}
+                  tone={contractTone}
+                  icon={FileSignature}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="grid gap-4 p-6 md:grid-cols-2 xl:grid-cols-4">
+          <MetricTile label={I18n.t("service_bookings.payment.total")} value={totalAmount} tone="success" icon={Banknote} />
+          <MetricTile label={I18n.t("service_bookings.payment.deposit")} value={depositAmount} tone={paymentStatusTone[payment?.deposit_status || "unpaid"] || "neutral"} icon={CreditCard} />
+          <MetricTile label={I18n.t("service_bookings.payment.balance")} value={balanceAmount} tone={paymentStatusTone[payment?.balance_status || "unpaid"] || "neutral"} icon={WalletCards} />
+          <MetricTile label={I18n.t("service_bookings.payment.artist_payout")} value={artistPayout} tone="secondary" icon={ReceiptText} />
+        </div>
+      </div>
+
+      <div className="mt-6 grid gap-6 lg:grid-cols-[1.35fr_0.85fr]">
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CalendarDays className="h-5 w-5" />
+                {I18n.t("service_bookings.labels.schedule_details")}
+              </CardTitle>
+              <CardDescription>{service_booking.service_product.description}</CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-5 md:grid-cols-2">
+              <div className="rounded-lg border border-border bg-background/70 p-4">
+                <div className="mb-3 flex items-center gap-2 text-sm font-semibold">
+                  <Clock3 className="h-4 w-4 text-primary" />
+                  {I18n.t("service_bookings.labels.scheduled_for")}
+                </div>
+                <div className="text-lg font-semibold">
+                  {formatDate(eventDate) || I18n.t("service_bookings.index.not_scheduled")}
+                </div>
                 {service_booking.metadata.scheduled_time && (
-                  <p>Time: {service_booking.metadata.scheduled_time}</p>
+                  <div className="mt-1 text-sm text-muted-foreground">{service_booking.metadata.scheduled_time}</div>
                 )}
                 {service_booking.metadata.timezone && (
-                  <p>Timezone: {service_booking.metadata.timezone}</p>
+                  <div className="mt-1 text-sm text-muted-foreground">{service_booking.metadata.timezone}</div>
+                )}
+              </div>
+
+              <div className="rounded-lg border border-border bg-background/70 p-4">
+                <div className="mb-3 flex items-center gap-2 text-sm font-semibold">
+                  <MapPin className="h-4 w-4 text-primary" />
+                  {I18n.t("service_bookings.labels.location")}
+                </div>
+                <div className="text-lg font-semibold">{eventLocation || "-"}</div>
+                {service_booking.venue?.address && (
+                  <div className="mt-1 text-sm text-muted-foreground">{service_booking.venue.address}</div>
                 )}
                 {service_booking.metadata.meeting_link && (
-                  <p>
-                    Meeting Link:{" "}
-                    <a
-                      href={service_booking.metadata.meeting_link}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:underline"
-                    >
-                      Join Meeting
-                    </a>
-                  </p>
-                )}
-                {service_booking.metadata.meeting_location && (
-                  <p>Location: {service_booking.metadata.meeting_location}</p>
+                  <a
+                    href={service_booking.metadata.meeting_link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 inline-flex items-center gap-1 text-sm font-medium text-primary underline-offset-4 hover:underline"
+                  >
+                    <LinkIcon className="h-3.5 w-3.5" />
+                    {I18n.t("service_bookings.index.online_meeting")}
+                  </a>
                 )}
               </div>
-            )}
+            </CardContent>
+          </Card>
 
-            {service_booking.metadata.special_requirements && (
-              <div>
-                <h3 className="font-medium mb-2">Special Requirements</h3>
-                <p>{service_booking.metadata.special_requirements}</p>
-              </div>
-            )}
+          {payment && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <WalletCards className="h-5 w-5" />
+                  {I18n.t("service_bookings.payment.title")}
+                </CardTitle>
+                <CardDescription>
+                  {payment.checkout_provider ? humanize(payment.checkout_provider) : translated("service_bookings.payment_statuses", payment.status)}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-5">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <MilestoneCard
+                    title={I18n.t("service_bookings.payment.deposit")}
+                    amount={depositAmount}
+                    status={payment.deposit_status}
+                    paidAt={payment.deposit_paid_at}
+                    confirmedAt={payment.deposit_confirmed_at}
+                    sessionId={payment.deposit_checkout_session_id}
+                    tone={paymentStatusTone[payment.deposit_status || "unpaid"] || "neutral"}
+                    action={
+                      service_booking.actions.can_pay_deposit_with_stripe
+                        ? stripeButton("deposit_checkout", I18n.t("service_bookings.payment_tracking.pay_deposit_with_stripe"))
+                        : null
+                    }
+                  />
+                  <MilestoneCard
+                    title={I18n.t("service_bookings.payment.balance")}
+                    amount={balanceAmount}
+                    status={payment.balance_status}
+                    paidAt={payment.balance_paid_at}
+                    confirmedAt={payment.balance_confirmed_at}
+                    sessionId={payment.balance_checkout_session_id}
+                    tone={paymentStatusTone[payment.balance_status || "unpaid"] || "neutral"}
+                    action={
+                      service_booking.actions.can_pay_balance_with_stripe
+                        ? stripeButton("balance_checkout", I18n.t("service_bookings.payment_tracking.pay_balance_with_stripe"))
+                        : null
+                    }
+                  />
+                </div>
 
-            {service_booking.metadata.provider_notes && (
-              <div>
-                <h3 className="font-medium mb-2">Provider Notes</h3>
-                <p>{service_booking.metadata.provider_notes}</p>
-              </div>
-            )}
+                <div className="grid gap-4 md:grid-cols-2">
+                  <div className="rounded-lg border border-border p-4">
+                    <DetailRow label={I18n.t("service_bookings.payment.status")} value={<StatusPill label={translated("service_bookings.payment_statuses", payment.status)} tone={paymentTone} />} />
+                    <DetailRow label={I18n.t("service_bookings.payment.refund")} value={<StatusPill label={translated("service_bookings.refund_statuses", payment.refund_status)} tone={refundTone} />} />
+                    <DetailRow label={I18n.t("service_bookings.payment.artist_fee")} value={platformFee} />
+                    <DetailRow label={I18n.t("service_bookings.payment.artist_payout")} value={artistPayout} />
+                  </div>
+                  <div className="rounded-lg border border-border p-4">
+                    <DetailRow label={I18n.t("service_bookings.payment.provider")} value={payment.checkout_provider ? humanize(payment.checkout_provider) : null} />
+                    <DetailRow label={I18n.t("service_bookings.payment.payment_intent")} value={payment.payment_intent_id} />
+                    <DetailRow label="Session" value={payment.payment_session_id} />
+                    <DetailRow label="Refund ID" value={payment.refund_id} />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
-            {service_booking.cancelled_by && (
-              <div>
-                <h3 className="font-medium mb-2">Cancellation Details</h3>
-                <p>
-                  Cancelled by: {service_booking.cancelled_by.name}
-                  {service_booking.metadata.cancellation_reason && (
-                    <>
-                      <br />
-                      Reason: {service_booking.metadata.cancellation_reason}
-                    </>
-                  )}
-                </p>
-              </div>
-            )}
+          {service_booking.ledger_entries && service_booking.ledger_entries.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ReceiptText className="h-5 w-5" />
+                  {I18n.t("service_bookings.ledger.title")}
+                </CardTitle>
+                <CardDescription>{I18n.t("service_bookings.ledger.description")}</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {service_booking.ledger_entries.map((entry) => {
+                  const tone = ledgerEntryTone[entry.entry_type] || "neutral"
 
-            {service_booking.rating && (
-              <div>
-                <h3 className="font-medium mb-2">Customer Feedback</h3>
-                <p>Rating: {service_booking.rating}/5</p>
-                {service_booking.feedback && <p>{service_booking.feedback}</p>}
-              </div>
-            )}
+                  return (
+                    <div key={entry.id} className={`rounded-lg border p-4 ${toneClasses[tone].panel}`}>
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div className="space-y-2">
+                          <StatusPill
+                            label={translated("service_bookings.ledger.entry_types", entry.entry_type)}
+                            tone={tone}
+                          />
+                          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                            {entry.milestone && (
+                              <span>{translated("service_bookings.ledger.milestones", entry.milestone)}</span>
+                            )}
+                            {entry.gateway && (
+                              <span>{humanize(entry.gateway)}</span>
+                            )}
+                            {entry.actor?.name && (
+                              <span>{entry.actor.name}</span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="font-semibold text-foreground">
+                            {formatMoney(entry.amount, entry.currency) || "-"}
+                          </div>
+                          <div className="mt-1 text-xs text-muted-foreground">
+                            {formatDate(entry.occurred_at, "PPp")}
+                          </div>
+                        </div>
+                      </div>
+                      {entry.status && (
+                        <div className="mt-3 text-xs text-muted-foreground">
+                          {humanize(entry.status)}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
+              </CardContent>
+            </Card>
+          )}
 
-            <div className="flex gap-4 mt-4">
+          {(service_booking.metadata.special_requirements || service_booking.metadata.provider_notes || service_booking.cancelled_by || service_booking.rating) && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <ReceiptText className="h-5 w-5" />
+                  {I18n.t("service_bookings.show.title")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {service_booking.metadata.special_requirements && (
+                  <div className="rounded-lg border border-border p-4">
+                    <div className="mb-1 text-sm font-medium">{I18n.t("service_bookings.show.customer_info.special_requirements")}</div>
+                    <p className="text-sm text-muted-foreground">{service_booking.metadata.special_requirements}</p>
+                  </div>
+                )}
+                {service_booking.metadata.provider_notes && (
+                  <div className="rounded-lg border border-border p-4">
+                    <div className="mb-1 text-sm font-medium">{I18n.t("service_bookings.index.provider_notes")}</div>
+                    <p className="text-sm text-muted-foreground">{service_booking.metadata.provider_notes}</p>
+                  </div>
+                )}
+                {service_booking.cancelled_by && (
+                  <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-4">
+                    <div className="mb-1 flex items-center gap-2 text-sm font-medium text-destructive">
+                      <XCircle className="h-4 w-4" />
+                      {I18n.t("service_bookings.labels.cancellation_details")}
+                    </div>
+                    <p className="text-sm text-destructive">
+                      {I18n.t("service_bookings.labels.cancelled_by")}: {service_booking.cancelled_by.name}
+                      {service_booking.metadata.cancellation_reason && (
+                        <>
+                          <br />
+                          {I18n.t("service_bookings.labels.reason")}: {service_booking.metadata.cancellation_reason}
+                        </>
+                      )}
+                    </p>
+                  </div>
+                )}
+                {service_booking.rating && (
+                  <div className="rounded-lg border border-primary/20 bg-primary/10 p-4">
+                    <div className="mb-1 flex items-center gap-2 text-sm font-medium text-primary">
+                      <Star className="h-4 w-4" />
+                      {I18n.t("service_bookings.feedback_form.feedback")}
+                    </div>
+                    <p className="text-sm text-primary">
+                      {I18n.t("service_bookings.feedback_form.rating")}: {service_booking.rating}/5
+                    </p>
+                    {service_booking.feedback && <p className="mt-2 text-sm text-primary">{service_booking.feedback}</p>}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+        </div>
+
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <UserRound className="h-5 w-5" />
+                {I18n.t("service_booking_proposals.show.parties")}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="grid gap-4">
+              <PersonCard title={I18n.t("service_bookings.labels.provider")} person={service_booking.provider} tone="primary" />
+              <PersonCard title={I18n.t("service_bookings.labels.customer")} person={service_booking.customer} tone="success" />
+            </CardContent>
+          </Card>
+
+          {contract && contract.status !== "not_generated" && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileSignature className="h-5 w-5" />
+                  {I18n.t("service_bookings.contract.title")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <DetailRow label={I18n.t("service_bookings.contract.status")} value={<StatusPill label={translated("service_bookings.contract_status", contract.status)} tone={contractTone} />} />
+                <DetailRow label={I18n.t("service_bookings.contract.signed_at")} value={formatDate(contract.signed_at)} />
+                <DetailRow
+                  label={I18n.t("service_bookings.contract.proposal")}
+                  value={contract.proposal_id ? `#${contract.proposal_id}` : null}
+                  href={contract.proposal_id ? `/service_booking_proposals/${contract.proposal_id}` : undefined}
+                />
+                <AgreementContractDialog snapshot={contract.agreement_snapshot} />
+              </CardContent>
+            </Card>
+          )}
+
+          {service_booking.conversations && service_booking.conversations.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MessageCircle className="h-5 w-5" />
+                  {I18n.t("service_bookings.labels.conversations")}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {service_booking.conversations.map((conversation) => (
+                  <a
+                    key={conversation.id}
+                    href={`/conversations/${conversation.id}`}
+                    className="flex items-center justify-between gap-3 rounded-lg border border-border px-4 py-3 text-sm transition-colors hover:bg-muted"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    <span className="truncate font-medium">{conversation.subject || I18n.t("service_bookings.labels.view_conversation")}</span>
+                    <StatusPill label={humanize(conversation.status)} tone="accent" />
+                  </a>
+                ))}
+              </CardContent>
+            </Card>
+          )}
+
+          <Card>
+            <CardHeader>
+              <CardTitle>{I18n.t("service_bookings.show.actions")}</CardTitle>
+              <CardDescription>
+                {actionCount > 0 ? translated("service_bookings.status", service_booking.status) : I18n.t("service_bookings.show.no_actions")}
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="flex flex-col gap-2">
               {service_booking.actions.can_confirm && (
-                <Button
-                  onClick={() => confirmMutation.mutate()}
-                  disabled={confirmMutation.isPending}
-                >
-                  {confirmMutation.isPending && (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  )}
-                  Confirm Booking
+                <Button onClick={() => confirmMutation.mutate()} disabled={confirmMutation.isPending}>
+                  {confirmMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  <CheckCircle2 className="mr-2 h-4 w-4" />
+                  {I18n.t("service_bookings.show.confirm_button")}
                 </Button>
               )}
 
               {service_booking.actions.can_schedule && (
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button>Schedule Service</Button>
+                    <Button>
+                      <CalendarDays className="mr-2 h-4 w-4" />
+                      {I18n.t("service_bookings.show.schedule_button")}
+                    </Button>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
-                      <DialogTitle>Schedule Service</DialogTitle>
+                      <DialogTitle>{I18n.t("service_bookings.show.schedule_button")}</DialogTitle>
                     </DialogHeader>
                     <ScheduleForm
                       bookingId={service_booking.id}
                       onSuccess={() => {
-                        queryClient.invalidateQueries({
-                          queryKey: ["service_booking", id],
-                        })
+                        queryClient.invalidateQueries({ queryKey: ["service_booking", id] })
                       }}
                     />
                   </DialogContent>
@@ -364,59 +1152,160 @@ export function ServiceBookingDetail() {
               )}
 
               {service_booking.actions.can_complete && (
-                <Button
-                  onClick={() => completeMutation.mutate()}
-                  disabled={completeMutation.isPending}
-                >
-                  {completeMutation.isPending && (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  )}
-                  Mark as Completed
+                <Button onClick={() => completeMutation.mutate()} disabled={completeMutation.isPending}>
+                  {completeMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  <CheckCircle2 className="mr-2 h-4 w-4" />
+                  {I18n.t("service_bookings.show.complete_button")}
                 </Button>
               )}
 
               {service_booking.actions.can_give_feedback && (
                 <Dialog>
                   <DialogTrigger asChild>
-                    <Button>Give Feedback</Button>
+                    <Button>
+                      <Star className="mr-2 h-4 w-4" />
+                      {I18n.t("service_bookings.feedback_form.add_feedback")}
+                    </Button>
                   </DialogTrigger>
                   <DialogContent>
                     <DialogHeader>
-                      <DialogTitle>Service Feedback</DialogTitle>
+                      <DialogTitle>{I18n.t("service_bookings.feedback_form.add_feedback")}</DialogTitle>
                     </DialogHeader>
                     <FeedbackForm
                       bookingId={service_booking.id}
                       onSuccess={() => {
-                        queryClient.invalidateQueries({
-                          queryKey: ["service_booking", id],
-                        })
+                        queryClient.invalidateQueries({ queryKey: ["service_booking", id] })
                       }}
                     />
                   </DialogContent>
                 </Dialog>
               )}
 
-              {service_booking.actions.can_cancel && (
+              {service_booking.actions.can_refund && (
                 <Button
                   variant="destructive"
                   onClick={() => {
-                    const reason = window.prompt("Please provide a reason for cancellation")
-                    if (reason) {
-                      cancelMutation.mutate(reason)
-                    }
+                    const confirmed = window.confirm(I18n.t("service_bookings.refund.confirm"))
+                    if (confirmed) refundMutation.mutate()
                   }}
-                  disabled={cancelMutation.isPending}
+                  disabled={refundMutation.isPending}
                 >
-                  {cancelMutation.isPending && (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  )}
-                  Cancel Booking
+                  {refundMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {I18n.t("service_bookings.refund.button")}
                 </Button>
               )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+
+              {service_booking.actions.can_cancel && (
+                <Dialog
+                  open={cancelDialogOpen}
+                  onOpenChange={handleCancelDialogOpenChange}
+                >
+                  <DialogTrigger asChild>
+                    <Button variant="outline" disabled={cancelMutation.isPending}>
+                      {cancelMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      <XCircle className="mr-2 h-4 w-4" />
+                      {I18n.t("service_bookings.show.cancel_button")}
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-lg">
+                    {cancelCompleted ? (
+                      <div className="space-y-5">
+                        <DialogHeader>
+                          <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full border border-chart-2/20 bg-chart-2/10 text-chart-2">
+                            <CheckCircle2 className="h-5 w-5" />
+                          </div>
+                          <DialogTitle>{I18n.t("service_bookings.cancel.completed_title")}</DialogTitle>
+                          <DialogDescription>
+                            {I18n.t("service_bookings.cancel.completed_description")}
+                          </DialogDescription>
+                        </DialogHeader>
+
+                        {cancelReason.trim() && (
+                          <div className="rounded-lg border border-border bg-muted/40 p-4 text-sm">
+                            <div className="mb-1 font-medium text-foreground">
+                              {I18n.t("service_bookings.cancel.reason_label")}
+                            </div>
+                            <p className="text-muted-foreground">{cancelReason.trim()}</p>
+                          </div>
+                        )}
+
+                        <DialogFooter>
+                          <Button type="button" onClick={() => handleCancelDialogOpenChange(false)}>
+                            {I18n.t("service_bookings.cancel.close_button")}
+                          </Button>
+                        </DialogFooter>
+                      </div>
+                    ) : (
+                      <form
+                        className="space-y-5"
+                        onSubmit={(event) => {
+                          event.preventDefault()
+                          const reason = cancelReason.trim()
+                          if (reason) cancelMutation.mutate(reason)
+                        }}
+                      >
+                        <DialogHeader>
+                          <div className="mb-2 flex h-10 w-10 items-center justify-center rounded-full border border-destructive/20 bg-destructive/10 text-destructive">
+                            <XCircle className="h-5 w-5" />
+                          </div>
+                          <DialogTitle>{I18n.t("service_bookings.cancel.dialog_title")}</DialogTitle>
+                          <DialogDescription>
+                            {I18n.t("service_bookings.cancel.dialog_description")}
+                          </DialogDescription>
+                        </DialogHeader>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="booking_cancellation_reason">
+                            {I18n.t("service_bookings.cancel.reason_label")}
+                          </Label>
+                          <Textarea
+                            id="booking_cancellation_reason"
+                            value={cancelReason}
+                            onChange={(event) => setCancelReason(event.target.value)}
+                            placeholder={I18n.t("service_bookings.cancel.reason_placeholder")}
+                            rows={5}
+                            maxLength={500}
+                            required
+                          />
+                          <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
+                            <span>{I18n.t("service_bookings.cancel.reason_help")}</span>
+                            <span>{cancelReason.length}/500</span>
+                          </div>
+                        </div>
+
+                        <DialogFooter>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => handleCancelDialogOpenChange(false)}
+                            disabled={cancelMutation.isPending}
+                          >
+                            {I18n.t("service_bookings.cancel.keep_booking")}
+                          </Button>
+                          <Button
+                            type="submit"
+                            variant="destructive"
+                            disabled={cancelMutation.isPending || !cancelReason.trim()}
+                          >
+                            {cancelMutation.isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            {I18n.t("service_bookings.cancel.confirm_button")}
+                          </Button>
+                        </DialogFooter>
+                      </form>
+                    )}
+                  </DialogContent>
+                </Dialog>
+              )}
+
+              {actionCount === 0 && (
+                <div className="rounded-lg border border-border bg-muted px-4 py-3 text-sm text-muted-foreground">
+                  {I18n.t("service_bookings.show.no_actions")}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   )
 }

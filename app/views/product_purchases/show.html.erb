@@ -8,8 +8,8 @@
   <div>
     <h3><%= item.product.title %></h3>
     <p>Quantity: <%= item.quantity %></p>
-    <p>Price: <%= number_to_currency(item.price) %></p>
+    <p>Price: <%= formatted_product_price(item.price, item.currency) %></p>
   </div>
 <% end %>
 
-<p>Total: <%= number_to_currency(@purchase.total_amount) %></p>
+<p>Total: <%= formatted_product_price(@purchase.total_amount, @purchase.currency) %></p>

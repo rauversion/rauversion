@@ -14,11 +14,52 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 
+const NAMED_ASPECT_RATIOS = {
+  auto: NaN,
+  free: NaN,
+  square: 1,
+  video: 16 / 9,
+  landscape: 4 / 3,
+  portrait: 3 / 4,
+  story: 9 / 16,
+}
+
+const humanizeRatioName = (value) =>
+  String(value || "")
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (char) => char.toUpperCase())
+
+const resolveAspectRatio = (value) => {
+  if (typeof value === "number") return value
+  if (value === null) return NaN
+  if (typeof value === "string" && Object.prototype.hasOwnProperty.call(NAMED_ASPECT_RATIOS, value)) {
+    return NAMED_ASPECT_RATIOS[value]
+  }
+
+  const parsed = Number(value)
+  return Number.isFinite(parsed) && parsed > 0 ? parsed : 16 / 9
+}
+
+const normalizeCropAspectRatio = (option) => {
+  if (typeof option === "number" || typeof option === "string" || option === null) {
+    return {
+      label: option === null ? "Libre" : humanizeRatioName(option),
+      value: option,
+    }
+  }
+
+  return {
+    label: option.label || humanizeRatioName(option.value),
+    value: option.value,
+  }
+}
+
 export function ImageUploader({
   onUploadComplete,
   onSuccess,
   onRemove,
   aspectRatio = 16 / 9,
+  cropAspectRatios = null,
   maxSize = 10, // MB
   className,
   preview = true,
@@ -31,14 +72,21 @@ export function ImageUploader({
 }) {
   const { toast } = useToast()
   const resolvedImageUrl = value ?? imageUrl
+  const cropAspectRatioOptions = React.useMemo(
+    () => (Array.isArray(cropAspectRatios) && cropAspectRatios.length > 0 ? cropAspectRatios.map(normalizeCropAspectRatio) : []),
+    [cropAspectRatios]
+  )
+  const defaultAspectRatioValue = cropAspectRatioOptions[0]?.value ?? aspectRatio
   const [dragActive, setDragActive] = React.useState(false)
   const [cropperOpen, setCropperOpen] = React.useState(false)
   const [cropData, setCropData] = React.useState(null)
   const [image, setImage] = React.useState(null)
   const [originalFile, setOriginalFile] = React.useState(null)
+  const [selectedAspectRatio, setSelectedAspectRatio] = React.useState(defaultAspectRatioValue)
   const cropperRef = React.useRef(null)
   const inputRef = React.useRef(null)
   const [loading, setLoading] = React.useState(false)
+  const resolvedAspectRatio = resolveAspectRatio(selectedAspectRatio)
 
   // Set initial crop data when cropper opens and image is set
   React.useEffect(() => {
@@ -59,6 +107,12 @@ export function ImageUploader({
       }, 200)
     }
   }, [cropperOpen, initialCropData])
+
+  React.useEffect(() => {
+    if (cropperOpen && cropperRef.current?.cropper) {
+      cropperRef.current.cropper.setAspectRatio(resolvedAspectRatio)
+    }
+  }, [cropperOpen, resolvedAspectRatio])
 
   const notifyUploadResult = React.useCallback((signedBlobId, cropData, serviceUrl) => {
     if (typeof onUploadComplete === "function") {
@@ -167,9 +221,17 @@ export function ImageUploader({
     inputRef.current.click()
   }
 
+  const selectAspectRatio = (value) => {
+    setSelectedAspectRatio(value)
+    if (cropperRef.current?.cropper) {
+      cropperRef.current.cropper.setAspectRatio(resolveAspectRatio(value))
+    }
+  }
+
   const getCropData = async () => {
     if (cropperRef.current?.cropper) {
       const cropper = cropperRef.current.cropper
+      const cropAspectRatio = resolveAspectRatio(selectedAspectRatio)
       const cropData = {
         x: cropper.getData().x,
         y: cropper.getData().y,
@@ -177,7 +239,9 @@ export function ImageUploader({
         height: cropper.getData().height,
         rotation: cropper.getData().rotate,
         scaleX: cropper.getData().scaleX,
-        scaleY: cropper.getData().scaleY
+        scaleY: cropper.getData().scaleY,
+        aspectRatio: Number.isFinite(cropAspectRatio) ? cropAspectRatio : null,
+        aspectRatioPreset: selectedAspectRatio
       }
 
       if (!originalFile && image && image === resolvedImageUrl) {
@@ -309,10 +373,26 @@ export function ImageUploader({
             </DialogDescription>
           </DialogHeader>
 
+          {cropAspectRatioOptions.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {cropAspectRatioOptions.map((option) => (
+                <Button
+                  key={`${option.label}-${option.value}`}
+                  type="button"
+                  size="sm"
+                  variant={option.value === selectedAspectRatio ? "default" : "outline"}
+                  onClick={() => selectAspectRatio(option.value)}
+                >
+                  {option.label}
+                </Button>
+              ))}
+            </div>
+          )}
+
           <div className="flex-1 overflow-hidden">
             <Cropper
               ref={cropperRef}
-              aspectRatio={aspectRatio}
+              aspectRatio={resolvedAspectRatio}
               src={image}
               viewMode={1}
               width={800}

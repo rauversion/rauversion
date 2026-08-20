@@ -27,6 +27,7 @@ RSpec.describe "Admin API", type: :request do
         "commerce",
         "listening",
         "event_sales",
+        "bookings",
         "pages",
         "users",
         "categories",
@@ -695,6 +696,133 @@ RSpec.describe "Admin API", type: :request do
       expect(json_response["top_events"].first["sold_tickets"]).to eq(1)
       expect(json_response["top_ticket_types"].first["title"]).to eq("General Admission")
       expect(json_response["refunded_revenue_by_currency"].first["amount"].to_f).to eq(25.0)
+    end
+  end
+
+  describe "GET /api/admin/bookings" do
+    let(:artist) do
+      create(
+        :user,
+        email: "booking-artist@rauversion.com",
+        username: "booking-artist",
+        role: :artist,
+        seller: true,
+        confirmed_at: Time.current
+      )
+    end
+
+    let(:booker) do
+      create(
+        :user,
+        email: "booking-buyer@rauversion.com",
+        username: "booking-buyer",
+        confirmed_at: Time.current
+      )
+    end
+
+    let!(:service_product) do
+      create(
+        :service_product,
+        user: artist,
+        title: "Warehouse DJ Set",
+        service_kind: "performance",
+        currency: "usd",
+        price: 1_000
+      )
+    end
+
+    let!(:confirmed_booking) do
+      create(
+        :service_booking,
+        service_product: service_product,
+        provider: artist,
+        customer: booker,
+        status: "confirmed",
+        payment_status: "pending",
+        deposit_status: "confirmed",
+        balance_status: "unpaid",
+        total_amount: 1_000,
+        deposit_amount: 400,
+        balance_due_amount: 600,
+        platform_fee_amount: 50,
+        artist_payout_amount: 950,
+        currency: "usd",
+        venue_name: "Club Rau",
+        city: "Santiago",
+        starts_at: Date.new(2026, 3, 20).in_time_zone.noon,
+        created_at: Date.new(2026, 3, 10).in_time_zone.noon
+      )
+    end
+
+    let!(:cancelled_booking) do
+      create(
+        :service_booking,
+        service_product: service_product,
+        provider: artist,
+        customer: booker,
+        status: "cancelled",
+        payment_status: "paid",
+        refund_status: "processing",
+        total_amount: 500,
+        deposit_amount: 250,
+        balance_due_amount: 250,
+        platform_fee_amount: 25,
+        artist_payout_amount: 475,
+        currency: "usd",
+        created_at: Date.new(2026, 3, 11).in_time_zone.noon,
+        updated_at: Date.new(2026, 3, 11).in_time_zone.noon
+      )
+    end
+
+    let!(:proposal) do
+      create(
+        :service_booking_proposal,
+        service_product: service_product,
+        artist: artist,
+        booker: booker,
+        status: "countered_by_artist",
+        artist_counter_count: 1,
+        booker_counter_count: 1,
+        proposed_amount: 1_200,
+        currency: "usd",
+        event_name: "Warehouse Session",
+        event_date: Date.new(2026, 3, 25),
+        created_at: Date.new(2026, 3, 10).in_time_zone.noon,
+        updated_at: Date.new(2026, 3, 10).in_time_zone.noon
+      )
+    end
+
+    let!(:ledger_entry) do
+      create(
+        :service_booking_ledger_entry,
+        service_booking: confirmed_booking,
+        entry_type: "payment_confirmed",
+        milestone: "deposit",
+        direction: "incoming",
+        amount: 400,
+        currency: "usd",
+        occurred_at: Date.new(2026, 3, 10).in_time_zone.noon
+      )
+    end
+
+    it "returns booking operations, payout, proposal, and cancellation metrics" do
+      get "/api/admin/bookings", params: { from: "2026-03-08", to: "2026-03-12" }
+
+      expect(response).to have_http_status(:ok)
+      expect(json_response.dig("range", "from")).to eq("2026-03-08")
+      expect(json_response.dig("range", "to")).to eq("2026-03-12")
+      expect(json_response.dig("summary", "bookings_created")).to eq(2)
+      expect(json_response.dig("summary", "active_bookings")).to eq(1)
+      expect(json_response.dig("summary", "pending_balances")).to eq(1)
+      expect(json_response.dig("summary", "counteroffers")).to eq(2)
+      expect(json_response.dig("summary", "cancellations")).to eq(1)
+      expect(json_response["booking_amounts_by_currency"].first["amount"].to_f).to eq(1_500.0)
+      expect(json_response["calculated_payouts_by_currency"].first["amount"].to_f).to eq(1_425.0)
+      expect(json_response["proposal_volume_by_currency"].first["amount"].to_f).to eq(1_200.0)
+      expect(json_response["recent_bookings"].map { |booking| booking["id"] }).to include(confirmed_booking.id, cancelled_booking.id)
+      expect(json_response["counter_activity"].first["id"]).to eq(proposal.id)
+      expect(json_response["recent_cancellations"].first["id"]).to eq(cancelled_booking.id)
+      expect(json_response["recent_ledger_entries"]).not_to be_empty
     end
   end
 

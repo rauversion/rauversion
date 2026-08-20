@@ -1,6 +1,21 @@
 module ApplicationHelper
+  ZERO_DECIMAL_CURRENCIES = %w[bif clp djf gnf jpy kmf krw mga pyg rwf ugx vnd vuv xaf xof xpf].freeze
   
   # ActionView::Base.default_form_builder = TailwindFormBuilder
+
+  def formatted_product_price(amount, currency)
+    return "" if amount.blank?
+
+    currency_code = currency.to_s.upcase.presence || "USD"
+    numeric_amount = amount.to_d
+    precision = ZERO_DECIMAL_CURRENCIES.include?(currency_code.downcase) ? 0 : (numeric_amount.frac.zero? ? 0 : 2)
+
+    number_to_currency(
+      numeric_amount,
+      unit: "#{currency_code} ",
+      precision: precision
+    )
+  end
 
   def current_cart
     ProductCart.find(session[:cart_id])

@@ -1,10 +1,11 @@
-# production:
-#   periodic_cleanup:
-#     class: CleanSoftDeletedRecordsJob
-#     queue: background
-#     args: [ 1000, { batch_size: 500 } ]
-#     schedule: every hour
-#   periodic_command:
-#     command: "SoftDeletedRecord.due.delete_all"
-#     priority: 2
-#     schedule: at 5am every day
+development:
+  service_bookings_lifecycle_sweep:
+    class: ServiceBookings::LifecycleSweepJob
+    queue: default
+    schedule: every 15 minutes
+
+production:
+  service_bookings_lifecycle_sweep:
+    class: ServiceBookings::LifecycleSweepJob
+    queue: default
+    schedule: every 15 minutes

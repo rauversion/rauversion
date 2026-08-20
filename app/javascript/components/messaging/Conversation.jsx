@@ -334,7 +334,7 @@ const Conversation = ({ conversationId, currentUserId }) => {
       {/* Messages */}
       <ScrollArea
         ref={scrollAreaRef}
-        className="flex-1-- px-6 pt-6 h-[calc(100vh-27rem)]"
+        className="flex-1-- px-6 pt-6 h-[calc(100vh-28rem)]"
         onScroll={handleScroll}
       >
         {messagesLoading && hasMore && (

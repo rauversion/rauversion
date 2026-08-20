@@ -2,10 +2,14 @@ json.collection @products do |product|
   json.id product.id
   json.title product.title
   json.description sanitize(product.description, tags: %w(strong em))
-  json.formatted_price number_to_currency(product.price)
+  json.formatted_price formatted_product_price(product.price, product.currency)
   json.price product.price
+  json.currency product.currency
 
   json.category product.category
+  json.service_kind product.service_kind if product.respond_to?(:service_kind)
+  json.booking_mode product.booking_mode if product.respond_to?(:booking_mode)
+  json.delivery_method product.delivery_method if product.respond_to?(:delivery_method)
   json.path user_product_path(product.user.username, product)
 
   image = product.product_images&.first
@@ -33,4 +37,5 @@ end
 
 json.metadata do
   json.partial! 'shared/pagination_metadata', collection: @products
+  json.category_counts @category_counts if @category_counts.present?
 end

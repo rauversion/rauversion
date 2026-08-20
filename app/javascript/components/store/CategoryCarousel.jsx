@@ -67,7 +67,7 @@ const CategoryCarousel = ({ title, products, loading }) => {
               <CardContent className="p-4">
                 <div className="flex items-center justify-between mb-2">
                   <h3 className="font-medium text-lg line-clamp-1 flex-1">{product.title}</h3>
-                  <p className="text-lg font-bold ml-3 whitespace-nowrap">${product.price}</p>
+                  <p className="text-lg font-bold ml-3 whitespace-nowrap">{product.formatted_price || product.price}</p>
                 </div>
                 <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{product.description}</p>
                 
