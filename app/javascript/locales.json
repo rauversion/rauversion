@@ -1054,6 +1054,14 @@
             "pending": "Pending",
             "refunded": "Refunded"
           },
+          "ticket_types": {
+            "description": "Paid and pending revenue for each ticket type",
+            "empty": "There are no ticket types for this event yet.",
+            "ticket_type": "Ticket type",
+            "tickets": "Tickets",
+            "title": "Revenue by ticket type",
+            "total": "Total"
+          },
           "title": "Reports",
           "total_orders": "Total Orders",
           "total_orders_description": "All ticket orders",
@@ -6600,6 +6608,14 @@
             "paid": "Pagado",
             "pending": "Pendiente",
             "refunded": "Reembolsado"
+          },
+          "ticket_types": {
+            "description": "Ingresos pagados y pendientes para cada tipo de ticket",
+            "empty": "Aún no hay tipos de ticket para este evento.",
+            "ticket_type": "Tipo de ticket",
+            "tickets": "Tickets",
+            "title": "Ingresos por tipo de ticket",
+            "total": "Total"
           },
           "title": "Reportes",
           "total_orders": "Órdenes Totales",

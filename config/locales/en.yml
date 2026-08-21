@@ -717,6 +717,13 @@ en:
         total_orders: Total Orders
         total_orders_description: All ticket orders
         orders: orders
+        ticket_types:
+          title: Revenue by ticket type
+          description: Paid and pending revenue for each ticket type
+          ticket_type: Ticket type
+          tickets: Tickets
+          total: Total
+          empty: There are no ticket types for this event yet.
         event_status:
           title: Event Status
           upcoming: Upcoming

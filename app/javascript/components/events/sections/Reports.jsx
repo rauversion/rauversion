@@ -5,6 +5,7 @@ import I18n from '@/stores/locales'
 import { useIsMobile } from "@/hooks/use-mobile"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { DollarSign, Users, Calendar, TrendingUp, Clock, CheckCircle, XCircle, AlertCircle } from "lucide-react"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, PieChart, Pie, Cell } from "recharts"
@@ -30,6 +31,24 @@ const chartConfig = {
   },
 }
 
+function currentLocale() {
+  return I18n.locale?.startsWith("es") ? "es-CL" : "en-US"
+}
+
+function formatMoney(amount, currency = "usd") {
+  try {
+    return new Intl.NumberFormat(currentLocale(), {
+      style: "currency",
+      currency: currency.toUpperCase(),
+      currencyDisplay: "code",
+      minimumFractionDigits: Number.isInteger(Number(amount)) ? 0 : 2,
+      maximumFractionDigits: Number.isInteger(Number(amount)) ? 0 : 2,
+    }).format(Number(amount || 0))
+  } catch {
+    return `${currency.toUpperCase()} ${Number(amount || 0).toLocaleString(currentLocale())}`
+  }
+}
+
 export default function Reports() {
   const { slug } = useParams()
   const isMobile = useIsMobile()
@@ -39,6 +58,7 @@ export default function Reports() {
     pending: { count: 0, total: 0 },
     refunded: { count: 0, total: 0 },
   })
+  const [ticketTypes, setTicketTypes] = React.useState([])
   const [event, setEvent] = React.useState(null)
 
   React.useEffect(() => {
@@ -58,6 +78,7 @@ export default function Reports() {
           pending: data.pending,
           refunded: data.refunded,
         })
+        setTicketTypes(data.ticket_types || [])
         setEvent(data.event)
       }
       setLoading(false)
@@ -183,7 +204,7 @@ export default function Reports() {
             <CheckCircle className="h-4 w-4 text-success" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${stats.paid.total.toLocaleString()}</div>
+            <div className="text-2xl font-bold">{formatMoney(stats.paid.total, event?.currency)}</div>
             <p className="text-xs text-muted-foreground">
               {stats.paid.count} {I18n.t("events.edit.reports.orders")}
             </p>
@@ -198,7 +219,7 @@ export default function Reports() {
             <AlertCircle className="h-4 w-4 text-yellow-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${stats.pending.total.toLocaleString()}</div>
+            <div className="text-2xl font-bold">{formatMoney(stats.pending.total, event?.currency)}</div>
             <p className="text-xs text-muted-foreground">
               {stats.pending.count} {I18n.t("events.edit.reports.orders")}
             </p>
@@ -213,7 +234,7 @@ export default function Reports() {
             <XCircle className="h-4 w-4 text-red-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">${stats.refunded.total.toLocaleString()}</div>
+            <div className="text-2xl font-bold">{formatMoney(stats.refunded.total, event?.currency)}</div>
             <p className="text-xs text-muted-foreground">
               {stats.refunded.count} {I18n.t("events.edit.reports.orders")}
             </p>
@@ -230,10 +251,52 @@ export default function Reports() {
           <DollarSign className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
-          <div className="text-2xl font-bold">${totalRevenue.toLocaleString()}</div>
+          <div className="text-2xl font-bold">{formatMoney(totalRevenue, event?.currency)}</div>
           <p className="text-xs text-muted-foreground">
             {I18n.t("events.edit.reports.total_revenue_description")}
           </p>
+        </CardContent>
+      </Card>
+
+      {/* Revenue by Ticket Type */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{I18n.t("events.edit.reports.ticket_types.title")}</CardTitle>
+          <CardDescription>
+            {I18n.t("events.edit.reports.ticket_types.description")}
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {ticketTypes.length === 0 ? (
+            <p className="py-6 text-center text-sm text-muted-foreground">
+              {I18n.t("events.edit.reports.ticket_types.empty")}
+            </p>
+          ) : (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{I18n.t("events.edit.reports.ticket_types.ticket_type")}</TableHead>
+                    <TableHead className="text-right">{I18n.t("events.edit.reports.ticket_types.tickets")}</TableHead>
+                    <TableHead className="text-right">{I18n.t("events.edit.reports.status.paid")}</TableHead>
+                    <TableHead className="text-right">{I18n.t("events.edit.reports.status.pending")}</TableHead>
+                    <TableHead className="text-right">{I18n.t("events.edit.reports.ticket_types.total")}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {ticketTypes.map((ticketType) => (
+                    <TableRow key={ticketType.id}>
+                      <TableCell className="font-medium">{ticketType.title}</TableCell>
+                      <TableCell className="text-right tabular-nums">{ticketType.count}</TableCell>
+                      <TableCell className="text-right tabular-nums">{formatMoney(ticketType.paid.total, event?.currency)}</TableCell>
+                      <TableCell className="text-right tabular-nums">{formatMoney(ticketType.pending.total, event?.currency)}</TableCell>
+                      <TableCell className="text-right font-semibold tabular-nums">{formatMoney(ticketType.revenue, event?.currency)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -263,7 +326,7 @@ export default function Reports() {
                 />
                 <YAxis
                   tick={{ fontSize: isMobile ? 11 : 12 }}
-                  tickFormatter={(value) => `$${Number(value || 0).toLocaleString()}`}
+                  tickFormatter={(value) => formatMoney(value, event?.currency)}
                   tickLine={false}
                   axisLine={false}
                   width={isMobile ? 48 : 64}

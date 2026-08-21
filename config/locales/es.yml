@@ -767,6 +767,13 @@ es:
         total_orders: Órdenes Totales
         total_orders_description: Todas las órdenes de tickets
         orders: órdenes
+        ticket_types:
+          title: Ingresos por tipo de ticket
+          description: Ingresos pagados y pendientes para cada tipo de ticket
+          ticket_type: Tipo de ticket
+          tickets: Tickets
+          total: Total
+          empty: Aún no hay tipos de ticket para este evento.
         event_status:
           title: Estado del Evento
           upcoming: Próximo
