@@ -54,6 +54,7 @@ class EventReportsController < ApplicationController
         count: refunded_items.count,
         total: refunded_items.sum(:price).to_f
       },
+      ticket_types: ticket_type_stats(purchased_items),
       event: {
         title: @event.title,
         event_start: @event.event_start,
@@ -61,6 +62,42 @@ class EventReportsController < ApplicationController
         currency: @event.ticket_currency || 'usd'
       }
     }
+  end
+
+  def ticket_type_stats(purchased_items)
+    stats_by_ticket = Hash.new { |stats, ticket_id| stats[ticket_id] = {} }
+
+    purchased_items
+      .where(purchased_item_type: "EventTicket")
+      .group(:purchased_item_id, :state)
+      .pluck(
+        :purchased_item_id,
+        :state,
+        Arel.sql("COUNT(purchased_items.id)"),
+        Arel.sql("COALESCE(SUM(purchased_items.price), 0)")
+      )
+      .each do |ticket_id, state, count, total|
+        stats_by_ticket[ticket_id][state] = { count: count.to_i, total: total.to_f }
+      end
+
+    EventTicket.with_deleted
+      .where(event_id: @event.id)
+      .order(:position, :id)
+      .map do |ticket|
+        status_stats = %w[paid pending refunded].index_with do |state|
+          stats_by_ticket.dig(ticket.id, state) || { count: 0, total: 0.0 }
+        end
+
+        {
+          id: ticket.id,
+          title: ticket.title,
+          count: status_stats.values_at("paid", "pending").sum { |stats| stats[:count] },
+          revenue: status_stats.values_at("paid", "pending").sum { |stats| stats[:total] },
+          paid: status_stats["paid"],
+          pending: status_stats["pending"],
+          refunded: status_stats["refunded"]
+        }
+      end
   end
 
   def orders_distribution
