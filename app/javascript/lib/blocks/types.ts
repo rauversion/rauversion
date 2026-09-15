@@ -11,6 +11,7 @@ export type BlockType =
   | "track"
   | "custom-player"
   | "link-embed"
+  | "rauviz"
   | "column"
   | "card"
   | "carousel"
@@ -36,6 +37,15 @@ export type BlockType =
 export type Platform = "spotify" | "youtube" | "soundcloud" | "rauversion"
 
 export type TemplateStyle = "minimal" | "bold" | "gradient" | "classic"
+
+export interface RauVizBlock extends BaseBlock {
+  type: "rauviz"
+  props: {
+    src: string
+    controls: boolean
+    sensitivity: number
+  }
+}
 
 export interface BaseBlock {
   id: string
@@ -681,6 +691,7 @@ export type Block =
   | TrackBlock
   | CustomPlayerBlock
   | LinkEmbedBlock
+  | RauVizBlock
   | ColumnBlock
   | CardBlock
   | CarouselBlock

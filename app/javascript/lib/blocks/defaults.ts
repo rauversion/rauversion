@@ -13,6 +13,7 @@ import type {
   TrackBlock,
   CustomPlayerBlock,
   LinkEmbedBlock,
+  RauVizBlock,
   ColumnBlock,
   CardBlock,
   CarouselBlock,
@@ -50,6 +51,13 @@ export function createDefaultBlock(type: BlockType): Block {
   const id = nanoid()
 
   switch (type) {
+    case "rauviz":
+      return {
+        id,
+        type: "rauviz",
+        props: { src: "", controls: true, sensitivity: 2 },
+      } satisfies RauVizBlock
+
     case "text":
       return {
         id,
@@ -571,6 +579,7 @@ export function createNewPage(name: string = "Nueva Página"): Page {
 }
 
 export const blockTypeLabels: Record<BlockType, string> = {
+  rauviz: "RauViz",
   text: "Texto",
   image: "Imagen",
   spacer: "Espaciador",
@@ -607,6 +616,7 @@ export const blockTypeLabels: Record<BlockType, string> = {
 }
 
 export const blockTypeDescriptions: Record<BlockType, string> = {
+  rauviz: "Visualización interactiva desde un patch RauViz",
   text: "Editor de texto enriquecido",
   image: "Imagen con opciones de ajuste",
   spacer: "Espacio vertical configurable",

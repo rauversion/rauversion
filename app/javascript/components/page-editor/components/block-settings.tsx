@@ -82,6 +82,43 @@ export function BlockSettings({
 
       {/* Settings */}
       <div className="flex-1 overflow-auto p-4 space-y-6">
+        {block.type === "rauviz" && (
+          <>
+            <div className="space-y-2">
+              <Label htmlFor="rauviz-src">URL del patch RauViz</Label>
+              <Input
+                id="rauviz-src"
+                type="url"
+                value={block.props.src}
+                onChange={(e) => handleUpdate("src", e.target.value)}
+                placeholder="https://example.com/my-patch.rauviz"
+              />
+              <p className="text-xs text-muted-foreground">Usa una URL pública para que tus visitantes puedan cargar la visualización.</p>
+            </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="rauviz-controls">Mostrar controles</Label>
+              <Switch
+                id="rauviz-controls"
+                checked={block.props.controls}
+                onCheckedChange={(value) => handleUpdate("controls", value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="rauviz-sensitivity">Sensibilidad</Label>
+              <Input
+                id="rauviz-sensitivity"
+                type="number"
+                min={0}
+                step={0.1}
+                value={block.props.sensitivity}
+                onChange={(e) => {
+                  const value = e.target.valueAsNumber
+                  if (Number.isFinite(value) && value >= 0) handleUpdate("sensitivity", value)
+                }}
+              />
+            </div>
+          </>
+        )}
         {block.type === "text" && (
           <>
             <div className="space-y-2">

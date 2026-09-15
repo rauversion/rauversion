@@ -4,7 +4,7 @@ import { get, post } from "@rails/request.js";
 import useAudioStore from "../../stores/audioStore";
 import useAuthStore from "../../stores/authStore";
 import { format } from "date-fns";
-import { Play, Pause, Settings, Lock, Heart } from "lucide-react";
+import { Play, Pause, Settings, Lock, Heart, Plus, ExternalLink } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { getUserDisplayName } from "@/utils/userDisplayName";
@@ -247,20 +247,43 @@ export default function PlaylistShow() {
                   </div>
 
                   {currentUser?.id === playlist.user.id && (
-                    <motion.div
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="@sm/playlist-hero:ml-4"
-                    >
+                    <div className="flex shrink-0 items-center gap-1 @sm/playlist-hero:ml-4">
+                      <Button
+                        asChild
+                        variant="outline"
+                        size="sm"
+                        className="h-9 gap-1.5 rounded-full border-white/10 bg-transparent px-3 text-xs hover:bg-white/10"
+                        aria-label={playlist.release ? "View release" : "Create release"}
+                      >
+                        <Link
+                          to={playlist.release?.urls?.show || `/releases/new?playlist_id=${playlist.id}`}
+                        >
+                          {playlist.release ? (
+                            <>
+                              <ExternalLink className="h-4 w-4" />
+                              <span className="hidden @sm/playlist-hero:inline">View release</span>
+                              <span className="@sm/playlist-hero:hidden">Release</span>
+                            </>
+                          ) : (
+                            <>
+                              <Plus className="h-4 w-4" />
+                              <span className="hidden @sm/playlist-hero:inline">Create release</span>
+                              <span className="@sm/playlist-hero:hidden">Release</span>
+                            </>
+                          )}
+                        </Link>
+                      </Button>
+
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={() => setEditOpen(true)}
-                        className="h-9 w-9 shrink-0 text-muted-foreground hover:bg-white/10 hover:text-foreground"
+                        className="h-9 w-9 text-muted-foreground hover:bg-white/10 hover:text-foreground"
+                        aria-label="Edit playlist"
                       >
                         <Settings className="h-5 w-5" />
                       </Button>
-                    </motion.div>
+                    </div>
                   )}
                 </div>
                 <div className="space-y-1.5 text-sm text-muted-foreground @sm/playlist-hero:space-y-2 @sm/playlist-hero:text-base">

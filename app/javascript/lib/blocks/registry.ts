@@ -42,6 +42,13 @@ export interface BlockRegistryEntry {
 
 export const blockRegistry: BlockRegistryEntry[] = [
   {
+    type: "rauviz",
+    label: "RauViz",
+    description: "Visualización interactiva desde un patch",
+    icon: Sparkles,
+    category: "media",
+  },
+  {
     type: "text",
     label: "Texto",
     description: "Editor de texto enriquecido",

@@ -1,5 +1,5 @@
 import React from "react"
-import { useParams, useNavigate } from "react-router-dom"
+import { useParams, useNavigate, useLocation } from "react-router-dom"
 import { useForm, Controller } from "react-hook-form"
 import { get, post, put } from "@rails/request.js"
 import { useToast } from "@/hooks/use-toast"
@@ -19,19 +19,22 @@ import {
 } from "@/components/ui/card"
 import { Loader2 } from "lucide-react"
 import useAuthStore from "@/stores/authStore"
-import { set } from "date-fns/set"
 
 export default function ReleaseForm() {
   const { id } = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
   const { toast } = useToast()
   const [loading, setLoading] = React.useState(false)
+  const [submitError, setSubmitError] = React.useState(null)
   const [playlists, setPlaylists] = React.useState([])
   const { currentUser } = useAuthStore()
   const { isDarkMode } = useThemeStore()
   const isEditing = Boolean(id)
+  const playlistIdFromUrl = new URLSearchParams(location.search).get("playlist_id")
+  const initialPlaylistId = playlistIdFromUrl ? Number(playlistIdFromUrl) : null
 
-  const { register, handleSubmit, reset, control, getValues, setValue } = useForm({
+  const { register, handleSubmit, reset, control, getValues, setValue, formState: { errors } } = useForm({
     defaultValues: {
       title: "",
       subtitle: "",
@@ -54,7 +57,34 @@ export default function ReleaseForm() {
         const response = await get(`/${currentUser.username}/all_playlists.json`)
         if (response.ok) {
           const data = await response.json
-          setPlaylists(data.collection || [])
+          const availablePlaylists = data.collection || []
+          setPlaylists(availablePlaylists)
+
+          if (!isEditing && initialPlaylistId) {
+            const selectedPlaylist = availablePlaylists.find(
+              (playlist) => `${playlist.id}` === `${initialPlaylistId}`
+            )
+
+            if (selectedPlaylist) {
+              setValue("playlist_id", selectedPlaylist.id)
+              setValue("title", selectedPlaylist.title)
+            } else {
+              // The playlist list is paginated, so load the requested playlist
+              // when it is not included on the first page.
+              const playlistResponse = await get(`/playlists/${initialPlaylistId}.json`)
+              if (playlistResponse.ok) {
+                const playlistData = await playlistResponse.json
+                const requestedPlaylist = playlistData.playlist
+
+                setPlaylists((currentPlaylists) => [
+                  { id: requestedPlaylist.id, title: requestedPlaylist.title },
+                  ...currentPlaylists,
+                ])
+                setValue("playlist_id", requestedPlaylist.id)
+                setValue("title", requestedPlaylist.title)
+              }
+            }
+          }
         }
       } catch (error) {
         console.error("Error fetching playlists:", error)
@@ -66,7 +96,7 @@ export default function ReleaseForm() {
       }
     }
     fetchPlaylists()
-  }, [currentUser])
+  }, [currentUser, initialPlaylistId, isEditing, setValue, toast])
 
   React.useEffect(() => {
     if (isEditing) {
@@ -104,7 +134,10 @@ export default function ReleaseForm() {
   }, [id, isEditing, reset])
 
   const onSubmit = async (data) => {
+    if (loading) return
     setLoading(true)
+    setSubmitError(null)
+    const fallbackMessage = `Could not ${isEditing ? "update" : "create"} release. Please try again.`
     try {
       // Only send fields that are actually present in the form UI
       const allowedFields = [
@@ -137,8 +170,6 @@ export default function ReleaseForm() {
         return acc
       }, {})
 
-      console.log("Submitting payload:", payload)
-
       const response = isEditing
         ? await put(`/releases/${id}`, {
           body: JSON.stringify({ release: payload }),
@@ -149,25 +180,40 @@ export default function ReleaseForm() {
           responseKind: "json",
         })
 
-      if (response.ok) {
-        const data = await response.json
-        toast({
-          description: `Release ${isEditing ? "updated" : "created"} successfully`,
-        })
-        // navigate(data.urls.editor)
-      } else {
-        const error = await response.json
-        toast({
-          title: "Error",
-          description: error.message || `Could not ${isEditing ? "update" : "create"} release`,
-          variant: "destructive",
-        })
+      if (!response.ok) {
+        let message = fallbackMessage
+        try {
+          const error = await response.json
+          const details = error?.errors || error?.message || error?.error || error
+          const messages = typeof details === "string"
+            ? [details]
+            : Array.isArray(details)
+              ? details.filter((value) => typeof value === "string")
+              : Object.entries(details || {}).flatMap(([field, values]) =>
+                  [values].flat().filter((value) => typeof value === "string").map(
+                    (value) => field === "base" ? value : `${field.replaceAll("_", " ")}: ${value}`
+                  )
+                )
+          message = messages.join(". ") || fallbackMessage
+        } catch {
+          // Non-JSON server errors still leave the form available for retry.
+        }
+        setSubmitError(message)
+        toast({ title: "Error", description: message, variant: "destructive" })
+        return
       }
+
+      const savedRelease = await response.json
+      toast({
+        description: `Release ${isEditing ? "updated" : "created"} successfully`,
+      })
+      if (!isEditing) navigate(savedRelease.urls.edit, { replace: true })
     } catch (error) {
       console.error("Error saving release:", error)
+      setSubmitError(fallbackMessage)
       toast({
         title: "Error",
-        description: `Could not ${isEditing ? "update" : "create"} release`,
+        description: fallbackMessage,
         variant: "destructive",
       })
     } finally {
@@ -188,12 +234,22 @@ export default function ReleaseForm() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            {submitError && (
+              <div role="alert" className="rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
+                {submitError}
+              </div>
+            )}
             <div className="space-y-2">
               <Label htmlFor="title">Title</Label>
               <Input
                 id="title"
+                aria-invalid={Boolean(errors.title)}
+                aria-describedby={errors.title ? "title-error" : undefined}
                 {...register("title", { required: "Title is required" })}
               />
+              {errors.title && (
+                <p id="title-error" role="alert" className="text-sm text-destructive">{errors.title.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -274,7 +330,7 @@ export default function ReleaseForm() {
                     }}
                     value={field.value ? {
                       value: field.value,
-                      label: playlists.find(p => p.id === field.value)?.title
+                      label: playlists.find(p => `${p.id}` === `${field.value}`)?.title
                     } : null}
                     theme={(theme) => selectTheme(theme, isDarkMode)}
                     placeholder="Select playlists"
