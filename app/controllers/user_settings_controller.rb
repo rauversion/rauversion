@@ -55,10 +55,28 @@ class UserSettingsController < ApplicationController
 
   def set_user
     @user = current_user
+    @tenant_profile = Current.tenant_profile
   end
 
   def update_user
-    @user.update(user_attributes)
+    attrs = user_attributes
+    profile_attrs = attrs.extract!(:display_name, :first_name, :last_name, :country, :city, :bio)
+    updated = false
+
+    User.transaction do
+      raise ActiveRecord::Rollback unless @user.update(attrs)
+
+      unless @tenant_profile.update(profile_attrs)
+        @tenant_profile.errors.each do |error|
+          @user.errors.add(error.attribute, error.message)
+        end
+        raise ActiveRecord::Rollback
+      end
+
+      updated = true
+    end
+
+    updated
   end
 
   def user_attributes

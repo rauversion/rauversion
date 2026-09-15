@@ -52,12 +52,12 @@ export default function MusicPurchase({ resource, type, variant = 'default' }) {
             classes.wrapper,
             classes.pad,
             "items-center gap-2 font-medium group",
-            "bg-gradient-to-r from-violet-600 to-indigo-600",
-            "text-white rounded-lg shadow-lg",
-            "hover:from-violet-500 hover:to-indigo-500",
+            "bg-gradient-to-r from-primary to-accent",
+            "text-primary-foreground rounded-lg shadow-lg",
+            "hover:from-primary/90 hover:to-accent/90",
             "transition-all duration-200 ease-in-out",
-            "hover:shadow-indigo-500/25 hover:shadow-xl",
-            "border border-indigo-700/20"
+            "hover:shadow-xl",
+            "border border-primary/20"
           )}
         >
           <ShoppingCart className="w-4 h-4" />
@@ -67,10 +67,10 @@ export default function MusicPurchase({ resource, type, variant = 'default' }) {
             <motion.span 
               className={cn(
                 "ml-2 px-2 py-0.5 rounded-md",
-                "bg-gradient-to-r from-pink-500/20 to-purple-500/20",
+                "bg-gradient-to-r from-primary-foreground/10 to-accent-foreground/15",
                 "backdrop-blur-sm",
-                "border border-white/10",
-                "text-white font-medium",
+                "border border-primary-foreground/15",
+                "text-primary-foreground font-medium",
                 variant === 'mini' ? "text-xs" : "text-sm",
                 "shadow-inner"
               )}
@@ -78,7 +78,7 @@ export default function MusicPurchase({ resource, type, variant = 'default' }) {
               whileHover={{ 
                 opacity: 1,
                 scale: 1.05,
-                background: "linear-gradient(to right, rgba(236,72,153,0.3), rgba(168,85,247,0.3))"
+                background: "linear-gradient(to right, color-mix(in srgb, var(--primary-foreground) 20%, transparent), color-mix(in srgb, var(--accent-foreground) 24%, transparent))"
               }}
             >
               {priceDisplay}

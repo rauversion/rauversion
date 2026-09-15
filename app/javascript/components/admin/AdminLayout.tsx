@@ -5,11 +5,15 @@ import type { AdminMetaResponse, AdminNavItem } from "./types"
 import { useToast } from "@/hooks/use-toast"
 import useAuthStore from "@/stores/authStore"
 import { Button } from "@/components/ui/button"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet"
 import {
   Bell,
+  CalendarCheck,
   CalendarDays,
+  CreditCard,
   Disc3,
+  ExternalLink,
   FileText,
   FolderTree,
   Headphones,
@@ -17,6 +21,7 @@ import {
   Menu,
   Newspaper,
   ShoppingCart,
+  Settings2,
   Ticket,
   Users,
 } from "lucide-react"
@@ -29,10 +34,13 @@ const icons: Record<string, React.ComponentType<any>> = {
   Newspaper,
   FileText,
   Bell,
+  CalendarCheck,
   Disc3,
   CalendarDays,
   Headphones,
   Ticket,
+  Settings2,
+  CreditCard,
 }
 
 function NavItems({ navigation, pathname, onNavigate }: { navigation: AdminNavItem[]; pathname: string; onNavigate?: () => void }) {
@@ -68,12 +76,16 @@ export default function AdminLayout() {
   const { toast } = useToast()
   const { currentUser } = useAuthStore()
   const [navigation, setNavigation] = React.useState<AdminNavItem[]>([])
+  const [context, setContext] = React.useState<AdminMetaResponse["context"] | null>(null)
+  const [switchingTenant, setSwitchingTenant] = React.useState(false)
 
   React.useEffect(() => {
     const loadMeta = async () => {
       try {
         const data = await adminGetJson<AdminMetaResponse>("/api/admin/meta")
         setNavigation(data.navigation)
+        setContext(data.context)
+        if (!data.context.subscription_accessible) window.location.replace(data.context.billing_path)
       } catch (error: any) {
         toast({
           title: "Admin metadata failed",
@@ -86,6 +98,16 @@ export default function AdminLayout() {
     loadMeta()
   }, [toast])
 
+  const switchTenant = (tenantId: string) => {
+    if (Number(tenantId) === context?.tenant.id) return
+
+    const tenant = context?.available_tenants.find((candidate) => candidate.id === Number(tenantId))
+    if (!tenant) return
+
+    setSwitchingTenant(true)
+    window.location.assign(tenant.admin_url)
+  }
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="flex min-h-screen">
@@ -96,8 +118,8 @@ export default function AdminLayout() {
                 <LayoutDashboard className="h-5 w-5" />
               </div>
               <div>
-                <p className="text-xs uppercase tracking-[0.3em] text-sidebar-foreground/60">Rauversion</p>
-                <h1 className="text-xl font-semibold">Admin</h1>
+                <p className="text-xs uppercase tracking-[0.3em] text-sidebar-foreground/60">Tenant admin</p>
+                <h1 className="max-w-40 truncate text-xl font-semibold">{context?.tenant.name || "Admin"}</h1>
               </div>
             </Link>
           </div>
@@ -135,15 +157,30 @@ export default function AdminLayout() {
 
                 <div>
                   <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground">Control Room</p>
-                  <h2 className="text-lg font-semibold text-foreground">Operations</h2>
+                  <h2 className="text-lg font-semibold text-foreground">{context?.tenant.name || "Operations"}</h2>
                 </div>
               </div>
 
-              <div className="hidden text-right sm:block">
-                <p className="text-sm font-medium text-foreground">
-                  {currentUser?.display_name || currentUser?.username || "Admin"}
-                </p>
-                <p className="text-xs text-muted-foreground">{currentUser?.email}</p>
+              <div className="flex items-center gap-2">
+                {context && context.available_tenants.length > 1 && (
+                  <Select value={String(context.tenant.id)} onValueChange={switchTenant} disabled={switchingTenant}>
+                    <SelectTrigger className="hidden w-52 sm:flex"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {context.available_tenants.map((tenant) => (
+                        <SelectItem key={tenant.id} value={String(tenant.id)}>{tenant.name} · {tenant.role}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+                {context && (
+                  <Button variant="outline" size="sm" asChild>
+                    <a href={context.tenant.preview_url} target="_blank" rel="noreferrer">Ver sitio <ExternalLink className="ml-2 h-3.5 w-3.5" /></a>
+                  </Button>
+                )}
+                <div className="hidden text-right md:block">
+                  <p className="text-sm font-medium text-foreground">{currentUser?.display_name || currentUser?.username || "Admin"}</p>
+                  <p className="text-xs text-muted-foreground">{context?.platform_admin ? "Platform admin" : context?.tenant.role || currentUser?.email}</p>
+                </div>
               </div>
             </div>
           </header>

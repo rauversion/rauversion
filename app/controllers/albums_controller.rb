@@ -3,7 +3,7 @@ class AlbumsController < ApplicationController
   before_action :disable_footer, only: :show
 
   def show
-    @release = Release.friendly.find(params[:id])
+    @release = Release.for_tenant.friendly.find(params[:id])
     set_meta_tags(
       title: @release.title,
       description: "Listen #{@release.title} #{@release.subtitle} on Rauversion",

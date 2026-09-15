@@ -42,6 +42,7 @@ export default function MerchForm({ product, isEditing = false }) {
       limited_edition: product?.limited_edition || false,
       limited_edition_count: product?.limited_edition_count || "",
       price: product?.price || "",
+      currency: product?.currency || "usd",
       stock_quantity: product?.stock_quantity || "",
       sku: product?.sku || "",
       status: product?.status || "active",

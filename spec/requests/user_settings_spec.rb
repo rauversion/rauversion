@@ -29,7 +29,7 @@ RSpec.describe "UserSettings", type: :request do
   end
 
   describe "PATCH /:username/settings/profile.json" do
-    it "updates the display_name independently from the username" do
+    it "updates the tenant display_name independently from the username" do
       patch "/#{user.username}/settings/profile.json",
         params: {
           user: {
@@ -40,7 +40,8 @@ RSpec.describe "UserSettings", type: :request do
         as: :json
 
       expect(response).to have_http_status(:ok)
-      expect(user.reload.display_name).to eq("Public Artist")
+      expect(user.reload.display_name).to eq("Settings Artist")
+      expect(user.tenant_profile_for(Current.tenant).reload.display_name).to eq("Public Artist")
       expect(user.username).to eq("settings-user")
     end
   end

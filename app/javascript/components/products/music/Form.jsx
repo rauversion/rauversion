@@ -46,6 +46,7 @@ export default function MusicForm({ product, isEditing = false }) {
       condition: product?.condition || "",
       include_digital_album: product?.include_digital_album || false,
       price: product?.price || "",
+      currency: product?.currency || "usd",
       stock_quantity: product?.stock_quantity || "",
       sku: product?.sku || "",
       status: product?.status || "active",

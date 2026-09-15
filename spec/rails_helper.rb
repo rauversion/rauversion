@@ -62,13 +62,15 @@ RSpec.configure do |config|
   config.before(:each) do
     DatabaseCleaner.strategy = :transaction
     DatabaseCleaner.clean_with(:truncation)
+    Current.tenant = Tenant.find_or_create_by!(slug: "rauversion") do |tenant|
+      tenant.name = "Rauversion"
+      tenant.central = true
+    end
   end
-#
-  #config.around(:each) do |example|
-  #  DatabaseCleaner.cleaning do
-  #    # example.run
-  #  end
-  #end
+
+  config.after(:each) do
+    Current.reset
+  end
 
   # You can uncomment this line to turn off ActiveRecord support entirely.
   # config.use_active_record = false

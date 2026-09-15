@@ -114,7 +114,7 @@
 
                 <div class="flex justify-between items-center">
                   <div class="text-lg font-bold text-primary">
-                    <%= number_to_currency(product.price) %>
+                    <%= formatted_product_price(product.price, product.currency) %>
                   </div>
                   
                   <div class="text-sm text-gray-500">

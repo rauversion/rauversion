@@ -82,7 +82,7 @@ function EventCard({ event }) {
         <h3 className="text-foreground dark:text-muted">{event.title}</h3>
         <div className="flex flex-col items-end">
           {event.online ? (
-            <span className="inline-flex items-center rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-800">
+            <span className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
               {I18n.t('events.online')}
             </span>
           ) : (

@@ -33,25 +33,25 @@ const STAT_CARDS = [
     id: "recent_listens_count",
     labelKey: "home.personalized.stats.recent_listens_count",
     icon: Headphones,
-    accent: "from-emerald-300/30 to-transparent",
+    accent: "from-primary/30 to-transparent",
   },
   {
     id: "liked_tracks_count",
     labelKey: "home.personalized.stats.liked_tracks_count",
     icon: Heart,
-    accent: "from-rose-300/25 to-transparent",
+    accent: "from-chart-2/25 to-transparent",
   },
   {
     id: "followed_artists_count",
     labelKey: "home.personalized.stats.followed_artists_count",
     icon: Disc3,
-    accent: "from-sky-300/25 to-transparent",
+    accent: "from-chart-3/25 to-transparent",
   },
   {
     id: "upcoming_events_count",
     labelKey: "home.personalized.stats.upcoming_events_count",
     icon: Radio,
-    accent: "from-amber-300/25 to-transparent",
+    accent: "from-chart-4/25 to-transparent",
   },
 ]
 
@@ -149,14 +149,21 @@ function EntityArtwork({ entity, className }) {
   if (entity.image_style === "gradient" || !entity.image_url) {
     return (
       <div
-        className={cn(
-          "relative overflow-hidden bg-[linear-gradient(135deg,#8b5cf6_0%,#2563eb_50%,#22d3ee_100%)]",
-          className
-        )}
+        className={cn("relative overflow-hidden", className)}
+        style={{
+          backgroundImage:
+            "linear-gradient(135deg, var(--primary), var(--accent) 50%, var(--chart-2))",
+        }}
       >
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.35),transparent_30%)]" />
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at top left, color-mix(in srgb, var(--primary-foreground) 35%, transparent), transparent 30%)",
+          }}
+        />
         <div className="relative flex h-full w-full items-center justify-center">
-          <Heart className="h-8 w-8 fill-current text-white" />
+          <Heart className="h-8 w-8 fill-current text-primary-foreground" />
         </div>
       </div>
     )
@@ -193,7 +200,7 @@ function QuickAccessCard({
       }}
       className={cn(
         "group relative flex min-w-0 items-center gap-3 overflow-hidden rounded-[22px] border border-border bg-card/80 p-2 text-left transition-all hover:-translate-y-0.5 hover:bg-accent/70",
-        isActive && "border-emerald-400/50 bg-emerald-400/10"
+        isActive && "border-primary/50 bg-primary/10"
       )}
     >
       <EntityArtwork entity={entity} className="h-16 w-16 shrink-0 rounded-[18px]" />
@@ -214,7 +221,7 @@ function QuickAccessCard({
           size="icon"
           variant="ghost"
           onClick={(event) => onPlay(event, entity)}
-          className="h-10 w-10 shrink-0 rounded-full bg-background/85 text-foreground opacity-100 shadow-sm backdrop-blur transition-colors hover:bg-emerald-400 hover:text-black sm:opacity-0 sm:group-hover:opacity-100 dark:bg-black/35 dark:text-white"
+          className="h-10 w-10 shrink-0 rounded-full bg-background/85 text-foreground opacity-100 shadow-sm backdrop-blur transition-colors hover:bg-primary hover:text-primary-foreground sm:opacity-0 sm:group-hover:opacity-100 dark:bg-black/35 dark:text-white"
         >
           {isActive && isPlaying ? (
             <Pause className="h-4 w-4" />
@@ -247,7 +254,7 @@ function MediaCard({
       }}
       className={cn(
         "group w-[11.75rem] shrink-0 rounded-[28px] border border-border bg-card/80 p-3 text-left transition-all hover:-translate-y-1 hover:bg-accent/60 sm:w-[12.75rem]",
-        isActive && "border-emerald-400/50 bg-emerald-400/10"
+        isActive && "border-primary/50 bg-primary/10"
       )}
     >
       <div className="relative overflow-hidden rounded-[22px]">
@@ -258,7 +265,7 @@ function MediaCard({
             {entity.badge}
           </span>
           {entity.reason ? (
-            <span className="max-w-[7rem] truncate rounded-full bg-emerald-300/90 px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-black">
+            <span className="max-w-[7rem] truncate rounded-full bg-primary px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary-foreground">
               {entity.reason}
             </span>
           ) : null}
@@ -270,7 +277,10 @@ function MediaCard({
           size="icon"
           variant="ghost"
           onClick={(event) => onPlay(event, entity)}
-          className="absolute bottom-3 right-3 h-11 w-11 rounded-full bg-emerald-400 text-black opacity-100 shadow-[0_18px_40px_rgba(16,185,129,0.35)] transition-transform hover:scale-105 sm:translate-y-3 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100"
+          className="absolute bottom-3 right-3 h-11 w-11 rounded-full bg-primary text-primary-foreground opacity-100 transition-transform hover:scale-105 hover:bg-primary/90 sm:translate-y-3 sm:opacity-0 sm:group-hover:translate-y-0 sm:group-hover:opacity-100"
+          style={{
+            boxShadow: "0 18px 40px color-mix(in srgb, var(--primary) 35%, transparent)",
+          }}
         >
             {isActive && isPlaying ? (
               <Pause className="h-4 w-4" />
@@ -312,7 +322,7 @@ function EventCard({ entity, onOpen }) {
         </div>
 
         <div className="absolute inset-x-4 bottom-4">
-          <p className="text-xs uppercase tracking-[0.24em] text-emerald-300">{entity.reason}</p>
+          <p className="text-xs uppercase tracking-[0.24em] text-primary">{entity.reason}</p>
           <h3 className="mt-2 line-clamp-2 text-2xl font-semibold leading-tight text-white">
             {entity.title}
           </h3>
@@ -347,7 +357,7 @@ function ArticleCard({ entity, onOpen }) {
             {entity.badge}
           </span>
           {entity.secondary_meta ? (
-            <span className="rounded-full border border-white/20 bg-emerald-300 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-950 shadow-sm">
+            <span className="rounded-full border border-white/20 bg-primary px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-primary-foreground shadow-sm">
               {entity.secondary_meta}
             </span>
           ) : null}
@@ -507,17 +517,35 @@ export default function PersonalizedHome({ currentUser }) {
 
   return (
     <div className="relative overflow-hidden rounded-[34px] border border-border bg-background text-foreground shadow-[0_28px_80px_rgba(15,23,42,0.12)] dark:shadow-[0_36px_120px_rgba(0,0,0,0.45)]">
-      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.14),transparent_22%),radial-gradient(circle_at_top_right,rgba(251,146,60,0.12),transparent_24%),linear-gradient(180deg,rgba(236,253,245,0.92),rgba(255,255,255,0)_28%)] dark:bg-[radial-gradient(circle_at_top_left,rgba(16,185,129,0.22),transparent_22%),radial-gradient(circle_at_top_right,rgba(251,146,60,0.16),transparent_24%),linear-gradient(180deg,rgba(11,94,88,0.42),rgba(5,8,22,0)_28%)]" />
+      <div
+        className="pointer-events-none absolute inset-0"
+        style={{
+          backgroundImage:
+            "radial-gradient(circle at top left, color-mix(in srgb, var(--primary) 18%, transparent), transparent 22%), radial-gradient(circle at top right, color-mix(in srgb, var(--accent) 22%, transparent), transparent 24%), linear-gradient(180deg, color-mix(in srgb, var(--background) 92%, transparent), transparent 28%)",
+        }}
+      />
 
       <div className="relative space-y-8 p-4 sm:p-6 xl:p-8">
-        <header className="relative overflow-hidden rounded-[32px] border border-border bg-[linear-gradient(135deg,rgba(236,253,245,0.95),rgba(236,254,255,0.96)_52%,rgba(255,241,242,0.92))] p-6 sm:p-8 dark:border-white/10 dark:bg-[linear-gradient(135deg,rgba(10,87,84,0.92),rgba(9,17,32,0.96)_52%,rgba(63,18,34,0.86))]">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.75),transparent_26%)] dark:bg-[radial-gradient(circle_at_top_left,rgba(255,255,255,0.2),transparent_26%)]" />
+        <header
+          className="relative overflow-hidden rounded-[32px] border border-border p-6 sm:p-8"
+          style={{
+            backgroundImage:
+              "linear-gradient(135deg, color-mix(in srgb, var(--primary) 16%, var(--background)), color-mix(in srgb, var(--accent) 28%, var(--background)) 52%, color-mix(in srgb, var(--chart-2) 14%, var(--background)))",
+          }}
+        >
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle at top left, color-mix(in srgb, var(--foreground) 12%, transparent), transparent 26%)",
+            }}
+          />
 
           <div className="relative flex flex-col gap-8 xl:flex-row xl:items-end xl:justify-between">
             <div className="max-w-3xl">
-              <div className="inline-flex items-center gap-3 rounded-full border border-emerald-950/10 bg-background/70 px-3 py-2 text-xs font-semibold uppercase tracking-[0.32em] text-foreground/75 shadow-sm backdrop-blur dark:border-white/10 dark:bg-black/20 dark:text-white/75">
+              <div className="inline-flex items-center gap-3 rounded-full border border-border bg-background/70 px-3 py-2 text-xs font-semibold uppercase tracking-[0.32em] text-foreground/75 shadow-sm backdrop-blur dark:bg-black/20 dark:text-white/75">
                 <span>{I18n.t("home.personalized.header.badge")}</span>
-                <span className="h-1 w-1 rounded-full bg-emerald-300" />
+                <span className="h-1 w-1 rounded-full bg-primary" />
                 <span>{I18n.t("home.personalized.header.activity_badge")}</span>
               </div>
 
@@ -582,7 +610,7 @@ export default function PersonalizedHome({ currentUser }) {
                 className={cn(
                   "inline-flex shrink-0 items-center gap-2 rounded-full border px-4 py-2.5 text-sm font-medium transition-colors",
                   isActive
-                    ? "border-emerald-300/50 bg-emerald-300 text-black"
+                    ? "border-primary/50 bg-primary text-primary-foreground"
                     : "border-border bg-card/70 text-muted-foreground hover:bg-accent hover:text-accent-foreground"
                 )}
               >

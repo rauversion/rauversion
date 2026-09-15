@@ -35,7 +35,7 @@ const EventCard = ({ event }) => {
           <div className="p-6">
             {/* Online Badge */}
             {event.online && (
-              <span className="inline-flex items-center rounded-full bg-green-100 dark:bg-green-900/30 px-2.5 py-0.5 text-xs font-medium text-green-800 dark:text-green-300 mb-3">
+              <span className="mb-3 inline-flex items-center rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
                 {I18n.t('events.online')}
               </span>
             )}

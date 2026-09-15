@@ -67,7 +67,7 @@ const invitationSchema = z.object({
 })
 
 const attendeeStatuses = {
-  paid: { label: I18n.t('events.edit.attendees.status.paid'), color: "bg-green-500 text-green-800" },
+  paid: { label: I18n.t('events.edit.attendees.status.paid'), color: "bg-success text-success-foreground" },
   pending: { label: I18n.t('events.edit.attendees.status.pending'), color: "bg-yellow-500 text-yellow-800" },
   refunded: { label: "Refunded", color: "bg-red-500" },
 }

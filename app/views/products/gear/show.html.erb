@@ -36,7 +36,7 @@
 
           <div class="text-right">
             <div class="text-2xl font-bold mb-2">
-              <%= number_to_currency(@product.price) %>
+              <%= formatted_product_price(@product.price, @product.currency) %>
             </div>
             <% if @product.name_your_price? %>
               <div class="text-sm text-gray-500">Name your price enabled</div>
@@ -65,7 +65,7 @@
                  
                     </div>
                     <span class="text-primary font-medium">
-                      <%= number_to_currency(shipping.base_cost) %>
+                      <%= formatted_product_price(shipping.base_cost, @product.currency) %>
                     </span>
                   </div>
                 </div>

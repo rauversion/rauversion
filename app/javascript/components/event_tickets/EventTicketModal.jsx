@@ -108,7 +108,7 @@ export default function EventTicketModal({ selectedTicket, selectedPurchase, tic
                     >
                       <h3 className="text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/70">
                         Ticket Status: {" "}
-                        <span className={data.event_ticket.purchased_item?.checked_in ? "text-green-500" : "text-yellow-500"}>
+                        <span className={data.event_ticket.purchased_item?.checked_in ? "text-success" : "text-yellow-500"}>
                           {data.event_ticket.purchased_item?.checked_in ? "CHECKED IN" : "NOT CHECKED IN"}
                         </span>
                       </h3>
@@ -173,7 +173,7 @@ export default function EventTicketModal({ selectedTicket, selectedPurchase, tic
                   >
                     {shouldShowQrCode && (
                       <motion.div
-                        className="flex-shrink-0 bg-gradient-to-br from-green-100/80 to-green-200/50 dark:from-green-900/80 dark:to-green-800/50 p-6 rounded-lg shadow-lg"
+                        className="flex-shrink-0 bg-success/10 p-6 rounded-lg shadow-lg"
                         whileHover={{ scale: 1.02 }}
                         transition={{ type: "spring", stiffness: 300 }}
                       >

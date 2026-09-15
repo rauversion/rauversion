@@ -1,5 +1,6 @@
 class Release < ApplicationRecord
   include FriendlyId
+  belongs_to :tenant
   belongs_to :playlist, optional: true
   belongs_to :user, optional: true
   has_many :release_sections, dependent: :destroy
@@ -7,6 +8,11 @@ class Release < ApplicationRecord
   has_many :playlists, through: :release_playlists
   belongs_to :product, optional: true
   friendly_id :title, use: :slugged
+  before_validation -> { self.tenant ||= Current.tenant }, on: :create
+
+  scope :for_tenant, ->(tenant = Current.tenant) { tenant.present? ? where(tenant_id: tenant.id) : none }
+
+  validate :linked_resources_belong_to_tenant
 
   TEMPLATES = ['base', 'react_app', 'red', 'puck', 'default']
 
@@ -49,5 +55,12 @@ class Release < ApplicationRecord
     return Rails.application.routes.url_helpers.rails_storage_proxy_url(url) if url.present?
 
     AlbumsHelper.default_image_sqr
+  end
+
+  private
+
+  def linked_resources_belong_to_tenant
+    errors.add(:playlist, "must belong to the same tenant") if playlist.present? && playlist.tenant_id != tenant_id
+    errors.add(:product, "must belong to the same tenant") if product.present? && product.tenant_id != tenant_id
   end
 end

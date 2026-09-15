@@ -3,7 +3,7 @@ class ReleasesController < ApplicationController
   before_action :disable_footer, only: [:editor]
 
   def index
-    @releases = current_user.releases.page(params[:page]).per(10)
+    @releases = current_user.releases.for_tenant.page(params[:page]).per(10)
     respond_to do |format|
       format.html
       format.json
@@ -11,7 +11,7 @@ class ReleasesController < ApplicationController
   end
 
   def editor
-    @release = current_user.releases.friendly.find(params[:id])
+    @release = current_user.releases.for_tenant.friendly.find(params[:id])
     @disable_player = true
     render_blank
   end
@@ -36,11 +36,11 @@ class ReleasesController < ApplicationController
   end
 
   def edit
-    @release = current_user.releases.friendly.find(params[:id])
+    @release = current_user.releases.for_tenant.friendly.find(params[:id])
   end
 
   def show
-    @release = Release.friendly.find(params[:id])
+    @release = Release.for_tenant.friendly.find(params[:id])
     respond_to do |format|
       format.html { render_blank }
       format.json
@@ -48,7 +48,7 @@ class ReleasesController < ApplicationController
   end
 
   def preview
-    @release = Release.friendly.find(params[:id])
+    @release = Release.for_tenant.friendly.find(params[:id])
     respond_to do |format|
       format.html { render_blank }
       format.json
@@ -56,7 +56,7 @@ class ReleasesController < ApplicationController
   end
 
   def update
-    @release = current_user.releases.friendly.find(params[:id])
+    @release = current_user.releases.for_tenant.friendly.find(params[:id])
     permitted_params = release_params
 
     if permitted_params[:playlist_ids].present?
@@ -111,7 +111,7 @@ class ReleasesController < ApplicationController
   end
 
   def destroy
-    @release = current_user.releases.friendly.find(params[:id])
+    @release = current_user.releases.for_tenant.friendly.find(params[:id])
     @release.destroy
     
     respond_to do |format|

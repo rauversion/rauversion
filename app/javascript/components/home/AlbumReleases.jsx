@@ -52,7 +52,7 @@ const ContentCard = ({ content, variant = 'default', className }) => {
           whileHover={{
             scale: 1.04,
             rotateX: 4,
-            boxShadow: "0 8px 32px 0 rgba(0,0,0,0.25), 0 0 0 4px #a5b4fc55"
+            boxShadow: "0 8px 32px color-mix(in srgb, var(--foreground) 25%, transparent), 0 0 0 4px color-mix(in srgb, var(--primary) 34%, transparent)"
           }}
           transition={{ type: "spring", stiffness: 200, damping: 20 }}
           onHoverStart={() => setIsHovered(true)}

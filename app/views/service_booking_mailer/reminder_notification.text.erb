@@ -1,0 +1,15 @@
+<%= t(".greeting", recipient: @recipient.username) %>
+
+<%= t(".reminder_message", service: @service.title) %>
+
+<%= t(".service") %>: <%= @service.title %>
+<% if @scheduled_at.present? %>
+<%= t(".scheduled_for") %>: <%= I18n.l(@scheduled_at, format: :long) %>
+<% end %>
+<% if @service_booking.meeting_location.present? %>
+<%= t(".location") %>: <%= @service_booking.meeting_location %>
+<% elsif @service_booking.venue_name.present? %>
+<%= t(".location") %>: <%= [@service_booking.venue_name, @service_booking.city, @service_booking.country].compact_blank.join(", ") %>
+<% end %>
+
+<%= t(".view_details_button") %>: <%= @booking_url %>

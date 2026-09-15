@@ -17,12 +17,11 @@ export default class extends Controller {
     updateText() {
       
       this.messageTarget.textContent = this.messageTarget.dataset.text.ok || "Copied!"
-      this.messageTarget.classList.add("animate-pulse", "text-green-500"); // Adding animation and style
+      this.messageTarget.classList.add("animate-pulse", "text-success"); // Adding animation and style
 
       setTimeout(() => {
           this.messageTarget.textContent = this.messageTarget.dataset.text;
-          this.messageTarget.classList.remove("animate-pulse", "text-green-500"); // Remove animation and style
+          this.messageTarget.classList.remove("animate-pulse", "text-success"); // Remove animation and style
       }, 2000); // Revert after 2 seconds
   }
 }
-

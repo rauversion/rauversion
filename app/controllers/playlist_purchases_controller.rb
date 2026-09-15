@@ -2,14 +2,14 @@ class PlaylistPurchasesController < ApplicationController
   before_action :authenticate_user!
 
   def new
-    @playlist = Playlist.friendly.find(params[:playlist_id])
+    @playlist = Playlist.for_tenant.friendly.find(params[:playlist_id])
     @payment = Payment.new
     @payment.assign_attributes(initial_price: @playlist.price)
     @purchase = current_user.purchases.new
   end
 
   def create
-    @playlist = Playlist.friendly.find(params[:playlist_id])
+    @playlist = Playlist.for_tenant.friendly.find(params[:playlist_id])
     @payment = Payment.new
     @payment.assign_attributes(build_params)
 
@@ -48,7 +48,7 @@ class PlaylistPurchasesController < ApplicationController
   end
 
   def success
-    @playlist = Playlist.friendly.find(params[:playlist_id])
+    @playlist = Playlist.for_tenant.friendly.find(params[:playlist_id])
     @purchase = current_user.purchases.find(params[:id])
 
     if params[:enc].present?
@@ -60,7 +60,7 @@ class PlaylistPurchasesController < ApplicationController
   end
 
   def failure
-    @playlist = Playlist.friendly.find(params[:playlist_id])
+    @playlist = Playlist.for_tenant.friendly.find(params[:playlist_id])
     @purchase = current_user.purchases.find(params[:id])
     render "show"
   end

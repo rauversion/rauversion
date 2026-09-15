@@ -1,4 +1,6 @@
 class ApplicationController < ActionController::Base
+  before_action :set_current_tenant
+
   before_action do
     ActiveStorage::Current.url_options = {protocol: request.protocol, host: request.host, port: request.port}
     # ActiveStorage::Current.url_options = { protocol: "http://", host: "localhost", port: "3000" }
@@ -6,8 +8,17 @@ class ApplicationController < ActionController::Base
   end
 
   before_action :set_locale
+  before_action :ensure_current_tenant_access!
 
-  helper_method :flash_stream
+  helper_method :flash_stream, :current_tenant, :current_membership
+
+  def current_tenant
+    Current.tenant
+  end
+
+  def current_membership
+    Current.membership
+  end
 
   layout :layout_by_resource
 
@@ -40,7 +51,8 @@ class ApplicationController < ActionController::Base
   end
 
   def guard_artist
-    return if current_user.artist? or current_user.admin? or current_user.editor?
+    return if current_membership&.can_manage_content?
+
     redirect_to root_url
   end
 
@@ -73,11 +85,87 @@ class ApplicationController < ActionController::Base
     render inline: "", layout: "react"
   end
 
+  def require_product_sales_setup!
+    return if current_user&.can_create_products?
+
+    code = current_user&.can_sell_products? ? "stripe_required" : "seller_required"
+    message = if code == "stripe_required"
+                I18n.t("products.stripe_gate.api_error")
+              else
+                I18n.t("products.stripe_gate.not_allowed")
+              end
+    redirect_path = if code == "stripe_required"
+                      "/#{current_user.username}/settings/stripe"
+                    elsif current_user
+                      "/#{current_user.username}/products/new"
+                    else
+                      new_user_session_path
+                    end
+    response_status = code == "stripe_required" ? :payment_required : :forbidden
+
+    respond_to do |format|
+      format.html { redirect_to redirect_path, alert: message }
+      format.json do
+        render json: {
+          code: code,
+          error: message,
+          errors: { base: [message] },
+          redirect_to: redirect_path
+        }, status: response_status
+      end
+    end
+  end
+
   def disable_footer
     @disable_footer = true
   end
 
   protected
+
+  def set_current_tenant
+    Current.tenant = tenant_from_host || Tenant.central
+    Current.user = current_user
+    Current.membership = current_user&.membership_for(Current.tenant)
+    Current.tenant_profile = current_user&.tenant_profile_for(Current.tenant)
+  end
+
+  def ensure_current_tenant_access!
+    return if Current.tenant.access_policy.accessible?
+    return if tenant_access_exempt_request?
+
+    if request.format.json?
+      render json: {
+        error: "Tenant subscription required",
+        code: "tenant_subscription_required",
+        billing_path: "/billing"
+      }, status: :payment_required
+    else
+      redirect_to tenant_inactive_path
+    end
+  end
+
+  def tenant_access_exempt_request?
+    path = request.path
+
+    path == "/billing" ||
+      path == "/inactive" ||
+      path.start_with?("/tenant_billing") ||
+      path == "/admin" ||
+      path.start_with?("/admin/") ||
+      path == "/api/admin/meta" ||
+      path.start_with?("/api/v1/me") ||
+      path == "/tenants" ||
+      path.start_with?("/tenants/") ||
+      path.start_with?("/users/") ||
+      path.start_with?("/sign_in/")
+  end
+
+  def tenant_from_host
+    slug = request.subdomains.first
+    return if slug.blank? || slug.in?(%w[www app])
+
+    Tenant.find_by(slug: slug)
+  end
 
   def start_impersonation(actor:, user:)
     session[:parent_user] ||= actor.id

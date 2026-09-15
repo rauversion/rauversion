@@ -21,9 +21,9 @@ class CommentsController < ApplicationController
 
   def set_resource
     if params[:track_id]
-      @resource = Track.friendly.find(params[:track_id])
+      @resource = Track.for_tenant.friendly.find(params[:track_id])
     elsif params[:playlist_id]
-      @resource = Playlist.friendly.find(params[:playlist_id])
+      @resource = Playlist.for_tenant.friendly.find(params[:playlist_id])
     end
   end
 

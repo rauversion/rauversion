@@ -2,7 +2,7 @@ import React from "react"
 import { motion } from "framer-motion"
 import { Card } from "../ui/card"
 import { useNavigate } from "react-router-dom"
-import { Music, Piano, Package, Sticker, HandHeart } from "lucide-react"
+import { Mic2, Music, Piano, Package, Sticker, HandHeart } from "lucide-react"
 
 const container = {
   hidden: { opacity: 0 },
@@ -39,7 +39,14 @@ const CATEGORY_ICONS = [
     name: 'Services',
     icon: HandHeart,
     path: '/store/services',
-    color: 'bg-green-500'
+    color: 'bg-chart-2'
+  },
+  {
+    id: 'performers',
+    name: 'Performers',
+    icon: Mic2,
+    path: '/store/performers',
+    color: 'bg-pink-500'
   },
   {
     id: 'accessory',
@@ -74,7 +81,7 @@ const CategoryGrid = () => {
         variants={container}
         initial="hidden"
         animate="show"
-        className="grid grid-cols-2 gap-6 @3xl/store-category-grid:grid-cols-3 @5xl/store-category-grid:grid-cols-5"
+        className="grid grid-cols-2 gap-6 @3xl/store-category-grid:grid-cols-3 @5xl/store-category-grid:grid-cols-6"
       >
         {CATEGORY_ICONS.map((category) => {
           const Icon = category.icon

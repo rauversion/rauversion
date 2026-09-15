@@ -1,0 +1,9 @@
+<%= t(".greeting", provider: @provider.username) %>
+
+<%= t(".intro", customer: @customer.username, service: @service.title) %>
+
+<%= t(".booking_details") %>
+<%= t(".service") %>: <%= @service.title %>
+<%= t(".customer") %>: <%= @customer.username %>
+
+<%= t(".view_booking_button") %>: <%= @booking_url %>

@@ -1,10 +1,11 @@
 module Admin
   class ResourceRegistry
     class ResourceNotFound < StandardError; end
+    TENANT_RESOURCE_KEYS = %i[tracks events posts].freeze
 
     class << self
-      def nav_items
-        [
+      def nav_items(platform_admin: true)
+        dashboards = [
           {
             key: "commerce",
             label: "Commerce",
@@ -26,6 +27,16 @@ module Admin
             icon: "Ticket",
             path: "/admin/event-sales"
           },
+        ]
+
+        platform_items = [
+          {
+            key: "bookings",
+            label: "Bookings",
+            kind: "dashboard",
+            icon: "CalendarCheck",
+            path: "/admin/bookings"
+          },
           {
             key: "pages",
             label: "Pages",
@@ -34,7 +45,11 @@ module Admin
             path: "/admin/pages",
             creatable: true
           }
-        ] + all.map do |key, resource|
+        ]
+
+        resources = platform_admin ? all : all.slice(*TENANT_RESOURCE_KEYS)
+
+        dashboards + (platform_admin ? platform_items : []) + resources.map do |key, resource|
           {
             key: key.to_s,
             label: resource[:label],
@@ -44,6 +59,10 @@ module Admin
             creatable: resource[:creatable]
           }
         end
+      end
+
+      def tenant_resource?(key)
+        key.to_sym.in?(TENANT_RESOURCE_KEYS)
       end
 
       def all

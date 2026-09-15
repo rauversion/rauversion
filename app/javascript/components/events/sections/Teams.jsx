@@ -460,7 +460,7 @@ export default function Teams() {
                               {I18n.t('events.edit.teams.edit_member.listed.label')}
                             </span>
                           )}
-                          <span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800">
+                          <span className="inline-flex items-center rounded-full bg-success/15 px-2.5 py-0.5 text-xs font-medium text-success">
                             {getRoleLabel(member.access_role)}
                           </span>
                         </div>
@@ -507,7 +507,7 @@ export default function Teams() {
                   <div key={invite.id} className="rounded-lg border p-4">
                     <div className="break-all font-medium">{invite.email}</div>
                     <div className="mt-3 flex flex-wrap gap-2">
-                      <span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800">
+                      <span className="inline-flex items-center rounded-full bg-success/15 px-2.5 py-0.5 text-xs font-medium text-success">
                         {getRoleLabel(invite.role)}
                       </span>
                     </div>

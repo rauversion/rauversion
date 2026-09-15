@@ -96,6 +96,7 @@ import AlbumsIndex from "./albums/Index"
 import StoreIndex from "./store/Index"
 import ProductNew from "./products/New"
 import ProductEdit from "./products/Edit"
+import StripeSellerSetupDialog from "./products/shared/StripeSellerSetupDialog"
 import GearForm from "./products/gear/Form"
 import MusicForm from "./products/music/Form"
 import MerchForm from "./products/merch/Form"
@@ -103,6 +104,8 @@ import AccessoryForm from "./products/accessory/Form"
 import ServiceForm from "./products/service/Form"
 import { ServiceBookings } from "./ServiceBookings"
 import { ServiceBookingDetail } from "./ServiceBookings/ServiceBookingDetail"
+import { ServiceBookingProposals } from "./ServiceBookingProposals"
+import { ServiceBookingProposalDetail } from "./ServiceBookingProposals/ServiceBookingProposalDetail"
 import NewTrack from "./tracks/NewTrack"
 import CategoryView from "./store/CategoryView"
 import { InterestAlertDemo } from "./shared/alerts"
@@ -121,6 +124,7 @@ import LessonShow from "./courses/lessonShow"
 
 import SpinningVideo from "./spinning-video"
 import AppMusicLibraryLayout from "./shared/AppMusicLibraryLayout"
+import TenantThemeProvider from "./tenants/TenantThemeProvider"
 import LikedTracks from "./library/LikedTracks"
 
 
@@ -131,10 +135,16 @@ import { cn } from "@/lib/utils"
 import AdminLayout from "./admin/AdminLayout"
 import AdminDashboardPage from "./admin/AdminDashboardPage"
 import AdminEventSalesPage from "./admin/AdminEventSalesPage"
+import AdminBookingsPage from "./admin/AdminBookingsPage"
 import AdminListeningPage from "./admin/AdminListeningPage"
 import AdminResourceListPage from "./admin/AdminResourceListPage"
 import AdminResourceFormPage from "./admin/AdminResourceFormPage"
 import AdminTrackShowPage from "./admin/AdminTrackShowPage"
+import TenantOnboarding from "./tenants/TenantOnboarding"
+import TenantDashboard from "./tenants/TenantDashboard"
+import TenantSettings from "./tenants/TenantSettings"
+import TenantBilling from "./tenants/TenantBilling"
+import TenantInactive from "./tenants/TenantInactive"
 
 function RequireAuth({ children }) {
   const { currentUser, loading: currentUserLoading } = useAuthStore()
@@ -201,8 +211,27 @@ function RequireAdmin({ children }) {
     return <Navigate to="/users/sign_in" state={{ from: location }} replace />
   }
 
-  if (!currentUser.is_admin) {
-    return <Navigate to="/" replace />
+  return children
+}
+
+function RequireProductSellerSetup({ children }) {
+  const { currentUser, loading: currentUserLoading } = useAuthStore()
+  const location = useLocation()
+
+  if (currentUserLoading) {
+    return <LoadingSpinner />
+  }
+
+  if (!currentUser) {
+    return <Navigate to="/users/sign_in" state={{ from: location }} replace />
+  }
+
+  if (!currentUser.can_sell_products) {
+    return <Navigate to={`/${currentUser.username}/products/new`} replace />
+  }
+
+  if (!currentUser.can_create_products) {
+    return <StripeSellerSetupDialog backPath={`/${currentUser.username}/products`} />
   }
 
   return children
@@ -296,11 +325,17 @@ function AppContent() {
   const isPageShowRoute = /^\/pages\/[^/]+$/.test(location.pathname)
   const isEmailTemplateEditRoute = /^\/email-templates\/[^/]+\/edit$/.test(location.pathname)
   const isAdminRoute = location.pathname === "/admin" || location.pathname.startsWith("/admin/")
+  const isTenantInactiveRoute = location.pathname === "/inactive"
   const isRadioRoute = /^\/[^/]+\/radio$/.test(location.pathname)
+  const isBroadcastHomeRoute =
+    location.pathname === "/" &&
+    window.ENV?.TENANT_TEMPLATE === "broadcast"
+  const isImmersiveStorefrontRoute = isRadioRoute || isBroadcastHomeRoute
 
   const shouldShowMusicLibraryLayout =
     !isAdminRoute &&
-    !isRadioRoute &&
+    !isTenantInactiveRoute &&
+    !isImmersiveStorefrontRoute &&
     !isAdmissionRoute &&
     !isEventShowRoute &&
     !isArticleEditRoute &&
@@ -325,6 +360,7 @@ function AppContent() {
         <Route path="commerce" element={<AdminDashboardPage />} />
         <Route path="listening" element={<AdminListeningPage />} />
         <Route path="event-sales" element={<AdminEventSalesPage />} />
+        <Route path="bookings" element={<AdminBookingsPage />} />
         <Route path="pages" element={<PagesTable />} />
         <Route path="pages/:id/edit" element={<PagesEditor />} />
         <Route path=":resourceKey" element={<AdminResourceListPage />} />
@@ -346,6 +382,11 @@ function AppContent() {
       <Route path="/users/invitation/accept" element={<AcceptInvitation />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/users/password/edit" element={<EditPassword />} />
+      <Route path="/tenants/new" element={<RequireAuth><TenantOnboarding /></RequireAuth>} />
+      <Route path="/tenants" element={<RequireAuth><TenantDashboard /></RequireAuth>} />
+      <Route path="/tenants/:id/settings" element={<RequireAuth><TenantSettings /></RequireAuth>} />
+      <Route path="/billing" element={<RequireAuth><TenantBilling /></RequireAuth>} />
+      <Route path="/inactive" element={<TenantInactive />} />
 
 
       <Route path="/" element={<Home />} />
@@ -421,11 +462,11 @@ function AppContent() {
       <Route path="/store/:type" element={<CategoryView />} />
       <Route path="/demo/alerts" element={<InterestAlertDemo />} />
       <Route path="/:username/products/new" element={<RequireAuth><ProductNew /></RequireAuth>} />
-      <Route path="/:username/products/gear/new" element={<RequireAuth><GearForm /></RequireAuth>} />
-      <Route path="/:username/products/music/new" element={<RequireAuth><MusicForm /></RequireAuth>} />
-      <Route path="/:username/products/merch/new" element={<RequireAuth><MerchForm /></RequireAuth>} />
-      <Route path="/:username/products/accessory/new" element={<RequireAuth><AccessoryForm /></RequireAuth>} />
-      <Route path="/:username/products/service/new" element={<RequireAuth><ServiceForm /></RequireAuth>} />
+      <Route path="/:username/products/gear/new" element={<RequireProductSellerSetup><GearForm /></RequireProductSellerSetup>} />
+      <Route path="/:username/products/music/new" element={<RequireProductSellerSetup><MusicForm /></RequireProductSellerSetup>} />
+      <Route path="/:username/products/merch/new" element={<RequireProductSellerSetup><MerchForm /></RequireProductSellerSetup>} />
+      <Route path="/:username/products/accessory/new" element={<RequireProductSellerSetup><AccessoryForm /></RequireProductSellerSetup>} />
+      <Route path="/:username/products/service/new" element={<RequireProductSellerSetup><ServiceForm /></RequireProductSellerSetup>} />
       <Route path="/:username/products/:slug/edit" element={<RequireAuth><ProductEdit /></RequireAuth>} />
       <Route path="/:username/podcasts" element={<PodcastLayout />}>
         <Route index element={<PodcastsIndex />} />
@@ -460,6 +501,8 @@ function AppContent() {
       <Route path="/library/likes" element={<RequireAuth><LikedTracks /></RequireAuth>} />
       <Route path="/service_bookings" element={<RequireAuth><ServiceBookings /></RequireAuth>} />
       <Route path="/service_bookings/:id" element={<RequireAuth><ServiceBookingDetail /></RequireAuth>} />
+      <Route path="/service_booking_proposals" element={<RequireAuth><ServiceBookingProposals /></RequireAuth>} />
+      <Route path="/service_booking_proposals/:id" element={<RequireAuth><ServiceBookingProposalDetail /></RequireAuth>} />
       <Route path="/account_connections/new" element={<RequireAuth><AccountConnectionForm /></RequireAuth>} />
 
       <Route path="/:username/press-kit" element={<PressKitPage />} />
@@ -482,8 +525,8 @@ function AppContent() {
 
   return (
     <>
-      {!isAdminRoute && !isAdmissionRoute && !isRadioRoute && <UserMenu />}
-      <div className={cn(!isAdminRoute && !isAdmissionRoute && !isRadioRoute && "pb-24", shouldShowMusicLibraryLayout && "px-4 py-4 sm:px-6 lg:px-8")}>
+      {!isAdminRoute && !isAdmissionRoute && !isImmersiveStorefrontRoute && <UserMenu />}
+      <div className={cn(!isAdminRoute && !isAdmissionRoute && !isImmersiveStorefrontRoute && "pb-24", shouldShowMusicLibraryLayout && "px-4 py-4 sm:px-6 lg:px-8")}>
         {shouldShowMusicLibraryLayout ? (
           <AppMusicLibraryLayout>{routes}</AppMusicLibraryLayout>
         ) : (
@@ -492,7 +535,7 @@ function AppContent() {
       </div>
 
       <Toaster />
-      {!isAdminRoute && !isAdmissionRoute && !isRadioRoute && <AudioPlayer />}
+      {!isAdminRoute && !isAdmissionRoute && !isImmersiveStorefrontRoute && <AudioPlayer />}
 
       {
         !isAdminRoute &&
@@ -506,7 +549,7 @@ function AppContent() {
         !location.pathname.includes('conversations') &&
         !location.pathname.includes('press-kit') &&
         !isAdmissionRoute &&
-        !isRadioRoute &&
+        !isImmersiveStorefrontRoute &&
         (
           <Footer />
         )
@@ -517,9 +560,11 @@ function AppContent() {
 
 export default function AppRouter() {
   return (
-    <BrowserRouter>
-      <ScrollRestoration />
-      <AppContent />
-    </BrowserRouter>
+    <TenantThemeProvider theme={window.ENV?.TENANT_THEME}>
+      <BrowserRouter>
+        <ScrollRestoration />
+        <AppContent />
+      </BrowserRouter>
+    </TenantThemeProvider>
   )
 }

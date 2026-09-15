@@ -111,7 +111,7 @@ class EventListsController < ApplicationController
   private
 
   def set_event
-    @event = Event.friendly.find(params[:event_id])
+    @event = Event.for_tenant.friendly.find(params[:event_id])
   end
 
   def check_event_owner

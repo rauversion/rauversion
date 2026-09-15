@@ -3,6 +3,8 @@ json.purchase do
   json.status @purchase.status
   json.shipping_status @purchase.shipping_status
   json.total_amount @purchase.total_amount
+  json.currency @purchase.currency
+  json.formatted_total formatted_product_price(@purchase.total_amount, @purchase.currency)
   json.shipping_cost @purchase.shipping_cost
   json.total_with_shipping @purchase.total_with_shipping
   json.total_quantity @purchase.total_quantity
@@ -28,14 +30,19 @@ json.purchase do
     json.id item.id
     json.quantity item.quantity
     json.price item.price
+    json.currency item.currency
+    json.formatted_price formatted_product_price(item.price, item.currency)
     json.shipping_cost item.shipping_cost
     json.total_price_with_shipping item.total_price_with_shipping
+    json.formatted_total_price_with_shipping formatted_product_price(item.total_price_with_shipping, item.currency)
     
     json.product do
       json.id item.product.id
       json.title item.product.title
       json.description item.product.description
       json.price item.product.price
+      json.currency item.product.currency
+      json.formatted_price formatted_product_price(item.product.price, item.product.currency)
       json.slug item.product.slug
       
       json.images item.product.product_images do |image|

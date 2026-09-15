@@ -7,9 +7,9 @@ FactoryBot.define do
     #sequence(:username) { |n| "user-#{n}" }
     #sequence(:email) { |n| "person#{n}@example.com" }
 
-    email { Faker::Internet.email }
+    sequence(:email) { |number| "person-#{number}@example.com" }
     # password { "password" }
-    username { Faker::Internet.username }
+    sequence(:username) { |number| "user-#{number}" }
     role { :user }
 
     factory :admin_user do

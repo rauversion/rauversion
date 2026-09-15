@@ -27,7 +27,7 @@ function statusTone(status?: string) {
   switch (status) {
     case "completed":
     case "delivered":
-      return "border border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
+      return "border border-success/20 bg-success/10 text-success"
     case "processing":
     case "shipped":
     case "order_placed":

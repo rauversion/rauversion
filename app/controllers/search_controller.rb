@@ -9,7 +9,7 @@ class SearchController < ApplicationController
     end
 
     # Users: search username, display_name, first_name, last_name, bio, city, country
-    users_search = User.where(role: ["admin", "artist"]).ransack(
+    users_search = User.artists_for.ransack(
       {
         username_or_display_name_or_first_name_or_last_name_or_bio_or_city_or_country_cont: query
       }
@@ -32,7 +32,7 @@ class SearchController < ApplicationController
     )
     tracks = tracks_search.result
     # Add tracks that match tags (Postgres array column)
-    tag_tracks = Track.where("? = ANY(tags)", query).limit(10)
+    tag_tracks = Track.for_tenant.where("? = ANY(tags)", query).limit(10)
     # Merge and uniq by id, then limit
     all_tracks = (tracks.to_a + tag_tracks.to_a).uniq { |t| t.id }[0, 10]
 

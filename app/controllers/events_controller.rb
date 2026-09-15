@@ -5,7 +5,7 @@ class EventsController < ApplicationController
   before_action :disable_footer, only: [:editor, :preview]
 
   def index
-    @q = Event.ransack(params[:q])
+    @q = Event.for_tenant.ransack(params[:q])
     @q.sorts = 'starts_at asc' if @q.sorts.empty?
     
     # Only show public and published events in index
@@ -42,6 +42,7 @@ class EventsController < ApplicationController
     # First, try to find by signed_id (for private event access)
     begin
       @event = Event.find_signed(params[:id], purpose: :private_event)
+      @event = nil unless @event&.tenant_id == Current.tenant.id
     rescue ActiveRecord::RecordNotFound, ActiveSupport::MessageVerifier::InvalidSignature => e
       # Not a valid signed_id, continue to regular lookup
       Rails.logger.debug "Signed ID lookup failed: #{e.message}" if params[:id].length > 50
@@ -208,11 +209,11 @@ class EventsController < ApplicationController
   private
 
   def set_owned_event
-    @event = current_user.events.friendly.find(params[:id])
+    @event = current_user.events.for_tenant.friendly.find(params[:id])
   end
 
   def set_edit_event
-    @event = Event.friendly.find(params[:id])
+    @event = Event.for_tenant.friendly.find(params[:id])
     raise ActiveRecord::RecordNotFound unless @event.can_access_backoffice?(current_user)
   end
 
@@ -236,19 +237,19 @@ class EventsController < ApplicationController
   end
 
   def all_accessible_events
-    Event.where(id: owned_events_scope.select(:id))
-      .or(Event.where(id: managed_events_scope.select(:id)))
+    Event.for_tenant.where(id: owned_events_scope.select(:id))
+      .or(Event.for_tenant.where(id: managed_events_scope.select(:id)))
       .includes(:user)
       .distinct
       .order(updated_at: :desc)
   end
 
   def owned_events_scope
-    current_user.events
+    current_user.events.for_tenant
   end
 
   def managed_events_scope
-    Event.joins(:event_hosts)
+    Event.for_tenant.joins(:event_hosts)
       .where(event_hosts: { user_id: current_user.id, access_role: EventHost::BACKOFFICE_ACCESS_ROLES })
   end
 

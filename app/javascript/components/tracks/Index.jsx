@@ -118,7 +118,7 @@ function FilterPill({ active, children, count, onClick }) {
       className={cn(
         "inline-flex items-center gap-2 rounded-full border px-3 py-2 text-sm transition-all",
         active
-          ? "border-[#f5c451] bg-[#f5c451] text-black"
+          ? "border-primary bg-primary text-primary-foreground"
           : "border-border bg-card text-foreground hover:border-foreground/20 hover:bg-muted/60 dark:border-white/10 dark:bg-white/5 dark:text-white dark:hover:border-white/25 dark:hover:bg-white/10"
       )}
     >
@@ -142,7 +142,7 @@ function StatCard({ icon: Icon, label, value, hint }) {
     <div className="rounded-[28px] border border-border bg-card/90 p-5 dark:border-white/10 dark:bg-white/[0.04]">
       <div className="mb-4 flex items-center justify-between">
         <span className="text-xs uppercase tracking-[0.28em] text-muted-foreground dark:text-white/45">{label}</span>
-        <Icon className="h-4 w-4 text-[#f5c451]" />
+        <Icon className="h-4 w-4 text-primary" />
       </div>
       <div className="text-3xl font-black tracking-tight text-foreground dark:text-white">{value}</div>
       <p className="mt-2 text-sm text-muted-foreground dark:text-white/55">{hint}</p>
@@ -154,7 +154,7 @@ function ActiveFilterBadge({ label, value, onClear }) {
   return (
     <button
       onClick={onClear}
-      className="inline-flex items-center gap-2 rounded-full border border-[#f5c451]/30 bg-[#f5c451]/12 px-3 py-1.5 text-sm text-[#9a6a00] dark:text-[#f8d67c]"
+      className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1.5 text-sm text-primary"
     >
       <span className="text-muted-foreground dark:text-white/60">{label}</span>
       <span>{value}</span>
@@ -307,7 +307,7 @@ function DiscoveryShelf({ section, filterKey, activeValue, onSelect, onPrepareQu
     <section className="space-y-8 rounded-[32px] border border-border bg-card/90 p-6 md:p-8 dark:border-white/10 dark:bg-[#09090b]">
       <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
         <div>
-          <p className="text-xs uppercase tracking-[0.28em] text-[#f5c451]">{t("shelf.eyebrow")}</p>
+          <p className="text-xs uppercase tracking-[0.28em] text-primary">{t("shelf.eyebrow")}</p>
           <h2 className="mt-2 text-3xl font-black tracking-tight text-foreground dark:text-white">{section.title}</h2>
         </div>
         <p className="max-w-xl text-sm text-muted-foreground dark:text-white/55">
@@ -331,7 +331,7 @@ function DiscoveryShelf({ section, filterKey, activeValue, onSelect, onPrepareQu
                   className={cn(
                     "w-fit rounded-full",
                     activeValue === item.value
-                      ? "bg-[#f5c451] text-black hover:bg-[#f5c451]/90"
+                      ? "bg-primary text-primary-foreground hover:bg-primary/90"
                       : "border-border bg-transparent text-foreground hover:bg-muted hover:text-foreground dark:border-white/15 dark:text-white dark:hover:bg-white dark:hover:text-black"
                   )}
                   onClick={() => onSelect(filterKey, item.value)}
@@ -409,7 +409,7 @@ function DiscoveryFilters({
 
       <div>
         <div className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground dark:text-white/65">
-          <Disc3 className="h-4 w-4 text-[#f5c451]" />
+          <Disc3 className="h-4 w-4 text-primary" />
           {t("filters.genre")}
         </div>
         <div className="flex flex-wrap gap-2">
@@ -428,7 +428,7 @@ function DiscoveryFilters({
 
       <div>
         <div className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground dark:text-white/65">
-          <Sparkles className="h-4 w-4 text-[#f5c451]" />
+          <Sparkles className="h-4 w-4 text-primary" />
           {t("filters.mood")}
         </div>
         <div className="flex flex-wrap gap-2">
@@ -447,7 +447,7 @@ function DiscoveryFilters({
 
       <div>
         <div className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground dark:text-white/65">
-          <Waves className="h-4 w-4 text-[#f5c451]" />
+          <Waves className="h-4 w-4 text-primary" />
           {t("filters.tempo")}
         </div>
         <div className="flex flex-wrap gap-2">
@@ -466,7 +466,7 @@ function DiscoveryFilters({
 
       <div>
         <div className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground dark:text-white/65">
-          <SlidersHorizontal className="h-4 w-4 text-[#f5c451]" />
+          <SlidersHorizontal className="h-4 w-4 text-primary" />
           {t("filters.subgenre")}
         </div>
         <div className="flex flex-wrap gap-2">
@@ -485,7 +485,7 @@ function DiscoveryFilters({
 
       <div>
         <div className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground dark:text-white/65">
-          <Tags className="h-4 w-4 text-[#f5c451]" />
+          <Tags className="h-4 w-4 text-primary" />
           {t("filters.tags")}
         </div>
         <div className="flex flex-wrap gap-2">
@@ -676,7 +676,13 @@ export default function TracksIndex({ mode = "tracks", endpoint = "/tracks.json"
     <DiscoveryCopyContext.Provider value={t}>
       <div className="min-h-screen bg-background text-foreground">
       <section className="relative overflow-hidden border-b border-border dark:border-white/10">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(245,196,81,0.16),_transparent_35%),radial-gradient(circle_at_80%_20%,_rgba(59,130,246,0.10),_transparent_28%),linear-gradient(180deg,_rgba(15,23,42,0.04),_transparent_70%)] dark:bg-[radial-gradient(circle_at_top_left,_rgba(245,196,81,0.20),_transparent_35%),radial-gradient(circle_at_80%_20%,_rgba(59,130,246,0.18),_transparent_28%),linear-gradient(180deg,_rgba(255,255,255,0.04),_transparent_70%)]" />
+        <div
+          className="absolute inset-0"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at top left, color-mix(in srgb, var(--primary) 18%, transparent), transparent 35%), radial-gradient(circle at 80% 20%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 28%), linear-gradient(180deg, color-mix(in srgb, var(--foreground) 4%, transparent), transparent 70%)",
+          }}
+        />
         <div className="relative mx-auto max-w-7xl px-4 py-12 sm:px-8 md:py-20">
           <div className="grid gap-6 lg:grid-cols-[1.18fr_0.82fr]">
             <motion.div
@@ -684,7 +690,7 @@ export default function TracksIndex({ mode = "tracks", endpoint = "/tracks.json"
               animate={{ opacity: 1, y: 0 }}
               className="rounded-[32px] border border-border bg-background/80 p-6 backdrop-blur md:p-8 dark:border-white/10 dark:bg-black/30"
             >
-              <Badge className="border-none bg-[#f5c451] px-3 py-1 text-black hover:bg-[#f5c451]">
+              <Badge className="border-none bg-primary px-3 py-1 text-primary-foreground hover:bg-primary/90">
                 {t("hero.badge")}
               </Badge>
               <h1 className="mt-5 max-w-4xl text-4xl font-black tracking-[-0.05em] text-foreground dark:text-white md:text-6xl">
@@ -720,7 +726,7 @@ export default function TracksIndex({ mode = "tracks", endpoint = "/tracks.json"
 
                   <Button
                     type="submit"
-                    className="h-12 rounded-full bg-[#f5c451] px-6 text-black hover:bg-[#f5c451]/90"
+                    className="h-12 rounded-full bg-primary px-6 text-primary-foreground hover:bg-primary/90"
                   >
                     {t("hero.search_button")}
                   </Button>
@@ -769,7 +775,7 @@ export default function TracksIndex({ mode = "tracks", endpoint = "/tracks.json"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-transparent" />
                     <div className="absolute inset-0 flex flex-col justify-end p-6">
-                      <p className="text-xs uppercase tracking-[0.28em] text-[#f5c451]">{t("highlighted_playlist.eyebrow")}</p>
+                      <p className="text-xs uppercase tracking-[0.28em] text-primary">{t("highlighted_playlist.eyebrow")}</p>
                       <h2 className="mt-3 text-3xl font-black tracking-tight text-white">
                         {highlightedPlaylist.title}
                       </h2>
@@ -787,13 +793,13 @@ export default function TracksIndex({ mode = "tracks", endpoint = "/tracks.json"
               ) : (
                 <div className="flex h-full min-h-[320px] flex-col justify-between p-6 md:p-8">
                   <div>
-                    <p className="text-xs uppercase tracking-[0.28em] text-[#f5c451]">{t("fallback_panel.eyebrow")}</p>
+                    <p className="text-xs uppercase tracking-[0.28em] text-primary">{t("fallback_panel.eyebrow")}</p>
                     <h2 className="mt-3 text-3xl font-black tracking-tight text-foreground dark:text-white">{t("fallback_panel.title")}</h2>
                   </div>
                   <div className="space-y-4">
                     <div className="rounded-[28px] border border-border bg-muted/50 p-4 dark:border-white/10 dark:bg-white/[0.03]">
                       <div className="mb-2 flex items-center gap-2 text-sm text-muted-foreground dark:text-white/65">
-                        <SlidersHorizontal className="h-4 w-4 text-[#f5c451]" />
+                        <SlidersHorizontal className="h-4 w-4 text-primary" />
                         {t("fallback_panel.genre_mood_title")}
                       </div>
                       <p className="text-sm leading-6 text-muted-foreground dark:text-white/55">
@@ -802,7 +808,7 @@ export default function TracksIndex({ mode = "tracks", endpoint = "/tracks.json"
                     </div>
                     <div className="rounded-[28px] border border-border bg-muted/50 p-4 dark:border-white/10 dark:bg-white/[0.03]">
                       <div className="mb-2 flex items-center gap-2 text-sm text-muted-foreground dark:text-white/65">
-                        <Mic2 className="h-4 w-4 text-[#f5c451]" />
+                        <Mic2 className="h-4 w-4 text-primary" />
                         {t("fallback_panel.ranking_title")}
                       </div>
                       <p className="text-sm leading-6 text-muted-foreground dark:text-white/55">
@@ -821,7 +827,7 @@ export default function TracksIndex({ mode = "tracks", endpoint = "/tracks.json"
         <div className="rounded-[28px] border border-border bg-card/90 p-4 dark:border-white/10 dark:bg-[#09090b]">
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
             <div>
-              <p className="text-xs uppercase tracking-[0.28em] text-[#f5c451]">{t("filters.eyebrow")}</p>
+              <p className="text-xs uppercase tracking-[0.28em] text-primary">{t("filters.eyebrow")}</p>
               <h2 className="mt-1 text-lg font-bold tracking-tight text-foreground dark:text-white md:text-xl">
                 {t("filters.title")}
               </h2>
@@ -837,7 +843,7 @@ export default function TracksIndex({ mode = "tracks", endpoint = "/tracks.json"
                     <SlidersHorizontal className="mr-2 h-4 w-4" />
                     {t("filters.eyebrow")}
                     {activeFilterEntries.length > 0 ? (
-                      <span className="ml-2 rounded-full bg-[#f5c451] px-2 py-0.5 text-xs font-semibold text-black">
+                      <span className="ml-2 rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-primary-foreground">
                         {activeFilterEntries.length}
                       </span>
                     ) : null}
@@ -845,7 +851,7 @@ export default function TracksIndex({ mode = "tracks", endpoint = "/tracks.json"
                 </SheetTrigger>
                 <SheetContent side="right" className="w-[92vw] overflow-y-auto p-0 sm:max-w-xl">
                   <SheetHeader className="border-b border-border p-6 text-left dark:border-white/10">
-                    <p className="text-xs uppercase tracking-[0.28em] text-[#f5c451]">{t("filters.eyebrow")}</p>
+                    <p className="text-xs uppercase tracking-[0.28em] text-primary">{t("filters.eyebrow")}</p>
                     <SheetTitle className="text-2xl font-black tracking-tight">
                       {t("filters.title")}
                     </SheetTitle>
@@ -919,7 +925,7 @@ export default function TracksIndex({ mode = "tracks", endpoint = "/tracks.json"
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-8 md:py-12">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-xs uppercase tracking-[0.28em] text-[#f5c451]">{t("results.eyebrow")}</p>
+            <p className="text-xs uppercase tracking-[0.28em] text-primary">{t("results.eyebrow")}</p>
             <h2 className="mt-2 text-3xl font-black tracking-tight text-foreground dark:text-white">
               {hasActiveFilters ? t("results.filtered_title") : t("results.default_title")}
             </h2>
@@ -996,7 +1002,7 @@ export default function TracksIndex({ mode = "tracks", endpoint = "/tracks.json"
             <div className="mx-auto max-w-7xl">
               <div className="mb-12 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
                 <div>
-                  <p className="text-xs uppercase tracking-[0.28em] text-[#f5c451]">{t("labels.eyebrow")}</p>
+                  <p className="text-xs uppercase tracking-[0.28em] text-primary">{t("labels.eyebrow")}</p>
                   <h2 className="mt-2 text-4xl font-black tracking-tight text-foreground dark:text-white">{t("labels.title")}</h2>
                 </div>
                 <p className="max-w-xl text-sm text-muted-foreground dark:text-white/55">

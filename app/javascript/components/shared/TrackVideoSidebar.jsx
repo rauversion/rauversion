@@ -409,7 +409,7 @@ export default function TrackVideoSidebar({
               className={cn(
                 "inline-flex shrink-0 rounded-full px-3 py-1 text-xs font-medium",
                 isCurrentTrackPlaying
-                  ? "bg-emerald-500/15 text-emerald-400"
+                  ? "bg-primary/15 text-primary"
                   : "bg-muted text-muted-foreground"
               )}
             >
@@ -491,7 +491,7 @@ export default function TrackVideoSidebar({
                                 className={cn(
                                   "inline-flex rounded-full border px-3 py-1 text-xs font-medium backdrop-blur-sm",
                                   isCurrentTrackPlaying
-                                    ? "border-emerald-300/20 bg-emerald-500/20 text-emerald-100"
+                                    ? "border-primary/30 bg-primary/25 text-primary"
                                     : "border-white/15 bg-black/30 text-white/75"
                                 )}
                               >
@@ -563,7 +563,7 @@ export default function TrackVideoSidebar({
                                 className={cn(
                                   "inline-flex rounded-full border px-3 py-1 text-xs font-medium backdrop-blur-sm",
                                   isCurrentTrackPlaying
-                                    ? "border-emerald-300/20 bg-emerald-500/20 text-emerald-100"
+                                    ? "border-primary/30 bg-primary/25 text-primary"
                                     : "border-white/15 bg-black/30 text-white/75"
                                 )}
                               >

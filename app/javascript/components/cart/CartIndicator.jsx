@@ -138,7 +138,7 @@ export function CartIndicator() {
                       {item.product?.title}
                     </p>
                     <p className="text-sm text-muted-foreground">
-                      {itemQuantity(item)} × {item.product?.price}
+                      {itemQuantity(item)} × {item.product?.formatted_price || item.product?.price}
                     </p>
                   </div>
                   <Button

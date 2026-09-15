@@ -1,6 +1,51 @@
 module ApplicationHelper
+  ZERO_DECIMAL_CURRENCIES = %w[bif clp djf gnf jpy kmf krw mga pyg rwf ugx vnd vuv xaf xof xpf].freeze
+
+  def tenant_theme_css(theme_schema)
+    return "" unless theme_schema.is_a?(Hash)
+
+    css_vars = theme_schema["cssVars"]
+    return "" unless css_vars.is_a?(Hash)
+
+    base = tenant_theme_declarations(css_vars["theme"], Tenant::THEME_BASE_TOKENS)
+    light = tenant_theme_declarations(css_vars["light"], Tenant::THEME_COLOR_TOKENS)
+    dark = tenant_theme_declarations(css_vars["dark"], Tenant::THEME_COLOR_TOKENS)
+    return "" if light.blank? && dark.blank?
+
+    <<~CSS.squish
+      :root, body { #{base} #{light} }
+      html.dark, html.dark body, body.dark { #{base} #{dark.presence || light} }
+    CSS
+  end
+
+  def tenant_theme_declarations(values, allowed_tokens)
+    return "" unless values.is_a?(Hash)
+
+    values.filter_map do |token, value|
+      token = token.to_s
+      next unless allowed_tokens.include?(token)
+      next unless value.is_a?(String) && value.length <= 120
+      next if value.match?(/[;{}<>]/)
+
+      "--#{token}: #{value};"
+    end.join(" ")
+  end
   
   # ActionView::Base.default_form_builder = TailwindFormBuilder
+
+  def formatted_product_price(amount, currency)
+    return "" if amount.blank?
+
+    currency_code = currency.to_s.upcase.presence || "USD"
+    numeric_amount = amount.to_d
+    precision = ZERO_DECIMAL_CURRENCIES.include?(currency_code.downcase) ? 0 : (numeric_amount.frac.zero? ? 0 : 2)
+
+    number_to_currency(
+      numeric_amount,
+      unit: "#{currency_code} ",
+      precision: precision
+    )
+  end
 
   def current_cart
     ProductCart.find(session[:cart_id])

@@ -1,0 +1,224 @@
+en:
+  tenants:
+    common:
+      tenant: Tenant
+      tenants: Tenants
+      logo: Logo
+      back_to_tenants: Tenants
+      operation_failed: The operation could not be completed
+      loading: Loading…
+      save: Save
+      current: Current
+    roles:
+      member: Member
+      artist: Artist
+      editor: Editor
+      admin: Admin
+      owner: Owner
+    dashboard:
+      title: Your tenants
+      new_tenant: New tenant
+      verified_access: Verified access
+      central_platform: Central platform
+      private_tenant: Private tenant
+      active_tenant: Active tenant
+      enter_tenant: Enter tenant
+      configure: Configure tenant
+      open_host: Open tenant host
+      load_error: We could not load your tenants.
+      available_spaces: Available spaces
+      current_context: Current context
+      none_selected: None selected
+      catalog_isolation: Catalog isolation
+      isolated_content: Isolated content
+      development_title: How to test the “test” tenant in Rails development
+      development_enter_html: Use <strong>Enter tenant</strong> to open its admin on the corresponding host.
+      development_host_html: Use the external button to open <code>test.lvh.me:3000</code>; lvh.me automatically resolves to 127.0.0.1.
+    onboarding:
+      validation:
+        name_min: Enter at least 2 characters
+        name_max: Maximum 80 characters
+        slug_min: Use at least 3 characters
+        slug_max: Maximum 63 characters
+        slug_format: Use lowercase letters, numbers, and dashes
+      availability:
+        idle: Choose your space address
+        checking: Checking availability…
+        available: Available
+        taken: That name is already in use
+        reserved: That name is reserved by Rauversion
+        invalid: Check the subdomain format
+        error: We could not validate it right now; try again
+      copy_value: Copy value
+      created: Space created
+      canonical_description: This will be the canonical entry while you connect your domain.
+      ready_title: Tenant ready for content
+      back_to_rauversion: Back to Rauversion
+      custom_domain_title: Connect a custom domain
+      custom_domain_description: Preview guide; you do not need to change DNS yet.
+      domain_steps:
+        verify_title: Verify ownership
+        verify_description: We will publish a unique TXT record for your domain.
+        traffic_title: Route traffic
+        traffic_description: You will configure a CNAME pointing to domains.rauversion.com.
+        https_title: Enable HTTPS
+        https_description: Rauversion will request and renew the certificate automatically.
+      choose_available_slug: Choose an available subdomain
+      create_error: We could not create the space. Review the data and try again.
+      connection_error: We could not connect to Rauversion. Try again.
+      features:
+        isolated_title: Isolated data
+        isolated_description: Your catalog does not appear in the central tenant.
+        roles_title: Team roles
+        roles_description: You will be the owner and can add artists later.
+        growth_title: Ready to grow
+        growth_description: Albums, tracks, and sales will live in this space.
+      create_title: Create a tenant
+      create_description: Start by defining its identity and internal address.
+      step: Step 1 of 2
+      name_label: Space name
+      name_placeholder: E.g. Cordillera Records
+      name_help: You can change the visible name later.
+      subdomain_label: Rauversion subdomain
+      continue_title: What happens next
+      continue_description_html: We will create the tenant and an <strong>owner</strong> membership for your account. The new space starts with an empty catalog.
+    settings:
+      templates:
+        amplifier:
+          name: Amplifier
+          description: Large artwork, featured releases, and independent-label energy.
+        editorial:
+          name: Editorial
+          description: Expressive typography, magazine rhythm, and room for stories.
+        waveform:
+          name: Waveform
+          description: A compact interface focused on catalog, playlists, and continuous listening.
+        broadcast:
+          name: Broadcast
+          description: Bold editorial grid, signal graphics, and the visual energy of Rau Radio.
+      preview:
+        music: Music
+        events: Events
+        store: Store
+        season: New season
+        fallback_tagline: Your sound. Your space.
+        description: An independent home for artists, releases, and community.
+        explore: Explore catalog
+        latest_release: Latest release
+        next_event: Next event
+        selection: Selection
+      load_error: We could not load the tenant configuration.
+      save_error: We could not save. Review the colors and try again.
+      unavailable: Configuration unavailable
+      studio: Brand studio
+      title: Customize %{name}
+      description: Define the tenant identity. These values are available to the storefront and its templates.
+      view_site: View site
+      unsaved_title: Changes were not saved
+      identity: Identity
+      identity_description: Name, message, and primary logo.
+      name: Name
+      tagline: Tagline
+      tagline_placeholder: The idea behind your catalog
+      logo: Logo
+      upload_logo: Upload logo
+      logo_help: PNG, JPG, WebP, or SVG. Recommended 512 x 512.
+      palette: Palette
+      palette_description: Fine-tune the main colors of the selected theme.
+      primary: Primary
+      accent: Accent
+      background: Background
+      typography: Typography
+      template: Template and theme
+      template_description: Choose a visual direction. Its template and palette are saved automatically.
+      theme_json: Advanced theme settings
+      theme_json_description: Edit the shadcn/ui tokens directly using the registry:theme format.
+      theme_json_error: Enter a valid registry:theme JSON with light and dark cssVars.
+      apply_theme_json: Apply JSON changes
+      saved: Changes saved
+      configuration: Tenant configuration
+      preview_help: The preview updates before publishing.
+    storefront:
+      broadcast:
+        fallback_tagline: Independent music culture
+        navigation: Main navigation
+        releases: Releases
+        events: Events
+        stories: Stories
+        store: Store
+        artists: Artists
+        network: Independent broadcast network
+        description: "%{name} is an independent home for artists, releases, events, and shared culture."
+        explore: Explore catalog
+        release: Featured release
+        article: Featured story
+        event: Featured event
+        selected: Selected signal
+        now_presenting: Now presenting
+        empty_title: The next signal is coming
+        empty_description: New music, events, and stories will appear here.
+        open: Open feature
+        independent_signal: Independent music signal
+        latest_releases: Latest releases
+        upcoming_events: Upcoming events
+        latest_stories: Latest stories
+        view_all: View all
+        story: Story
+        date_tba: Date TBA
+        footer: Independent music and culture
+    billing:
+      unavailable: Billing unavailable
+      section: Tenant plan
+      title: Activate %{name}
+      description: The plan controls access, limits, and commercial capabilities for this space.
+      portal: Billing portal
+      disabled_title: Subscriptions disabled
+      disabled_description: DISABLE_TENANT_SUBSCRIPTION is active. The tenant has free access in this environment.
+      central_title: Global tenant
+      central_description: The central tenant is exempt from subscriptions.
+      current_plan: Current plan
+      status: "Status: %{status}"
+      access_enabled: Access enabled
+      pending: Pending
+      year: year
+      month: month
+      choose_plan: Choose plan
+      configure_stripe: Configure Stripe Price
+      errors:
+        load: We could not load billing.
+        checkout: We could not start checkout.
+        portal: We could not open the billing portal.
+      statuses:
+        active: Active
+        trialing: Trialing
+        past_due: Past due
+        canceled: Canceled
+        unpaid: Unpaid
+        incomplete: Incomplete
+      features:
+        custom_branding: Custom branding
+        custom_domain: Custom domain
+        advanced_analytics: Advanced analytics
+        max_members: Members
+        max_artists: Artists
+        max_tracks: Tracks
+        storage_gb: GB storage
+      plans:
+        artist:
+          name: Artist
+          description: For artists managing their catalog and community.
+        label:
+          name: Label
+          description: For labels with multiple artists and greater operating capacity.
+        network:
+          name: Network
+          description: For networks and organizations with advanced needs.
+    inactive:
+      logo_alt: "%{name} logo"
+      eyebrow: Space temporarily inactive
+      title: This catalog is unavailable.
+      description: This tenant is paused. Its content will return when the space is reactivated.
+      reactivate: Reactivate tenant
+      open_admin: Open admin
+      view_tenants: View my tenants
+      sign_in: Sign in

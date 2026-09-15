@@ -2,6 +2,7 @@ class ProductPurchase < ApplicationRecord
   belongs_to :user
   has_many :product_purchase_items, dependent: :destroy
   has_many :products, through: :product_purchase_items
+  has_many :service_bookings, dependent: :nullify
 
   validates :tracking_code, presence: true, if: -> { shipped? || delivered? }
   validates :payment_intent_id, presence: true, if: :completed?
@@ -41,11 +42,10 @@ class ProductPurchase < ApplicationRecord
   end
 
   def payment_provider
-    if stripe_session_id.present?
-      'stripe'
-    else
-      'mercado_pago'
-    end
+    return 'stripe' if stripe_session_id.to_s.start_with?('cs_')
+    return 'mercado_pago' if stripe_session_id.present?
+
+    'unknown'
   end
 
   def payment_session_id

@@ -10,6 +10,9 @@
     <link href="https://fonts.googleapis.com/css2?family=Host+Grotesk:ital,wght@0,300..800;1,300..800&display=swap" rel="stylesheet">
 
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
+    <style id="tenant-theme-variables" data-tenant-theme="<%= Current.tenant.theme_schema&.dig("name") %>">
+      <%= raw tenant_theme_css(Current.tenant.theme_schema) %>
+    </style>
     <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
     <%= display_meta_tags site: "Rauversion" %>
 
@@ -34,7 +37,11 @@
     <script type="text/javascript">
       window.I18n = { locale: '<%= I18n.locale %>' };
       window.ENV = {
-        APP_NAME: '<%= ENV["APP_NAME"] %>'
+        APP_NAME: <%= raw ENV["APP_NAME"].to_json %>,
+        TENANT_ID: <%= Current.tenant.id.to_json %>,
+        TENANT_TEMPLATE: <%= raw Current.tenant.template.to_json %>,
+        TENANT_CENTRAL: <%= Current.tenant.central?.to_json %>,
+        TENANT_THEME: <%= raw json_escape(Current.tenant.theme_schema.to_json) %>
       };
     </script>
   </head>

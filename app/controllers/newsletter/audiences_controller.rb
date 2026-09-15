@@ -66,7 +66,7 @@ module Newsletter
             contacts_count: contact_list.contacts.count,
           }
         end,
-        events: current_user.events.order(updated_at: :desc).map do |event|
+        events: current_user.events.for_tenant.order(updated_at: :desc).map do |event|
           {
             id: event.id.to_s,
             title: event.title,

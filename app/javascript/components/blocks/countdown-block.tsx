@@ -197,7 +197,7 @@ export function CountdownBlock({ block, isEditing }: CountdownBlockProps) {
                 <div 
                   className="relative px-4 py-3 md:px-6 md:py-4 rounded-lg border-2 border-primary"
                   style={{
-                    boxShadow: `0 0 12px var(--color-primary), 0 0 24px var(--color-primary), inset 0 0 12px rgba(99, 102, 241, 0.08)`,
+                    boxShadow: `0 0 12px var(--color-primary), 0 0 24px var(--color-primary), inset 0 0 12px color-mix(in srgb, var(--primary) 8%, transparent)`,
                   }}
                 >
                   <span 
@@ -225,7 +225,7 @@ export function CountdownBlock({ block, isEditing }: CountdownBlockProps) {
               <div key={i} className="flex flex-col items-center">
                 <div className="relative bg-gradient-to-br from-primary/20 via-primary/10 to-transparent rounded-2xl p-1">
                   <div className="bg-background/80 backdrop-blur rounded-xl px-4 py-3 md:px-6 md:py-4">
-                    <span className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-primary via-purple-500 to-pink-500 bg-clip-text text-transparent tabular-nums">
+                    <span className="bg-gradient-to-r from-primary via-accent to-chart-2 bg-clip-text text-4xl font-bold text-transparent tabular-nums md:text-6xl">
                       {String(unit.value).padStart(2, "0")}
                     </span>
                   </div>

@@ -1,5 +1,7 @@
 class Event < ApplicationRecord
+  belongs_to :tenant
   belongs_to :user
+  before_validation -> { self.tenant ||= Current.tenant }, on: :create
 
   has_many :event_hosts
   has_many :event_schedules
@@ -87,6 +89,7 @@ class Event < ApplicationRecord
 
 
   scope :drafts, -> { where(state: "draft") }
+  scope :for_tenant, ->(tenant = Current.tenant) { tenant.present? ? where(tenant_id: tenant.id) : none }
   scope :managers, -> { joins(:event_hosts).merge(EventHost.with_backoffice_access).distinct }
   # Ex:- scope :active, -> {where(:active => true)}
 
@@ -106,12 +109,12 @@ class Event < ApplicationRecord
 
   scope :upcoming, -> { where('event_start >= ?', Time.current).order(event_start: :asc) }
   scope :past, -> { where('event_start < ?', Time.current).order(event_start: :desc) }
-  scope :published, -> { where(state: 'published') }
+  scope :published, -> { for_tenant.where(state: 'published') }
   scope :publicly_visible, -> { where(visibility: 'public') }
 
   scope :public_events, -> {
     # where(private: false)
-    where(state: "published").where(visibility: 'public')
+    for_tenant.where(state: "published").where(visibility: 'public')
   }
 
   scope :upcoming_events, -> {

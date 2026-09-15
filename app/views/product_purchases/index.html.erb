@@ -48,10 +48,10 @@
                       <%= link_to item&.product&.title, user_product_path(item.product&.user&.username, item&.product ) %>
                     </h3>
                     <p class="mt-2 text-sm font-medium text-default">
-                      Price: <%= number_to_currency(item.price) %>
+                      Price: <%= formatted_product_price(item.price, item.currency) %>
                     </p>
                     <p class="mt-2 text-sm font-medium text-default">
-                      Shipping cost: <%= number_to_currency(item.shipping_cost) %>
+                      Shipping cost: <%= formatted_product_price(item.shipping_cost, item.currency) %>
                     </p>
                     <p class="mt-2 text-sm font-medium text-default">
                       Quantity: <%= item.quantity %>
@@ -170,7 +170,7 @@
             <div class="flex items-center justify-between pb-4">
               <dt class="text-gray-600">Subtotal</dt>
               <dd class="font-medium text-default">
-                <%= number_to_currency(purchase.total_amount) %>
+                <%= formatted_product_price(purchase.total_amount, purchase.currency) %>
               </dd>
             </div>
             <!--
@@ -187,7 +187,7 @@
             <div class="flex items-center justify-between pt-4">
               <dt class="font-medium text-default">Order total</dt>
               <dd class="font-medium text-indigo-600">
-                <%= number_to_currency(purchase.total_amount) %>
+                <%= formatted_product_price(purchase.total_amount, purchase.currency) %>
               </dd>
             </div>
 

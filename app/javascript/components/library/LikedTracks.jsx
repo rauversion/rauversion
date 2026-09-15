@@ -112,7 +112,7 @@ function LikedTrackGridCard({ track, isCurrent, isPlaying, compact, onPlay }) {
           type="button"
           onClick={() => onPlay(track.id)}
           className={cn(
-            "absolute bottom-3 right-3 inline-flex items-center justify-center rounded-full bg-emerald-500 text-black shadow-lg transition-all hover:scale-[1.03] hover:bg-emerald-400",
+            "absolute bottom-3 right-3 inline-flex items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-all hover:scale-[1.03] hover:bg-primary/90",
             compact ? "h-10 w-10" : "h-11 w-11"
           )}
         >
@@ -130,7 +130,7 @@ function LikedTrackGridCard({ track, isCurrent, isPlaying, compact, onPlay }) {
           className={cn(
             "block font-medium transition-colors hover:text-white",
             compact ? "line-clamp-2 text-sm" : "truncate text-base",
-            isCurrent ? "text-emerald-400" : "text-foreground"
+            isCurrent ? "text-primary" : "text-foreground"
           )}
         >
           {track.title}
@@ -330,20 +330,34 @@ export default function LikedTracks() {
 
   return (
     <div className="min-h-screen overflow-hidden rounded-[32px] bg-background text-foreground">
-      <div className="border-b border-white/10 bg-[linear-gradient(180deg,rgba(123,82,255,0.95)_0%,rgba(47,18,89,0.92)_100%)] px-6 py-8 md:px-10 md:py-10">
+      <div
+        className="border-b border-border px-6 py-8 text-primary-foreground md:px-10 md:py-10"
+        style={{
+          backgroundImage:
+            "linear-gradient(180deg, color-mix(in srgb, var(--primary) 94%, var(--background)), color-mix(in srgb, var(--primary) 62%, var(--background)))",
+        }}
+      >
         <div className="mx-auto flex max-w-6xl flex-col gap-8 md:flex-row md:items-end">
-          <div className="flex h-40 w-40 items-center justify-center rounded-[28px] bg-gradient-to-br from-violet-500 via-indigo-400 to-emerald-200 shadow-[0_20px_80px_rgba(30,20,90,0.4)]">
-            <Heart className="h-16 w-16 fill-current text-white" />
+          <div
+            className="flex h-40 w-40 items-center justify-center rounded-[28px]"
+            style={{
+              backgroundImage:
+                "linear-gradient(135deg, var(--primary), var(--accent), var(--chart-2))",
+              boxShadow:
+                "0 20px 80px color-mix(in srgb, var(--foreground) 22%, transparent)",
+            }}
+          >
+            <Heart className="h-16 w-16 fill-current text-primary-foreground" />
           </div>
 
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium uppercase tracking-[0.22em] text-white/70">
+            <p className="text-sm font-medium uppercase tracking-[0.22em] text-primary-foreground/70">
               Playlist
             </p>
-            <h1 className="mt-2 text-4xl font-black tracking-tight text-white md:text-7xl">
+            <h1 className="mt-2 text-4xl font-black tracking-tight text-primary-foreground md:text-7xl">
               Tus me gusta
             </h1>
-            <p className="mt-4 text-sm text-white/75 md:text-base">
+            <p className="mt-4 text-sm text-primary-foreground/75 md:text-base">
               {getUserDisplayName(currentUser)} · {data?.liked_playlist?.tracks_count || 0} canciones
             </p>
           </div>
@@ -358,7 +372,7 @@ export default function LikedTracks() {
               size="icon"
               onClick={playAll}
               disabled={!tracks.length}
-              className="h-14 w-14 rounded-full bg-emerald-500 text-black hover:bg-emerald-400"
+              className="h-14 w-14 rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
             >
               {isPlaying && isLikedPlaylistActive ? (
                 <Pause className="h-6 w-6" />
@@ -427,7 +441,7 @@ export default function LikedTracks() {
                           key={track.id}
                           className={cn(
                             "group border-white/5 hover:bg-white/5",
-                            isCurrent && "bg-emerald-500/10"
+                            isCurrent && "bg-primary/10"
                           )}
                         >
                           <TableCell className="px-4 text-center">
@@ -459,7 +473,7 @@ export default function LikedTracks() {
                                   to={track.url}
                                   className={cn(
                                     "block truncate font-medium transition-colors hover:text-white",
-                                    isCurrent ? "text-emerald-400" : "text-foreground"
+                                    isCurrent ? "text-primary" : "text-foreground"
                                   )}
                                 >
                                   {track.title}

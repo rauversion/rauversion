@@ -326,7 +326,7 @@ export default function Streaming() {
           >
             <div>
               {event?.streaming_service?.name === service.name && (
-                <span className="rounded-lg inline-flex p-3 bg-green-100 text-green-700 ring-4 ring-white">
+                <span className="inline-flex rounded-lg bg-success/15 p-3 text-success ring-4 ring-background">
                   <CheckIcon className="w-6 h-6" />
                 </span>
               )}

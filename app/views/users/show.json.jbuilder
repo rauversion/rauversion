@@ -1,7 +1,12 @@
 json.user do
-  json.extract! @user, :id, :username, :first_name, :last_name, :country, :city, 
-                :bio, :hide_username_from_profile, :role, :created_at, :updated_at
-  json.display_name @user.display_name
+  json.extract! @user, :id, :hide_username_from_profile, :role, :created_at, :updated_at
+  json.username @tenant_profile.username
+  json.first_name @tenant_profile.first_name
+  json.last_name @tenant_profile.last_name
+  json.country @tenant_profile.country
+  json.city @tenant_profile.city
+  json.bio @tenant_profile.bio
+  json.display_name @tenant_profile.display_name
   
   json.avatar_url do
     json.small @user.avatar_url(:small)
@@ -23,8 +28,8 @@ json.user do
   json.stats do
     json.followers_count @user.followees(User).count
     json.following_count @user.followers(User).count
-    json.tracks_count @user.tracks.without_dj_sets.count
-    json.mixes_count @user.tracks.dj_sets.count
+    json.tracks_count @user.tracks.for_tenant.without_dj_sets.count
+    json.mixes_count @user.tracks.for_tenant.dj_sets.count
   end
 
   json.menu_items user_menu_items()

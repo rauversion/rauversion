@@ -33,7 +33,13 @@ export default function UserCard({ artist, username, variant = 'default' }) {
 
     return (
       <Card className="group relative h-full overflow-hidden rounded-[28px] border border-border/60 bg-card/95 shadow-[0_18px_50px_rgba(15,23,42,0.08)] transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_28px_80px_rgba(15,23,42,0.16)]">
-        <div className="absolute inset-x-0 top-0 h-28 bg-[radial-gradient(circle_at_top_left,_rgba(16,185,129,0.18),_transparent_58%),linear-gradient(135deg,rgba(15,23,42,0.06),transparent)]" />
+        <div
+          className="absolute inset-x-0 top-0 h-28"
+          style={{
+            backgroundImage:
+              "radial-gradient(circle at top left, color-mix(in srgb, var(--primary) 18%, transparent), transparent 58%), linear-gradient(135deg, color-mix(in srgb, var(--foreground) 6%, transparent), transparent)",
+          }}
+        />
 
         <div className="relative flex h-full flex-col p-5">
           <div className="flex items-start gap-4">
@@ -55,7 +61,7 @@ export default function UserCard({ artist, username, variant = 'default' }) {
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap gap-2">
                 {artist.featured && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-brand-500/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-brand-600 dark:text-brand-300">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">
                     <Sparkles className="h-3 w-3" />
                     {I18n.t('artists.featured_badge')}
                   </span>
@@ -71,7 +77,7 @@ export default function UserCard({ artist, username, variant = 'default' }) {
               <h3 className="mt-3 truncate text-lg font-black tracking-tight text-foreground">
                 <Link
                   to={`/${artist.username}`}
-                  className="transition-colors hover:text-brand-500"
+                  className="transition-colors hover:text-primary"
                 >
                   {displayName}
                 </Link>

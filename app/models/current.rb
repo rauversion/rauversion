@@ -1,5 +1,5 @@
 class Current < ActiveSupport::CurrentAttributes
-  attribute :label_user, :user
+  attribute :label_user, :user, :tenant, :membership, :tenant_profile
   attribute :request_id, :user_agent, :ip_address
 
   resets { Time.zone = nil }

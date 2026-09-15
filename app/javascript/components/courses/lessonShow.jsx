@@ -172,7 +172,7 @@ export default function LessonPage() {
             <div className="flex-1">
               <div className="flex items-center">
                 <h1 className="text-xl font-bold">{lesson.title}</h1>
-                {lesson.completed && <CheckCircle className="h-5 w-5 text-green-500 ml-2" />}
+                {lesson.completed && <CheckCircle className="h-5 w-5 text-success ml-2" />}
               </div>
               <p className="text-sm text-muted-foreground">{module.title}</p>
             </div>
@@ -216,7 +216,7 @@ export default function LessonPage() {
                             transition={{ type: "spring", stiffness: 300, damping: 20 }}
                             className="flex flex-col items-center justify-center py-4"
                           >
-                            <CheckCircle className="h-16 w-16 text-green-500 mb-4 animate-bounce" />
+                            <CheckCircle className="h-16 w-16 text-success mb-4 animate-bounce" />
                             <h2 className="text-xl font-bold mb-2">{I18n.t("courses.lesson_show.congratulations")}</h2>
                             <p className="text-muted-foreground mb-4">{I18n.t("courses.lesson_show.keep_going")}</p>
                           </motion.div>
@@ -405,7 +405,7 @@ export default function LessonPage() {
                           >
                             <div className="mr-3">
                               {moduleLesson.completed ? (
-                                <CheckCircle className="h-5 w-5 text-green-500" />
+                                <CheckCircle className="h-5 w-5 text-success" />
                               ) : moduleLesson.id === lessonId ? (
                                 <Play className="h-5 w-5 text-primary" />
                               ) : (

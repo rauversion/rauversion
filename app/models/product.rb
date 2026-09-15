@@ -6,29 +6,38 @@ class Product < ApplicationRecord
 
   self.inheritance_column = 'type'
 
+  belongs_to :tenant
   belongs_to :user
   belongs_to :album, class_name: 'Playlist', optional: true, foreign_key: :playlist_id
   belongs_to :coupon, optional: true
+  belongs_to :deleted_by, class_name: 'User', optional: true
 
-  has_many :product_variants, dependent: :destroy
-  has_many :product_options, dependent: :destroy
+  has_many :product_variants
+  has_many :product_options
   has_many :product_images
   has_many :purchased_items, as: :purchased_item
-  has_many :product_shippings, dependent: :destroy
+  has_many :product_shippings
   has_many :product_purchase_items
   has_many :product_purchases, through: :product_purchase_items
 
   validates :title, presence: true
   validates :description, presence: true
+  validates :currency, presence: true
   # validates :price, presence: true, numericality: { greater_than_or_equal_to: 0 }
   # validates :stock_quantity, presence: true, numericality: { only_integer: true, greater_than_or_equal_to: 0 }
   # validates :sku, presence: true, uniqueness: true
   validates :category, presence: true
   validates :status, presence: true
+  validate :type_cannot_change, on: :update
+  validate :album_belongs_to_tenant
+
+  before_validation -> { self.tenant ||= Current.tenant }, on: :create
 
   attribute :visibility, :string
   attribute :name_your_price, :boolean
   attribute :quantity, :integer
+
+  before_validation :normalize_currency
 
   enum :status, { 
     active: 'active', 
@@ -46,8 +55,9 @@ class Product < ApplicationRecord
     poor: 'poor'
   }, prefix: true
 
-  scope :visibles, -> { where(status: 'active') }
-  scope :active, -> { where(status: 'active') }
+  scope :for_tenant, ->(tenant = Current.tenant) { tenant.present? ? where(tenant_id: tenant.id) : none }
+  scope :visibles, -> { for_tenant.where(status: 'active') }
+  scope :active, -> { for_tenant.where(status: 'active') }
   scope :by_category, ->(category) { where(category: category) }
 
   accepts_nested_attributes_for :product_variants, allow_destroy: true
@@ -94,11 +104,12 @@ class Product < ApplicationRecord
   end
 
   def self.ransackable_attributes(auth_object = nil)
-    ["category", "created_at", "description", "id", "id_value", "include_digital_album", 
+    ["category", "created_at", "currency", "description", "id", "id_value", "include_digital_album",
      "limited_edition", "limited_edition_count", "name_your_price", "playlist_id", 
      "price", "quantity", "shipping_begins_on", "shipping_days", 
      "shipping_within_country_price", "shipping_worldwide_price", "sku", "status", 
      "stock_quantity", "title", "updated_at", "user_id", "visibility",
+     "service_kind", "booking_mode",
      "condition", "brand", "model", "year", "accept_barter"]
   end
 
@@ -108,6 +119,19 @@ class Product < ApplicationRecord
 
   def available?
     active? && stock_quantity.to_i > 0
+  end
+
+  def normalized_currency
+    currency.presence || "usd"
+  end
+
+  def destroy_with_audit!(actor:, reason: nil)
+    update_columns(
+      deleted_by_id: actor&.id,
+      deletion_reason: reason.presence,
+      updated_at: Time.current
+    )
+    destroy
   end
 
   def decrease_quantity(amount)
@@ -122,5 +146,25 @@ class Product < ApplicationRecord
       #  raise ActiveRecord::RecordInvalid.new(self)
       # end
     end
+  end
+
+  private
+
+  def normalize_currency
+    self.currency = currency.to_s.downcase.presence || "usd"
+  end
+
+  def type_cannot_change
+    return unless will_save_change_to_type?
+
+    errors.add(:type, :immutable)
+  end
+
+  private
+
+  def album_belongs_to_tenant
+    return if album.blank? || album.tenant_id == tenant_id
+
+    errors.add(:album, "must belong to the same tenant")
   end
 end

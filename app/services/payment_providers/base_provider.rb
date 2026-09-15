@@ -35,5 +35,28 @@ module PaymentProviders
       end
       true
     end
+
+    def platform_fee_rate
+      ENV.fetch("PLATFORM_EVENTS_FEE", 10).to_d / 100
+    end
+
+    def platform_fee_for(amount)
+      amount.to_d * platform_fee_rate
+    end
+
+    def service_fee_name
+      "Cargo por servicio"
+    end
+
+    def service_fee_description(source_type)
+      case source_type
+      when "product"
+        "Cargo de servicio de Rauversion para la compra de productos"
+      when "event"
+        "Cargo de servicio de Rauversion para la compra de tickets"
+      else
+        "Cargo de servicio de Rauversion para la compra de música"
+      end
+    end
   end
 end

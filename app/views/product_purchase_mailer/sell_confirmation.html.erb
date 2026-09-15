@@ -29,7 +29,7 @@
       <div style="font-size:1rem;color:#334155;margin-bottom:4px;"><strong>Purchase ID:</strong> <%= @purchase.id %></div>
       <div style="font-size:1rem;color:#334155;margin-bottom:4px;"><strong>Shipping address:</strong> <%= @purchase.shipping_address %></div>
       <div style="font-size:1rem;color:#334155;margin-bottom:4px;"><strong>Phone:</strong> <%= @purchase.phone %></div>
-      <div style="font-size:1rem;color:#334155;margin-bottom:4px;"><strong>Amount:</strong> <%= number_to_currency(@purchase.total_amount) %></div>
+      <div style="font-size:1rem;color:#334155;margin-bottom:4px;"><strong>Amount:</strong> <%= formatted_product_price(@purchase.total_amount, @purchase.currency) %></div>
     </div>
     <div style="text-align:center;margin-top:24px;">
       <span style="display:inline-block;background:#16a34a;color:#fff;padding:10px 28px;border-radius:999px;font-size:1.1rem;font-weight:600;letter-spacing:0.5px;">

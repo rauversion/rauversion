@@ -1,0 +1,224 @@
+es:
+  tenants:
+    common:
+      tenant: Tenant
+      tenants: Tenants
+      logo: Logo
+      back_to_tenants: Tenants
+      operation_failed: No se pudo completar la operación
+      loading: Cargando…
+      save: Guardar
+      current: Actual
+    roles:
+      member: Miembro
+      artist: Artista
+      editor: Editor
+      admin: Admin
+      owner: Owner
+    dashboard:
+      title: Tus tenants
+      new_tenant: Nuevo tenant
+      verified_access: Acceso verificado
+      central_platform: Plataforma central
+      private_tenant: Tenant privado
+      active_tenant: Tenant activo
+      enter_tenant: Entrar al tenant
+      configure: Configurar tenant
+      open_host: Abrir host del tenant
+      load_error: No pudimos cargar tus tenants.
+      available_spaces: Espacios disponibles
+      current_context: Contexto actual
+      none_selected: Sin seleccionar
+      catalog_isolation: Aislamiento de catálogo
+      isolated_content: Contenido aislado
+      development_title: Cómo probar el tenant “test” en Rails development
+      development_enter_html: Usa <strong>Entrar al tenant</strong> para abrir su admin en el host correspondiente.
+      development_host_html: Usa el botón externo para abrir <code>test.lvh.me:3000</code>; lvh.me resuelve automáticamente a 127.0.0.1.
+    onboarding:
+      validation:
+        name_min: Ingresa al menos 2 caracteres
+        name_max: Máximo 80 caracteres
+        slug_min: Usa al menos 3 caracteres
+        slug_max: Máximo 63 caracteres
+        slug_format: Usa minúsculas, números y guiones
+      availability:
+        idle: Elige la dirección de tu espacio
+        checking: Comprobando disponibilidad…
+        available: Disponible
+        taken: Ese nombre ya está en uso
+        reserved: Ese nombre está reservado por Rauversion
+        invalid: Revisa el formato del subdominio
+        error: No pudimos validar ahora; inténtalo nuevamente
+      copy_value: Copiar valor
+      created: Espacio creado
+      canonical_description: Esta será la entrada canónica mientras conectas tu dominio.
+      ready_title: Tenant listo para recibir contenido
+      back_to_rauversion: Volver a Rauversion
+      custom_domain_title: Conectar un dominio propio
+      custom_domain_description: Guía anticipada; todavía no debes cambiar tu DNS.
+      domain_steps:
+        verify_title: Verificar propiedad
+        verify_description: Publicaremos un registro TXT único para tu dominio.
+        traffic_title: Apuntar el tráfico
+        traffic_description: Configurarás un CNAME hacia domains.rauversion.com.
+        https_title: Activar HTTPS
+        https_description: Rauversion solicitará y renovará el certificado automáticamente.
+      choose_available_slug: Elige un subdominio disponible
+      create_error: No pudimos crear el espacio. Revisa los datos e inténtalo nuevamente.
+      connection_error: No pudimos comunicarnos con Rauversion. Inténtalo nuevamente.
+      features:
+        isolated_title: Datos aislados
+        isolated_description: Tu catálogo no aparece en el tenant central.
+        roles_title: Roles por equipo
+        roles_description: Serás owner y podrás sumar artistas después.
+        growth_title: Listo para crecer
+        growth_description: Álbumes, tracks y ventas vivirán en este espacio.
+      create_title: Crear un tenant
+      create_description: Primero define su identidad y dirección interna.
+      step: Paso 1 de 2
+      name_label: Nombre del espacio
+      name_placeholder: Ej. Sello Cordillera
+      name_help: Puedes cambiar el nombre visible más adelante.
+      subdomain_label: Subdominio Rauversion
+      continue_title: Qué ocurrirá al continuar
+      continue_description_html: Crearemos el tenant y una membresía <strong>owner</strong> para tu cuenta. El nuevo espacio comenzará con un catálogo vacío.
+    settings:
+      templates:
+        amplifier:
+          name: Amplifier
+          description: Portadas grandes, lanzamientos al frente y energía de sello independiente.
+        editorial:
+          name: Editorial
+          description: Tipografía protagonista, ritmo de revista y espacio para historias.
+        waveform:
+          name: Waveform
+          description: Interfaz compacta orientada a catálogo, playlists y escucha continua.
+        broadcast:
+          name: Broadcast
+          description: Grilla editorial audaz, gráfica de señal y la energía visual de Rau Radio.
+      preview:
+        music: Música
+        events: Eventos
+        store: Tienda
+        season: Nueva temporada
+        fallback_tagline: Sonido propio. Espacio propio.
+        description: Un hogar independiente para artistas, lanzamientos y comunidad.
+        explore: Explorar catálogo
+        latest_release: Último release
+        next_event: Próximo evento
+        selection: Selección
+      load_error: No pudimos cargar la configuración del tenant.
+      save_error: No pudimos guardar. Revisa los colores y vuelve a intentarlo.
+      unavailable: Configuración no disponible
+      studio: Estudio de marca
+      title: Personaliza %{name}
+      description: Define la identidad del tenant. Estos valores quedan disponibles para el storefront y sus futuras plantillas.
+      view_site: Ver sitio
+      unsaved_title: No se guardaron los cambios
+      identity: Identidad
+      identity_description: Nombre, mensaje y logo principal.
+      name: Nombre
+      tagline: Tagline
+      tagline_placeholder: La idea que define tu catálogo
+      logo: Logo
+      upload_logo: Subir logo
+      logo_help: PNG, JPG, WebP o SVG. Recomendado 512 x 512.
+      palette: Paleta
+      palette_description: Ajusta los colores principales del tema seleccionado.
+      primary: Primario
+      accent: Acento
+      background: Fondo
+      typography: Tipografía
+      template: Plantilla y tema
+      template_description: Elige una dirección visual. La plantilla y su paleta se guardan automáticamente.
+      theme_json: Configuración avanzada del tema
+      theme_json_description: Edita directamente los tokens de shadcn/ui en formato registry:theme.
+      theme_json_error: Ingresa un JSON registry:theme válido con cssVars light y dark.
+      apply_theme_json: Aplicar cambios del JSON
+      saved: Cambios guardados
+      configuration: Configuración del tenant
+      preview_help: La vista previa se actualiza antes de publicar.
+    storefront:
+      broadcast:
+        fallback_tagline: Cultura musical independiente
+        navigation: Navegación principal
+        releases: Lanzamientos
+        events: Eventos
+        stories: Historias
+        store: Tienda
+        artists: Artistas
+        network: Red de transmisión independiente
+        description: "%{name} es un espacio independiente para artistas, lanzamientos, eventos y cultura compartida."
+        explore: Explorar catálogo
+        release: Lanzamiento destacado
+        article: Historia destacada
+        event: Evento destacado
+        selected: Señal seleccionada
+        now_presenting: Presentando ahora
+        empty_title: La próxima señal está por llegar
+        empty_description: Aquí aparecerán nueva música, eventos e historias.
+        open: Abrir destacado
+        independent_signal: Señal musical independiente
+        latest_releases: Últimos lanzamientos
+        upcoming_events: Próximos eventos
+        latest_stories: Últimas historias
+        view_all: Ver todo
+        story: Historia
+        date_tba: Fecha por confirmar
+        footer: Música y cultura independiente
+    billing:
+      unavailable: Billing no disponible
+      section: Plan del tenant
+      title: Activa %{name}
+      description: El plan controla acceso, límites y capacidades comerciales de este espacio.
+      portal: Portal de facturación
+      disabled_title: Suscripciones deshabilitadas
+      disabled_description: DISABLE_TENANT_SUBSCRIPTION está activo. El tenant tiene acceso sin cobro en este ambiente.
+      central_title: Tenant global
+      central_description: El tenant central está exento de suscripción.
+      current_plan: Plan actual
+      status: "Estado: %{status}"
+      access_enabled: Acceso habilitado
+      pending: Pendiente
+      year: año
+      month: mes
+      choose_plan: Elegir plan
+      configure_stripe: Configura Stripe Price
+      errors:
+        load: No pudimos cargar la facturación.
+        checkout: No pudimos iniciar el checkout.
+        portal: No pudimos abrir el portal de facturación.
+      statuses:
+        active: Activa
+        trialing: En prueba
+        past_due: Pago pendiente
+        canceled: Cancelada
+        unpaid: Impaga
+        incomplete: Incompleta
+      features:
+        custom_branding: Branding personalizado
+        custom_domain: Dominio propio
+        advanced_analytics: Analytics avanzados
+        max_members: Miembros
+        max_artists: Artistas
+        max_tracks: Tracks
+        storage_gb: GB de almacenamiento
+      plans:
+        artist:
+          name: Artist
+          description: Para artistas que administran su catálogo y comunidad.
+        label:
+          name: Label
+          description: Para sellos con múltiples artistas y mayor capacidad operativa.
+        network:
+          name: Network
+          description: Para redes y organizaciones con necesidades avanzadas.
+    inactive:
+      logo_alt: Logo de %{name}
+      eyebrow: Espacio temporalmente inactivo
+      title: Este catálogo no está disponible.
+      description: La publicación de este tenant está pausada. Su contenido volverá a estar disponible cuando el espacio sea reactivado.
+      reactivate: Reactivar tenant
+      open_admin: Abrir administración
+      view_tenants: Ver mis tenants
+      sign_in: Iniciar sesión

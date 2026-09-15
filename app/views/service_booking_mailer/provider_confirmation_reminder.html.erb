@@ -1,0 +1,21 @@
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+  <h1 style="color:#2d3748;margin:0 0 24px;">
+    <%= t(".greeting", provider: @provider.username) %>
+  </h1>
+
+  <p style="color:#4a5568;margin:0 0 16px;">
+    <%= t(".intro", customer: @customer.username, service: @service.title) %>
+  </p>
+
+  <div style="background-color:#f7fafc;border:1px solid #e2e8f0;border-radius:8px;padding:16px;margin:24px 0;">
+    <h2 style="color:#2d3748;font-size:18px;margin:0 0 16px;"><%= t(".booking_details") %></h2>
+    <p style="color:#4a5568;margin:0;"><strong><%= t(".service") %>:</strong> <%= @service.title %></p>
+    <p style="color:#4a5568;margin:8px 0 0;"><strong><%= t(".customer") %>:</strong> <%= @customer.username %></p>
+  </div>
+
+  <p style="margin:24px 0;">
+    <%= link_to t(".view_booking_button"),
+        @booking_url,
+        style: "display:inline-block;background-color:#2d3748;color:white;padding:12px 18px;text-decoration:none;border-radius:6px;font-weight:600;" %>
+  </p>
+</div>

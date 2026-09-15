@@ -13,6 +13,19 @@ class User < ApplicationRecord
     :recoverable, :rememberable, :validatable, :confirmable,
     :invitable, :omniauthable, :trackable, :lockable
 
+  has_many :memberships, dependent: :destroy
+  has_many :tenants, through: :memberships
+  has_many :tenant_profiles, dependent: :destroy
+  has_many :billed_tenant_subscriptions,
+    class_name: "TenantSubscription",
+    foreign_key: :subscriber_id,
+    dependent: :restrict_with_exception
+
+  after_create :create_initial_membership
+  after_update :sync_legacy_role_to_central_membership,
+    if: -> { saved_change_to_role? || saved_change_to_editor? }
+  after_update :sync_username_to_tenant_profiles, if: :saved_change_to_username?
+
   has_many :participants
   has_many :conversations, through: :participants
   has_many :tracks
@@ -46,6 +59,8 @@ class User < ApplicationRecord
   has_many :products
   has_many :provider_service_bookings, class_name: 'ServiceBooking', foreign_key: :provider_id
   has_many :customer_service_bookings, class_name: 'ServiceBooking', foreign_key: :customer_id
+  has_many :sent_service_booking_proposals, class_name: 'ServiceBookingProposal', foreign_key: :booker_id
+  has_many :received_service_booking_proposals, class_name: 'ServiceBookingProposal', foreign_key: :artist_id
   has_many :coupons
   has_many :interest_alerts
   has_many :product_purchases
@@ -127,6 +142,52 @@ class User < ApplicationRecord
   validate :radio_stream_url_must_be_http
 
   scope :artists, -> { where(role: "artist").where.not(username: nil) }
+
+  def self.for_tenant(tenant = Current.tenant)
+    return none if tenant.blank?
+
+    joins(:memberships).where(memberships: { tenant_id: tenant.id }).distinct
+  end
+
+  def self.artists_for(tenant = Current.tenant)
+    for_tenant(tenant)
+      .where(memberships: { role: "artist" })
+      .where.not(username: nil)
+  end
+
+  def membership_for(tenant = Current.tenant)
+    return if tenant.blank?
+
+    memberships.find_by(tenant: tenant)
+  end
+
+  def role_for(tenant = Current.tenant)
+    membership_for(tenant)&.role
+  end
+
+  def tenant_profile_for(tenant = Current.tenant)
+    return if tenant.blank?
+
+    tenant_profiles.find_by(tenant: tenant)
+  end
+
+  def create_initial_membership
+    tenant = Current.tenant || Tenant.find_by(central: true)
+    return if tenant.blank?
+
+    memberships.find_or_create_by!(tenant: tenant) do |membership|
+      membership.role = Membership.role_for_user(self)
+    end
+  end
+
+  def sync_legacy_role_to_central_membership
+    membership = memberships.joins(:tenant).find_by(tenants: { central: true })
+    membership&.update!(role: Membership.role_for_user(self))
+  end
+
+  def sync_username_to_tenant_profiles
+    tenant_profiles.update_all(username: username, updated_at: Time.current)
+  end
   
   
   def full_name
@@ -306,6 +367,14 @@ class User < ApplicationRecord
 
   def can_sell_products?
     seller? || label? || admin?
+  end
+
+  def stripe_account_connected?
+    stripe_account_id.present?
+  end
+
+  def can_create_products?
+    can_sell_products? && stripe_account_connected?
   end
 
   def user_sales_for(kind = "Track")

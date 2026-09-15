@@ -13,6 +13,7 @@ import FeaturedArtists from "./FeaturedArtists";
 import CuratedPlaylists from "./CuratedPlaylists";
 import LatestReleases from "./LatestReleases";
 import PersonalizedHome from "./PersonalizedHome";
+import BroadcastHome from "./BroadcastHome";
 
 const fadeInUp = {
   hidden: { opacity: 0, y: 20 },
@@ -59,7 +60,9 @@ export default function Home() {
     podcasts: [],
     appName: window.ENV.APP_NAME,
     displayHero: window.ENV.DISPLAY_HERO,
+    tenant: null,
   });
+  const [siteConfigLoading, setSiteConfigLoading] = useState(true);
 
   const [loading, setLoading] = useState({
     artists: true,
@@ -99,9 +102,6 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (authLoading || authenticatedUser) return
-
-    // Fetch initial app data
     const fetchInitialData = async () => {
       try {
         const response = await get("/home.json");
@@ -111,15 +111,24 @@ export default function Home() {
           // currentUser: jsonData.currentUser,
           appName: jsonData.appName,
           displayHero: jsonData.displayHero,
+          tenant: jsonData.tenant,
         }));
       } catch (error) {
         console.error("Error fetching initial data:", error);
+      } finally {
+        setSiteConfigLoading(false);
       }
     };
 
-    // fetchInitialData()
+    fetchInitialData();
+  }, []);
 
-    // Fetch section data
+  useEffect(() => {
+    if (authLoading || siteConfigLoading) return
+
+    const isBroadcastStorefront = data.tenant && !data.tenant.central && data.tenant.settings?.template === "broadcast"
+    if (authenticatedUser && !isBroadcastStorefront) return
+
     fetchSectionData("artists");
     fetchSectionData("posts");
     fetchSectionData("events");
@@ -128,12 +137,18 @@ export default function Home() {
     fetchSectionData("playlists");
     fetchSectionData("podcasts");
     fetchSectionData("latest_releases");
-  }, [authLoading, authenticatedUser]);
+  }, [authLoading, authenticatedUser, data.tenant, siteConfigLoading]);
 
   const isFullyLoaded = !Object.values(loading).some(Boolean);
-  if (authLoading) return <LoadingSkeleton />;
-  if (authenticatedUser) return <PersonalizedHome currentUser={authenticatedUser} />;
+  if (authLoading || siteConfigLoading) return <LoadingSkeleton />;
+
+  const isBroadcastStorefront = data.tenant && !data.tenant.central && data.tenant.settings?.template === "broadcast";
+  if (authenticatedUser && !isBroadcastStorefront) return <PersonalizedHome currentUser={authenticatedUser} />;
   if (loading.posts) return <LoadingSkeleton />;
+
+  if (isBroadcastStorefront) {
+    return <BroadcastHome tenant={data.tenant} data={data} />;
+  }
 
   const {
     currentUser,

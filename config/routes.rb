@@ -1,6 +1,10 @@
 require_relative "../lib/constraints/username_route_contrainer"
 
 Rails.application.routes.draw do
+  if Rails.env.development?
+    get "/sign_in/:id", to: "development_sessions#create", as: :development_tenant_sign_in
+  end
+
   resources :pages do
     collection do
       get :menus
@@ -82,6 +86,24 @@ Rails.application.routes.draw do
   get "/search", to: "application#render_blank"
   get "/forgot-password", to: "application#render_blank"
   get "/library/likes", to: "application#render_blank"
+  get "/tenants/new", to: "application#render_blank"
+  get "/tenants/:id/settings", to: "application#render_blank"
+  get "/billing", to: "application#render_blank", as: :billing
+  get "/inactive", to: "application#render_blank", as: :tenant_inactive
+
+  resource :tenant_billing, controller: "tenant_billing", only: [:show] do
+    post :checkout
+    post :portal
+  end
+
+  resources :tenants, only: [:index, :show, :create, :update] do
+    collection do
+      get :availability
+    end
+    member do
+      post :activate
+    end
+  end
 
 
   # Stripe Connect routes
@@ -141,6 +163,7 @@ Rails.application.routes.draw do
       get "dashboard", to: "dashboard#show"
       get "listening", to: "listening#show"
       get "event_sales", to: "event_sales#show"
+      get "bookings", to: "bookings#show"
       get ":resource_key", to: "resources#index"
       post ":resource_key", to: "resources#create"
       get ":resource_key/:id", to: "resources#show"
@@ -213,11 +236,13 @@ Rails.application.routes.draw do
   resources :store do
     collection do
       get :services
+      get :performers
       get :music
       get :classes
       get :feedback
       get :accessories
       get :gear
+      get :merch
     end
   end
   
@@ -467,7 +492,23 @@ Rails.application.routes.draw do
       patch :schedule
       patch :complete
       patch :cancel
+      patch :refund
+      post :deposit_checkout
+      patch :mark_deposit_paid
+      patch :confirm_deposit
+      post :balance_checkout
+      patch :mark_balance_paid
+      patch :confirm_balance
       get :feedback_form
+    end
+  end
+
+  resources :service_booking_proposals, only: [:index, :show, :create] do
+    member do
+      patch :counter
+      patch :accept
+      patch :reject
+      patch :cancel
     end
   end
 

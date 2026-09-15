@@ -1,6 +1,7 @@
 FactoryBot.define do
   factory :course do
-    user { nil }
+    tenant { Current.tenant || association(:tenant) }
+    association :user
     title { "MyString" }
     description { "MyText" }
     category { "MyString" }

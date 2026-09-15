@@ -10,6 +10,8 @@ if current_user
     json.is_admin current_user.is_admin?
     json.is_creator current_user.is_creator?
     json.can_sell_products current_user.can_sell_products?
+    json.stripe_account_connected current_user.stripe_account_connected?
+    json.can_create_products current_user.can_create_products?
     json.can_send_newsletter current_user.can_access_newsletter?
     json.mastering_allowed current_user.can_access_mastering?
     json.newsletter_broadcast_recipient_limit current_user.newsletter_broadcast_recipient_limit
@@ -37,6 +39,11 @@ end
 json.cart_item_count cart_item_count
 json.i18n do
   json.locale I18n.locale
+end
+json.tenant do
+  json.extract! Current.tenant, :id, :name, :slug, :central
+  json.logo_url Current.tenant.logo.attached? ? url_for(Current.tenant.logo) : nil
+  json.role Current.membership&.role
 end
 json.env do
   json.app_name ENV["APP_NAME"]

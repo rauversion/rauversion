@@ -1,6 +1,9 @@
 FactoryBot.define do
   factory :release do
-    playlist { nil }
-    config { "" }
+    association :playlist
+    tenant { playlist.tenant }
+    user { playlist.user }
+    sequence(:title) { |number| "Release #{number}" }
+    config { {} }
   end
 end

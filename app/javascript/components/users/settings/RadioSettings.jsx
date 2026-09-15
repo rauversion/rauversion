@@ -74,13 +74,13 @@ export default function RadioSettings() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
       <Card className="overflow-hidden">
-        <div className="bg-black px-6 py-5 text-white">
+        <div className="bg-primary px-6 py-5 text-primary-foreground">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <p className="text-xs font-bold tracking-[0.22em] text-lime-300">RAUVERSION / LIVE SIGNAL</p>
+              <p className="text-xs font-bold tracking-[0.22em] text-primary-foreground/70">RAUVERSION / LIVE SIGNAL</p>
               <h2 className="mt-2 text-3xl font-black uppercase tracking-tight">{I18n.t("user_settings.radio.title")}</h2>
             </div>
-            <RadioTower className="h-10 w-10 text-lime-300" aria-hidden="true" />
+            <RadioTower className="h-10 w-10 text-primary-foreground" aria-hidden="true" />
           </div>
         </div>
         <CardHeader>

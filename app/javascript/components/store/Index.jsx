@@ -34,12 +34,14 @@ const CATEGORIES = [
   { id: 'all', name: 'All Products', path: '/store' },
   { id: 'gear', name: 'Gear', path: '/store/gear' },
   { id: 'service', name: 'Services', path: '/store/services' },
+  { id: 'performers', name: 'Performers', path: '/store/performers' },
   { id: 'music', name: 'Music', path: '/store/music' },
   { id: 'accessory', name: 'Accessories', path: '/store/accessories' }
 ]
 
 const ProductCard = ({ product }) => {
   const navigate = useNavigate()
+  const price = product.formatted_price || product.price
 
   return (
     <motion.div variants={item}>
@@ -58,7 +60,7 @@ const ProductCard = ({ product }) => {
         <CardHeader>
           <div className="flex items-center justify-between mb-2">
             <CardTitle className="line-clamp-1 flex-1">{product.title}</CardTitle>
-            <p className="text-2xl font-bold ml-3 whitespace-nowrap">${product.price}</p>
+            <p className="text-2xl font-bold ml-3 whitespace-nowrap">{price}</p>
           </div>
           <CardDescription className="line-clamp-2">{product.description}</CardDescription>
         </CardHeader>

@@ -1,0 +1,42 @@
+<h1 style="color:#111827;margin:0 0 16px;">
+  <%= t(".greeting", recipient: @recipient_name) %>
+</h1>
+
+<p style="color:#374151;margin:0 0 16px;">
+  <%= t(".intro", actor: @actor_name, event: @proposal.event_name) %>
+</p>
+
+<div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:16px;margin:24px 0;">
+  <h2 style="color:#111827;font-size:18px;margin:0 0 12px;">
+    <%= t(".proposal_details") %>
+  </h2>
+
+  <table style="width:100%;border-collapse:collapse;color:#374151;font-size:14px;">
+    <tr>
+      <td style="padding:6px 0;font-weight:600;"><%= t(".service") %></td>
+      <td style="padding:6px 0;text-align:right;"><%= @service.title %></td>
+    </tr>
+    <tr>
+      <td style="padding:6px 0;font-weight:600;"><%= t(".date") %></td>
+      <td style="padding:6px 0;text-align:right;"><%= @event_date %></td>
+    </tr>
+    <tr>
+      <td style="padding:6px 0;font-weight:600;"><%= t(".venue") %></td>
+      <td style="padding:6px 0;text-align:right;"><%= [@proposal.venue_name, @proposal.city, @proposal.country].compact_blank.join(", ") %></td>
+    </tr>
+    <tr>
+      <td style="padding:6px 0;font-weight:600;"><%= t(".amount") %></td>
+      <td style="padding:6px 0;text-align:right;"><%= formatted_product_price(@proposal.proposed_amount, @proposal.currency) %></td>
+    </tr>
+  </table>
+</div>
+
+<p style="margin:24px 0;">
+  <%= link_to t(".view_proposal"),
+      @proposal_url,
+      style: "display:inline-block;background:#111827;color:#ffffff;padding:12px 18px;text-decoration:none;border-radius:6px;font-weight:600;" %>
+</p>
+
+<p style="color:#6b7280;margin:24px 0 0;font-size:14px;">
+  <%= t(".action_required") %>
+</p>

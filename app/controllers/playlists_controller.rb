@@ -92,7 +92,7 @@ class PlaylistsController < ApplicationController
 
   def new
     @playlist = Playlist.new
-    @track = Track.find(params[:track_id]) if params[:track_id]
+    @track = Track.for_tenant.find(params[:track_id]) if params[:track_id]
     @tab = params[:tab] || "create"
 
     respond_to do |format|
@@ -120,8 +120,8 @@ class PlaylistsController < ApplicationController
       if @playlist.save
         # Add track to playlist if track_ids are provided
         if params[:playlist][:track_ids].present?
-          params[:playlist][:track_ids].each do |track_id|
-            @playlist.track_playlists.create(track_id: track_id)
+          Track.for_tenant.where(id: params[:playlist][:track_ids]).find_each do |track|
+            @playlist.track_playlists.create(track: track)
           end
         end
 
@@ -161,7 +161,7 @@ class PlaylistsController < ApplicationController
 
   def sort
     @tab = params[:tab] || "tracks-tab"
-    @playlist = current_user.playlists.friendly.find(params[:id])
+    @playlist = current_user.playlists.for_tenant.friendly.find(params[:id])
     
     positions = params[:positions]
     
@@ -208,8 +208,8 @@ class PlaylistsController < ApplicationController
     return scope if current_user.blank?
 
     scope
-      .or(Playlist.where(user_id: current_user.id))
-      .or(Playlist.where(label_id: current_user.id))
+      .or(Playlist.for_tenant.where(user_id: current_user.id))
+      .or(Playlist.for_tenant.where(label_id: current_user.id))
   end
 
   def playlist_params
@@ -231,8 +231,8 @@ class PlaylistsController < ApplicationController
   end
 
   def find_playlist
-    Playlist
-      .where(user_id: current_user.id).or(Playlist.where(label_id: current_user.id))
+    Playlist.for_tenant
+      .where(user_id: current_user.id).or(Playlist.for_tenant.where(label_id: current_user.id))
       .friendly.find(params[:id])
   end
 

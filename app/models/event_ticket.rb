@@ -75,7 +75,7 @@ class EventTicket < ApplicationRecord
   def assign_position
     return if position.present?
 
-    self.position = event&.event_tickets&.maximum(:position).to_i + 1
+    self.position = self.class.where(event_id: event_id).maximum(:position).to_i + 1
   end
 
   def selling_start_before_selling_end

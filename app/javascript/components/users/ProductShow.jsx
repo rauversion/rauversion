@@ -92,7 +92,7 @@ export default function ProductShow() {
             
             <div className="flex items-center space-x-4">
               <span className="text-3xl font-bold text-default">
-                ${product.price}
+                {product.formatted_price || product.price}
               </span>
             </div>
 

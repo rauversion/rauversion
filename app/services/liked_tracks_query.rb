@@ -14,7 +14,7 @@ class LikedTracksQuery
     ordered_track_ids = paginated_likes.pluck(:likeable_id)
     all_track_ids = likes_scope.pluck(:likeable_id)
 
-    tracks_by_id = Track
+    tracks_by_id = Track.for_tenant
       .where(id: ordered_track_ids)
       .with_attached_cover
       .includes(
@@ -55,6 +55,7 @@ class LikedTracksQuery
   def likes_scope
     @likes_scope ||= Like
       .where(liker_type: "User", liker_id: user.id, likeable_type: "Track")
+      .where(likeable_id: Track.for_tenant.select(:id))
       .order(created_at: :desc)
   end
 
