@@ -1,6 +1,13 @@
 class Tenant < ApplicationRecord
   TEMPLATES = %w[amplifier editorial waveform broadcast].freeze
   HEADING_FONTS = %w[space_grotesk archivo_clash ibm_plex].freeze
+  BRANDING_DEFAULTS = {
+    template: "amplifier",
+    primary_color: "#34d399",
+    accent_color: "#22d3ee",
+    background_color: "#09090b",
+    heading_font: "space_grotesk"
+  }.freeze
   COLOR_FORMAT = /\A#[0-9a-fA-F]{6}\z/
   THEME_COLOR_TOKENS = %w[
     background foreground card card-foreground popover popover-foreground
@@ -48,14 +55,13 @@ class Tenant < ApplicationRecord
   end
 
   store_attribute :settings, :tagline, :string
-  store_attribute :settings, :template, :string, default: "amplifier"
-  store_attribute :settings, :primary_color, :string, default: "#34d399"
-  store_attribute :settings, :accent_color, :string, default: "#22d3ee"
-  store_attribute :settings, :background_color, :string, default: "#09090b"
-  store_attribute :settings, :heading_font, :string, default: "space_grotesk"
+  BRANDING_DEFAULTS.each do |attribute, default|
+    store_attribute :settings, attribute, :string, default: default
+  end
   store_attribute :settings, :theme_schema, :json, default: -> { DEFAULT_THEME_SCHEMA.deep_dup }
 
   normalizes :slug, with: ->(slug) { normalize_slug(slug) }
+  before_validation :apply_branding_defaults
 
   validates :name, presence: true, length: { maximum: 80 }
   validates :slug,
@@ -86,6 +92,12 @@ class Tenant < ApplicationRecord
   end
 
   private
+
+  def apply_branding_defaults
+    BRANDING_DEFAULTS.each do |attribute, default|
+      public_send("#{attribute}=", default) if public_send(attribute).blank?
+    end
+  end
 
   def theme_schema_must_be_safe
     schema = theme_schema

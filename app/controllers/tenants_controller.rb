@@ -113,6 +113,10 @@ class TenantsController < ApplicationController
       permitted[:theme_schema] = value.is_a?(String) ? JSON.parse(value) : normalize_json_param(value)
     end
 
+    Tenant::BRANDING_DEFAULTS.each_key do |attribute|
+      permitted.delete(attribute) if permitted[attribute].blank?
+    end
+
     permitted
   end
 

@@ -237,6 +237,10 @@ export default function TenantSettings() {
     value: string
   ) => {
     if (!branding) return
+    if (!/^#[0-9a-fA-F]{6}$/.test(value)) {
+      updateBranding(legacyKey, value)
+      return
+    }
     const theme = JSON.parse(JSON.stringify(branding.theme_schema)) as ThemeSchema
     theme.name = `${branding.template}-custom`
     theme.cssVars.light[token] = value
@@ -335,7 +339,8 @@ export default function TenantSettings() {
     const body = new FormData()
     body.append("tenant[name]", name)
     Object.entries(branding).forEach(([key, value]) => {
-      body.append(`tenant[${key}]`, key === "theme_schema" ? JSON.stringify(value) : String(value))
+      if (key !== "tagline" && (value == null || (typeof value === "string" && !value.trim()))) return
+      body.append(`tenant[${key}]`, key === "theme_schema" ? JSON.stringify(value) : String(value ?? ""))
     })
     if (logoFile) body.append("tenant[logo]", logoFile)
 
@@ -411,7 +416,7 @@ export default function TenantSettings() {
             <Card className="border-border bg-card">
               <CardHeader><CardTitle className="flex items-center gap-2"><Type className="h-5 w-5 text-chart-4" /> {I18n.t("tenants.settings.typography")}</CardTitle></CardHeader>
               <CardContent>
-                <Select value={branding.heading_font} onValueChange={(value) => updateBranding("heading_font", value as HeadingFont)}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{Object.entries(fontLabels).map(([key, label]) => <SelectItem key={key} value={key}>{label}</SelectItem>)}</SelectContent></Select>
+                <Select value={branding.heading_font} onValueChange={(value) => { if (value) updateBranding("heading_font", value as HeadingFont) }}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>{Object.entries(fontLabels).map(([key, label]) => <SelectItem key={key} value={key}>{label}</SelectItem>)}</SelectContent></Select>
               </CardContent>
             </Card>
           </div>
