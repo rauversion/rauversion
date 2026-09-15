@@ -13,6 +13,7 @@ import { PlaylistBlock } from "./playlist-block"
 import { MultiPlaylistBlock } from "./multi-playlist-block"
 import { TrackBlock } from "./track-block"
 import { LinkEmbedBlock } from "./link-embed-block"
+import { RauVizBlock } from "./rauviz-block"
 import { ColumnBlock } from "./column-block"
 import { CustomPlayerBlock } from "./custom-player-block"
 import { CardBlock } from "./card-block"
@@ -109,6 +110,8 @@ export function BlockRenderer({
         return <TrackBlock block={block} isEditing={isEditing} />
       case "link-embed":
         return <LinkEmbedBlock block={block} isEditing={isEditing} />
+      case "rauviz":
+        return <RauVizBlock block={block} isEditing={isEditing} />
       case "custom-player":
         return <CustomPlayerBlock block={block} isEditing={isEditing} />
       case "card":

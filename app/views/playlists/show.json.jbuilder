@@ -14,6 +14,22 @@ json.playlist do
   json.price @playlist.price
   json.name_your_price @playlist.name_your_price
   json.formatted_price number_to_currency(@playlist.price)
+
+  # Release management is only exposed to the playlist owner. Public visitors
+  # should not receive private release-management metadata.
+  release = if current_user&.id == @playlist.user_id
+    @playlist.releases.order(updated_at: :desc).first
+  end
+
+  json.release do
+    json.id release.id
+    json.slug release.slug
+    json.title release.title
+    json.urls do
+      json.show release_path(release)
+    end
+  end if release
+
   json.label do
     json.partial! 'users/user', user: @playlist.label, show_full_name: true
   end if @playlist.label_id.present?

@@ -159,5 +159,30 @@ RSpec.describe "Playlists", type: :request do
 
       expect(response).to have_http_status(:not_found)
     end
+
+    context "when the playlist has a release" do
+      let!(:release) { create(:release, playlist: playlist, user: artist) }
+
+      it "exposes the release page to the playlist owner" do
+        sign_in artist
+
+        get "/playlists/#{playlist.slug}.json"
+
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body).dig("playlist", "release")).to include(
+          "id" => release.id,
+          "slug" => release.slug,
+          "title" => release.title,
+          "urls" => { "show" => release_path(release) }
+        )
+      end
+
+      it "does not expose release-management metadata to visitors" do
+        get "/playlists/#{playlist.slug}.json"
+
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body).fetch("playlist")).not_to have_key("release")
+      end
+    end
   end
 end
