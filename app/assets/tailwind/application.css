@@ -261,7 +261,7 @@
 
 
 .graf--p {
-  color: var(--primary);
+  color: var(--foreground);
 }
 
 .node-ScrollGalleryBlock {
