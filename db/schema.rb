@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_17_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_17_220000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -130,6 +130,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_120000) do
     t.string "status", default: "enrolled"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.index ["course_id", "user_id"], name: "index_course_enrollments_on_course_id_and_user_id", unique: true
     t.index ["course_id"], name: "index_course_enrollments_on_course_id"
     t.index ["user_id"], name: "index_course_enrollments_on_user_id"
   end
@@ -157,7 +158,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_120000) do
     t.boolean "is_published"
     t.string "level"
     t.integer "max_students", default: 0
-    t.decimal "price"
+    t.decimal "price", default: "0.0", null: false
     t.boolean "published"
     t.text "seo_description"
     t.string "seo_keywords"

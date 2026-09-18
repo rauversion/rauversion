@@ -1,5 +1,8 @@
 class CourseModulesController < ApplicationController
+  include CourseAccess
   before_action :set_course
+  before_action :require_visible_course!, only: [:index]
+  before_action :require_course_owner!, except: [:index]
   before_action :set_course_module, only: [:destroy, :move]
 
   def index
@@ -49,10 +52,7 @@ class CourseModulesController < ApplicationController
   private
 
   def set_course
-    @course = current_user.courses.for_tenant.friendly.find(params[:course_id]) if current_user
-    if @course.nil?
-      @course = Course.for_tenant.friendly.find(params[:course_id])
-    end
+    @course = Course.for_tenant.friendly.find(params[:course_id])
   end
 
   def set_course_module

@@ -69,7 +69,8 @@ export default function LessonPage() {
           setEnrollment(null)
         }
       } else {
-        setError("Failed to fetch lesson")
+        const data = await response.json
+        setError(data.error || I18n.t("courses.lesson_show.lesson_not_found"))
       }
     } catch (err) {
       setError("Failed to fetch lesson")
@@ -152,7 +153,10 @@ export default function LessonPage() {
   if (error || !lesson || !module) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p className="text-red-500">{error || I18n.t("courses.lesson_show.lesson_not_found")}</p>
+        <div className="space-y-4 text-center">
+          <p className="text-red-500">{error || I18n.t("courses.lesson_show.lesson_not_found")}</p>
+          <Button asChild variant="outline"><Link to={`/courses/${courseId}`}>{I18n.t("courses.lesson_show.back_to_course")}</Link></Button>
+        </div>
       </div>
     )
   }
@@ -328,33 +332,26 @@ export default function LessonPage() {
                             <p className="font-medium">{doc.title}</p>
                             <p className="text-sm text-muted-foreground">{doc.name}</p>
                           </div>
-                          {enrollment ? (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={async () => {
-                                try {
-                                  const response = await get(`/courses/${courseId}/course_documents/${doc.id}/download`, { responseKind: "json" })
-                                  if (response.ok) {
-                                    const data = await response.json
-                                    if (data.url) {
-                                      window.open(data.url, "_blank", "noopener")
-                                    }
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={async () => {
+                              try {
+                                const response = await get(`/courses/${courseId}/course_documents/${doc.id}/download`, { responseKind: "json" })
+                                if (response.ok) {
+                                  const data = await response.json
+                                  if (data.url) {
+                                    window.open(data.url, "_blank", "noopener")
                                   }
-                                } catch (e) {
-                                  // Optionally show error toast
                                 }
-                              }}
-                            >
-                              <Download className="h-4 w-4 mr-2" />
-                              Download
-                            </Button>
-                          ) : (
-                            <Button variant="ghost" size="sm" disabled>
-                              <Download className="h-4 w-4 mr-2" />
-                              Download
-                            </Button>
-                          )}
+                              } catch (e) {
+                                // Optionally show error toast
+                              }
+                            }}
+                          >
+                            <Download className="h-4 w-4 mr-2" />
+                            Download
+                          </Button>
                         </div>
                       ))}
                     </div>

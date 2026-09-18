@@ -12,20 +12,12 @@ module Products
 
 
     def set_course_enrollment_for(item, purchase)
-      # Check if the course enrollment already exists
-      enrollment = CourseEnrollment.find_or_initialize_by(
-        user_id: purchase.user.id,
-        course_id: self.course.id
-      )
+      return unless purchase.completed?
 
-      # If the enrollment is new, create it
-      if enrollment.new_record?
-        enrollment.save!
-        # Optionally, you can send a notification or perform other actions here
+      course.with_lock do
+        enrollment = course.course_enrollments.find_or_create_by!(user: purchase.user)
+        enrollment.update_metadata!(purchase_id: purchase.id, product_purchase_item_id: item.id)
       end
-
-      # Update the metadata with the purchased item details
-      enrollment.update_metadata!(item: item, purchase: purchase)
     end
   end
 end

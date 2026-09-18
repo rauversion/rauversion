@@ -336,6 +336,12 @@
       "go_back": "Go back"
     },
     "courses": {
+      "access": {
+        "enrollment_required": "Enroll to access the content.",
+        "login_required": "Sign in to enroll in the course.",
+        "open_content": "Content available",
+        "owner_required": "Only the course owner can change it."
+      },
       "admin_page": {
         "actions": "Actions",
         "courses": "Courses",
@@ -398,14 +404,24 @@
         "add_to_cart": "Add to Cart",
         "added": "Added!",
         "adding": "Adding...",
+        "checkout_error": "Could not start checkout. Please try again.",
+        "course_price": "Course price",
         "downloadable_resources": "✔️ Downloadable resources & materials",
+        "enroll_free": "Enroll for free",
         "enroll_now": "Enroll Now",
         "enrolled_message": "Welcome to the course. Check your dashboard to get started.",
         "enrolled_title": "You're enrolled!",
         "enrolling": "Enrolling...",
         "enrollment_closed": "Enrollment is currently closed for this course.",
+        "enrollment_error": "Could not complete enrollment.",
         "full_access": "✔️ Full access to all course modules & lessons",
-        "purchase_full_access": "Purchase to get full access to this course."
+        "pay_with_stripe": "Pay with Stripe",
+        "payment_pending": "Waiting for confirmation from Stripe. Your access will be enabled once payment is confirmed.",
+        "purchase_full_access": "Purchase to get full access to this course.",
+        "service_fee": "Service fee",
+        "stripe_unavailable": "This course is not ready to accept payments yet.",
+        "total": "Total",
+        "use_course_checkout": "Enroll from the course page to continue."
       },
       "enrollments_tab": {
         "completed_lessons": "Completed Lessons",
@@ -517,20 +533,27 @@
         "uploading": "Uploading..."
       },
       "settings": {
+        "access_help": "Open courses let anyone view lessons without enrolling. The other options require enrollment.",
         "certificate": "Certificate",
         "certificate_desc": "Enable course completion certificate",
+        "connect_stripe": "Connect your Stripe account to receive payments",
         "course_settings": "Course Settings",
         "delete_course": "Delete Course",
         "enrollment_settings": "Enrollment Settings",
         "enrollment_type": "Enrollment Type",
         "featured_course": "Featured Course",
         "featured_course_desc": "Show this course on the homepage",
+        "fee_help": "The service fee is added to the price at Stripe checkout, just like event tickets.",
+        "free_enrollment": "Free enrollment",
         "invite_only": "Invite Only",
         "max_students": "Maximum Students (0 for unlimited)",
         "max_students_placeholder": "0",
         "open_enrollment": "Open Enrollment",
+        "paid_enrollment": "Paid enrollment",
+        "public_access": "Open course, no enrollment",
         "published": "Published",
         "published_desc": "Make this course available to students",
+        "save_error": "Could not save the course settings.",
         "save_settings": "Save Settings",
         "select_enrollment_type": "Select enrollment type",
         "seo_description": "SEO Description",
@@ -5805,6 +5828,12 @@
       "go_back": "Go back"
     },
     "courses": {
+      "access": {
+        "enrollment_required": "Inscríbete para acceder al contenido.",
+        "login_required": "Inicia sesión para inscribirte al curso.",
+        "open_content": "Contenido disponible",
+        "owner_required": "Solo quien imparte el curso puede modificarlo."
+      },
       "admin_page": {
         "actions": "Acciones",
         "courses": "Cursos",
@@ -5867,14 +5896,24 @@
         "add_to_cart": "Agregar al carrito",
         "added": "¡Agregado!",
         "adding": "Agregando...",
+        "checkout_error": "No se pudo iniciar el pago. Inténtalo nuevamente.",
+        "course_price": "Precio del curso",
         "downloadable_resources": "✔️ Recursos y materiales descargables",
+        "enroll_free": "Inscribirme gratis",
         "enroll_now": "Inscribirse ahora",
         "enrolled_message": "Bienvenido/a al curso. Revisa tu panel para comenzar.",
         "enrolled_title": "¡Ya estás inscrito!",
         "enrolling": "Inscribiendo...",
         "enrollment_closed": "La inscripción está cerrada para este curso.",
+        "enrollment_error": "No se pudo completar la inscripción.",
         "full_access": "✔️ Acceso total a todos los módulos y lecciones",
-        "purchase_full_access": "Compra para tener acceso completo a este curso."
+        "pay_with_stripe": "Pagar con Stripe",
+        "payment_pending": "Estamos esperando la confirmación de Stripe. Tu acceso se habilitará al confirmar el pago.",
+        "purchase_full_access": "Compra para tener acceso completo a este curso.",
+        "service_fee": "Cargo por servicio",
+        "stripe_unavailable": "Este curso todavía no está habilitado para recibir pagos.",
+        "total": "Total",
+        "use_course_checkout": "Inscríbete desde la página del curso para continuar."
       },
       "enrollments_tab": {
         "completed_lessons": "Lecciones completadas",
@@ -5986,20 +6025,27 @@
         "uploading": "Subiendo..."
       },
       "settings": {
+        "access_help": "Los cursos abiertos permiten ver las lecciones sin inscribirse. Las demás opciones requieren una inscripción.",
         "certificate": "Certificado",
         "certificate_desc": "Habilitar certificado de finalización del curso",
+        "connect_stripe": "Conecta tu cuenta de Stripe para recibir pagos",
         "course_settings": "Configuración del curso",
         "delete_course": "Eliminar curso",
         "enrollment_settings": "Configuración de inscripción",
         "enrollment_type": "Tipo de inscripción",
         "featured_course": "Curso destacado",
         "featured_course_desc": "Mostrar este curso en la página principal",
+        "fee_help": "El cargo por servicio se suma al precio al pagar en Stripe, igual que en los tickets de eventos.",
+        "free_enrollment": "Inscripción gratuita",
         "invite_only": "Solo por invitación",
         "max_students": "Máximo de estudiantes (0 para ilimitado)",
         "max_students_placeholder": "0",
         "open_enrollment": "Inscripción abierta",
+        "paid_enrollment": "Inscripción pagada",
+        "public_access": "Curso abierto, sin inscripción",
         "published": "Publicado",
         "published_desc": "Haz visible este curso para los alumnos",
+        "save_error": "No se pudieron guardar los ajustes del curso.",
         "save_settings": "Guardar configuración",
         "select_enrollment_type": "Selecciona tipo de inscripción",
         "seo_description": "Descripción SEO",

@@ -1,5 +1,9 @@
 class LessonsController < ApplicationController
+  include CourseAccess
   before_action :set_course_module
+  before_action :require_visible_course!
+  before_action :require_course_content!, only: [:index, :stream]
+  before_action :require_course_owner!, except: [:index, :stream]
   before_action :set_lesson, only: [:destroy, :move, :stream]
 
   def index
@@ -52,6 +56,7 @@ class LessonsController < ApplicationController
   include ActionController::DataStreaming
   MAX_RANGE_SIZE = 1.megabyte
   def stream
+    return head :not_found unless @lesson.video.attached?
     # authorize! @video # or any auth logic
     # send_blob_stream @lesson.video.blob, disposition: "inline"
 
@@ -68,7 +73,8 @@ class LessonsController < ApplicationController
   private
 
   def set_course_module
-    @course_module = CourseModule.find(params[:course_module_id])
+    @course = Course.for_tenant.friendly.find(params[:course_id])
+    @course_module = @course.course_modules.find(params[:course_module_id])
   end
 
   def set_lesson

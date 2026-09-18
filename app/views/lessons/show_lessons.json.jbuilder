@@ -10,7 +10,7 @@ json.lesson do
   json.type @lesson.type
   json.position @lesson.position
   json.youtube_url @lesson.youtube_url
-  json.video_url url_for(@lesson.video) if @lesson.video.attached?
+  json.video_url stream_course_course_module_lesson_path(@course, @course_module, @lesson) if @lesson.video.attached?
 end
 
 json.course_module do
@@ -27,7 +27,7 @@ json.course_module do
     json.description lesson.description
     json.duration lesson.duration
     json.lesson_type lesson.lesson_type
-    json.video_url lesson.video.attached? ? rails_storage_proxy_path(lesson.video) : nil
+    json.video_url lesson.video.attached? ? stream_course_course_module_lesson_path(@course, @course_module, lesson) : nil
   end
 end
 

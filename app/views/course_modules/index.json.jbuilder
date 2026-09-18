@@ -1,3 +1,4 @@
+can_access = @course.content_accessible_to?(current_user)
 json.course_modules @course_modules.map { |mod| 
   {
     id: mod.id,
@@ -8,12 +9,12 @@ json.course_modules @course_modules.map { |mod|
       {
         id: lesson.id,
         title: lesson.title,
-        description: lesson.description,
+        description: can_access ? lesson.description : nil,
         duration: lesson.duration,
         type: lesson.type,
-        video_url: lesson.video.attached? ? url_for(lesson.video) : nil,
-        youtube_url: lesson.youtube_url,
-        documents: lesson.course_documents.map { |doc|
+        video_url: can_access && lesson.video.attached? ? stream_course_course_module_lesson_path(@course, mod, lesson) : nil,
+        youtube_url: can_access ? lesson.youtube_url : nil,
+        documents: can_access ? lesson.course_documents.map { |doc|
           {
             id: doc.id,
             title: doc.title,
@@ -22,7 +23,7 @@ json.course_modules @course_modules.map { |mod|
             created_at: doc.created_at,
             updated_at: doc.updated_at
           }
-        }
+        } : []
       }
     }
   }

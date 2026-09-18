@@ -2,14 +2,14 @@ require 'rails_helper'
 
 RSpec.describe "Lessons", type: :request do
   include FactoryBot::Syntax::Methods
-  let(:user) { create(:user) }
+  let(:user) { create(:user, confirmed_at: Time.current) }
   let(:course) { Course.create!(title: "Test Course", description: "desc", user: user, category: "test") }
   let(:course_module) { CourseModule.create!(title: "Module 1", course: course) }
   let(:valid_attributes) { { title: "Lesson 1", duration: 10, lesson_type: "video", description: "desc" } }
   let!(:lesson) { Lesson.create!(title: "Sample Lesson", duration: 5, lesson_type: "video", description: "desc", course_module: course_module) }
 
   before do
-    allow_any_instance_of(LessonsController).to receive(:current_user).and_return(user)
+    sign_in user
   end
 
   describe "GET /course_modules/:course_module_id/lessons" do

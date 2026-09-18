@@ -5,13 +5,21 @@ json.course do
   json.category @course.category
   json.level @course.level
   json.duration @course.duration
-  # Deprecated: json.price @course.price
+  json.price @course.price.to_s
+  json.currency @course.currency
+  json.can_access_content @course.content_accessible_to?(current_user)
+  json.can_manage @course.owned_by?(current_user)
+  json.stripe_ready @course.user.stripe_account_id.present?
+  if @course.paid_enrollment?
+    json.checkout_quote PaymentProviders::CourseStripeProvider.new(course: @course, user: current_user).quote
+  end
 
   if @course.course_product
     json.course_product  do
       json.id @course.course_product.id
-      json.price @course.course_product.price
-      json.formatted_price number_to_currency(@course.course_product.price)
+      json.price @course.price.to_f
+      json.currency @course.currency
+      json.formatted_price number_to_currency(@course.price, unit: "#{@course.currency.upcase} ")
     end
   end
   json.instructor @course.instructor

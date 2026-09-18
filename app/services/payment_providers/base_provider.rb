@@ -54,6 +54,8 @@ module PaymentProviders
         "Cargo de servicio de Rauversion para la compra de productos"
       when "event"
         "Cargo de servicio de Rauversion para la compra de tickets"
+      when "course"
+        "Cargo de servicio de Rauversion para la inscripción al curso"
       else
         "Cargo de servicio de Rauversion para la compra de música"
       end

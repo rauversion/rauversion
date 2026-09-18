@@ -47,6 +47,8 @@ class WebhooksController < ApplicationController
       puts "PaymentIntent was successful!"
     when "checkout.session.completed"
       confirm_stripe_purchase(event.data.object)
+    when "checkout.session.async_payment_succeeded"
+      Courses::FulfillStripeCheckout.call(event.data.object) if event.data.object.metadata.source_type == "course"
     when "charge.refunded"
       handle_stripe_refund(event.data.object)
     when "payment_method.attached"
@@ -102,7 +104,9 @@ class WebhooksController < ApplicationController
   end
 
   def confirm_stripe_purchase(event_object)
-    if event_object&.metadata&.source_type == "product"
+    if event_object&.metadata&.source_type == "course"
+      Courses::FulfillStripeCheckout.call(event_object)
+    elsif event_object&.metadata&.source_type == "product"
       handle_product_purchase(event_object&.metadata)
     elsif event_object&.metadata&.source_type == "service_booking"
       handle_service_booking_checkout(event_object)

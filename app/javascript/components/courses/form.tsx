@@ -26,6 +26,7 @@ export default function NewCoursePage() {
     level: string
     duration: string
     price: string
+    enrollment_type: string
     instructor: string
     instructor_title: string
     published: boolean
@@ -42,7 +43,8 @@ export default function NewCoursePage() {
     category: "",
     level: "beginner",
     duration: "",
-    price: "",
+    price: "0",
+    enrollment_type: "free",
     instructor: "",
     instructor_title: "",
     published: false,
@@ -99,6 +101,7 @@ export default function NewCoursePage() {
     level: string
     duration: string
     price: string
+    enrollment_type: string
     instructor: string
     instructor_title: string
     published: boolean
@@ -159,16 +162,18 @@ export default function NewCoursePage() {
     }
   }
 
-  const handleSaveCourse = async () => {
+  const handleSaveCourse = async (overrides = {}) => {
+    const savedCourse = { ...courseData, ...overrides }
     try {
       let response
       if (courseId) {
-        response = await put(`/courses/${courseId}.json`, { body: JSON.stringify({ course: courseData }) })
+        response = await put(`/courses/${courseId}.json`, { body: JSON.stringify({ course: savedCourse }) })
       } else {
-        response = await post("/courses.json", { body: JSON.stringify({ course: courseData }) })
+        response = await post("/courses.json", { body: JSON.stringify({ course: savedCourse }) })
       }
       const data = await response.json
 
+      if (!response.ok) throw new Error(data.errors?.join(", ") || I18n.t("courses.settings.save_error"))
       setCourseData((prev) => ({ ...prev, ...data.course }))
 
       toast({
@@ -183,18 +188,12 @@ export default function NewCoursePage() {
     } catch (error) {
       console.error("Failed to save course:", error)
       toast({
-        title: "Failed to save course. Please try again."
+        title: error instanceof Error ? error.message : I18n.t("courses.settings.save_error"), variant: "destructive"
       })
     }
   }
 
-  const handlePublishCourse = () => {
-    setCourseData((prev) => ({ ...prev, published: true }))
-    // In a real app, this would publish the course
-    toast({
-      title: "Course published successfully!"
-    })
-  }
+  const handlePublishCourse = () => handleSaveCourse({ published: true })
 
   return (
     <div className="min-h-screen bg-background">
@@ -216,7 +215,7 @@ export default function NewCoursePage() {
                 </span>
               </Link>
             </Button>
-            <Button variant="outline" size="sm" onClick={handleSaveCourse}>
+            <Button variant="outline" size="sm" onClick={() => handleSaveCourse()}>
               <Save className="h-4 w-4 mr-2" />
               <span className="hidden sm:block">
                 {I18n.t("courses.form.save_draft")}
@@ -355,29 +354,7 @@ export default function NewCoursePage() {
                 <CourseSettings
                   courseData={courseData}
                   onDataChange={handleCourseDataChange}
-                  onSave={async (settings) => {
-                    if (!courseId) return
-                    const response = await put(`/courses/${courseId}.json`, {
-                      body: JSON.stringify({ course: settings }),
-                    })
-
-                    if(!response.ok) {
-                      // const response = await get(`/courses/${courseId}.json`)
-                      // const data = await response.json
-                      // setCourseData((prev) => ({ ...prev, ...data.course }))
-                      toast({
-                        title: "updated course settings successfully!"
-                      })
-                    } else {
-                      toast({
-                        title: "error updating course settings"
-                      })
-                    }
-                    // Optionally refresh course data
-                    // const response = await get(`/courses/${courseId}.json`)
-                    // const data = await response.json
-                    // setCourseData((prev) => ({ ...prev, ...data.course }))
-                  }}
+                  onSave={(settings) => handleSaveCourse(settings)}
                 />
               </CardContent>
             </Card>

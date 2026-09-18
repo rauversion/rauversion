@@ -109,7 +109,23 @@ en:
       email: "Email" 
       send_invitation: "Send Invitation"
 
+    access:
+      login_required: "Sign in to enroll in the course."
+      owner_required: "Only the course owner can change it."
+      enrollment_required: "Enroll to access the content."
+      open_content: "Content available"
+
     enrollment_form: 
+      stripe_unavailable: "This course is not ready to accept payments yet."
+      checkout_error: "Could not start checkout. Please try again."
+      enrollment_error: "Could not complete enrollment."
+      use_course_checkout: "Enroll from the course page to continue."
+      course_price: "Course price"
+      service_fee: "Service fee"
+      total: "Total"
+      pay_with_stripe: "Pay with Stripe"
+      enroll_free: "Enroll for free"
+      payment_pending: "Waiting for confirmation from Stripe. Your access will be enabled once payment is confirmed."
       enrolled_title: "You're enrolled!" 
       enrolled_message: "Welcome to the course. Check your dashboard to get started." 
       full_access: "✔️ Full access to all course modules & lessons" 
@@ -172,6 +188,13 @@ en:
       upload: "Upload"
 
     settings:
+      public_access: "Open course, no enrollment"
+      free_enrollment: "Free enrollment"
+      paid_enrollment: "Paid enrollment"
+      access_help: "Open courses let anyone view lessons without enrolling. The other options require enrollment."
+      fee_help: "The service fee is added to the price at Stripe checkout, just like event tickets."
+      connect_stripe: "Connect your Stripe account to receive payments"
+      save_error: "Could not save the course settings."
       course_settings: "Course Settings"
       published: "Published"
       published_desc: "Make this course available to students"

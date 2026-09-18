@@ -13,7 +13,13 @@ class Course < ApplicationRecord
   has_one_attached :thumbnail
   has_many :course_documents, dependent: :destroy
 
-  attr_accessor :product_price
+  alias_attribute :product_price, :price
+
+  before_validation :normalize_enrollment_type
+  validates :enrollment_type, inclusion: { in: %w[public free paid invite] }
+  validates :price, numericality: { greater_than_or_equal_to: 0 }
+  validates :price, numericality: { greater_than: 0 }, if: :paid_enrollment?
+  validates :price, numericality: { equal_to: 0 }, if: -> { %w[public free].include?(enrollment_type) }
 
   after_create :create_or_update_course_product
   after_update :create_or_update_course_product
@@ -27,16 +33,40 @@ class Course < ApplicationRecord
   scope :published, -> { for_tenant.where(published: true) }
 
   def enrolled?(user)
-    course_enrollments.exists?(user_id: user.id)
+    user.present? && course_enrollments.exists?(user_id: user.id)
+  end
+
+  def owned_by?(viewer)
+    viewer.present? && user_id == viewer.id
+  end
+
+  def visible_to?(viewer)
+    published? || owned_by?(viewer)
+  end
+
+  def content_accessible_to?(viewer)
+    owned_by?(viewer) || (published? && (enrollment_type == "public" || enrolled?(viewer)))
+  end
+
+  def paid_enrollment?
+    enrollment_type == "paid"
+  end
+
+  def self_enrollment?
+    published? && %w[public free paid].include?(enrollment_type)
+  end
+
+  def currency
+    course_product&.normalized_currency || "usd"
   end
   
   def create_or_update_course_product
     if course_product
-      course_product.update(
+      course_product.update!(
         title: title,
         slug: slug,
         description: description,
-        price: product_price || course_product.price,
+        price: price,
         category: category
       )
     else
@@ -47,10 +77,18 @@ class Course < ApplicationRecord
         title: title,
         slug: slug,
         description: description,
-        price: product_price,
+        price: price,
         status: "active",
         category: category
       )
+    end
+  end
+
+  private
+
+  def normalize_enrollment_type
+    if enrollment_type.blank? || enrollment_type == "open"
+      self.enrollment_type = price.to_d.positive? ? "paid" : "free"
     end
   end
 end

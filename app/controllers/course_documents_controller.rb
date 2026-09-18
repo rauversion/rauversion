@@ -1,9 +1,13 @@
 class CourseDocumentsController < ApplicationController
+  include CourseAccess
   before_action :set_course
+  before_action :require_visible_course!
+  before_action :require_course_content!, only: [:index, :show, :download]
+  before_action :require_course_owner!, only: [:create, :destroy]
   before_action :set_course_document, only: [:show, :destroy, :download]
 
   def index
-    @course_documents = @course.course_documents
+    @course_documents = @lesson ? @lesson.course_documents : @course.course_documents.where(lesson_id: nil)
     render json: @course_documents
   end
 

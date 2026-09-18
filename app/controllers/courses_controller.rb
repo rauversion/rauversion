@@ -1,5 +1,10 @@
 class CoursesController < ApplicationController
-  before_action :set_course, only: [:destroy, :enrollments, :invite]
+  include CourseAccess
+  before_action :require_course_user!, only: [:create, :mine]
+  before_action :set_course, except: [:index, :mine, :create]
+  before_action :require_visible_course!, only: [:show, :show_lesson]
+  before_action :require_course_content!, only: [:show_lesson]
+  before_action :require_course_owner!, except: [:index, :mine, :create, :show, :show_lesson]
 
   def index
     respond_to do |format|
@@ -22,10 +27,6 @@ class CoursesController < ApplicationController
   end
 
   def show
-    @course = current_user.courses.for_tenant.friendly.find(params[:id]) if current_user
-    if @course.nil?
-      @course = Course.for_tenant.friendly.find(params[:id])
-    end
     if params[:get_enrollment] && current_user
       @course_enrollment = CourseEnrollment.find_by(
         user_id: current_user.id, 
@@ -43,7 +44,7 @@ class CoursesController < ApplicationController
 
   def create
     @course = current_user.courses.build(course_params.except(:price))
-    @course.product_price = course_params[:price]
+    @course.product_price = course_params[:price] if course_params.key?(:price)
     if @course.save
       render :show, status: :created
     else
@@ -70,7 +71,7 @@ class CoursesController < ApplicationController
   def update
     @course = current_user.courses.for_tenant.friendly.find(params[:id])
     @course.assign_attributes(course_params.except(:price))
-    @course.product_price = course_params[:price]
+    @course.product_price = course_params[:price] if course_params.key?(:price)
     if @course.save
       render :show, status: :ok
     else
@@ -79,10 +80,6 @@ class CoursesController < ApplicationController
   end
 
   def show_lesson
-    @course = current_user.courses.for_tenant.friendly.find(params[:course_id]) if current_user
-    if @course.nil?
-      @course = Course.for_tenant.friendly.find(params[:course_id])
-    end
 
     if @course
       @lesson = @course.lessons.find(params[:lesson_id])
@@ -128,8 +125,7 @@ class CoursesController < ApplicationController
     username = email.split('@').first
     user = User.find_by(email: email) || User.create(email: email, password: pass, password_confirmation: pass, username: "#{username}-#{Time.now.to_i}" )
     
-    puts "AAAAAAA"
-    puts user.errors.full_messages if user.errors.any?
+    return render json: { error: user.errors.full_messages }, status: :unprocessable_entity unless user.persisted?
     enrollment = @course.course_enrollments.find_by(user_id: user.id)
 
     if enrollment
@@ -147,11 +143,7 @@ class CoursesController < ApplicationController
   private
 
   def set_course
-
-    @course = current_user.courses.for_tenant.friendly.find(params[:id]) if current_user
-    if @course.nil?
-      @course = Course.for_tenant.friendly.find(params[:id])
-    end
+    @course = Course.for_tenant.friendly.find(params[:course_id] || params[:id])
   end
 
   def course_params

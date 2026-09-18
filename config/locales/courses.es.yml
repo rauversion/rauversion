@@ -108,7 +108,23 @@ es:
       email: "Correo"
       send_invitation: "Enviar invitación"
 
+    access:
+      login_required: "Inicia sesión para inscribirte al curso."
+      owner_required: "Solo quien imparte el curso puede modificarlo."
+      enrollment_required: "Inscríbete para acceder al contenido."
+      open_content: "Contenido disponible"
+
     enrollment_form:
+      stripe_unavailable: "Este curso todavía no está habilitado para recibir pagos."
+      checkout_error: "No se pudo iniciar el pago. Inténtalo nuevamente."
+      enrollment_error: "No se pudo completar la inscripción."
+      use_course_checkout: "Inscríbete desde la página del curso para continuar."
+      course_price: "Precio del curso"
+      service_fee: "Cargo por servicio"
+      total: "Total"
+      pay_with_stripe: "Pagar con Stripe"
+      enroll_free: "Inscribirme gratis"
+      payment_pending: "Estamos esperando la confirmación de Stripe. Tu acceso se habilitará al confirmar el pago."
       enrolled_title: "¡Ya estás inscrito!"
       enrolled_message: "Bienvenido/a al curso. Revisa tu panel para comenzar."
       full_access: "✔️ Acceso total a todos los módulos y lecciones"
@@ -171,6 +187,13 @@ es:
       upload: "Subir"
 
     settings:
+      public_access: "Curso abierto, sin inscripción"
+      free_enrollment: "Inscripción gratuita"
+      paid_enrollment: "Inscripción pagada"
+      access_help: "Los cursos abiertos permiten ver las lecciones sin inscribirse. Las demás opciones requieren una inscripción."
+      fee_help: "El cargo por servicio se suma al precio al pagar en Stripe, igual que en los tickets de eventos."
+      connect_stripe: "Conecta tu cuenta de Stripe para recibir pagos"
+      save_error: "No se pudieron guardar los ajustes del curso."
       course_settings: "Configuración del curso"
       published: "Publicado"
       published_desc: "Haz visible este curso para los alumnos"

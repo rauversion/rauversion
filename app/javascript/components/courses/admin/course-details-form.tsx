@@ -22,7 +22,6 @@ const formSchema = z.object({
   category: z.string().min(1, { message: "Please select a category" }),
   level: z.string().min(1, { message: "Please select a level" }),
   duration: z.string().min(1, { message: "Please enter estimated duration" }),
-  price: z.string().min(1, { message: "Please enter a price" }),
   instructor: z.string().min(1, { message: "Please enter instructor name" }),
   instructor_title: z.string().min(1, { message: "Please enter instructor title" }),
   thumbnail: z.string().optional(),
@@ -62,7 +61,6 @@ export default function CourseDetailsForm({ courseData, onDataChange }: CourseDe
       category: courseData.category || "",
       level: courseData.level || "beginner",
       duration: courseData.duration || "",
-      price: courseData.price || "",
       instructor: courseData.instructor || "",
       instructor_title: courseData.instructor_title || "",
       thumbnail: (courseData as any).thumbnail || "",
@@ -92,7 +90,6 @@ export default function CourseDetailsForm({ courseData, onDataChange }: CourseDe
         category: courseData.category || "",
         level: courseData.level || "beginner",
         duration: courseData.duration || "",
-        price: courseData.price || "",
         instructor: courseData.instructor || "",
         instructor_title: courseData.instructor_title || "",
       })
@@ -216,20 +213,6 @@ export default function CourseDetailsForm({ courseData, onDataChange }: CourseDe
                     <FormLabel>{I18n.t("courses.details_form.estimated_duration")}</FormLabel>
                     <FormControl>
                       <Input placeholder={I18n.t("courses.details_form.estimated_duration_placeholder")} {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>{I18n.t("courses.details_form.price")}</FormLabel>
-                    <FormControl>
-                      <Input type="number" placeholder={I18n.t("courses.details_form.price_placeholder")} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

@@ -1,168 +1,69 @@
 import React, { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { post } from "@rails/request.js"
-import { useToast } from "@/hooks/use-toast"
-import { motion } from "framer-motion"
-import { CheckCircle, Sparkles } from "lucide-react"
-import useCartStore from '@/stores/cartStore'
+import { CheckCircle } from "lucide-react"
 
-export default function CourseEnrollmentForm({
-  courseId,
-  courseProduct,
-  enrollmentType,
-  onSuccess
-}: {
+type CheckoutQuote = { currency: string, subtotal: string | number, service_fee: string | number, total: string | number }
+type Props = {
   courseId: string | number,
-  courseProduct?: { id: number, price: number, formatted_price?: string },
-  enrollmentType?: string,
+  courseProduct?: { currency?: string },
+  enrollmentType: string,
+  checkoutQuote?: CheckoutQuote,
   onSuccess?: () => void
-}) {
-  const { toast } = useToast()
+}
+
+export default function CourseEnrollmentForm({ courseId, courseProduct, enrollmentType, checkoutQuote, onSuccess }: Props) {
   const [enrolling, setEnrolling] = useState(false)
   const [enrolled, setEnrolled] = useState(false)
-  const [addingToCart, setAddingToCart] = useState(false)
-  const [addedToCart, setAddedToCart] = useState(false)
-  const { addToCart } = useCartStore()
+  const [error, setError] = useState("")
+  const paid = enrollmentType === "paid"
+  const formatMoney = (amount: string | number) => new Intl.NumberFormat(undefined, {
+    style: "currency", currency: checkoutQuote?.currency || courseProduct?.currency || "USD"
+  }).format(Number(amount || 0))
 
   const handleEnroll = async () => {
     setEnrolling(true)
+    setError("")
     try {
-      const response = await post("/course_enrollments", {
-        body: JSON.stringify({
-          course_enrollment: {
-            course_id: courseId
-          }
-        }),
-        headers: { "Content-Type": "application/json" }
+      const response = await post("/course_enrollments.json", {
+        body: JSON.stringify({ course_enrollment: { course_id: courseId } })
       })
-      if (response.ok) {
-        setEnrolled(true)
-        toast({ title: "You're enrolled! 🎉" })
-        if (onSuccess) onSuccess()
+      const data = await response.json
+      if (!response.ok) throw new Error(data.error || I18n.t("courses.enrollment_form.enrollment_error"))
+      if (data.checkout_url) {
+        window.location.assign(data.checkout_url)
       } else {
-        toast({ title: "Enrollment failed", description: "Please try again.", variant: "destructive" })
+        setEnrolled(true)
+        onSuccess?.()
       }
-    } catch (e) {
-      toast({ title: "Enrollment failed", description: "Please try again.", variant: "destructive" })
+    } catch (error) {
+      setError(error instanceof Error ? error.message : I18n.t("courses.enrollment_form.enrollment_error"))
     } finally {
       setEnrolling(false)
     }
   }
 
-  const handleAddToCart = async () => {
-    if (!courseProduct?.id) return
-    setAddingToCart(true)
-    try {
-      await addToCart(courseProduct.id)
-      setAddedToCart(true)
-      toast({ title: "Added to cart!", description: "You can complete your purchase in the cart." })
-    } catch (e) {
-      toast({ title: "Could not add to cart", description: "Please try again.", variant: "destructive" })
-    } finally {
-      setAddingToCart(false)
-    }
-  }
+  if (enrolled) return <div className="py-6 text-center"><CheckCircle className="mx-auto mb-3 h-10 w-10" />{I18n.t("courses.enrollment_form.enrolled_title")}</div>
+  if (enrollmentType === "invite") return <p className="py-6 text-muted-foreground">{I18n.t("courses.enrollment_form.enrollment_closed")}</p>
 
-  if (enrolled) {
-    return (
-      <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1.1, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 300, damping: 20 }}
-        className="flex flex-col items-center justify-center py-8"
-      >
-        <CheckCircle className="h-16 w-16 text-success mb-4 animate-bounce" />
-        <h2 className="text-2xl font-bold mb-2">{I18n.t("courses.enrollment_form.enrolled_title")}</h2>
-        <p className="text-muted-foreground mb-4">{I18n.t("courses.enrollment_form.enrolled_message")}</p>
-      </motion.div>
-    )
-  }
-
-  // Friendly bullet list of what you get
-  const whatYouGet = [
-    I18n.t("courses.enrollment_form.full_access"),
-    I18n.t("courses.enrollment_form.downloadable_resources"),
-    //I18n.t("courses.enrollment_form.certificate_of_completion"),
-    I18n.t("courses.enrollment_form.access_any_device"),
-    //I18n.t("courses.enrollment_form.support"),
-  ];
-
-  // If course has a price, show Add to Cart
-  if (courseProduct && courseProduct.price > 0) {
-    return (
-      <motion.div
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 300, damping: 20 }}
-        className="flex flex-col items-center justify-center py-8"
-      >
-        <ul className="mb-6 text-left text-base text-foreground space-y-2 max-w-xs">
-          {whatYouGet.map((item, i) => (
-            <li key={i} className="flex items-start gap-2">
-              <span className="text-primary text-lg">•</span>
-              <span className="text-default">{item}</span>
-            </li>
-          ))}
-        </ul>
-        <div className="mb-4 text-2xl font-bold text-fuchsia-700 flex items-center gap-2">
-          {courseProduct.formatted_price || `$${courseProduct.price}`}
-        </div>
-        <motion.button
-          whileHover={{ scale: 1.08, boxShadow: "0 0 0 4px #a21caf44" }}
-          whileTap={{ scale: 0.96 }}
-          className="flex items-center gap-2 rounded-full bg-gradient-to-r from-primary to-accent px-8 py-4 text-xl font-bold text-primary-foreground shadow-lg focus:outline-none focus:ring-2 focus:ring-ring"
-          onClick={handleAddToCart}
-          disabled={addingToCart || addedToCart}
-        >
-          <Sparkles className="h-6 w-6 animate-pulse" />
-          {addingToCart
-            ? I18n.t("courses.enrollment_form.adding")
-            : addedToCart
-            ? I18n.t("courses.enrollment_form.added")
-            : I18n.t("courses.enrollment_form.add_to_cart")}
-        </motion.button>
-        <p className="text-sm text-muted-foreground mt-4">{I18n.t("courses.enrollment_form.purchase_full_access")}</p>
-      </motion.div>
-    )
-  }
-
-  // If open enrollment and free, show Enroll Now
-  if (enrollmentType === "open" || enrollmentType === "public" || !courseProduct || courseProduct.price === 0) {
-    return (
-      <motion.div
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 300, damping: 20 }}
-        className="flex flex-col items-center justify-center py-8"
-      >
-        <ul className="mb-6 text-left text-base text-foreground space-y-2 max-w-xs">
-          {whatYouGet.map((item, i) => (
-            <li key={i} className="flex items-start gap-2">
-              <span className="text-primary text-lg">•</span>
-              <span>{item}</span>
-            </li>
-          ))}
-        </ul>
-        <motion.button
-          whileHover={{ scale: 1.08, boxShadow: "0 0 0 4px #a21caf44" }}
-          whileTap={{ scale: 0.96 }}
-          className="flex items-center gap-2 rounded-full bg-gradient-to-r from-accent to-chart-2 px-8 py-4 text-xl font-bold text-accent-foreground shadow-lg focus:outline-none focus:ring-2 focus:ring-ring"
-          onClick={handleEnroll}
-          disabled={enrolling}
-        >
-          <Sparkles className="h-6 w-6 animate-pulse" />
-          {enrolling
-            ? I18n.t("courses.enrollment_form.enrolling")
-            : I18n.t("courses.enrollment_form.enroll_now")}
-        </motion.button>
-      </motion.div>
-    )
-  }
-
-  // Otherwise, enrollment is closed
   return (
-    <div className="text-center py-8 text-muted-foreground">
-      {I18n.t("courses.enrollment_form.enrollment_closed")}
+    <div className="space-y-6 py-4">
+      <ul className="space-y-2 text-sm">
+        {["full_access", "downloadable_resources", "access_any_device"].map((key) => (
+          <li key={key} className="flex items-center gap-2"><CheckCircle className="h-4 w-4" />{I18n.t(`courses.enrollment_form.${key}`)}</li>
+        ))}
+      </ul>
+      {paid && checkoutQuote && (
+        <dl className="space-y-2 text-sm">
+          <div className="flex justify-between"><dt>{I18n.t("courses.enrollment_form.course_price")}</dt><dd>{formatMoney(checkoutQuote.subtotal)}</dd></div>
+          <div className="flex justify-between"><dt>{I18n.t("courses.enrollment_form.service_fee")}</dt><dd>{formatMoney(checkoutQuote.service_fee)}</dd></div>
+          <div className="flex justify-between border-t pt-2 font-semibold"><dt>{I18n.t("courses.enrollment_form.total")}</dt><dd>{formatMoney(checkoutQuote.total)}</dd></div>
+        </dl>
+      )}
+      {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
+      <Button className="w-full" onClick={handleEnroll} disabled={enrolling}>
+        {enrolling ? I18n.t("courses.enrollment_form.enrolling") : I18n.t(paid ? "courses.enrollment_form.pay_with_stripe" : "courses.enrollment_form.enroll_free")}
+      </Button>
     </div>
   )
 }

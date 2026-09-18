@@ -39,4 +39,37 @@ RSpec.describe "Courses", type: :request do
       expect(response).to have_http_status(:redirect).or have_http_status(:success)
     end
   end
+
+  describe "enrollment settings" do
+    it "saves paid enrollment and returns the same price used by the course product" do
+      patch "/courses/#{course.id}.json", params: { course: { enrollment_type: "paid", price: "25.50", published: true } }
+      expect(response).to have_http_status(:ok)
+      expect(course.reload).to be_paid_enrollment
+      expect(course.course_product.price).to eq(course.price)
+      expect(response.parsed_body.dig("course", "price")).to eq("25.5")
+      expect(response.parsed_body.dig("course", "course_product", "price")).to eq(25.5)
+    end
+
+    it "changes a paid course to free enrollment and updates its product price" do
+      course.update!(enrollment_type: "paid", price: 20)
+      patch "/courses/#{course.id}.json", params: { course: { enrollment_type: "free", price: "0" } }
+      expect(response).to have_http_status(:ok)
+      expect(course.reload.price).to eq(0)
+      expect(course.course_product.price).to eq(0)
+    end
+
+    it "rejects a paid course with no price and a public course with a price" do
+      [{ enrollment_type: "paid", price: 0 }, { enrollment_type: "public", price: 20 }].each do |settings|
+        patch "/courses/#{course.id}.json", params: { course: settings }
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+
+    it "preserves the saved price when only another setting changes" do
+      course.update!(enrollment_type: "paid", price: 20)
+      patch "/courses/#{course.id}.json", params: { course: { featured: true } }
+      expect(response).to have_http_status(:ok)
+      expect(course.reload.course_product.price).to eq(20)
+    end
+  end
 end

@@ -5,6 +5,9 @@ class ProductCartController < ApplicationController
 
   def add
     product = Product.for_tenant.find_by(id: params[:product_id])
+    if product.is_a?(Products::CourseProduct)
+      return render json: { error: I18n.t("courses.enrollment_form.use_course_checkout") }, status: :unprocessable_entity
+    end
     @cart.add_product(product)
     @cart_items = @cart.product_cart_items.includes(:product)
     # redirect_back(fallback_location: root_path, notice: 'Item added to cart')

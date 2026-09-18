@@ -4,6 +4,9 @@ class ProductCheckoutController < ApplicationController
   before_action :set_cart
 
   def create
+    if @cart.products.any? { |product| product.is_a?(Products::CourseProduct) }
+      return render json: { error: I18n.t("courses.enrollment_form.use_course_checkout") }, status: :unprocessable_entity
+    end
 
     ActiveRecord::Base.transaction do
       @purchase = current_user.product_purchases.create(

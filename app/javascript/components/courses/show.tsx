@@ -1,6 +1,6 @@
 "use client"
 import React, { useState, useEffect } from "react"
-import { useParams, Link, useNavigate } from "react-router-dom"
+import { useParams, Link, useNavigate, useSearchParams } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -20,6 +20,7 @@ import {
   Video,
   MessageSquare,
   Settings,
+  Lock,
 } from "lucide-react"
 import { ShareDialog } from "@/components/ui/share-dialog"
 import { ShowMoreText } from "@/components/ui/show_more"
@@ -45,10 +46,22 @@ export default function CoursePage() {
   const [documentsLoading, setDocumentsLoading] = useState(false)
   const { currentUser } = useAuthStore()
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const [refreshKey, setRefreshKey] = useState(0)
+  const [enrollmentDialogOpen, setEnrollmentDialogOpen] = useState(false)
+  const paymentReturned = searchParams.get("checkout") === "success"
+  const requestEnrollment = () => currentUser ? setEnrollmentDialogOpen(true) : setShowLoginDialog(true)
+
+  useEffect(() => {
+    if (!paymentReturned || enrollment) return
+    const interval = setInterval(() => setRefreshKey((key) => key + 1), 2000)
+    const timeout = setTimeout(() => clearInterval(interval), 30000)
+    return () => { clearInterval(interval); clearTimeout(timeout) }
+  }, [paymentReturned, enrollment])
 
   useEffect(() => {
     async function fetchCourse() {
-      setLoading(true)
+      if (!course) setLoading(true)
       setError(null)
       try {
         const response = await get(`/courses/${courseId}.json?get_enrollment=true`)
@@ -70,11 +83,11 @@ export default function CoursePage() {
       }
     }
     fetchCourse()
-  }, [courseId])
+  }, [courseId, refreshKey])
 
   useEffect(() => {
     async function fetchModules() {
-      setModulesLoading(true)
+      if (modules.length === 0) setModulesLoading(true)
       setModulesError(null)
       try {
         const response = await get(`/courses/${courseId}/course_modules.json`)
@@ -91,11 +104,11 @@ export default function CoursePage() {
       }
     }
     fetchModules()
-  }, [courseId])
+  }, [courseId, refreshKey])
 
   // Fetch course documents when resources tab is selected
   useEffect(() => {
-    if (activeTab === "resources") {
+    if (activeTab === "resources" && course?.can_access_content) {
       async function fetchDocuments() {
         setDocumentsLoading(true)
         try {
@@ -114,7 +127,7 @@ export default function CoursePage() {
       }
       fetchDocuments()
     }
-  }, [activeTab, courseId])
+  }, [activeTab, courseId, course?.can_access_content])
 
   if (loading || modulesLoading) {
     return (
@@ -203,7 +216,7 @@ export default function CoursePage() {
       for (const module of modules) {
         for (const lesson of module.lessons) {
           if (!lesson.completed) {
-            return { moduleId: module.id, lessonId: lesson.id, title: lesson.title }
+            return { moduleId: module.id, id: lesson.id, title: lesson.title }
           }
         }
       }
@@ -313,7 +326,7 @@ export default function CoursePage() {
                 <Progress value={overallProgress} className="h-2" />
               </div>
 
-              {nextLesson && (
+              {nextLesson && course.can_access_content && (
                 <Card className="mb-6 bg-muted/50">
                   <CardContent className="p-4">
                     <div className="flex justify-between items-center">
@@ -326,11 +339,6 @@ export default function CoursePage() {
                         className="bg-primary text-primary-foreground shadow-lg transition-all duration-200 hover:bg-primary/90"
                         onClick={async (e) => {
                           e.preventDefault();
-                          // Check for currentUser
-                          if (!currentUser) {
-                            setShowLoginDialog(true);
-                            return;
-                          }
                           if (enrollment && !enrollment.started_lessons?.includes(nextLesson.id)) {
                             await post(`/course_enrollments/${enrollment.id}/start_lesson`, {
                               body: JSON.stringify({ lesson_id: nextLesson.id }),
@@ -392,7 +400,12 @@ export default function CoursePage() {
                                   {lesson.duration}
                                 </div>
                               </div>
-                              {enrollment ? (() => {
+                              {!course.can_access_content ? (
+                                <Button variant="outline" onClick={requestEnrollment} disabled={course.enrollment_type === "invite"}>
+                                  <Lock className="mr-2 h-4 w-4" />
+                                  {I18n.t("courses.access.enrollment_required")}
+                                </Button>
+                              ) : enrollment ? (() => {
                                 const started = enrollment.started_lessons?.includes(lesson.id)
                                 const finished = enrollment.finished_lessons?.includes(lesson.id)
                                 if (finished) {
@@ -488,7 +501,9 @@ export default function CoursePage() {
               </TabsContent>
               <TabsContent value="resources" className="mt-4">
                 <div className="space-y-4">
-                  {documentsLoading ? (
+                  {!course.can_access_content ? (
+                    <p className="py-6 text-muted-foreground">{I18n.t("courses.access.enrollment_required")}</p>
+                  ) : documentsLoading ? (
                     <div className="text-center py-8 text-muted-foreground">Loading resources...</div>
                   ) : documents.length === 0 ? (
                     <div className="text-center py-8 text-muted-foreground">
@@ -505,7 +520,7 @@ export default function CoursePage() {
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          {enrollment ? (
+                          {course.can_access_content ? (
                             <Button
                               variant="ghost"
                               size="sm"
@@ -578,13 +593,18 @@ export default function CoursePage() {
                     ))}
                   </div>
 
+                  {paymentReturned && !enrollment && (
+                    <p role="status" className="mt-4 text-sm text-muted-foreground">{I18n.t("courses.enrollment_form.payment_pending")}</p>
+                  )}
                   <div className="mt-6 pt-6 border-t">
                     <div className="flex items-center justify-between mb-4">
                       <div>
                         <p className="font-medium">{I18n.t("courses.show.course_stats")}</p>
                       </div>
-                      {!enrollment ? (
-                        <Dialog>
+                      {!course.can_access_content && course.enrollment_type === "invite" ? (
+                        <p className="text-sm text-muted-foreground">{I18n.t("courses.enrollment_form.enrollment_closed")}</p>
+                      ) : !course.can_access_content ? (
+                        <Dialog open={enrollmentDialogOpen} onOpenChange={setEnrollmentDialogOpen}>
                           <DialogTrigger asChild>
                             <Button
                               size="lg"
@@ -617,13 +637,15 @@ export default function CoursePage() {
                               courseId={courseId}
                               courseProduct={course.course_product}
                               enrollmentType={course.enrollment_type}
+                              checkoutQuote={course.checkout_quote}
+                              onSuccess={() => { setEnrollmentDialogOpen(false); setRefreshKey((key) => key + 1) }}
                             />
                           </DialogContent>
                         </Dialog>
                       ) : (
                         <span className="ml-2 rounded-full border border-success/30 bg-success/10 px-4 py-2 font-semibold text-success shadow-inner">
                           <CheckCircle className="mr-1 inline-block h-5 w-5 text-success" />
-                          {I18n.t("courses.show.already_enrolled")}
+                          {I18n.t(enrollment ? "courses.show.already_enrolled" : "courses.access.open_content")}
                         </span>
                       )}
                     </div>

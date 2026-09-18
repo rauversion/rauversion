@@ -1,15 +1,29 @@
 class CourseEnrollmentsController < ApplicationController
+  include CourseAccess
+  before_action :require_course_user!
   before_action :set_course_enrollment, only: [:show, :start_lesson, :finish_lesson]
 
   # POST /course_enrollments
-  # Params: { user_id, course_id, metadata (optional) }
+  # Params: { course_enrollment: { course_id } }
   def create
-    enrollment = CourseEnrollment.find_or_create_by(
-      user_id: current_user.id, 
-      course_id: enrollment_params[:course_id]
-    )
+    @course = Course.for_tenant.friendly.find(enrollment_params[:course_id])
+    return head :not_found unless @course.visible_to?(current_user)
+
+    enrollment = @course.course_enrollments.find_by(user: current_user)
+    if enrollment
+      return render json: { enrollment: enrollment, progress: enrollment.progress }
+    end
+    unless @course.self_enrollment?
+      return render json: { error: I18n.t("courses.enrollment_form.enrollment_closed") }, status: :forbidden
+    end
+
+    if @course.paid_enrollment?
+      result = PaymentProviders::CourseStripeProvider.new(course: @course, user: current_user).create_checkout_session
+      return render json: result, status: result[:error] ? :unprocessable_entity : :ok
+    end
+
+    enrollment = @course.with_lock { @course.course_enrollments.find_or_create_by!(user: current_user) }
     if enrollment.persisted?
-      enrollment.update_metadata!(enrollment_params[:metadata]) if enrollment_params[:metadata]
       render json: { enrollment: enrollment, progress: enrollment.progress }, status: :ok
     else
       render json: { error: "Could not enroll, #{enrollment.errors.full_messages}" }, status: :unprocessable_entity
@@ -48,10 +62,16 @@ class CourseEnrollmentsController < ApplicationController
   private
 
   def set_course_enrollment
-    @course_enrollment = CourseEnrollment.find(params[:id])
+    @course_enrollment = CourseEnrollment.where(user: current_user).joins(:course)
+      .where(courses: { tenant_id: Current.tenant.id }).find(params[:id])
+    @course = @course_enrollment.course
+    require_course_content!
+    if !performed? && params[:lesson_id].present?
+      @course.lessons.find(params[:lesson_id])
+    end
   end
 
   def enrollment_params
-    params.require(:course_enrollment).permit(:user_id, :course_id, metadata: {})
+    params.require(:course_enrollment).permit(:course_id)
   end
 end

@@ -21,6 +21,12 @@ export default function CourseSettings({ courseData, onDataChange, onSave }) {
   }
 
   const handleFieldChange = (field, value) => {
+    if (field === "enrollment_type" && value !== "paid") {
+      const settings = { enrollment_type: value, price: "0" }
+      setLocalSettings((prev) => ({ ...prev, ...settings }))
+      onDataChange(settings)
+      return
+    }
     setLocalSettings((prev) => ({ ...prev, [field]: value }))
     onDataChange({ [field]: value })
   }
@@ -80,19 +86,36 @@ export default function CourseSettings({ courseData, onDataChange, onSave }) {
           <div className="grid gap-2">
             <Label htmlFor="enrollment-type">{I18n.t("courses.settings.enrollment_type")}</Label>
             <Select
-              defaultValue={localSettings.enrollment_type || "open"}
+              value={localSettings.enrollment_type || "free"}
               onValueChange={(value) => handleFieldChange("enrollment_type", value)}
             >
               <SelectTrigger id="enrollment-type">
                 <SelectValue placeholder={I18n.t("courses.settings.select_enrollment_type")} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="open">{I18n.t("courses.settings.open_enrollment")}</SelectItem>
+                <SelectItem value="public">{I18n.t("courses.settings.public_access")}</SelectItem>
+                <SelectItem value="free">{I18n.t("courses.settings.free_enrollment")}</SelectItem>
+                <SelectItem value="paid">{I18n.t("courses.settings.paid_enrollment")}</SelectItem>
                 <SelectItem value="invite">{I18n.t("courses.settings.invite_only")}</SelectItem>
                 {/*<SelectItem value="approval">{I18n.t("courses.settings.requires_approval")}</SelectItem>*/}
               </SelectContent>
             </Select>
+            <p className="text-sm text-muted-foreground">{I18n.t("courses.settings.access_help")}</p>
           </div>
+
+          {localSettings.enrollment_type === "paid" && (
+            <div className="grid gap-2">
+              <Label htmlFor="enrollment-price">{I18n.t("courses.details_form.price")} ({localSettings.currency?.toUpperCase() || "USD"})</Label>
+              <Input id="enrollment-price" type="number" min="0.01" step="0.01" value={localSettings.price ?? ""}
+                onChange={(event) => handleFieldChange("price", event.target.value)} />
+              <p className="text-sm text-muted-foreground">{I18n.t("courses.settings.fee_help")}</p>
+              {!localSettings.stripe_ready && localSettings.user?.username && (
+                <a className="text-sm underline" href={`/${localSettings.user.username}/settings/stripe`}>
+                  {I18n.t("courses.settings.connect_stripe")}
+                </a>
+              )}
+            </div>
+          )}
 
           <div className="grid gap-2">
             <Label htmlFor="max-students">{I18n.t("courses.settings.max_students")}</Label>
