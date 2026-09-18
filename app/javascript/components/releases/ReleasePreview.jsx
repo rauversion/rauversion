@@ -3,6 +3,8 @@ import { useParams, Link } from "react-router-dom"
 import { get } from "@rails/request.js"
 import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
+import { EditorPageView } from "@/components/page-editor/page-view"
+import { normalizeReleasePages } from "@/lib/release-editor-pages"
 import { Pencil, ExternalLink } from "lucide-react"
 
 export default function ReleasePreview() {
@@ -49,6 +51,33 @@ export default function ReleasePreview() {
 
   if (!release) return null
 
+  const page = normalizeReleasePages(release.editor_data?.pages)[0]
+  const editActions = release.urls.edit ? (
+    <div className="flex space-x-2">
+      <Button variant="outline" asChild>
+        <Link to={release.urls.edit}>
+          <Pencil className="h-4 w-4 mr-2" />
+          Edit
+        </Link>
+      </Button>
+      <Button variant="outline" asChild>
+        <Link to={release.urls.editor}>
+          <ExternalLink className="h-4 w-4 mr-2" />
+          Editor
+        </Link>
+      </Button>
+    </div>
+  ) : null
+
+  if (page) {
+    return (
+      <>
+        {editActions && <div className="flex justify-end px-4 py-4">{editActions}</div>}
+        <EditorPageView page={page} />
+      </>
+    )
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
@@ -59,22 +88,7 @@ export default function ReleasePreview() {
             <p className="text-xl text-muted-foreground mt-2">{release.subtitle}</p>
           )}
         </div>
-        {release.urls.edit && (
-          <div className="flex space-x-2">
-            <Button variant="outline" asChild>
-              <Link to={release.urls.edit}>
-                <Pencil className="h-4 w-4 mr-2" />
-                Edit
-              </Link>
-            </Button>
-            <Button variant="outline" asChild>
-              <Link to={release.urls.editor}>
-                <ExternalLink className="h-4 w-4 mr-2" />
-                Editor
-              </Link>
-            </Button>
-          </div>
-        )}
+        {editActions}
       </div>
 
       {/* Cover and Info */}

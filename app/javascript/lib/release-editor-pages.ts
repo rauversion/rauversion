@@ -6,6 +6,15 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 export function normalizeReleasePages(value: unknown): Page[] {
+  // JSON store attributes can reach the API as serialized strings.
+  if (typeof value === "string") {
+    try {
+      value = JSON.parse(value)
+    } catch {
+      return []
+    }
+  }
+
   return Array.isArray(value) ? (value as Page[]) : []
 }
 
