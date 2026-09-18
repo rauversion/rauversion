@@ -320,15 +320,17 @@ export default function PlaylistShow() {
                     )}
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground">•</span>
-                    <span>
-                      {format(
-                        new Date(playlist.release_date || new Date()),
-                        "MMMM d, yyyy"
-                      )}
-                    </span>
-                  </div>
+                  {playlist.release_date && (
+                    <div className="flex items-center gap-2">
+                      <span className="text-muted-foreground">•</span>
+                      <span>
+                        {format(
+                          new Date(playlist.release_date),
+                          "MMMM d, yyyy"
+                        )}
+                      </span>
+                    </div>
+                  )}
                 </div>
               </motion.div>
 
