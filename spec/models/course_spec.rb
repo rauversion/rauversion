@@ -6,10 +6,51 @@ RSpec.describe Course, type: :model do
     it { should belong_to(:user) }
     it { should have_one(:course_product).class_name("Products::CourseProduct").dependent(:nullify) }
     it { should have_one_attached(:thumbnail) }
+    it { should have_one_attached(:intro_video) }
     it { should have_many(:course_documents).dependent(:destroy) }
     it { should have_many(:course_modules).dependent(:destroy) }
     it { should have_many(:lessons).through(:course_modules) }
     it { should have_many(:course_enrollments) }
+  end
+
+  describe "intro media" do
+    let(:course) { build(:course) }
+    let(:youtube_urls) { JSON.parse(Rails.root.join("spec/fixtures/youtube_urls.json").read) }
+
+    it "defaults to an image cover without requiring an intro video" do
+      expect(course.cover_type).to eq("image")
+      expect(course).to be_valid
+    end
+
+    it "accepts the same YouTube links as lessons" do
+      course.cover_type = "youtube"
+      youtube_urls.fetch("valid").each do |url|
+        course.youtube_url = url
+        expect(course).to be_valid, url
+        expect(course.youtube_video_id).to eq(youtube_urls.fetch("video_id")), url
+      end
+    end
+
+    it "rejects missing, unsafe or non-video YouTube URLs" do
+      course.cover_type = "youtube"
+      [nil, "", "  ", *youtube_urls.fetch("invalid")].each do |url|
+        course.youtube_url = url
+        expect(course).not_to be_valid, url.inspect
+        expect(course.errors[:youtube_url]).to be_present
+      end
+    end
+
+    it "requires an attached video when selected" do
+      course.cover_type = "video"
+      expect(course).not_to be_valid
+      expect(course.errors[:intro_video]).to be_present
+    end
+
+    it "rejects unsupported cover types" do
+      course.cover_type = "iframe"
+      expect(course).not_to be_valid
+      expect(course.errors[:cover_type]).to be_present
+    end
   end
 
   describe "scopes" do

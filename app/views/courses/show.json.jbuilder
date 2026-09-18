@@ -27,7 +27,11 @@ json.course do
   json.published @course.published
   json.created_at @course.created_at
   json.updated_at @course.updated_at
-  json.thumbnail_url url_for(@course.thumbnail.variant(resize_to_limit: [800, 800])) if @course.thumbnail.attached?
+  json.cover_type @course.cover_type
+  json.youtube_url @course.youtube_url if @course.cover_type == "youtube" || @course.owned_by?(current_user)
+  if @course.intro_video.attached? && (@course.cover_type == "video" || @course.owned_by?(current_user))
+    json.intro_video_url url_for(@course.intro_video)
+  end
 
 
   json.seo_title @course.seo_title

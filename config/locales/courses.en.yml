@@ -219,6 +219,17 @@ en:
       delete_course: "Delete Course"
       save_settings: "Save Settings"
 
+    cover:
+      title: "Course cover"
+      image: "Image"
+      video: "Intro video"
+      help: "The cover appears on the course page before enrollment."
+      thumbnail_help: "Optional: used in course listings and as the poster for an uploaded video."
+      video_required: "Select a video for the introduction."
+      invalid_video: "Select an MP4, MOV or WebM video."
+      upload_error: "The video could not be uploaded. Please try again."
+      uploading: "Uploading the introduction. Wait for it to finish before saving the course."
+
     details_form:
       course_title: "Course Title"
       course_title_placeholder: "e.g. Guitar Fundamentals"

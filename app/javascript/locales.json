@@ -363,6 +363,17 @@
         "table_status": "Status",
         "table_students": "Students"
       },
+      "cover": {
+        "help": "The cover appears on the course page before enrollment.",
+        "image": "Image",
+        "invalid_video": "Select an MP4, MOV or WebM video.",
+        "thumbnail_help": "Optional: used in course listings and as the poster for an uploaded video.",
+        "title": "Course cover",
+        "upload_error": "The video could not be uploaded. Please try again.",
+        "uploading": "Uploading the introduction. Wait for it to finish before saving the course.",
+        "video": "Intro video",
+        "video_required": "Select a video for the introduction."
+      },
       "details_form": {
         "advanced": "Advanced",
         "all_levels": "All Levels",
@@ -5854,6 +5865,17 @@
         "table_level": "Nivel",
         "table_status": "Estado",
         "table_students": "Estudiantes"
+      },
+      "cover": {
+        "help": "La portada se muestra en la página del curso antes de inscribirse.",
+        "image": "Imagen",
+        "invalid_video": "Selecciona un video en formato MP4, MOV o WebM.",
+        "thumbnail_help": "Opcional: se usa en los listados y como imagen de espera del video subido.",
+        "title": "Portada del curso",
+        "upload_error": "No se pudo subir el video. Inténtalo nuevamente.",
+        "uploading": "Subiendo la introducción. Espera a que termine para guardar el curso.",
+        "video": "Video de introducción",
+        "video_required": "Selecciona un video para la introducción."
       },
       "details_form": {
         "advanced": "Avanzado",

@@ -1,4 +1,5 @@
 class Course < ApplicationRecord
+  include HasYoutubeVideo
   
   extend FriendlyId
 
@@ -11,6 +12,7 @@ class Course < ApplicationRecord
 
   has_one :course_product, class_name: "Products::CourseProduct", dependent: :nullify
   has_one_attached :thumbnail
+  has_one_attached :intro_video
   has_many :course_documents, dependent: :destroy
 
   alias_attribute :product_price, :price
@@ -20,6 +22,9 @@ class Course < ApplicationRecord
   validates :price, numericality: { greater_than_or_equal_to: 0 }
   validates :price, numericality: { greater_than: 0 }, if: :paid_enrollment?
   validates :price, numericality: { equal_to: 0 }, if: -> { %w[public free].include?(enrollment_type) }
+  validates :cover_type, inclusion: { in: %w[image video youtube] }
+  validates :youtube_url, presence: true, if: -> { cover_type == "youtube" }
+  validate :valid_intro_video
 
   after_create :create_or_update_course_product
   after_update :create_or_update_course_product
@@ -85,6 +90,14 @@ class Course < ApplicationRecord
   end
 
   private
+
+  def valid_intro_video
+    if cover_type == "video" && !intro_video.attached?
+      errors.add(:intro_video, I18n.t("courses.cover.video_required"))
+    elsif intro_video.attached? && !%w[video/mp4 video/webm video/quicktime].include?(intro_video.blob.content_type)
+      errors.add(:intro_video, I18n.t("courses.cover.invalid_video"))
+    end
+  end
 
   def normalize_enrollment_type
     if enrollment_type.blank? || enrollment_type == "open"

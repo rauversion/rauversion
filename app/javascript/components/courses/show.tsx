@@ -28,6 +28,7 @@ import { get, post } from "@rails/request.js"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter, DialogClose } from "@/components/ui/dialog"
 import CourseEnrollmentForm from "@/components/courses/CourseEnrollmentForm"
+import CourseCover from "@/components/courses/CourseCover"
 import useAuthStore from '@/stores/authStore'
 
 export default function CoursePage() {
@@ -287,9 +288,7 @@ export default function CoursePage() {
       <div className="px-4 py-6 md:px-6 md:py-8">
         <div className="grid gap-8 lg:grid-cols-3">
           <div className="lg:col-span-2">
-            <div className="aspect-video rounded-lg overflow-hidden mb-6">
-              <img src={course.thumbnail_url || "/placeholder.svg"} alt={course.title} className="object-cover w-full h-full" />
-            </div>
+            <CourseCover course={course} className="mb-6" />
 
             <div className="mb-6">
               <div className="flex flex-wrap items-center gap-2 mb-4">

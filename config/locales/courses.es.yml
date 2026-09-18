@@ -218,6 +218,17 @@ es:
       delete_course: "Eliminar curso"
       save_settings: "Guardar configuración"
 
+    cover:
+      title: "Portada del curso"
+      image: "Imagen"
+      video: "Video de introducción"
+      help: "La portada se muestra en la página del curso antes de inscribirse."
+      thumbnail_help: "Opcional: se usa en los listados y como imagen de espera del video subido."
+      video_required: "Selecciona un video para la introducción."
+      invalid_video: "Selecciona un video en formato MP4, MOV o WebM."
+      upload_error: "No se pudo subir el video. Inténtalo nuevamente."
+      uploading: "Subiendo la introducción. Espera a que termine para guardar el curso."
+
     details_form:
       course_title: "Título del curso"
       course_title_placeholder: "Ej: Fundamentos de guitarra"

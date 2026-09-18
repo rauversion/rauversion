@@ -1,10 +1,11 @@
-import React, { useState } from "react"
+import React, { useCallback, useState } from "react"
 import { Link , useNavigate, useParams } from "react-router-dom"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { ArrowLeft, Save, Eye, Settings, FileText, LayoutGrid, Upload, Users } from "lucide-react"
 import CourseDetailsForm from "@/components/courses/admin/course-details-form"
+import { CourseCoverData } from "@/components/courses/CourseCover"
 import ModulesManager from "@/components/courses/admin/modules-manager"
 import ResourcesManager from "@/components/courses/admin/resources-manager"
 import CourseSettings from "@/components/courses/admin/course-settings"
@@ -15,10 +16,11 @@ import { ScrollArea } from "../ui/scroll-area"
 
 export default function NewCoursePage() {
   const [activeTab, setActiveTab] = useState("details")
+  const [introUploading, setIntroUploading] = useState(false)
   const { id } = useParams()
   const courseId = id
   const navigate = useNavigate()
-  interface CourseData {
+  interface CourseData extends CourseCoverData {
     id: number | null
     title: string
     description: string
@@ -45,6 +47,7 @@ export default function NewCoursePage() {
     duration: "",
     price: "0",
     enrollment_type: "free",
+    cover_type: "image",
     instructor: "",
     instructor_title: "",
     published: false,
@@ -92,24 +95,7 @@ export default function NewCoursePage() {
     }
   }, [activeTab, courseId])
 
-  // Use a more controlled approach to update state
-  interface CourseData {
-    id: number | null
-    title: string
-    description: string
-    category: string
-    level: string
-    duration: string
-    price: string
-    enrollment_type: string
-    instructor: string
-    instructor_title: string
-    published: boolean
-    modules: any[]
-    resources: any[]
-  }
-
-  const handleCourseDataChange = (data: Partial<CourseData>) => {
+  const handleCourseDataChange = useCallback((data: Partial<CourseData>) => {
     // Only update if data actually changed to prevent unnecessary renders
     setCourseData((prev) => {
       // Check if the new data is different from the current data
@@ -117,7 +103,7 @@ export default function NewCoursePage() {
       if (!hasChanged) return prev // Return previous state if nothing changed
       return { ...prev, ...data }
     })
-  }
+  }, [])
 
   const syncModulesWithBackend = async (updatedModules: CourseData["modules"]) => {
     if (!courseId) {
@@ -163,6 +149,10 @@ export default function NewCoursePage() {
   }
 
   const handleSaveCourse = async (overrides = {}) => {
+    if (introUploading) {
+      toast({ title: I18n.t("courses.cover.uploading") })
+      return
+    }
     const savedCourse = { ...courseData, ...overrides }
     try {
       let response
@@ -215,13 +205,13 @@ export default function NewCoursePage() {
                 </span>
               </Link>
             </Button>
-            <Button variant="outline" size="sm" onClick={() => handleSaveCourse()}>
+            <Button variant="outline" size="sm" disabled={introUploading} onClick={() => handleSaveCourse()}>
               <Save className="h-4 w-4 mr-2" />
               <span className="hidden sm:block">
                 {I18n.t("courses.form.save_draft")}
               </span>
             </Button>
-            <Button size="sm" onClick={handlePublishCourse}>
+            <Button size="sm" disabled={introUploading} onClick={handlePublishCourse}>
               {I18n.t("courses.form.publish")}
             </Button>
           </div>
@@ -264,7 +254,7 @@ export default function NewCoursePage() {
           <TabsContent value="details">
             <Card>
               <CardContent className="pt-6">
-                <CourseDetailsForm courseData={courseData} onDataChange={handleCourseDataChange} />
+                <CourseDetailsForm courseData={courseData} onDataChange={handleCourseDataChange} introUploading={introUploading} onIntroUploadingChange={setIntroUploading} />
               </CardContent>
             </Card>
           </TabsContent>
