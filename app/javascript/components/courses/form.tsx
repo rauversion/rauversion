@@ -296,15 +296,23 @@ export default function NewCoursePage() {
                   await fetchModules()
                 }}
                 onLessonCreate={async (moduleId, lesson) => {
-                  await post(`/courses/${courseId}/course_modules/${moduleId}/lessons.json`, {
+                  const response = await post(`/courses/${courseId}/course_modules/${moduleId}/lessons.json`, {
                     body: JSON.stringify({ lesson }),
                   })
+                  if (!response.ok) {
+                    const data = await response.json
+                    throw new Error(data.errors?.join(", ") || I18n.t("courses.lesson_form.save_error"))
+                  }
                   await fetchModules()
                 }}
                 onLessonUpdate={async (moduleId, lessonId, updatedLesson) => {
-                  await put(`/courses/${courseId}/course_modules/${moduleId}/lessons/${lessonId}.json`, {
+                  const response = await put(`/courses/${courseId}/course_modules/${moduleId}/lessons/${lessonId}.json`, {
                     body: JSON.stringify({ lesson: updatedLesson }),
                   })
+                  if (!response.ok) {
+                    const data = await response.json
+                    throw new Error(data.errors?.join(", ") || I18n.t("courses.lesson_form.save_error"))
+                  }
                   await fetchModules()
                 }}
                 onLessonDelete={async (moduleId, lessonId) => {

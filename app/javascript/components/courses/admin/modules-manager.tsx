@@ -59,13 +59,13 @@ export default function ModulesManager({
     onModuleDelete && onModuleDelete(moduleId)
   }
 
-  const handleAddLesson = (moduleId, lesson) => {
-    onLessonCreate && onLessonCreate(moduleId, lesson)
+  const handleAddLesson = async (moduleId, lesson) => {
+    if (onLessonCreate) await onLessonCreate(moduleId, lesson)
     setAddingLessonToModule(null)
   }
 
-  const handleUpdateLesson = (moduleId, lessonId, updatedLesson) => {
-    onLessonUpdate && onLessonUpdate(moduleId, lessonId, updatedLesson)
+  const handleUpdateLesson = async (moduleId, lessonId, updatedLesson) => {
+    if (onLessonUpdate) await onLessonUpdate(moduleId, lessonId, updatedLesson)
     setEditingLesson(null)
   }
 
@@ -258,7 +258,7 @@ export default function ModulesManager({
                                 Add Lesson
                               </Button>
                             </DialogTrigger>
-                            <DialogContent className="max-w-2xl">
+                            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                               <DialogHeader>
                                 <DialogTitle>Add New Lesson</DialogTitle>
                               </DialogHeader>
@@ -327,7 +327,7 @@ export default function ModulesManager({
                                         <Edit className="h-4 w-4" />
                                       </Button>
                                     </DialogTrigger>
-                                    <DialogContent className="max-w-2xl">
+                                    <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                                       <DialogHeader>
                                         <DialogTitle>Edit Lesson</DialogTitle>
                                       </DialogHeader>

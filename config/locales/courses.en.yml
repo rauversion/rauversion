@@ -149,6 +149,16 @@ en:
       duration: "Duration" 
       duration_placeholder: "e.g. 15 min" 
       duration_required: "Duration is required"
+      video_source: "Video source"
+      upload_video: "Upload video file"
+      youtube_url: "YouTube link"
+      youtube_url_invalid: "Enter a valid YouTube video link"
+      youtube_help: "You can use a public or unlisted video. It must allow embedding on other sites."
+      uploading: "Uploading..."
+      video_selected: "Video selected"
+      remove_video: "Remove"
+      video_formats: "MP4, MOV or WebM formats"
+      save_error: "Could not save the lesson. Please try again."
 
     document_uploader: 
       upload_course_document: "Upload course document" 

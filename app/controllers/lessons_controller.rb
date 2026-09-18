@@ -76,7 +76,7 @@ class LessonsController < ApplicationController
   end
 
   def lesson_params
-    params.require(:lesson).permit(:title, :duration, :lesson_type, :description, :video, :type)
+    params.require(:lesson).permit(:title, :duration, :lesson_type, :description, :video, :type, :youtube_url)
   end
 
   def serve_limited_range(blob, range_header)

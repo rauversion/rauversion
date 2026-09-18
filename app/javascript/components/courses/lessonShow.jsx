@@ -26,6 +26,7 @@ import {
   SkipForward,
 } from "lucide-react"
 import VideoPlayer from "@/components/courses/videoPlayer"
+import YouTubePlayer from "@/components/courses/YouTubePlayer"
 
 import { get, post } from "@rails/request.js"
 
@@ -286,13 +287,16 @@ export default function LessonPage() {
                   onMouseEnter={() => setShowControls(true)}
                   onMouseLeave={() => isPlaying && setShowControls(false)}
                 >
-                  <VideoPlayer
-                    //videoUrl={lesson.video_url}
-                    videoUrl={`/courses/${courseId}/course_modules/${module.id}/lessons/${lessonId}/stream.json`}
-                    isPlaying={isPlaying}
-                    setIsPlaying={setIsPlaying}
-                    onProgressUpdate={handleProgressUpdate}
-                  />
+                  {lesson.youtube_url ? (
+                    <YouTubePlayer url={lesson.youtube_url} title={lesson.title} />
+                  ) : (
+                    <VideoPlayer
+                      videoUrl={`/courses/${courseId}/course_modules/${module.id}/lessons/${lessonId}/stream.json`}
+                      isPlaying={isPlaying}
+                      setIsPlaying={setIsPlaying}
+                      onProgressUpdate={handleProgressUpdate}
+                    />
+                  )}
                 </div>
               </div>
 

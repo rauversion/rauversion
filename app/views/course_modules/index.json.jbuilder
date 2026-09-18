@@ -12,6 +12,7 @@ json.course_modules @course_modules.map { |mod|
         duration: lesson.duration,
         type: lesson.type,
         video_url: lesson.video.attached? ? url_for(lesson.video) : nil,
+        youtube_url: lesson.youtube_url,
         documents: lesson.course_documents.map { |doc|
           {
             id: doc.id,

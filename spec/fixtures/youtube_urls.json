@@ -1,0 +1,38 @@
+{
+  "video_id": "M7lc1UVf-VE",
+  "valid": [
+    "https://www.youtube.com/watch?v=M7lc1UVf-VE",
+    "https://youtube.com/watch?feature=shared&v=M7lc1UVf-VE&t=20",
+    "https://youtu.be/M7lc1UVf-VE?si=shared-link",
+    "https://www.youtu.be/M7lc1UVf-VE/",
+    "https://m.youtube.com/watch?v=M7lc1UVf-VE",
+    "https://music.youtube.com/watch?v=M7lc1UVf-VE",
+    "https://www.youtube.com/embed/M7lc1UVf-VE",
+    "https://www.youtube.com/shorts/M7lc1UVf-VE",
+    "https://www.youtube.com/live/M7lc1UVf-VE?feature=share",
+    "https://www.youtube-nocookie.com/embed/M7lc1UVf-VE",
+    "http://www.youtube.com/watch?v=M7lc1UVf-VE",
+    "https://www.youtube.com:443/watch?v=M7lc1UVf-VE",
+    "https://WWW.YOUTUBE.COM/watch?v=M7lc1UVf-VE",
+    "  https://youtu.be/M7lc1UVf-VE  "
+  ],
+  "invalid": [
+    "not a URL",
+    "https://vimeo.com/M7lc1UVf-VE",
+    "https://youtube.com.evil.example/watch?v=M7lc1UVf-VE",
+    "https://www.youtube.com@evil.example/watch?v=M7lc1UVf-VE",
+    "https://user:password@www.youtube.com/watch?v=M7lc1UVf-VE",
+    "https://www.youtube.com:444/watch?v=M7lc1UVf-VE",
+    "javascript:alert(1)",
+    "ftp://www.youtube.com/watch?v=M7lc1UVf-VE",
+    "//www.youtube.com/watch?v=M7lc1UVf-VE",
+    "https://www.youtube.com/watch",
+    "https://www.youtube.com/watch?v=short",
+    "https://www.youtube.com/watch?v=M7lc1UVf-VE-extra",
+    "https://www.youtube.com/watch?v=%3Cscript%3E",
+    "https://www.youtube.com/playlist?list=M7lc1UVf-VE",
+    "https://www.youtube.com/@M7lc1UVf-VE",
+    "https://youtu.be/M7lc1UVf-VE/extra",
+    "https://www.youtube-nocookie.com/watch?v=M7lc1UVf-VE"
+  ]
+}

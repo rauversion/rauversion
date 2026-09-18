@@ -148,6 +148,16 @@ es:
       duration: "Duración"
       duration_placeholder: "Ej: 15 min"
       duration_required: "La duración es obligatoria"
+      video_source: "Origen del video"
+      upload_video: "Subir archivo de video"
+      youtube_url: "Enlace de YouTube"
+      youtube_url_invalid: "Ingresa un enlace válido a un video de YouTube"
+      youtube_help: "Puedes usar un video público u oculto (no listado). Debe permitir la inserción en otros sitios."
+      uploading: "Subiendo..."
+      video_selected: "Video seleccionado"
+      remove_video: "Quitar"
+      video_formats: "Formatos MP4, MOV o WebM"
+      save_error: "No se pudo guardar la lección. Inténtalo nuevamente."
 
     document_uploader:
       upload_course_document: "Subir documento del curso"

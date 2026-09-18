@@ -3,6 +3,7 @@ json.lessons @lessons do |lesson|
   json.title lesson.title
   json.duration lesson.duration
   json.lesson_type lesson.lesson_type
+  json.youtube_url lesson.youtube_url
   json.course_module_id lesson.course_module_id
   json.created_at lesson.created_at
   json.updated_at lesson.updated_at

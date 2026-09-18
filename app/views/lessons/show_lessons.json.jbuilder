@@ -9,6 +9,7 @@ json.lesson do
   json.description @lesson.description
   json.type @lesson.type
   json.position @lesson.position
+  json.youtube_url @lesson.youtube_url
   json.video_url url_for(@lesson.video) if @lesson.video.attached?
 end
 
