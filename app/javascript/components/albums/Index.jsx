@@ -1,4 +1,6 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
+import { get } from '@rails/request.js'
+import { usePageMetadata } from '@/hooks/usePageMetadata'
 import { useInfiniteScroll } from '../../hooks/useInfiniteScroll'
 import { motion } from 'framer-motion'
 import I18n from '@/stores/locales'
@@ -16,6 +18,23 @@ const ALBUM_TYPES = [
 
 export default function AlbumsIndex() {
   const [selectedType, setSelectedType] = useState('all')
+  const [metadata, setMetadata] = useState(null)
+
+  usePageMetadata(metadata)
+
+  useEffect(() => {
+    let cancelled = false
+
+    const loadMetadata = async () => {
+      const response = await get('/albums.json', { responseKind: 'json' })
+      if (!response.ok) return
+      const data = await response.json
+      if (!cancelled) setMetadata(data.seo)
+    }
+
+    loadMetadata().catch((error) => console.error('Error loading album metadata:', error))
+    return () => { cancelled = true }
+  }, [])
   
   const {
     items: albums,

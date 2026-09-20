@@ -1,4 +1,6 @@
 # Basic release attributes
+json.seo @seo_metadata
+
 json.extract! @release,
   :id,
   :title,

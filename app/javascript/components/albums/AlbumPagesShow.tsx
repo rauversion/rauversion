@@ -7,6 +7,7 @@ import type { Page } from "@/lib/blocks/types"
 import { normalizeReleasePages } from "@/lib/release-editor-pages"
 import { EditorPageView } from "@/components/page-editor/page-view"
 import { Disc3 } from "lucide-react"
+import { usePageMetadata, type PageMetadata } from "@/hooks/usePageMetadata"
 
 export default function AlbumPagesShow() {
   const { id, slug } = useParams()
@@ -14,6 +15,9 @@ export default function AlbumPagesShow() {
   const [notFound, setNotFound] = useState(false)
   const [isEmpty, setIsEmpty] = useState(false)
   const [playlistSlug, setPlaylistSlug] = useState<string | null>(null)
+  const [metadata, setMetadata] = useState<PageMetadata | null>(null)
+
+  usePageMetadata(metadata)
 
   useEffect(() => {
     const albumIdentifier = id || slug
@@ -24,6 +28,7 @@ export default function AlbumPagesShow() {
     }
 
     let cancelled = false
+    setMetadata(null)
 
     const loadAlbumPages = async () => {
       try {
@@ -39,6 +44,8 @@ export default function AlbumPagesShow() {
         const pages = normalizeReleasePages(album?.editor_data?.pages)
 
         if (cancelled) return
+
+        setMetadata(album.seo || null)
 
         if (pages.length > 0) {
           setPage(pages[0])
