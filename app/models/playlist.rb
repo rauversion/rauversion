@@ -50,6 +50,17 @@ class Playlist < ApplicationRecord
   scope :for_tenant, ->(tenant = Current.tenant) { tenant.present? ? where(tenant_id: tenant.id) : none }
   scope :published, -> { for_tenant.where(private: [false, nil]) }
   scope :albums, -> { where(playlist_type: "album") }
+  scope :with_visible_tracks, ->(viewer = nil) {
+    tracks = TrackPlaylist.joins(:track)
+      .where("track_playlists.playlist_id = playlists.id")
+    visibility = Track.arel_table[:private].eq(false).or(Track.arel_table[:private].eq(nil))
+    if viewer.present?
+      visibility = visibility.or(arel_table[:user_id].eq(viewer.id)).or(arel_table[:label_id].eq(viewer.id))
+    end
+
+    # EXISTS keeps each playlist unique without joining every track into the paginated result.
+    where(tracks.where(visibility).arel.exists)
+  }
   store_accessor :metadata, :buy_link, :string
   store_accessor :metadata, :buy_link_title, :string
   store_accessor :metadata, :buy, :boolean, default: false
@@ -123,19 +134,19 @@ class Playlist < ApplicationRecord
   def cover_url(size = nil)
     url = case size
     when :medium
-      cover.variant(resize_to_limit: [200, 200])&.processed
+      cover.variant(resize_to_limit: [200, 200])
 
     when :large
-      cover.variant(resize_to_limit: [500, 500])&.processed
+      cover.variant(resize_to_limit: [500, 500])
 
     when :small
-      cover.variant(resize_to_limit: [50, 50])&.processed
+      cover.variant(resize_to_limit: [50, 50])
     
     when :original
       cover
 
     else
-      cover.variant(resize_to_limit: [200, 200])&.processed
+      cover.variant(resize_to_limit: [200, 200])
     end
 
     return Rails.application.routes.url_helpers.rails_storage_proxy_url(url) if url.present?
@@ -167,6 +178,15 @@ class Playlist < ApplicationRecord
     return scope if owner_viewing?(viewer)
 
     scope.where(tracks: { private: [false, nil] })
+  end
+
+  def visible_track_playlist_records_for(viewer = nil)
+    # Scoping an already loaded association would discard its nested preloads.
+    return visible_track_playlists_for(viewer).to_a unless association(:track_playlists).loaded?
+
+    owner = owner_viewing?(viewer)
+    track_playlists.select { |item| item.track.present? && (owner || !item.track.private?) }
+      .sort_by { |item| item.position || Float::INFINITY }
   end
 
   def visible_tracks_for(viewer = nil)

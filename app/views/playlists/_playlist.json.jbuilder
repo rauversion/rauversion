@@ -1,5 +1,5 @@
-visible_track_playlists = playlist.visible_track_playlists_for(current_user)
-first_tp = visible_track_playlists.min_by(&:position)
+visible_track_playlists = playlist.visible_track_playlist_records_for(current_user)
+first_tp = visible_track_playlists.first
 first_track = first_tp&.track
 
 json.id playlist.id

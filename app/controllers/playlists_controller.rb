@@ -8,15 +8,18 @@ class PlaylistsController < ApplicationController
       format.json {
 
         @playlists = Playlist.published
-        .with_attached_cover
+        .with_visible_tracks(current_user)
         .includes(
+          cover_attachment: :blob,
           user: { avatar_attachment: :blob },
           track_playlists: {
             track: [
               { user: { avatar_attachment: :blob } },
               { artists: { avatar_attachment: :blob } },
               { cover_attachment: :blob },
-              { mp3_audio_attachment: :blob }
+              { mp3_audio_attachment: :blob },
+              { audio_attachment: :blob },
+              { video_attachment: :blob }
             ]
           }
         )

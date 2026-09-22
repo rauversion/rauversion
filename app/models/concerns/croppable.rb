@@ -22,7 +22,7 @@ module Croppable
         crop_data_hash['width'], 
         crop_data_hash['height']
       ]
-    ).processed
+    )
   end
 
   private
