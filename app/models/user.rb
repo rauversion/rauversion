@@ -172,8 +172,7 @@ class User < ApplicationRecord
   end
 
   def create_initial_membership
-    tenant = Current.tenant || Tenant.find_by(central: true)
-    return if tenant.blank?
+    tenant = Current.tenant || Tenant.central
 
     memberships.find_or_create_by!(tenant: tenant) do |membership|
       membership.role = Membership.role_for_user(self)

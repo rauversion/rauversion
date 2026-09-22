@@ -1,12 +1,15 @@
+# Devise also renders this view without running UsersController#find_user.
+profile = @tenant_profile || @user.tenant_profile_for(Current.tenant) || @user
+
 json.user do
   json.extract! @user, :id, :hide_username_from_profile, :role, :created_at, :updated_at
-  json.username @tenant_profile.username
-  json.first_name @tenant_profile.first_name
-  json.last_name @tenant_profile.last_name
-  json.country @tenant_profile.country
-  json.city @tenant_profile.city
-  json.bio @tenant_profile.bio
-  json.display_name @tenant_profile.display_name
+  json.username profile.username
+  json.first_name profile.first_name
+  json.last_name profile.last_name
+  json.country profile.country
+  json.city profile.city
+  json.bio profile.bio
+  json.display_name profile.display_name
   
   json.avatar_url do
     json.small @user.avatar_url(:small)

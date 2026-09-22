@@ -127,6 +127,9 @@ class ApplicationController < ActionController::Base
     Current.user = current_user
     Current.membership = current_user&.membership_for(Current.tenant)
     Current.tenant_profile = current_user&.tenant_profile_for(Current.tenant)
+    if Current.membership && Current.tenant_profile.nil?
+      Current.tenant_profile = TenantProfile.create_for_membership!(Current.membership)
+    end
   end
 
   def ensure_current_tenant_access!
