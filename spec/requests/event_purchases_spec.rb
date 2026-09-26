@@ -337,6 +337,89 @@ RSpec.describe "EventPurchases", type: :request do
     end
   end
 
+  describe "POST /create as a guest" do
+    let(:guest_email) { "ticket-guest@example.com" }
+    let!(:ticket) { create(:event_ticket, event: event, qty: 10, price: 10, selling_start: 1.day.ago) }
+
+    before do
+      sign_out user
+      allow_any_instance_of(PaymentProviders::EventStripeProvider).to receive(:create_checkout_session).and_return(
+        { checkout_url: "https://stripe.com/checkout/session" }
+      )
+    end
+
+    def purchase_as_guest
+      post event_event_purchases_path(event, format: :json), params: {
+        guest_email: guest_email,
+        tickets: [{ id: ticket.id, quantity: 1 }]
+      }, as: :json
+    end
+
+    it "creates the guest account, membership and profile before starting paid checkout" do
+      expect {
+        purchase_as_guest
+        expect(response).to have_http_status(:ok), response.body
+      }.to change(User, :count).by(1)
+        .and change(Purchase, :count).by(1)
+        .and change(PurchasedItem, :count).by(1)
+
+      purchase = Purchase.last
+      guest = purchase.user
+      expect(purchase).to have_attributes(guest_email: guest_email, state: "pending")
+      expect(guest.email).to eq(guest_email)
+      expect(guest.membership_for(event.tenant)).to have_attributes(role: "member")
+      expect(guest.tenant_profile_for(event.tenant)).to be_valid
+      expect(JSON.parse(response.body)).to include(
+        "errors" => [], "payment_url" => "https://stripe.com/checkout/session"
+      )
+    end
+
+    it "completes a free guest purchase without a payment provider" do
+      ticket.update!(price: 0)
+      expect(PaymentProviders::EventStripeProvider).not_to receive(:new)
+
+      expect {
+        purchase_as_guest
+        expect(response).to have_http_status(:ok), response.body
+      }.to change(Purchase, :count).by(1)
+
+      purchase = Purchase.last
+      expect(purchase).to have_attributes(guest_email: guest_email, state: "paid", price: 0)
+      expect(purchase.user.tenant_profile_for(event.tenant)).to be_valid
+      expect(purchase.purchased_items.sole.state).to eq("paid")
+      expect(JSON.parse(response.body).fetch("errors")).to be_empty
+    end
+
+    it "reuses an existing account without duplicating its membership or profile" do
+      guest = create(:user, email: guest_email)
+
+      expect {
+        purchase_as_guest
+      }.to change(Purchase, :count).by(1)
+        .and change(User, :count).by(0)
+        .and change(Membership, :count).by(0)
+        .and change(TenantProfile, :count).by(0)
+
+      expect(response).to have_http_status(:ok)
+      expect(Purchase.last).to have_attributes(user: guest, guest_email: guest_email)
+    end
+
+    it "creates the guest membership and profile in the tenant handling checkout" do
+      allow(TenantSubscriptions).to receive(:disabled?).and_return(true)
+      tenant = create(:tenant, slug: "ticket-label")
+      event.update!(tenant: tenant)
+      host! "ticket-label.example.com"
+
+      purchase_as_guest
+
+      expect(response).to have_http_status(:ok), response.body
+      guest = Purchase.last.user
+      expect(guest.membership_for(tenant)).to have_attributes(role: "member")
+      expect(guest.tenant_profile_for(tenant)).to be_valid
+      expect(guest.membership_for(Tenant.central)).to be_nil
+    end
+  end
+
   describe "POST /create with requires_login ticket" do
     let!(:login_required_ticket) do
       ticket = FactoryBot.create(:event_ticket, event: event, qty: 10, price: 10.0, selling_start: 1.day.ago)

@@ -118,7 +118,7 @@ class EventPurchasesController < ApplicationController
           email: guest_email,
           password: password,
           password_confirmation: password,
-          username: "user_#{SecureRandom.hex(4)}"
+          username: "user-#{SecureRandom.hex(4)}"
         )
 
         if user.save
