@@ -33,6 +33,35 @@ Tracks have several attachments:
 - `MP3_Audio`: The MP3 version of the audio file.
 - `Zip`: A ZIP file containing the track and any additional files.
 
+### Public audio previews
+
+The track editor's Permissions tab can limit public playback to an excerpt. The
+settings live in `metadata`: `preview_enabled` (default `false`),
+`preview_start_seconds` (default `0`), and `preview_duration_seconds` (default
+`30`). Excerpts currently apply to audio tracks only. The selected window must
+fit within the original; the converter also checks the source file directly.
+
+`audio` remains the original used for authorized downloads and audio analysis.
+`mp3_audio` is the only public audio copy: either the selected excerpt or the
+full recording when previews are disabled. Public consumers must use
+`playback_media`, which never falls back to the original. `duration` and the
+waveform describe the public MP3; `original_duration` describes the source.
+
+Changing the source or active preview settings detaches the previous MP3 and
+clears its waveform in the save transaction, schedules deletion of the old blob
+through Active Storage's purge job, and queues `TrackProcessorJob` after commit.
+Playback is unavailable until a matching MP3 is generated. A source/settings
+signature prevents outdated jobs from publishing their results. Workers must
+process both track-processing and Active Storage purge jobs; previously issued
+storage URLs may remain usable until deletion completes.
+
+Disabling an existing preview requires the editor's confirmation dialog. API
+updates must explicitly send `confirm_full_length: true` together with
+`preview_enabled: false`; otherwise the update returns validation errors with
+HTTP 422 and preserves the current preview. Confirmation triggers full-length
+regeneration. Dialog and setting translations live in `track_preview.en.yml`
+and `track_preview.es.yml` and are exported to the JavaScript locale bundle.
+
 ### Scopes
 
 The Track model includes several scopes for querying tracks based on their attributes:

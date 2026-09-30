@@ -6,10 +6,14 @@ json.price track.price
 json.price number_to_currency(track.price) unless track.price.nil?
 json.private track.private
 json.duration track.duration
+json.original_duration track.original_duration
+json.preview_enabled track.preview_enabled?
+json.preview_start_seconds track.preview_start_seconds
+json.preview_duration_seconds track.preview_duration_seconds
 
 if track.mp3_audio.attached?
-  json.mp3_audio_url MediaStreamUrl.for(track.mp3_audio)
-  json.audio_url MediaStreamUrl.for(track.mp3_audio)
+  json.mp3_audio_url MediaStreamUrl.for(track.playback_media)
+  json.audio_url MediaStreamUrl.for(track.playback_media)
 end
 
 json.metadata track.metadata

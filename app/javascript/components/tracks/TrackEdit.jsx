@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect, useRef } from "react"
 import { useForm, Controller } from "react-hook-form"
 import {
   Dialog,
@@ -44,6 +44,8 @@ import PermissionsForm from "@/components/shared/forms/PermissionsForm"
 import ShareForm from "@/components/shared/forms/ShareForm"
 import PricingForm from "@/components/shared/forms/PricingForm"
 import ArtistSelector from "@/components/shared/forms/ArtistSelector"
+import TrackPreviewForm from "@/components/tracks/TrackPreviewForm"
+import { trackPreviewSettings } from "@/lib/track-preview-settings"
 import I18n from 'stores/locales'
 
 export default function TrackEdit({ track: initialTrack, open, onOpenChange, onOk }) {
@@ -56,6 +58,10 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
   const [videoUploading, setVideoUploading] = useState(false)
   const [videoUploadProgress, setVideoUploadProgress] = useState(0)
   const [queuedVideoName, setQueuedVideoName] = useState("")
+  const [pendingFullLength, setPendingFullLength] = useState(null)
+  const [saving, setSaving] = useState(false)
+  const [sourceDurationStatus, setSourceDurationStatus] = useState("idle")
+  const sourceDurationRequest = useRef(0)
 
   const { control, handleSubmit, setValue, watch } = useForm({
     defaultValues: {
@@ -91,6 +97,7 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
       tags: track.tags || [],
       cover: track.cover || "",
       video: "",
+      ...trackPreviewSettings(track),
       artist_ids: track.artists || [],
     }
   })
@@ -103,6 +110,24 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
     setValue("price", "")
     setValue("name_your_price", false)
   }, [isDjSet, setValue])
+
+  const fetchSourceDuration = async (sourceTrack = track) => {
+    const requestId = ++sourceDurationRequest.current
+    setSourceDurationStatus("loading")
+    try {
+      const response = await get(`/tracks/${sourceTrack.slug}/source_metadata.json`, { responseKind: "json" })
+      if (!response.ok) throw new Error("Source duration unavailable")
+      const data = await response.json
+      if (!Number.isFinite(Number(data.original_duration)) || Number(data.original_duration) <= 0) {
+        throw new Error("Source duration unavailable")
+      }
+      if (sourceDurationRequest.current !== requestId) return
+      setTrack((previous) => previous.slug === sourceTrack.slug ? { ...previous, original_duration: data.original_duration } : previous)
+      setSourceDurationStatus("ready")
+    } catch (_error) {
+      if (sourceDurationRequest.current === requestId) setSourceDurationStatus("error")
+    }
+  }
 
   const fetchTrack = async () => {
     setLoading(true)
@@ -124,6 +149,10 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
           setValue(key, value)
         }
       })
+      Object.entries(trackPreviewSettings(data.track)).forEach(([key, value]) => setValue(key, value))
+      if (!data.track.has_video && !(Number(data.track.original_duration) > 0)) {
+        fetchSourceDuration(data.track)
+      }
     } catch (error) {
       console.error("Error fetching track:", error)
     }
@@ -133,9 +162,12 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
   useEffect(() => {
     if (!open) return
     setQueuedVideoName("")
+    setPendingFullLength(null)
+    setSourceDurationStatus("idle")
     setVideoUploadProgress(0)
     setValue("video", "")
     fetchTrack()
+    return () => { sourceDurationRequest.current += 1 }
   }, [open])
 
   const handleCoverUpload = async (signedBlobId, cropData, serviceUrl) => {
@@ -211,9 +243,16 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
     }
   }
 
-  const onSubmit = async (data) => {
+  const onSubmit = async (data, fullLengthConfirmed = false) => {
+    if (saving) return
+    if (track.preview_enabled && !data.preview_enabled && fullLengthConfirmed !== true) {
+      setPendingFullLength(data)
+      return
+    }
+    setSaving(true)
     try {
       const payload = { ...data }
+      if (fullLengthConfirmed === true) payload.confirm_full_length = true
       if (!payload.cover) {
         delete payload.cover
       }
@@ -246,7 +285,7 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
         const error = await response.json
         toast({
           title: I18n.t("tracks.edit.messages.error_title"),
-          description: error.message || I18n.t('tracks.edit.messages.update_error'),
+          description: error.errors?.join(". ") || error.message || I18n.t('tracks.edit.messages.update_error'),
           variant: "destructive"
         })
       }
@@ -256,6 +295,8 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
         description: I18n.t('tracks.edit.messages.update_error'),
         variant: "destructive"
       })
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -512,7 +553,16 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
                   />
                 </TabsContent>
 
-                <TabsContent value="permissions" className="p-6">
+                <TabsContent value="permissions" className="p-6 space-y-6">
+                  <TrackPreviewForm
+                    control={control}
+                    watch={watch}
+                    setValue={setValue}
+                    hasVideo={track.has_video || Boolean(watch("video"))}
+                    originalDuration={track.original_duration}
+                    durationStatus={sourceDurationStatus}
+                    onRetryDuration={() => fetchSourceDuration()}
+                  />
                   <PermissionsForm
                     control={control}
                     watch={watch}
@@ -552,12 +602,34 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
                 </AlertDialogContent>
               </AlertDialog>
 
-              <Button type="submit">
+              <Button type="submit" disabled={saving || videoUploading}>
                 {I18n.t('tracks.edit.dialog.save')}
               </Button>
             </div>
           </div>
         </form>
+        <AlertDialog open={Boolean(pendingFullLength)} onOpenChange={(nextOpen) => {
+          if (!nextOpen) setPendingFullLength(null)
+        }}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>{I18n.t('tracks.preview.confirm_title')}</AlertDialogTitle>
+              <AlertDialogDescription>{I18n.t('tracks.preview.confirm_description')}</AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setValue("preview_enabled", true)}>
+                {I18n.t('tracks.preview.confirm_cancel')}
+              </AlertDialogCancel>
+              <AlertDialogAction onClick={() => {
+                const data = pendingFullLength
+                setPendingFullLength(null)
+                if (data) onSubmit(data, true)
+              }}>
+                {I18n.t('tracks.preview.confirm_action')}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </DialogContent>
     </Dialog>
   )

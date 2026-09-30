@@ -5,6 +5,7 @@ import { ArrowUpRight, Lock, Pause, Play } from 'lucide-react'
 import { cn } from "@/lib/utils"
 import useAudioStore from '@/stores/audioStore'
 import { getUserDisplayName } from '@/utils/userDisplayName'
+import PlaylistPreviewBadge from './PlaylistPreviewBadge'
 
 function showcaseText(key, options = {}) {
   return I18n.t(`users.artist_page.discography.${key}`, options)
@@ -91,6 +92,7 @@ export function PlaylistShowcaseCard({ playlist, className }) {
               {I18n.t("tracks.private_label")}
             </span>
           )}
+          <PlaylistPreviewBadge playlist={playlist} className="border-white/25 bg-black/60 px-3 py-1 text-white backdrop-blur" />
         </div>
 
         <button

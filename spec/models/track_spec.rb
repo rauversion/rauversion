@@ -187,6 +187,7 @@ RSpec.describe Track, type: :model do
 
     before do
       track.audio.attach(audio_file)
+      track.mp3_audio.attach(audio_file)
       allow(PeaksGenerator).to receive(:new).and_return(peaks_processor)
       allow(peaks_processor).to receive(:run).and_return([1, 2, 3, 4, 5])
     end

@@ -119,7 +119,7 @@ class Track < ApplicationRecord
 
   include AASM
 
-  after_create :reprocess_async
+  include TrackPreview
 
   aasm column: :state do
     state :pending, initial: true
@@ -323,7 +323,7 @@ class Track < ApplicationRecord
   def update_peaks
     peaks = process_audio_peaks
 
-    update(peaks: peaks, state: "processed")
+    with_current_processing { update!(peaks: peaks, state: "processed") }
   end
 
   def reprocess_async
@@ -334,6 +334,7 @@ class Track < ApplicationRecord
   end
 
   def reprocess!(on_progress: nil)
+    @processing_signature = playback_signature
     if video.attached?
       video.open do |file|
         report_processing_progress(on_progress, step: "extracting_audio", progress: 20)
@@ -355,21 +356,25 @@ class Track < ApplicationRecord
     report_processing_progress(on_progress, step: "generating_waveform", progress: 85)
     update_peaks
     true
+  ensure
+    @processing_signature = nil
   end
 
   def update_processing_status!(step:, progress:, state: nil)
-    next_metadata = (metadata || {}).merge(
-      "processing_step" => step,
-      "processing_progress" => progress
-    )
+    with_current_processing do
+      next_metadata = (metadata || {}).merge(
+        "processing_step" => step,
+        "processing_progress" => progress
+      )
 
-    attributes = {
-      metadata: next_metadata,
-      updated_at: Time.current
-    }
-    attributes[:state] = state if state.present?
+      attributes = {
+        metadata: next_metadata,
+        updated_at: Time.current
+      }
+      attributes[:state] = state if state.present?
 
-    update_columns(attributes)
+      update_columns(attributes)
+    end
   end
 
   def has_video?
@@ -377,6 +382,8 @@ class Track < ApplicationRecord
   end
 
   def video_playback_media
+    return if preview_enabled?
+
     return video_web if video_web.attached?
     return video if video.attached?
 
@@ -384,9 +391,7 @@ class Track < ApplicationRecord
   end
 
   def playback_media
-    return mp3_audio if mp3_audio.attached?
-    return audio if audio.attached?
-    return video if video.attached?
+    mp3_audio if current_playback?
   end
 
   def downloadable_media
@@ -416,15 +421,19 @@ class Track < ApplicationRecord
   end
 
   def update_mp3(source_file = nil)
+    signature = @processing_signature || playback_signature
     with_file_path(source_file, fallback_attachment: audio) do |path|
-      mp3_path = Mp3Converter.new(path).run
+      options = preview_enabled? ? { start_seconds: preview_start_seconds, duration_seconds: preview_duration_seconds } : {}
+      mp3_path = Mp3Converter.new(path, **options).run
 
       begin
         attach_generated_media(
           attachment_name: :mp3_audio,
           path: mp3_path,
           filename: "#{source_media_basename}.mp3",
-          content_type: "audio/mpeg"
+          content_type: "audio/mpeg",
+          metadata: { playback_signature: signature },
+          expected_signature: signature
         )
       ensure
         cleanup_generated_path(mp3_path)
@@ -467,7 +476,7 @@ class Track < ApplicationRecord
   end
 
   def process_audio_peaks(source_file = nil)
-    with_file_path(source_file, fallback_attachment: analyzable_audio_media) do |path|
+    with_file_path(source_file, fallback_attachment: playback_media) do |path|
       return PeaksGenerator.new(path).run
     end
 
@@ -537,14 +546,7 @@ class Track < ApplicationRecord
   end
 
   def duration
-    [playback_media, audio, video].uniq.each do |attachment|
-      next unless attachment&.attached?
-
-      media_duration = attachment.metadata&.fetch("duration", nil)
-      return media_duration if media_duration.present?
-    end
-
-    nil
+    playback_media&.metadata&.fetch("duration", nil)
   end
 
   def podcast_summarizer
@@ -656,14 +658,27 @@ class Track < ApplicationRecord
     end
   end
 
-  def attach_generated_media(attachment_name:, path:, filename:, content_type:)
-    File.open(path, "rb") do |file|
-      public_send(attachment_name).attach(
+  def attach_generated_media(attachment_name:, path:, filename:, content_type:, metadata: {}, expected_signature: @processing_signature || playback_signature)
+    # Upload and analyze before locking the track so saving settings does not
+    # have to wait for a large transfer. Only a matching result is published.
+    blob = File.open(path, "rb") do |file|
+      ActiveStorage::Blob.create_and_upload!(
         io: file,
         filename: filename,
-        content_type: content_type
+        content_type: content_type,
+        metadata: metadata
       )
     end
+    blob.analyze if attachment_name == :mp3_audio
+    with_current_processing(expected_signature: expected_signature) do
+      @writing_generated_media = true
+      public_send(attachment_name).attach(blob)
+    ensure
+      @writing_generated_media = false
+    end
+  rescue StandardError
+    blob.purge if blob && !blob.attachments.exists?
+    raise
   end
 
   def cleanup_generated_path(path)

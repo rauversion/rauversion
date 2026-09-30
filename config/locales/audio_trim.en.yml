@@ -1,0 +1,18 @@
+en:
+  audio_trim:
+    title: "Select excerpt"
+    selected: "Excerpt duration"
+    start: "Start"
+    end: "End"
+    move_selection: "Move the entire excerpt"
+    move_selection_timeline: "Move the excerpt on the timeline"
+    range_value: "From %{start} to %{end}"
+    hint: "Drag the edges to trim; the center or duration to move. Arrow keys: fine adjustment. Shift + arrow: 10 seconds."
+    invalid_time: "Enter seconds or a time such as 1:15.5."
+    quick_duration: "Quick durations"
+    seconds: "%{count} s"
+    move_back: "Move the excerpt back 1 second"
+    move_forward: "Move the excerpt forward 1 second"
+    reset: "Reset selection"
+    play: "Play excerpt"
+    pause: "Pause"

@@ -411,6 +411,7 @@ Rails.application.routes.draw do
     resource :sharer, controller: "sharer"
     member do
       get :appears_on
+      get :source_metadata
       get :private, to: "tracks#private_access"
     end
     resources :track_purchases do

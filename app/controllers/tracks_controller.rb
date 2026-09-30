@@ -99,10 +99,33 @@ class TracksController < ApplicationController
     @track.tab = @tab
   end
 
+  # Resolve legacy/missing source metadata only for the artist editing the
+  # track. Public serializers never download or analyze the original.
+  def source_metadata
+    track = current_user.tracks.for_tenant.friendly.find(params[:id])
+    response.headers["Cache-Control"] = "private, no-store"
+
+    begin
+      if track.original_duration.blank?
+        source = track.video.attached? ? track.video : track.audio
+        source.blob.analyze if source.attached?
+        track.reload
+      end
+
+      if track.original_duration.present?
+        render json: { original_duration: track.original_duration }
+      else
+        render json: { error: I18n.t("tracks.preview.duration_error") }, status: :unprocessable_entity
+      end
+    rescue StandardError => error
+      Rails.logger.warn("Track source metadata failed track_id=#{track.id} error=#{error.class}")
+      render json: { error: I18n.t("tracks.preview.duration_error") }, status: :unprocessable_entity
+    end
+  end
+
   def update
     @track = current_user.tracks.for_tenant.friendly.find(params[:id])
     @tab = params[:track][:tab] || "basic-info-tab"
-    media_reprocess_requested = params[:track][:audio].present? || params[:track][:video].present?
     @track.assign_attributes(track_params)
     if params[:track][:artist_ids]
       @track.artist_ids = params[:track][:artist_ids].reject(&:blank?)
@@ -113,12 +136,12 @@ class TracksController < ApplicationController
     else
       @track.label_id = label_user.id if !label_user.blank? && @track.enable_label
       if @track.save
-        @track.reprocess_async if media_reprocess_requested
         flash.now[:notice] = "Track was successfully updated."
       else
         flash.now[:error] = @track.errors.full_messages
       end
     end
+    response.status = :unprocessable_entity if @track.errors.any? && request.format.json?
     # puts @track.errors.as_json
     @track.tab = @tab
   end
@@ -169,7 +192,7 @@ class TracksController < ApplicationController
       twitter: {
         card: "player",
         player: {
-          stream: @track.mp3_audio&.url,
+          stream: @track.playback_media&.url,
           "stream:content_type": "audio/mpeg",
           width: 290,
           height: 58
@@ -263,6 +286,7 @@ class TracksController < ApplicationController
       :cover, :video,
       :podcast,
       :dj_set,
+      :preview_enabled, :preview_start_seconds, :preview_duration_seconds, :confirm_full_length,
       :copyright, :attribution, :noncommercial, :copies,
       crop_data: [:x, :y, :width, :height],
       tags: [],

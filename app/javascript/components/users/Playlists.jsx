@@ -7,6 +7,7 @@ import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
 import PlaylistListItem from "./PlaylistItem";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import PlaylistPreviewBadge from "../playlists/PlaylistPreviewBadge";
 
 export function PlaylistCard({
   playlist,
@@ -86,6 +87,7 @@ export function PlaylistCard({
                     {playlist.title}
                   </Link>
                 </h3>
+                <PlaylistPreviewBadge playlist={playlist} />
 
                 {playlist.playlist_type === "album" &&
                   playlist.release_date && (

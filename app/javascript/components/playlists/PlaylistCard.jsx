@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ShareDialog } from "@/components/ui/share-dialog";
 import { cn } from "@/lib/utils";
 import { getUserDisplayName } from "@/utils/userDisplayName";
+import PlaylistPreviewBadge from "./PlaylistPreviewBadge";
 
 export default function PlaylistCard({ playlist, skipCover, children }) {
   const shareUrl = `${window.location.origin}/playlists/${playlist.slug}`;
@@ -33,6 +34,7 @@ export default function PlaylistCard({ playlist, skipCover, children }) {
         <h3 className="font-bold mb-1 hover:text-primary transition-colors">
           {playlist.title}
         </h3>
+        <PlaylistPreviewBadge playlist={playlist} className="mb-1" />
         <p className="text-sm text-muted-foreground">
           By {getUserDisplayName(playlist.user)} • {playlist.tracks_count} tracks
         </p>

@@ -18,6 +18,7 @@
 
         <div class="flex-grow">
           <p class="font-medium"><%= track.title %></p>
+          <%= render "tracks/preview_badge", track: track %>
           <p class="text-sm text-muted"><%= track.user.username %></p>
         </div>
         <p class="text-sm text-muted">

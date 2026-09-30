@@ -1,0 +1,35 @@
+en:
+  tracks:
+    preview:
+      indicator: "Preview"
+      playlist_indicator_description: "This playlist contains tracks whose public playback is an excerpt."
+      indicator_description: "Public playback is an excerpt of this track."
+      indicator_description_duration: "Preview: listen to a %{duration} excerpt of this track."
+      title: "Play only an excerpt"
+      description: "Choose the excerpt available for public playback. The original file is kept for authorized downloads."
+      preview_start_seconds: "Start (seconds)"
+      preview_duration_seconds: "Duration (seconds)"
+      duration_pending: "Reading the original duration to display the excerpt selector…"
+      duration_error: "We couldn't read the original duration. Retry or enter the times in seconds."
+      duration_retry: "Retry loading the range"
+      audio_only: "Excerpt previews are available for audio tracks only."
+      processing_hint: "Saving replaces the public copy. Playback will be unavailable while the new excerpt is generated."
+      confirm_title: "Generate and publish the full audio?"
+      confirm_description: "This disables the preview and generates a full-length copy for public playback. Anyone with access to the track will be able to listen to the entire recording. Playback will be unavailable during processing."
+      confirm_cancel: "Keep the preview"
+      confirm_action: "Generate full audio"
+  activerecord:
+    attributes:
+      track:
+        preview_enabled: "Preview"
+        preview_start_seconds: "Preview start"
+        preview_duration_seconds: "Preview duration"
+    errors:
+      models:
+        track:
+          attributes:
+            preview_enabled:
+              audio_only: "is only available for audio tracks"
+              confirmation_required: "requires confirmation to generate full-length audio"
+            preview_duration_seconds:
+              outside_audio: "must end within the original audio"

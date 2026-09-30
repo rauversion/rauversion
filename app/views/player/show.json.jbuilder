@@ -2,8 +2,10 @@ json.track do
   json.id @track.id
   json.slug @track.slug
   json.title @track.title
+  json.preview_enabled @track.preview_enabled?
+  json.preview_duration_seconds @track.preview_duration_seconds
   json.url track_path(@track)
-  json.audio_url MediaStreamUrl.for(@track.mp3_audio) if @track.mp3_audio.attached?
+  json.audio_url MediaStreamUrl.for(@track.playback_media) if @track.mp3_audio.attached?
   json.description @track.description
   json.artwork_url @track.cover_url(:small)
   json.has_video @track.video.attached?
