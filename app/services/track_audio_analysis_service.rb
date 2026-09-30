@@ -457,6 +457,11 @@ class TrackAudioAnalysisService
 
   def analysis_attachment
     @analysis_attachment ||= begin
+      # A public excerpt is not representative of the complete recording.
+      if track.respond_to?(:preview_enabled?) && track.preview_enabled?
+        original = track.analyzable_audio_media
+        return original if original&.attached?
+      end
       preferred_attachment = track.mp3_audio if track.respond_to?(:mp3_audio)
       if preferred_attachment&.attached?
         preferred_attachment
@@ -472,6 +477,8 @@ class TrackAudioAnalysisService
   end
 
   def analysis_attachment_name
+    return "audio" if track.respond_to?(:preview_enabled?) && track.preview_enabled? && track.audio&.attached?
+
     return "mp3_audio" if track.respond_to?(:mp3_audio) && track.mp3_audio&.attached?
 
     "audio"

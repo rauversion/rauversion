@@ -18,6 +18,8 @@ class TrackProcessorJob < ApplicationJob
     else
       broadcast(track, event: "failed", step: "source_missing", level: "error")
     end
+  rescue TrackPreview::StaleProcessing
+    Rails.logger.info("TrackProcessorJob discarded outdated result track_id=#{track_id}")
   rescue StandardError => e
     Rails.logger.error("TrackProcessorJob failed track_id=#{track_id} error=#{e.class}: #{e.message}")
     broadcast(track, event: "failed", step: "failed", level: "error") if track

@@ -6,6 +6,7 @@ import { Comments } from "@/components/comments/Comments"
 import { ShareDialog } from "@/components/ui/share-dialog"
 import TrackEdit from './TrackEdit'
 import TrackSkeleton from './TrackSkeleton'
+import TrackPreviewBadge from './TrackPreviewBadge'
 import { Settings, Share2, Heart, Repeat, Play, Pause, SlidersHorizontal, Loader2, AlertTriangle } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 import { Progress } from "@/components/ui/progress"
@@ -217,15 +218,21 @@ export default function TrackShow() {
                       className="h-10 w-10 rounded-full shadow-md"
                     />
                   </div>
-                  <div>
+                  <div className="min-w-0">
                     <h1 className="text-xl font-bold text-foreground">
                       {track.title}
                     </h1>
+                    <TrackPreviewBadge track={track} className="mt-2" />
                   </div>
                 </div>
 
                 {track.processed && (
                   <div className="bg-card rounded-lg p-6">
+                    {track.preview_enabled && (
+                      <p className="mb-3 text-sm text-muted-foreground">
+                        {I18n.t("tracks.preview.indicator_description")}
+                      </p>
+                    )}
                     <TrackPlayer
                       url={track.playback_url || track.mp3_audio_url || track.mp3_url || track.audio_url}
                       peaks={track.peaks}

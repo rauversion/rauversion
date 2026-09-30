@@ -1,0 +1,18 @@
+es:
+  audio_trim:
+    title: "Seleccionar fragmento"
+    selected: "Duración del fragmento"
+    start: "Inicio"
+    end: "Fin"
+    move_selection: "Mover el fragmento completo"
+    move_selection_timeline: "Mover el fragmento en la línea de tiempo"
+    range_value: "De %{start} a %{end}"
+    hint: "Arrastra los extremos para recortar; el centro o la duración para mover. Flechas: ajuste fino. Mayús + flecha: 10 segundos."
+    invalid_time: "Ingresa segundos o un tiempo como 1:15.5."
+    quick_duration: "Duraciones rápidas"
+    seconds: "%{count} s"
+    move_back: "Mover el fragmento 1 segundo atrás"
+    move_forward: "Mover el fragmento 1 segundo adelante"
+    reset: "Restablecer selección"
+    play: "Escuchar fragmento"
+    pause: "Pausar"

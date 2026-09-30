@@ -16,6 +16,7 @@ import {
 } from "lucide-react"
 import PlayerQueueSheet from "./player_queue_sheet"
 import useTrackLikeAction from "@/hooks/useTrackLikeAction"
+import TrackPreviewBadge from "./tracks/TrackPreviewBadge"
 
 const ProgressBar = ({ progress, duration, currentTime, onSeek, formatTime }) => (
   <div className="flex items-center w-full max-w-2xl mx-auto">
@@ -119,6 +120,7 @@ const TrackInfo = ({ playerData, onToggleLike, isLiking }) => {
               {track?.user_username}
             </Link>
           </motion.div>
+          <TrackPreviewBadge track={track} compact className="mt-1 text-[10px]" />
         </div>
 
         {track?.id && (

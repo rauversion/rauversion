@@ -30,4 +30,33 @@ RSpec.describe Mp3Converter do
     output_dir = File.dirname(generated_output_path) if generated_output_path
     FileUtils.remove_entry(output_dir) if output_dir && Dir.exist?(output_dir)
   end
+
+  it "renders only the selected window with ffmpeg" do
+    source = Rails.root.join("spec/fixtures/audio.mp3").to_s
+    path = described_class.new(source, start_seconds: 0.1, duration_seconds: 0.2).run
+    output, _stderr, status = Open3.capture3(
+      "ffprobe", "-v", "error", "-show_entries", "format=duration",
+      "-of", "default=noprint_wrappers=1:nokey=1", path
+    )
+
+    expect(status).to be_success
+    # MP3 frame padding adds a few milliseconds to the requested window.
+    expect(output.to_f).to be_within(0.06).of(0.2)
+  ensure
+    FileUtils.remove_entry(File.dirname(path)) if path && File.exist?(path)
+  end
+
+  it "rejects a window beyond the original rather than creating a different excerpt" do
+    source = Rails.root.join("spec/fixtures/audio.mp3").to_s
+    expect do
+      described_class.new(source, start_seconds: 0.3, duration_seconds: 1).run
+    end.to raise_error(ArgumentError, /exceeds/)
+  end
+
+  it "rejects invalid window parameters before calling ffmpeg" do
+    expect(Open3).not_to receive(:capture3)
+    expect do
+      described_class.new(source_file.path, start_seconds: -1, duration_seconds: 10).run
+    end.to raise_error(ArgumentError, /Invalid/)
+  end
 end

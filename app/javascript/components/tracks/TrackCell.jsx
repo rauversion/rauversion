@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import useAudioStore from '../../stores/audioStore'
+import TrackPreviewBadge from './TrackPreviewBadge'
 
 const PlayIcon = ({ className }) => (
   <svg
@@ -83,6 +84,7 @@ export function ClassicTrackCell({ track }) {
       <p className="mt-1 text-lg font-medium leading-none text-foreground dark:text-muted truncate">
         {track.title}
       </p>
+      <TrackPreviewBadge track={track} />
 
       <h3 className="text-xs text-foreground dark:text-muted-foreground">
         {track.user.username}
@@ -132,6 +134,7 @@ export function ModernTrackCell({ track }) {
         <h3 className="font-bold mb-1 truncate">
           {track.title}
         </h3>
+        <TrackPreviewBadge track={track} className="mb-1" />
         <p className="text-sm text-muted-foreground">
           {track.user.username}
         </p>
@@ -193,6 +196,7 @@ export function MinimalTrackCell({ track }) {
               <h3 className="text-lg font-bold tracking-tight text-white line-clamp-1 mix-blend-difference">
                 {track.title}
               </h3>
+              <TrackPreviewBadge track={track} className="border-white/25 bg-black/60 text-white" />
               <p className="text-sm text-muted-foreground font-mono">
                 {track.user.username}
               </p>

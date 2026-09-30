@@ -5,12 +5,15 @@ import { buildPlaylistPalette, resolvePlaylistCoverUrl } from "@/lib/playlist-th
 import type { TemplateStyle } from "@/lib/blocks/types"
 import useAudioStore from "@/stores/audioStore"
 import { get } from "@rails/request.js"
+import TrackPreviewBadge from "@/components/tracks/TrackPreviewBadge"
 
 interface Track {
   id: number
   title: string
   description: string
   duration: number | string | null
+  preview_enabled?: boolean
+  preview_duration_seconds?: number
   audio_url: string
   cover_url: string
   position: number
@@ -257,7 +260,7 @@ export default function PlaylistComponent({
                 className="group flex items-center justify-between rounded-lg p-2 transition-colors hover:bg-[var(--playlist-accent-soft)]"
                 style={isCurrentTrack ? { background: palette.accentSoft } : undefined}
               >
-                <div className="flex items-center gap-4">
+                <div className="flex min-w-0 flex-1 items-center gap-4">
                   <span className="w-6 text-[var(--playlist-muted)]">{index + 1}</span>
                   
                   <button 
@@ -273,12 +276,13 @@ export default function PlaylistComponent({
                     }
                   </button>
 
-                  <div>
-                    <p className="font-medium text-[var(--playlist-text)]">{track.title}</p>
+                  <div className="min-w-0">
+                    <p className="truncate font-medium text-[var(--playlist-text)]">{track.title}</p>
+                    <TrackPreviewBadge track={track} className="my-1 border-[var(--playlist-border)] bg-[var(--playlist-accent-soft)] text-[var(--playlist-text)]" />
                     <p className="text-sm text-[var(--playlist-muted)]">{trackAuthor ? getUserDisplayName(trackAuthor) : ""}</p>
                   </div>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex shrink-0 items-center gap-4 pl-3">
                   <span className="text-[var(--playlist-muted)]">{formattedDuration}</span>
 
                 </div>

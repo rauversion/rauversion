@@ -254,7 +254,7 @@ class PlaylistsController < ApplicationController
       twitter: {
         card: "player",
         player: {
-          stream: @track&.mp3_audio&.url,
+          stream: @track&.playback_media&.url,
           "stream:content_type": "audio/mpeg",
           width: 290,
           height: 58

@@ -2,6 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import { Play, Pause } from 'lucide-react'
 import TrackPlayer from '../tracks/TrackPlayer'
+import TrackPreviewBadge from '../tracks/TrackPreviewBadge'
 import TrackItemMenu from './TrackItemMenu'
 import MusicPurchase from '@/components/shared/MusicPurchase'
 import { getUserDisplayName } from '@/utils/userDisplayName'
@@ -66,6 +67,7 @@ export default function TrackItem({
                 >
                   {track.title}
                 </Link>
+                <TrackPreviewBadge track={track} className="ml-2" />
               </div>
 
               <div className="space-x-2">

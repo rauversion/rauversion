@@ -55,6 +55,7 @@
                               <div class="flex-1 min-w-0">
                                 <p class="text-sm font-medium text-subtle truncate"></p>
                                 <p> <%= track.title %> </p>
+                                <%= render "tracks/preview_badge", track: track %>
                                 <p></p>
                                 <p class="text-sm text-muted truncate">
                                   <%= track.user.username %>

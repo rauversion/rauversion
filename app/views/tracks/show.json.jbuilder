@@ -16,6 +16,10 @@ json.track do
   json.tags @track.tags
   json.podcast @track.podcast
   json.dj_set @track.dj_set
+  json.preview_enabled @track.preview_enabled?
+  json.preview_start_seconds @track.preview_start_seconds
+  json.preview_duration_seconds @track.preview_duration_seconds
+  json.original_duration @track.original_duration
   json.created_at @track.created_at
   json.updated_at @track.updated_at
   json.processed  @track.processed?
@@ -48,11 +52,11 @@ json.track do
   json.crop_data @track.crop_data
 
   if @track.audio.attached?
-    json.audio_url MediaStreamUrl.for(@track.audio)
+    json.audio_url MediaStreamUrl.for(@track.playback_media)
   end
 
   if @track.mp3_audio.attached?
-    json.mp3_url MediaStreamUrl.for(@track.mp3_audio)
+    json.mp3_url MediaStreamUrl.for(@track.playback_media)
   end
 
   video_media = @track.video_playback_media

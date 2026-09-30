@@ -4,6 +4,7 @@ import { motion } from 'framer-motion'
 import { cn } from "@/lib/utils"
 import { Link } from "react-router"
 import { getUserDisplayName } from '@/utils/userDisplayName'
+import TrackPreviewBadge from '../tracks/TrackPreviewBadge'
 
 export function formatDuration(seconds) {
   const n = Number(seconds)
@@ -97,6 +98,7 @@ export default function PlaylistListItem({
           >
             {track.title}
           </motion.p>
+          <TrackPreviewBadge track={track} className="my-1" />
           <p className="text-muted-foreground text-sm truncate-- group-hover:text-muted-foreground space-x-2">
             <Link to={`/${track.user.username}`} className="hover:underline">
               {getUserDisplayName(track.user)}

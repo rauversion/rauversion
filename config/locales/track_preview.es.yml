@@ -1,0 +1,35 @@
+es:
+  tracks:
+    preview:
+      indicator: "Preview"
+      playlist_indicator_description: "Esta playlist contiene tracks cuya reproducción pública es un fragmento."
+      indicator_description: "La reproducción pública corresponde a un fragmento del track."
+      indicator_description_duration: "Preview: escucha un fragmento de %{duration} de este track."
+      title: "Reproducir solo un fragmento"
+      description: "Elige el fragmento que se podrá escuchar públicamente. El archivo original se conserva para las descargas autorizadas."
+      preview_start_seconds: "Inicio (segundos)"
+      preview_duration_seconds: "Duración (segundos)"
+      duration_pending: "Obteniendo la duración del original para mostrar el selector de fragmento…"
+      duration_error: "No pudimos obtener la duración del original. Puedes reintentar o indicar los tiempos en segundos."
+      duration_retry: "Reintentar cargar el rango"
+      audio_only: "El preview por fragmento está disponible solo para tracks de audio."
+      processing_hint: "Al guardar, se reemplazará la copia pública. La reproducción no estará disponible mientras se genera el nuevo fragmento."
+      confirm_title: "¿Generar y publicar el audio completo?"
+      confirm_description: "Se desactivará el preview y se generará una copia completa para reproducción pública. Cualquier persona con acceso al track podrá escucharlo entero. La reproducción no estará disponible mientras se procesa."
+      confirm_cancel: "Mantener el preview"
+      confirm_action: "Generar audio completo"
+  activerecord:
+    attributes:
+      track:
+        preview_enabled: "Preview"
+        preview_start_seconds: "Inicio del preview"
+        preview_duration_seconds: "Duración del preview"
+    errors:
+      models:
+        track:
+          attributes:
+            preview_enabled:
+              audio_only: "solo está disponible para tracks de audio"
+              confirmation_required: "requiere confirmar la generación del audio completo"
+            preview_duration_seconds:
+              outside_audio: "debe terminar dentro del audio original"
