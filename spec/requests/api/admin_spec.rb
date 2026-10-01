@@ -198,6 +198,87 @@ RSpec.describe "Admin API", type: :request do
       )
       expect(json_response.dig("records", 0, "values", "dj_set")).to eq(true)
     end
+
+    it "filters pending tracks and exposes the reprocess action" do
+      pending_track = create(:track, user: artist, state: "pending")
+
+      get "/api/admin/tracks", params: { scope: "pending" }
+
+      expect(response).to have_http_status(:ok)
+      expect(json_response["records"].map { |record| record["id"] }).to eq([pending_track.id])
+      expect(json_response.dig("resource", "scopes")).to include(
+        include("key" => "pending", "label" => "Pending")
+      )
+      expect(json_response.dig("records", 0, "actions")).to include(
+        include(
+          "key" => "reprocess",
+          "kind" => "custom",
+          "endpoint" => "/api/admin/tracks/#{pending_track.id}/actions/reprocess"
+        )
+      )
+    end
+  end
+
+  describe "POST /api/admin/tracks/:id/actions/reprocess" do
+    let!(:track) { create(:track, user: admin, state: "pending") }
+
+    around do |example|
+      previous_adapter = ActiveJob::Base.queue_adapter
+      ActiveJob::Base.queue_adapter = :test
+      example.run
+    ensure
+      ActiveJob::Base.queue_adapter = previous_adapter
+    end
+
+    %w[audio video].each do |source|
+      it "queues a pending track with original #{source} and resets its progress" do
+        track.public_send(source).attach(
+          io: StringIO.new("original media"),
+          filename: source == "audio" ? "original.mp3" : "original.mp4",
+          content_type: source == "audio" ? "audio/mpeg" : "video/mp4"
+        )
+        track.update_processing_status!(step: "failed", progress: 45, state: "pending")
+
+        expect do
+          post "/api/admin/tracks/#{track.id}/actions/reprocess", as: :json
+        end.to have_enqueued_job(TrackProcessorJob).with(track.id).on_queue("track_processing")
+
+        expect(response).to have_http_status(:ok)
+        expect(json_response.dig("result", "message")).to eq("Track queued for reprocessing")
+        expect(json_response.dig("record", "form_values", "state")).to eq("pending")
+        expect(track.reload.processing_step).to eq("queued")
+        expect(track.processing_progress).to eq(0)
+      end
+    end
+
+    it "rejects a track without original media without queueing a job" do
+      expect do
+        post "/api/admin/tracks/#{track.id}/actions/reprocess", as: :json
+      end.not_to have_enqueued_job(TrackProcessorJob)
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(json_response["error"]).to eq("This track has no original audio or video to reprocess.")
+    end
+
+    it "rejects non-admin users without queueing a job" do
+      sign_in create(:user, confirmed_at: Time.current)
+
+      expect do
+        post "/api/admin/tracks/#{track.id}/actions/reprocess", as: :json
+      end.not_to have_enqueued_job(TrackProcessorJob)
+
+      expect(response).to have_http_status(:forbidden)
+    end
+
+    it "rejects unauthenticated users without queueing a job" do
+      sign_out admin
+
+      expect do
+        post "/api/admin/tracks/#{track.id}/actions/reprocess", as: :json
+      end.not_to have_enqueued_job(TrackProcessorJob)
+
+      expect(response).to have_http_status(:unauthorized)
+    end
   end
 
   describe "GET /api/admin/tracks/:id" do

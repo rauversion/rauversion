@@ -44,6 +44,7 @@ export default function AdminResourceListPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [payload, setPayload] = React.useState<AdminListResponse | null>(null)
   const [loading, setLoading] = React.useState(true)
+  const [runningAction, setRunningAction] = React.useState(false)
   const [searchInput, setSearchInput] = React.useState(searchParams.get("query") || "")
   const [debouncedSearchInput, setDebouncedSearchInput] = React.useState(searchParams.get("query") || "")
 
@@ -119,19 +120,21 @@ export default function AdminResourceListPage() {
   }
 
   const runAction = async (action: AdminAction) => {
+    if (runningAction) return
+    setRunningAction(true)
     try {
       if (action.kind === "delete" && action.endpoint) {
         if (!window.confirm("Delete this record?")) return
         await adminDelete(action.endpoint)
         toast({ title: "Record deleted" })
-        fetchResource()
+        await fetchResource()
         return
       }
 
       if (action.kind === "custom" && action.endpoint) {
-        await adminPostJson(action.endpoint)
-        toast({ title: "Action completed" })
-        fetchResource()
+        const result = await adminPostJson<{ result?: { message?: string } }>(action.endpoint)
+        toast({ title: result.result?.message || "Action completed" })
+        await fetchResource()
         return
       }
     } catch (error: any) {
@@ -140,6 +143,8 @@ export default function AdminResourceListPage() {
         description: error.message,
         variant: "destructive",
       })
+    } finally {
+      setRunningAction(false)
     }
   }
 
@@ -216,7 +221,7 @@ export default function AdminResourceListPage() {
                     {record.actions.length > 0 && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon">
+                          <Button variant="ghost" size="icon" disabled={runningAction} aria-label="Record actions">
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
@@ -239,7 +244,7 @@ export default function AdminResourceListPage() {
                             }
 
                             return (
-                              <DropdownMenuItem key={action.key} onClick={() => runAction(action)}>
+                              <DropdownMenuItem key={action.key} disabled={runningAction} onClick={() => runAction(action)}>
                                 {action.label}
                               </DropdownMenuItem>
                             )

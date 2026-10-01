@@ -1,6 +1,7 @@
 module Admin
   class ResourceRegistry
     class ResourceNotFound < StandardError; end
+    class ActionFailed < StandardError; end
     TENANT_RESOURCE_KEYS = %i[tracks events posts].freeze
 
     class << self
@@ -155,6 +156,7 @@ module Admin
               { key: "published", label: "Public", apply: ->(relation) { relation.where(private: [false, nil]) } },
               { key: "private", label: "Private", apply: ->(relation) { relation.where(private: true) } },
               { key: "processed", label: "Processed", apply: ->(relation) { relation.where(state: "processed") } },
+              { key: "pending", label: "Pending", apply: ->(relation) { relation.where(state: "pending") } },
               { key: "podcasts", label: "Podcasts", apply: ->(relation) { relation.where(podcast: true) } },
               { key: "dj_sets", label: "DJ sets", apply: ->(relation) { relation.dj_sets } }
             ],
@@ -317,6 +319,21 @@ module Admin
             ],
             custom_actions: [
               {
+                key: "reprocess",
+                label: "Reprocess",
+                run: lambda { |track|
+                  unless track.audio.attached? || track.video.attached?
+                    raise ActionFailed, "This track has no original audio or video to reprocess."
+                  end
+
+                  unless track.reprocess_async
+                    raise ActionFailed, "Track processing could not be queued. Please try again."
+                  end
+
+                  { message: "Track queued for reprocessing" }
+                }
+              },
+              {
                 key: "analyze",
                 label: "Analyze",
                 run: lambda { |track, payload|
@@ -336,6 +353,12 @@ module Admin
                 label: "Review",
                 kind: "navigate",
                 to: "/admin/tracks/#{track.id}"
+              }
+              actions << {
+                key: "reprocess",
+                label: "Reprocess",
+                kind: "custom",
+                endpoint: "/api/admin/tracks/#{track.id}/actions/reprocess"
               }
               unless track.private?
                 actions << {

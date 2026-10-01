@@ -88,6 +88,8 @@ module Api
           result: result || {},
           record: serialize_record(@record.reload, detail: true)
         }
+      rescue ::Admin::ResourceRegistry::ActionFailed => e
+        render json: { error: e.message }, status: :unprocessable_entity
       end
 
       private
