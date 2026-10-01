@@ -4,7 +4,8 @@ import React, { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
 import type { Page } from "@/lib/blocks/types"
 import { getCurrentPageId, loadPages } from "@/lib/storage"
-import { fetchReleasePages } from "@/lib/release-editor-pages"
+import { fetchReleasePageData } from "@/lib/release-editor-pages"
+import { usePageMetadata, type PageMetadata } from "@/hooks/usePageMetadata"
 import { EditorPageView } from "@/components/page-editor/page-view"
 import { Disc3 } from "lucide-react"
 
@@ -12,8 +13,12 @@ export default function PreviewPage() {
   const { id, pageId } = useParams()
   const [page, setPage] = useState<Page | null>(null)
   const [notFound, setNotFound] = useState(false)
+  const [metadata, setMetadata] = useState<PageMetadata | null>(null)
+
+  usePageMetadata(metadata)
 
   useEffect(() => {
+    setMetadata(null)
     if (!id) {
       setPage(null)
       setNotFound(true)
@@ -21,6 +26,12 @@ export default function PreviewPage() {
     }
 
     let cancelled = false
+    const releaseRequest = fetchReleasePageData(id)
+    // Local drafts remain immediately available even when the metadata request
+    // fails. The same request supplies saved pages when there is no local draft.
+    releaseRequest.then(({ seo }) => {
+      if (!cancelled) setMetadata(seo)
+    }).catch(() => {})
 
     const loadPreviewPage = async () => {
       const storageNamespace = `releases:${id}`
@@ -28,7 +39,7 @@ export default function PreviewPage() {
       const availablePages =
         localPages.length > 0
           ? localPages
-          : await fetchReleasePages(id)
+          : (await releaseRequest).pages
       const targetPageId =
         pageId ||
         getCurrentPageId(storageNamespace) ||

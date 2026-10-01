@@ -5,6 +5,7 @@ import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
 import { EditorPageView } from "@/components/page-editor/page-view"
 import { normalizeReleasePages } from "@/lib/release-editor-pages"
+import { usePageMetadata } from "@/hooks/usePageMetadata"
 import { Pencil, ExternalLink } from "lucide-react"
 
 export default function ReleasePreview() {
@@ -13,14 +14,19 @@ export default function ReleasePreview() {
   const [release, setRelease] = React.useState(null)
   const [loading, setLoading] = React.useState(true)
 
+  usePageMetadata(release?.seo || null)
+
   React.useEffect(() => {
+    let cancelled = false
+    setLoading(true)
+    setRelease(null)
     const fetchRelease = async () => {
       try {
         const response = await get(`/releases/${id}/preview.json`)
         if (response.ok) {
           const data = await response.json
-          setRelease(data)
-        } else {
+          if (!cancelled) setRelease(data)
+        } else if (!cancelled) {
           toast({
             title: "Error",
             description: "Could not load release",
@@ -28,6 +34,7 @@ export default function ReleasePreview() {
           })
         }
       } catch (error) {
+        if (cancelled) return
         console.error("Error fetching release:", error)
         toast({
           title: "Error",
@@ -35,10 +42,11 @@ export default function ReleasePreview() {
           variant: "destructive",
         })
       } finally {
-        setLoading(false)
+        if (!cancelled) setLoading(false)
       }
     }
     fetchRelease()
+    return () => { cancelled = true }
   }, [id])
 
   if (loading) {

@@ -1,4 +1,6 @@
 class ReleasesController < ApplicationController
+  include ReleasePageMetadata
+
   before_action :authenticate_user!, except: [:show, :preview]
   before_action :disable_footer, only: [:editor]
 
@@ -41,6 +43,7 @@ class ReleasesController < ApplicationController
 
   def show
     @release = Release.for_tenant.friendly.find(params[:id])
+    set_release_page_metadata(@release, url: release_url(@release))
     respond_to do |format|
       format.html { render_blank }
       format.json
@@ -49,6 +52,7 @@ class ReleasesController < ApplicationController
 
   def preview
     @release = Release.for_tenant.friendly.find(params[:id])
+    set_release_page_metadata(@release, url: release_url(@release))
     respond_to do |format|
       format.html { render_blank }
       format.json

@@ -1,5 +1,6 @@
 import { get, put } from "@rails/request.js"
 import type { Page } from "@/lib/blocks/types"
+import type { PageMetadata } from "@/hooks/usePageMetadata"
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null
@@ -18,7 +19,7 @@ export function normalizeReleasePages(value: unknown): Page[] {
   return Array.isArray(value) ? (value as Page[]) : []
 }
 
-export async function fetchReleasePages(releaseId: string): Promise<Page[]> {
+export async function fetchReleasePageData(releaseId: string): Promise<{ pages: Page[]; seo: PageMetadata | null }> {
   const response = await get(`/releases/${releaseId}.json`, {
     responseKind: "json",
   })
@@ -32,7 +33,14 @@ export async function fetchReleasePages(releaseId: string): Promise<Page[]> {
     ? releaseData.editor_data
     : null
 
-  return normalizeReleasePages(editorData?.pages)
+  return {
+    pages: normalizeReleasePages(editorData?.pages),
+    seo: isRecord(releaseData) && isRecord(releaseData.seo) ? releaseData.seo as unknown as PageMetadata : null,
+  }
+}
+
+export async function fetchReleasePages(releaseId: string): Promise<Page[]> {
+  return (await fetchReleasePageData(releaseId)).pages
 }
 
 export async function fetchAlbumPages(albumId: string): Promise<Page[]> {

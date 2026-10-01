@@ -1,3 +1,4 @@
+json.seo @seo_metadata
 json.id @release.id
 json.slug @release.slug
 json.title @release.title
