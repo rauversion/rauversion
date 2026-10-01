@@ -94,6 +94,7 @@ export function BlockSettings({
                 placeholder="https://example.com/my-patch.rauviz"
               />
               <p className="text-xs text-muted-foreground">Usa una URL pública para que tus visitantes puedan cargar la visualización.</p>
+              <p className="text-xs text-muted-foreground">Reacciona automáticamente al audio del reproductor de Rauversion. Agrega una playlist de Rauversion y presiona Play en la vista previa.</p>
             </div>
             <div className="flex items-center justify-between">
               <Label htmlFor="rauviz-controls">Mostrar controles</Label>

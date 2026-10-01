@@ -143,13 +143,13 @@ const variantClasses = {
     meta: "text-sm",
   },
   horizontal: {
-    wrapper: "flex flex-col md:grid md:grid-cols-[minmax(0,18rem)_1fr]",
-    imageWrapper: "h-full",
-    contentWrapper: "p-6 flex flex-col justify-between",
-    title: "text-2xl font-semibold",
-    price: "text-2xl font-semibold",
-    footer: "flex flex-col gap-3 pt-5 sm:flex-row sm:items-center sm:justify-between",
-    meta: "text-sm",
+    wrapper: "flex flex-col @md/product-item:grid @md/product-item:grid-cols-[10rem_minmax(0,1fr)] @md/product-item:items-start",
+    imageWrapper: "min-w-0 w-full self-start",
+    contentWrapper: "min-w-0 p-4 flex flex-col justify-between",
+    title: "line-clamp-2 break-words text-lg font-semibold leading-snug",
+    price: "min-w-0 break-words text-xl font-semibold",
+    footer: "flex flex-wrap items-center justify-between gap-3 pt-4",
+    meta: "truncate text-xs",
   },
   compact: {
     wrapper: "flex flex-col",
@@ -274,6 +274,7 @@ export function ProductItemBlock({ block, isEditing = false }: ProductItemBlockP
     <div
       className={cn(
         "overflow-hidden border transition-all duration-300",
+        variant === "horizontal" && "@container/product-item",
         shadowClasses[shadow],
         hoverClasses[hoverEffect],
         roundedClasses[roundedCorners]
@@ -289,7 +290,10 @@ export function ProductItemBlock({ block, isEditing = false }: ProductItemBlockP
             <img
               src={selectedImageUrl}
               alt={product.title || "Producto"}
-              className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+              className={cn(
+                "h-full w-full object-cover transition-transform duration-500 hover:scale-105",
+                variant === "horizontal" && "absolute inset-0"
+              )}
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center">
@@ -298,7 +302,10 @@ export function ProductItemBlock({ block, isEditing = false }: ProductItemBlockP
           )}
 
           {product.category ? (
-            <div className="absolute left-4 top-4 rounded-full bg-black/65 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
+            <div className={cn(
+              "absolute left-4 top-4 rounded-full bg-black/65 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm",
+              variant === "horizontal" && "left-2 top-2 max-w-[calc(100%-1rem)] truncate px-2"
+            )}>
               {product.category}
             </div>
           ) : null}
@@ -314,22 +321,23 @@ export function ProductItemBlock({ block, isEditing = false }: ProductItemBlockP
 
         <div className={selectedVariant.contentWrapper}>
           <div>
-            <div className={cn("mb-3", selectedVariant.meta)} style={{ color: textColor }}>
+            <div className={cn("mb-3", variant === "horizontal" && "mb-1", selectedVariant.meta)} style={{ color: textColor }}>
               {getUserDisplayName(product.user)}
             </div>
 
-            <div className="mb-3 flex items-start justify-between gap-3">
+            <div className={cn("mb-3 flex items-start justify-between gap-3", variant === "horizontal" && "mb-2 gap-2")}>
               <div className="min-w-0">
                 {productHref ? (
                   <a
                     href={productHref}
                     className={cn("block transition-opacity hover:opacity-80", selectedVariant.title)}
                     style={{ color: titleColor }}
+                    title={variant === "horizontal" ? product.title : undefined}
                   >
                     {product.title}
                   </a>
                 ) : (
-                  <h3 className={selectedVariant.title} style={{ color: titleColor }}>
+                  <h3 className={selectedVariant.title} style={{ color: titleColor }} title={variant === "horizontal" ? product.title : undefined}>
                     {product.title}
                   </h3>
                 )}
@@ -338,7 +346,10 @@ export function ProductItemBlock({ block, isEditing = false }: ProductItemBlockP
               {productHref ? (
                 <a
                   href={productHref}
-                  className="inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:text-foreground"
+                  className={cn(
+                    "inline-flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-full border border-border text-muted-foreground transition-colors hover:text-foreground",
+                    variant === "horizontal" && "h-7 w-7"
+                  )}
                   aria-label="Ver producto"
                 >
                   <ExternalLink className="h-4 w-4" />
@@ -348,7 +359,11 @@ export function ProductItemBlock({ block, isEditing = false }: ProductItemBlockP
 
             {product.description ? (
               <div
-                className={cn("prose prose-sm max-w-none text-foreground/80", variant === "compact" ? "line-clamp-3" : "")}
+                className={cn(
+                  "prose prose-sm max-w-none text-foreground/80",
+                  (variant === "compact" || variant === "horizontal") && "line-clamp-3",
+                  variant === "horizontal" && "break-words leading-5 [&>*]:my-0"
+                )}
                 style={{ color: textColor }}
                 dangerouslySetInnerHTML={{ __html: product.description }}
               />
@@ -360,22 +375,23 @@ export function ProductItemBlock({ block, isEditing = false }: ProductItemBlockP
               {product.formatted_price || product.price}
             </div>
 
-            <div className="flex flex-col gap-3">
+            <div className={cn("flex flex-col gap-3", variant === "horizontal" && "min-w-0 max-w-full")}>
               <Button
                 variant={buttonStyle === "outline" ? "outline" : "default"}
                 onClick={handleAddToCart}
                 disabled={adding || soldOut || isEditing}
                 className={cn(
                   "w-full",
-                  variant === "compact" ? "h-9 text-sm" : "",
+                  (variant === "compact" || variant === "horizontal") && "h-9 text-sm",
+                  variant === "horizontal" && "min-w-0 max-w-full",
                   variant === "elegant" ? "rounded-full px-8 uppercase tracking-[0.2em]" : ""
                 )}
               >
-                {adding ? "Agregando..." : buttonLabel}
+                <span className={variant === "horizontal" ? "truncate" : undefined}>{adding ? "Agregando..." : buttonLabel}</span>
               </Button>
 
               {hasGallery ? (
-                <div className="flex flex-wrap gap-2">
+                <div className={cn("flex flex-wrap gap-2", variant === "horizontal" && "flex-nowrap overflow-x-auto p-1")}>
                   {images.map((image, index) => (
                     <button
                       key={`${image.id || index}`}
@@ -383,6 +399,7 @@ export function ProductItemBlock({ block, isEditing = false }: ProductItemBlockP
                       onClick={() => setSelectedImageIndex(index)}
                       className={cn(
                         "h-12 w-12 overflow-hidden border transition-all",
+                        variant === "horizontal" && "h-10 w-10 shrink-0",
                         roundedClasses[roundedCorners],
                         index === selectedImageIndex ? "border-primary ring-2 ring-primary/20" : "border-border"
                       )}

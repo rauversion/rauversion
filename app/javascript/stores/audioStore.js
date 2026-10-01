@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { resumePlayerAudio } from '../lib/player-audio'
 
 const DEFAULT_VOLUME = 0.9
 
@@ -57,7 +58,10 @@ const useAudioStore = create(
       // Store state setters
       setCurrentTrack: (trackId) => set({ currentTrackId: normalizeTrackId(trackId) }),
       setCurrentTrackMeta: (trackMeta) => set({ currentTrackMeta: trackMeta }),
-      setIsPlaying: (isPlaying) => set({ isPlaying }),
+      setIsPlaying: (isPlaying) => {
+        if (isPlaying) resumePlayerAudio(get().audioElement)
+        set({ isPlaying })
+      },
       setVolume: (volume) => {
         const normalizedVolume = normalizeVolume(volume)
 
@@ -76,9 +80,10 @@ const useAudioStore = create(
       play: (trackId) => {
         const state = get()
         const normalizedTrackId = normalizeTrackId(trackId)
-        if (state.audioElement) {
-          state.audioElement.play()
-        }
+        if (normalizedTrackId !== state.currentTrackId) state.audioElement?.pause()
+        resumePlayerAudio(state.audioElement)
+        // AudioPlayer starts playback after loading the requested track. Calling
+        // play() here would briefly restart the previous song on a track change.
         set({ currentTrackId: normalizedTrackId, isPlaying: true })
       },
       

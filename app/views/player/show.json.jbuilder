@@ -6,6 +6,7 @@ json.track do
   json.preview_duration_seconds @track.preview_duration_seconds
   json.url track_path(@track)
   json.audio_url MediaStreamUrl.for(@track.playback_media) if @track.mp3_audio.attached?
+  json.audio_proxy_url MediaStreamUrl.for(@track.playback_media, proxy: true) if @track.mp3_audio.attached?
   json.description @track.description
   json.artwork_url @track.cover_url(:small)
   json.has_video @track.video.attached?

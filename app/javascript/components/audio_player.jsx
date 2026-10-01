@@ -17,6 +17,7 @@ import {
 import PlayerQueueSheet from "./player_queue_sheet"
 import useTrackLikeAction from "@/hooks/useTrackLikeAction"
 import TrackPreviewBadge from "./tracks/TrackPreviewBadge"
+import { resumePlayerAudio } from "@/lib/player-audio"
 
 const ProgressBar = ({ progress, duration, currentTime, onSeek, formatTime }) => (
   <div className="flex items-center w-full max-w-2xl mx-auto">
@@ -174,6 +175,13 @@ const PlaybackControls = ({ onPrevious, onPlayPause, onNext, isPlaying }) => (
 
 export default function AudioPlayer({ id }) {
   const audioRef = useRef(null);
+  const registerAudio = React.useCallback((audio) => {
+    const previousAudio = audioRef.current;
+    audioRef.current = audio;
+    if (audio || useAudioStore.getState().audioElement === previousAudio) {
+      useAudioStore.getState().setAudioElement(audio);
+    }
+  }, []);
   const previousVolumeRef = useRef(1);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
@@ -189,6 +197,11 @@ export default function AudioPlayer({ id }) {
   const setCurrentTrackMeta = useAudioStore((state) => state.setCurrentTrackMeta);
   const setStoredVolume = useAudioStore((state) => state.setVolume);
   const [playerData, setPlayerData] = useState(null);
+  const [failedAudioUrl, setFailedAudioUrl] = useState(null);
+  const audioUrl = playerData?.track?.audio_url;
+  const playbackUrl = audioUrl && failedAudioUrl === audioUrl
+    ? playerData?.track?.audio_proxy_url || audioUrl
+    : audioUrl;
   const activeTrackId = currentTrackId ?? id;
   const isMuted = volume === 0;
 
@@ -271,7 +284,7 @@ export default function AudioPlayer({ id }) {
 
     audio.volume = volume;
     audio.muted = isMuted;
-  }, [volume, isMuted, playerData?.track?.audio_url]);
+  }, [volume, isMuted, playbackUrl]);
 
   useEffect(() => {
     if (isPlaying) {
@@ -334,7 +347,7 @@ export default function AudioPlayer({ id }) {
       audio.removeEventListener("loadeddata", handleLoadedData);
       audio.removeEventListener("ended", handleEnded);
     };
-  }, [activeTrackId, volume]);
+  }, [activeTrackId, volume, playbackUrl, playerData?.track?.id]);
 
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
@@ -382,9 +395,9 @@ export default function AudioPlayer({ id }) {
     if (!audioRef.current || !activeTrackId) return;
 
     if (audioRef.current.paused) {
-      useAudioStore.setState({ currentTrackId: activeTrackId, isPlaying: true });
+      useAudioStore.getState().play(activeTrackId);
     } else {
-      useAudioStore.setState({ isPlaying: false });
+      useAudioStore.getState().pause();
     }
   };
 
@@ -444,12 +457,19 @@ export default function AudioPlayer({ id }) {
     ) return;
 
     try {
+      resumePlayerAudio(audioRef.current);
       const playPromise = audioRef.current.play();
       if (playPromise !== undefined) {
         await playPromise;
         useAudioStore.setState({ isPlaying: true });
       }
     } catch (error) {
+      // A source change (including the CORS fallback) cancels a pending play.
+      if (error.name === "AbortError") return;
+      if (audioRef.current?.error && audioUrl && failedAudioUrl !== audioUrl && playerData?.track?.audio_proxy_url) {
+        setFailedAudioUrl(audioUrl);
+        return;
+      }
       console.error("Error playing audio:", error);
       useAudioStore.setState({ isPlaying: false });
     }
@@ -663,8 +683,16 @@ export default function AudioPlayer({ id }) {
         </div>
 
         <audio
-          ref={audioRef}
-          src={playerData?.track?.audio_url}
+          ref={registerAudio}
+          crossOrigin="anonymous"
+          src={playbackUrl}
+          onError={() => {
+            // Storage without CORS can still play and be analysed via Rails.
+            // Retry once per URL, leaving the normal CDN path as the default.
+            if (audioUrl && failedAudioUrl !== audioUrl && playerData?.track?.audio_proxy_url) {
+              setFailedAudioUrl(audioUrl);
+            }
+          }}
           data-track-id={id}
           id="audioElement"
         />
