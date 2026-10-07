@@ -82,7 +82,17 @@ STRIPE_CLIENT_ID=
 STRIPE_CLIENT_SECRET=
 STRIPE_SIGNING_SECRET=
 STRIPE_SIGNING_SECRET_ACC=
+PLATFORM_MARKETPLACE_FEE=8
+STRIPE_PRODUCT_PROCESSING_FEE_PERCENTAGE=2.9
+STRIPE_PRODUCT_PROCESSING_FIXED_FEE_USD=0.30
 ```
+
+Product Checkout deducts an estimated processing cost from the seller through
+Stripe's automatic distribution. `PLATFORM_MARKETPLACE_FEE` controls the separate
+Rauversion service commission and defaults to 8%. Fixed processing estimates in
+other currencies use `STRIPE_PRODUCT_PROCESSING_FIXED_FEE_<CURRENCY>` in major
+units; non-USD currencies default to a percentage-only estimate. Ticket fee
+settings are unchanged. See [product Stripe fees](product-stripe-settlement.md).
 
 ### Auth Credentials
 

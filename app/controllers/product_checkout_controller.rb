@@ -8,43 +8,37 @@ class ProductCheckoutController < ApplicationController
       return render json: { error: I18n.t("courses.enrollment_form.use_course_checkout") }, status: :unprocessable_entity
     end
 
+    result = nil
     ActiveRecord::Base.transaction do
       @purchase = current_user.product_purchases.create(
         total_amount: @cart.total_price,
         status: :pending
       )
 
-      provider = payment_provider.new(
+      provider_options = {
         cart: @cart,
         user: current_user,
         purchase: @purchase
-      )
+      }
+      provider_options[:shipping_country] = params[:shipping_country] if payment_provider == PaymentProviders::StripeProvider
+      provider = payment_provider.new(**provider_options)
 
       result = provider.create_checkout_session(promo_code: params[:promo_code])
 
       Rails.logger.info "Checkout session result: #{result.inspect}"
       raise ActiveRecord::Rollback if result[:error].present?
-      
-      if result[:error].present?
-        respond_to do |format|
-          format.html { redirect_to "/product_cart", notice: result[:error] }
-          format.json { render json: { error: result[:error] }, status: :unprocessable_entity }
-        end
-        return
+    end
+
+    if result[:error].present?
+      respond_to do |format|
+        format.html { redirect_to "/product_cart", notice: result[:error] }
+        format.json { render json: { error: result[:error] }, status: :unprocessable_entity }
       end
-      
+    else
       respond_to do |format|
         format.html { redirect_to result[:checkout_url], allow_other_host: true }
         format.json { render json: { checkout_url: result[:checkout_url] } }
       end
-
-    #rescue => e
-    #  Rails.logger.error "Checkout session result: #{e.message}"
-    #
-    #  respond_to do |format|
-    #    format.html { redirect_to "/product_cart", notice: result[:error] }
-    #    format.json { render json: { error: result[:error] }, status: :unprocessable_entity }
-    #  end
     end
   end
 

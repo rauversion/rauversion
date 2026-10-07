@@ -23,6 +23,16 @@
         Total: <%= cart_currencies.one? ? formatted_product_price(@cart.total_price, cart_currencies.first) : @cart.total_price %>
       </p>
       <%= form_tag product_checkout_index_path, method: :post, data: {turbo: false } do %>
+        <% shipping_costs = @cart.shipping_costs_by_country %>
+        <% if ENV["DEFAULT_PAYMENT_GATEWAY"] != "mercado_pago" && shipping_costs.values.uniq.size > 1 %>
+          <div class="mb-4">
+            <%= label_tag :shipping_country, t("products.cart.shipping_country") %>
+            <%= select_tag :shipping_country,
+              options_for_select(shipping_costs.map { |country, amount| ["#{country} — #{formatted_product_price(amount, cart_currencies.first)}", country] }),
+              prompt: t("products.cart.choose_shipping_country"), required: true,
+              class: "block rounded-md border border-input bg-background p-2" %>
+          </div>
+        <% end %>
         <div class="w-36">
           <%= label_tag :promo_code %>
           <%= text_field_tag :promo_code %>

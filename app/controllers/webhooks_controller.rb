@@ -48,7 +48,16 @@ class WebhooksController < ApplicationController
     when "checkout.session.completed"
       confirm_stripe_purchase(event.data.object)
     when "checkout.session.async_payment_succeeded"
-      Courses::FulfillStripeCheckout.call(event.data.object) if event.data.object.metadata.source_type == "course"
+      if event.data.object.metadata.source_type == "course"
+        Courses::FulfillStripeCheckout.call(event.data.object)
+      elsif event.data.object.metadata.source_type == "product"
+        confirm_stripe_purchase(event.data.object)
+      end
+    when "checkout.session.async_payment_failed"
+      if event.data.object.metadata.source_type == "product"
+        purchase = ProductPurchase.find_by(id: event.data.object.metadata.purchase_id)
+        purchase.update!(status: :failed) if purchase&.pending?
+      end
     when "charge.refunded"
       handle_stripe_refund(event.data.object)
     when "payment_method.attached"
@@ -192,7 +201,7 @@ class WebhooksController < ApplicationController
         # Enqueue webhook worker for mail, service booking, and conversation
         WebhookWorkerJob.perform_later(@purchase.id)
       else
-        @purchase.update(status: :failed)
+        return
       end
     end
   end

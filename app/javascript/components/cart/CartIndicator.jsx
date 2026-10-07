@@ -34,8 +34,12 @@ export function CartIndicator() {
   const { cart, loading, error, fetchCart, clearError, openOnAdd, clearOpenOnAdd } = useCartStore()
   const { toast } = useToast()
   const [open, setOpen] = useState(false)
+  const [shippingCountry, setShippingCountry] = useState('')
   const items = Array.isArray(cart?.items) ? cart.items : []
   const itemCount = items.reduce((total, item) => total + itemQuantity(item), 0)
+  const shippingOptions = cart?.shipping_options || []
+  const selectedShippingCountry = shippingOptions.some((option) => option.country === shippingCountry) ? shippingCountry : ''
+  const countryNames = new Intl.DisplayNames([I18n.locale || 'en'], { type: 'region' })
 
   useEffect(() => {
     fetchCart()
@@ -159,11 +163,33 @@ export function CartIndicator() {
                 <span>{I18n.t('products.cart.total')}</span>
                 <span className="font-medium">{cart?.total_price}</span>
               </div>
+              {cart?.shipping_country_required && (
+                <div className="space-y-2 mb-4">
+                  <label htmlFor="cart-shipping-country" className="text-sm font-medium">
+                    {I18n.t('products.cart.shipping_country')}
+                  </label>
+                  <select
+                    id="cart-shipping-country"
+                    className="w-full rounded-md border border-input bg-background p-2 text-sm"
+                    value={selectedShippingCountry}
+                    onChange={(event) => setShippingCountry(event.target.value)}
+                    onKeyDown={(event) => event.stopPropagation()}
+                    disabled={loading}
+                  >
+                    <option value="">{I18n.t('products.cart.choose_shipping_country')}</option>
+                    {shippingOptions.map((option) => (
+                      <option key={option.country} value={option.country}>
+                        {countryNames.of(option.country)} — {option.formatted_amount}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <div className="space-y-2">
                 <Button
                   className="w-full"
-                  onClick={() => useCartStore.getState().checkout()}
-                  disabled={loading}
+                  onClick={() => useCartStore.getState().checkout(cart?.shipping_country_required ? selectedShippingCountry : undefined)}
+                  disabled={loading || (cart?.shipping_country_required && !selectedShippingCountry)}
                 >
                   {loading ? I18n.t('products.cart.processing') : I18n.t('products.cart.checkout')}
                 </Button>

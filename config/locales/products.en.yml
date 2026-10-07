@@ -7,6 +7,9 @@ en:
       removed: "Item successfully removed from your cart"
       failed_removed: "Failed to remove item from your cart"
       failed_checkout_session: "Failed to create checkout session"
+      shipping_country: "Shipping country"
+      choose_shipping_country: "Choose a shipping country"
+      shipping_unavailable: "Shipping is not available for this country"
     conditions:
       new: New
       like_new: As new

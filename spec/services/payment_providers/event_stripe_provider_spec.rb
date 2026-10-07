@@ -27,6 +27,20 @@ RSpec.describe PaymentProviders::EventStripeProvider, type: :service do
       allow(Stripe::Checkout::Session).to receive(:create).and_return(stripe_session)
     end
 
+    it "keeps destination charges so the platform continues to pay ticket processing fees" do
+      user.update!(stripe_account_id: "acct_event_seller")
+      event.update!(custom_fee: 10)
+
+      provider.create_checkout_session
+
+      expect(Stripe::Checkout::Session).to have_received(:create).with(hash_including(
+        payment_intent_data: {
+          application_fee_amount: 1_000,
+          transfer_data: { destination: "acct_event_seller" }
+        }
+      ))
+    end
+
     it "enables Stripe automatic tax for ticket checkout" do
       provider.create_checkout_session
 

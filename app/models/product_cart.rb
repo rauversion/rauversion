@@ -16,4 +16,13 @@ class ProductCart < ApplicationRecord
   def total_price
     product_cart_items.sum { |item| item.total_price }
   end
+
+  def shipping_costs_by_country
+    product_cart_items.includes(product: :product_shippings).each_with_object({}) do |item, totals|
+      item.product.product_shippings.each do |shipping|
+        cost = shipping.base_cost.to_d + (item.quantity - 1) * shipping.additional_cost.to_d
+        totals[shipping.country] = totals.fetch(shipping.country, 0.to_d) + cost
+      end
+    end
+  end
 end

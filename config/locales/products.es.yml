@@ -7,6 +7,9 @@ es:
       removed: "Artículo eliminado de tu carrito"
       failed_removed: "Error al eliminar el artículo de tu carrito"
       failed_checkout_session: "Error al crear la sesión de pago"
+      shipping_country: "País de envío"
+      choose_shipping_country: "Selecciona el país de envío"
+      shipping_unavailable: "El envío no está disponible para ese país"
 
     conditions:
       new: Nuevo

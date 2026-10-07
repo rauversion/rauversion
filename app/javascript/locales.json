@@ -2861,6 +2861,7 @@
       "cart": {
         "added": "Item successfully added to your cart",
         "checkout": "Pay",
+        "choose_shipping_country": "Choose a shipping country",
         "empty": "Your cart is empty",
         "error": "Error",
         "failed": "Failed to add item to your cart",
@@ -2869,6 +2870,8 @@
         "processing": "Processing...",
         "remove": "Delete",
         "removed": "Item successfully removed from your cart",
+        "shipping_country": "Shipping country",
+        "shipping_unavailable": "Shipping is not available for this country",
         "sr_label": "Shopping cart",
         "title": "Shopping Cart",
         "total": "Total",
@@ -8471,6 +8474,7 @@
       "cart": {
         "added": "Artículo agregado a tu carrito",
         "checkout": "Pagar",
+        "choose_shipping_country": "Selecciona el país de envío",
         "empty": "Tu carrito está vacío",
         "error": "Error",
         "failed": "Error al agregar el artículo a tu carrito",
@@ -8479,6 +8483,8 @@
         "processing": "Procesando...",
         "remove": "Eliminar",
         "removed": "Artículo eliminado de tu carrito",
+        "shipping_country": "País de envío",
+        "shipping_unavailable": "El envío no está disponible para ese país",
         "sr_label": "Carrito de compras",
         "title": "Carrito de Compras",
         "total": "Total",

@@ -115,10 +115,12 @@ const useCartStore = create((set, get) => ({
     }
   },
 
-  checkout: async () => {
+  checkout: async (shippingCountry) => {
     set({ loading: true })
     try {
-      const response = await post('/product_checkout.json')
+      const response = await post('/product_checkout.json', {
+        body: JSON.stringify({ shipping_country: shippingCountry || null })
+      })
       if (response.ok) {
         const data = await response.json
         if (data.checkout_url) {
@@ -127,11 +129,13 @@ const useCartStore = create((set, get) => ({
           throw new Error('No checkout URL received')
         }
       } else {
-        set({ error: 'Failed to create checkout session' })
+        const data = await response.json
+        const message = data.error || I18n.t("products.cart.failed_checkout_session")
+        set({ error: message })
         toast({
           variant: "destructive",
           title: "Error",
-          description: I18n.t("products.cart.failed_checkout_session")
+          description: message
         })
       }
     } catch (error) {

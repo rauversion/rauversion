@@ -1,10 +1,14 @@
 module PaymentProviders
   class StripeProvider < BaseProvider
-    attr_reader :purchasable, :price_param
+    class InvalidFeeConfiguration < StandardError; end
+    class InvalidShippingSelection < StandardError; end
 
-    def initialize(user:, purchasable: nil, price_param: nil, cart: nil, purchase: nil)
+    attr_reader :purchasable, :price_param, :shipping_country
+
+    def initialize(user:, purchasable: nil, price_param: nil, cart: nil, purchase: nil, shipping_country: nil)
       @purchasable = purchasable
       @price_param = price_param
+      @shipping_country = shipping_country.to_s.upcase.presence
       super(user: user, cart: cart, purchase: purchase)
     end
 
@@ -12,15 +16,16 @@ module PaymentProviders
       return { error: "Cart is empty" } unless validate_cart!
       return { error: "Cart contains products with multiple currencies" } unless validate_single_currency!
       return { error: "Invalid promo code" } unless validate_promo_code!(promo_code)
-
-      purchase.update(currency: cart_currency) if purchase.respond_to?(:currency=)
-      checkout_params = build_checkout_params(promo_code)
+      return { error: "Products must belong to a single connected Stripe seller" } unless validate_single_seller!
 
       begin
-        session = Stripe::Checkout::Session.create(checkout_params)
+        checkout_params = build_checkout_params(promo_code)
+        purchase.update!(currency: cart_currency)
+        client = Stripe::StripeClient.new(api_key: ENV["STRIPE_CLIENT_SECRET"])
+        session, = client.request { Stripe::Checkout::Session.create(checkout_params) }
         purchase.update(stripe_session_id: session.id)
         { checkout_url: session.url }
-      rescue Stripe::InvalidRequestError => e
+      rescue Stripe::InvalidRequestError, InvalidFeeConfiguration, InvalidShippingSelection => e
         { error: e.message }
       end
     end
@@ -122,19 +127,34 @@ module PaymentProviders
     end
     
     def build_checkout_params(promo_code)
-      # TODO: handle multiple connected user products in cart
-      connected_accounts = cart.products.map{|o| o.user.stripe_account_id}
-      connected_account_id = connected_accounts.first
       currency = cart_currency
-      fee_amount = stripe_amount(platform_fee_for(cart.total_price), currency)
-
-      #return render json: {
-      #  error: "Multiple connected accounts not supported"
-      #}, status: 422 if connected_accounts.size > 1
+      shipping_options = selected_shipping_options
+      shipping_amount = shipping_options.first&.dig(:shipping_rate_data, :fixed_amount, :amount) || 0
+      fee_amount = stripe_amount(cart.total_price.to_d * marketplace_fee_rate, currency)
+      product_line_items = build_line_items
+      subtotal = product_line_items.sum { |item| item[:price_data][:unit_amount] * item[:quantity] }
+      estimated_total = discounted_checkout_total(subtotal + fee_amount, promo_code, currency) + shipping_amount
+      processing_fee_amount = estimated_processing_fee(estimated_total, currency)
+      application_fee_amount = [fee_amount + processing_fee_amount, estimated_total].min
+      fee_metadata = {
+        processing_fee_payer: "seller",
+        processing_fee_model: "estimated",
+        service_fee_amount: fee_amount,
+        estimated_processing_fee_amount: processing_fee_amount,
+        shipping_fee_amount: shipping_amount,
+        processing_fee_base_amount: estimated_total
+      }
 
       params = {
-        payment_method_types: ['card'],
-        line_items: build_line_items + build_service_fee_line_items(fee_amount, currency, "product"),
+        line_items: product_line_items + build_service_fee_line_items(fee_amount, currency, "product"),
+        payment_intent_data: {
+          application_fee_amount: application_fee_amount,
+          transfer_data: { destination: connected_account_id },
+          metadata: {
+            purchase_id: purchase.id,
+            source_type: "product"
+          }.merge(fee_metadata)
+        },
         mode: 'payment',
         success_url: success_url(purchase_id: purchase.id),
         cancel_url: cancel_url,
@@ -145,30 +165,80 @@ module PaymentProviders
           purchase_id: purchase.id,
           cart_id: cart.id,
           source_type: "product"
-        },
-        shipping_address_collection: {
-          allowed_countries: shipping_countries
-        },
+        }.merge(fee_metadata),
         phone_number_collection: {
           enabled: true
-        },
-        shipping_options: generate_shipping_options
+        }
       }
+
+      if shipping_options.any?
+        params[:shipping_address_collection] = {
+          allowed_countries: shipping_country.present? ? [shipping_country] : cart.shipping_costs_by_country.keys
+        }
+        params[:shipping_options] = shipping_options
+      end
     
       if promo_code.present?
         params.merge!(discounts: [{ coupon: promo_code }])
       end
     
-      if connected_account_id.present?
-        params[:payment_intent_data] = {
-          application_fee_amount: fee_amount,
-          transfer_data: {
-            destination: connected_account_id
-          }
-        }
-      end
-    
       params
+    end
+
+    def marketplace_fee_rate
+      percentage = BigDecimal((ENV["PLATFORM_MARKETPLACE_FEE"].presence || "8").to_s)
+      unless percentage.finite? && percentage >= 0 && percentage <= 100
+        raise InvalidFeeConfiguration, "Invalid marketplace fee percentage"
+      end
+
+      percentage / 100
+    rescue ArgumentError
+      raise InvalidFeeConfiguration, "Invalid marketplace fee percentage"
+    end
+
+    def estimated_processing_fee(total, currency)
+      return 0 unless total.positive?
+
+      # Baseline: US domestic card pricing. Other currencies use the percentage
+      # estimate unless a fixed fee in their own currency is configured.
+      percentage = BigDecimal(ENV.fetch("STRIPE_PRODUCT_PROCESSING_FEE_PERCENTAGE", "2.9").to_s)
+      fixed_default = currency == "usd" ? "0.30" : "0"
+      fixed = BigDecimal(ENV.fetch("STRIPE_PRODUCT_PROCESSING_FIXED_FEE_#{currency.upcase}", fixed_default).to_s)
+      unless percentage.finite? && fixed.finite? && percentage >= 0 && percentage < 100 && fixed >= 0
+        raise InvalidFeeConfiguration, "Invalid Stripe product processing fee estimate"
+      end
+
+      (total * percentage / 100).round.to_i + stripe_amount(fixed, currency)
+    rescue ArgumentError
+      raise InvalidFeeConfiguration, "Invalid Stripe product processing fee estimate"
+    end
+
+    def discounted_checkout_total(total, promo_code, currency)
+      return total if promo_code.blank?
+
+      coupon = cart.products.first.coupon
+      discount = if coupon.percentage?
+        (total * coupon.discount_amount.to_d / 100).round.to_i
+      elsif currency == "usd"
+        stripe_amount(coupon.discount_amount, currency)
+      else
+        # Fixed-amount coupons currently use USD in Coupon#create_stripe_coupon.
+        raise InvalidFeeConfiguration, "Fixed-amount product coupons require USD"
+      end
+
+      [total - discount, 0].max
+    end
+
+    def connected_accounts
+      @connected_accounts ||= cart.products.includes(:user).map { |product| product.user.stripe_account_id }.uniq
+    end
+
+    def connected_account_id
+      connected_accounts.first
+    end
+
+    def validate_single_seller!
+      connected_accounts.one? && connected_account_id.present?
     end
 
     def build_service_fee_line_items(fee_amount, currency, source_type)
@@ -205,66 +275,33 @@ module PaymentProviders
       end
     end
 
-    def shipping_countries
-      cart.product_cart_items.map(&:product).flat_map do |product|
-        product.product_shippings.pluck(:country)
-      end.uniq
-    end
-
-    def generate_shipping_options
-      # Aggregate shipping costs per country
-      country_shipping_totals = {}
-      currency = cart_currency
-
-      cart.product_cart_items.each do |item|
-        product = item.product
-        quantity = item.quantity
-
-        product.product_shippings.each do |shipping|
-          country = shipping.country
-          base_cost = shipping.base_cost.to_f
-          additional_cost = shipping.additional_cost.to_f
-
-          # Calculate shipping for this product/quantity
-          total_cost = if quantity > 1
-            base_cost + (quantity - 1) * additional_cost
-          else
-            base_cost
-          end
-
-          total_cost_amount = stripe_amount(total_cost, currency)
-
-          # Aggregate per country
-          if country_shipping_totals[country]
-            country_shipping_totals[country][:amount] += total_cost_amount
-          else
-            country_shipping_totals[country] = {
-              amount: total_cost_amount,
-              delivery_estimate: {
-                minimum: { unit: 'business_day', value: 5 },
-                maximum: { unit: 'business_day', value: 10 }
-              }
-            }
-          end
+    def selected_shipping_options
+      costs = cart.shipping_costs_by_country
+      if shipping_country.present?
+        unless costs.key?(shipping_country)
+          raise InvalidShippingSelection, I18n.t("products.cart.shipping_unavailable")
         end
+        costs = costs.slice(shipping_country)
+      elsif costs.values.uniq.size > 1
+        raise InvalidShippingSelection, I18n.t("products.cart.choose_shipping_country")
       end
 
-      # Build Stripe shipping options
-      shipping_options = country_shipping_totals.map do |country, data|
+      costs.map do |country, cost|
         {
           shipping_rate_data: {
             type: 'fixed_amount',
             fixed_amount: {
-              amount: data[:amount],
-              currency: currency
+              amount: stripe_amount(cost, cart_currency),
+              currency: cart_currency
             },
             display_name: "Shipping to #{country}",
-            delivery_estimate: data[:delivery_estimate]
+            delivery_estimate: {
+              minimum: { unit: 'business_day', value: 5 },
+              maximum: { unit: 'business_day', value: 10 }
+            }
           }
         }
       end
-
-      shipping_options
     end
 
     def validate_single_currency!
