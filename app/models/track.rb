@@ -14,7 +14,7 @@ class Track < ApplicationRecord
   has_many :artists, through: :track_artists, source: :user
 
   has_many :track_comments
-  has_many :track_playlists
+  has_many :track_playlists, dependent: :destroy
   has_many :playlists, through: :track_playlists
   has_many :track_masters, dependent: :destroy
   has_many :listening_events
@@ -151,6 +151,8 @@ class Track < ApplicationRecord
 
   # Example method to call cropped_image with specific attributes
   def cropped_image(fallback: :horizontal)
+    return cover_url(:large) unless cover.attached?
+
     cropped_image_setup(attached_attribute: :cover, crop_data_attribute: :crop_data, fallback: fallback)
   end
 
@@ -243,6 +245,8 @@ class Track < ApplicationRecord
   end
 
   def cover_url(size = nil)
+    return user.avatar_url(size == :original ? :large : size) unless cover.attached?
+
     url = case size
     when :medium
       cover.variant(resize_to_limit: [200, 200])
