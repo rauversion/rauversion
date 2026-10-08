@@ -3,6 +3,7 @@ json.track do
   json.title @track.title
   json.description @track.description
   json.private @track.private
+  json.can_edit @track.editable_by?(current_user)
   json.slug @track.slug
   json.caption @track.caption
   json.notification_settings @track.notification_settings

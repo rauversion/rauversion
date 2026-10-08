@@ -36,6 +36,12 @@ class Track < ApplicationRecord
    self.label_id = Current.label_user.id if enable_label && Current.label_user 
   end
 
+  def editable_by?(user)
+    return false if user.blank? || Current.tenant.blank? || tenant_id != Current.tenant.id
+
+    user_id == user.id || (user.label? && label_id == user.id)
+  end
+
   has_one_attached :cover
   has_one_attached :audio
   has_one_attached :video

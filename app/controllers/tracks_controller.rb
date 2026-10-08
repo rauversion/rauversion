@@ -1,6 +1,7 @@
 class TracksController < ApplicationController
   before_action :authenticate_user!, except: [:index, :by_id, :dj_sets, :show, :private_access, :appears_on]
   before_action :check_activated_account, only: [:new, :create, :update, :delete]
+  before_action :load_editable_track, only: [:edit, :update, :source_metadata]
 
   layout :layout_by_resource
 
@@ -94,15 +95,14 @@ class TracksController < ApplicationController
   end
 
   def edit
-    @track = current_user.tracks.for_tenant.friendly.find(params[:id])
     @tab = params[:tab] || "basic-info-tab"
     @track.tab = @tab
   end
 
-  # Resolve legacy/missing source metadata only for the artist editing the
+  # Resolve legacy/missing source metadata only for users who can edit the
   # track. Public serializers never download or analyze the original.
   def source_metadata
-    track = current_user.tracks.for_tenant.friendly.find(params[:id])
+    track = @track
     response.headers["Cache-Control"] = "private, no-store"
 
     begin
@@ -124,7 +124,6 @@ class TracksController < ApplicationController
   end
 
   def update
-    @track = current_user.tracks.for_tenant.friendly.find(params[:id])
     @tab = params[:track][:tab] || "basic-info-tab"
     @track.assign_attributes(track_params)
     if params[:track][:artist_ids]
@@ -208,6 +207,11 @@ class TracksController < ApplicationController
   end
 
   private
+
+  def load_editable_track
+    @track = Track.for_tenant.friendly.find(params[:id])
+    raise ActiveRecord::RecordNotFound unless @track.editable_by?(current_user)
+  end
 
   def load_discovery(scope:)
     discovery = TracksDiscoveryQuery.new(

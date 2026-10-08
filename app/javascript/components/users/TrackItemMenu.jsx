@@ -112,6 +112,7 @@ export default function TrackItemMenu({ track }) {
   }
 
   const isOwner = currentUser && currentUser.id === track.user.id
+  const canEdit = currentUser && track.can_edit
 
   return (
     <>
@@ -156,25 +157,25 @@ export default function TrackItemMenu({ track }) {
                   Add to Playlist
                 </DropdownMenuItem>
               )}
+              {canEdit && (
+                <DropdownMenuItem onClick={() => setEditDialogOpen(true)} className="flex items-center gap-2">
+                  <Pencil className="w-4 h-4" />
+                  Edit
+                </DropdownMenuItem>
+              )}
               {isOwner && (
-                <>
-                  <DropdownMenuItem onClick={() => setEditDialogOpen(true)} className="flex items-center gap-2">
-                    <Pencil className="w-4 h-4" />
-                    Edit
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleDelete}
-                    className="flex items-center gap-2 text-destructive">
-                    <Trash2 className="w-4 h-4" />
-                    Delete
-                  </DropdownMenuItem>
-                </>
+                <DropdownMenuItem onClick={handleDelete}
+                  className="flex items-center gap-2 text-destructive">
+                  <Trash2 className="w-4 h-4" />
+                  Delete
+                </DropdownMenuItem>
               )}
             </DropdownMenuContent>
           </DropdownMenu>
         )}
       </div>
 
-      <TrackEdit track={track} open={editDialogOpen} onOpenChange={setEditDialogOpen} />
+      {canEdit && <TrackEdit track={track} canDelete={isOwner} open={editDialogOpen} onOpenChange={setEditDialogOpen} />}
       <AddToPlaylist track={track} open={addToPlaylistOpen} onOpenChange={setAddToPlaylistOpen} />
     </>
   )

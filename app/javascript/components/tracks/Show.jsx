@@ -92,7 +92,7 @@ export default function TrackShow() {
 
   useEffect(() => {
     fetchTrack()
-  }, [slug])
+  }, [slug, currentUser?.id])
 
   const handleProcessingEvent = useCallback((data) => {
     if (data?.type !== "track_processing" || !data.track) return
@@ -113,6 +113,7 @@ export default function TrackShow() {
   const ownsTrack =
     Boolean(currentUser?.id && track?.user?.id) &&
     `${currentUser.id}` === `${track.user.id}`
+  const canEditTrack = Boolean(currentUser && track?.can_edit)
 
   useEffect(() => {
     if (!processingActive || !ownsTrack) return undefined
@@ -458,7 +459,7 @@ export default function TrackShow() {
           )}
 
           {/* Edit Button */}
-          {currentUser?.id === track.user.id && (
+          {canEditTrack && (
             <Button
               variant="ghost"
               size="icon"
@@ -605,9 +606,10 @@ export default function TrackShow() {
         </div>
       </div>
 
-      {track && currentUser?.id === track.user.id && (
+      {track && canEditTrack && (
         <TrackEdit
           track={track}
+          canDelete={ownsTrack}
           open={editOpen}
           onOpenChange={setEditOpen}
           onOk={fetchTrack}

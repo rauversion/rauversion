@@ -140,7 +140,7 @@
         <div class="hidden absolute right-0 z-10 mt-2 w-56 origin-top-right divide-y divide-muted rounded-md bg-default shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none" role="menu" aria-orientation="vertical" aria-labelledby="menu-button" tabindex="-1" data-dropdown-target="menu" classsss="hidden transition transform origin-top-right absolute right-0" data-transition-enter-from="opacity-0 scale-95" data-transition-enter-to="opacity-100 scale-100" data-transition-leave-from="opacity-100 scale-100" data-transition-leave-to="opacity-0 scale-95">
           <div class="py-1" role="none">
             
-            <% if user_signed_in? && track.user_id == current_user.id %>
+            <% if track.editable_by?(current_user) %>
               <%= link_to edit_track_path(track), class: "flex items-center space-x-2 text-gray-700 dark:text-gray-300 block px-4 py-2 text-sm",
                 "data-turbo-frame": "_top" do %>
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
@@ -148,8 +148,9 @@
                 </svg>
                 <span><%= t("tracks.edit") %></span>
               <% end %>
-            
+            <% end %>
 
+            <% if user_signed_in? && track.user_id == current_user.id %>
               <div data-turbo="true">
                 <%= turbo_frame_tag "track-#{track.id}-delete" do %>
                   <%= button_to track_path(track), 

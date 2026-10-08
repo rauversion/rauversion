@@ -48,7 +48,7 @@ import TrackPreviewForm from "@/components/tracks/TrackPreviewForm"
 import { trackPreviewSettings } from "@/lib/track-preview-settings"
 import I18n from 'stores/locales'
 
-export default function TrackEdit({ track: initialTrack, open, onOpenChange, onOk }) {
+export default function TrackEdit({ track: initialTrack, open, onOpenChange, onOk, canDelete = true }) {
   const { toast } = useToast()
   const { isDarkMode } = useThemeStore()
   const navigate = useNavigate()
@@ -579,8 +579,8 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
           </div>
 
           <div className="border-t p-6 mt-auto">
-            <div className="flex justify-between items-center">
-              <AlertDialog>
+            <div className="flex justify-between items-center gap-4">
+              {canDelete && <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="destructive">
                     {I18n.t('tracks.edit.delete.button')}
@@ -600,9 +600,9 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
-              </AlertDialog>
+              </AlertDialog>}
 
-              <Button type="submit" disabled={saving || videoUploading}>
+              <Button type="submit" className="ml-auto" disabled={saving || videoUploading}>
                 {I18n.t('tracks.edit.dialog.save')}
               </Button>
             </div>
