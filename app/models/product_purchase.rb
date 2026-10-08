@@ -9,6 +9,8 @@ class ProductPurchase < ApplicationRecord
 
   store_accessor :shipping_address, :line1, :line2, :city, :state, :postal_code, :country
 
+  enum :delivery_method, { shipping: "shipping", local_pickup: "local_pickup" }, prefix: :delivery
+
   scope :for_seller, ->(user) {
     joins(product_purchase_items: :product)
       .where(products: { user_id: user.seller_account_ids })

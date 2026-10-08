@@ -2,6 +2,7 @@ json.purchase do
   json.id @purchase.id
   json.status @purchase.status
   json.shipping_status @purchase.shipping_status
+  json.delivery_method @purchase.delivery_method
   json.total_amount @purchase.total_amount
   json.currency @purchase.currency
   json.formatted_total formatted_product_price(@purchase.total_amount, @purchase.currency)

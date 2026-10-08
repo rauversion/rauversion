@@ -52,6 +52,7 @@ export default function MusicForm({ product, isEditing = false }) {
       status: product?.status || "active",
       limited_edition: product?.limited_edition || false,
       limited_edition_count: product?.limited_edition_count || "",
+      allow_pickup: product?.allow_pickup ?? false,
       shipping_days: product?.shipping_days || "",
       shipping_begins_on: product?.shipping_begins_on || "",
       visibility: product?.visibility || "public",

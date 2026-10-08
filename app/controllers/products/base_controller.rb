@@ -25,7 +25,7 @@ module Products
       permitted = params.require(:product).permit(
         :title, :coupon_id,
         :limited_edition, :limited_edition_count, :include_digital_album, :visibility, 
-        :name_your_price, :shipping_days, :shipping_begins_on, :shipping_within_country_price, 
+        :name_your_price, :allow_pickup, :shipping_days, :shipping_begins_on, :shipping_within_country_price,
         :shipping_worldwide_price, :quantity, :playlist_id,
         :title, :description, :price, :currency, :sku, :category, :status, :stock_quantity,
         :condition, :brand, :model, :year, :accept_barter, :barter_description,

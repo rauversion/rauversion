@@ -115,11 +115,11 @@ const useCartStore = create((set, get) => ({
     }
   },
 
-  checkout: async (shippingCountry) => {
+  checkout: async (shippingCountry, deliveryMethod = 'shipping') => {
     set({ loading: true })
     try {
       const response = await post('/product_checkout.json', {
-        body: JSON.stringify({ shipping_country: shippingCountry || null })
+        body: JSON.stringify({ shipping_country: shippingCountry || null, delivery_method: deliveryMethod })
       })
       if (response.ok) {
         const data = await response.json

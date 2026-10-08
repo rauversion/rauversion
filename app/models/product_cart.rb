@@ -25,4 +25,15 @@ class ProductCart < ApplicationRecord
       end
     end
   end
+
+  def pickup_available?
+    items = product_cart_items.includes(product: :product_shippings).to_a
+    items.any? && items.all? { |item| item.product.allow_pickup? }
+  end
+
+  def requires_pickup?
+    product_cart_items.includes(product: :product_shippings).any? do |item|
+      item.product.is_a?(Products::PhysicalProduct) && item.product.product_shippings.empty?
+    end
+  end
 end

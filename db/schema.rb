@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_07_170000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
@@ -886,6 +886,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_170000) do
   create_table "product_purchases", force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "currency", default: "usd", null: false
+    t.string "delivery_method", default: "shipping", null: false
     t.string "payment_intent_id"
     t.string "phone"
     t.jsonb "shipping_address"
@@ -925,6 +926,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_07_170000) do
 
   create_table "products", force: :cascade do |t|
     t.boolean "accept_barter", default: false
+    t.boolean "allow_pickup", default: false, null: false
     t.text "barter_description"
     t.string "booking_mode", default: "instant_checkout", null: false
     t.string "brand"

@@ -58,5 +58,23 @@ RSpec.describe PaymentProviders::MercadoPagoProvider, type: :service do
       expect(payload[:items].sum { |item| item[:unit_price] * item[:quantity] }).to eq(220.0)
       expect(cart.total_price).to eq(200)
     end
+
+    it "persists seller-enabled pickup when creating the payment preference" do
+      product.update!(allow_pickup: true)
+      preference = double(create: { status: 201, response: { "id" => "mp_pickup", "init_point" => "https://mercadopago.com/checkout" } })
+      allow(Mercadopago::SDK).to receive(:new).and_return(double(preference: preference))
+      provider = described_class.new(user: buyer, cart: cart, purchase: purchase, delivery_method: "local_pickup")
+
+      expect(provider.create_checkout_session).to eq(checkout_url: "https://mercadopago.com/checkout")
+      expect(purchase.reload.delivery_method).to eq("local_pickup")
+    end
+
+    it "rejects pickup when the seller has not enabled it" do
+      allow(Mercadopago::SDK).to receive(:new)
+      provider = described_class.new(user: buyer, cart: cart, purchase: purchase, delivery_method: "local_pickup")
+
+      expect(provider.create_checkout_session).to eq(error: I18n.t("products.cart.pickup_unavailable"))
+      expect(Mercadopago::SDK).not_to have_received(:new)
+    end
   end
 end

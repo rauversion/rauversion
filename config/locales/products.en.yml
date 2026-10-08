@@ -2,6 +2,13 @@
 en:
   products:
     cart:
+      delivery_method: "Delivery method"
+      shipping: "Ship to address"
+      local_pickup: "No shipping / arrange pickup"
+      pickup_description: "No shipping fee or delivery address is required. Arrange pickup with the seller."
+      pickup_unavailable: "Pickup is not available for every product in the cart. Purchase these products separately."
+      pickup_required: "This cart contains products available for pickup only. Select arrange pickup."
+      invalid_delivery_method: "Select a valid delivery method."
       added: "Item successfully added to your cart"
       failed: "Failed to add item to your cart"
       removed: "Item successfully removed from your cart"
@@ -93,6 +100,7 @@ en:
           Describe what type of equipment you would
           accept in exchange...
       shipping:
+        local_pickup_description: "Buyers can check out without shipping and arrange pickup with you. Leave shipping options empty to offer pickup only."
         title: Shipments
         shipping_days: Shipping Days
         shipping_begins_on: Begins shipping on
@@ -108,7 +116,7 @@ en:
         international_shipping_cost: International shipping cost
         shipping_notes: Shipping notes
         shipping_notes_placeholder: Add additional information about shipments...
-        local_pickup: Allow withdrawal in person
+        local_pickup: Allow local pickup
       photos:
         title: Photos
         drop_here: Release the photos here

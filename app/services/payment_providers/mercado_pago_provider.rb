@@ -2,19 +2,21 @@ module PaymentProviders
   class MercadoPagoProvider < BaseProvider
     attr_reader :purchasable, :price_param
 
-    def initialize(user:, purchasable: nil, price_param: nil, cart: nil, purchase: nil)
+    def initialize(user:, purchasable: nil, price_param: nil, cart: nil, purchase: nil, delivery_method: nil)
       @purchasable = purchasable
       @price_param = price_param
-      super(user: user, cart: cart, purchase: purchase)
+      super(user: user, cart: cart, purchase: purchase, delivery_method: delivery_method)
     end
 
     def create_checkout_session(promo_code: nil)
       return { error: "Cart is empty" } unless validate_cart!
       return { error: "Cart contains products with multiple currencies" } unless validate_single_currency!
       return { error: "Invalid promo code" } unless validate_promo_code!(promo_code)
+      delivery_error = delivery_selection_error
+      return { error: delivery_error } if delivery_error
 
       begin
-        purchase.update(currency: cart_currency) if purchase.respond_to?(:currency=)
+        purchase.update!(currency: cart_currency, delivery_method: delivery_method)
         preference_data = build_preference_data(promo_code)
         sdk = Mercadopago::SDK.new(ENV["MERCADO_PAGO_ACCESS_TOKEN"])
         preference_response = sdk.preference.create(preference_data)
@@ -173,7 +175,8 @@ module PaymentProviders
         metadata: { 
           purchase_id: purchase.id,
           cart_id: cart.id,
-          source_type: "product"
+          source_type: "product",
+          delivery_method: delivery_method
         }
       }
     end

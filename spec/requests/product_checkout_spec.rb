@@ -85,4 +85,68 @@ RSpec.describe "ProductCheckouts", type: :request do
     expect(response).to have_http_status(:unprocessable_entity)
     expect(JSON.parse(response.body)).to eq("error" => "Checkout unavailable")
   end
+
+  it "offers seller-enabled pickup without shipping fees or an address" do
+    product.update!(allow_pickup: true)
+    create(:product_shipping, product: product, country: "US", base_cost: 5, additional_cost: 0)
+    create(:product_shipping, product: product, country: "AX", base_cost: 10, additional_cost: 0)
+
+    get "/product_cart.json"
+    expect(JSON.parse(response.body).fetch("cart")["pickup_available"]).to eq(true)
+
+    post "/product_checkout.json", params: { provider: "stripe", delivery_method: "local_pickup", shipping_country: "AX" }
+
+    expect(response).to have_http_status(:ok)
+    expect(ProductPurchase.last.delivery_method).to eq("local_pickup")
+    expect(Stripe::Checkout::Session).to have_received(:create) do |params|
+      expect(params).not_to have_key(:shipping_options)
+      expect(params).not_to have_key(:shipping_address_collection)
+      expect(params[:metadata]).to include(delivery_method: "local_pickup", shipping_fee_amount: 0,
+        processing_fee_base_amount: 10_800, estimated_processing_fee_amount: 343)
+    end
+  end
+
+  it "rejects pickup when any product in the cart does not allow it" do
+    product.update!(allow_pickup: true)
+    other_product = create(:product, user: seller, allow_pickup: false)
+    post "/product_cart/add/#{other_product.id}.json"
+
+    get "/product_cart.json"
+    expect(JSON.parse(response.body).fetch("cart")["pickup_available"]).to eq(false)
+
+    expect do
+      post "/product_checkout.json", params: { provider: "stripe", delivery_method: "local_pickup" }
+    end.not_to change(ProductPurchase, :count)
+
+    expect(response).to have_http_status(:unprocessable_entity)
+    expect(JSON.parse(response.body)["error"]).to eq(I18n.t("products.cart.pickup_unavailable"))
+    expect(Stripe::Checkout::Session).not_to have_received(:create)
+  end
+
+  it "rejects invalid delivery methods before contacting Stripe" do
+    expect do
+      post "/product_checkout.json", params: { provider: "stripe", delivery_method: "free_shipping" }
+    end.not_to change(ProductPurchase, :count)
+
+    expect(response).to have_http_status(:unprocessable_entity)
+    expect(JSON.parse(response.body)["error"]).to eq(I18n.t("products.cart.invalid_delivery_method"))
+    expect(Stripe::Checkout::Session).not_to have_received(:create)
+  end
+
+  it "requires an explicit pickup choice for products available only for pickup" do
+    pickup_product = Products::PhysicalProduct.create!(attributes_for(:product).merge(
+      user: seller, sku: "pickup-only", allow_pickup: true
+    ))
+    delete "/product_cart/remove/#{product.id}.json"
+    post "/product_cart/add/#{pickup_product.id}.json"
+    get "/product_cart.json"
+    expect(JSON.parse(response.body).fetch("cart")).to include("requires_pickup" => true, "pickup_available" => true)
+
+    expect { post "/product_checkout.json", params: { provider: "stripe" } }.not_to change(ProductPurchase, :count)
+    expect(JSON.parse(response.body)["error"]).to eq(I18n.t("products.cart.pickup_required"))
+    expect(Stripe::Checkout::Session).not_to have_received(:create)
+
+    post "/product_checkout.json", params: { provider: "stripe", delivery_method: "local_pickup" }
+    expect(response).to have_http_status(:ok)
+  end
 end

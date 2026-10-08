@@ -48,6 +48,7 @@ import audio_player_controller from "./audio_player_controller.js"
 import marquee_controller from "./marquee_controller.js"
 import slide_controller from "./slide_controller.js"
 import image_cropper_controller from "./image_cropper_controller.js"
+import product_checkout_controller from "./product_checkout_controller.js"
 
 import playlist_widget_controller from "./playlist_widget_controller.js"
 //import GeoChart from './geo_chart_controller'
@@ -100,6 +101,7 @@ application.register("audio-player", audio_player_controller)
 application.register("marquee", marquee_controller)
 application.register("slide", slide_controller)
 application.register("image-cropper", image_cropper_controller)
+application.register("product-checkout", product_checkout_controller)
 application.register("playlist-widget", playlist_widget_controller)
 application.register("player-sidebar-loader", player_sidebar_loader_controller)
 application.register("track-player", track_player_stimulus_controller)

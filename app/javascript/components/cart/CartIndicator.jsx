@@ -35,11 +35,15 @@ export function CartIndicator() {
   const { toast } = useToast()
   const [open, setOpen] = useState(false)
   const [shippingCountry, setShippingCountry] = useState('')
+  const [deliveryMethod, setDeliveryMethod] = useState('shipping')
   const items = Array.isArray(cart?.items) ? cart.items : []
   const itemCount = items.reduce((total, item) => total + itemQuantity(item), 0)
   const shippingOptions = cart?.shipping_options || []
   const selectedShippingCountry = shippingOptions.some((option) => option.country === shippingCountry) ? shippingCountry : ''
   const countryNames = new Intl.DisplayNames([I18n.locale || 'en'], { type: 'region' })
+  const selectedDeliveryMethod = cart?.pickup_available && (cart?.requires_pickup || deliveryMethod === 'local_pickup') ? 'local_pickup' : 'shipping'
+  const needsShippingCountry = selectedDeliveryMethod === 'shipping' && cart?.shipping_country_required
+  const deliveryUnavailable = cart?.requires_pickup && !cart?.pickup_available
 
   useEffect(() => {
     fetchCart()
@@ -163,7 +167,31 @@ export function CartIndicator() {
                 <span>{I18n.t('products.cart.total')}</span>
                 <span className="font-medium">{cart?.total_price}</span>
               </div>
-              {cart?.shipping_country_required && (
+              {cart?.pickup_available && (
+                <div className="space-y-2 mb-4">
+                  <label htmlFor="cart-delivery-method" className="text-sm font-medium">
+                    {I18n.t('products.cart.delivery_method')}
+                  </label>
+                  <select
+                    id="cart-delivery-method"
+                    className="w-full rounded-md border border-input bg-background p-2 text-sm"
+                    value={selectedDeliveryMethod}
+                    onChange={(event) => setDeliveryMethod(event.target.value)}
+                    onKeyDown={(event) => event.stopPropagation()}
+                    disabled={loading}
+                  >
+                    {!cart?.requires_pickup && <option value="shipping">{I18n.t('products.cart.shipping')}</option>}
+                    <option value="local_pickup">{I18n.t('products.cart.local_pickup')}</option>
+                  </select>
+                  {selectedDeliveryMethod === 'local_pickup' && (
+                    <p className="text-xs text-muted-foreground">{I18n.t('products.cart.pickup_description')}</p>
+                  )}
+                </div>
+              )}
+              {deliveryUnavailable && (
+                <p className="text-sm text-destructive mb-4">{I18n.t('products.cart.pickup_unavailable')}</p>
+              )}
+              {needsShippingCountry && (
                 <div className="space-y-2 mb-4">
                   <label htmlFor="cart-shipping-country" className="text-sm font-medium">
                     {I18n.t('products.cart.shipping_country')}
@@ -188,8 +216,8 @@ export function CartIndicator() {
               <div className="space-y-2">
                 <Button
                   className="w-full"
-                  onClick={() => useCartStore.getState().checkout(cart?.shipping_country_required ? selectedShippingCountry : undefined)}
-                  disabled={loading || (cart?.shipping_country_required && !selectedShippingCountry)}
+                  onClick={() => useCartStore.getState().checkout(needsShippingCountry ? selectedShippingCountry : undefined, selectedDeliveryMethod)}
+                  disabled={loading || deliveryUnavailable || (needsShippingCountry && !selectedShippingCountry)}
                 >
                   {loading ? I18n.t('products.cart.processing') : I18n.t('products.cart.checkout')}
                 </Button>

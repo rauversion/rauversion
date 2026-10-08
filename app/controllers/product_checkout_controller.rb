@@ -18,7 +18,8 @@ class ProductCheckoutController < ApplicationController
       provider_options = {
         cart: @cart,
         user: current_user,
-        purchase: @purchase
+        purchase: @purchase,
+        delivery_method: params[:delivery_method]
       }
       provider_options[:shipping_country] = params[:shipping_country] if payment_provider == PaymentProviders::StripeProvider
       provider = payment_provider.new(**provider_options)

@@ -34,6 +34,7 @@ json.product_item do
   json.type @product_item.class
   json.tracking_code @product_item.tracking_code
   json.shipping_status @product_item.shipping_status
+  json.delivery_method @product_item.delivery_method
 
   json.shipping_name @product_item.shipping_name
   json.shipping_address @product_item.shipping_address

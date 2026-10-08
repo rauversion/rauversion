@@ -138,6 +138,9 @@
             <h3 class="text-lg">Shipping</h3>
             
             <div>
+              <%= form.check_box :allow_pickup %>
+              <%= form.label :allow_pickup, t("products.form.shipping.local_pickup") %>
+              <p class="text-sm text-muted"><%= t("products.form.shipping.local_pickup_description") %></p>
               <%= form.label :shipping_days, "Orders ship out within" %>
               <%= form.number_field :shipping_days %>
               <span>days of being placed</span>

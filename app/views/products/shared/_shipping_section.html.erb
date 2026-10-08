@@ -3,6 +3,11 @@
   <div class="p-5 block pt-0" data-accordeon-target="panel">
     <div class="p-4 my-4">
       <h3 class="text-lg">Shipping</h3>
+      <div class="my-4">
+        <%= form.check_box :allow_pickup %>
+        <%= form.label :allow_pickup, t("products.form.shipping.local_pickup") %>
+        <p class="text-sm text-muted"><%= t("products.form.shipping.local_pickup_description") %></p>
+      </div>
       
       <div>
         <%= form.label :shipping_days, "Orders ship out within" %>

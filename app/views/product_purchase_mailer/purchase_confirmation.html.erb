@@ -5,10 +5,15 @@
     <h1 style="color:#fff;font-size:2rem;font-family:sans-serif;margin:8px 0 0 0;letter-spacing:-1px;">
       Thank you for your purchase, <%= @user.username %>!
     </h1>
-    <p style="color:#e0e7ef;font-size:1.1rem;margin:8px 0 0 0;">Your order is confirmed and on its way.</p>
+    <p style="color:#e0e7ef;font-size:1.1rem;margin:8px 0 0 0;">
+      <%= @purchase.delivery_local_pickup? ? t("products.cart.pickup_description") : "Your order is confirmed and on its way." %>
+    </p>
   </div>
   <div style="background:#fff;border-radius:0 0 18px 18px;box-shadow:0 4px 24px rgba(80,80,120,0.10);padding:24px;">
     <h2 style="font-size:1.2rem;color:#4f46e5;font-family:sans-serif;margin-bottom:12px;">Order Details</h2>
+    <% if @purchase.delivery_local_pickup? %>
+      <p style="color:#334155;"><%= t("products.cart.local_pickup") %></p>
+    <% end %>
     <table style="width:100%;border-collapse:collapse;margin-bottom:16px;">
       <thead>
         <tr>

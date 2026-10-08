@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useOutletContext } from 'react-router-dom'
 import { get } from '@rails/request.js'
 import { Disc3 } from 'lucide-react'
 
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import useAuthStore from '@/stores/authStore'
 import {
   PlaylistShowcaseCard,
   PlaylistShowcaseSkeleton,
@@ -19,6 +20,9 @@ function discographyText(key, options = {}) {
 
 export default function UserAlbums() {
   const { username } = useParams()
+  const { user } = useOutletContext()
+  const currentUser = useAuthStore((state) => state.currentUser)
+  const isOwner = currentUser?.id === user.id
   const [albums, setAlbums] = useState([])
   const [loading, setLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState(null)
@@ -31,7 +35,7 @@ export default function UserAlbums() {
 
       const url = selectedCategory
         ? `/${username}/playlists_filter.json?kind=${selectedCategory}`
-        : `/${username}/albums.json`
+        : `/${username}/all_playlists.json`
 
       try {
         const response = await get(url)
@@ -62,6 +66,10 @@ export default function UserAlbums() {
 
   const toggleCategory = (category) => {
     setSelectedCategory((current) => (current === category ? null : category))
+  }
+
+  if (!loading && albums.length === 0 && !selectedCategory && !isOwner) {
+    return null
   }
 
   return (

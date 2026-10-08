@@ -1,5 +1,6 @@
 json.product do
   json.id @product.id
+  json.allow_pickup @product.allow_pickup
   json.title @product.title
   json.type @product.type
   json.slug @product.slug

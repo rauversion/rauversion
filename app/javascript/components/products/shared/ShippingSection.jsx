@@ -2,6 +2,7 @@ import React from 'react'
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { Switch } from "@/components/ui/switch"
 import { Plus, Trash2 } from 'lucide-react'
 import {
   FormControl,
@@ -34,6 +35,8 @@ export default function ShippingSection({ control, setValue: setValueProp }) {
     control: usedControl,
     name: "product_shippings_attributes"
   }) || []
+  const allowPickup = useWatch({ control: usedControl, name: "allow_pickup" })
+  const pickupOnly = allowPickup && watchedShippings.every(shipping => shipping._destroy)
 
   const addShippingOption = () => {
     append({
@@ -51,47 +54,66 @@ export default function ShippingSection({ control, setValue: setValueProp }) {
       </CardHeader>
       <CardContent className="space-y-4">
         <FormField
-          control={control}
-          name="shipping_days"
-          rules={{
-            required: "Shipping days is required",
-            min: {
-              value: 1,
-              message: "Shipping days must be at least 1"
-            }
-          }}
+          control={usedControl}
+          name="allow_pickup"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>{I18n.t('products.form.shipping.shipping_days')}</FormLabel>
+            <FormItem className="flex items-center justify-between gap-4 rounded-lg border p-4">
+              <div className="space-y-1">
+                <FormLabel>{I18n.t('products.form.shipping.local_pickup')}</FormLabel>
+                <p className="text-sm text-muted-foreground">{I18n.t('products.form.shipping.local_pickup_description')}</p>
+              </div>
               <FormControl>
-                <Input
-                  type="number"
-                  min="1"
-                  {...field}
-                  onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                />
+                <Switch checked={!!field.value} onCheckedChange={field.onChange} />
               </FormControl>
-              <FormMessage />
             </FormItem>
           )}
         />
+        {!pickupOnly && (
+          <>
+            <FormField
+              control={usedControl}
+              name="shipping_days"
+              rules={{
+                required: "Shipping days is required",
+                min: {
+                  value: 1,
+                  message: "Shipping days must be at least 1"
+                }
+              }}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{I18n.t('products.form.shipping.shipping_days')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="number"
+                      min="1"
+                      {...field}
+                      onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        <FormField
-          control={control}
-          name="shipping_begins_on"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{I18n.t('products.form.shipping.shipping_begins_on')}</FormLabel>
-              <FormControl>
-                <Input
-                  type="date"
-                  {...field}
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+            <FormField
+              control={usedControl}
+              name="shipping_begins_on"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>{I18n.t('products.form.shipping.shipping_begins_on')}</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="date"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </>
+        )}
 
         <div className="space-y-4">
           <div className="flex justify-between items-center">
@@ -110,10 +132,8 @@ export default function ShippingSection({ control, setValue: setValueProp }) {
             </Button>
           </div>
 
-          {watchedShippings
-            .filter(field => !field._destroy)
-            .map((field, index) => (
-              <div key={field.id || index} className="p-4 border rounded-lg space-y-4">
+          {watchedShippings.map((field, index) => field._destroy ? null : (
+              <div key={fields[index]?.id || index} className="p-4 border rounded-lg space-y-4">
                 <div className="flex justify-between items-start">
                   <h4 className="text-sm font-medium">
                     {I18n.t('products.form.shipping.option')} {index + 1}
@@ -126,7 +146,7 @@ export default function ShippingSection({ control, setValue: setValueProp }) {
                       if (field.id) {
                         // Mark for destroy
                         const updated = [...(watchedShippings || [])]
-                        updated[index]._destroy = true
+                        updated[index] = { ...updated[index], _destroy: true }
                         setValue("product_shippings_attributes", updated, { shouldDirty: true })
                       } else {
                         remove(index)
@@ -139,7 +159,7 @@ export default function ShippingSection({ control, setValue: setValueProp }) {
                 </div>
 
                 <FormField
-                  control={control}
+                  control={usedControl}
                   name={`product_shippings_attributes.${index}.country`}
                   rules={{ required: "Country is required" }}
                   render={({ field }) => (
@@ -161,7 +181,7 @@ export default function ShippingSection({ control, setValue: setValueProp }) {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormField
-                    control={control}
+                    control={usedControl}
                     name={`product_shippings_attributes.${index}.base_cost`}
                     rules={{
                       required: "Base cost is required",
@@ -188,7 +208,7 @@ export default function ShippingSection({ control, setValue: setValueProp }) {
                   />
 
                   <FormField
-                    control={control}
+                    control={usedControl}
                     name={`product_shippings_attributes.${index}.additional_cost`}
                     rules={{
                       required: "Additional cost is required",
@@ -219,7 +239,7 @@ export default function ShippingSection({ control, setValue: setValueProp }) {
                 {field.id && (
                   <input
                     type="hidden"
-                    {...control.register(`product_shippings_attributes.${index}.id`)}
+                    {...usedControl.register(`product_shippings_attributes.${index}.id`)}
                     value={field.id}
                   />
                 )}

@@ -1,6 +1,6 @@
 module Products
   class PhysicalProduct < Product
-    validates :shipping_days, presence: true
+    validates :shipping_days, presence: true, unless: :pickup_only?
     # validates :shipping_within_country_price, presence: true
     # validates :shipping_worldwide_price, presence: true
     
@@ -11,7 +11,11 @@ module Products
     has_many :product_shippings, dependent: :destroy, foreign_key: 'product_id'
     accepts_nested_attributes_for :product_shippings, allow_destroy: true, reject_if: :all_blank
 
-    validates :product_shippings, presence: true
+    validates :product_shippings, presence: true, unless: :allow_pickup?
     # after_create :create_default_shippings
+
+    def pickup_only?
+      allow_pickup? && product_shippings.reject(&:marked_for_destruction?).empty?
+    end
   end
 end

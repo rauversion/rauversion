@@ -147,6 +147,9 @@ function getPurchaseSummary(tab, purchase) {
 
   if (tab === "products") {
     const totalQuantity = purchase.total_quantity || items.reduce((total, item) => total + (item.quantity || 1), 0);
+    if (purchase.delivery_method === "local_pickup") {
+      return `${countLabel("item", totalQuantity || items.length)} · ${I18n.t('products.cart.local_pickup')}`;
+    }
     return countLabel("item", totalQuantity || items.length);
   }
 
@@ -571,6 +574,9 @@ function PurchaseItem({ purchase, toast, downloadUrl }) {
           >
             {purchase.status}
           </Badge>
+        )}
+        {purchase.delivery_method === 'local_pickup' && (
+          <Badge variant="outline">{I18n.t('products.cart.local_pickup')}</Badge>
         )}
         {purchase.price && <Badge variant="outline">${purchase.price}</Badge>}
         {purchase.total_amount && (

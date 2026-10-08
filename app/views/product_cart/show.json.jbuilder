@@ -6,6 +6,8 @@ json.cart do
   json.total_price cart_currency.one? ? formatted_product_price(@cart.total_price, cart_currency.first) : @cart.total_price
 
   shipping_costs = @cart.shipping_costs_by_country
+  json.pickup_available @cart.pickup_available?
+  json.requires_pickup @cart.requires_pickup?
   json.shipping_country_required ENV["DEFAULT_PAYMENT_GATEWAY"] != "mercado_pago" && shipping_costs.values.uniq.size > 1
   json.shipping_options shipping_costs do |country, amount|
     json.country country

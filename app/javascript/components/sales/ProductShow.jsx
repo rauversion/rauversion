@@ -8,6 +8,7 @@ import { useToast } from "@/hooks/use-toast";
 import { get, post, put } from "@rails/request.js";
 import { Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
+import I18n from "@/stores/locales";
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -178,6 +179,11 @@ export default function ProductShow() {
               <div className="text-default">{purchase.refunded ? "Yes" : "No"}</div>
             </div>
           </div>
+          {purchase.delivery_method === 'local_pickup' && (
+            <div className="mb-4 rounded-md border p-3">
+              <div className="text-sm font-medium">{I18n.t('products.cart.local_pickup')}</div>
+            </div>
+          )}
           {purchase.shipping_address && (
             <div className="mb-4">
               <div className="text-sm font-medium text-muted mb-1">Shipping Address</div>

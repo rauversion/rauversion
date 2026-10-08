@@ -47,6 +47,7 @@ export default function AccessoryForm({ product, isEditing = false }) {
       sku: product?.sku || "",
       stock_quantity: product?.stock_quantity || "",
       status: product?.status || "active",
+      allow_pickup: product?.allow_pickup ?? false,
       shipping_days: product?.shipping_days || "",
       shipping_begins_on: product?.shipping_begins_on || "",
       visibility: product?.visibility || "public",

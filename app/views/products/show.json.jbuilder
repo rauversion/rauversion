@@ -1,5 +1,6 @@
 json.product do
   json.extract! @product, :type, :id, :title, :description, :price, :currency, :category, :slug
+  json.allow_pickup @product.allow_pickup
 
   json.user do
     json.partial! 'users/user', user: @product.user, show_full_name: true

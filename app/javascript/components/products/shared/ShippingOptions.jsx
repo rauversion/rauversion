@@ -3,7 +3,7 @@ import { Truck } from "lucide-react"
 import I18n from "@/stores/locales"
 
 export default function ShippingOptions({ product }) {
-  if (!product?.shipping_options?.length) return null
+  if (!product?.shipping_options?.length && !product?.allow_pickup) return null
 
   return (
     <div className="space-y-3">
@@ -11,7 +11,10 @@ export default function ShippingOptions({ product }) {
         <Truck className="h-4 w-4" />
         {I18n.t('products.music.show.shipping')}
       </h4>
-      {product.shipping_options.map((option) => (
+      {product.allow_pickup && (
+        <p className="text-sm text-muted-foreground">{I18n.t('products.cart.local_pickup')}</p>
+      )}
+      {(product.shipping_options || []).map((option) => (
         <div key={option.id} className="flex items-center justify-between text-sm">
           <span>{option.country}</span>
           <div className="text-right">

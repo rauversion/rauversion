@@ -5,11 +5,11 @@ module PaymentProviders
 
     attr_reader :purchasable, :price_param, :shipping_country
 
-    def initialize(user:, purchasable: nil, price_param: nil, cart: nil, purchase: nil, shipping_country: nil)
+    def initialize(user:, purchasable: nil, price_param: nil, cart: nil, purchase: nil, shipping_country: nil, delivery_method: nil)
       @purchasable = purchasable
       @price_param = price_param
       @shipping_country = shipping_country.to_s.upcase.presence
-      super(user: user, cart: cart, purchase: purchase)
+      super(user: user, cart: cart, purchase: purchase, delivery_method: delivery_method)
     end
 
     def create_checkout_session(promo_code: nil)
@@ -17,10 +17,12 @@ module PaymentProviders
       return { error: "Cart contains products with multiple currencies" } unless validate_single_currency!
       return { error: "Invalid promo code" } unless validate_promo_code!(promo_code)
       return { error: "Products must belong to a single connected Stripe seller" } unless validate_single_seller!
+      delivery_error = delivery_selection_error
+      return { error: delivery_error } if delivery_error
 
       begin
         checkout_params = build_checkout_params(promo_code)
-        purchase.update!(currency: cart_currency)
+        purchase.update!(currency: cart_currency, delivery_method: delivery_method)
         client = Stripe::StripeClient.new(api_key: ENV["STRIPE_CLIENT_SECRET"])
         session, = client.request { Stripe::Checkout::Session.create(checkout_params) }
         purchase.update(stripe_session_id: session.id)
@@ -137,6 +139,7 @@ module PaymentProviders
       processing_fee_amount = estimated_processing_fee(estimated_total, currency)
       application_fee_amount = [fee_amount + processing_fee_amount, estimated_total].min
       fee_metadata = {
+        delivery_method: delivery_method,
         processing_fee_payer: "seller",
         processing_fee_model: "estimated",
         service_fee_amount: fee_amount,
@@ -263,6 +266,8 @@ module PaymentProviders
     end
 
     def selected_shipping_options
+      return [] if delivery_method == "local_pickup"
+
       costs = cart.shipping_costs_by_country
       if shipping_country.present?
         unless costs.key?(shipping_country)

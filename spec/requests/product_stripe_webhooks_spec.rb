@@ -71,6 +71,20 @@ RSpec.describe "Product Stripe webhooks", type: :request do
     expect(product.reload.stock_quantity).to eq(8)
   end
 
+  it "fulfills pickup orders without an address or shipping charge and preserves the choice" do
+    product.update!(allow_pickup: true)
+    create(:product_shipping, product: product, country: "US", base_cost: 5, additional_cost: 2)
+    purchase.update!(delivery_method: "local_pickup")
+
+    post_event("checkout.session.completed")
+
+    expect(response).to have_http_status(:ok)
+    expect(purchase.reload).to have_attributes(status: "completed", delivery_method: "local_pickup",
+      shipping_address: nil, shipping_cost: 0)
+    expect(purchase.product_purchase_items.first.shipping_cost).to eq(0)
+    expect(product.reload.stock_quantity).to eq(8)
+  end
+
   it "marks a failed asynchronous payment without paying the seller" do
     expect { post_event("checkout.session.async_payment_failed") }.not_to have_enqueued_job(WebhookWorkerJob)
 

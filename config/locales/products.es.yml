@@ -2,6 +2,13 @@ es:
   products:
 
     cart:
+      delivery_method: "Forma de entrega"
+      shipping: "Envío a domicilio"
+      local_pickup: "Sin envío / retiro a coordinar"
+      pickup_description: "No se cobrará envío ni se pedirá una dirección. Coordina el retiro con el vendedor."
+      pickup_unavailable: "El retiro no está disponible para todos los productos del carrito. Compra estos productos por separado."
+      pickup_required: "Este carrito contiene productos disponibles solo para retiro. Selecciona retiro a coordinar."
+      invalid_delivery_method: "Selecciona una forma de entrega válida."
       added: "Artículo agregado a tu carrito"
       failed: "Error al agregar el artículo a tu carrito"
       removed: "Artículo eliminado de tu carrito"
@@ -110,6 +117,7 @@ es:
         barter_description: "Descripción del trueque"
         barter_description_placeholder: "Describe qué tipo de equipos aceptarías como trueque..."
       shipping:
+        local_pickup_description: "El comprador podrá elegir comprar sin envío y coordinar el retiro contigo. Puedes ofrecer solo retiro dejando vacías las opciones de envío."
         title: "Envíos"
         shipping_days: "Días de Envío"
         shipping_begins_on: "Comienza a enviar el"

@@ -27,7 +27,11 @@
     </table>
     <div style="margin-bottom:16px;">
       <div style="font-size:1rem;color:#334155;margin-bottom:4px;"><strong>Purchase ID:</strong> <%= @purchase.id %></div>
-      <div style="font-size:1rem;color:#334155;margin-bottom:4px;"><strong>Shipping address:</strong> <%= @purchase.shipping_address %></div>
+      <% if @purchase.delivery_local_pickup? %>
+        <div style="font-size:1rem;color:#334155;margin-bottom:4px;"><strong><%= t("products.cart.delivery_method") %>:</strong> <%= t("products.cart.local_pickup") %></div>
+      <% else %>
+        <div style="font-size:1rem;color:#334155;margin-bottom:4px;"><strong>Shipping address:</strong> <%= @purchase.shipping_address %></div>
+      <% end %>
       <div style="font-size:1rem;color:#334155;margin-bottom:4px;"><strong>Phone:</strong> <%= @purchase.phone %></div>
       <div style="font-size:1rem;color:#334155;margin-bottom:4px;"><strong>Amount:</strong> <%= formatted_product_price(@purchase.total_amount, @purchase.currency) %></div>
     </div>
