@@ -151,6 +151,44 @@ RSpec.describe "EventPurchases", type: :request do
       ) 
     }
 
+    it "creates a real provider checkout that deducts processing from the organizer" do
+      user.update!(stripe_account_id: "acct_event_seller")
+      event.update!(custom_fee: 8)
+      paid_ticket.update!(price: 20)
+      allow(ENV).to receive(:fetch).and_call_original
+      allow(ENV).to receive(:fetch).with("STRIPE_TICKET_PROCESSING_FEE_PERCENTAGE", "2.9").and_return("2.9")
+      allow(ENV).to receive(:fetch).with("STRIPE_TICKET_PROCESSING_FIXED_FEE_USD", "0.30").and_return("0.30")
+      allow(Stripe::Checkout::Session).to receive(:create).and_return(double(id: "cs_event", url: "https://checkout.stripe.com/event"))
+
+      post event_event_purchases_path(event, format: :json), params: { tickets: [{ id: paid_ticket.id, quantity: 1 }] }
+
+      expect(response).to have_http_status(:ok)
+      expect(Purchase.last).to have_attributes(state: "pending", checkout_type: "stripe", checkout_id: "cs_event")
+      expect(Purchase.last.payment_metadata).to include(
+        "currency" => "usd", "service_fee_percentage" => 8, "service_fee_amount" => 160,
+        "estimated_processing_fee_amount" => 93, "application_fee_amount" => 253
+      )
+      expect(Stripe::Checkout::Session).to have_received(:create).with(hash_including(
+        payment_intent_data: hash_including(application_fee_amount: 253, transfer_data: { destination: "acct_event_seller" }),
+        metadata: hash_including(service_fee_amount: 160, estimated_processing_fee_amount: 93)
+      ))
+    end
+
+    it "rolls back ticket reservations when the processing estimate is invalid" do
+      user.update!(stripe_account_id: "acct_event_seller")
+      allow(ENV).to receive(:fetch).and_call_original
+      allow(ENV).to receive(:fetch).with("STRIPE_TICKET_PROCESSING_FEE_PERCENTAGE", "2.9").and_return("oops")
+      allow(Stripe::Checkout::Session).to receive(:create)
+
+      expect do
+        post event_event_purchases_path(event, format: :json), params: { tickets: [{ id: paid_ticket.id, quantity: 1 }] }
+      end.not_to change(Purchase, :count)
+
+      expect(PurchasedItem.where(purchased_item: paid_ticket)).to be_empty
+      expect(JSON.parse(response.body).fetch("errors")).to include("Invalid Stripe ticket processing fee estimate")
+      expect(Stripe::Checkout::Session).not_to have_received(:create)
+    end
+
     it "creates purchase but does not complete it (waits for Stripe)" do
       allow_any_instance_of(PaymentProviders::EventStripeProvider).to receive(:create_checkout_session).and_return(
         { checkout_url: "https://stripe.com/checkout/session" }

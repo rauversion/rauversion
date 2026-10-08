@@ -1,6 +1,7 @@
 module PaymentProviders
   class EventStripeProvider < BaseProvider
-    TAX_BEHAVIORS = %w[exclusive inclusive].freeze
+    class InvalidFeeConfiguration < StandardError; end
+
     DEFAULT_TICKET_TAX_CODE = "txcd_10000000"
 
     attr_reader :event, :purchase
@@ -12,20 +13,27 @@ module PaymentProviders
 
     def create_checkout_session
       return { error: "No tickets selected" } unless validate_purchase!
-      
+
       connected_account_id = event.user.stripe_account_id
-      checkout_params = build_checkout_params(connected_account_id)
+      return { error: "The event organizer must connect a Stripe account" } if connected_account_id.blank?
 
       begin
-        session = Stripe::Checkout::Session.create(checkout_params)
+        checkout_params = build_checkout_params(connected_account_id)
+        client = Stripe::StripeClient.new(api_key: ENV["STRIPE_CLIENT_SECRET"])
+        session, = client.request { Stripe::Checkout::Session.create(checkout_params) }
         
-        purchase.update(
+        purchase.update!(
           checkout_type: "stripe",
-          checkout_id: session.id
+          checkout_id: session.id,
+          currency: event.ticket_currency.downcase,
+          payment_metadata: checkout_params.fetch(:metadata).stringify_keys.merge(
+            "amount_unit" => "minor",
+            "connected_account_id" => connected_account_id
+          )
         )
 
         { checkout_url: session.url }
-      rescue Stripe::InvalidRequestError => e
+      rescue Stripe::InvalidRequestError, InvalidFeeConfiguration, StripeProcessingFeeEstimate::InvalidConfiguration => e
         { error: e.message }
       end
     end
@@ -41,17 +49,42 @@ module PaymentProviders
       ticket_total = calculate_total(ticket_line_items)
       service_fee_amount = calculate_fee(ticket_total)
       line_items = ticket_line_items + build_service_fee_line_items(service_fee_amount)
+      processing_fee_base_amount = ticket_total + service_fee_amount
+      processing_fee_amount = StripeProcessingFeeEstimate.call(
+        total: processing_fee_base_amount, currency: event.ticket_currency, source: "ticket"
+      )
+      application_fee_amount = [service_fee_amount + processing_fee_amount, processing_fee_base_amount].min
+      fee_metadata = {
+        source_type: "event",
+        event_id: event.id,
+        purchase_id: purchase.id,
+        processing_fee_payer: "seller",
+        processing_fee_model: "estimated",
+        currency: event.ticket_currency.downcase,
+        ticket_total_amount: ticket_total,
+        service_fee_percentage: event.effective_fee,
+        service_fee_amount: service_fee_amount,
+        estimated_processing_fee_amount: processing_fee_amount,
+        application_fee_amount: application_fee_amount,
+        processing_fee_base_amount: processing_fee_base_amount,
+        ticket_tax_behavior: ticket_tax_behavior,
+        ticket_tax_code: ticket_tax_code,
+        service_fee_tax_code: service_fee_tax_code,
+        automatic_tax_enabled: tax_enabled?.to_s,
+        tax_liability_type: tax_enabled? ? "self" : "none",
+        processing_fee_base_model: tax_enabled? && ticket_tax_behavior == "exclusive" ? "before_exclusive_tax" : "checkout_total"
+      }
 
       Rails.logger.info("Stripe Checkout Line Items: #{line_items.inspect}")
 
       {
-        payment_method_types: ["card"],
         line_items: line_items,
         payment_intent_data: {
-          application_fee_amount: service_fee_amount,
+          application_fee_amount: application_fee_amount,
           transfer_data: {
             destination: connected_account_id
-          }
+          },
+          metadata: fee_metadata
         },
         automatic_tax: automatic_tax_options(connected_account_id),
         customer_email: user.email,
@@ -59,9 +92,7 @@ module PaymentProviders
         mode: "payment",
         success_url: success_url,
         cancel_url: cancel_url,
-        metadata: {
-          source_type: "event"
-        }
+        metadata: fee_metadata
       }
     end
 
@@ -132,10 +163,7 @@ module PaymentProviders
     end
 
     def ticket_tax_behavior
-      behavior = ENV.fetch("STRIPE_TICKET_TAX_BEHAVIOR", "exclusive").to_s
-      return behavior if TAX_BEHAVIORS.include?(behavior)
-
-      "exclusive"
+      event.effective_ticket_tax_behavior
     end
 
     def ticket_tax_code
@@ -152,8 +180,12 @@ module PaymentProviders
 
     def calculate_fee(total)
       # Use event's custom_fee if set, otherwise fall back to env var
-      fee_percentage = event.effective_fee.to_f / 100.0
-      (total * fee_percentage).to_i
+      percentage = event.effective_fee.to_d
+      unless percentage.finite? && percentage >= 0 && percentage <= 100
+        raise InvalidFeeConfiguration, "Invalid event service fee percentage"
+      end
+
+      (total * percentage / 100).to_i
     end
 
     def success_url

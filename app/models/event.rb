@@ -1,4 +1,6 @@
 class Event < ApplicationRecord
+  TICKET_TAX_BEHAVIORS = %w[inclusive exclusive].freeze
+
   belongs_to :tenant
   belongs_to :user
   before_validation -> { self.tenant ||= Current.tenant }, on: :create
@@ -50,6 +52,7 @@ class Event < ApplicationRecord
   store_accessor :event_settings, :scheduling_label, :string
   store_accessor :event_settings, :scheduling_description, :string
   store_accessor :event_settings, :ticket_currency, :string
+  store_accessor :event_settings, :ticket_tax_behavior, :string
   store_accessor :event_settings, :hide_location_until_purchase, :boolean
   store_accessor :event_settings, :show_remaining_tickets, :boolean, default: false
 
@@ -62,6 +65,8 @@ class Event < ApplicationRecord
   store_accessor :event_settings, :google_analytics_id, :string
   store_accessor :event_settings, :meta_pixel_id, :string
   store_accessor :event_settings, :google_tag_manager_id, :string
+
+  validates :ticket_tax_behavior, inclusion: { in: TICKET_TAX_BEHAVIORS }, allow_blank: true
 
   store_attribute :site_data, :site_mode, :string, default: "default"
   store_attribute :site_data, :site_pages, :json, default: []
@@ -270,6 +275,11 @@ class Event < ApplicationRecord
     else
       ENV.fetch('PLATFORM_EVENTS_FEE', 10).to_i
     end
+  end
+
+  def effective_ticket_tax_behavior
+    behavior = ticket_tax_behavior.presence || ENV.fetch("STRIPE_TICKET_TAX_BEHAVIOR", "exclusive")
+    TICKET_TAX_BEHAVIORS.include?(behavior) ? behavior : "exclusive"
   end
 
   def owner?(user)

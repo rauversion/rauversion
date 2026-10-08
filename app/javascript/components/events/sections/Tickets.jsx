@@ -148,6 +148,7 @@ const ticketSchema = z.object({
 
 const formSchema = z.object({
   ticket_currency: z.string().min(1),
+  ticket_tax_behavior: z.enum(["inclusive", "exclusive"]),
   tickets: z.array(ticketSchema),
 })
 
@@ -283,6 +284,7 @@ const ticketFormValue = (ticket) => {
 
 const ticketFormValues = (data) => ({
   ticket_currency: (data.ticket_currency || DEFAULT_TICKET_CURRENCY).toLowerCase(),
+  ticket_tax_behavior: data.ticket_tax_behavior || "exclusive",
   tickets: data.tickets?.map(ticketFormValue) || [],
 })
 
@@ -304,6 +306,7 @@ export default function Tickets() {
     resolver: zodResolverCompat(formSchema),
     defaultValues: {
       ticket_currency: DEFAULT_TICKET_CURRENCY,
+      ticket_tax_behavior: "exclusive",
       tickets: []
     }
   })
@@ -323,6 +326,16 @@ export default function Tickets() {
   }, [event])
 
   const selectedCurrency = (form.watch("ticket_currency") || "").toLowerCase()
+  const selectedTaxBehavior = form.watch("ticket_tax_behavior") || "exclusive"
+  const usesStripe = !paymentGateway || ["stripe", "none"].includes(paymentGateway)
+  const pricingExample = event?.ticket_pricing_examples?.[selectedCurrency]
+  const pricingBreakdown = pricingExample?.[selectedTaxBehavior]
+  const formatExampleAmount = (amount) => new Intl.NumberFormat(I18n.locale || "es", {
+    style: "currency",
+    currency: selectedCurrency.toUpperCase(),
+    minimumFractionDigits: pricingExample.currency_exponent,
+    maximumFractionDigits: pricingExample.currency_exponent,
+  }).format(amount / (10 ** pricingExample.currency_exponent))
 
   const currencyOptions = React.useMemo(() => {
     const baseCodes = paymentGateway === "stripe" ? STRIPE_CURRENCY_CODES : DEFAULT_CURRENCY_CODES
@@ -492,6 +505,7 @@ export default function Tickets() {
         body: JSON.stringify({
           event: {
             ticket_currency: formattedData.ticket_currency,
+            ticket_tax_behavior: formattedData.ticket_tax_behavior,
             event_tickets_attributes: formattedData.tickets
           }
         }),
@@ -635,6 +649,78 @@ export default function Tickets() {
                   </FormItem>
                 )}
               />
+
+              {usesStripe && (
+                <FormField
+                  control={form.control}
+                  name="ticket_tax_behavior"
+                  render={({ field }) => (
+                    <FormItem className="max-w-lg">
+                      <FormLabel>{I18n.t('events.edit.tickets.ticket_tax_behavior.label')}</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="inclusive">
+                            {I18n.t('events.edit.tickets.ticket_tax_behavior.options.inclusive')}
+                          </SelectItem>
+                          <SelectItem value="exclusive">
+                            {I18n.t('events.edit.tickets.ticket_tax_behavior.options.exclusive')}
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormDescription>
+                        {I18n.t(`events.edit.tickets.ticket_tax_behavior.descriptions.${selectedTaxBehavior}`)}
+                      </FormDescription>
+                      <FormMessage />
+                      {pricingExample && pricingBreakdown && (
+                        <div className="rounded-lg border bg-muted/40 p-4 text-sm space-y-3" role="note" aria-live="polite">
+                          <p className="font-medium">
+                            {I18n.t('events.edit.tickets.ticket_tax_behavior.example.title')}
+                          </p>
+                          <p className="text-muted-foreground">
+                            {I18n.t('events.edit.tickets.ticket_tax_behavior.example.assumptions', {
+                              price: formatExampleAmount(pricingExample.ticket_amount),
+                              service_percentage: pricingExample.service_fee_percentage,
+                              tax_percentage: pricingExample.illustrative_tax_percentage,
+                            })}
+                          </p>
+                          <p>
+                            {I18n.t(`events.edit.tickets.ticket_tax_behavior.example.${selectedTaxBehavior}`, {
+                              total: formatExampleAmount(pricingBreakdown.amount_total),
+                              base: formatExampleAmount(pricingExample.processing_fee_base_amount),
+                              tax: formatExampleAmount(pricingBreakdown.amount_tax),
+                            })}
+                          </p>
+                          <p>
+                            {I18n.t('events.edit.tickets.ticket_tax_behavior.example.seller', {
+                              payout: formatExampleAmount(pricingBreakdown.seller_payment_before_tax),
+                              service_fee: formatExampleAmount(pricingExample.service_fee_amount),
+                              processing_fee: formatExampleAmount(pricingExample.estimated_processing_fee_amount),
+                            })}
+                            {pricingExample.tax_enabled && " "}
+                            {pricingExample.tax_enabled && I18n.t('events.edit.tickets.ticket_tax_behavior.example.after_tax_reserve', {
+                              tax: formatExampleAmount(pricingBreakdown.amount_tax),
+                              amount: formatExampleAmount(pricingBreakdown.seller_amount_after_tax_reserve),
+                            })}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {I18n.t(`events.edit.tickets.ticket_tax_behavior.example.${pricingExample.tax_enabled ? "disclaimer" : "tax_disabled"}`)}
+                          </p>
+                          {pricingExample.tax_enabled && (
+                            <p className="text-xs text-muted-foreground">
+                              {I18n.t('events.edit.tickets.ticket_tax_behavior.example.tax_not_withheld')}
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </FormItem>
+                  )}
+                />
+              )}
 
               <p className="text-sm text-muted-foreground">
                 {I18n.t('events.edit.tickets.reorder_hint')}

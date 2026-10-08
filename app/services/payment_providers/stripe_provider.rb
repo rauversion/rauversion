@@ -25,7 +25,7 @@ module PaymentProviders
         session, = client.request { Stripe::Checkout::Session.create(checkout_params) }
         purchase.update(stripe_session_id: session.id)
         { checkout_url: session.url }
-      rescue Stripe::InvalidRequestError, InvalidFeeConfiguration, InvalidShippingSelection => e
+      rescue Stripe::InvalidRequestError, InvalidFeeConfiguration, InvalidShippingSelection, StripeProcessingFeeEstimate::InvalidConfiguration => e
         { error: e.message }
       end
     end
@@ -197,20 +197,7 @@ module PaymentProviders
     end
 
     def estimated_processing_fee(total, currency)
-      return 0 unless total.positive?
-
-      # Baseline: US domestic card pricing. Other currencies use the percentage
-      # estimate unless a fixed fee in their own currency is configured.
-      percentage = BigDecimal(ENV.fetch("STRIPE_PRODUCT_PROCESSING_FEE_PERCENTAGE", "2.9").to_s)
-      fixed_default = currency == "usd" ? "0.30" : "0"
-      fixed = BigDecimal(ENV.fetch("STRIPE_PRODUCT_PROCESSING_FIXED_FEE_#{currency.upcase}", fixed_default).to_s)
-      unless percentage.finite? && fixed.finite? && percentage >= 0 && percentage < 100 && fixed >= 0
-        raise InvalidFeeConfiguration, "Invalid Stripe product processing fee estimate"
-      end
-
-      (total * percentage / 100).round.to_i + stripe_amount(fixed, currency)
-    rescue ArgumentError
-      raise InvalidFeeConfiguration, "Invalid Stripe product processing fee estimate"
+      StripeProcessingFeeEstimate.call(total: total, currency: currency, source: "product")
     end
 
     def discounted_checkout_total(total, promo_code, currency)

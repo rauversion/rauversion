@@ -6,8 +6,10 @@ create a later transfer, settlement job, or database migration for this flow.
 
 The buyer pays product prices, shipping, and the existing separate service fee.
 The product service fee uses `PLATFORM_MARKETPLACE_FEE`, defaulting to 8%.
-Tickets and digital music retain their existing fee settings and processing
-cost responsibility.
+Ticket checkouts also recover estimated processing costs from the organizer,
+using their own service fee and processing estimate settings. See
+[ticket Stripe fees](ticket-stripe-processing-fees.md). Digital music retains
+its existing fee settings and processing cost responsibility.
 
 The seller receives the payment minus the service fee and an estimated Stripe
 processing cost. Both amounts are included in `application_fee_amount` and the

@@ -23,6 +23,7 @@ if @event.errors.any?
   end
 else
   json.ticket_currency @event.ticket_currency
+  json.ticket_tax_behavior @event.effective_ticket_tax_behavior
   json.tickets @event.event_tickets.reload
 end
 
@@ -74,6 +75,7 @@ json.event do
   
   # Event settings JSON
   json.event_settings @event.event_settings
+  json.ticket_tax_behavior @event.effective_ticket_tax_behavior
   json.scheduling_settings @event.scheduling_settings
   json.attendee_list_settings @event.attendee_list_settings
   json.tax_rates_settings @event.tax_rates_settings

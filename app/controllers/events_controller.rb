@@ -291,7 +291,7 @@ class EventsController < ApplicationController
       :scheduling_description, :cover,
       :google_analytics_id, :meta_pixel_id, :google_tag_manager_id,
       :requires_shipping, :show_remaining_count,
-      :ticket_currency, :hide_location_until_purchase,
+      :ticket_currency, :ticket_tax_behavior, :hide_location_until_purchase,
       :site_mode,
       event_schedules_attributes: [
         :id, :name, :_destroy, :start_date, :end_date, :schedule_type, :description,

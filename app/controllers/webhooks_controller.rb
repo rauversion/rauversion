@@ -50,13 +50,15 @@ class WebhooksController < ApplicationController
     when "checkout.session.async_payment_succeeded"
       if event.data.object.metadata.source_type == "course"
         Courses::FulfillStripeCheckout.call(event.data.object)
-      elsif event.data.object.metadata.source_type == "product"
+      elsif %w[product event].include?(event.data.object.metadata.source_type)
         confirm_stripe_purchase(event.data.object)
       end
     when "checkout.session.async_payment_failed"
       if event.data.object.metadata.source_type == "product"
         purchase = ProductPurchase.find_by(id: event.data.object.metadata.purchase_id)
         purchase.update!(status: :failed) if purchase&.pending?
+      elsif event.data.object.metadata.source_type == "event"
+        Rails.logger.info("Stripe ticket payment failed for Checkout #{event.data.object.id}")
       end
     when "charge.refunded"
       handle_stripe_refund(event.data.object)
@@ -124,17 +126,54 @@ class WebhooksController < ApplicationController
     elsif event_object&.metadata&.source_type == "playlist"
       handle_playlist_purchase(event_object&.metadata)
     elsif event_object&.metadata&.source_type == "event"
-      purchase = Purchase.find_by(checkout_type: "stripe", checkout_id: event_object.id)
+      return unless %w[paid no_payment_required].include?(event_object.payment_status)
+
+      purchase = Purchase.find_by(checkout_type: "stripe", checkout_id: event_object.id, purchasable_type: "Event")
 
       if purchase.present?
-        purchase.price = event_object.amount_total
-        purchase.currency = event_object.currency
-        purchase.complete_purchase!
+        purchase.with_lock do
+          purchase.payment_metadata = event_payment_metadata(event_object, purchase.payment_metadata)
+          if purchase.pending?
+            purchase.price = event_object.amount_total
+            purchase.currency = event_object.currency
+            purchase.complete_purchase!
+          elsif purchase.changed?
+            purchase.save!
+          end
+        end
       end
     else
       raise "no type for #{event_object.id}"
     end
   end
+
+  def event_payment_metadata(session, existing_metadata)
+    checkout = session.to_hash.deep_stringify_keys
+    # Keep the fee snapshot made at checkout even if remote metadata is edited later.
+    fee_metadata = checkout.fetch("metadata", {}).merge(existing_metadata)
+    %w[ticket_total_amount service_fee_amount estimated_processing_fee_amount application_fee_amount processing_fee_base_amount].each do |key|
+      next unless fee_metadata.key?(key)
+
+      fee_metadata[key] = Integer(fee_metadata[key].to_s, 10)
+    end
+
+    payment_intent = checkout["payment_intent"]
+    payment_intent_id = payment_intent.is_a?(Hash) ? payment_intent["id"] : payment_intent
+    payment_details = {
+      "amount_unit" => "minor",
+      "currency" => checkout["currency"],
+      "payment_intent_id" => payment_intent_id,
+      "amount_total" => checkout["amount_total"],
+      "amount_subtotal" => checkout["amount_subtotal"],
+      "amount_tax" => checkout.dig("total_details", "amount_tax"),
+      "amount_discount" => checkout.dig("total_details", "amount_discount"),
+      "amount_shipping" => checkout.dig("total_details", "amount_shipping")
+    }.compact
+
+    fee_metadata.merge(payment_details)
+  end
+
+  private :event_payment_metadata
 
   def handle_track_purchase(event_object)
     purchase = Purchase.find(event_object.purchase_id)

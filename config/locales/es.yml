@@ -388,6 +388,24 @@ es:
           label: Moneda de las Entradas
           placeholder: Seleccionar moneda
           description: Elige la moneda que los asistentes utilizarán para comprar las entradas.
+        ticket_tax_behavior:
+          label: Impuestos en el precio
+          options:
+            inclusive: Incluidos en el precio
+            exclusive: Añadidos al pagar
+          descriptions:
+            inclusive: Los impuestos aplicables están incluidos en el precio de las entradas y el cargo por servicio. Se desglosan al pagar y no aumentan el total.
+            exclusive: Si corresponde, los impuestos se suman al precio de las entradas y al cargo por servicio al pagar.
+          example:
+            title: Ejemplo orientativo
+            assumptions: "Para una entrada de %{price}, con %{service_percentage}% de servicio y un impuesto ilustrativo del %{tax_percentage}%."
+            inclusive: "El comprador paga %{total}. El impuesto de %{tax} ya está incluido en ese total."
+            exclusive: "El comprador paga %{total}: %{base} de entrada y servicio, más %{tax} de impuesto."
+            seller: "Recibirías aproximadamente %{payout} antes de separar impuestos, descontando %{service_fee} de servicio y %{processing_fee} de procesamiento."
+            after_tax_reserve: "Si separas los %{tax} de impuesto, quedarían %{amount}."
+            disclaimer: "Este ejemplo supone la misma tasa para la entrada y el servicio. Stripe determina el impuesto real según la ubicación y las reglas fiscales; el costo de procesamiento también puede variar."
+            tax_disabled: "El cálculo automático de impuestos está desactivado. El costo de procesamiento es estimado y puede variar."
+            tax_not_withheld: "Actualmente Rauversion no retiene el impuesto del pago al vendedor. El monto recibido no equivale a una ganancia neta definitiva."
         form:
           title:
             label: Título

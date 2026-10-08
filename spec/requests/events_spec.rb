@@ -26,6 +26,34 @@ RSpec.describe "Events", type: :request do
       expect(json["event_dates_formatted"]).to be_present
     end
 
+    it "returns the effective ticket tax pricing for the editor" do
+      event.update!(ticket_tax_behavior: "inclusive")
+      sign_in user
+
+      get edit_event_path(event, format: :json)
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)).to include("ticket_tax_behavior" => "inclusive")
+    end
+
+    it "includes configured fee examples so changing tax pricing or currency updates the explanation" do
+      event.update!(custom_fee: 3, ticket_currency: "clp")
+      allow(ENV).to receive(:fetch).and_call_original
+      allow(ENV).to receive(:fetch).with("STRIPE_TICKET_PROCESSING_FEE_PERCENTAGE", "2.9").and_return("2.9")
+      allow(ENV).to receive(:fetch).with("STRIPE_TICKET_PROCESSING_FIXED_FEE_CLP", "0").and_return("0")
+      allow(ENV).to receive(:fetch).with("STRIPE_AUTOMATIC_TAX_ENABLED", "true").and_return("true")
+      sign_in user
+
+      get edit_event_path(event, format: :json)
+
+      expect(response).to have_http_status(:ok)
+      examples = JSON.parse(response.body).fetch("ticket_pricing_examples")
+      expect(examples).to have_key("usd")
+      expect(examples.fetch("clp")).to include("service_fee_percentage" => 3, "service_fee_amount" => 30)
+      expect(examples.dig("clp", "inclusive", "amount_total")).to eq(1_030)
+      expect(examples.dig("clp", "exclusive", "amount_total")).to eq(1_226)
+    end
+
     it "allows event managers to open the edit shell" do
       create(:event_host, event: event, user: manager, access_role: "admin")
       sign_in manager
@@ -106,6 +134,29 @@ RSpec.describe "Events", type: :request do
 
     before do
       sign_in user
+    end
+
+    it "persists the tax pricing choice and returns it for subsequent form saves" do
+      put event_path(event, format: :json), params: { event: { ticket_tax_behavior: "inclusive" } }, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(event.reload.ticket_tax_behavior).to eq("inclusive")
+      payload = JSON.parse(response.body)
+      expect(payload).to include("ticket_tax_behavior" => "inclusive")
+      expect(payload.fetch("event")).to include("ticket_tax_behavior" => "inclusive")
+
+      put event_path(event, format: :json), params: { event: { title: "Updated event" } }, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(event.reload.ticket_tax_behavior).to eq("inclusive")
+    end
+
+    it "rejects tax modes that would disable tax collection" do
+      put event_path(event, format: :json), params: { event: { ticket_tax_behavior: "disabled" } }, as: :json
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(JSON.parse(response.body).fetch("errors")).to include("ticket_tax_behavior")
+      expect(event.reload.ticket_tax_behavior).to be_blank
     end
 
     it "returns persisted ticket IDs so subsequent saves update instead of duplicate" do

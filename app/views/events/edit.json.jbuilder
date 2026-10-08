@@ -101,6 +101,8 @@ json.widget_button @event.widget_button if @event.widget_button.present?
 json.tax_rates_settings @event.tax_rates_settings if @event.tax_rates_settings.present?
 json.attendee_list_settings @event.attendee_list_settings if @event.attendee_list_settings.present?
 json.ticket_currency @event.ticket_currency
+json.ticket_tax_behavior @event.effective_ticket_tax_behavior
+json.ticket_pricing_examples PaymentProviders::TicketPricingExamples.call(@event)
 json.site_mode @event.site_mode
 json.site_pages @event.site_pages
 json.google_analytics_id @event.google_analytics_id

@@ -5,6 +5,50 @@ RSpec.describe Event, type: :model do
     FactoryBot.create(:user, username: "user", role: "user")
   }
 
+  describe "ticket tax pricing" do
+    let(:event) { create(:event, user: user) }
+
+    before do
+      allow(ENV).to receive(:fetch).and_call_original
+      allow(ENV).to receive(:fetch).with("STRIPE_TICKET_TAX_BEHAVIOR", "exclusive").and_return("exclusive")
+    end
+
+    it "uses the platform's existing tax pricing for events without an override" do
+      expect(event.ticket_tax_behavior).to be_blank
+      expect(event.effective_ticket_tax_behavior).to eq("exclusive")
+
+      allow(ENV).to receive(:fetch).with("STRIPE_TICKET_TAX_BEHAVIOR", "exclusive").and_return("inclusive")
+      expect(event.effective_ticket_tax_behavior).to eq("inclusive")
+    end
+
+    it "persists an inclusive event override without changing the platform default" do
+      event.update!(ticket_tax_behavior: "inclusive")
+
+      expect(event.reload.effective_ticket_tax_behavior).to eq("inclusive")
+      expect(event.event_settings["ticket_tax_behavior"]).to eq("inclusive")
+    end
+
+    it "allows an event to add tax even when the platform default is inclusive" do
+      allow(ENV).to receive(:fetch).with("STRIPE_TICKET_TAX_BEHAVIOR", "exclusive").and_return("inclusive")
+      event.update!(ticket_tax_behavior: "exclusive")
+
+      expect(event.reload.effective_ticket_tax_behavior).to eq("exclusive")
+    end
+
+    it "rejects unsupported tax pricing" do
+      event.ticket_tax_behavior = "disabled"
+
+      expect(event).not_to be_valid
+      expect(event.errors).to include(:ticket_tax_behavior)
+    end
+
+    it "retains exclusive behavior if the platform environment setting is invalid" do
+      allow(ENV).to receive(:fetch).with("STRIPE_TICKET_TAX_BEHAVIOR", "exclusive").and_return("unexpected")
+
+      expect(event.effective_ticket_tax_behavior).to eq("exclusive")
+    end
+  end
+
   describe "associations" do
     it { should belong_to(:user) }
     it { should have_many(:event_hosts) }
