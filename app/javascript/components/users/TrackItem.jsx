@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Play, Pause } from 'lucide-react'
 import TrackPlayer from '../tracks/TrackPlayer'
@@ -8,7 +8,7 @@ import MusicPurchase from '@/components/shared/MusicPurchase'
 import { getUserDisplayName } from '@/utils/userDisplayName'
 
 export default function TrackItem({
-  track,
+  track: initialTrack,
   currentTrackId,
   isPlaying,
   onPlay,
@@ -16,6 +16,12 @@ export default function TrackItem({
   embed,
   host
 }) {
+  const [track, setTrack] = useState(initialTrack)
+
+  useEffect(() => {
+    setTrack(initialTrack)
+  }, [initialTrack])
+
   const isCurrentTrack =
     currentTrackId !== null && `${currentTrackId}` === `${track.id}`
   const isCurrentlyPlaying = isCurrentTrack && isPlaying
@@ -93,7 +99,7 @@ export default function TrackItem({
 
             </div>
 
-            {!embed && <TrackItemMenu track={track} />}
+            {!embed && <TrackItemMenu track={track} onTrackUpdated={setTrack} />}
           </div>
 
           <div className="mt-4 hidden- sm:block">

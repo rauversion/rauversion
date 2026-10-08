@@ -41,7 +41,7 @@ export default function Sidebar({ user }) {
           </div>
         </div>*/}
 
-        <p className="mb-2 h-40 overflow-hidden text-ellipsis text-base font-normal text-subtle @lg/sidebar:h-56 @lg/sidebar:text-xl">
+        <p className="mb-2 h-40 overflow-hidden whitespace-pre-line text-ellipsis text-base font-normal text-subtle @lg/sidebar:h-56 @lg/sidebar:text-xl">
           {user?.bio}
         </p>
 

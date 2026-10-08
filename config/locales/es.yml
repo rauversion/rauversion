@@ -1482,6 +1482,9 @@ es:
         dj_set_policy_removal: La publicación no garantiza autorización sobre música de terceros. Rauversion podrá remover, bloquear o limitar cualquier contenido si recibe reclamos de titulares de derechos o detecta posibles infracciones.
         dj_set_pricing_disabled: Los DJ sets y mixes se publican sin monetización por defecto, por eso el precio queda desactivado.
         dj_set_download_disabled: Los DJ sets se publican sin descarga directa.
+      label_artist:
+        title: Artista de la publicación
+        description: Elige un artista activo de tu sello. La pista seguirá vinculada a tu sello.
       delete:
         button: Eliminar Pista
         confirm_title: ¿Estás absolutamente seguro?
@@ -1495,6 +1498,8 @@ es:
         video_upload_error: Error al subir el video
         update_success: Pista actualizada exitosamente
         update_error: Error al actualizar la pista
+        invalid_label_artist: Elige un artista activo de tu sello en este sitio.
+        artist_assignment_forbidden: Solo las cuentas sello pueden cambiar el artista de la publicación.
         delete_success: Pista eliminada exitosamente
         delete_error: Error al eliminar la pista
     new:
@@ -1863,6 +1868,14 @@ es:
       error_fetching: Error al cargar el usuario
       location:
         separator: ", "
+    description_editor:
+      edit: Editar descripción del perfil
+      label: Descripción
+      help: "Actualiza la descripción pública de %{name}."
+      saving: Guardando…
+      saved: Descripción guardada.
+      error: No se pudo guardar la descripción. Inténtalo de nuevo.
+      not_allowed: No tienes permiso para editar esta descripción.
 
   user_settings:
     title_account: Cuenta

@@ -9,6 +9,7 @@ json.user do
   json.country profile.country
   json.city profile.city
   json.bio profile.bio
+  json.can_edit_description @tenant_profile&.description_editable_by?(current_user) || false
   json.display_name profile.display_name
   
   json.avatar_url do

@@ -46,11 +46,14 @@ import PricingForm from "@/components/shared/forms/PricingForm"
 import ArtistSelector from "@/components/shared/forms/ArtistSelector"
 import TrackPreviewForm from "@/components/tracks/TrackPreviewForm"
 import { trackPreviewSettings } from "@/lib/track-preview-settings"
+import useAuthStore from "@/stores/authStore"
+import { getUserDisplayName } from "@/utils/userDisplayName"
 import I18n from 'stores/locales'
 
 export default function TrackEdit({ track: initialTrack, open, onOpenChange, onOk, canDelete = true }) {
   const { toast } = useToast()
   const { isDarkMode } = useThemeStore()
+  const { currentUser } = useAuthStore()
   const navigate = useNavigate()
   const [track, setTrack] = useState(initialTrack)
   const [loading, setLoading] = useState(false)
@@ -98,10 +101,21 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
       cover: track.cover || "",
       video: "",
       ...trackPreviewSettings(track),
+      artist_id: String(track.user?.id || ""),
       artist_ids: track.artists || [],
     }
   })
   const isDjSet = watch("dj_set")
+  const canChangeArtist = Boolean(currentUser?.label && track.can_change_artist)
+  const canDeleteTrack = canDelete && String(currentUser?.id) === String(track.user?.id)
+  const labelArtists = track.label_artists || []
+  const publishingArtists = labelArtists.some((artist) => String(artist.id) === String(track.user?.id))
+    ? labelArtists
+    : [track.user, ...labelArtists].filter(Boolean)
+  const publishingArtistOptions = publishingArtists.map((artist) => ({
+    value: String(artist.id),
+    label: `${getUserDisplayName(artist)} (@${artist.username})`,
+  }))
 
   useEffect(() => {
     if (!isDjSet) return
@@ -133,6 +147,7 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
     setLoading(true)
     try {
       const response = await get(`/tracks/${track.slug}.json`, { responseKind: "json" })
+      if (!response.ok) throw new Error("Track unavailable")
       const data = await response.json
       setTrack(data.track)
       setValue('cropped_image', data.cover_url?.cropped_image)
@@ -150,6 +165,8 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
         }
       })
       Object.entries(trackPreviewSettings(data.track)).forEach(([key, value]) => setValue(key, value))
+      setValue("artist_id", String(data.track.user.id))
+      setValue("artist_ids", data.track.artists || [])
       if (!data.track.has_video && !(Number(data.track.original_duration) > 0)) {
         fetchSourceDuration(data.track)
       }
@@ -259,6 +276,9 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
       if (!payload.video) {
         delete payload.video
       }
+      if (!canChangeArtist || String(payload.artist_id) === String(track.user?.id)) {
+        delete payload.artist_id
+      }
       // Convert artist_ids from array of objects to array of IDs
       if (payload.artist_ids && Array.isArray(payload.artist_ids)) {
         payload.artist_ids = payload.artist_ids.map(a => a.id)
@@ -275,12 +295,13 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
       })
 
       if (response.ok) {
+        const result = await response.json
         toast({
           title: I18n.t("tracks.edit.messages.success_title"),
           description: I18n.t('tracks.edit.messages.update_success')
         })
         onOpenChange(false)
-        onOk && onOk(response)
+        onOk && onOk(result.track)
       } else {
         const error = await response.json
         toast({
@@ -403,6 +424,40 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
                           )}
                         />
                       </div>
+
+                      {canChangeArtist && (
+                        <div>
+                          <Label htmlFor="publishing-artist">
+                            {I18n.t("tracks.edit.label_artist.title")}
+                          </Label>
+                          <Controller
+                            name="artist_id"
+                            control={control}
+                            render={({ field }) => (
+                              <Select
+                                inputId="publishing-artist"
+                                name={field.name}
+                                ref={field.ref}
+                                onBlur={field.onBlur}
+                                value={publishingArtistOptions.find((option) => option.value === field.value)}
+                                options={publishingArtistOptions}
+                                onChange={(option) => field.onChange(option.value)}
+                                theme={(theme) => selectTheme(theme, isDarkMode)}
+                                className="mt-2"
+                                classNamePrefix="react-select"
+                              />
+                            )}
+                          />
+                          <p className="mt-2 text-sm text-muted-foreground">
+                            {I18n.t("tracks.edit.label_artist.description")}
+                          </p>
+                          {labelArtists.length === 0 && (
+                            <p className="mt-2 text-sm text-muted-foreground">
+                              {I18n.t("tracks.new.label_artist.empty")}
+                            </p>
+                          )}
+                        </div>
+                      )}
 
                       <ArtistSelector control={control} setValue={setValue} watch={watch} name="artist_ids" />
 
@@ -580,7 +635,7 @@ export default function TrackEdit({ track: initialTrack, open, onOpenChange, onO
 
           <div className="border-t p-6 mt-auto">
             <div className="flex justify-between items-center gap-4">
-              {canDelete && <AlertDialog>
+              {canDeleteTrack && <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="destructive">
                     {I18n.t('tracks.edit.delete.button')}

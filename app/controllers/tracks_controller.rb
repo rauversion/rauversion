@@ -125,24 +125,32 @@ class TracksController < ApplicationController
 
   def update
     @tab = params[:track][:tab] || "basic-info-tab"
-    @track.assign_attributes(track_params)
-    if params[:track][:artist_ids]
-      @track.artist_ids = params[:track][:artist_ids].reject(&:blank?)
+    @track.tab = @tab
+    attributes = track_params
+    artist_id = attributes.delete(:artist_id)
+    artist_ids = attributes.delete(:artist_ids)
+
+    if params[:track].key?(:artist_id) && !assign_publishing_artist(artist_id)
+      flash.now[:error] = @track.errors.full_messages
+      response.status = :unprocessable_entity if request.format.json?
+      return
     end
 
+    @track.assign_attributes(attributes)
     if params[:nonpersist]
       @track.valid?
     else
       @track.label_id = label_user.id if !label_user.blank? && @track.enable_label
-      if @track.save
-        flash.now[:notice] = "Track was successfully updated."
-      else
-        flash.now[:error] = @track.errors.full_messages
+      Track.transaction do
+        if @track.save
+          @track.artist_ids = artist_ids.reject(&:blank?) unless artist_ids.nil?
+          flash.now[:notice] = "Track was successfully updated."
+        else
+          flash.now[:error] = @track.errors.full_messages
+        end
       end
     end
     response.status = :unprocessable_entity if @track.errors.any? && request.format.json?
-    # puts @track.errors.as_json
-    @track.tab = @tab
   end
 
   def private_access
@@ -213,6 +221,25 @@ class TracksController < ApplicationController
     raise ActiveRecord::RecordNotFound unless @track.editable_by?(current_user)
   end
 
+  def assign_publishing_artist(artist_id)
+    unless @track.publishing_artist_editable_by?(current_user)
+      @track.errors.add(:base, I18n.t("tracks.edit.messages.artist_assignment_forbidden"))
+      return false
+    end
+
+    return true if artist_id.present? && artist_id.to_s == @track.user_id.to_s
+
+    artist = current_user.upload_artists.find_by(id: artist_id) if artist_id.present?
+    unless artist
+      @track.errors.add(:base, I18n.t("tracks.edit.messages.invalid_label_artist"))
+      return false
+    end
+
+    @track.user = artist
+    @track.label = current_user
+    true
+  end
+
   def load_discovery(scope:)
     discovery = TracksDiscoveryQuery.new(
       scope: scope,
@@ -279,7 +306,7 @@ class TracksController < ApplicationController
       :private,
       :enable_label,
       :audio, :title, :step, :description,
-      :tab, :genre, :contains_music, :artist, :publisher, :isrc,
+      :tab, :genre, :contains_music, :artist, :artist_id, :publisher, :isrc,
       :composer, :release_title, :buy_link, :album_title,
       :record_label, :release_date, :barcode,
       :iswc, :p_line,

@@ -1280,6 +1280,9 @@ en:
         dj_set_policy_removal: Publication does not guarantee authorization for third-party music. Rauversion may remove, block or limit content if rights holders submit claims or possible infringement is detected.
         dj_set_pricing_disabled: DJ sets and mixes are published without monetization by default, so pricing is disabled.
         dj_set_download_disabled: DJ sets are published without direct downloads.
+      label_artist:
+        title: Publishing artist
+        description: Choose an active artist from your label. The track will remain linked to your label.
       delete:
         button: Delete Track
         confirm_title: Are you absolutely sure?
@@ -1295,6 +1298,8 @@ en:
         video_upload_error: Error uploading the video
         update_success: Track successfully updated
         update_error: Error updating the track
+        invalid_label_artist: Choose an active artist from your label on this site.
+        artist_assignment_forbidden: Only label accounts can change the publishing artist.
         delete_success: Track successfully deleted
         delete_error: Error deleting track
     count: "%{count} Pistas"
@@ -1798,6 +1803,14 @@ en:
       error_fetching: Error loading the user
       location:
         separator: "·"
+    description_editor:
+      edit: Edit profile description
+      label: Description
+      help: "Update the public description for %{name}."
+      saving: Saving…
+      saved: Description saved.
+      error: The description could not be saved. Please try again.
+      not_allowed: You do not have permission to edit this description.
   user_settings:
     title_account: Account
     sub_account: Basic account information.

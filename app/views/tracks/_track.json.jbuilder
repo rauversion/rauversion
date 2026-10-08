@@ -6,6 +6,7 @@ json.price track.price
 json.price number_to_currency(track.price) unless track.price.nil?
 json.private track.private
 json.can_edit track.editable_by?(current_user)
+json.can_change_artist track.publishing_artist_editable_by?(current_user)
 json.duration track.duration
 json.original_duration track.original_duration
 json.preview_enabled track.preview_enabled?

@@ -1,4 +1,5 @@
 class UsersController < ApplicationController
+  before_action :authenticate_user!, only: [:update_description]
   before_action :find_user, except: [:index, :stats]
   before_action :check_user_role, except: [:index]
 
@@ -28,6 +29,18 @@ class UsersController < ApplicationController
     respond_to do |format|
       format.html # show.html.erb
       format.json # show.json.jbuilder
+    end
+  end
+
+  def update_description
+    unless @tenant_profile.description_editable_by?(current_user)
+      return render json: { errors: [I18n.t("users.description_editor.not_allowed")] }, status: :forbidden
+    end
+
+    if @tenant_profile.update(params.require(:user).permit(:bio))
+      render json: { bio: @tenant_profile.bio }
+    else
+      render json: { errors: @tenant_profile.errors.full_messages }, status: :unprocessable_entity
     end
   end
 

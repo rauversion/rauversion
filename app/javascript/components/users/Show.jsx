@@ -18,6 +18,7 @@ import Sidebar from "./Sidebar";
 import I18n from "@/stores/locales";
 import { InterestAlert } from "../shared/alerts";
 import { getUserDisplayName } from "@/utils/userDisplayName";
+import DescriptionEditor from "./DescriptionEditor";
 
 export default function UserShow() {
   const { username } = useParams();
@@ -35,15 +36,19 @@ export default function UserShow() {
   } = useArtistStore();
 
   useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
     const fetchUser = async () => {
       try {
         const response = await get(`/${username}.json`);
         if (response.ok) {
           const data = await response.json;
+          if (cancelled) return;
           setUser(data.user);
           setMenuItems(data.user.menu_items);
         } else {
           const data = await response.json;
+          if (cancelled) return;
           if (data.error) {
             setUser(null);
             setUserErrorMessage(data.error);
@@ -52,15 +57,16 @@ export default function UserShow() {
       } catch (error) {
         console.error(I18n.t("users.show.error_fetching"), error);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
     fetchUser();
     return () => {
+      cancelled = true;
       resetArtists();
     };
-  }, [username, resetArtists]);
+  }, [username, resetArtists, currentUser?.id]);
 
   const handlePlay = (trackId) => {
     if (`${currentTrackId}` === `${trackId}` && isPlaying) {
@@ -156,9 +162,21 @@ export default function UserShow() {
             />
 
             <div>
-              <h1 className="sm:text-4xl text-2xl font-bold text-white">
-                {displayName}
-              </h1>
+              <div className="flex items-center gap-2">
+                <h1 className="sm:text-4xl text-2xl font-bold text-white">
+                  {displayName}
+                </h1>
+                {currentUser && user.can_edit_description && (
+                  <DescriptionEditor
+                    key={user.id}
+                    user={user}
+                    onSaved={(bio) => {
+                      const currentArtist = useArtistStore.getState().artist;
+                      if (currentArtist?.id === user.id) setUser({ ...currentArtist, bio });
+                    }}
+                  />
+                )}
+              </div>
 
               {!user.hide_username_from_profile && (
                 <p className="text-lg text-muted-foreground">

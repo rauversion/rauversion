@@ -14,7 +14,7 @@ import AddToPlaylist from '../playlists/AddToPlaylist'
 import { Link } from "react-router-dom"
 import { ShareDialog } from "@/components/ui/share-dialog"
 
-export default function TrackItemMenu({ track }) {
+export default function TrackItemMenu({ track, onTrackUpdated }) {
   const { isAuthenticated, currentUser } = useAuthStore()
   const [likes, setLikes] = useState(track.likes_count || 0)
   const [isLiked, setIsLiked] = useState(!!track.like_id)
@@ -175,7 +175,7 @@ export default function TrackItemMenu({ track }) {
         )}
       </div>
 
-      {canEdit && <TrackEdit track={track} canDelete={isOwner} open={editDialogOpen} onOpenChange={setEditDialogOpen} />}
+      {canEdit && <TrackEdit track={track} canDelete={isOwner} open={editDialogOpen} onOpenChange={setEditDialogOpen} onOk={onTrackUpdated} />}
       <AddToPlaylist track={track} open={addToPlaylistOpen} onOpenChange={setAddToPlaylistOpen} />
     </>
   )

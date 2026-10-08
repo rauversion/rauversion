@@ -4,6 +4,12 @@ json.track do
   json.description @track.description
   json.private @track.private
   json.can_edit @track.editable_by?(current_user)
+  json.can_change_artist @track.publishing_artist_editable_by?(current_user)
+  if @track.publishing_artist_editable_by?(current_user)
+    json.label_artists current_user.upload_artists do |artist|
+      json.extract! artist, :id, :username, :display_name
+    end
+  end
   json.slug @track.slug
   json.caption @track.caption
   json.notification_settings @track.notification_settings

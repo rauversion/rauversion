@@ -42,6 +42,10 @@ class Track < ApplicationRecord
     user_id == user.id || (user.label? && label_id == user.id)
   end
 
+  def publishing_artist_editable_by?(user)
+    user.present? && user.label? && editable_by?(user)
+  end
+
   has_one_attached :cover
   has_one_attached :audio
   has_one_attached :video

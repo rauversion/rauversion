@@ -5046,11 +5046,17 @@
           "video_selected": "Ready to save: %{name}",
           "video_uploading": "Uploading video..."
         },
+        "label_artist": {
+          "description": "Choose an active artist from your label. The track will remain linked to your label.",
+          "title": "Publishing artist"
+        },
         "messages": {
+          "artist_assignment_forbidden": "Only label accounts can change the publishing artist.",
           "cover_success": "Cover image successfully updated",
           "delete_error": "Error deleting track",
           "delete_success": "Track successfully deleted",
           "error_title": "Error",
+          "invalid_label_artist": "Choose an active artist from your label on this site.",
           "success_title": "Success",
           "update_error": "Error updating the track",
           "update_success": "Track successfully updated",
@@ -5713,6 +5719,15 @@
         "view_profile": "View Profile"
       },
       "artists": "Artists",
+      "description_editor": {
+        "edit": "Edit profile description",
+        "error": "The description could not be saved. Please try again.",
+        "help": "Update the public description for %{name}.",
+        "label": "Description",
+        "not_allowed": "You do not have permission to edit this description.",
+        "saved": "Description saved.",
+        "saving": "Saving…"
+      },
       "follow": "Follow",
       "following": "Following",
       "not_found": "The profile you are trying to access is not activated",
@@ -10678,11 +10693,17 @@
           "video_selected": "Listo para guardar: %{name}",
           "video_uploading": "Subiendo video..."
         },
+        "label_artist": {
+          "description": "Elige un artista activo de tu sello. La pista seguirá vinculada a tu sello.",
+          "title": "Artista de la publicación"
+        },
         "messages": {
+          "artist_assignment_forbidden": "Solo las cuentas sello pueden cambiar el artista de la publicación.",
           "cover_success": "Imagen de portada actualizada exitosamente",
           "delete_error": "Error al eliminar la pista",
           "delete_success": "Pista eliminada exitosamente",
           "error_title": "Error",
+          "invalid_label_artist": "Elige un artista activo de tu sello en este sitio.",
           "success_title": "Éxito",
           "update_error": "Error al actualizar la pista",
           "update_success": "Pista actualizada exitosamente",
@@ -11342,6 +11363,15 @@
         "view_profile": "Ver Perfil"
       },
       "artists": "Artistas",
+      "description_editor": {
+        "edit": "Editar descripción del perfil",
+        "error": "No se pudo guardar la descripción. Inténtalo de nuevo.",
+        "help": "Actualiza la descripción pública de %{name}.",
+        "label": "Descripción",
+        "not_allowed": "No tienes permiso para editar esta descripción.",
+        "saved": "Descripción guardada.",
+        "saving": "Guardando…"
+      },
       "follow": "Seguir",
       "following": "Siguiendo",
       "not_found": "El perfil al que intentas acceder no está activado",

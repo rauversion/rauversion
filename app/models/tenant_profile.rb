@@ -13,6 +13,13 @@ class TenantProfile < ApplicationRecord
 
   scope :for_tenant, ->(tenant = Current.tenant) { tenant.present? ? where(tenant_id: tenant.id) : none }
 
+  def description_editable_by?(actor)
+    return false unless actor&.label? && tenant_id == Current.tenant&.id
+    return false unless actor.memberships.exists?(tenant_id: tenant_id)
+
+    actor.id == user_id || actor.is_child_of?(user_id)
+  end
+
   def self.create_for_membership!(membership)
     # Serialize repairs against the existing membership so concurrent requests
     # cannot create duplicate profiles or overwrite tenant-specific data.

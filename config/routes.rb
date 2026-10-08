@@ -231,6 +231,7 @@ Rails.application.routes.draw do
   get "/oembed/", to: "oembed#show", as: :oembed
   get "/become/:id", to: "application#become"
   get "/artists", to: "users#index"
+  patch "/profiles/:id/description", to: "users#update_description", as: :profile_description
   get "/store", to: "store#index"
   
   resources :store do
