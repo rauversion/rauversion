@@ -22,6 +22,7 @@ const useCartStore = create((set, get) => ({
   loading: false,
   error: null,
   openOnAdd: false,
+  signInRequired: false,
 
   fetchCart: async () => {
     set({ loading: true })
@@ -52,12 +53,19 @@ const useCartStore = create((set, get) => ({
   },
 
   addToCart: async (productId) => {
+    if (!useAuthStore.getState().isAuthenticated()) {
+      get().requestSignIn()
+      return
+    }
+
     set({ loading: true })
     try {
       const response = await post(`/product_cart/add/${productId}.json`)
-      if (response.ok) {
+      if (response.unauthenticated) {
+        get().requestSignIn()
+      } else if (response.ok) {
         const data = await response.json
-        set({ cart: data.cart, error: null, openOnAdd: true })
+        set({ cart: data.cart, error: null, openOnAdd: true, signInRequired: false })
         syncCartItemCount(data.cart)
         toast({
           title: "Added to Cart",
@@ -150,6 +158,8 @@ const useCartStore = create((set, get) => ({
     }
   },
 
+  requestSignIn: () => set({ signInRequired: true, error: null, openOnAdd: false }),
+  dismissSignIn: () => set({ signInRequired: false }),
   clearError: () => set({ error: null }),
   clearOpenOnAdd: () => set({ openOnAdd: false })
 }))

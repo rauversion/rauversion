@@ -2,6 +2,8 @@
 en:
   products:
     cart:
+      sign_in_title: "Sign in to continue"
+      sign_in_required: "You need to sign in to add products to your cart."
       delivery_method: "Delivery method"
       shipping: "Ship to address"
       local_pickup: "No shipping / arrange pickup"
@@ -124,6 +126,8 @@ en:
         uploading: Uploading photos...
    
     show:
+      load_error: "We could not load this product. Please try again."
+      try_again: "Try again"
       edit_product: Edit Product
       delete_product: Delete Product
       add_to_cart: Add to Cart

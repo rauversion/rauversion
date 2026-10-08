@@ -2,6 +2,8 @@ es:
   products:
 
     cart:
+      sign_in_title: "Inicia sesión para continuar"
+      sign_in_required: "Necesitas iniciar sesión para agregar productos a tu carrito."
       delivery_method: "Forma de entrega"
       shipping: "Envío a domicilio"
       local_pickup: "Sin envío / retiro a coordinar"
@@ -141,6 +143,8 @@ es:
         uploading: "Subiendo fotos..."
 
     show:
+      load_error: "No pudimos cargar este producto. Inténtalo nuevamente."
+      try_again: "Volver a intentar"
       edit_product: "Editar Producto"
       delete_product: "Eliminar Producto"
       add_to_cart: "Agregar al Carrito"

@@ -13,10 +13,10 @@ class ErrorsController < ApplicationController
 
   def fatal
     respond_to do |format|
-      format.html { render "500", layout: "errors" }
-      format.json { render json: { error: "Internal Server Error", status: 500 } }
-      format.text { render plain: "Internal Server Error", status: 500 }
-      format.xml  { render xml: { error: "Internal Server Error", status: 500 }.to_xml }
+      format.html { render "500", layout: "errors", status: :internal_server_error }
+      format.json { render json: { error: "Internal Server Error", status: 500 }, status: :internal_server_error }
+      format.text { render plain: "Internal Server Error", status: :internal_server_error }
+      format.xml  { render xml: { error: "Internal Server Error", status: 500 }.to_xml, status: :internal_server_error }
     end
   end
 

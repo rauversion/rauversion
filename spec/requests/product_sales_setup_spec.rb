@@ -2,6 +2,39 @@ require "rails_helper"
 
 RSpec.describe "Product sales setup", type: :request do
   describe "POST /:username/products/music.json" do
+    it "enables pickup on an existing music product and preserves its shipping rates" do
+      user = create(:user, confirmed_at: Time.current, role: "artist", seller: true, stripe_account_id: "acct_seller")
+      product = Products::MusicProduct.create!(
+        user: user, title: "Existing vinyl", description: "An existing release", category: "vinyl",
+        sku: "existing-vinyl", price: 32, currency: "usd", stock_quantity: 10, status: "active",
+        condition: "new", shipping_days: 5,
+        product_shippings_attributes: [{ country: "CL", base_cost: 5, additional_cost: 2 }]
+      )
+      shipping = product.product_shippings.first
+      sign_in user
+
+      patch "/#{user.username}/products/music/#{product.slug}.json", params: {
+        product: { allow_pickup: true,
+          product_shippings_attributes: [{ id: shipping.id, country: "CL", base_cost: 5, additional_cost: 2 }] }
+      }
+
+      expect(response).to have_http_status(:created)
+      expect(product.reload).to be_allow_pickup
+      expect(product.product_shippings.pluck(:id)).to eq([shipping.id])
+
+      get "/#{user.username}/products/#{product.slug}.json"
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body).fetch("product")).to include("allow_pickup" => true,
+        "shipping_options" => [hash_including("id" => shipping.id)])
+
+      sign_out user
+      buyer = create(:user, confirmed_at: Time.current)
+      sign_in buyer
+      post "/product_cart/add/#{product.id}.json"
+      expect(JSON.parse(response.body).fetch("cart")).to include("pickup_available" => true,
+        "requires_pickup" => false)
+    end
+
     it "lets connected sellers create pickup-only products and exposes the setting for editing" do
       user = create(:user, confirmed_at: Time.current, role: "artist", seller: true, stripe_account_id: "acct_seller")
       sign_in user

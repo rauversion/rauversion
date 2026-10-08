@@ -18,35 +18,44 @@ export default function ProductShow() {
   const { username, slug } = useParams()
   const [product, setProduct] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(false)
+  const [loadAttempt, setLoadAttempt] = useState(0)
   const [selectedImage, setSelectedImage] = useState(null)
   const { addToCart } = useCartStore()
   const [isOwner, setIsOwner] = useState(false)
 
   useEffect(() => {
+    let cancelled = false
     const fetchProduct = async () => {
+      setLoading(true)
+      setError(false)
       try {
         const response = await get(`/${username}/products/${slug}.json`)
-        if (response.ok) {
-          const data = await response.json
+        if (!response.ok) throw new Error('Failed to load product')
+
+        const data = await response.json
+        if (!data.product || data.error) throw new Error('Product data is missing')
+
+        if (!cancelled) {
           setProduct(data.product)
           if (data.photos?.length > 0) {
             setSelectedImage(data.photos[0])
           }
 
           // Check if current user is the owner of the product
-          if (currentUser && data.product.user && data.product.user.id === currentUser.id) {
-            setIsOwner(true)
-          }
+          setIsOwner(!!currentUser && data.product.user?.id === currentUser.id)
         }
       } catch (error) {
         console.error('Error fetching product:', error)
+        if (!cancelled) setError(true)
       } finally {
-        setLoading(false)
+        if (!cancelled) setLoading(false)
       }
     }
 
     fetchProduct()
-  }, [username, slug])
+    return () => { cancelled = true }
+  }, [username, slug, loadAttempt])
 
   // Map product types to their respective components
   const PRODUCT_COMPONENTS = {
@@ -61,6 +70,17 @@ export default function ProductShow() {
     return (
       <div className="flex justify-center py-8">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500"></div>
+      </div>
+    )
+  }
+
+  if (error || !product) {
+    return (
+      <div role="alert" className="space-y-4 p-8 text-center">
+        <p>{I18n.t('products.show.load_error')}</p>
+        <Button variant="outline" onClick={() => setLoadAttempt(attempt => attempt + 1)}>
+          {I18n.t('products.show.try_again')}
+        </Button>
       </div>
     )
   }

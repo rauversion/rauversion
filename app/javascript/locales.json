@@ -2901,6 +2901,8 @@
         "shipping": "Ship to address",
         "shipping_country": "Shipping country",
         "shipping_unavailable": "Shipping is not available for this country",
+        "sign_in_required": "You need to sign in to add products to your cart.",
+        "sign_in_title": "Sign in to continue",
         "sr_label": "Shopping cart",
         "title": "Shopping Cart",
         "total": "Total",
@@ -3389,7 +3391,9 @@
       "show": {
         "add_to_cart": "Add to Cart",
         "delete_product": "Delete Product",
-        "edit_product": "Edit Product"
+        "edit_product": "Edit Product",
+        "load_error": "We could not load this product. Please try again.",
+        "try_again": "Try again"
       },
       "stock": {
         "low_stock": "Solo quedan %{count} en stock",
@@ -8568,6 +8572,8 @@
         "shipping": "Envío a domicilio",
         "shipping_country": "País de envío",
         "shipping_unavailable": "El envío no está disponible para ese país",
+        "sign_in_required": "Necesitas iniciar sesión para agregar productos a tu carrito.",
+        "sign_in_title": "Inicia sesión para continuar",
         "sr_label": "Carrito de compras",
         "title": "Carrito de Compras",
         "total": "Total",
@@ -9052,7 +9058,9 @@
       "show": {
         "add_to_cart": "Agregar al Carrito",
         "delete_product": "Eliminar Producto",
-        "edit_product": "Editar Producto"
+        "edit_product": "Editar Producto",
+        "load_error": "No pudimos cargar este producto. Inténtalo nuevamente.",
+        "try_again": "Volver a intentar"
       },
       "stock": {
         "low_stock": "Solo quedan %{count} en stock",

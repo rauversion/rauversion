@@ -7,6 +7,7 @@ import PagesShow from './pages/PagesShow'
 import EmailTemplateEditor from './email-templates/EmailTemplateEditor'
 import NewsletterPage from './newsletter/NewsletterPage'
 import useAuthStore from '@/stores/authStore'
+import CartSignInDialog from './cart/CartSignInDialog'
 import { useActionCable } from '../hooks/useActionCable'
 import ArticlesIndex from './articles/Index'
 import ArticleShow from './articles/Show'
@@ -534,6 +535,7 @@ function AppContent() {
         )}
       </div>
 
+      <CartSignInDialog />
       <Toaster />
       {!isAdminRoute && !isAdmissionRoute && !isImmersiveStorefrontRoute && <AudioPlayer />}
 

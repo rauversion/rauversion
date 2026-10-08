@@ -26,6 +26,7 @@ export default function ProductEdit() {
         
         if (response.ok) {
           const data = await response.json
+          if (!data.product || data.error) throw new Error('Product data is missing')
           // Map photos to product_images for form compatibility
           const productData = {
             ...data.product,

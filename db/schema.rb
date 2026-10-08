@@ -894,12 +894,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
     t.string "shipping_name"
     t.string "shipping_status"
     t.string "status"
+    t.string "stripe_balance_transaction_id"
+    t.bigint "stripe_processing_fee_amount"
+    t.string "stripe_seller_account_id"
+    t.bigint "stripe_service_fee_amount"
     t.string "stripe_session_id"
+    t.bigint "stripe_transfer_amount"
+    t.string "stripe_transfer_currency"
+    t.string "stripe_transfer_id"
     t.decimal "total_amount"
     t.string "tracking_code"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["shipping_status"], name: "index_product_purchases_on_shipping_status"
+    t.index ["stripe_transfer_id"], name: "index_product_purchases_on_stripe_transfer_id", unique: true
     t.index ["user_id"], name: "index_product_purchases_on_user_id"
   end
 

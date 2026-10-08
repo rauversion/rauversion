@@ -1,6 +1,7 @@
 # app/controllers/product_cart_controller.rb
 class ProductCartController < ApplicationController
   include ApplicationHelper # This gives us access to the current_cart method
+  before_action :require_cart_user, only: [:add, :remove]
   before_action :set_cart
 
   def add
@@ -45,6 +46,18 @@ class ProductCartController < ApplicationController
   end
 
   private
+
+  def require_cart_user
+    return if current_user
+
+    message = I18n.t("products.cart.sign_in_required")
+    respond_to do |format|
+      format.html { redirect_to new_user_session_path, alert: message }
+      format.json do
+        render json: { code: "authentication_required", error: message }, status: :unauthorized
+      end
+    end
+  end
 
   def set_cart
     @cart = current_cart
