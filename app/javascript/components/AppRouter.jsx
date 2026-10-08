@@ -133,6 +133,7 @@ import { Footer, ScrollRestoration, LoadingSpinner } from '@/components/shared'
 
 import { useLocaleStore } from "@/stores/locales"
 import { cn } from "@/lib/utils"
+import { rememberSignInReturnPath } from '@/lib/sign-in-return-path'
 import AdminLayout from "./admin/AdminLayout"
 import AdminDashboardPage from "./admin/AdminDashboardPage"
 import AdminEventSalesPage from "./admin/AdminEventSalesPage"
@@ -254,6 +255,10 @@ function AppContent() {
   const { toast } = useToast()
   const { currentLocale } = useLocaleStore()
   const location = useLocation()
+
+  useEffect(() => {
+    rememberSignInReturnPath(location)
+  }, [location.pathname, location.search, location.hash])
 
   useEffect(() => {
     const flashElement = document.getElementById('flash-messages')

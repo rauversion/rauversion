@@ -12,6 +12,12 @@ class ApplicationController < ActionController::Base
 
   helper_method :flash_stream, :current_tenant, :current_membership
 
+  def after_sign_in_path_for(resource)
+    stored_path = stored_location_for(resource)
+    return_path = params[:return_to].presence || request.env["omniauth.params"]&.[]("return_to")
+    safe_sign_in_return_path(return_path) || safe_sign_in_return_path(stored_path) || super
+  end
+
   def current_tenant
     Current.tenant
   end
@@ -121,6 +127,19 @@ class ApplicationController < ActionController::Base
   end
 
   protected
+
+  def safe_sign_in_return_path(value)
+    return unless value.is_a?(String) && value.start_with?("/") && !value.start_with?("//")
+    return if value.match?(/[\\\x00-\x20\x7f]/)
+
+    uri = URI.parse(value)
+    return if uri.host.present? || uri.scheme.present?
+    return if uri.path.match?(%r{\A/(?:users/(?:sign_in|sign_up|sign_out|password|auth|confirmation|invitation)|forgot-password|sign_in)(?:/|\.|\z)})
+
+    value
+  rescue URI::InvalidURIError
+    nil
+  end
 
   def set_current_tenant
     Current.tenant = tenant_from_host || Tenant.central

@@ -1,5 +1,5 @@
 import React from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -14,12 +14,13 @@ import I18n from '@/stores/locales'
 
 export default function CartSignInDialog() {
   const navigate = useNavigate()
+  const location = useLocation()
   const signInRequired = useCartStore((state) => state.signInRequired)
   const dismissSignIn = useCartStore((state) => state.dismissSignIn)
 
   const handleSignIn = () => {
     dismissSignIn()
-    navigate('/users/sign_in')
+    navigate('/users/sign_in', { state: { from: location } })
   }
 
   return (

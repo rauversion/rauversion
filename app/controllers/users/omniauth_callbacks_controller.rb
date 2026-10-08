@@ -106,7 +106,7 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
       redirect_to user_setting_path(user.username, :integrations) if user_signed_in?
       unless user_signed_in?
         sign_in(:user, user)
-        redirect_to root_url and return
+        redirect_to after_sign_in_path_for(user) and return
       end
 
     else

@@ -84,6 +84,90 @@ RSpec.describe "User authentication", type: :request do
     expect(user.tenant_profiles.count).to eq(0)
   end
 
+  describe "returning after sign-in" do
+    let(:return_path) { "/artist/products/synth?variant=blue#details" }
+
+    it "includes the original link in the JSON sign-in response" do
+      post user_session_path(format: :json), params: {
+        user: { email: user.email, password: password }, return_to: return_path
+      }, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)["redirect_to"]).to eq(return_path)
+    end
+
+    it "returns to a protected link saved by the server after JSON sign-in" do
+      get "/purchases/products?page=2"
+      expect(response).to redirect_to(new_user_session_path)
+
+      log_in
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)["redirect_to"]).to eq("/purchases/products?page=2")
+    end
+
+    it "returns HTML sign-ins to the original link, including its query and fragment" do
+      post user_session_path, params: {
+        user: { email: user.email, password: password }, return_to: return_path
+      }
+
+      expect(response).to redirect_to(return_path)
+    end
+
+    it "uses home when a sign-in has no original link" do
+      post user_session_path, params: { user: { email: user.email, password: password } }
+
+      expect(response).to redirect_to(root_path)
+    end
+
+    ["https://example.com", "//example.com", "/\\example.com", "/users/sign_in", "/forgot-password"].each do |unsafe_path|
+      it "ignores an unsafe return path #{unsafe_path.inspect}" do
+        post user_session_path, params: {
+          user: { email: user.email, password: password }, return_to: unsafe_path
+        }
+
+        expect(response).to redirect_to(root_path)
+      end
+    end
+
+    context "with social sign-in" do
+      around do |example|
+        previous_test_mode = OmniAuth.config.test_mode
+        previous_validation = OmniAuth.config.request_validation_phase
+        previous_mock_auth = OmniAuth.config.mock_auth.dup
+        OmniAuth.config.test_mode = true
+        OmniAuth.config.request_validation_phase = nil
+        example.run
+      ensure
+        OmniAuth.config.test_mode = previous_test_mode
+        OmniAuth.config.request_validation_phase = previous_validation
+        OmniAuth.config.mock_auth = previous_mock_auth
+      end
+
+      %i[google_oauth2 discord].each do |provider|
+        it "returns #{provider} sign-ins to the original link" do
+          oauth2_mock(provider, email: user.email)
+
+          post "/users/auth/#{provider}?return_to=#{CGI.escape(return_path)}"
+          follow_redirect!
+
+          expect(response).to redirect_to(return_path)
+          get "/api/v1/me.json"
+          expect(JSON.parse(response.body).dig("current_user", "id")).to eq(user.id)
+        end
+      end
+
+      it "ignores external return links after social sign-in" do
+        oauth2_mock(:google_oauth2, email: user.email)
+
+        post "/users/auth/google_oauth2?return_to=https%3A%2F%2Fexample.com"
+        follow_redirect!
+
+        expect(response).to redirect_to(root_path)
+      end
+    end
+  end
+
   it "renders the profile after successful JSON sign-up" do
     allow(User).to receive(:allow_unconfirmed_access_for).and_return(2.days)
 

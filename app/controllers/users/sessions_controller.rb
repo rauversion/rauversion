@@ -12,7 +12,7 @@ class Users::SessionsController < Devise::SessionsController
     respond_to do |format|
       format.html { respond_with resource, location: after_sign_in_path_for(resource) }
       format.json {
-        render 'users/show'
+        render 'users/show', locals: { sign_in_return_path: after_sign_in_path_for(resource) }
       }
     end
   end

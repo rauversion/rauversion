@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { useNavigate, Link } from 'react-router-dom'
+import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { useToast } from '@/hooks/use-toast'
 import { post } from '@rails/request.js'
 import useAuthStore from '@/stores/authStore'
@@ -11,10 +11,14 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Mail, Lock, LogIn, ArrowRight } from 'lucide-react'
 import { GoogleIcon, DiscordIcon } from './SocialIcons'
 import I18n from '@/stores/locales'
+import { clearSignInReturnPath, safeSignInReturnPath, signInReturnPath } from '@/lib/sign-in-return-path'
 
 export default function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
+  const returnPath = signInReturnPath(location)
+  const returnQuery = returnPath === '/' ? '' : `?return_to=${encodeURIComponent(returnPath)}`
   const { toast } = useToast()
   const { initAuth, updateCsrfToken } = useAuthStore()
   const { register, handleSubmit, formState: { errors } } = useForm()
@@ -25,6 +29,7 @@ export default function Login() {
       const response = await post('/users/sign_in', {
         responseKind: 'json',
         body: JSON.stringify({
+          return_to: returnPath === '/' ? undefined : returnPath,
           user: {
             email: data.email,
             password: data.password
@@ -39,12 +44,14 @@ export default function Login() {
       }
 
       if (response.ok) {
+        const result = await response.json
         await initAuth()
         toast({
           title: I18n.t('sessions.toast.success.title'),
           description: I18n.t('sessions.toast.success.message')
         })
-        navigate('/')
+        clearSignInReturnPath()
+        navigate(safeSignInReturnPath(result.redirect_to) || returnPath, { replace: true })
       } else {
         toast({
           title: I18n.t('sessions.toast.error.title'),
@@ -81,80 +88,83 @@ export default function Login() {
             <p className="text-muted-foreground">{I18n.t('sessions.subtitle')}</p>
           </motion.div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <Label htmlFor="email">{I18n.t('sessions.email.label')}</Label>
-              <div className="relative mt-2">
-                <Input
-                  id="email"
-                  type="email"
-                  className="pl-10"
-                  {...register('email', {
-                    required: I18n.t('sessions.email.required'),
-                    pattern: {
-                      value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                      message: I18n.t('sessions.email.invalid')
-                    }
-                  })}
-                />
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              </div>
-              {errors.email && (
-                <motion.p
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-sm text-destructive mt-2"
-                >
-                  {errors.email.message}
-                </motion.p>
-              )}
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <Label htmlFor="password">{I18n.t('sessions.password.label')}</Label>
-              <div className="relative mt-2">
-                <Input
-                  id="password"
-                  type="password"
-                  className="pl-10"
-                  {...register('password', {
-                    required: I18n.t('sessions.password.required')
-                  })}
-                />
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              </div>
-              {errors.password && (
-                <motion.p
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-sm text-destructive mt-2"
-                >
-                  {errors.password.message}
-                </motion.p>
-              )}
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="flex items-center justify-between"
-            >
-              <Link
-                to="/forgot-password"
-                className="text-sm text-primary hover:underline"
+          <div className="space-y-6">
+            <form id="sign-in-form" onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.3 }}
               >
-                {I18n.t('sessions.forgot_pass')}
-              </Link>
-            </motion.div>
+                <Label htmlFor="email">{I18n.t('sessions.email.label')}</Label>
+                <div className="relative mt-2">
+                  <Input
+                    id="email"
+                    type="email"
+                    className="pl-10"
+                    {...register('email', {
+                      required: I18n.t('sessions.email.required'),
+                      pattern: {
+                        value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                        message: I18n.t('sessions.email.invalid')
+                      }
+                    })}
+                  />
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                </div>
+                {errors.email && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-sm text-destructive mt-2"
+                  >
+                    {errors.email.message}
+                  </motion.p>
+                )}
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.4 }}
+              >
+                <Label htmlFor="password">{I18n.t('sessions.password.label')}</Label>
+                <div className="relative mt-2">
+                  <Input
+                    id="password"
+                    type="password"
+                    className="pl-10"
+                    {...register('password', {
+                      required: I18n.t('sessions.password.required')
+                    })}
+                  />
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                </div>
+                {errors.password && (
+                  <motion.p
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="text-sm text-destructive mt-2"
+                  >
+                    {errors.password.message}
+                  </motion.p>
+                )}
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="flex items-center justify-between"
+              >
+                <Link
+                  to="/forgot-password"
+                  className="text-sm text-primary hover:underline"
+                >
+                  {I18n.t('sessions.forgot_pass')}
+                </Link>
+              </motion.div>
+
+            </form>
 
             <div className="relative my-8">
               <div className="absolute inset-0 flex items-center">
@@ -173,7 +183,7 @@ export default function Login() {
               transition={{ delay: 0.6 }}
               className="grid gap-4"
             >
-              <form action="/users/auth/google_oauth2" method="post" className="contents">
+              <form action={`/users/auth/google_oauth2${returnQuery}`} method="post" className="contents">
                 <input type="hidden" name="authenticity_token" value={document.querySelector('meta[name="csrf-token"]')?.content} />
                 <Button
                   type="submit"
@@ -186,7 +196,7 @@ export default function Login() {
                 </Button>
               </form>
 
-              <form action="/users/auth/discord" method="post" className="contents">
+              <form action={`/users/auth/discord${returnQuery}`} method="post" className="contents">
                 <input type="hidden" name="authenticity_token" value={document.querySelector('meta[name="csrf-token"]')?.content} />
                 <Button
                   type="submit"
@@ -207,6 +217,7 @@ export default function Login() {
             >
               <Button
                 type="submit"
+                form="sign-in-form"
                 disabled={isSubmitting}
                 className="w-full flex items-center justify-center gap-2"
               >
@@ -227,7 +238,7 @@ export default function Login() {
                 )}
               </Button>
             </motion.div>
-          </form>
+          </div>
 
           <motion.p
             initial={{ opacity: 0 }}

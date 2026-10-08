@@ -1,6 +1,8 @@
 # Devise also renders this view without running UsersController#find_user.
 profile = @tenant_profile || @user.tenant_profile_for(Current.tenant) || @user
 
+json.redirect_to sign_in_return_path if defined?(sign_in_return_path)
+
 json.user do
   json.extract! @user, :id, :hide_username_from_profile, :role, :created_at, :updated_at
   json.username profile.username
