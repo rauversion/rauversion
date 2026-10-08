@@ -51,17 +51,18 @@ class TracksController < ApplicationController
     @track_form = TrackBulkCreator.new
     @track_form.step = "upload"
     @track_form.private = true
+    @upload_artists = current_user.upload_artists
   end
 
   def create
     @track_form = TrackBulkCreator.new
+    @track_form.user = current_user
+    @track_form.artist_id = track_bulk_params[:artist_id]
     @track_form.step = track_bulk_params[:step]
 
     if @track_form.step == "upload"
       audios = track_bulk_params["audio"].select { |o| o.is_a?(String) }.reject(&:empty?)
       # @track = current_user.tracks.new(track_params)
-      @track_form.user = current_user
-
       @track_form.tracks_attributes = audios.map { |o| 
         {
           private: ActiveRecord::Type::Boolean.new.cast(track_bulk_params[:private]),
@@ -71,7 +72,6 @@ class TracksController < ApplicationController
       @track_form.step = "info"
     else
       @track_form.tracks_attributes_objects = track_bulk_params[:tracks_attributes]
-      @track_form.user = current_user
       @track_form.make_playlist = track_bulk_params[:make_playlist]
       @track_form.playlist_title = track_bulk_params[:playlist_title]
       @track_form.playlist_type = track_bulk_params[:playlist_type]
@@ -307,6 +307,7 @@ class TracksController < ApplicationController
       :private,
       :enable_label,
       :step,
+      :artist_id,
       audio: [], 
       tracks_attributes: [
         :audio, :cover, :title, :description, :private, :podcast, :dj_set, tags: []

@@ -7,7 +7,7 @@ import useAuthStore from "@/stores/authStore";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { DirectUpload } from "@rails/activestorage";
-import { post } from "@rails/request.js";
+import { get, post } from "@rails/request.js";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -64,6 +64,12 @@ export default function NewTrack() {
   const { toast } = useToast();
   const { isDarkMode } = useThemeStore();
   const { currentUser } = useAuthStore();
+  const isLabel = Boolean(currentUser?.label);
+  const [artistId, setArtistId] = React.useState("");
+  const [labelArtists, setLabelArtists] = React.useState([]);
+  const [labelArtistsLoading, setLabelArtistsLoading] = React.useState(false);
+  const [labelArtistsError, setLabelArtistsError] = React.useState(false);
+  const [artistsRetry, setArtistsRetry] = React.useState(0);
   const [step, setStep] = React.useState("category"); // category, upload, info or share
   const [contentCategory, setContentCategory] = React.useState(null);
   const [rightsAcknowledged, setRightsAcknowledged] = React.useState(false);
@@ -91,6 +97,38 @@ export default function NewTrack() {
     ? DJ_SET_MAX_FILE_SIZE_MB
     : DEFAULT_MAX_FILE_SIZE_MB;
   const maxFileSizeBytes = maxFileSizeMb * 1024 * 1024;
+  const labelArtistOptions = [
+    { value: "", label: I18n.t("tracks.new.label_artist.own_account") },
+    ...labelArtists.map((artist) => ({
+      value: String(artist.id),
+      label: `${artist.display_name} (@${artist.username})`,
+    })),
+  ];
+
+  React.useEffect(() => {
+    let cancelled = false;
+    setArtistId("");
+    setLabelArtists([]);
+    setLabelArtistsError(false);
+    setLabelArtistsLoading(isLabel);
+    if (!isLabel) return;
+
+    const loadArtists = async () => {
+      try {
+        const response = await get("/tracks/new.json", { responseKind: "json" });
+        if (!response.ok) throw new Error("Unable to load label artists");
+        const data = await response.json;
+        if (!cancelled) setLabelArtists(data.artists);
+      } catch (error) {
+        if (!cancelled) setLabelArtistsError(true);
+      } finally {
+        if (!cancelled) setLabelArtistsLoading(false);
+      }
+    };
+
+    loadArtists();
+    return () => { cancelled = true; };
+  }, [currentUser?.id, isLabel, artistsRetry]);
 
   const titleFromFiles = (sourceFiles) =>
     sourceFiles[0]?.name.replace(/\.[^/.]+$/, "") || "";
@@ -294,6 +332,7 @@ export default function NewTrack() {
         body: JSON.stringify({
           track_form: {
             step: "info",
+            artist_id: isLabel ? artistId || null : null,
             make_playlist: shouldCreatePlaylist,
             playlist_title: playlistTitle.trim(),
             playlist_type: playlistType,
@@ -384,6 +423,44 @@ export default function NewTrack() {
                     </Badge>
                   )}
                 </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {isLabel && (
+            <Card>
+              <CardContent className="p-4 space-y-2">
+                <Label htmlFor="label-artist">
+                  {I18n.t("tracks.new.label_artist.title")}
+                </Label>
+                <Select
+                  inputId="label-artist"
+                  value={labelArtistOptions.find((option) => option.value === artistId)}
+                  options={labelArtistOptions}
+                  onChange={(option) => setArtistId(option?.value || "")}
+                  isLoading={labelArtistsLoading}
+                  isDisabled={labelArtistsLoading || labelArtistsError}
+                  theme={(theme) => selectTheme(theme, isDarkMode)}
+                  className="react-select-container"
+                  classNamePrefix="react-select"
+                />
+                <p className="text-sm text-muted-foreground">
+                  {I18n.t("tracks.new.label_artist.description")}
+                </p>
+                {labelArtistsError ? (
+                  <div role="alert" className="flex items-center gap-2">
+                    <p className="text-sm text-destructive">
+                      {I18n.t("tracks.new.label_artist.load_error")}
+                    </p>
+                    <Button type="button" variant="outline" size="sm" onClick={() => setArtistsRetry((retry) => retry + 1)}>
+                      {I18n.t("tracks.new.label_artist.retry")}
+                    </Button>
+                  </div>
+                ) : !labelArtistsLoading && labelArtists.length === 0 && (
+                  <p className="text-sm text-muted-foreground">
+                    {I18n.t("tracks.new.label_artist.empty")}
+                  </p>
+                )}
               </CardContent>
             </Card>
           )}

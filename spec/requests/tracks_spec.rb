@@ -214,6 +214,50 @@ RSpec.describe "Tracks", type: :request do
     end
   end
 
+  describe "GET /tracks/new.json" do
+    let(:label) { create(:user, role: :artist, label: true, confirmed_at: Time.current) }
+
+    it "lists only active label artists who belong to the current tenant" do
+      active_artist = create(:user, role: :artist, display_name: "Label Artist")
+      pending_artist = create(:user, role: :artist)
+      create(:user, role: :artist)
+      listener = create(:user)
+      other_tenant = create(:tenant)
+      foreign_artist = Current.set(tenant: other_tenant) { create(:user, role: :artist) }
+
+      create(:connected_account, parent: label, user: active_artist, state: "active")
+      create(:connected_account, parent: label, user: pending_artist, state: "pending")
+      create(:connected_account, parent: label, user: foreign_artist, state: "active")
+      create(:connected_account, parent: label, user: listener, state: "active")
+      sign_in label
+
+      get new_track_path(format: :json)
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)["artists"]).to eq([
+        { "id" => active_artist.id, "username" => active_artist.username, "display_name" => "Label Artist" }
+      ])
+    end
+
+    it "does not expose connected accounts for an ordinary artist" do
+      artist = create(:user, role: :artist, confirmed_at: Time.current)
+      child = create(:user, role: :artist)
+      create(:connected_account, parent: artist, user: child, state: "active")
+      sign_in artist
+
+      get new_track_path(format: :json)
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)["artists"]).to eq([])
+    end
+
+    it "requires authentication" do
+      get new_track_path(format: :json), as: :json
+
+      expect(response).to redirect_to(new_user_session_path(format: :json))
+    end
+  end
+
   describe "POST /tracks.json" do
     let(:artist) { create(:user, role: :artist, confirmed_at: Time.current) }
 
@@ -289,6 +333,104 @@ RSpec.describe "Tracks", type: :request do
       expect(track.direct_download).to eq(false)
       expect(track.price).to be_nil
       expect(track.name_your_price).to eq(false)
+    end
+
+    context "when a label selects an artist" do
+      let(:label) { create(:user, role: :artist, label: true, confirmed_at: Time.current) }
+      let(:label_artist) { create(:user, role: :artist, confirmed_at: Time.current) }
+
+      it "assigns every track and the playlist to the artist and associates the label" do
+        create(:connected_account, parent: label, user: label_artist, state: "active")
+        sign_in label
+
+        expect do
+          post_label_upload(artist_id: label_artist.id, make_playlist: true)
+        end.to change(Track, :count).by(2)
+          .and change(Playlist, :count).by(1)
+          .and change(TrackPlaylist, :count).by(2)
+
+        expect(response).to have_http_status(:ok)
+        payload = JSON.parse(response.body)
+        expect(payload["success"]).to eq(true)
+        expect(payload["tracks"].map { |track| track.dig("user", "id") }).to eq([label_artist.id, label_artist.id])
+        expect(Track.last(2).map { |track| [track.user_id, track.label_id, track.tenant_id] })
+          .to eq([[label_artist.id, label.id, Current.tenant.id]] * 2)
+        expect(Playlist.last).to have_attributes(user_id: label_artist.id, label_id: label.id, tenant_id: Current.tenant.id)
+      end
+
+      it "keeps uploading under the label account when no artist is selected" do
+        sign_in label
+
+        post_label_upload(artist_id: nil)
+
+        expect(JSON.parse(response.body)["success"]).to eq(true)
+        expect(Track.last(2).map(&:user_id)).to eq([label.id, label.id])
+        expect(Track.last(2).map(&:label_id)).to eq([nil, nil])
+      end
+
+      it "rejects an artist from another label without saving tracks or a playlist" do
+        other_label = create(:user, role: :artist, label: true)
+        create(:connected_account, parent: other_label, user: label_artist, state: "active")
+        sign_in label
+
+        expect { post_label_upload(artist_id: label_artist.id, make_playlist: true) }
+          .not_to change { [Track.count, Playlist.count, TrackPlaylist.count] }
+        expect(JSON.parse(response.body)["success"]).to eq(false)
+        expect(JSON.parse(response.body)["errors"]).to include(
+          a_string_including(I18n.t("tracks.new.messages.invalid_label_artist"))
+        )
+      end
+
+      it "rejects a pending connection" do
+        create(:connected_account, parent: label, user: label_artist, state: "pending")
+        sign_in label
+
+        expect { post_label_upload(artist_id: label_artist.id) }.not_to change(Track, :count)
+        expect(JSON.parse(response.body)["success"]).to eq(false)
+      end
+
+      it "rejects an artist who only belongs to another tenant" do
+        other_tenant = create(:tenant)
+        foreign_artist = Current.set(tenant: other_tenant) { create(:user, role: :artist) }
+        create(:connected_account, parent: label, user: foreign_artist, state: "active")
+        sign_in label
+
+        expect { post_label_upload(artist_id: foreign_artist.id) }.not_to change(Track, :count)
+        expect(JSON.parse(response.body)["success"]).to eq(false)
+      end
+
+      it "rejects artist assignment from a non-label account" do
+        create(:connected_account, parent: artist, user: label_artist, state: "active")
+        sign_in artist
+
+        expect { post_label_upload(artist_id: label_artist.id) }.not_to change(Track, :count)
+        expect(JSON.parse(response.body)["success"]).to eq(false)
+      end
+
+      it "rejects a nonexistent artist" do
+        sign_in label
+
+        expect { post_label_upload(artist_id: -1) }.not_to change(Track, :count)
+        expect(JSON.parse(response.body)["success"]).to eq(false)
+      end
+    end
+
+    def post_label_upload(artist_id:, make_playlist: false)
+      post tracks_path(format: :json),
+        params: {
+          track_form: {
+            step: "info",
+            artist_id: artist_id,
+            make_playlist: make_playlist,
+            playlist_title: "Label release",
+            playlist_type: "album",
+            tracks_attributes: [
+              { audio: audio_blob(filename: "first.wav").signed_id, title: "First track", private: false },
+              { audio: audio_blob(filename: "second.wav").signed_id, title: "Second track", private: false }
+            ]
+          }
+        },
+        as: :json
     end
 
     def audio_blob(filename:)
@@ -420,6 +562,20 @@ RSpec.describe "Tracks", type: :request do
         "processing_step" => "queued",
         "processing_progress" => 0
       )
+    end
+
+    it "includes the associated label separately from the publishing artist" do
+      label = create(:user, role: :artist, label: true, display_name: "Test Label")
+      track.update!(label: label)
+
+      get track_path(track, format: :json)
+
+      expect(response).to have_http_status(:ok)
+      payload = JSON.parse(response.body).fetch("track")
+      expect(payload.dig("user", "id")).to eq(artist.id)
+      expect(payload.dig("label", "id")).to eq(label.id)
+      expect(payload.dig("label", "username")).to eq(label.username)
+      expect(payload.dig("label", "name")).to eq("Test Label")
     end
 
     def attach_image(record, attachment_name)

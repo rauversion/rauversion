@@ -1498,6 +1498,13 @@ es:
         delete_success: Pista eliminada exitosamente
         delete_error: Error al eliminar la pista
     new:
+      label_artist:
+        title: Artista de la publicación
+        description: Elige un artista activo de tu sello para todas las pistas y la playlist de esta subida.
+        own_account: Publicar con mi cuenta de sello
+        empty: Tu sello aún no tiene artistas activos en este sitio.
+        load_error: No se pudieron cargar los artistas de tu sello.
+        retry: Reintentar
       category_step:
         badge: Wizard de subida
         title: ¿Qué vas a publicar?
@@ -1568,6 +1575,7 @@ es:
         link_copied: Enlace copiado al portapapeles
         playlist_title_required: Falta el título de la playlist
         playlist_title_required_description: Agrega un título antes de crear la playlist.
+        invalid_label_artist: debe ser un artista activo de tu sello en este sitio
         artist_interest_submitted: Tu interés en convertirte en artista fue enviado. Revisaremos tu solicitud pronto.
       controls:
         create_playlist: Crear una lista de reproducción con estas pistas

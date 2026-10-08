@@ -7,6 +7,7 @@ class TrackBulkCreator
   attr_accessor :tracks_attributes, 
   :step,
   :user, 
+  :artist_id,
   :make_playlist, 
   :playlist_title,
   :playlist_type,
@@ -14,6 +15,7 @@ class TrackBulkCreator
   :playlist,
   :private
 
+  validate :validate_artist
   validate :validate_tracks
   validate :validate_playlist, if: :make_playlist?
 
@@ -57,7 +59,8 @@ class TrackBulkCreator
       t = Track.new(track_attributes.except(:audio))
       t.tenant = Current.tenant
       t.title = File.basename(blob.filename.to_s, File.extname(blob.filename.to_s)) unless t.title.present?
-      t.user = user
+      t.user = upload_user
+      t.label = user if selected_artist.present?
       t.private = ActiveRecord::Type::Boolean.new.cast(track_attributes[:private])
       attach_source_blob(track: t, blob: blob)
       t
@@ -78,9 +81,26 @@ class TrackBulkCreator
     @boolean_type ||= ActiveModel::Type::Boolean.new
   end
 
+  def selected_artist
+    return if artist_id.blank? || user.blank?
+
+    @selected_artist ||= user.upload_artists.find_by(id: artist_id)
+  end
+
+  def upload_user
+    selected_artist || user
+  end
+
+  def validate_artist
+    if artist_id.present? && selected_artist.blank?
+      errors.add(:artist_id, I18n.t("tracks.new.messages.invalid_label_artist"))
+    end
+  end
+
   def create_playlist!
-    self.playlist = user.playlists.create!(
+    self.playlist = upload_user.playlists.create!(
       tenant: Current.tenant,
+      label: selected_artist.present? ? user : nil,
       title: playlist_title.to_s.strip,
       private: playlist_private?,
       playlist_type: playlist_type_value

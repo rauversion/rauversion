@@ -556,7 +556,7 @@ export default function TrackShow() {
               <div>
                 <dt className="text-sm font-medium text-muted-foreground">{t("label")}</dt>
                 <dd className="mt-1 text-sm text-foreground">
-                  <Link to={`/labels/${track.label.slug}`} className="hover:underline">
+                  <Link to={`/${track.label.username}`} className="hover:underline">
                     {track.label.name}
                   </Link>
                 </dd>

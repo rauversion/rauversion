@@ -37,7 +37,7 @@ json.track do
 
   if @track.label
     json.label do
-      json.partial! 'users/user', user: @track.user, show_full_name: true
+      json.partial! 'users/user', user: @track.label, show_full_name: true
     end
   end
 

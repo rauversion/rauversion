@@ -5,6 +5,12 @@
     <%= form_with model: @track_form, url: tracks_path(), class: 'direct-upload' do |form| %>
       <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-xl space-y-4">
         <%= form.hidden_field :step %>
+        <% if current_user.label? %>
+          <%= form.label :artist_id, t("tracks.new.label_artist.title") %>
+          <%= form.select :artist_id,
+            current_user.upload_artists.map { |artist| [artist.display_name, artist.id] },
+            include_blank: t("tracks.new.label_artist.own_account") %>
+        <% end %>
         <%= form.fields_for :tracks do |ff| %>
           <div class="min-h-full flex flex-col justify-center py-12 sm:px-6 lg:px-8 border rounded-md">
             <%= ff.hidden_field :audio, value: ff.object.audio.signed_id %>

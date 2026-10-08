@@ -1435,6 +1435,13 @@ en:
         play_track: "Play %{title}"
         pause_track: "Pause %{title}"
     new:
+      label_artist:
+        title: Publishing artist
+        description: Choose an active artist from your label for all tracks and the playlist in this upload.
+        own_account: Publish under my label account
+        empty: Your label has no active artists on this site yet.
+        load_error: Unable to load your label's artists.
+        retry: Retry
       category_step:
         badge: Upload wizard
         title: What are you publishing?
@@ -1505,6 +1512,7 @@ en:
         link_copied: Link copied to clipboard
         playlist_title_required: Playlist title required
         playlist_title_required_description: Add a title before creating the playlist.
+        invalid_label_artist: must be an active artist from your label on this site
         artist_interest_submitted: Your interest in becoming an artist has been submitted. We'll review your request shortly.
       controls:
         create_playlist: Create a playlist with these tracks

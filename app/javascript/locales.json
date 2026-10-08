@@ -5145,6 +5145,14 @@
           "tags_placeholder": "Select labels",
           "title": "Title"
         },
+        "label_artist": {
+          "description": "Choose an active artist from your label for all tracks and the playlist in this upload.",
+          "empty": "Your label has no active artists on this site yet.",
+          "load_error": "Unable to load your label's artists.",
+          "own_account": "Publish under my label account",
+          "retry": "Retry",
+          "title": "Publishing artist"
+        },
         "messages": {
           "artist_interest_submitted": "Your interest in becoming an artist has been submitted. We'll review your request shortly.",
           "audio_only": "Only audio files are allowed",
@@ -5152,6 +5160,7 @@
           "error_title": "Error",
           "file_too_large": "Files cannot exceed %{size}MB.",
           "invalid_files": "Invalid files",
+          "invalid_label_artist": "must be an active artist from your label on this site",
           "link_copied": "Link copied to clipboard",
           "media_only": "Only audio or video files are allowed.",
           "no_files": "There are no files selected",
@@ -10768,6 +10777,14 @@
           "tags_placeholder": "Seleccionar etiquetas",
           "title": "Título"
         },
+        "label_artist": {
+          "description": "Elige un artista activo de tu sello para todas las pistas y la playlist de esta subida.",
+          "empty": "Tu sello aún no tiene artistas activos en este sitio.",
+          "load_error": "No se pudieron cargar los artistas de tu sello.",
+          "own_account": "Publicar con mi cuenta de sello",
+          "retry": "Reintentar",
+          "title": "Artista de la publicación"
+        },
         "messages": {
           "artist_interest_submitted": "Tu interés en convertirte en artista fue enviado. Revisaremos tu solicitud pronto.",
           "audio_only": "Solo se permiten archivos de audio",
@@ -10775,6 +10792,7 @@
           "error_title": "Error",
           "file_too_large": "Los archivos no pueden superar los %{size}MB.",
           "invalid_files": "Archivos inválidos",
+          "invalid_label_artist": "debe ser un artista activo de tu sello en este sitio",
           "link_copied": "Enlace copiado al portapapeles",
           "media_only": "Solo se permiten archivos de audio o video.",
           "no_files": "No hay archivos seleccionados",

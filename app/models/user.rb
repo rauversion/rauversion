@@ -407,6 +407,14 @@ class User < ApplicationRecord
     ConnectedAccount.exists?(parent_id: self.id, state: 'active', user_id: child_user_id)
   end
 
+  def upload_artists(tenant = Current.tenant)
+    return User.none unless label?
+
+    child_accounts.merge(User.artists_for(tenant))
+      .where(connected_accounts: { state: "active" })
+      .order(:display_name, :username)
+  end
+
   def to_combobox_display
     display_name
   end
