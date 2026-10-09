@@ -1,33 +1,8 @@
 import React from "react";
-import { motion } from "framer-motion";
-import { Card } from "../ui/card";
-import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import ProductCard, { ProductCardSkeleton } from "./ProductCard";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "../ui/button";
 import { Link } from "react-router-dom";
-const container = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-    },
-  },
-};
-
-const item = {
-  hidden: { opacity: 0, y: 20 },
-  show: { opacity: 1, y: 0 },
-};
-
-const CARD_COLORS = {
-  junior: { bg: "bg-[#E4FF80]", text: "text-black" },
-  youth: { bg: "bg-[#F4F1ED]", text: "text-black" },
-  adult: { bg: "bg-[#F4F1ED]", text: "text-black" },
-  coaching: { bg: "bg-[#E4FF80]", text: "text-black" },
-  feedback: { bg: "bg-[#F4F1ED]", text: "text-black" },
-  mastering: { bg: "bg-[#F4F1ED]", text: "text-black" },
-};
-
 import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
 
 const ServiceCategories = () => {
@@ -91,57 +66,23 @@ const ServiceCategories = () => {
 
         <div
           id="services-container"
-          className="flex overflow-x-auto scrollbar-hide gap-6 pb-4"
+          className="flex overflow-x-auto scrollbar-hide gap-3 pb-4"
           style={{ scrollSnapType: "x mandatory" }}
         >
+          {loading && products.length === 0 && Array.from({ length: 5 }, (_, index) => (
+            <div key={index} className="w-[200px] flex-none @2xl/store-services:w-[220px] @5xl/store-services:w-[240px]">
+              <ProductCardSkeleton />
+            </div>
+          ))}
           {products.map((service, index) => (
-            <motion.div
-              key={index}
-              variants={item}
-              className="w-[280px] flex-none @md/store-services:w-[320px] @2xl/store-services:w-[360px] @5xl/store-services:w-[400px]"
+            <div
+              key={service.id}
+              ref={index === products.length - 1 ? lastElementRef : null}
+              className="w-[200px] flex-none @2xl/store-services:w-[220px] @5xl/store-services:w-[240px]"
               style={{ scrollSnapAlign: "start" }}
             >
-              <Link to={`/${service.user.username}/products/${service.id}`}>
-                <Card
-                  className={`overflow-hidden h-full group cursor-pointer relative ${CARD_COLORS[service.category]?.bg || "bg-white"
-                    }`}
-                >
-                  <div className="p-6">
-                    <div className="flex items-center gap-2 mb-6">
-                      <span className="bg-black text-white text-sm px-3 py-1 rounded-full">
-                        {service?.category}
-                      </span>
-                    </div>
-
-                    <span className="text-black text-sm font-bold uppercase mb-2">
-                      Por: {service.user?.username}
-                    </span>
-
-                    <h3
-                      className={`text-2xl @md/store-services:text-3xl @4xl/store-services:text-4xl ${CARD_COLORS[service.category]?.text || "text-black"
-                        } font-bold mb-4 whitespace-pre-line leading-tight`}
-                    >
-                      {service.title}
-                    </h3>
-
-                    <p className="text-sm mb-8">{/*service.description*/}</p>
-
-                    <Button className="bg-black/10 backdrop-blur-sm text-black px-4 py-2 rounded-full flex items-center gap-2 hover:bg-black/20 transition-colors">
-                      Leer más
-                      <ArrowRight size={16} />
-                    </Button>
-                  </div>
-
-                  <div className="mt-4">
-                    <img
-                      src={service?.cover_url?.large}
-                      alt={service.title}
-                      className="w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                  </div>
-                </Card>
-              </Link>
-            </motion.div>
+              <ProductCard product={service} />
+            </div>
           ))}
         </div>
       </div>

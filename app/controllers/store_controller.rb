@@ -2,7 +2,7 @@ class StoreController < ApplicationController
   def index
     @products = Product.for_tenant.includes(
       product_images: {image_attachment: :blob}
-    ).page(params[:page]).per(12)
+    ).order(created_at: :desc, id: :desc).page(params[:page]).per(12)
     respond_to do |format|
       format.html
       format.json
@@ -20,7 +20,7 @@ class StoreController < ApplicationController
     .includes(
       product_images: {image_attachment: :blob}
     )
-    @products = @products.page(params[:page]).per(12)
+    @products = @products.order(created_at: :desc, id: :desc).page(params[:page]).per(12)
     respond_to do |format|
       format.html { render_blank }
       format.json { render :index }
@@ -37,7 +37,7 @@ class StoreController < ApplicationController
     .includes(
       product_images: {image_attachment: :blob}
     )
-    @products = @products.page(params[:page]).per(12)
+    @products = @products.order(created_at: :desc, id: :desc).page(params[:page]).per(12)
 
     respond_to do |format|
       format.html { render_blank }
@@ -53,7 +53,7 @@ class StoreController < ApplicationController
     .includes(
       product_images: {image_attachment: :blob}
     )
-    @products = @products.page(params[:page]).per(12)
+    @products = @products.order(created_at: :desc, id: :desc).page(params[:page]).per(12)
     respond_to do |format|
       format.html {render_blank}
       format.json { render :index }
@@ -66,7 +66,7 @@ class StoreController < ApplicationController
       product_images: {image_attachment: :blob}
     )
     .where(service_kind: "education")
-    .page(params[:page]).per(12)
+    .order(created_at: :desc, id: :desc).page(params[:page]).per(12)
     respond_to do |format|
       format.html { render_blank }
       format.json { render :index }
@@ -79,7 +79,7 @@ class StoreController < ApplicationController
       product_images: {image_attachment: :blob}
     )
     .where(category: "feedback")
-    .page(params[:page]).per(12)
+    .order(created_at: :desc, id: :desc).page(params[:page]).per(12)
     respond_to do |format|
       format.html { render_blank}
       format.json { render :index }
@@ -94,7 +94,7 @@ class StoreController < ApplicationController
     .includes(
       product_images: {image_attachment: :blob}
     )
-    .page(params[:page]).per(12)
+    .order(created_at: :desc, id: :desc).page(params[:page]).per(12)
     respond_to do |format|
       format.html { render_blank}
       format.json { render :index }
@@ -109,7 +109,7 @@ class StoreController < ApplicationController
     .includes(
       product_images: {image_attachment: :blob}
     )
-    @products = @products.page(params[:page]).per(12)
+    @products = @products.order(created_at: :desc, id: :desc).page(params[:page]).per(12)
     respond_to do |format|
       format.html { render_blank }
       format.json { render :index }
@@ -124,7 +124,7 @@ class StoreController < ApplicationController
     .includes(
       product_images: {image_attachment: :blob}
     )
-    .page(params[:page]).per(12)
+    .order(created_at: :desc, id: :desc).page(params[:page]).per(12)
     respond_to do |format|
       format.html { render_blank }
       format.json { render :index }

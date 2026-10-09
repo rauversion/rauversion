@@ -1,3 +1,4 @@
+import ProductCard, { ProductCardSkeleton } from "./ProductCard";
 import React from "react";
 import {
   Carousel,
@@ -8,10 +9,10 @@ import {
 } from "components/ui/carousel";
 import { motion } from "framer-motion";
 import { Button } from "../ui/button";
-import { Heart, ArrowRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { useInfiniteScroll } from "../../hooks/useInfiniteScroll";
 import { Link } from "react-router-dom";
-const EcoFriendlySection = () => {
+const MusicSection = () => {
   const {
     items: products,
     loading,
@@ -65,59 +66,22 @@ const EcoFriendlySection = () => {
 
         <Carousel className="w-full">
           <div className="flex justify-end gap-2 mb-4">
-            <CarouselPrevious
-              onClickss={() => {
-                /* handle previous */
-              }}
-            />
-            <CarouselNext
-              onClickss={() => {
-                /* handle next */
-              }}
-            />
+            <CarouselPrevious className="static translate-y-0" />
+            <CarouselNext className="static translate-y-0" />
           </div>
           <CarouselContent>
-            {products.map((product) => (
+            {loading && products.length === 0 && Array.from({ length: 5 }, (_, index) => (
+              <CarouselItem key={index} className="basis-[60%] @sm/store-music:basis-1/2 @2xl/store-music:basis-1/3 @4xl/store-music:basis-1/4 @6xl/store-music:basis-1/5">
+                <ProductCardSkeleton />
+              </CarouselItem>
+            ))}
+            {products.map((product, index) => (
               <CarouselItem
                 key={product.id}
-                className="basis-[82%] @sm/store-music:basis-[68%] @2xl/store-music:basis-1/2 @4xl/store-music:basis-1/3 @6xl/store-music:basis-1/4"
+                ref={index === products.length - 1 ? lastElementRef : null}
+                className="basis-[60%] @sm/store-music:basis-1/2 @2xl/store-music:basis-1/3 @4xl/store-music:basis-1/4 @6xl/store-music:basis-1/5"
               >
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className={`aspect-[4/5] relative group cursor-pointer overflow-hidden ${product.color}`}
-                >
-                  <Link to={`/${product.user.username}/products/${product.id}`}>
-                    <div className="absolute inset-0 after:content-[''] after:absolute after:inset-x-0 after:bottom-0 after:h-1/3 after:bg-gradient-to-t after:from-black/30 after:to-transparent">
-                      <img
-                        src={product.cover_url?.large}
-                        alt={product.title}
-                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                      />
-                    </div>
-
-                    <div className="absolute inset-0 p-6 flex flex-col">
-                      {/*<div className="flex justify-between items-start">
-                        <button className="w-8 h-8 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center hover:bg-white transition-colors">
-                          <Heart className="w-4 h-4" />
-                        </button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="rounded-full bg-white/90 backdrop-blur-sm hover:bg-white"
-                        >
-                          Buy Now
-                        </Button>
-                      </div>*/}
-
-                      <div className="mt-auto">
-                        <h3 className="max-w-[200px] text-xl font-medium leading-tight text-white @2xl/store-music:text-2xl">
-                          {product.title}
-                        </h3>
-                      </div>
-                    </div>
-                  </Link>
-                </motion.div>
+                <ProductCard product={product} />
               </CarouselItem>
             ))}
           </CarouselContent>
@@ -127,4 +91,4 @@ const EcoFriendlySection = () => {
   );
 };
 
-export default EcoFriendlySection;
+export default MusicSection;

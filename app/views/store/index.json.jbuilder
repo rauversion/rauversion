@@ -6,6 +6,7 @@ json.collection @products do |product|
   json.price product.price
   json.currency product.currency
 
+  json.type product.type
   json.category product.category
   json.service_kind product.service_kind if product.respond_to?(:service_kind)
   json.booking_mode product.booking_mode if product.respond_to?(:booking_mode)
@@ -18,6 +19,7 @@ json.collection @products do |product|
       json.small image.image_url(:small)
       json.medium image.image_url(:medium)
       json.large image.image_url(:large)
+      json.store image.image_url(:store)
     end
   end
   json.user do

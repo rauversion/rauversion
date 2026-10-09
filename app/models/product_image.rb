@@ -8,6 +8,9 @@ class ProductImage < ApplicationRecord
     when :medium
       image.variant(resize_to_fill: [200, 200]) # &.processed&.url
 
+    when :store
+      image.variant(resize_to_limit: [800, 800])
+
     when :large
       image.variant(resize_to_fill: [500, 500]) # &.processed&.url
 

@@ -1,10 +1,8 @@
 import React, { useMemo, useState } from "react"
-import { motion } from "framer-motion"
 import { useInfiniteScroll } from "../../hooks/useInfiniteScroll"
-import { useParams, useNavigate, useSearchParams } from "react-router-dom"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card"
+import { useParams, useSearchParams } from "react-router-dom"
 import { Button } from "../ui/button"
-import { Skeleton } from "../ui/skeleton"
+import ProductCard, { ProductCardSkeleton } from "./ProductCard"
 import { ScrollArea } from "../ui/scroll-area"
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerClose } from "../ui/drawer"
 import { Menu } from "lucide-react"
@@ -87,63 +85,6 @@ const CATEGORY_CONFIG = {
     ]
   }
 }
-
-const ProductCard = ({ product }) => {
-  const navigate = useNavigate()
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-    >
-      <Card className="overflow-hidden">
-        {product.cover_url?.medium && (
-          <div className="aspect-square overflow-hidden">
-            <img
-              src={product.cover_url.medium}
-              alt={product.title}
-              className="w-full h-full object-cover transition-transform hover:scale-105"
-            />
-          </div>
-        )}
-        <CardHeader>
-          <CardTitle className="line-clamp-1">{product.title}</CardTitle>
-          <CardDescription className="line-clamp-2">{product.description}</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between">
-            <p className="text-2xl font-bold">{product.formatted_price}</p>
-            <div className="flex items-center space-x-2">
-              <img
-                src={product.user.avatar_url.small}
-                alt={product.user.username}
-                className="w-8 h-8 rounded-full"
-              />
-              <span className="text-sm text-muted-foreground">{product.user.username}</span>
-            </div>
-          </div>
-        </CardContent>
-        <CardFooter>
-          <Button
-            className="w-full"
-            onClick={() => navigate(product.path)}
-          >
-            {I18n.t("more")}
-          </Button>
-        </CardFooter>
-      </Card>
-    </motion.div>
-  )
-}
-
-const LoadingSkeleton = () => (
-  <div className="space-y-3">
-    <Skeleton className="h-[200px] w-full" />
-    <Skeleton className="h-4 w-[250px]" />
-    <Skeleton className="h-4 w-[200px]" />
-    <Skeleton className="h-10 w-[150px]" />
-  </div>
-)
 
 const CategoryMenuButton = ({ subcategory, selected, count, onClick }) => (
   <Button
@@ -283,11 +224,11 @@ const CategoryView = () => {
         </div>
 
         {/* Main Content */}
-        <div className="@container/store-category-content flex-1">
-          <div className="grid min-h-[300px] grid-cols-1 gap-6 @2xl/store-category-content:grid-cols-2 @5xl/store-category-content:grid-cols-3">
+        <div className="@container/store-category-content min-w-0 flex-1">
+          <div className="grid min-h-[300px] grid-cols-2 gap-3 @xl/store-category-content:grid-cols-3 @4xl/store-category-content:grid-cols-4 @6xl/store-category-content:grid-cols-5">
             {loading && products.length === 0 ? (
               Array(6).fill().map((_, i) => (
-                <LoadingSkeleton key={i} />
+                <ProductCardSkeleton key={i} />
               ))
             ) : products.length > 0 ? (
               products.map((product, index) => (
