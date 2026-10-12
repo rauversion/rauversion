@@ -7,6 +7,7 @@ require "active_support/core_ext/integer/time"
 
 Rails.application.configure do
   config.hosts << ".example.com"
+  config.hosts << "localhost"
 
   # Settings specified here will take precedence over those in config/application.rb.
 

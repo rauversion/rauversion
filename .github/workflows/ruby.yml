@@ -45,7 +45,8 @@ jobs:
 
       - name: Build and precompile
         run: |
-          sudo apt-get -yqq install libpq-dev curl
+          sudo apt-get -yqq update
+          sudo apt-get -yqq install libpq-dev curl ffmpeg libvips-dev
           gem install bundler
           bundle install --jobs 4 --retry 3
           bundle exec rails db:prepare
