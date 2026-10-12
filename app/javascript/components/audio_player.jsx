@@ -621,6 +621,7 @@ export default function AudioPlayer({ id }) {
     <motion.div
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
+      data-flat-surface="background"
       className={cn(
         "fixed bottom-0 w-full z-50 text-foreground",
         "border-t border-border/60 bg-background/90 backdrop-blur-2xl backdrop-saturate-150",

@@ -23,7 +23,6 @@ import {
   List,
   Loader2,
   PanelLeft,
-  PanelRightOpen,
   Pause,
   Play,
   Plus,
@@ -270,7 +269,7 @@ function SidebarArtwork({ item, className, iconClassName }) {
           className
         )}
       >
-        <Heart className={cn("h-6 w-6 fill-current text-white", iconClassName)} />
+        <Heart className={cn("h-6 w-6 fill-current text-primary-foreground", iconClassName)} />
       </div>
     )
   }
@@ -1442,17 +1441,24 @@ export default function AppMusicLibraryLayout({ children }) {
   return (
     <>
       {hasTrackSidebarContent && !shouldShowVideoPanel && (
-        <div className="fixed right-6 top-20 z-40">
-          <Button
-            type="button"
-            variant="secondary"
-            onClick={openVideoPanel}
-            className="rounded-full border border-border/60 bg-card/95 px-4 shadow-lg backdrop-blur"
-          >
-            <PanelRightOpen className="mr-2 h-4 w-4" />
-            {t("open_panel")}
-          </Button>
-        </div>
+        <TooltipProvider delayDuration={250}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={openVideoPanel}
+                aria-label={t("open_panel")}
+                aria-expanded={false}
+                className="fixed right-0 top-1/2 z-40 h-16 w-6 -translate-y-1/2 rounded-none border border-r-0 border-border/40 bg-card p-0 text-muted-foreground shadow-none transition-[width,color,background-color,border-color] hover:w-8 hover:border-border hover:bg-muted hover:text-foreground focus-visible:w-8 focus-visible:ring-inset motion-reduce:transition-none"
+              >
+                <ChevronLeft className="h-4 w-4" aria-hidden="true" />
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent side="left">{t("open_panel")}</TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       )}
 
       <ResizablePanelGroup

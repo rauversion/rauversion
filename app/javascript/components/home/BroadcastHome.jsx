@@ -1,16 +1,32 @@
 import React from "react"
-import { ArrowRight, ArrowUpRight, CalendarDays, Disc3, Radio } from "lucide-react"
+import { ArrowRight, ArrowUpRight, CalendarDays, Radio } from "lucide-react"
 import { Link } from "react-router-dom"
 import I18n from "stores/locales"
+import BroadcastSignal from "./BroadcastSignal"
 
 function balancedHeadline(value) {
-  const words = String(value || I18n.t("tenants.storefront.broadcast.fallback_tagline")).trim().split(/\s+/)
+  const text = String(value || "").trim() || I18n.t("tenants.storefront.broadcast.fallback_tagline")
+  const words = text.split(/\s+/)
   if (words.length <= 3) return words
 
-  const size = Math.ceil(words.length / 3)
-  return [words.slice(0, size), words.slice(size, size * 2), words.slice(size * 2)]
-    .filter((line) => line.length)
-    .map((line) => line.join(" "))
+  let headline = []
+  let bestScore = Infinity
+
+  for (let first = 1; first < words.length - 1; first += 1) {
+    for (let second = first + 1; second < words.length; second += 1) {
+      const lines = [words.slice(0, first), words.slice(first, second), words.slice(second)].map((line) => line.join(" "))
+      const lengths = lines.map((line) => line.length)
+      const longest = Math.max(...lengths)
+      const score = longest * 10 + longest - Math.min(...lengths)
+
+      if (score < bestScore) {
+        headline = lines
+        bestScore = score
+      }
+    }
+  }
+
+  return headline
 }
 
 function imageUrl(item) {
@@ -34,25 +50,26 @@ function formatDate(value) {
 function Artwork({ item, alt = "" }) {
   const src = imageUrl(item)
   if (src) return <img src={src} alt={alt} />
-  return <div className="broadcast-artwork-fallback" aria-hidden="true"><Disc3 /></div>
+  return <BroadcastSignal />
 }
 
-export default function BroadcastHome({ tenant, data }) {
+export default function BroadcastHome({ tenant, data, preview = false }) {
   const releases = data.releases || []
   const events = data.events || []
   const posts = data.posts || []
   const artists = data.artists || []
   const featured = releases[0] || posts[0] || events[0]
-  const featuredKind = releases[0] ? "release" : posts[0] ? "article" : "event"
+  const featuredKind = releases[0] ? "release" : posts[0] ? "article" : events[0] ? "event" : "catalog"
   const featuredUrl = featuredKind === "release"
     ? releaseUrl(featured)
     : featuredKind === "article"
       ? `/articles/${featured?.slug}`
       : `/events/${featured?.slug}`
   const headline = balancedHeadline(tenant.settings.tagline)
+  const Root = preview ? "div" : "main"
 
   return (
-    <main className="broadcast-home">
+    <Root className={`broadcast-home${preview ? " broadcast-home--preview" : ""}`}>
       <header className="broadcast-masthead">
         <Link to="/" className="broadcast-brand" aria-label={tenant.name}>
           {tenant.logo_url ? <img src={tenant.logo_url} alt="" /> : <Radio aria-hidden="true" />}
@@ -60,9 +77,9 @@ export default function BroadcastHome({ tenant, data }) {
           <span>/ SIGNAL</span>
         </Link>
         <nav aria-label={I18n.t("tenants.storefront.broadcast.navigation")}>
-          <a href="#releases">{I18n.t("tenants.storefront.broadcast.releases")}</a>
-          <a href="#events">{I18n.t("tenants.storefront.broadcast.events")}</a>
-          <a href="#stories">{I18n.t("tenants.storefront.broadcast.stories")}</a>
+          <a href={releases.length ? "#releases" : "/releases"}>{I18n.t("tenants.storefront.broadcast.releases")}</a>
+          <a href={events.length ? "#events" : "/events"}>{I18n.t("tenants.storefront.broadcast.events")}</a>
+          <a href={posts.length ? "#stories" : "/articles"}>{I18n.t("tenants.storefront.broadcast.stories")}</a>
           <Link to="/store">{I18n.t("tenants.storefront.broadcast.store")} <ArrowUpRight /></Link>
         </nav>
       </header>
@@ -73,7 +90,7 @@ export default function BroadcastHome({ tenant, data }) {
             <span>{I18n.t("tenants.storefront.broadcast.network")}</span>
             <b>BRD–001</b>
           </div>
-          <h1>
+          <h1 style={{ "--headline-length": Math.max(...headline.map((line) => line.length), 1) }}>
             {headline.map((line, index) => <span key={`${line}-${index}`}>{line}</span>)}
           </h1>
           <div className="broadcast-summary">
@@ -101,7 +118,7 @@ export default function BroadcastHome({ tenant, data }) {
               <span>{I18n.t("tenants.storefront.broadcast.now_presenting")}</span>
               <h2>{featured?.title || I18n.t("tenants.storefront.broadcast.empty_title")}</h2>
               <p>{featured?.subtitle || featured?.excerpt || I18n.t("tenants.storefront.broadcast.empty_description")}</p>
-              <strong>{I18n.t("tenants.storefront.broadcast.open")} <ArrowUpRight /></strong>
+              <strong>{I18n.t(`tenants.storefront.broadcast.${featured ? "open" : "explore"}`)} <ArrowUpRight /></strong>
             </div>
           </Link>
         </div>
@@ -171,6 +188,6 @@ export default function BroadcastHome({ tenant, data }) {
         <p>{I18n.t("tenants.storefront.broadcast.footer")}</p>
         <span>RAUVERSION / {new Date().getFullYear()}</span>
       </footer>
-    </main>
+    </Root>
   )
 }

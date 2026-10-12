@@ -44,19 +44,25 @@ function themeStyle(theme: TenantThemeSchema | null | undefined, mode: "light" |
 
 export default function TenantThemeProvider({
   theme,
+  template,
   children,
 }: {
   theme?: TenantThemeInput
+  template?: string
   children: React.ReactNode
 }) {
   const [activeTheme, setActiveTheme] = React.useState<TenantThemeSchema | null>(() => normalizeTheme(theme))
+  const [activeTemplate, setActiveTemplate] = React.useState(template)
   const [mode, setMode] = React.useState<"light" | "dark">(() => currentColorMode())
 
   React.useEffect(() => setActiveTheme(normalizeTheme(theme)), [theme])
+  React.useEffect(() => setActiveTemplate(template), [template])
 
   React.useEffect(() => {
     const updateTheme = (event: Event) => {
-      setActiveTheme(normalizeTheme((event as CustomEvent<TenantThemeInput>).detail))
+      const update = (event as CustomEvent<{ theme: TenantThemeInput; template?: string }>).detail
+      setActiveTheme(normalizeTheme(update.theme))
+      setActiveTemplate(update.template)
     }
     window.addEventListener("tenant-theme:change", updateTheme)
     return () => window.removeEventListener("tenant-theme:change", updateTheme)
@@ -74,6 +80,7 @@ export default function TenantThemeProvider({
     const variables = themeStyle(activeTheme, mode)
     const targets = [document.documentElement, document.body]
     const previousBodyDark = document.body.classList.contains("dark")
+    const previousTemplate = document.documentElement.dataset.tenantTemplate
     const previousValues = targets.map((target) =>
       Object.keys(variables).map((property) => ({
         property,
@@ -83,6 +90,8 @@ export default function TenantThemeProvider({
     )
 
     document.documentElement.dataset.tenantTheme = activeTheme.name || "custom"
+    if (activeTemplate) document.documentElement.dataset.tenantTemplate = activeTemplate
+    else delete document.documentElement.dataset.tenantTemplate
     document.body.classList.toggle("dark", mode === "dark")
     targets.forEach((target) => {
       Object.entries(variables).forEach(([property, value]) => target.style.setProperty(property, value))
@@ -90,6 +99,8 @@ export default function TenantThemeProvider({
 
     return () => {
       delete document.documentElement.dataset.tenantTheme
+      if (previousTemplate) document.documentElement.dataset.tenantTemplate = previousTemplate
+      else delete document.documentElement.dataset.tenantTemplate
       document.body.classList.toggle("dark", previousBodyDark)
       targets.forEach((target, targetIndex) => {
         previousValues[targetIndex].forEach(({ property, value, priority }) => {
@@ -98,7 +109,7 @@ export default function TenantThemeProvider({
         })
       })
     }
-  }, [activeTheme, mode])
+  }, [activeTheme, activeTemplate, mode])
 
   return <>{children}</>
 }

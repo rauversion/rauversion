@@ -1,10 +1,90 @@
+[data-tenant-template="broadcast"] {
+  --radius: 0px !important;
+}
+
+/* Apply the template to shared UI and portals, including fixed-radius utilities. */
+[data-tenant-template="broadcast"],
+[data-tenant-template="broadcast"] *,
+[data-tenant-template="broadcast"] *::before,
+[data-tenant-template="broadcast"] *::after {
+  border-radius: 0 !important;
+  --tw-shadow: 0 0 #0000 !important;
+  backdrop-filter: none !important;
+}
+
+[data-tenant-template="broadcast"] input::-webkit-slider-thumb {
+  border-radius: 0 !important;
+}
+
+[data-tenant-template="broadcast"] input::-moz-range-thumb {
+  border-radius: 0 !important;
+}
+
+/* Keep artwork URLs; replace gradient surfaces with one uniform color. */
+[data-tenant-template="broadcast"] :is(
+  [class*="gradient"],
+  [class*="bg-linear-"],
+  [class*="bg-radial"],
+  [class*="bg-conic"],
+  [style*="gradient("]
+) {
+  background-image: none !important;
+  background-color: var(--tw-gradient-from, var(--card)) !important;
+}
+
+[data-tenant-template="broadcast"] :is(
+  [class*="gradient"], [style*="gradient("]
+):is(.pointer-events-none, [aria-hidden="true"]),
+[data-tenant-template="broadcast"] [style*="gradient("].absolute {
+  background-color: transparent !important;
+}
+
+[data-tenant-template="broadcast"] [class*="gradient"][class*="from-black"] {
+  background-color: rgb(0 0 0 / 0.35) !important;
+}
+
+[data-tenant-template="broadcast"] .bg-clip-text {
+  background-color: transparent !important;
+  color: var(--foreground) !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+[data-tenant-template="broadcast"] [data-flat-surface="primary"] {
+  background-color: var(--primary) !important;
+  color: var(--primary-foreground);
+}
+
+[data-tenant-template="broadcast"] [data-flat-surface="background"] {
+  background-color: var(--background) !important;
+  color: var(--foreground);
+}
+
+[data-tenant-template="broadcast"] [data-flat-surface="card"] {
+  background-color: var(--card) !important;
+  color: var(--card-foreground);
+}
+
+[data-tenant-template="broadcast"] [style*="box-shadow"]:not(:focus-visible) {
+  box-shadow: none !important;
+}
+
+[data-tenant-template="broadcast"] :is(.radio-page, .radio-deck-shell, .radio-artwork-grid, .radio-disc),
+[data-tenant-template="broadcast"] .radio-page::before {
+  background-image: none !important;
+}
+
+[data-tenant-template="broadcast"] .radio-disc {
+  background-color: var(--radio-ink);
+}
+
 .broadcast-home {
+  --broadcast-deck: var(--sidebar);
+  --broadcast-deck-text: var(--sidebar-foreground);
   min-height: 100svh;
   overflow: hidden;
-  background:
-    linear-gradient(90deg, color-mix(in srgb, var(--foreground) 6%, transparent) 1px, transparent 1px) 0 0 / 6.25vw 100%,
-    var(--background);
+  background: var(--background);
   color: var(--foreground);
+  font-family: var(--font-sans, "Host Grotesk", sans-serif);
 }
 
 .broadcast-home *,
@@ -16,6 +96,11 @@
 .broadcast-home a {
   color: inherit;
   text-decoration: none;
+}
+
+.broadcast-home a:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 5px;
 }
 
 .broadcast-masthead {
@@ -99,6 +184,7 @@
 }
 
 .broadcast-editorial {
+  container-type: inline-size;
   min-width: 0;
   display: flex;
   flex-direction: column;
@@ -125,7 +211,7 @@
 .broadcast-editorial h1 {
   margin: clamp(2.3rem, 5vh, 5rem) 0 auto;
   font-family: var(--font-heading, var(--font-sans));
-  font-size: clamp(4rem, 8.25vw, 9.5rem);
+  font-size: clamp(1.4rem, calc(175cqw / var(--headline-length, 11)), 9.5rem);
   font-weight: 900;
   letter-spacing: -0.095em;
   line-height: 0.73;
@@ -134,6 +220,7 @@
 
 .broadcast-editorial h1 span {
   display: block;
+  overflow-wrap: anywhere;
 }
 
 .broadcast-editorial h1 span:nth-child(2) {
@@ -148,7 +235,6 @@
   height: 0.35em;
   display: inline-block;
   margin-left: 0.12em;
-  border-radius: 50%;
   background: var(--accent);
   transform: translateY(-0.05em);
 }
@@ -224,17 +310,15 @@
   display: grid;
   place-items: center;
   padding: clamp(2rem, 5vw, 6rem);
-  background:
-    repeating-linear-gradient(135deg, transparent 0 14px, color-mix(in srgb, var(--foreground) 9%, transparent) 14px 15px),
-    var(--primary);
+  background: var(--primary);
 }
 
 .broadcast-feature {
   width: min(100%, 620px);
   display: block;
   border: 2px solid var(--foreground);
-  background: var(--foreground);
-  color: var(--background) !important;
+  background: var(--broadcast-deck);
+  color: var(--broadcast-deck-text) !important;
   box-shadow: 14px 14px 0 var(--background), 16px 16px 0 var(--foreground);
   transition: transform 180ms ease;
 }
@@ -248,7 +332,7 @@
   justify-content: space-between;
   gap: 1rem;
   padding: 0.8rem 1rem;
-  border-bottom: 1px solid color-mix(in srgb, var(--background) 35%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--broadcast-deck-text) 35%, transparent);
   font-size: 0.6rem;
   font-weight: 800;
   letter-spacing: 0.14em;
@@ -264,25 +348,16 @@
   aspect-ratio: 1 / 0.74;
   overflow: hidden;
   margin: 1.25rem;
-  border: 2px solid var(--background);
+  border: 2px solid var(--broadcast-deck-text);
   background: var(--accent);
 }
 
 .broadcast-feature-art > img,
-.broadcast-feature-art > .broadcast-artwork-fallback {
+.broadcast-feature-art > .broadcast-signal {
   width: 100%;
   height: 100%;
   object-fit: cover;
   filter: saturate(0.75) contrast(1.08);
-}
-
-.broadcast-feature-art::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, transparent 45%, color-mix(in srgb, var(--accent) 70%, transparent));
-  mix-blend-mode: multiply;
-  pointer-events: none;
 }
 
 .broadcast-feature-index {
@@ -302,7 +377,6 @@
 }
 
 .broadcast-feature-copy > span,
-.broadcast-release-card small,
 .broadcast-story-grid small {
   color: var(--primary);
   font-size: 0.6rem;
@@ -323,7 +397,7 @@
   display: -webkit-box;
   overflow: hidden;
   margin: 0.75rem 0 1rem;
-  color: color-mix(in srgb, var(--background) 70%, transparent);
+  color: color-mix(in srgb, var(--broadcast-deck-text) 70%, transparent);
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
@@ -333,7 +407,7 @@
   align-items: center;
   justify-content: space-between;
   padding-top: 0.8rem;
-  border-top: 1px solid color-mix(in srgb, var(--background) 35%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--broadcast-deck-text) 35%, transparent);
   color: var(--primary);
   font-size: 0.68rem;
   letter-spacing: 0.12em;
@@ -345,20 +419,60 @@
   height: 18px;
 }
 
-.broadcast-artwork-fallback {
-  display: grid;
-  place-items: center;
-  background:
-    linear-gradient(90deg, transparent 49%, var(--foreground) 49% 51%, transparent 51%),
-    linear-gradient(transparent 49%, var(--foreground) 49% 51%, transparent 51%),
-    var(--accent);
-  background-size: 25% 25%;
-  color: var(--foreground);
+.broadcast-signal {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: var(--accent);
+  color: var(--accent-foreground);
 }
 
-.broadcast-artwork-fallback svg {
-  width: 32%;
-  height: 32%;
+.broadcast-signal > svg {
+  width: 100%;
+  height: 100%;
+}
+
+.broadcast-signal-grid {
+  stroke: currentColor;
+  stroke-width: 1;
+  opacity: 0.2;
+}
+
+.broadcast-signal-orbit {
+  stroke: currentColor;
+  stroke-width: 2;
+}
+
+.broadcast-signal-core {
+  fill: currentColor;
+}
+
+.broadcast-signal-cross {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+
+.broadcast-signal-label,
+.broadcast-signal-coordinate {
+  position: absolute;
+  left: 5%;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: clamp(0.45rem, 0.75vw, 0.65rem);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.broadcast-signal-label { top: 5%; }
+.broadcast-signal-coordinate { bottom: 5%; }
+
+.broadcast-release-card small {
+  color: var(--muted-foreground);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
 }
 
 .broadcast-ticker {
@@ -447,9 +561,9 @@
 }
 
 .broadcast-release-card img,
-.broadcast-release-card .broadcast-artwork-fallback,
+.broadcast-release-card .broadcast-signal,
 .broadcast-story-grid img,
-.broadcast-story-grid .broadcast-artwork-fallback {
+.broadcast-story-grid .broadcast-signal {
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -494,16 +608,16 @@
 }
 
 .broadcast-events {
-  background: var(--foreground);
-  color: var(--background);
+  background: var(--broadcast-deck);
+  color: var(--broadcast-deck-text);
 }
 
 .broadcast-events > header {
-  border-color: var(--background);
+  border-color: var(--broadcast-deck-text);
 }
 
 .broadcast-event-list {
-  border-top: 1px solid color-mix(in srgb, var(--background) 40%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--broadcast-deck-text) 40%, transparent);
 }
 
 .broadcast-event-list > a {
@@ -512,7 +626,7 @@
   gap: 1rem;
   align-items: center;
   padding: 1.35rem 0;
-  border-bottom: 1px solid color-mix(in srgb, var(--background) 40%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--broadcast-deck-text) 40%, transparent);
 }
 
 .broadcast-event-list > a:hover h3 {
@@ -566,7 +680,7 @@
 }
 
 .broadcast-story-grid small {
-  color: var(--accent);
+  color: var(--muted-foreground);
 }
 
 .broadcast-footer {
@@ -608,7 +722,11 @@
 }
 
 @media (max-width: 980px) {
-  .broadcast-masthead nav a:not(:last-child) { display: none; }
+  .broadcast-masthead { flex-wrap: wrap; }
+  .broadcast-brand { width: 100%; border-right: 0; }
+  .broadcast-masthead nav { width: 100%; border-top: 1px solid var(--border); }
+  .broadcast-masthead nav a { flex: 1; justify-content: center; padding: 1rem 0.5rem; }
+  .broadcast-masthead nav a:first-child { border-left: 0; }
   .broadcast-hero { grid-template-columns: 1fr; }
   .broadcast-editorial { min-height: 75svh; border-right: 0; border-bottom: 2px solid var(--border); }
   .broadcast-feature-shell { min-height: 720px; }
@@ -619,8 +737,7 @@
 
 @media (max-width: 640px) {
   .broadcast-brand span { display: none; }
-  .broadcast-masthead nav a { padding: 0 0.8rem; }
-  .broadcast-editorial h1 { font-size: clamp(3.2rem, 19vw, 6rem); }
+  .broadcast-masthead nav a { min-height: 44px; padding: 0.75rem 0.4rem; font-size: 0.6rem; letter-spacing: 0.08em; }
   .broadcast-summary { grid-template-columns: 1fr; gap: 1rem; }
   .broadcast-summary a { justify-content: space-between; }
   .broadcast-feature-shell { min-height: auto; padding: 2.25rem 1.25rem 3rem; }
@@ -643,4 +760,141 @@
   .broadcast-feature,
   .broadcast-release-card img,
   .broadcast-story-grid img { transition: none; }
+}
+
+.broadcast-template-swatch {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 76px;
+  overflow: hidden;
+  margin: 0.25rem 0 1rem;
+  border: 1px solid var(--swatch-ink);
+  background: var(--swatch-paper);
+  color: var(--swatch-ink);
+}
+
+.broadcast-template-swatch > span {
+  padding: 13px 8px;
+  font-family: "Host Grotesk", sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.08em;
+  line-height: 0.82;
+}
+
+.broadcast-template-swatch i {
+  color: transparent;
+  font-style: normal;
+  -webkit-text-stroke: 1px var(--swatch-ink);
+}
+
+.broadcast-template-swatch > div {
+  display: grid;
+  place-items: center;
+  border-left: 1px solid var(--swatch-ink);
+  background: var(--swatch-acid);
+}
+
+.broadcast-template-swatch > div > span {
+  width: 42px;
+  height: 42px;
+  border: 10px solid var(--swatch-ink);
+  background: var(--swatch-coral);
+  box-shadow: 4px 4px 0 var(--swatch-paper);
+}
+
+/* The settings preview shares the storefront markup and palette. */
+.broadcast-preview {
+  container-type: inline-size;
+  overflow: hidden;
+  border: 2px solid var(--border);
+  color: var(--foreground);
+}
+
+.broadcast-home--preview {
+  min-height: 0;
+}
+
+.broadcast-home--preview .broadcast-masthead {
+  min-height: 44px;
+  flex-wrap: nowrap;
+}
+
+.broadcast-home--preview .broadcast-brand {
+  width: auto;
+  gap: 6px;
+  padding: 10px 2cqw;
+  border-right: 1px solid var(--border);
+}
+
+.broadcast-home--preview .broadcast-brand img,
+.broadcast-home--preview .broadcast-brand > svg {
+  width: 18px;
+  height: 18px;
+}
+
+.broadcast-home--preview .broadcast-brand strong { font-size: 2.4cqw; }
+.broadcast-home--preview .broadcast-brand > span { display: none; }
+.broadcast-home--preview .broadcast-masthead nav { width: auto; border-top: 0; }
+.broadcast-home--preview .broadcast-masthead nav a { padding: 0 1.5cqw; font-size: 1.35cqw; letter-spacing: 0.05em; }
+.broadcast-home--preview .broadcast-masthead nav svg { display: none; }
+
+.broadcast-home--preview .broadcast-hero {
+  min-height: 62cqw;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.05fr);
+}
+
+.broadcast-home--preview .broadcast-editorial {
+  min-height: 0;
+  padding: 4cqw 3cqw;
+  border-right: 2px solid var(--border);
+  border-bottom: 0;
+}
+
+.broadcast-home--preview .broadcast-kicker { gap: 5px; font-size: 2.6cqw; letter-spacing: 0.05em; }
+.broadcast-home--preview .broadcast-editorial h1 { margin-top: 10cqw; font-size: calc(175cqw / var(--headline-length, 11)); }
+.broadcast-home--preview .broadcast-editorial h1 span:nth-child(2) { -webkit-text-stroke-width: 1px; }
+.broadcast-home--preview .broadcast-summary { grid-template-columns: 1fr; gap: 8px; margin-top: 10cqw; padding-top: 8px; }
+.broadcast-home--preview .broadcast-summary p { font-size: 3.5cqw; }
+.broadcast-home--preview .broadcast-summary a { justify-self: start; gap: 5px; padding: 8px; font-size: 2.8cqw; }
+.broadcast-home--preview .broadcast-summary svg { width: 10px; height: 10px; }
+.broadcast-home--preview .broadcast-metrics { margin-top: 12px; }
+.broadcast-home--preview .broadcast-metrics div { min-width: 0; padding-inline: 5px; }
+.broadcast-home--preview .broadcast-metrics div:first-child { padding-left: 0; }
+.broadcast-home--preview .broadcast-metrics dt { font-size: 2.1cqw; letter-spacing: 0.03em; }
+.broadcast-home--preview .broadcast-metrics dd { font-size: 6cqw; }
+
+.broadcast-home--preview .broadcast-feature-shell { min-height: 0; padding: 5cqw 4cqw; }
+.broadcast-home--preview .broadcast-feature { box-shadow: 5px 5px 0 var(--background), 7px 7px 0 var(--foreground); }
+.broadcast-home--preview .broadcast-feature-head { gap: 4px; padding: 8px; font-size: 1.1cqw; letter-spacing: 0.06em; }
+.broadcast-home--preview .broadcast-feature-art { aspect-ratio: 1 / 0.9; margin: 10px; }
+.broadcast-home--preview .broadcast-feature-index { right: 5px; bottom: 5px; font-size: 1.2cqw; }
+.broadcast-home--preview .broadcast-signal-label,
+.broadcast-home--preview .broadcast-signal-coordinate { font-size: 0.9cqw; }
+.broadcast-home--preview .broadcast-feature-copy { padding: 0 10px 12px; }
+.broadcast-home--preview .broadcast-feature-copy > span { font-size: 1.3cqw; }
+.broadcast-home--preview .broadcast-feature-copy h2 { font-size: 3.6cqw; }
+.broadcast-home--preview .broadcast-feature-copy p { margin-block: 8px; font-size: 1.6cqw; }
+.broadcast-home--preview .broadcast-feature-copy strong { font-size: 1.2cqw; }
+.broadcast-home--preview .broadcast-feature-copy svg { width: 12px; height: 12px; }
+.broadcast-home--preview .broadcast-ticker > div { gap: 10px; padding-block: 8px; font-size: 1.4cqw; animation: none; }
+.broadcast-home--preview .broadcast-footer { grid-template-columns: 1fr auto; gap: 6px; padding: 14px 3cqw; font-size: 1.2cqw; }
+.broadcast-home--preview .broadcast-footer div { min-width: 0; gap: 5px; }
+.broadcast-home--preview .broadcast-footer strong { overflow-wrap: anywhere; }
+.broadcast-home--preview .broadcast-footer svg { width: 14px; height: 14px; flex-shrink: 0; }
+.broadcast-home--preview .broadcast-footer p { display: none; }
+
+@container (max-width: 420px) {
+  .broadcast-home--preview .broadcast-hero { grid-template-columns: 1fr; }
+  .broadcast-home--preview .broadcast-editorial { border-right: 0; border-bottom: 2px solid var(--border); }
+  .broadcast-home--preview .broadcast-brand strong { font-size: 3cqw; }
+  .broadcast-home--preview .broadcast-masthead nav a { font-size: 1.8cqw; }
+  .broadcast-home--preview .broadcast-feature { max-width: 80%; }
+  .broadcast-home--preview .broadcast-feature-copy h2 { font-size: 5cqw; }
+  .broadcast-home--preview .broadcast-feature-copy p { font-size: 2.5cqw; }
+  .broadcast-home--preview .broadcast-feature-head,
+  .broadcast-home--preview .broadcast-feature-copy > span,
+  .broadcast-home--preview .broadcast-feature-copy strong,
+  .broadcast-home--preview .broadcast-feature-index { font-size: 2cqw; }
+  .broadcast-home--preview .broadcast-footer { font-size: 1.8cqw; }
 }

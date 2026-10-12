@@ -4739,9 +4739,10 @@
           "next_event": "Next event",
           "season": "New season",
           "selection": "Selection",
-          "store": "Store"
+          "store": "Store",
+          "title": "Site preview"
         },
-        "preview_help": "The preview updates before publishing.",
+        "preview_help": "Colors and identity update in the preview.",
         "primary": "Primary",
         "save_error": "We could not save. Review the colors and try again.",
         "saved": "Changes saved",
@@ -4756,8 +4757,8 @@
             "name": "Amplifier"
           },
           "broadcast": {
-            "description": "Bold editorial grid, signal graphics, and the visual energy of Rau Radio.",
-            "name": "Broadcast"
+            "description": "Paper, black ink, and acid green. Monumental typography and signal graphics for independent music.",
+            "name": "Broadcast / Rau Radio"
           },
           "editorial": {
             "description": "Expressive typography, magazine rhythm, and room for stories.",
@@ -4782,6 +4783,7 @@
         "broadcast": {
           "article": "Featured story",
           "artists": "Artists",
+          "catalog": "Independent catalog",
           "date_tba": "Date TBA",
           "description": "%{name} is an independent home for artists, releases, events, and shared culture.",
           "empty_description": "New music, events, and stories will appear here.",
@@ -10418,9 +10420,10 @@
           "next_event": "Próximo evento",
           "season": "Nueva temporada",
           "selection": "Selección",
-          "store": "Tienda"
+          "store": "Tienda",
+          "title": "Vista previa del sitio"
         },
-        "preview_help": "La vista previa se actualiza antes de publicar.",
+        "preview_help": "Los colores y la identidad se actualizan en la vista previa.",
         "primary": "Primario",
         "save_error": "No pudimos guardar. Revisa los colores y vuelve a intentarlo.",
         "saved": "Cambios guardados",
@@ -10435,8 +10438,8 @@
             "name": "Amplifier"
           },
           "broadcast": {
-            "description": "Grilla editorial audaz, gráfica de señal y la energía visual de Rau Radio.",
-            "name": "Broadcast"
+            "description": "Papel, tinta negra y verde ácido. Tipografía monumental y gráficas de señal para música independiente.",
+            "name": "Broadcast / Rau Radio"
           },
           "editorial": {
             "description": "Tipografía protagonista, ritmo de revista y espacio para historias.",
@@ -10461,6 +10464,7 @@
         "broadcast": {
           "article": "Historia destacada",
           "artists": "Artistas",
+          "catalog": "Catálogo independiente",
           "date_tba": "Fecha por confirmar",
           "description": "%{name} es un espacio independiente para artistas, lanzamientos, eventos y cultura compartida.",
           "empty_description": "Aquí aparecerán nueva música, eventos e historias.",

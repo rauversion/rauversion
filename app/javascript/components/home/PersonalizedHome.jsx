@@ -150,6 +150,7 @@ function EntityArtwork({ entity, className }) {
     return (
       <div
         className={cn("relative overflow-hidden", className)}
+        data-flat-surface="primary"
         style={{
           backgroundImage:
             "linear-gradient(135deg, var(--primary), var(--accent) 50%, var(--chart-2))",
@@ -528,6 +529,7 @@ export default function PersonalizedHome({ currentUser }) {
       <div className="relative space-y-8 p-4 sm:p-6 xl:p-8">
         <header
           className="relative overflow-hidden rounded-[32px] border border-border p-6 sm:p-8"
+          data-flat-surface="card"
           style={{
             backgroundImage:
               "linear-gradient(135deg, color-mix(in srgb, var(--primary) 16%, var(--background)), color-mix(in srgb, var(--accent) 28%, var(--background)) 52%, color-mix(in srgb, var(--chart-2) 14%, var(--background)))",

@@ -32,6 +32,7 @@ import amplifierThemeJson from "@/themes/tenant/amplifier.json"
 import editorialThemeJson from "@/themes/tenant/editorial.json"
 import waveformThemeJson from "@/themes/tenant/waveform.json"
 import broadcastThemeJson from "@/themes/tenant/broadcast.json"
+import BroadcastPreview from "./BroadcastPreview"
 
 type TemplateKey = "amplifier" | "editorial" | "waveform" | "broadcast"
 type HeadingFont = "space_grotesk" | "archivo_clash" | "ibm_plex"
@@ -110,6 +111,10 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
 }
 
 function BrandPreview({ tenant, branding, logoPreview }: { tenant: Tenant; branding: Branding; logoPreview: string | null }) {
+  if (branding.template === "broadcast") {
+    return <BroadcastPreview tenant={{ ...tenant, logo_url: logoPreview, settings: branding }} theme={branding.theme_schema} />
+  }
+
   const theme = branding.theme_schema?.cssVars?.light || {}
   const previewBackground = theme.background || branding.background_color
   const previewForeground = theme.foreground || "#ffffff"
@@ -119,7 +124,6 @@ function BrandPreview({ tenant, branding, logoPreview }: { tenant: Tenant; brand
     amplifier: "rounded-[2rem]",
     editorial: "rounded-none",
     waveform: "rounded-xl",
-    broadcast: "rounded-none border-2",
   }[branding.template]
 
   return (
@@ -147,7 +151,7 @@ function BrandPreview({ tenant, branding, logoPreview }: { tenant: Tenant; brand
         </div>
       </div>
 
-      <div className={cn("relative mt-24", branding.template === "editorial" && "mt-16 border-l pl-6", branding.template === "broadcast" && "mt-14 border-t-2 pt-5")} style={{ borderColor: previewAccent }}>
+      <div className={cn("relative mt-24", branding.template === "editorial" && "mt-16 border-l pl-6")} style={{ borderColor: previewAccent }}>
         <Badge className="border-0" style={{ backgroundColor: previewAccent, color: theme["accent-foreground"] || "#000000" }}>{I18n.t("tenants.settings.preview.season")}</Badge>
         <h2 className="mt-5 max-w-md text-5xl font-black leading-[0.92] tracking-[-0.06em] sm:text-6xl" style={{ color: previewForeground }}>
           {branding.tagline || I18n.t("tenants.settings.preview.fallback_tagline")}
@@ -155,7 +159,7 @@ function BrandPreview({ tenant, branding, logoPreview }: { tenant: Tenant; brand
         <p className="mt-5 max-w-sm text-sm leading-relaxed opacity-55" style={{ color: previewForeground }}>
           {I18n.t("tenants.settings.preview.description")}
         </p>
-        <Button className={cn("mt-7 border-0", branding.template === "broadcast" && "rounded-none font-black uppercase tracking-wider")} style={{ backgroundColor: previewPrimary, color: theme["primary-foreground"] || "#000000" }}>{I18n.t("tenants.settings.preview.explore")}</Button>
+        <Button className="mt-7 border-0" style={{ backgroundColor: previewPrimary, color: theme["primary-foreground"] || "#000000" }}>{I18n.t("tenants.settings.preview.explore")}</Button>
       </div>
 
       <div className="absolute inset-x-7 bottom-7 grid grid-cols-3 gap-2">
@@ -266,7 +270,9 @@ export default function TenantSettings() {
 
     window.ENV.TENANT_TEMPLATE = payload.tenant.settings.template
     window.ENV.TENANT_THEME = payload.tenant.settings.theme_schema
-    window.dispatchEvent(new CustomEvent("tenant-theme:change", { detail: payload.tenant.settings.theme_schema }))
+    window.dispatchEvent(new CustomEvent("tenant-theme:change", {
+      detail: { theme: payload.tenant.settings.theme_schema, template: payload.tenant.settings.template },
+    }))
   }
 
   const selectTemplate = async (template: TemplateKey) => {
@@ -443,6 +449,11 @@ export default function TenantSettings() {
                       )}
                     >
                       {selected && <span className="absolute right-3 top-3 grid h-5 w-5 place-items-center rounded-full bg-primary text-primary-foreground">{templateSaving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}</span>}
+                      {template.key === "broadcast" && (
+                        <div className="broadcast-template-swatch" aria-hidden="true" style={{ "--swatch-paper": colors.background, "--swatch-ink": colors.foreground, "--swatch-acid": colors.primary, "--swatch-coral": colors.accent } as React.CSSProperties}>
+                          <span>RAU<br /><i>RADIO</i></span><div><span /></div>
+                        </div>
+                      )}
                       <div className="mb-4 flex gap-1.5" aria-hidden="true">
                         {[colors.background, colors.foreground, colors.primary, colors.accent].map((color, index) => (
                           <span key={`${color}-${index}`} className="h-5 w-5 rounded-full border border-border shadow-sm" style={{ backgroundColor: color }} />
@@ -479,7 +490,10 @@ export default function TenantSettings() {
               </details>
             </Card>
 
-            <BrandPreview tenant={{ ...tenant, name }} branding={branding} logoPreview={logoPreview} />
+            <section aria-label={I18n.t("tenants.settings.preview.title")}>
+              <p className="mb-3 text-xs font-medium uppercase tracking-widest text-muted-foreground">{I18n.t("tenants.settings.preview.title")}</p>
+              <BrandPreview tenant={{ ...tenant, name }} branding={branding} logoPreview={logoPreview} />
+            </section>
 
             <div className="flex items-center justify-between gap-4 rounded-2xl border border-border bg-card/90 p-4 shadow-xl backdrop-blur">
               <div><p className="text-sm font-medium">{saved ? I18n.t("tenants.settings.saved") : I18n.t("tenants.settings.configuration")}</p><p className="mt-1 text-xs text-muted-foreground">{I18n.t("tenants.settings.preview_help")}</p></div>

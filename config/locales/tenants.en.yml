@@ -94,9 +94,10 @@ en:
           name: Waveform
           description: A compact interface focused on catalog, playlists, and continuous listening.
         broadcast:
-          name: Broadcast
-          description: Bold editorial grid, signal graphics, and the visual energy of Rau Radio.
+          name: Broadcast / Rau Radio
+          description: Paper, black ink, and acid green. Monumental typography and signal graphics for independent music.
       preview:
+        title: Site preview
         music: Music
         events: Events
         store: Store
@@ -137,7 +138,7 @@ en:
       apply_theme_json: Apply JSON changes
       saved: Changes saved
       configuration: Tenant configuration
-      preview_help: The preview updates before publishing.
+      preview_help: Colors and identity update in the preview.
     storefront:
       broadcast:
         fallback_tagline: Independent music culture
@@ -153,6 +154,7 @@ en:
         release: Featured release
         article: Featured story
         event: Featured event
+        catalog: Independent catalog
         selected: Selected signal
         now_presenting: Now presenting
         empty_title: The next signal is coming

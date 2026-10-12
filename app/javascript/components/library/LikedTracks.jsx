@@ -332,6 +332,7 @@ export default function LikedTracks() {
     <div className="min-h-screen overflow-hidden rounded-[32px] bg-background text-foreground">
       <div
         className="border-b border-border px-6 py-8 text-primary-foreground md:px-10 md:py-10"
+        data-flat-surface="primary"
         style={{
           backgroundImage:
             "linear-gradient(180deg, color-mix(in srgb, var(--primary) 94%, var(--background)), color-mix(in srgb, var(--primary) 62%, var(--background)))",
@@ -340,6 +341,7 @@ export default function LikedTracks() {
         <div className="mx-auto flex max-w-6xl flex-col gap-8 md:flex-row md:items-end">
           <div
             className="flex h-40 w-40 items-center justify-center rounded-[28px]"
+            data-flat-surface="primary"
             style={{
               backgroundImage:
                 "linear-gradient(135deg, var(--primary), var(--accent), var(--chart-2))",
