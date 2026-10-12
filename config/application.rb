@@ -14,8 +14,12 @@ module RauversionRor
     config.exceptions_app = routes
 
     config.hosts << "chaskiq.sa.ngrok.io"
-    config.hosts << ENV["HOST"]
-    config.hosts << ".#{ENV["HOST"]}"
+    app_domain = ENV["APP_DOMAIN"].presence || ENV["HOST"].presence
+    if app_domain
+      app_host = URI.parse(app_domain.match?(%r{\Ahttps?://}i) ? app_domain : "//#{app_domain}").host
+      config.hosts << app_host
+      config.hosts << ".#{app_host}"
+    end
 
     config.mission_control.jobs.http_basic_auth_enabled = false
     config.mission_control.jobs.base_controller_class = "Admin::JobsController"

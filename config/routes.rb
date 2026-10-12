@@ -321,6 +321,12 @@ Rails.application.routes.draw do
     end
   end
 
+  get "/users/oauth/:provider", to: "users/oauth#show", as: :user_oauth
+  post "/users/oauth/:provider", to: "users/oauth#create"
+  devise_scope :user do
+    get "/users/oauth/:provider/complete", to: "users/omniauth_callbacks#complete", as: :complete_user_oauth
+  end
+
   devise_for :users, 
   # defaults: { format: [:html, :json] },
   controllers: {

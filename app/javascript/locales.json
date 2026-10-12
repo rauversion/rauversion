@@ -2583,6 +2583,18 @@
         }
       }
     },
+    "oauth": {
+      "redirect": {
+        "continue": "Continue with %{provider}",
+        "description": "You'll be back at %{tenant} in a moment.",
+        "eyebrow": "Ready to connect",
+        "hint": "If you aren't redirected automatically, use the button above.",
+        "no_javascript": "Press the button to continue signing in.",
+        "privacy": "Your password stays with %{provider}.",
+        "status": "Opening %{provider}…",
+        "title": "Connecting to %{provider}"
+      }
+    },
     "payments": {
       "buy_digital_album": "Buy digital album",
       "buy_digital_track": "Buy digital track",
@@ -8252,6 +8264,18 @@
         "format": {
           "delimiter": ""
         }
+      }
+    },
+    "oauth": {
+      "redirect": {
+        "continue": "Continuar con %{provider}",
+        "description": "En un momento estarás de vuelta en %{tenant}.",
+        "eyebrow": "Todo listo para conectar",
+        "hint": "Si no avanzas automáticamente, usa el botón de arriba.",
+        "no_javascript": "Pulsa el botón para continuar con el inicio de sesión.",
+        "privacy": "Tu contraseña se queda en %{provider}.",
+        "status": "Abriendo %{provider}…",
+        "title": "Conectando con %{provider}"
       }
     },
     "payments": {

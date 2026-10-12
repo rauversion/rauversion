@@ -1,0 +1,11 @@
+es:
+  oauth:
+    redirect:
+      eyebrow: Todo listo para conectar
+      title: Conectando con %{provider}
+      description: En un momento estarás de vuelta en %{tenant}.
+      status: Abriendo %{provider}…
+      continue: Continuar con %{provider}
+      hint: Si no avanzas automáticamente, usa el botón de arriba.
+      no_javascript: Pulsa el botón para continuar con el inicio de sesión.
+      privacy: Tu contraseña se queda en %{provider}.

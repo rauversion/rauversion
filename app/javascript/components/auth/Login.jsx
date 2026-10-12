@@ -183,7 +183,7 @@ export default function Login() {
               transition={{ delay: 0.6 }}
               className="grid gap-4"
             >
-              <form action={`/users/auth/google_oauth2${returnQuery}`} method="post" className="contents">
+              <form action={`/users/oauth/google_oauth2${returnQuery}`} method="post" className="contents">
                 <input type="hidden" name="authenticity_token" value={document.querySelector('meta[name="csrf-token"]')?.content} />
                 <Button
                   type="submit"
@@ -196,7 +196,7 @@ export default function Login() {
                 </Button>
               </form>
 
-              <form action={`/users/auth/discord${returnQuery}`} method="post" className="contents">
+              <form action={`/users/oauth/discord${returnQuery}`} method="post" className="contents">
                 <input type="hidden" name="authenticity_token" value={document.querySelector('meta[name="csrf-token"]')?.content} />
                 <Button
                   type="submit"

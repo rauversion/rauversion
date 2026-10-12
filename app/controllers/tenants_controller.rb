@@ -48,14 +48,15 @@ class TenantsController < ApplicationController
       tenant.memberships.create!(user: current_user, role: "owner")
     end
 
+    preview_url = tenant_preview_url(tenant)
     render json: {
       tenant: {
         id: tenant.id,
         name: tenant.name,
         slug: tenant.slug,
         role: "owner",
-        subdomain: "#{tenant.slug}.#{tenant_base_domain}",
-        url: "https://#{tenant.slug}.#{tenant_base_domain}"
+        subdomain: URI.parse(preview_url).host,
+        url: preview_url
       }
     }, status: :created
   rescue ActiveRecord::RecordInvalid => error
@@ -131,10 +132,6 @@ class TenantsController < ApplicationController
     render json: { errors: { base: ["You cannot manage this tenant"] } }, status: :forbidden
   end
 
-  def tenant_base_domain
-    ENV.fetch("TENANT_BASE_DOMAIN", "rauversion.com")
-  end
-
   def tenant_payload(membership)
     tenant = membership.tenant
 
@@ -161,13 +158,11 @@ class TenantsController < ApplicationController
   end
 
   def tenant_preview_url(tenant)
-    if Rails.env.development?
-      host = tenant.central? ? "lvh.me" : "#{tenant.slug}.lvh.me"
-      "#{request.protocol}#{host}:#{request.port}"
-    else
-      host = tenant.central? ? tenant_base_domain : "#{tenant.slug}.#{tenant_base_domain}"
-      "https://#{host}"
+    if Rails.env.development? && !tenant.central?
+      return "#{request.protocol}#{tenant.slug}.lvh.me:#{request.port}"
     end
+
+    AppDomain.tenant_url(tenant)
   end
 
   def tenant_admin_url(tenant)

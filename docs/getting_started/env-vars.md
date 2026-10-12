@@ -110,6 +110,11 @@ See [product Stripe fees](product-stripe-settlement.md) and
 ### Auth Credentials
 
 ```sh
+APP_DOMAIN=rauversion.com
+# Optional override for sharing cookies between subdomains of the same domain.
+SESSION_COOKIE_DOMAIN=.rauversion.com
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
 DISCORD_CLIENT_ID=
 DISCORD_CLIENT_SECRET=
 TWITTER_CLIENT_ID=
@@ -117,3 +122,24 @@ TWITTER_CLIENT_SECRET=
 ZOOM_CLIENT_ID=
 ZOOM_CLIENT_SECRET=
 ```
+
+Social sign-in first redirects to the base domain, where OAuth starts and receives
+the provider's callback, then returns to the originating tenant and page. Register
+`https://rauversion.com/users/auth/google_oauth2/callback` in Google as the authorized
+redirect URI (replace the domain with your `APP_DOMAIN`). Other providers
+also use `/users/auth/PROVIDER/callback` on the base domain.
+
+`APP_DOMAIN` supports a hostname, a hostname with a port, or a full HTTP(S) origin.
+OAuth always uses its protocol and port, independently of the tenant's URL. When
+it has no explicit protocol, production uses HTTPS and development uses HTTP.
+
+For local tenant testing, use `APP_DOMAIN=localhost:3000` and open
+`http://TENANT.lvh.me:3000`. Register
+`http://localhost:3000/users/auth/google_oauth2/callback` for the development Google
+client and omit `SESSION_COOKIE_DOMAIN` locally. Google requires an exact callback
+match and HTTPS except for localhost; an HTTP `lvh.me` callback is not supported.
+
+The authenticated result returns to the original tenant using an encrypted,
+short-lived handoff bound to that browser's session. This also supports tenant
+domains that cannot share a cookie with the base domain. All participating hosts
+must run the same application with the same signing key and database.

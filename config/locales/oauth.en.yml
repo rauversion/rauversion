@@ -1,0 +1,11 @@
+en:
+  oauth:
+    redirect:
+      eyebrow: Ready to connect
+      title: Connecting to %{provider}
+      description: You'll be back at %{tenant} in a moment.
+      status: Opening %{provider}…
+      continue: Continue with %{provider}
+      hint: If you aren't redirected automatically, use the button above.
+      no_javascript: Press the button to continue signing in.
+      privacy: Your password stays with %{provider}.

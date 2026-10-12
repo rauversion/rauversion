@@ -18,7 +18,7 @@
 
 
         <div class="col-span-5">
-          <%= button_to omniauth_authorize_path(resource_name, provider), data: { turbo: false },
+          <%= button_to user_oauth_path(provider), data: { turbo: false },
             class: "w-full inline-flex justify-center py-2 px-4 border border-gray-300 dark:border-gray-800 rounded-md shadow-sm bg-default text-sm font-medium border-subtle hover:bg-gray-50 dark:hover:bg-gray-900" do %>
             <span class="sr-only"><%= gettext("Sign in with #{OmniAuth::Utils.camelize(provider)}") %></span>
             <%= raw icon_for(provider) %>

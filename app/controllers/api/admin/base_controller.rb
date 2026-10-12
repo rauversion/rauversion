@@ -36,14 +36,11 @@ module Api
       end
 
       def tenant_preview_url(tenant)
-        if Rails.env.development?
-          host = tenant.central? ? "lvh.me" : "#{tenant.slug}.lvh.me"
-          "#{request.protocol}#{host}:#{request.port}"
-        else
-          base_domain = ENV.fetch("TENANT_BASE_DOMAIN", "rauversion.com")
-          host = tenant.central? ? base_domain : "#{tenant.slug}.#{base_domain}"
-          "https://#{host}"
+        if Rails.env.development? && !tenant.central?
+          return "#{request.protocol}#{tenant.slug}.lvh.me:#{request.port}"
         end
+
+        AppDomain.tenant_url(tenant)
       end
 
       def tenant_admin_url(tenant)

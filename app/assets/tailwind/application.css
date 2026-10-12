@@ -4,6 +4,17 @@
 @plugin "@tailwindcss/typography";
 @custom-variant dark (&:is(.dark *));
 
+@theme {
+  --animate-oauth-signal: oauth-signal 1.2s ease-in-out infinite;
+
+  @keyframes oauth-signal {
+    50% {
+      transform: scaleY(4);
+      opacity: 1;
+    }
+  }
+}
+
 @source "../javascripts/";
 /* Tailwind v4: explicit inline sources for Puck classes built dynamically at runtime */
 @source inline('{sm:,md:,lg:,xl:,}grid-cols-{1,2,3,4,5,6,7,8,9,10,11,12}');

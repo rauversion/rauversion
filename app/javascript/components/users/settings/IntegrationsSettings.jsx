@@ -53,7 +53,7 @@ export default function IntegrationsSettings() {
       icon: Icons.google,
       provider: "google_oauth2",
       connected: findCredential("google_oauth2"),
-      connectUrl: "/users/auth/google_oauth2",
+      connectUrl: "/users/oauth/google_oauth2",
       disconnectUrl: "/users/auth/google_oauth2/disconnect",
     },
     {
@@ -62,7 +62,7 @@ export default function IntegrationsSettings() {
       icon: Icons.zoom,
       provider: "zoom",
       connected: findCredential("zoom"),
-      connectUrl: "/users/auth/zoom",
+      connectUrl: "/users/oauth/zoom",
       disconnectUrl: "/users/auth/zoom/disconnect",
     },
     {
@@ -71,7 +71,7 @@ export default function IntegrationsSettings() {
       icon: Icons.discord,
       provider: "discord",
       connected: findCredential("discord"),
-      connectUrl: "/users/auth/discord",
+      connectUrl: "/users/oauth/discord",
       disconnectUrl: "/users/auth/discord/disconnect",
     },
     {
@@ -80,7 +80,7 @@ export default function IntegrationsSettings() {
       icon: Icons.twitch,
       provider: "twitch",
       connected: findCredential("twitch"),
-      connectUrl: "/users/auth/twitch",
+      connectUrl: "/users/oauth/twitch",
       disconnectUrl: "/users/auth/twitch/disconnect",
     },
     // {

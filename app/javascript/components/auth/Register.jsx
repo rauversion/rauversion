@@ -409,7 +409,7 @@ export default function Register() {
             transition={{ delay: 0.4 }}
             className="grid gap-4"
           >
-            <form action="/users/auth/google_oauth2" method="post" className="contents">
+            <form action="/users/oauth/google_oauth2" method="post" className="contents">
               <input type="hidden" name="authenticity_token" value={document.querySelector('meta[name="csrf-token"]')?.content} />
               <Button
                 type="submit"
@@ -422,7 +422,7 @@ export default function Register() {
               </Button>
             </form>
 
-            <form action="/users/auth/discord" method="post" className="contents">
+            <form action="/users/oauth/discord" method="post" className="contents">
               <input type="hidden" name="authenticity_token" value={document.querySelector('meta[name="csrf-token"]')?.content} />
               <Button
                 type="submit"
