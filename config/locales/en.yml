@@ -1106,6 +1106,9 @@ en:
       subtitle: "Select the number of tickets you want to purchase"
       price: "$%{price}"
       available_tickets: "%{count} available"
+      availability:
+        remaining: "%{available} of %{total} available"
+        label: "Available tickets for %{title}"
       purchase_button: "Purchase Tickets"
       processing: "Processing..."
       quantity_label: "Ticket Quantity"

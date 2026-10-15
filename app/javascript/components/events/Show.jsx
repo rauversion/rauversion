@@ -11,6 +11,7 @@ import useAuthStore from "@/stores/authStore"
 import { fetchPublicEventSite } from "@/lib/event-sites"
 import { EditorPageView } from "@/components/page-editor/page-view"
 import { useEventTracking } from "@/hooks/use-event-tracking"
+import { usePageMetadata } from "@/hooks/usePageMetadata"
 
 
 function TicketButton({ onClick }) {
@@ -63,6 +64,7 @@ export default function EventShow() {
   const ticketToken = searchParams.get('ticket_token')
 
   useEventTracking(event)
+  usePageMetadata(event?.seo || null)
 
   useEffect(() => {
     const fetchEvent = async () => {

@@ -1,12 +1,13 @@
 "use client"
 
 import React from "react"
-import { Ticket, CalendarDays } from "lucide-react"
+import { Ticket } from "lucide-react"
 
 import type { EventTicketsBlock as EventTicketsBlockType, PageStyle } from "@/lib/blocks/types"
 import { fetchEventPurchaseData, type EventPurchaseData, type EventSiteTicket } from "@/lib/event-sites"
 import { cn } from "@/lib/utils"
 import PurchaseDialog from "@/components/events/PurchaseDialog"
+import { TicketAvailability } from "@/components/events/TicketAvailability"
 
 interface EventTicketsBlockProps {
   block: EventTicketsBlockType
@@ -271,10 +272,15 @@ export function EventTicketsBlock({
                       {formatTicketPrice(ticket, event?.ticket_currency)}
                     </div>
                     {showRemaining && typeof ticket.quantity === "number" ? (
-                      <div className="flex items-center gap-2 text-xs" style={{ color: palette.muted }}>
-                        <CalendarDays className="h-3.5 w-3.5" />
-                        <span>{ticket.quantity} disponibles</span>
-                      </div>
+                      <TicketAvailability
+                        remaining={ticket.quantity}
+                        total={ticket.total_quantity}
+                        title={ticket.title}
+                        color={palette.accent}
+                        trackColor={palette.accentSoft}
+                        textColor={palette.muted}
+                        className={block.props.variant === "list" ? "ml-auto mt-2" : undefined}
+                      />
                     ) : null}
                     <div
                       className={cn(

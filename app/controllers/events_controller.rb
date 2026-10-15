@@ -1,4 +1,6 @@
 class EventsController < ApplicationController
+  include PageMetadata
+
   before_action :authenticate_user!, except: [:index, :show]
   before_action :set_owned_event, only: [:schedule, :team, :tickets, :streaming, :attendees, :recordings, :settings, :update]
   before_action :set_edit_event, only: [:edit, :editor, :preview]
@@ -77,30 +79,7 @@ class EventsController < ApplicationController
       return
     end
 
-    event_description = @event.description_text.presence || @event.title
-
-    og_image_url = (@event.cover.attached? ? (@event.cover_url(:og) rescue nil) : nil)
-
-    set_meta_tags(
-      title: @event.title,
-      description: event_description,
-      og: {
-        title: @event.title,
-        description: event_description,
-        image: og_image_url,
-        type: 'event',
-        site_name: 'Rauversion',
-        url: event_url(@event)
-      },
-      twitter: {
-        card: "summary_large_image",
-        site: "@rauversion",
-        title: @event.title,
-        url: event_url(@event),
-        description: event_description,
-        image: og_image_url
-      }
-    )
+    set_event_page_metadata
     
     respond_to do |format|
       format.html
@@ -207,6 +186,24 @@ class EventsController < ApplicationController
   end
 
   private
+
+  def set_event_page_metadata
+    description = CGI.unescapeHTML(helpers.strip_tags(@event.description_text)).squish.presence || @event.title
+    image = if @event.cover.attached?
+      rails_blob_url(@event.cover)
+    else
+      "#{request.base_url}#{AlbumsHelper.default_image_sqr}"
+    end
+
+    set_page_metadata(
+      title: @event.title,
+      description: helpers.truncate(description, length: 160),
+      image: image,
+      image_alt: @event.title,
+      url: event_url(@event.private? ? params[:id] : @event, format: nil),
+      type: "website"
+    )
+  end
 
   def set_owned_event
     @event = current_user.events.for_tenant.friendly.find(params[:id])

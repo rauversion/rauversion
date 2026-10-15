@@ -64,7 +64,20 @@ RSpec.describe "EventPurchases", type: :request do
       ticket = json.fetch("tickets").find { |item| item["id"] == paid_ticket.id }
 
       expect(ticket["quantity"]).to eq(9)
+      expect(ticket["total_quantity"]).to eq(10)
       expect(ticket["sold_out?"]).to eq(false)
+    end
+
+    it "includes the total capacity after ticket sales and refunds" do
+      purchase = create(:purchase, user: user, purchasable: event, state: "paid")
+      2.times { create(:purchased_item, purchase: purchase, purchased_item: paid_ticket, state: "paid") }
+      create(:purchased_item, purchase: purchase, purchased_item: paid_ticket, state: "refunded")
+      paid_ticket.update!(qty: 8)
+
+      get new_event_event_purchase_path(event, format: :json)
+
+      ticket = JSON.parse(response.body).fetch("tickets").find { |item| item["id"] == paid_ticket.id }
+      expect(ticket).to include("quantity" => 8, "total_quantity" => 10)
     end
 
     it "returns tickets in the order configured in the event editor" do

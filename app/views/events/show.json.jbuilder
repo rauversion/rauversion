@@ -1,3 +1,4 @@
+json.seo @seo_metadata
 json.id @event.id
 json.slug @event.slug
 json.title @event.title

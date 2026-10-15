@@ -73,6 +73,10 @@ class EventTicket < ApplicationRecord
     [qty.to_i - active_pending_quantity(ttl: ttl, excluding_purchase: excluding_purchase), 0].max
   end
 
+  def total_quantity
+    [qty.to_i, 0].max + purchased_items.where(state: "paid").count
+  end
+
   private
 
   def assign_position
