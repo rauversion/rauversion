@@ -1,4 +1,5 @@
 import React, { useContext } from "react"
+import { TiptapEditor } from "@/components/blocks/tiptap-editor"
 import { useParams } from "react-router-dom"
 import { useForm } from "react-hook-form"
 import I18n from 'stores/locales'
@@ -35,7 +36,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { ImageUploader } from "@/components/ui/image-uploader"
 
@@ -119,7 +119,7 @@ const formSchema = z.object({
   event_start_time: z.string().optional(),
   event_end_date: z.date().optional(),
   event_end_time: z.string().optional(),
-  description: nullableString,
+  description_document: z.object({ type: z.literal("doc"), content: z.array(z.any()).optional() }).passthrough(),
   location: nullableString,
   venue: nullableString,
   lat: nullableString,
@@ -237,7 +237,7 @@ export default function Overview() {
     defaultValues: {
       title: '',
       timezone: '',
-      description: '',
+      description_document: { type: "doc", content: [{ type: "paragraph" }] },
       location: '',
       venue: '',
       event_start_date: undefined,
@@ -274,7 +274,7 @@ export default function Overview() {
           event_start_time: startDate ? format(startDate, "HH:mm") : "",
           event_end_date: endDate,
           event_end_time: endDate ? format(endDate, "HH:mm") : "",
-          description: normalizeText(data.description),
+          description_document: data.description_document || { type: "doc", content: [{ type: "paragraph" }] },
           location: normalizeText(data.location),
           venue: normalizeText(data.venue),
           lat: normalizeText(data.lat),
@@ -400,7 +400,9 @@ export default function Overview() {
 
       Object.keys(formattedData).forEach(key => {
         if (formattedData[key] !== undefined && formattedData[key] !== null) {
-          if (typeof formattedData[key] === 'object') {
+          if (key === "description_document") {
+            formData.append(`event[${key}]`, JSON.stringify(formattedData[key]))
+          } else if (typeof formattedData[key] === 'object') {
             Object.keys(formattedData[key]).forEach(subKey => {
               formData.append(`event[${key}][${subKey}]`, formattedData[key][subKey])
             })
@@ -508,15 +510,19 @@ export default function Overview() {
 
             <FormField
               control={form.control}
-              name="description"
+              name="description_document"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>{I18n.t('events.edit.form.description.label')}</FormLabel>
                   <FormControl>
-                    <Textarea
+                    <TiptapEditor
+                      ref={field.ref}
+                      content={field.value}
+                      onDocumentUpdate={field.onChange}
+                      onBlur={field.onBlur}
+                      aria-label={I18n.t('events.edit.form.description.label')}
                       placeholder={I18n.t('events.edit.form.description.placeholder')}
-                      className="min-h-[180px] resize-y"
-                      {...field}
+                      editorClassName="min-h-[180px]"
                     />
                   </FormControl>
                   <FormMessage />

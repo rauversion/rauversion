@@ -641,7 +641,7 @@ class PersonalizedHomeQuery
       entity_type: "event",
       title: event.title,
       subtitle: owner_name_for(event.user),
-      description: event.description,
+      description: event.description_text,
       href: "/events/#{event.slug}",
       image_url: event.cover_url(:large),
       image_style: "square",

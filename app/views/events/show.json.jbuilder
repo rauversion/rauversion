@@ -2,6 +2,7 @@ json.id @event.id
 json.slug @event.slug
 json.title @event.title
 json.description @event.description
+json.description_html @event.description_html
 json.state @event.state
 json.timezone @event.timezone
 json.event_start @event.event_start

@@ -4,6 +4,7 @@ import { useState } from "react"
 import { ChevronDown } from "lucide-react"
 import { cn } from "@/lib/utils"
 import I18n from '@/stores/locales'
+import { EventDescription } from "./EventDescription"
 
 export interface NestedScheduling {
   id: number
@@ -29,6 +30,7 @@ export interface Scheduling {
 
 interface EventScheduleProps {
   description?: string
+  descriptionHtml?: string
   schedulings: Scheduling[]
 }
 
@@ -136,7 +138,7 @@ function ScheduleDay({ schedule }: { schedule: Scheduling }) {
   )
 }
 
-export default function EventSchedule({ description, schedulings }: EventScheduleProps) {
+export default function EventSchedule({ description, descriptionHtml, schedulings }: EventScheduleProps) {
   const visibleSchedules = (schedulings || []).filter((schedule) =>
     Boolean(
       schedule &&
@@ -148,27 +150,39 @@ export default function EventSchedule({ description, schedulings }: EventSchedul
     )
   )
 
-  if (visibleSchedules.length === 0) {
+  const hasDescription = Boolean((descriptionHtml ?? description)?.trim())
+  const hasSchedules = visibleSchedules.length > 0
+
+  if (!hasDescription && !hasSchedules) {
     return null
   }
   
   return (
     <div className="min-h-screen bg-background">
       <div className="mx-auto max-w-5xl px-6 py-16 md:py-24">
-        <div className="mb-16 space-y-4">
-          <h1 className="text-5xl font-bold tracking-tighter text-foreground md:text-7xl text-balance">
-            {I18n.t('events.show.schedule.title')}
-          </h1>
-          <p className="text-lg text-muted-foreground leading-relaxed max-w-2xl">
-            {description}
-          </p>
-        </div>
+        {hasDescription && (
+          <EventDescription
+            description={description}
+            html={descriptionHtml}
+            className={cn("prose-lg font-display tracking-tight text-foreground", hasSchedules && "mb-16")}
+          />
+        )}
 
-        <div className="space-y-6">
-          {visibleSchedules.map((schedule) => (
-            <ScheduleDay key={schedule.id} schedule={schedule} />
-          ))}
-        </div>
+        {hasSchedules && (
+          <>
+            <div className="mb-16 space-y-4">
+              <h2 className="text-5xl font-bold tracking-tighter text-foreground md:text-7xl text-balance">
+                {I18n.t('events.show.schedule.title')}
+              </h2>
+            </div>
+
+            <div className="space-y-6">
+              {visibleSchedules.map((schedule) => (
+                <ScheduleDay key={schedule.id} schedule={schedule} />
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </div>
   )

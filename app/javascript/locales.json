@@ -918,7 +918,9 @@
     "event_purchases": {
       "errors": {
         "email_not_in_list": "Your email is not authorized to purchase this ticket: %{ticket_title}. Please contact the event organizer.",
-        "requires_login": "This ticket requires you to be logged in: %{ticket_title}. Please log in or create an account to purchase."
+        "invalid_rut": "Enter a valid Chilean RUT, including its check digit.",
+        "requires_login": "This ticket requires you to be logged in: %{ticket_title}. Please log in or create an account to purchase.",
+        "rut_required": "Enter the buyer's RUT for this ticket."
       }
     },
     "events": {
@@ -1515,6 +1517,10 @@
             "qty": {
               "label": "Total Quantity"
             },
+            "required_identifier": {
+              "description": "The buyer must enter a valid Chilean RUT to purchase this ticket.",
+              "label": "Request Chilean RUT"
+            },
             "requires_login": {
               "description": "Users must be logged in to purchase this ticket. Guest checkout will not be allowed.",
               "label": "Require Login"
@@ -1874,6 +1880,10 @@
         "processing": "Processing...",
         "purchase_button": "Purchase Tickets",
         "quantity_label": "Ticket Quantity",
+        "rut": {
+          "description": "Enter the buyer's RUT including its check digit. It applies to all tickets in this order.",
+          "label": "Chilean RUT"
+        },
         "sold_out_badge": "Sold Out",
         "subtitle": "Select the number of tickets you want to purchase",
         "title": "Purchase Tickets",
@@ -6594,7 +6604,9 @@
     "event_purchases": {
       "errors": {
         "email_not_in_list": "Tu email no está autorizado para comprar este ticket: %{ticket_title}. Por favor contacta al organizador del evento.",
-        "requires_login": "Este ticket requiere inicio de sesión: %{ticket_title}. Por favor inicia sesión o crea una cuenta para comprar."
+        "invalid_rut": "Ingresa un RUT chileno válido, incluyendo su dígito verificador.",
+        "requires_login": "Este ticket requiere inicio de sesión: %{ticket_title}. Por favor inicia sesión o crea una cuenta para comprar.",
+        "rut_required": "Debes ingresar el RUT del comprador para este ticket."
       }
     },
     "events": {
@@ -7230,6 +7242,10 @@
             "qty": {
               "label": "Cantidad Total"
             },
+            "required_identifier": {
+              "description": "El comprador debe ingresar un RUT válido para comprar este ticket.",
+              "label": "Solicitar RUT chileno"
+            },
             "requires_login": {
               "description": "Los usuarios deben iniciar sesión para comprar este ticket. No se permitirá la compra como invitado.",
               "label": "Requiere Inicio de Sesión"
@@ -7595,6 +7611,10 @@
         "processing": "Procesando...",
         "purchase_button": "Comprar Entradas",
         "quantity_label": "Cantidad de entradas",
+        "rut": {
+          "description": "Ingresa el RUT del comprador con dígito verificador. Se aplicará a todos los tickets de este pedido.",
+          "label": "RUT chileno"
+        },
         "sold_out_badge": "Agotado",
         "subtitle": "Selecciona la cantidad de entradas que deseas comprar",
         "title": "Comprar Entradas",

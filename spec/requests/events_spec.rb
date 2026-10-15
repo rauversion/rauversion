@@ -26,6 +26,21 @@ RSpec.describe "Events", type: :request do
       expect(json["event_dates_formatted"]).to be_present
     end
 
+    it "compiles legacy text for the editor without changing stored descriptions" do
+      description = "Música & amigos\nTrae <tu entrada>\n\nNos vemos"
+      event.update!(description: description)
+      sign_in user
+
+      get edit_event_path(event, format: :json)
+
+      json = JSON.parse(response.body)
+      expect(json.fetch("description")).to eq(description)
+      expect(json.fetch("description_html")).to include("<p>", "<br", "&amp;", "&lt;tu entrada&gt;")
+      expect(event.reload.description).to eq(description)
+      expect(json.fetch("description_document").fetch("type")).to eq("doc")
+      expect(event.description_document).to be_nil
+    end
+
     it "returns the effective ticket tax pricing for the editor" do
       event.update!(ticket_tax_behavior: "inclusive")
       sign_in user
@@ -136,6 +151,49 @@ RSpec.describe "Events", type: :request do
       sign_in user
     end
 
+    it "saves Tiptap JSON in the existing event settings and maintains a plain search summary" do
+      document = { "type" => "doc", "content" => [
+        { "type" => "heading", "attrs" => { "level" => 2 }, "content" => [{ "type" => "text", "text" => "Fiesta" }] },
+        { "type" => "paragraph", "content" => [{ "type" => "text", "text" => "Música", "marks" => [{ "type" => "bold" }] }] }
+      ] }
+      put event_path(event, format: :json), params: {
+        event: { description_document: document }
+      }, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(event.reload.description).to eq("Fiesta\n\nMúsica")
+      expect(event.event_settings["description_document"]).to eq(document)
+      expect(JSON.parse(response.body).dig("event", "description_document")).to eq(document)
+      expect(JSON.parse(response.body).dig("event", "description_html")).to include("<h2>Fiesta</h2>", "<strong>Música</strong>")
+    end
+
+    it "accepts serialized JSON from the multipart editor form" do
+      document = { "type" => "doc", "content" => [{ "type" => "paragraph", "content" => [{ "type" => "text", "text" => "Música & baile" }] }] }
+      put event_path(event, format: :json), params: { event: { description_document: JSON.generate(document) } }
+
+      expect(response).to have_http_status(:ok)
+      expect(event.reload.description_document).to eq(document)
+      expect(event.description).to eq("Música & baile")
+    end
+
+    it "rejects malformed description documents" do
+      put event_path(event, format: :json), params: {
+        event: { description_document: "not JSON" }
+      }, as: :json
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(event.reload.description_document).to be_nil
+    end
+
+    it "saves an empty JSON document when the description is cleared" do
+      event.update!(description: "Old description")
+      put event_path(event, format: :json), params: { event: { description_document: { type: "doc", content: [{ type: "paragraph" }] } } }, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(event.reload.description).to eq("")
+      expect(event.description_html).to eq("")
+    end
+
     it "persists the tax pricing choice and returns it for subsequent form saves" do
       put event_path(event, format: :json), params: { event: { ticket_tax_behavior: "inclusive" } }, as: :json
 
@@ -149,6 +207,29 @@ RSpec.describe "Events", type: :request do
 
       expect(response).to have_http_status(:ok)
       expect(event.reload.ticket_tax_behavior).to eq("inclusive")
+    end
+
+    it "enables and disables the RUT requirement for a ticket" do
+      ticket = create(:event_ticket, event: event)
+      ["rut", ""].each do |identifier|
+        put event_path(event, format: :json), params: {
+          event: { event_tickets_attributes: [{ id: ticket.id, required_identifier: identifier }] }
+        }, as: :json
+
+        expect(response).to have_http_status(:ok)
+        expect(ticket.reload.required_identifier).to eq(identifier)
+        expect(JSON.parse(response.body).fetch("tickets").sole.dig("settings", "required_identifier")).to eq(identifier)
+      end
+    end
+
+    it "rejects unsupported ticket identifiers" do
+      ticket = create(:event_ticket, event: event)
+      put event_path(event, format: :json), params: {
+        event: { event_tickets_attributes: [{ id: ticket.id, required_identifier: "passport" }] }
+      }, as: :json
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(ticket.reload.required_identifier).to be_blank
     end
 
     it "rejects tax modes that would disable tax collection" do
@@ -349,6 +430,41 @@ RSpec.describe "Events", type: :request do
 
       ids = JSON.parse(response.body).fetch("collection").map { |event| event.fetch("id") }
       expect(ids).to eq([managed_event.id])
+    end
+  end
+
+  describe "public event descriptions" do
+    let(:user) { create(:user) }
+    let!(:event) { create(:event, user: user, state: "published", event_start: 1.day.from_now) }
+
+    it "renders legacy descriptions with their line breaks" do
+      event.update!(description: "Primera línea\nSegunda línea")
+      get event_path(event, format: :json)
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body).fetch("description_html")).to include("Primera línea\n<br", "Segunda línea")
+    end
+
+    it "exposes sanitized HTML for public rendering" do
+      event.update!(description_document: { type: "doc", content: [{ type: "paragraph", attrs: { onclick: "alert(1)" }, content: [{ type: "text", text: "Música", marks: [{ type: "bold" }] }] }] })
+      get event_path(event, format: :json)
+
+      expect(response).to have_http_status(:ok)
+      html = JSON.parse(response.body).fetch("description_html")
+      expect(html).to include("<strong>Música</strong>")
+      expect(html).not_to include("onclick", "script", "alert(1)")
+    end
+
+    it "uses plain summaries for event cards" do
+      event.update!(description_document: { type: "doc", content: [
+        { type: "paragraph", content: [{ type: "text", text: "Música & baile", marks: [{ type: "bold" }] }] },
+        { type: "paragraph", content: [{ type: "text", text: "En vivo" }] }
+      ] })
+      get events_path(format: :json)
+
+      expect(response).to have_http_status(:ok)
+      description = JSON.parse(response.body).fetch("events").find { |item| item["id"] == event.id }.fetch("description")
+      expect(description).to eq("Música & baile\n\nEn vivo")
     end
   end
 end

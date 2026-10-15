@@ -126,6 +126,7 @@ const ticketSchema = z.object({
   hidden: z.boolean().default(false),
   disable_qr: z.boolean().default(false),
   requires_login: z.boolean().default(false),
+  required_identifier: z.enum(["", "rut"]).default(""),
   after_purchase_message: z.string().optional(),
   sales_channel: z.enum(["all", "event_page", "box_office"]).default("all"),
   pay_what_you_want: z.boolean().default(false),
@@ -273,6 +274,7 @@ const ticketFormValue = (ticket) => {
     hidden: settings.hidden ?? false,
     disable_qr: settings.disable_qr ?? false,
     requires_login: settings.requires_login ?? false,
+    required_identifier: ticket.required_identifier ?? settings.required_identifier ?? "",
     after_purchase_message: settings.after_purchase_message || "",
     sales_channel: settings.sales_channel || "all",
     pay_what_you_want: settings.pay_what_you_want ?? false,
@@ -418,6 +420,7 @@ export default function Tickets() {
       hidden: false,
       disable_qr: false,
       requires_login: false,
+      required_identifier: "",
       after_purchase_message: "",
       sales_channel: "all",
       pay_what_you_want: false,
@@ -1108,6 +1111,27 @@ export default function Tickets() {
                                     <Switch
                                       checked={field.value}
                                       onCheckedChange={field.onChange}
+                                    />
+                                  </FormControl>
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name={`tickets.${index}.required_identifier`}
+                              render={({ field }) => (
+                                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                                  <div className="space-y-0.5">
+                                    <FormLabel>{I18n.t('events.edit.tickets.form.required_identifier.label')}</FormLabel>
+                                    <FormDescription>
+                                      {I18n.t('events.edit.tickets.form.required_identifier.description')}
+                                    </FormDescription>
+                                  </div>
+                                  <FormControl>
+                                    <Switch
+                                      checked={field.value === "rut"}
+                                      onCheckedChange={(checked) => field.onChange(checked ? "rut" : "")}
                                     />
                                   </FormControl>
                                 </FormItem>

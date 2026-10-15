@@ -32,6 +32,8 @@ json.event do
   json.slug @event.slug
   json.title @event.title
   json.description @event.description
+  json.description_html @event.description_html
+  json.description_document @event.description_editor_document
   json.state @event.state
   json.timezone @event.timezone
   json.event_start @event.event_start

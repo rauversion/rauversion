@@ -8,6 +8,8 @@ json.collection @purchased_items do |item|
   json.currency item.currency
   json.price item.price
   json.guest_email purchase.guest_email if purchase.guest_email.present?
+  json.identifier_type purchase.identifier_type
+  json.identifier_value purchase.identifier_value
 
   json.event_ticket do
     json.id purchased_item.id

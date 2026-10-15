@@ -85,6 +85,18 @@ RSpec.describe "Event Stripe webhooks", type: :request do
     )
   end
 
+  it "preserves form responses through payment confirmation and webhook retries" do
+    responses = { "identifier" => { "type" => "rut", "value" => "12345678-5" }, "dietary_requirements" => "vegetarian" }
+    purchase.update!(form_responses: responses)
+
+    post_event("checkout.session.completed")
+    post_event("checkout.session.async_payment_succeeded")
+
+    expect(purchase.reload).to be_paid
+    expect(purchase.form_responses).to eq(responses)
+    expect(purchase.payment_metadata).to include("amount_total" => 2_160, "service_fee_amount" => 160)
+  end
+
   it "preserves the checkout fee snapshot when event fees or Stripe metadata change" do
     purchase.update!(payment_metadata: {
       "service_fee_percentage" => 8, "service_fee_amount" => 160,

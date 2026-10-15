@@ -7,8 +7,14 @@ class Purchase < ApplicationRecord
 
   attr_writer :virtual_purchased
 
+  store_accessor :payment_metadata, :form_responses
+
   validate :validate_purchased_items
   validate :user_or_guest_email_present
+  validate :validate_identifier
+  validate :validate_required_identifier, on: :create
+
+  before_validation :normalize_identifier
 
   include AASM
 
@@ -184,5 +190,54 @@ class Purchase < ApplicationRecord
 
   def purchase_email
     user&.email || guest_email
+  end
+
+  def identifier_type
+    form_responses&.dig("identifier", "type")
+  end
+
+  def identifier_type=(value)
+    write_identifier_response("type", value)
+  end
+
+  def identifier_value
+    form_responses&.dig("identifier", "value")
+  end
+
+  def identifier_value=(value)
+    write_identifier_response("value", value)
+  end
+
+  private
+
+  def write_identifier_response(key, value)
+    responses = (form_responses || {}).deep_stringify_keys
+    identifier = responses.fetch("identifier", {}).merge(key => value)
+    self.form_responses = responses.merge("identifier" => identifier)
+  end
+
+  def normalize_identifier
+    return if identifier_type.blank? && identifier_value.blank?
+
+    self.identifier_type = identifier_type.presence
+    self.identifier_value = identifier_value.presence
+    self.identifier_value = ChileanRut.normalize(identifier_value) if identifier_type == "rut" && identifier_value.present?
+  end
+
+  def validate_identifier
+    return if identifier_type.blank? && identifier_value.blank?
+
+    unless identifier_type == "rut" && ChileanRut.valid?(identifier_value)
+      errors.add(:base, I18n.t("event_purchases.errors.invalid_rut"))
+    end
+  end
+
+  def validate_required_identifier
+    tickets = virtual_purchased.select { |item| item.quantity.to_i.positive? }.map(&:resource)
+    tickets += purchased_items.map(&:purchased_item)
+    return unless tickets.any? { |ticket| ticket.is_a?(EventTicket) && ticket.required_identifier == "rut" }
+    return if identifier_type == "rut" && identifier_value.present?
+
+    errors.add(:base, I18n.t("event_purchases.errors.rut_required"))
   end
 end

@@ -33,6 +33,20 @@ RSpec.describe PaymentProviders::EventStripeProvider, type: :service do
       allow(Stripe::Checkout::Session).to receive(:create).and_return(stripe_session)
     end
 
+    it "preserves local form responses when saving Stripe checkout metadata" do
+      responses = { "identifier" => { "type" => "rut", "value" => "12345678-5" }, "dietary_requirements" => "vegetarian" }
+      purchase.update!(form_responses: responses)
+
+      provider.create_checkout_session
+
+      expect(purchase.reload.form_responses).to eq(responses)
+      expect(purchase.payment_metadata).to include("source_type" => "event", "connected_account_id" => "acct_event_seller")
+      expect(Stripe::Checkout::Session).to have_received(:create).with(hash_including(
+        metadata: hash_excluding(:form_responses),
+        payment_intent_data: hash_including(metadata: hash_excluding(:form_responses))
+      ))
+    end
+
     it "deducts estimated processing costs on tickets plus the service fee from the organizer" do
       event.update!(custom_fee: 8)
       ticket.update!(price: 20)

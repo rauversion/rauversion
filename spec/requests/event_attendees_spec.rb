@@ -37,6 +37,14 @@ RSpec.describe "EventAttendees", type: :request do
       expect(json['collection'].length).to eq(2)
     end
 
+    it "includes the RUT in attendee data" do
+      paid_purchase.purchase.update!(identifier_type: "rut", identifier_value: "12.345.678-5")
+      get event_event_attendees_path(event), as: :json
+
+      attendee = JSON.parse(response.body).fetch("collection").find { |item| item["id"] == paid_purchase.id }
+      expect(attendee).to include("identifier_type" => "rut", "identifier_value" => "12345678-5")
+    end
+
     it "filters by pending status" do
       get event_event_attendees_path(event), params: { status: 'pending' }, as: :json
       expect(response).to have_http_status(:success)
@@ -110,6 +118,33 @@ RSpec.describe "EventAttendees", type: :request do
   end
 
   describe "POST /events/:event_id/event_attendees/create_invitation" do
+    it "requires a valid RUT when the selected ticket requests it" do
+      ticket.update!(required_identifier: "rut")
+      [nil, "12.345.678-4"].each do |rut|
+        expect {
+          post create_invitation_event_event_attendees_path(event, format: :json),
+            params: { email: user.email, ticket_id: ticket.id, identifier_type: "rut", identifier_value: rut }, as: :json
+        }.not_to change(Purchase, :count)
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+
+    it "stores a normalized RUT for an invitation" do
+      ticket.update!(required_identifier: "rut")
+      post create_invitation_event_event_attendees_path(event, format: :json),
+        params: { email: user.email, ticket_id: ticket.id, identifier_type: "rut", identifier_value: "12.345.678-5" }, as: :json
+
+      expect(response).to have_http_status(:created)
+      expect(Purchase.last).to have_attributes(identifier_type: "rut", identifier_value: "12345678-5", state: "paid")
+    end
+
+    it "includes the identifier requirement in invitation ticket options" do
+      ticket.update!(required_identifier: "rut")
+      get tickets_event_event_attendees_path(event, format: :json)
+
+      expect(JSON.parse(response.body).fetch("collection").sole.fetch("required_identifier")).to eq("rut")
+    end
+
     let(:new_email) { 'newuser@example.com' }
     
     it "creates a new user and purchase with pending status" do

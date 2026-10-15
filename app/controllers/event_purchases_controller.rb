@@ -173,6 +173,15 @@ class EventPurchasesController < ApplicationController
     end
 
     @purchase.virtual_purchased = selected_items
+    @purchase.assign_attributes(params.permit(:identifier_type, :identifier_value))
+
+    unless @purchase.valid?
+      respond_to do |format|
+        format.html { render_blank }
+        format.json { render :create, status: :unprocessable_entity }
+      end
+      return
+    end
 
     if @purchase.virtual_purchased.blank?
       @purchase.errors.add(:base, "No tickets selected")

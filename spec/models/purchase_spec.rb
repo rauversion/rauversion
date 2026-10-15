@@ -1,6 +1,78 @@
 require "rails_helper"
 
 RSpec.describe Purchase, type: :model do
+  describe "ticket identifiers" do
+    let(:user) { create(:user) }
+    let(:event) { create(:event, user: user) }
+    let(:ticket) { create(:event_ticket, event: event, qty: 10, required_identifier: "rut") }
+    let(:purchase) do
+      build(:purchase, user: user, purchasable: event).tap do |purchase|
+        purchase.virtual_purchased = [VirtualPurchasedItem.new(resource: ticket, quantity: 1)]
+      end
+    end
+
+    it "requires an identifier for selected tickets" do
+      expect(purchase).not_to be_valid
+      expect(purchase.errors.full_messages).to include(I18n.t("event_purchases.errors.rut_required"))
+    end
+
+    it "validates and persists a normalized RUT" do
+      purchase.assign_attributes(identifier_type: "rut", identifier_value: "6.000.000-k")
+      purchase.store_items
+      purchase.save!
+      expect(purchase.reload.identifier_value).to eq("6000000-K")
+      expect(purchase.payment_metadata).to include(
+        "form_responses" => { "identifier" => { "type" => "rut", "value" => "6000000-K" } }
+      )
+    end
+
+    it "preserves other form responses and payment metadata when normalizing RUT" do
+      purchase.payment_metadata = {
+        "service_fee_amount" => 100,
+        "form_responses" => { "dietary_requirements" => "vegetarian", "identifier" => { "type" => "rut", "value" => "12.345.678-5" } }
+      }
+      purchase.save!
+
+      expect(purchase.reload.form_responses).to include("dietary_requirements" => "vegetarian")
+      expect(purchase.identifier_value).to eq("12345678-5")
+      expect(purchase.payment_metadata["service_fee_amount"]).to eq(100)
+    end
+
+    it "stores identifiers without dedicated database columns" do
+      expect(Purchase.column_names).not_to include("identifier_type", "identifier_value")
+    end
+
+    it "rejects a RUT with an invalid check digit" do
+      purchase.assign_attributes(identifier_type: "rut", identifier_value: "12.345.678-4")
+      expect(purchase).not_to be_valid
+      expect(purchase.errors.full_messages).to include(I18n.t("event_purchases.errors.invalid_rut"))
+    end
+
+    it "rejects unsupported identifiers" do
+      purchase.assign_attributes(identifier_type: "passport", identifier_value: "12345678-5")
+      expect(purchase).not_to be_valid
+    end
+
+    it "does not require RUT for unselected tickets" do
+      purchase.virtual_purchased = [VirtualPurchasedItem.new(resource: ticket, quantity: 0)]
+      expect(purchase).to be_valid
+    end
+
+    it "does not apply new requirements to existing purchases" do
+      ticket.update!(required_identifier: "")
+      purchase.store_items
+      purchase.save!
+      ticket.update!(required_identifier: "rut")
+      expect(purchase.reload.update(state: "paid")).to be(true)
+    end
+
+    it "requires RUT when items are built directly for an invitation" do
+      purchase.virtual_purchased = []
+      purchase.purchased_items.build(purchased_item: ticket)
+      expect(purchase).not_to be_valid
+    end
+  end
+
   it { belong_to(:user) }
   it { have_many(:purchased_items) }
   it { belong_to(:purchasable) }

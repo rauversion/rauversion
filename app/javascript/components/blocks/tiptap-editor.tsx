@@ -2,6 +2,7 @@
 
 import React from "react"
 import { useEditor, EditorContent } from "@tiptap/react"
+import type { Content, JSONContent } from "@tiptap/core"
 import StarterKit from "@tiptap/starter-kit"
 import TextAlign from "@tiptap/extension-text-align"
 import Link from "@tiptap/extension-link"
@@ -23,7 +24,7 @@ import {
   Code,
   Quote,
 } from "lucide-react"
-import { useCallback, useEffect } from "react"
+import { useCallback, useEffect, useImperativeHandle } from "react"
 
 const proseSizeClasses: Record<ProseSize, string> = {
   sm: "prose-sm",
@@ -33,28 +34,39 @@ const proseSizeClasses: Record<ProseSize, string> = {
   "2xl": "prose-2xl",
 }
 
-interface TiptapEditorProps {
-  content: string
-  onUpdate: (content: string) => void
+interface TiptapEditorProps extends Pick<React.HTMLAttributes<HTMLDivElement>, "id" | "aria-label" | "aria-describedby" | "aria-invalid"> {
+  content: Content
+  onUpdate?: (content: string) => void
+  onDocumentUpdate?: (content: JSONContent) => void
   alignment?: "left" | "center" | "right"
   onAlignmentChange?: (alignment: "left" | "center" | "right") => void
   proseSize?: ProseSize
   placeholder?: string
+  editorClassName?: string
+  onBlur?: () => void
 }
 
-export function TiptapEditor({
+export const TiptapEditor = React.forwardRef<HTMLDivElement, TiptapEditorProps>(function TiptapEditor({
   content,
   onUpdate,
-  alignment = "left",
+  onDocumentUpdate,
+  alignment,
   onAlignmentChange,
   proseSize = "base",
   placeholder = "Escribe aqui...",
-}: TiptapEditorProps) {
+  editorClassName,
+  onBlur,
+  id,
+  "aria-label": ariaLabel,
+  "aria-describedby": ariaDescribedBy,
+  "aria-invalid": ariaInvalid,
+}, ref) {
   const proseSizeClass = proseSizeClasses[proseSize]
   
   const editor = useEditor({
     extensions: [
       StarterKit.configure({
+        link: false,
         heading: {
           levels: [1, 2, 3],
         },
@@ -72,21 +84,41 @@ export function TiptapEditor({
     content,
     immediatelyRender: false,
     onUpdate: ({ editor }) => {
-      onUpdate(editor.getHTML())
+      onUpdate?.(editor.getHTML())
+      onDocumentUpdate?.(editor.getJSON())
     },
+    onBlur: () => onBlur?.(),
     editorProps: {
       attributes: {
+        id: id || "",
+        role: "textbox",
+        "aria-label": ariaLabel || "",
+        "aria-multiline": "true",
+        "aria-describedby": ariaDescribedBy || "",
+        "aria-invalid": String(ariaInvalid || false),
         class: cn(
           "prose prose-neutral dark:prose-invert max-w-none focus:outline-none min-h-[60px] p-3",
-          proseSizeClass
+          proseSizeClass,
+          editorClassName
         ),
       },
     },
   })
 
+  useImperativeHandle(ref, () => editor?.view.dom as HTMLDivElement, [editor])
+
+  useEffect(() => {
+    if (editor) {
+      const currentContent = typeof content === "string" ? editor.getHTML() : editor.getJSON()
+      if (JSON.stringify(currentContent) !== JSON.stringify(content)) {
+        editor.commands.setContent(content, { emitUpdate: false })
+      }
+    }
+  }, [editor, content])
+
   useEffect(() => {
     if (editor && alignment) {
-      editor.chain().focus().setTextAlign(alignment).run()
+      editor.commands.setTextAlign(alignment)
     }
   }, [editor, alignment])
 
@@ -114,6 +146,7 @@ export function TiptapEditor({
     <div className="relative rounded-lg border bg-background">
       <div className="flex flex-wrap items-center gap-1 border-b bg-muted/30 p-2">
           <button
+            type="button"
             onClick={() => editor.chain().focus().toggleBold().run()}
             className={cn(
               "p-1.5 rounded hover:bg-muted transition-colors",
@@ -123,6 +156,7 @@ export function TiptapEditor({
             <Bold className="h-4 w-4" />
           </button>
           <button
+            type="button"
             onClick={() => editor.chain().focus().toggleItalic().run()}
             className={cn(
               "p-1.5 rounded hover:bg-muted transition-colors",
@@ -132,6 +166,7 @@ export function TiptapEditor({
             <Italic className="h-4 w-4" />
           </button>
           <button
+            type="button"
             onClick={() => editor.chain().focus().toggleStrike().run()}
             className={cn(
               "p-1.5 rounded hover:bg-muted transition-colors",
@@ -142,6 +177,7 @@ export function TiptapEditor({
           </button>
           <div className="w-px h-4 bg-border mx-1" />
           <button
+            type="button"
             onClick={() =>
               editor.chain().focus().toggleHeading({ level: 1 }).run()
             }
@@ -153,6 +189,7 @@ export function TiptapEditor({
             <Heading1 className="h-4 w-4" />
           </button>
           <button
+            type="button"
             onClick={() =>
               editor.chain().focus().toggleHeading({ level: 2 }).run()
             }
@@ -164,6 +201,7 @@ export function TiptapEditor({
             <Heading2 className="h-4 w-4" />
           </button>
           <button
+            type="button"
             onClick={() =>
               editor.chain().focus().toggleHeading({ level: 3 }).run()
             }
@@ -176,6 +214,7 @@ export function TiptapEditor({
           </button>
           <div className="w-px h-4 bg-border mx-1" />
           <button
+            type="button"
             onClick={() => editor.chain().focus().toggleCodeBlock().run()}
             className={cn(
               "p-1.5 rounded hover:bg-muted transition-colors",
@@ -186,6 +225,7 @@ export function TiptapEditor({
             <Code className="h-4 w-4" />
           </button>
           <button
+            type="button"
             onClick={() => editor.chain().focus().toggleBlockquote().run()}
             className={cn(
               "p-1.5 rounded hover:bg-muted transition-colors",
@@ -197,6 +237,7 @@ export function TiptapEditor({
           </button>
           <div className="w-px h-4 bg-border mx-1" />
           <button
+            type="button"
             onClick={() => editor.chain().focus().toggleBulletList().run()}
             className={cn(
               "p-1.5 rounded hover:bg-muted transition-colors",
@@ -206,6 +247,7 @@ export function TiptapEditor({
             <List className="h-4 w-4" />
           </button>
           <button
+            type="button"
             onClick={() => editor.chain().focus().toggleOrderedList().run()}
             className={cn(
               "p-1.5 rounded hover:bg-muted transition-colors",
@@ -216,6 +258,7 @@ export function TiptapEditor({
           </button>
           <div className="w-px h-4 bg-border mx-1" />
           <button
+            type="button"
             onClick={() => {
               editor.chain().focus().setTextAlign("left").run()
               onAlignmentChange?.("left")
@@ -228,6 +271,7 @@ export function TiptapEditor({
             <AlignLeft className="h-4 w-4" />
           </button>
           <button
+            type="button"
             onClick={() => {
               editor.chain().focus().setTextAlign("center").run()
               onAlignmentChange?.("center")
@@ -240,6 +284,7 @@ export function TiptapEditor({
             <AlignCenter className="h-4 w-4" />
           </button>
           <button
+            type="button"
             onClick={() => {
               editor.chain().focus().setTextAlign("right").run()
               onAlignmentChange?.("right")
@@ -253,6 +298,7 @@ export function TiptapEditor({
           </button>
           <div className="w-px h-4 bg-border mx-1" />
           <button
+            type="button"
             onClick={setLink}
             className={cn(
               "p-1.5 rounded hover:bg-muted transition-colors",
@@ -263,7 +309,14 @@ export function TiptapEditor({
           </button>
       </div>
 
-      <EditorContent editor={editor} />
+      <div className="relative">
+        <EditorContent editor={editor} />
+        {editor.isEmpty && (
+          <span aria-hidden="true" className="pointer-events-none absolute left-3 top-3 text-muted-foreground">
+            {placeholder}
+          </span>
+        )}
+      </div>
     </div>
   )
-}
+})

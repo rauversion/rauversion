@@ -141,6 +141,66 @@ RSpec.describe "EventPurchases", type: :request do
     end
   end
 
+  describe "POST /create with a required RUT" do
+    let!(:ticket) { create(:event_ticket, event: event, qty: 10, price: 0, selling_start: 1.day.ago, required_identifier: "rut") }
+
+    it "publishes the identifier requirement in the checkout payload" do
+      get new_event_event_purchase_path(event, format: :json)
+      expect(JSON.parse(response.body).fetch("tickets").sole.fetch("required_identifier")).to eq("rut")
+    end
+
+    [nil, "12.345.678-4", "1-1", "1-9", "0000001-9"].each do |rut|
+      it "rejects #{rut.inspect} before creating a purchase or starting checkout" do
+        expect(PaymentProviders::EventStripeProvider).not_to receive(:new)
+        expect {
+          post event_event_purchases_path(event, format: :json), params: {
+            tickets: [{ id: ticket.id, quantity: 1 }], identifier_type: "rut", identifier_value: rut
+          }, as: :json
+        }.to change(Purchase, :count).by(0).and change(PurchasedItem, :count).by(0)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(JSON.parse(response.body).fetch("errors")).not_to be_empty
+      end
+    end
+
+    it "stores a normalized RUT for a free order" do
+      post event_event_purchases_path(event, format: :json), params: {
+        tickets: [{ id: ticket.id, quantity: 2 }], identifier_type: "rut", identifier_value: "12.345.678-5"
+      }, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(Purchase.last).to have_attributes(identifier_type: "rut", identifier_value: "12345678-5", state: "paid")
+      expect(Purchase.last.purchased_items.count).to eq(2)
+    end
+
+    it "validates and stores RUT for a guest paid order" do
+      sign_out user
+      ticket.update!(price: 10)
+      allow_any_instance_of(PaymentProviders::EventStripeProvider).to receive(:create_checkout_session).and_return(
+        { checkout_url: "https://stripe.com/checkout/session" }
+      )
+      post event_event_purchases_path(event, format: :json), params: {
+        guest_email: "rut-guest@example.com", tickets: [{ id: ticket.id, quantity: 1 }],
+        identifier_type: "rut", identifier_value: "6.000.000-k"
+      }, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(Purchase.last).to have_attributes(identifier_type: "rut", identifier_value: "6000000-K", state: "pending")
+      expect(JSON.parse(response.body).fetch("payment_url")).to be_present
+    end
+
+    it "ignores requirements of tickets with zero quantity" do
+      regular_ticket = create(:event_ticket, event: event, qty: 10, price: 0, selling_start: 1.day.ago)
+      post event_event_purchases_path(event, format: :json), params: {
+        tickets: [{ id: ticket.id, quantity: 0 }, { id: regular_ticket.id, quantity: 1 }]
+      }, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body).fetch("errors")).to be_empty
+      expect(Purchase.last.identifier_value).to be_nil
+    end
+  end
+
   describe "POST /create with paid tickets" do
     let!(:paid_ticket) { FactoryBot.create(
       :event_ticket, 

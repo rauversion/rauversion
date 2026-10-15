@@ -77,7 +77,7 @@ class EventsController < ApplicationController
       return
     end
 
-    event_description = @event.description.presence || @event.title
+    event_description = @event.description_text.presence || @event.title
 
     og_image_url = (@event.cover.attached? ? (@event.cover_url(:og) rescue nil) : nil)
 
@@ -310,6 +310,7 @@ class EventsController < ApplicationController
         :event_list_id,
         :disable_qr,
         :sales_channel,
+        :required_identifier,
         :requires_login
       ],
       site_pages: []
@@ -317,6 +318,18 @@ class EventsController < ApplicationController
 
     if params[:event]&.key?(:site_pages)
       permitted[:site_pages] = normalize_json_param(params[:event][:site_pages])
+    end
+
+    if params[:event]&.key?(:description_document)
+      document = normalize_json_param(params[:event][:description_document])
+      if document.is_a?(String)
+        begin
+          document = JSON.parse(document)
+        rescue JSON::ParserError
+          # Leave malformed JSON for the model's document validation.
+        end
+      end
+      permitted[:description_document] = document
     end
 
     permitted
