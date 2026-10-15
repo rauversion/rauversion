@@ -14,6 +14,7 @@ import { Badge } from "../ui/badge"
 import useAuthStore from "@/stores/authStore"
 import { cn } from "@/lib/utils"
 import { isValidRut, normalizeRut } from "@/lib/chilean-rut"
+import { TicketAvailability } from "./TicketAvailability"
 
 interface Ticket {
   id: string
@@ -22,6 +23,7 @@ interface Ticket {
   formatted_price?: string
   short_description: string
   quantity: number
+  total_quantity?: number
   min_tickets_per_order?: number
   max_tickets_per_order?: number
   pay_what_you_want?: boolean
@@ -453,9 +455,7 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
                           )}
                         </div>
                         {event?.show_remaining_tickets && (
-                          <div className="text-sm text-muted-foreground">
-                            {I18n.t("events.purchase_form.available_tickets", { count: ticket.quantity })}
-                          </div>
+                          <TicketAvailability remaining={ticket.quantity} total={ticket.total_quantity} title={ticket.title} className="mt-2" />
                         )}
                       </div>
                     </div>

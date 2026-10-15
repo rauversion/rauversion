@@ -1,5 +1,6 @@
 import { get, put } from "@rails/request.js"
 import type { Page } from "@/lib/blocks/types"
+import type { PageMetadata } from "@/hooks/usePageMetadata"
 
 export type EventSiteMode = "default" | "custom"
 
@@ -56,6 +57,7 @@ export interface EventSiteTicket {
   formatted_price?: string
   short_description?: string
   quantity?: number
+  total_quantity?: number
   sold_out?: boolean
   minimum_price?: number | null
   suggested_price?: number | null
@@ -82,6 +84,7 @@ export interface EventSiteRecord {
   title: string
   description: string
   descriptionHtml?: string
+  seo?: PageMetadata
   timezone?: string
   event_dates_formatted?: string
   venue?: string
@@ -245,6 +248,7 @@ function normalizeTicket(value: unknown): EventSiteTicket | null {
     short_description:
       typeof value.short_description === "string" ? value.short_description : undefined,
     quantity: typeof value.quantity === "number" ? value.quantity : Number(value.quantity) || undefined,
+    total_quantity: value.total_quantity == null ? undefined : Number(value.total_quantity),
     sold_out: value.sold_out === true || value["sold_out?"] === true,
     minimum_price: minimumPrice === null ? null : Number.isFinite(minimumPrice) ? minimumPrice : undefined,
     suggested_price: suggestedPrice === null ? null : Number.isFinite(suggestedPrice) ? suggestedPrice : undefined,
@@ -293,6 +297,7 @@ export function normalizeEventSiteRecord(payload: unknown): EventSiteRecord {
     title: typeof value.title === "string" ? value.title : "",
     description: typeof value.description === "string" ? value.description : "",
     descriptionHtml: typeof value.description_html === "string" ? value.description_html : undefined,
+    seo: isRecord(value.seo) ? value.seo as unknown as PageMetadata : undefined,
     timezone: typeof value.timezone === "string" ? value.timezone : undefined,
     event_dates_formatted:
       typeof value.event_dates_formatted === "string" ? value.event_dates_formatted : undefined,

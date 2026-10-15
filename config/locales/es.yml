@@ -1165,6 +1165,9 @@ es:
       subtitle: "Selecciona la cantidad de entradas que deseas comprar"
       price: "$%{price}"
       available_tickets: "%{count} disponibles"
+      availability:
+        remaining: "%{available} de %{total} disponibles"
+        label: "Entradas disponibles para %{title}"
       purchase_button: "Comprar Entradas"
       processing: "Procesando..."
       quantity_label: "Cantidad de entradas"

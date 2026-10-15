@@ -5,6 +5,7 @@ export interface PageMetadata {
   document_title: string
   description: string
   image: string
+  image_alt?: string
   url: string
   type: string
 }
@@ -31,6 +32,10 @@ export function usePageMetadata(metadata: PageMetadata | null) {
       ["meta", "name", "twitter:title", metadata.title],
       ["meta", "name", "twitter:description", metadata.description],
       ["meta", "name", "twitter:image", metadata.image],
+      ...(metadata.image_alt ? [
+        ["meta", "property", "og:image:alt", metadata.image_alt],
+        ["meta", "name", "twitter:image:alt", metadata.image_alt],
+      ] : []),
       ["link", "rel", "canonical", metadata.url],
     ]
 

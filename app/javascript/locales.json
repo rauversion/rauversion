@@ -1854,6 +1854,10 @@
       "publish": "Publish Event",
       "published": "Your event has been published",
       "purchase_form": {
+        "availability": {
+          "label": "Available tickets for %{title}",
+          "remaining": "%{available} of %{total} available"
+        },
         "available_tickets": "%{count} available",
         "disclaimers": {
           "platform_role": "Rauversion acts as an intermediary between the event organizer and the ticket buyer.",
@@ -7585,6 +7589,10 @@
       "publish": "Publicar Evento",
       "published": "Tu evento ha sido publicado",
       "purchase_form": {
+        "availability": {
+          "label": "Entradas disponibles para %{title}",
+          "remaining": "%{available} de %{total} disponibles"
+        },
         "available_tickets": "%{count} disponibles",
         "disclaimers": {
           "platform_role": "Rauversion actúa como intermediario entre el gestor del evento y el comprador del boleto.",

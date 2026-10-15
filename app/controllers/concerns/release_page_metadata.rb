@@ -1,5 +1,6 @@
 module ReleasePageMetadata
   extend ActiveSupport::Concern
+  include PageMetadata
 
   private
 
@@ -24,31 +25,5 @@ module ReleasePageMetadata
 
   def default_release_image_url
     "#{request.base_url}#{AlbumsHelper.default_image_sqr}"
-  end
-
-  def set_page_metadata(title:, description:, image:, url:, type:)
-    @seo_metadata = { title: title, description: description, image: image, url: url, type: type }
-    set_meta_tags(
-      title: title,
-      description: description,
-      image: image,
-      canonical: url,
-      og: {
-        title: title,
-        description: description,
-        image: image,
-        url: url,
-        type: type,
-        site_name: "Rauversion"
-      },
-      twitter: {
-        card: "summary_large_image",
-        site: "@rauversion",
-        title: title,
-        description: description,
-        image: image
-      }
-    )
-    @seo_metadata[:document_title] = CGI.unescapeHTML(meta_tags.full_title(site: "Rauversion"))
   end
 end
