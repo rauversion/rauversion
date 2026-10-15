@@ -271,17 +271,6 @@ export function EventTicketsBlock({
                     <div className="text-xl font-semibold" style={{ color: palette.text }}>
                       {formatTicketPrice(ticket, event?.ticket_currency)}
                     </div>
-                    {showRemaining && typeof ticket.quantity === "number" ? (
-                      <TicketAvailability
-                        remaining={ticket.quantity}
-                        total={ticket.total_quantity}
-                        title={ticket.title}
-                        color={palette.accent}
-                        trackColor={palette.accentSoft}
-                        textColor={palette.muted}
-                        className={block.props.variant === "list" ? "ml-auto mt-2" : undefined}
-                      />
-                    ) : null}
                     <div
                       className={cn(
                         "inline-flex rounded-full px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em]",
@@ -297,6 +286,14 @@ export function EventTicketsBlock({
                     </div>
                   </div>
                 </div>
+                {showRemaining && typeof ticket.quantity === "number" ? (
+                  <TicketAvailability
+                    remaining={ticket.quantity}
+                    total={ticket.total_quantity}
+                    title={ticket.title}
+                    className="mt-4"
+                  />
+                ) : null}
               </button>
             ))}
           </div>

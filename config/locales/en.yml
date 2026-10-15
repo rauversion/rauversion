@@ -1107,8 +1107,11 @@ en:
       price: "$%{price}"
       available_tickets: "%{count} available"
       availability:
-        remaining: "%{available} of %{total} available"
         label: "Available tickets for %{title}"
+        high: "Good availability"
+        medium: "Limited availability"
+        low: "Last tickets available"
+        sold_out: "Sold out"
       purchase_button: "Purchase Tickets"
       processing: "Processing..."
       quantity_label: "Ticket Quantity"

@@ -1166,8 +1166,11 @@ es:
       price: "$%{price}"
       available_tickets: "%{count} disponibles"
       availability:
-        remaining: "%{available} de %{total} disponibles"
         label: "Entradas disponibles para %{title}"
+        high: "Buena disponibilidad"
+        medium: "Disponibilidad limitada"
+        low: "Últimas entradas"
+        sold_out: "Agotado"
       purchase_button: "Comprar Entradas"
       processing: "Procesando..."
       quantity_label: "Cantidad de entradas"

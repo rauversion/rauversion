@@ -1855,8 +1855,11 @@
       "published": "Your event has been published",
       "purchase_form": {
         "availability": {
+          "high": "Good availability",
           "label": "Available tickets for %{title}",
-          "remaining": "%{available} of %{total} available"
+          "low": "Last tickets available",
+          "medium": "Limited availability",
+          "sold_out": "Sold out"
         },
         "available_tickets": "%{count} available",
         "disclaimers": {
@@ -7590,8 +7593,11 @@
       "published": "Tu evento ha sido publicado",
       "purchase_form": {
         "availability": {
+          "high": "Buena disponibilidad",
           "label": "Entradas disponibles para %{title}",
-          "remaining": "%{available} de %{total} disponibles"
+          "low": "Últimas entradas",
+          "medium": "Disponibilidad limitada",
+          "sold_out": "Agotado"
         },
         "available_tickets": "%{count} disponibles",
         "disclaimers": {

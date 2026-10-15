@@ -454,9 +454,6 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
                             })
                           )}
                         </div>
-                        {event?.show_remaining_tickets && (
-                          <TicketAvailability remaining={ticket.quantity} total={ticket.total_quantity} title={ticket.title} className="mt-2" />
-                        )}
                       </div>
                     </div>
 
@@ -707,6 +704,9 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
                           </motion.div>
                         )}
                       </div>
+                    )}
+                    {event?.show_remaining_tickets && (
+                      <TicketAvailability remaining={ticket.quantity} total={ticket.total_quantity} title={ticket.title} />
                     )}
                   </motion.div>
                 )
