@@ -10,6 +10,7 @@ import { useToast } from "@/hooks/use-toast"
 import { Button } from "@/components/ui/button"
 import { get, post } from "@rails/request.js"
 import I18n from 'stores/locales'
+import { isValidRut, normalizeRut } from "@/lib/chilean-rut"
 import {
   Form,
   FormControl,
@@ -64,6 +65,7 @@ const searchSchema = z.object({
 const invitationSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   ticket_id: z.string().min(1, "Please select a ticket"),
+  identifier_value: z.string().optional(),
 })
 
 const attendeeStatuses = {
@@ -112,9 +114,14 @@ export default function Attendees() {
     resolver: zodResolver(invitationSchema),
     defaultValues: {
       email: "",
-      ticket_id: ""
+      ticket_id: "",
+      identifier_value: ""
     }
   })
+
+  const invitationRequiresRut = tickets.find((ticket) => (
+    String(ticket.id) === inviteForm.watch("ticket_id")
+  ))?.required_identifier === "rut"
 
   // Load tickets for the invitation dialog
   React.useEffect(() => {
@@ -171,12 +178,22 @@ export default function Attendees() {
   }
 
   const onSubmitInvite = async (data) => {
+    if (invitationRequiresRut && !isValidRut(data.identifier_value || "")) {
+      inviteForm.setError("identifier_value", {
+        message: I18n.t(data.identifier_value ? "event_purchases.errors.invalid_rut" : "event_purchases.errors.rut_required"),
+      })
+      return
+    }
     setIsSubmittingInvite(true)
     try {
       const response = await post(`/events/${slug}/event_attendees/create_invitation.json`, {
         body: JSON.stringify({
           email: data.email,
-          ticket_id: data.ticket_id
+          ticket_id: data.ticket_id,
+          ...(invitationRequiresRut ? {
+            identifier_type: "rut",
+            identifier_value: normalizeRut(data.identifier_value || ""),
+          } : {})
         }),
         contentType: 'application/json'
       })
@@ -348,6 +365,21 @@ export default function Attendees() {
                         </FormItem>
                       )}
                     />
+                    {invitationRequiresRut && (
+                      <FormField
+                        control={inviteForm.control}
+                        name="identifier_value"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>{I18n.t("events.purchase_form.rut.label")}</FormLabel>
+                            <FormControl>
+                              <Input placeholder="12.345.678-5" autoCapitalize="characters" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
                     <DialogFooter>
                       <Button type="button" variant="outline" onClick={() => setIsInviteDialogOpen(false)}>
                         Cancel
@@ -443,6 +475,7 @@ export default function Attendees() {
                 <div className="min-w-0">
                   <p className="truncate font-medium">{item.user.name || item.guest_email}</p>
                   <p className="truncate text-sm text-muted-foreground">{item.user.email || item.guest_email}</p>
+                  {item.identifier_type === "rut" && <p className="text-sm text-muted-foreground">RUT: {item.identifier_value}</p>}
                 </div>
                 <Badge
                   variant="secondary"
@@ -502,6 +535,7 @@ export default function Attendees() {
                       <div>
                         <p className="font-medium">{item.user.name || item.guest_email}</p>
                         <p className="text-sm text-muted-foreground">{item.user.email || item.guest_email}</p>
+                        {item.identifier_type === "rut" && <p className="text-sm text-muted-foreground">RUT: {item.identifier_value}</p>}
                       </div>
                     </div>
                   </TableCell>

@@ -35,7 +35,7 @@ RSpec.describe EventAttendeesCsvExportJob, type: :job do
       csv_content = mail.attachments.first.body.decoded
       csv = CSV.parse(csv_content, headers: true)
       
-      expect(csv.headers).to include('ID', 'Name', 'Email', 'Ticket Title', 'Ticket Price', 'Status', 'Purchase Date', 'Checked In', 'Checked In At')
+      expect(csv.headers).to include('ID', 'Name', 'Email', 'RUT', 'Ticket Title', 'Ticket Price', 'Status', 'Purchase Date', 'Checked In', 'Checked In At')
     end
 
     it 'includes purchase data in CSV' do
@@ -51,6 +51,18 @@ RSpec.describe EventAttendeesCsvExportJob, type: :job do
       expect(row['Ticket Title']).to eq('General Admission')
       expect(row['Status']).to eq('paid')
       expect(row['Checked In']).to eq('Yes')
+      expect(row['RUT']).to be_nil
+    end
+
+    it 'exports the stored RUT for each ticket, even after the requirement is disabled' do
+      purchase.update!(identifier_type: 'rut', identifier_value: '12.345.678-5')
+      create(:purchased_item, purchase: purchase, purchased_item: ticket, state: 'paid')
+      ticket.update!(required_identifier: '')
+
+      EventAttendeesCsvExportJob.perform_now(event.id, user.id)
+
+      csv = CSV.parse(ActionMailer::Base.deliveries.last.attachments.first.body.decoded, headers: true)
+      expect(csv.map { |row| row['RUT'] }).to eq(['12345678-5', '12345678-5'])
     end
   end
 end

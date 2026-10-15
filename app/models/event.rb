@@ -65,13 +65,39 @@ class Event < ApplicationRecord
   store_accessor :event_settings, :google_analytics_id, :string
   store_accessor :event_settings, :meta_pixel_id, :string
   store_accessor :event_settings, :google_tag_manager_id, :string
+  store_attribute :event_settings, :description_document, :json
 
+  validate :validate_description_document
   validates :ticket_tax_behavior, inclusion: { in: TICKET_TAX_BEHAVIORS }, allow_blank: true
 
   store_attribute :site_data, :site_mode, :string, default: "default"
   store_attribute :site_data, :site_pages, :json, default: []
 
   before_validation :normalize_tracking_ids
+  before_validation :sync_description_text
+
+  def description_html
+    EventDescription.new(description, document: description_document).html
+  end
+
+  def description_text
+    EventDescription.new(description, document: description_document).text
+  end
+
+  def description_editor_document
+    EventDescription.new(description, document: description_document).document
+  end
+
+  def validate_description_document
+    errors.add(:description_document, :invalid) unless EventDescription.new(description, document: description_document).valid_document?
+  end
+
+  def sync_description_text
+    return unless will_save_change_to_event_settings? && description_document.present?
+
+    content = EventDescription.new(description, document: description_document)
+    self.description = content.text if content.valid_document?
+  end
 
   validates :google_analytics_id,
     format: {

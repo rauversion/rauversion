@@ -27,6 +27,7 @@ class EventAttendeesCsvExportJob < ApplicationJob
         'ID',
         'Name',
         'Email',
+        'RUT',
         'Ticket Title',
         'Ticket Price',
         'Paid Price',
@@ -47,8 +48,9 @@ class EventAttendeesCsvExportJob < ApplicationJob
         
         csv << [
           item.id,
-          "#{user.first_name} #{user.last_name}".strip.presence || user.username,
-          user.email,
+          "#{user&.first_name} #{user&.last_name}".strip.presence || user&.username,
+          purchase.purchase_email,
+          purchase.identifier_type == 'rut' ? purchase.identifier_value : nil,
           ticket.title,
           ticket.price,
           item.price,

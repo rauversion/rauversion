@@ -2,6 +2,8 @@ json.id @event.id
 json.slug @event.slug
 json.title @event.title
 json.description @event.description
+json.description_html @event.description_html
+json.description_document @event.description_editor_document
 json.state @event.state
 json.visibility @event.visibility || 'public'
 # Always include private_event_url so UI can show it immediately when visibility changes to private

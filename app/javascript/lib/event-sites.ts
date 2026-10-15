@@ -81,6 +81,7 @@ export interface EventSiteRecord {
   slug: string
   title: string
   description: string
+  descriptionHtml?: string
   timezone?: string
   event_dates_formatted?: string
   venue?: string
@@ -291,6 +292,7 @@ export function normalizeEventSiteRecord(payload: unknown): EventSiteRecord {
     slug: typeof value.slug === "string" ? value.slug : "",
     title: typeof value.title === "string" ? value.title : "",
     description: typeof value.description === "string" ? value.description : "",
+    descriptionHtml: typeof value.description_html === "string" ? value.description_html : undefined,
     timezone: typeof value.timezone === "string" ? value.timezone : undefined,
     event_dates_formatted:
       typeof value.event_dates_formatted === "string" ? value.event_dates_formatted : undefined,

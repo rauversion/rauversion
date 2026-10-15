@@ -434,6 +434,9 @@ en:
           requires_login:
             label: Require Login
             description: Users must be logged in to purchase this ticket. Guest checkout will not be allowed.
+          required_identifier:
+            label: Request Chilean RUT
+            description: The buyer must enter a valid Chilean RUT to purchase this ticket.
           pay_what_you_want:
             label: Pay What You Want
             description: Allow buyers to choose their own price
@@ -1096,6 +1099,9 @@ en:
         danger: Danger Zone
   
     purchase_form:
+      rut:
+        label: Chilean RUT
+        description: Enter the buyer's RUT including its check digit. It applies to all tickets in this order.
       title: "Purchase Tickets"
       subtitle: "Select the number of tickets you want to purchase"
       price: "$%{price}"
@@ -1138,6 +1144,8 @@ en:
 
   event_purchases:
     errors:
+      rut_required: Enter the buyer's RUT for this ticket.
+      invalid_rut: Enter a valid Chilean RUT, including its check digit.
       email_not_in_list: "Your email is not authorized to purchase this ticket: %{ticket_title}. Please contact the event organizer."
       requires_login: "This ticket requires you to be logged in: %{ticket_title}. Please log in or create an account to purchase."
 

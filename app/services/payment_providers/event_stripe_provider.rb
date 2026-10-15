@@ -26,7 +26,7 @@ module PaymentProviders
           checkout_type: "stripe",
           checkout_id: session.id,
           currency: event.ticket_currency.downcase,
-          payment_metadata: checkout_params.fetch(:metadata).stringify_keys.merge(
+          payment_metadata: purchase.payment_metadata.merge(checkout_params.fetch(:metadata).stringify_keys).merge(
             "amount_unit" => "minor",
             "connected_account_id" => connected_account_id
           )

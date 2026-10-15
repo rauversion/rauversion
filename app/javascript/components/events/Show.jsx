@@ -137,14 +137,11 @@ export default function EventShow() {
                 </p>
               </div>
 
-              {/* Title & description */}
+              {/* Title */}
               <div>
                 <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-brand-50">
                   {event.title}
                 </h1>
-                <div className="mt-4 space-y-4 font-display text-lg tracking-tight text-brand-100 whitespace-pre-line">
-                  {event.description}
-                </div>
               </div>
 
               {/* Stats + ticket button */}
@@ -211,7 +208,7 @@ export default function EventShow() {
           </section>
         )}
 
-        <EventSchedule schedulings={event.event_schedules} />
+        <EventSchedule description={event.description} descriptionHtml={event.descriptionHtml} schedulings={event.event_schedules} />
       </main>
 
       <footer className="py-16 border-t border-white/10 mt-8">

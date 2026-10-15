@@ -13,6 +13,7 @@ import I18n from "@/stores/locales"
 import { Badge } from "../ui/badge"
 import useAuthStore from "@/stores/authStore"
 import { cn } from "@/lib/utils"
+import { isValidRut, normalizeRut } from "@/lib/chilean-rut"
 
 interface Ticket {
   id: string
@@ -27,6 +28,7 @@ interface Ticket {
   minimum_price?: number | null
   suggested_price?: number | null
   sold_out?: boolean
+  required_identifier?: string
 }
 
 interface Event {
@@ -43,6 +45,7 @@ interface PurchaseFormProps {
 
 type TicketFormValues = {
   guest_email?: string
+  identifier_value?: string
 } & Record<string, any>
 
 function currentLocale() {
@@ -175,6 +178,11 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
     return typeof value === "number" ? value : parseFloat(value as string)
   }
 
+  const requiresRut = tickets.some((ticket) => (
+    ticket.required_identifier === "rut" &&
+    Number(watch(ticket.pay_what_you_want ? `${ticket.id}_quantity` : ticket.id.toString())) > 0
+  ))
+
   const onSubmit = async (data: any) => {
     setLoading(true)
     try {
@@ -209,6 +217,10 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
 
       const requestBody: any = {
         tickets: ticketsData,
+      }
+      if (requiresRut) {
+        requestBody.identifier_type = "rut"
+        requestBody.identifier_value = normalizeRut(data.identifier_value || "")
       }
 
       // Add guest_email if not authenticated
@@ -703,6 +715,31 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
           </CardContent>
 
           {/* Disclaimers Section */}
+          {requiresRut && (
+            <div className="px-6 pb-4 space-y-2">
+              <Label htmlFor="identifier_value">{I18n.t("events.purchase_form.rut.label")}</Label>
+              <Input
+                id="identifier_value"
+                placeholder="12.345.678-5"
+                autoCapitalize="characters"
+                aria-invalid={!!errors.identifier_value}
+                aria-describedby="rut_description rut_error"
+                {...register("identifier_value", {
+                  shouldUnregister: true,
+                  required: I18n.t("event_purchases.errors.rut_required"),
+                  validate: (value) => isValidRut(value || "") || I18n.t("event_purchases.errors.invalid_rut"),
+                })}
+              />
+              <p id="rut_description" className="text-xs text-muted-foreground">
+                {I18n.t("events.purchase_form.rut.description")}
+              </p>
+              {errors.identifier_value && (
+                <p id="rut_error" role="alert" className="text-sm text-destructive">
+                  {errors.identifier_value.message as string}
+                </p>
+              )}
+            </div>
+          )}
           <div className="px-6 pb-4">
             <motion.div
               initial={{ opacity: 0, y: 10 }}

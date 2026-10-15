@@ -34,7 +34,7 @@ class EventAttendeesController < ApplicationController
   def tickets
     @tickets = @event.event_tickets
     respond_to do |format|
-      format.json { render json: { collection: @tickets, permissions: attendee_permissions } }
+      format.json { render json: { collection: @tickets.as_json(methods: [:required_identifier]), permissions: attendee_permissions } }
     end
   end
 
@@ -95,6 +95,7 @@ class EventAttendeesController < ApplicationController
       price: ticket.price,
       currency: @event.ticket_currency
     )
+    purchase.assign_attributes(params.permit(:identifier_type, :identifier_value))
 
     # Create purchased item
     purchase.purchased_items.build(

@@ -27,6 +27,9 @@ class EventTicket < ApplicationRecord
   store_accessor :settings, :requires_shipping, :boolean
   store_accessor :settings, :show_remaining_count, :boolean
   store_accessor :settings, :requires_login, :boolean
+  store_accessor :settings, :required_identifier, :string
+
+  validates :required_identifier, inclusion: { in: %w[rut] }, allow_blank: true
 
   validates :title, presence: true
   validates :price, presence: true

@@ -2,7 +2,7 @@ json.events @events do |event|
   json.id event.id
   json.slug event.slug
   json.title event.title
-  json.description event.description
+  json.description event.description_text
   json.state event.state
   json.timezone event.timezone
   json.event_start event.event_start
@@ -39,7 +39,7 @@ json.past_events @past_events do |event|
   json.id event.id
   json.slug event.slug
   json.title event.title
-  json.description event.description
+  json.description event.description_text
   json.state event.state
   json.timezone event.timezone
   json.event_start event.event_start

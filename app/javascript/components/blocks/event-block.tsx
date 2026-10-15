@@ -13,6 +13,7 @@ import {
 import { cn } from "@/lib/utils"
 import { getUserDisplayName } from "@/utils/userDisplayName"
 import PurchaseDialog from "@/components/events/PurchaseDialog"
+import { EventDescription } from "@/components/events/EventDescription"
 import { ArtistCard } from "@/components/events/ArtistCard"
 import { useEventSite } from "@/components/events/event-site-context"
 import I18n from "@/stores/locales"
@@ -409,13 +410,13 @@ export function EventBlock({
         >
           {eventSite.title}
         </h2>
-        {block.props.showDescription && eventSite.description ? (
-          <p
-            className="max-w-3xl whitespace-pre-line text-sm leading-7 @sm/event-block:text-base @2xl/event-block:text-lg"
+        {block.props.showDescription ? (
+          <EventDescription
+            description={eventSite.description}
+            html={eventSite.descriptionHtml}
+            className="max-w-3xl text-sm leading-7 prose-headings:text-inherit prose-p:text-inherit prose-strong:text-inherit prose-a:text-inherit @sm/event-block:text-base @2xl/event-block:text-lg"
             style={{ color: palette.muted }}
-          >
-            {eventSite.description}
-          </p>
+          />
         ) : null}
       </div>
 
