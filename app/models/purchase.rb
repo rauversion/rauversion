@@ -234,7 +234,8 @@ class Purchase < ApplicationRecord
 
   def validate_required_identifier
     tickets = virtual_purchased.select { |item| item.quantity.to_i.positive? }.map(&:resource)
-    tickets += purchased_items.map(&:purchased_item)
+    # Inspect built items without caching an empty association before tickets are created.
+    tickets += purchased_items.target.map(&:purchased_item)
     return unless tickets.any? { |ticket| ticket.is_a?(EventTicket) && ticket.required_identifier == "rut" }
     return if identifier_type == "rut" && identifier_value.present?
 

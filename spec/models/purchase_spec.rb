@@ -71,6 +71,14 @@ RSpec.describe Purchase, type: :model do
       purchase.purchased_items.build(purchased_item: ticket)
       expect(purchase).not_to be_valid
     end
+
+    it "finds tickets created after the purchase without reloading the purchase" do
+      saved_purchase = create(:purchase, user: user, purchasable: event)
+      regular_ticket = create(:event_ticket, event: event)
+      item = create(:purchased_item, purchase: saved_purchase, purchased_item: regular_ticket)
+
+      expect(saved_purchase.purchased_items.to_a).to eq([item])
+    end
   end
 
   it { belong_to(:user) }
