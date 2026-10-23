@@ -73,7 +73,7 @@ Rauversion is built on Ruby on Rails.
 
 Rauversion is written in Ruby on top of the Rails Framework:
 
-> Ruby 3.3.5
+> Ruby 3.3.13
 
 You can develop directly in a container with [vscode devcontainer](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) or [neovim devcontainer](https://github.com/jamestthompson3/nvim-remote-containers)
 

@@ -8,7 +8,7 @@ Rauversion is an open-source music platform built on Ruby on Rails that empowers
 
 ### Backend
 - **Framework**: Ruby on Rails 8.0.1
-- **Ruby Version**: 3.3.5
+- **Ruby Version**: 3.3.13
 - **Database**: PostgreSQL
 - **Background Jobs**: Sidekiq (via Kredis/Redis)
 - **API**: RESTful with Jbuilder for JSON responses

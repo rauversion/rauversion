@@ -1,5 +1,5 @@
 #ARG RUBY_VERSION
-FROM ruby:3.3.5-bookworm
+FROM ruby:3.3.13-bookworm
 
 ARG APP_ENV=production
 

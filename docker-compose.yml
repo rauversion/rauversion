@@ -3,7 +3,7 @@ x-app: &app
     context: .
     dockerfile: ./Dockerfile.development
     args:
-      RUBY_VERSION: '3.3.5'
+      RUBY_VERSION: '3.3.13'
       PG_MAJOR: '14'
       NODE_MAJOR: '21'
       YARN_VERSION: '1.13.0'
