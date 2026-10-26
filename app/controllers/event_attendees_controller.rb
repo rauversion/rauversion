@@ -11,6 +11,18 @@ class EventAttendeesController < ApplicationController
                             .includes(purchase: :user, purchased_item: :event_ticket)
                             .order(created_at: :desc)
 
+    query = params[:query].to_s.strip
+    if query.present?
+      pattern = "%#{ActiveRecord::Base.sanitize_sql_like(query)}%"
+      @purchased_items = @purchased_items.left_joins(purchase: :user).where(<<~SQL.squish, query: pattern)
+        users.display_name ILIKE :query
+        OR users.username ILIKE :query
+        OR CONCAT_WS(' ', users.first_name, users.last_name) ILIKE :query
+        OR users.email ILIKE :query
+        OR purchases.guest_email ILIKE :query
+      SQL
+    end
+
     # Filter by status if provided
     if params[:status].present? && params[:status] != 'all'
       @purchased_items = @purchased_items.where(state: params[:status])

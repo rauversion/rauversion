@@ -32,5 +32,5 @@ json.permissions do
 end
 
 json.metadata do
-  json.partial! 'shared/pagination_metadata', collection: @purchased_items
+  json.partial! 'shared/pagination_metadata', locals: { collection: @purchased_items }
 end

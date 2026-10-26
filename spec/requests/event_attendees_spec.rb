@@ -71,6 +71,94 @@ RSpec.describe "EventAttendees", type: :request do
       expect(json.dig('permissions', 'can_create_invitations')).to eq(false)
       expect(json.dig('permissions', 'can_refund_attendees')).to eq(false)
     end
+
+    describe "searching attendees" do
+      let!(:matching_item) do
+        attendee = create(:user, first_name: "Ana", last_name: "Perez",
+          display_name: "Anita Stage", username: "ana-musica", email: "ana.perez@example.com")
+        purchase = create(:purchase, user: attendee, purchasable: event, state: "paid",
+          guest_email: "guest.search@example.com")
+        create(:purchased_item, purchase: purchase, purchased_item: ticket, state: "paid")
+      end
+
+      {
+        "display name" => "ANITA",
+        "full name" => "ana perez",
+        "username" => "ana-musica",
+        "email" => "  ANA.PEREZ@  ",
+        "guest email" => "GUEST.SEARCH@"
+      }.each do |field, query|
+        it "searches by #{field} without case sensitivity" do
+          get event_event_attendees_path(event), params: { query: query }, as: :json
+
+          expect(response).to have_http_status(:success)
+          json = JSON.parse(response.body)
+          expect(json.fetch("collection").pluck("id")).to eq([matching_item.id])
+          expect(json.dig("metadata", "total_count")).to eq(1)
+        end
+      end
+
+      it "returns no attendees when the query does not match" do
+        get event_event_attendees_path(event), params: { query: "nobody-matches" }, as: :json
+
+        json = JSON.parse(response.body)
+        expect(json.fetch("collection")).to be_empty
+        expect(json.dig("metadata", "total_count")).to eq(0)
+      end
+
+      it "combines the query with the ticket status filter" do
+        create(:purchased_item, purchase: matching_item.purchase, purchased_item: ticket, state: "pending")
+
+        get event_event_attendees_path(event), params: { query: "ana", status: "paid" }, as: :json
+
+        json = JSON.parse(response.body)
+        expect(json.fetch("collection").pluck("id")).to eq([matching_item.id])
+        expect(json.dig("metadata", "total_count")).to eq(1)
+      end
+
+      it "searches all attendees before paginating" do
+        matching_item.update!(created_at: 2.days.ago)
+        create_list(:purchased_item, 21, purchase: paid_purchase.purchase, purchased_item: ticket, state: "paid")
+
+        get event_event_attendees_path(event), params: { query: "ana" }, as: :json
+
+        json = JSON.parse(response.body)
+        expect(json.fetch("collection").pluck("id")).to eq([matching_item.id])
+        expect(json.dig("metadata", "total_count")).to eq(1)
+        expect(json.dig("metadata", "next_page")).to be_nil
+      end
+
+      it "only returns matches belonging to the selected event" do
+        other_event = create(:event, user: user)
+        other_ticket = create(:event_ticket, event: other_event)
+        other_purchase = create(:purchase, user: matching_item.purchase.user, purchasable: other_event, state: "paid")
+        create(:purchased_item, purchase: other_purchase, purchased_item: other_ticket, state: "paid")
+
+        get event_event_attendees_path(event), params: { query: "ana" }, as: :json
+
+        expect(JSON.parse(response.body).fetch("collection").pluck("id")).to eq([matching_item.id])
+      end
+
+      it "updates the results for a new query and restores the list when cleared" do
+        {
+          "ana.perez" => [matching_item.id],
+          user.email => [pending_purchase.id, paid_purchase.id],
+          "   " => [matching_item.id, pending_purchase.id, paid_purchase.id]
+        }.each do |query, expected_ids|
+          get event_event_attendees_path(event), params: { query: query }, as: :json
+
+          expect(JSON.parse(response.body).fetch("collection").pluck("id")).to match_array(expected_ids)
+        end
+      end
+
+      ["%", "_"].each do |query|
+        it "treats #{query.inspect} as literal search text" do
+          get event_event_attendees_path(event), params: { query: query }, as: :json
+
+          expect(JSON.parse(response.body).fetch("collection")).to be_empty
+        end
+      end
+    end
   end
 
   describe "GET /events/:event_id/event_attendees/export_csv" do
