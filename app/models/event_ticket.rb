@@ -44,6 +44,11 @@ class EventTicket < ApplicationRecord
 
   before_validation :assign_position, on: :create
 
+  scope :on_sale_at, ->(at_time = Time.current) {
+    where("selling_start <= ?", at_time)
+      .where("selling_end IS NULL OR selling_end >= ?", at_time)
+  }
+
   def free?
     price.to_i == 0
   end

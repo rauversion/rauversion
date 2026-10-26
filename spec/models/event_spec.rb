@@ -63,6 +63,45 @@ RSpec.describe Event, type: :model do
     it { should have_one_attached(:cover) }
   end
 
+  describe "#available_tickets sale period" do
+    let(:event) { create(:event, user: user) }
+    let(:at_time) { Time.zone.parse("2026-10-25 18:00:00") }
+
+    [false, true, nil].each do |show_sell_until|
+      it "excludes expired tickets when show_sell_until is #{show_sell_until.inspect}" do
+        create(:event_ticket, event: event, selling_start: at_time - 1.day,
+          selling_end: at_time - 1.second, show_sell_until: show_sell_until,
+          show_after_sold_out: true)
+
+        expect(event.available_tickets(at_time)).to be_empty
+      end
+    end
+
+    it "includes tickets during their sale period regardless of date visibility" do
+      ticket = create(:event_ticket, event: event, selling_start: at_time - 1.day,
+        selling_end: at_time + 1.hour, show_sell_until: false)
+
+      expect(event.available_tickets(at_time)).to eq([ticket])
+    end
+
+    it "includes tickets without a sale deadline" do
+      ticket = create(:event_ticket, event: event, selling_start: at_time - 1.day,
+        selling_end: nil, show_sell_until: false)
+
+      expect(event.available_tickets(at_time)).to eq([ticket])
+    end
+
+    it "honors the reference time at both sale boundaries" do
+      ticket = create(:event_ticket, event: event, selling_start: at_time,
+        selling_end: at_time + 1.hour, show_sell_until: false)
+
+      expect(event.available_tickets(at_time - 1.second)).to be_empty
+      expect(event.available_tickets(at_time)).to eq([ticket])
+      expect(event.available_tickets(at_time + 1.hour)).to eq([ticket])
+      expect(event.available_tickets(at_time + 1.hour + 1.second)).to be_empty
+    end
+  end
+
   describe "scopes" do
     before do
       @event1 = FactoryBot.create(:event, state: "published", user: user, event_start: 1.day.from_now)

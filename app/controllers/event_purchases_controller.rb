@@ -14,7 +14,7 @@ class EventPurchasesController < ApplicationController
         ticket = EventTicket.find_signed(params[:ticket_token], purpose: :secret_purchase)
         # Verify the ticket belongs to this event
         if ticket && ticket.event_id == @event.id
-          @tickets = [ticket]
+          @tickets = @event.event_tickets.on_sale_at.where(id: ticket.id).to_a
         else
           @tickets = []
         end

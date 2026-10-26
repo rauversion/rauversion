@@ -1,6 +1,8 @@
 require "rails_helper"
 
 RSpec.describe "EventPurchases", type: :request do
+  include ActiveSupport::Testing::TimeHelpers
+
   let(:user) { FactoryBot.create(:user) }
   let(:event) { FactoryBot.create(:event, user: user, state: "published", ticket_currency: "USD") }
 
@@ -98,6 +100,85 @@ RSpec.describe "EventPurchases", type: :request do
 
       ticket_ids = JSON.parse(response.body).fetch("tickets").map { |ticket| ticket.fetch("id") }
       expect(ticket_ids).to eq([vip_ticket.id, paid_ticket.id])
+    end
+  end
+
+  describe "ticket sale deadlines" do
+    let!(:ticket) do
+      create(:event_ticket, event: event, qty: 10, price: 0,
+        selling_start: 1.day.ago, selling_end: 1.minute.ago,
+        show_sell_until: false, show_after_sold_out: true)
+    end
+
+    it "omits expired tickets from the purchase form" do
+      get new_event_event_purchase_path(event, format: :json)
+
+      expect(response).to have_http_status(:success)
+      expect(JSON.parse(response.body).fetch("tickets")).to be_empty
+    end
+
+    it "omits expired hidden tickets even with a valid secret link" do
+      ticket.update!(hidden: true)
+
+      get new_event_event_purchase_path(event, format: :json), params: {
+        ticket_token: ticket.signed_id(purpose: :secret_purchase)
+      }
+
+      expect(response).to have_http_status(:success)
+      expect(JSON.parse(response.body).fetch("tickets")).to be_empty
+    end
+
+    it "still shows hidden tickets with a secret link during their sale period" do
+      ticket.update!(hidden: true, selling_end: 1.hour.from_now)
+
+      get new_event_event_purchase_path(event, format: :json), params: {
+        ticket_token: ticket.signed_id(purpose: :secret_purchase)
+      }
+
+      expect(response).to have_http_status(:success)
+      expect(JSON.parse(response.body).fetch("tickets").pluck("id")).to eq([ticket.id])
+    end
+
+    it "omits hidden tickets whose sale has not started even with a secret link" do
+      ticket.update!(hidden: true, selling_start: 1.hour.from_now, selling_end: 2.hours.from_now)
+
+      get new_event_event_purchase_path(event, format: :json), params: {
+        ticket_token: ticket.signed_id(purpose: :secret_purchase)
+      }
+
+      expect(response).to have_http_status(:success)
+      expect(JSON.parse(response.body).fetch("tickets")).to be_empty
+    end
+
+    [0, 10].each do |price|
+      it "rejects direct purchases of expired tickets priced at #{price}" do
+        ticket.update!(price: price)
+
+        expect {
+          post event_event_purchases_path(event, format: :json), params: {
+            tickets: [{ id: ticket.id, quantity: 1 }]
+          }
+        }.not_to change { [Purchase.count, PurchasedItem.count] }
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(JSON.parse(response.body).fetch("errors")).to include("No tickets selected")
+      end
+    end
+
+    it "rejects a ticket that expires after the purchase form was loaded" do
+      travel_to(ticket.selling_end - 1.minute) do
+        get new_event_event_purchase_path(event, format: :json)
+
+        expect(JSON.parse(response.body).fetch("tickets").pluck("id")).to eq([ticket.id])
+      end
+
+      expect {
+        post event_event_purchases_path(event, format: :json), params: {
+          tickets: [{ id: ticket.id, quantity: 1 }]
+        }
+      }.not_to change { [Purchase.count, PurchasedItem.count] }
+
+      expect(response).to have_http_status(:unprocessable_entity)
     end
   end
 
