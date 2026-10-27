@@ -35,6 +35,62 @@ RSpec.describe "EventAttendees", type: :request do
       expect(response).to have_http_status(:success)
       json = JSON.parse(response.body)
       expect(json['collection'].length).to eq(2)
+      expect(json['collection'].first.fetch('event_ticket')).to include('id' => ticket.id, 'title' => ticket.title)
+      expect(json['collection'].first.fetch('user')).to include('id' => user.id, 'email' => user.email, 'name' => user.display_name)
+    end
+
+    it "returns attendees with soft-deleted tickets when searching by email" do
+      pending_purchase.update!(price: nil)
+      ticket.destroy!
+      expect(paid_purchase.reload.purchased_item).to be_nil
+
+      get event_event_attendees_path(event), params: { query: user.email, page: 1 }, as: :json
+
+      expect(response).to have_http_status(:success)
+      json = JSON.parse(response.body)
+      expect(json.fetch('collection').pluck('id')).to contain_exactly(pending_purchase.id, paid_purchase.id)
+      expect(json.fetch('collection').map { |item| item.fetch('event_ticket') }).to all(
+        include('id' => ticket.id, 'title' => ticket.title)
+      )
+      expect(json.fetch('collection').find { |item| item['id'] == pending_purchase.id }.dig('event_ticket', 'price')).to eq(ticket.price.to_s)
+      expect(json.dig('metadata', 'total_count')).to eq(2)
+    end
+
+    it "keeps attendees with missing tickets and their stored purchase data" do
+      paid_purchase.update!(price: 35)
+      pending_purchase.update!(price: nil)
+      ticket.really_destroy!
+      other_ticket = create(:event_ticket, event: event, title: 'VIP')
+      other_item = create(:purchased_item, purchase: paid_purchase.purchase, purchased_item: other_ticket, state: 'paid')
+
+      get event_event_attendees_path(event), params: { query: user.email }, as: :json
+
+      expect(response).to have_http_status(:success)
+      json = JSON.parse(response.body)
+      expect(json.fetch('collection').pluck('id')).to contain_exactly(pending_purchase.id, paid_purchase.id, other_item.id)
+      attendee = json.fetch('collection').find { |item| item['id'] == paid_purchase.id }
+      expect(attendee).to include('state' => 'paid', 'price' => '35.0', 'currency' => paid_purchase.currency)
+      expect(attendee.fetch('event_ticket')).to include('id' => ticket.id, 'title' => nil, 'price' => '35.0')
+      pending_attendee = json.fetch('collection').find { |item| item['id'] == pending_purchase.id }
+      expect(pending_attendee.fetch('event_ticket')).to include('id' => ticket.id, 'title' => nil, 'price' => nil)
+      expect(json.fetch('collection').find { |item| item['id'] == other_item.id }.dig('event_ticket', 'title')).to eq('VIP')
+      expect(json.dig('metadata', 'total_count')).to eq(3)
+    end
+
+    it "returns guest purchases when searching by guest email after ticket deletion" do
+      guest = create(:user, email: 'guest@example.com')
+      purchase = create(:purchase, user: guest, guest_email: guest.email, purchasable: event, state: 'paid')
+      item = create(:purchased_item, purchase: purchase, purchased_item: ticket, state: 'paid')
+      ticket.destroy!
+
+      get event_event_attendees_path(event), params: { query: 'GUEST@EXAMPLE.COM' }, as: :json
+
+      expect(response).to have_http_status(:success)
+      json = JSON.parse(response.body)
+      expect(json.fetch('collection').pluck('id')).to eq([item.id])
+      expect(json.fetch('collection').first).to include('guest_email' => purchase.guest_email)
+      expect(json.fetch('collection').first.fetch('user')).to include('email' => purchase.guest_email)
+      expect(json.dig('metadata', 'total_count')).to eq(1)
     end
 
     it "includes the RUT in attendee data" do

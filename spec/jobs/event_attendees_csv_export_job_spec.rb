@@ -54,6 +54,52 @@ RSpec.describe EventAttendeesCsvExportJob, type: :job do
       expect(row['RUT']).to be_nil
     end
 
+    it 'exports soft-deleted tickets with their title and price' do
+      item = purchase.purchased_items.first
+      item.update!(price: 35)
+      ticket.destroy!
+      expect(item.reload.purchased_item).to be_nil
+
+      expect {
+        EventAttendeesCsvExportJob.perform_now(event.id, user.id)
+      }.to change { ActionMailer::Base.deliveries.count }.by(1)
+
+      csv = CSV.parse(ActionMailer::Base.deliveries.last.attachments.first.body.decoded, headers: true)
+      expect(csv.length).to eq(1)
+      row = csv.first
+      expect(row['ID']).to eq(item.id.to_s)
+      expect(row['Email']).to eq(user.email)
+      expect(row['Ticket Title']).to eq('General Admission')
+      expect(row['Ticket Price'].to_d).to eq(50)
+      expect(row['Paid Price'].to_d).to eq(35)
+      expect(row['Status']).to eq('paid')
+      expect(row['Checked In']).to eq('Yes')
+    end
+
+    it 'keeps attendees with missing tickets alongside attendees with existing tickets' do
+      item = purchase.purchased_items.first
+      item.update!(price: 35)
+      ticket.really_destroy!
+      expect(item.reload.purchased_item).to be_nil
+      other_ticket = create(:event_ticket, event: event, title: 'VIP', price: 100)
+      other_item = create(:purchased_item, purchase: purchase, purchased_item: other_ticket, state: 'paid')
+
+      expect {
+        EventAttendeesCsvExportJob.perform_now(event.id, user.id)
+      }.to change { ActionMailer::Base.deliveries.count }.by(1)
+
+      csv = CSV.parse(ActionMailer::Base.deliveries.last.attachments.first.body.decoded, headers: true)
+      expect(csv.map { |row| row['ID'] }).to contain_exactly(item.id.to_s, other_item.id.to_s)
+      row = csv.find { |record| record['ID'] == item.id.to_s }
+      expect(row['Email']).to eq(user.email)
+      expect(row['Ticket Title']).to be_nil
+      expect(row['Ticket Price']).to be_nil
+      expect(row['Paid Price'].to_d).to eq(35)
+      expect(row['Status']).to eq('paid')
+      expect(row['Checked In']).to eq('Yes')
+      expect(csv.find { |record| record['ID'] == other_item.id.to_s }['Ticket Title']).to eq('VIP')
+    end
+
     it 'exports the stored RUT for each ticket, even after the requirement is disabled' do
       purchase.update!(identifier_type: 'rut', identifier_value: '12.345.678-5')
       create(:purchased_item, purchase: purchase, purchased_item: ticket, state: 'paid')

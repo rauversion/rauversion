@@ -21,6 +21,9 @@ class EventAttendeesCsvExportJob < ApplicationJob
   private
 
   def generate_csv(event)
+    # Deleted ticket types must remain available in historical attendee exports.
+    tickets_by_id = event.event_tickets.with_deleted.index_by(&:id)
+
     CSV.generate(headers: true) do |csv|
       # Header row
       csv << [
@@ -39,20 +42,20 @@ class EventAttendeesCsvExportJob < ApplicationJob
       
       # Data rows
       event.purchased_items
-           .includes(purchase: :user, purchased_item: :event_ticket)
+           .includes(purchase: :user)
            .order(created_at: :desc)
            .each do |item|
         purchase = item.purchase
         user = purchase.user
-        ticket = item.purchased_item
+        ticket = tickets_by_id[item.purchased_item_id] if item.purchased_item_type == 'EventTicket'
         
         csv << [
           item.id,
           "#{user&.first_name} #{user&.last_name}".strip.presence || user&.username,
           purchase.purchase_email,
           purchase.identifier_type == 'rut' ? purchase.identifier_value : nil,
-          ticket.title,
-          ticket.price,
+          ticket&.title,
+          ticket&.price,
           item.price,
           item.state,
           item.created_at.strftime('%Y-%m-%d %H:%M:%S'),

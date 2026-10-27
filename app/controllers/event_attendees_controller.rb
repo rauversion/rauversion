@@ -8,7 +8,7 @@ class EventAttendeesController < ApplicationController
 
   def index
     @purchased_items = @event.purchased_items
-                            .includes(purchase: :user, purchased_item: :event_ticket)
+                            .includes(purchase: :user)
                             .order(created_at: :desc)
 
     query = params[:query].to_s.strip
@@ -29,6 +29,9 @@ class EventAttendeesController < ApplicationController
     end
 
     @purchased_items = @purchased_items.page(params[:page]).per(20)
+    @tickets_by_id = @event.event_tickets.with_deleted
+                          .where(id: @purchased_items.map(&:purchased_item_id))
+                          .index_by(&:id)
 
     respond_to do |format|
       format.json
