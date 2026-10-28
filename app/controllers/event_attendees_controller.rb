@@ -7,28 +7,8 @@ class EventAttendeesController < ApplicationController
   before_action :authorize_refunds!, only: [:refund]
 
   def index
-    @purchased_items = @event.purchased_items
-                            .includes(purchase: :user)
-                            .order(created_at: :desc)
-
-    query = params[:query].to_s.strip
-    if query.present?
-      pattern = "%#{ActiveRecord::Base.sanitize_sql_like(query)}%"
-      @purchased_items = @purchased_items.left_joins(purchase: :user).where(<<~SQL.squish, query: pattern)
-        users.display_name ILIKE :query
-        OR users.username ILIKE :query
-        OR CONCAT_WS(' ', users.first_name, users.last_name) ILIKE :query
-        OR users.email ILIKE :query
-        OR purchases.guest_email ILIKE :query
-      SQL
-    end
-
-    # Filter by status if provided
-    if params[:status].present? && params[:status] != 'all'
-      @purchased_items = @purchased_items.where(state: params[:status])
-    end
-
-    @purchased_items = @purchased_items.page(params[:page]).per(20)
+    @purchased_items = EventAttendeesQuery.new(event: @event, filters: attendee_filters)
+                                        .call.page(params[:page]).per(20)
     @tickets_by_id = @event.event_tickets.with_deleted
                           .where(id: @purchased_items.map(&:purchased_item_id))
                           .index_by(&:id)
@@ -39,7 +19,7 @@ class EventAttendeesController < ApplicationController
   end
 
   def export_csv
-    EventAttendeesCsvExportJob.perform_later(@event.id, current_user.id)
+    EventAttendeesCsvExportJob.perform_later(@event.id, current_user.id, attendee_filters)
     
     respond_to do |format|
       format.json { render json: { message: 'CSV export will be sent to your email shortly' }, status: :ok }
@@ -240,6 +220,10 @@ class EventAttendeesController < ApplicationController
   end
 
   private
+
+  def attendee_filters
+    params.permit(:query, :status, :checked_in).to_h
+  end
 
   def set_event
     @event = Event.for_tenant.find_by!(slug: params[:event_id])

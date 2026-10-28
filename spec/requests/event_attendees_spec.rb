@@ -128,6 +128,114 @@ RSpec.describe "EventAttendees", type: :request do
       expect(json.dig('permissions', 'can_refund_attendees')).to eq(false)
     end
 
+    describe "filtering by QR admission" do
+      let!(:unchecked_item) do
+        create(:purchased_item, purchase: paid_purchase.purchase, purchased_item: ticket,
+          state: "paid", checked_in: false)
+      end
+
+      before do
+        paid_purchase.set_checked_in!(true)
+      end
+
+      it "returns only attendees with a registered admission" do
+        sign_in admission_staff
+
+        get event_event_attendees_path(event), params: { checked_in: "true" }, as: :json
+
+        expect(response).to have_http_status(:success)
+        json = JSON.parse(response.body)
+        expect(json.fetch("collection").pluck("id")).to eq([paid_purchase.id])
+        expect(json.fetch("collection").first.fetch("checked_in_at")).to be_present
+        expect(json.dig("metadata", "total_count")).to eq(1)
+      end
+
+      it "includes false and legacy null admission values when filtering unvalidated attendees" do
+        get event_event_attendees_path(event), params: { checked_in: "false" }, as: :json
+
+        expect(response).to have_http_status(:success)
+        json = JSON.parse(response.body)
+        expect(json.fetch("collection").pluck("id")).to contain_exactly(pending_purchase.id, unchecked_item.id)
+        expect(json.dig("metadata", "total_count")).to eq(2)
+      end
+
+      it "restores all attendees when the admission filter is cleared" do
+        ["true", "all", nil].each do |checked_in|
+          get event_event_attendees_path(event), params: { checked_in: checked_in }, as: :json
+
+          expected_ids = checked_in == "true" ? [paid_purchase.id] : [pending_purchase.id, paid_purchase.id, unchecked_item.id]
+          expect(JSON.parse(response.body).fetch("collection").pluck("id")).to match_array(expected_ids)
+        end
+      end
+
+      it "combines admission with the attendee search and payment status" do
+        other_attendee = create(:user, email: "other.attendee@example.com")
+        other_purchase = create(:purchase, user: other_attendee, purchasable: event, state: "paid")
+        create(:purchased_item, purchase: other_purchase, purchased_item: ticket, state: "paid", checked_in: true)
+        create(:purchased_item, purchase: paid_purchase.purchase, purchased_item: ticket, state: "refunded", checked_in: true)
+
+        get event_event_attendees_path(event), params: { checked_in: "true", query: user.email, status: "paid" }, as: :json
+
+        expect(response).to have_http_status(:success)
+        json = JSON.parse(response.body)
+        expect(json.fetch("collection").pluck("id")).to eq([paid_purchase.id])
+        expect(json.dig("metadata", "total_count")).to eq(1)
+      end
+
+      it "filters admission before paginating the attendees" do
+        paid_purchase.update!(created_at: 2.days.ago)
+        create_list(:purchased_item, 21, purchase: paid_purchase.purchase, purchased_item: ticket, state: "paid")
+
+        get event_event_attendees_path(event), params: { checked_in: "true" }, as: :json
+
+        json = JSON.parse(response.body)
+        expect(json.fetch("collection").pluck("id")).to eq([paid_purchase.id])
+        expect(json.dig("metadata", "total_count")).to eq(1)
+        expect(json.dig("metadata", "next_page")).to be_nil
+      end
+
+      it "only returns admissions belonging to the selected event" do
+        other_event = create(:event, user: user)
+        other_ticket = create(:event_ticket, event: other_event)
+        other_purchase = create(:purchase, user: user, purchasable: other_event, state: "paid")
+        create(:purchased_item, purchase: other_purchase, purchased_item: other_ticket, state: "paid", checked_in: true)
+
+        get event_event_attendees_path(event), params: { checked_in: "true" }, as: :json
+
+        expect(JSON.parse(response.body).fetch("collection").pluck("id")).to eq([paid_purchase.id])
+      end
+
+      it "excludes scanned tickets until their admission is registered" do
+        post scan_event_admission_path(event, format: :json),
+          params: { code: event_event_ticket_path(event, unchecked_item.signed_id) }, as: :json
+        expect(response).to have_http_status(:success)
+
+        get event_event_attendees_path(event), params: { checked_in: "true" }, as: :json
+
+        expect(JSON.parse(response.body).fetch("collection").pluck("id")).to eq([paid_purchase.id])
+
+        patch event_admission_path(event, format: :json),
+          params: { signed_ticket_id: unchecked_item.signed_id, checked_in: true }, as: :json
+        expect(response).to have_http_status(:success)
+
+        get event_event_attendees_path(event), params: { checked_in: "true" }, as: :json
+
+        expect(JSON.parse(response.body).fetch("collection").pluck("id")).to contain_exactly(paid_purchase.id, unchecked_item.id)
+      end
+
+      it "removes an attendee from validated results when admission is reverted" do
+        patch event_admission_path(event, format: :json),
+          params: { signed_ticket_id: paid_purchase.signed_id, checked_in: false }, as: :json
+        expect(response).to have_http_status(:success)
+
+        get event_event_attendees_path(event), params: { checked_in: "true" }, as: :json
+
+        json = JSON.parse(response.body)
+        expect(json.fetch("collection")).to be_empty
+        expect(json.dig("metadata", "total_count")).to eq(0)
+      end
+    end
+
     describe "searching attendees" do
       let!(:matching_item) do
         attendee = create(:user, first_name: "Ana", last_name: "Perez",
@@ -221,11 +329,29 @@ RSpec.describe "EventAttendees", type: :request do
     it "enqueues a CSV export job for event owner" do
       expect {
         get export_csv_event_event_attendees_path(event, format: :json), as: :json
-      }.to have_enqueued_job(EventAttendeesCsvExportJob)
+      }.to have_enqueued_job(EventAttendeesCsvExportJob).with(event.id, user.id, {})
       
       expect(response).to have_http_status(:success)
       json = JSON.parse(response.body)
       expect(json['message']).to include('CSV export')
+    end
+
+    it "passes the applied search criteria to the export without pagination" do
+      filters = { 'query' => ' ANA@EXAMPLE.COM ', 'status' => 'paid', 'checked_in' => 'true' }
+
+      expect {
+        get export_csv_event_event_attendees_path(event, format: :json),
+          params: filters.merge('page' => 2, 'event_title' => 'Ignored'), as: :json
+      }.to have_enqueued_job(EventAttendeesCsvExportJob).with(event.id, user.id, filters)
+
+      expect(response).to have_http_status(:success)
+    end
+
+    it "preserves the filter for attendees without QR admission" do
+      expect {
+        get export_csv_event_event_attendees_path(event, format: :json),
+          params: { checked_in: 'false' }, as: :json
+      }.to have_enqueued_job(EventAttendeesCsvExportJob).with(event.id, user.id, { 'checked_in' => 'false' })
     end
 
     it "denies access to non-owner" do

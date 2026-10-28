@@ -524,6 +524,10 @@ es:
         export: Exportar Lista de Asistentes
         search:
           all_statuses: Todos los Estados
+          filter_admission: Admisión QR
+          all_admissions: "Admisión QR: todos"
+          checked_in: Validados por QR
+          not_checked_in: Sin validar por QR
           placeholder: Buscar por nombre o email
           filter: Filtrar por estado
           all: Todos los Estados

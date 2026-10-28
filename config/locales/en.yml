@@ -585,6 +585,10 @@ en:
         export: Export Attendee List
         search:
           all_statuses: All States
+          filter_admission: QR admission
+          all_admissions: "QR admission: all"
+          checked_in: Validated by QR
+          not_checked_in: Not validated by QR
           placeholder: Search by name or email
           filter: Filter by state
           all: All States

@@ -3,12 +3,12 @@ require 'csv'
 class EventAttendeesCsvExportJob < ApplicationJob
   queue_as :default
 
-  def perform(event_id, user_id)
+  def perform(event_id, user_id, filters = {})
     event = Event.find(event_id)
     user = User.find(user_id)
     
     # Generate CSV data
-    csv_data = generate_csv(event)
+    csv_data = generate_csv(event, filters)
     
     # Send email with CSV attachment
     EventAttendeesMailer.csv_export(
@@ -20,7 +20,7 @@ class EventAttendeesCsvExportJob < ApplicationJob
 
   private
 
-  def generate_csv(event)
+  def generate_csv(event, filters)
     # Deleted ticket types must remain available in historical attendee exports.
     tickets_by_id = event.event_tickets.with_deleted.index_by(&:id)
 
@@ -41,10 +41,7 @@ class EventAttendeesCsvExportJob < ApplicationJob
       ]
       
       # Data rows
-      event.purchased_items
-           .includes(purchase: :user)
-           .order(created_at: :desc)
-           .each do |item|
+      EventAttendeesQuery.new(event: event, filters: filters).call.each do |item|
         purchase = item.purchase
         user = purchase.user
         ticket = tickets_by_id[item.purchased_item_id] if item.purchased_item_type == 'EventTicket'

@@ -60,6 +60,7 @@ import {
 const searchSchema = z.object({
   query: z.string(),
   status: z.enum(["all", "pending", "paid", "refunded"]).default("all"),
+  checked_in: z.enum(["all", "true", "false"]).default("all"),
 })
 
 const invitationSchema = z.object({
@@ -106,7 +107,8 @@ export default function Attendees() {
     resolver: zodResolver(searchSchema),
     defaultValues: {
       query: "",
-      status: "all"
+      status: "all",
+      checked_in: "all"
     }
   })
 
@@ -148,6 +150,7 @@ export default function Attendees() {
     const params = new URLSearchParams()
     if (data.query) params.append("query", data.query)
     if (data.status !== "all") params.append("status", data.status)
+    if (data.checked_in !== "all") params.append("checked_in", data.checked_in)
     const nextSearchParams = params.toString() ? `?${params.toString()}` : ""
 
     if (nextSearchParams === searchParams) {
@@ -160,7 +163,7 @@ export default function Attendees() {
 
   const handleExportCSV = async () => {
     try {
-      const response = await get(`/events/${slug}/event_attendees/export_csv.json`)
+      const response = await get(`/events/${slug}/event_attendees/export_csv.json${searchParams}`)
       if (response.ok) {
         toast({
           title: "Export Requested",
@@ -414,12 +417,12 @@ export default function Attendees() {
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="mb-6 flex flex-col gap-3 md:flex-row md:items-start">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="mb-6 flex flex-col gap-3 md:flex-row md:flex-wrap md:items-start">
           <FormField
             control={form.control}
             name="query"
             render={({ field }) => (
-              <FormItem className="flex-1">
+              <FormItem className="flex-1 md:min-w-[220px]">
                 <div className="relative">
                   <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
                   <FormControl>
@@ -453,6 +456,28 @@ export default function Attendees() {
                     <SelectItem value="paid">{I18n.t('events.edit.attendees.status.paid')}</SelectItem>
                     <SelectItem value="pending">{I18n.t('events.edit.attendees.status.pending')}</SelectItem>
                     <SelectItem value="refunded">Refunded</SelectItem>
+                  </SelectContent>
+                </Select>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="checked_in"
+            render={({ field }) => (
+              <FormItem className="w-full space-y-0 md:w-[220px]">
+                <FormLabel className="sr-only">{I18n.t('events.edit.attendees.search.filter_admission')}</FormLabel>
+                <Select onValueChange={field.onChange} value={field.value}>
+                  <FormControl>
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="all">{I18n.t('events.edit.attendees.search.all_admissions')}</SelectItem>
+                    <SelectItem value="true">{I18n.t('events.edit.attendees.search.checked_in')}</SelectItem>
+                    <SelectItem value="false">{I18n.t('events.edit.attendees.search.not_checked_in')}</SelectItem>
                   </SelectContent>
                 </Select>
               </FormItem>

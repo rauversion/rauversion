@@ -110,5 +110,82 @@ RSpec.describe EventAttendeesCsvExportJob, type: :job do
       csv = CSV.parse(ActionMailer::Base.deliveries.last.attachments.first.body.decoded, headers: true)
       expect(csv.map { |row| row['RUT'] }).to eq(['12345678-5', '12345678-5'])
     end
+
+    describe 'filtered exports' do
+      let(:checked_item) { purchase.purchased_items.find_by!(state: 'paid', checked_in: true) }
+      let!(:unchecked_item) do
+        create(:purchased_item, purchase: purchase, purchased_item: ticket, state: 'paid', checked_in: false)
+      end
+      let!(:legacy_unchecked_item) do
+        create(:purchased_item, purchase: purchase, purchased_item: ticket, state: 'paid', checked_in: nil)
+      end
+      let!(:pending_item) do
+        create(:purchased_item, purchase: purchase, purchased_item: ticket, state: 'pending')
+      end
+      let!(:refunded_item) do
+        create(:purchased_item, purchase: purchase, purchased_item: ticket, state: 'refunded', checked_in: true)
+      end
+      let!(:other_item) do
+        attendee = create(:user, email: 'other@example.com')
+        other_purchase = create(:purchase, user: attendee, purchasable: event, state: 'paid')
+        create(:purchased_item, purchase: other_purchase, purchased_item: ticket, state: 'paid', checked_in: true)
+      end
+
+      def exported_csv(filters)
+        EventAttendeesCsvExportJob.perform_now(event.id, user.id, filters)
+        CSV.parse(ActionMailer::Base.deliveries.last.attachments.first.body.decoded, headers: true)
+      end
+
+      it 'combines the search, payment status and admission criteria' do
+        csv = exported_csv('query' => '  TEST@EXAMPLE.COM  ', 'status' => 'paid', 'checked_in' => 'true')
+
+        expect(csv.map { |row| row['ID'] }).to eq([checked_item.id.to_s])
+      end
+
+      it 'includes both false and legacy null values when exporting unvalidated attendees' do
+        csv = exported_csv('status' => 'paid', 'checked_in' => 'false')
+
+        expect(csv.map { |row| row['ID'] }).to contain_exactly(unchecked_item.id.to_s, legacy_unchecked_item.id.to_s)
+        expect(csv.map { |row| row['Checked In'] }).to all(eq('No'))
+      end
+
+      it 'exports all matching attendees across pages' do
+        checked_item.update!(created_at: 2.days.ago)
+        items = create_list(:purchased_item, 21, purchase: purchase, purchased_item: ticket,
+          state: 'paid', checked_in: true, checked_in_at: Time.current)
+
+        csv = exported_csv('query' => user.email, 'status' => 'paid', 'checked_in' => 'true')
+
+        expect(csv.map { |row| row['ID'] }).to match_array((items.map(&:id) + [checked_item.id]).map(&:to_s))
+        expect(csv[-1]['ID']).to eq(checked_item.id.to_s)
+      end
+
+      it 'keeps guest email matches and ticket details after the ticket is deleted' do
+        purchase.update!(guest_email: 'guest.export@example.com')
+        ticket.destroy!
+
+        csv = exported_csv('query' => 'GUEST.EXPORT@', 'status' => 'paid', 'checked_in' => 'true')
+
+        expect(csv.map { |row| row['ID'] }).to eq([checked_item.id.to_s])
+        expect(csv.first['Email']).to eq(user.email)
+        expect(csv.first['Ticket Title']).to eq(ticket.title)
+      end
+
+      it 'exports all attendees when the filters are cleared' do
+        csv = exported_csv(query: '   ', status: 'all', checked_in: 'all')
+
+        expect(csv.map { |row| row['ID'] }).to contain_exactly(
+          checked_item.id.to_s, unchecked_item.id.to_s, legacy_unchecked_item.id.to_s,
+          pending_item.id.to_s, refunded_item.id.to_s, other_item.id.to_s
+        )
+      end
+
+      it 'produces a CSV with headers when no attendees match' do
+        csv = exported_csv('query' => 'nobody-matches', 'status' => 'paid', 'checked_in' => 'true')
+
+        expect(csv).to be_empty
+        expect(csv.headers).to include('ID', 'Name', 'Email', 'Status', 'Checked In')
+      end
+    end
   end
 end

@@ -950,9 +950,13 @@
           },
           "search": {
             "all": "All States",
+            "all_admissions": "QR admission: all",
             "all_statuses": "All States",
             "button": "Search",
+            "checked_in": "Validated by QR",
             "filter": "Filter by state",
+            "filter_admission": "QR admission",
+            "not_checked_in": "Not validated by QR",
             "placeholder": "Search by name or email"
           },
           "status": {
@@ -6643,9 +6647,13 @@
           },
           "search": {
             "all": "Todos los Estados",
+            "all_admissions": "Admisión QR: todos",
             "all_statuses": "Todos los Estados",
             "button": "Buscar",
+            "checked_in": "Validados por QR",
             "filter": "Filtrar por estado",
+            "filter_admission": "Admisión QR",
+            "not_checked_in": "Sin validar por QR",
             "placeholder": "Buscar por nombre o email"
           },
           "status": {
