@@ -97,5 +97,32 @@ RSpec.describe "EventTickets", type: :request do
       expect(purchased_item.reload.checked_in).to be(true)
       expect(purchased_item.checked_in_at.to_i).to eq(original_checked_in_at.to_i)
     end
+
+    context "when the purchased ticket type is archived" do
+      before { ticket.destroy! }
+
+      it "keeps the buyer's ticket and QR accessible" do
+        sign_in buyer
+
+        get request_path, as: :json
+
+        expect(response).to have_http_status(:ok)
+        json = JSON.parse(response.body)
+        expect(json.dig("event_ticket", "title")).to eq(ticket.title)
+        expect(json.dig("event_ticket", "purchased_item", "paid")).to be(true)
+        expect(json.dig("event_ticket", "purchased_item", "qr")).to start_with("data:image/png;base64,")
+      end
+
+      it "allows admission through the existing ticket link" do
+        sign_in owner
+
+        put request_path, params: { checked_in: true }, as: :json
+
+        expect(response).to have_http_status(:ok)
+        expect(purchased_item.reload.checked_in?).to be(true)
+        expect(purchased_item.checked_in_at).to be_present
+        expect(JSON.parse(response.body).dig("event_ticket", "title")).to eq(ticket.title)
+      end
+    end
   end
 end

@@ -158,4 +158,77 @@ RSpec.describe "EventAdmissions", type: :request do
       expect(JSON.parse(response.body)).to include("errors" => ["Only paid tickets can be checked in"])
     end
   end
+
+  context "when the purchased ticket type is archived" do
+    before do
+      ticket.destroy!
+      sign_in admission_staff
+    end
+
+    it "validates the existing QR without making the ticket type available for sale" do
+      post scan_event_admission_path(event, format: :json),
+           params: { code: event_event_ticket_path(event, purchased_item.signed_id) },
+           as: :json
+
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+      expect(json.dig("ticket", "admission_status")).to eq("valid")
+      expect(json.dig("ticket", "ticket_title")).to eq(ticket.title)
+      expect(event.event_tickets.reload).to be_empty
+    end
+
+    it "registers admission and shows the archived ticket in recent activity and repeat scans" do
+      patch event_admission_path(event, format: :json),
+            params: { signed_ticket_id: purchased_item.signed_id, checked_in: true },
+            as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(purchased_item.reload.checked_in?).to be(true)
+      expect(purchased_item.checked_in_at).to be_present
+      json = JSON.parse(response.body)
+      expect(json.dig("ticket", "admission_status")).to eq("already_checked_in")
+      expect(json.dig("summary", "checked_in_count")).to eq(1)
+      expect(json["recent_activity"]).to include(hash_including("ticket_title" => ticket.title))
+
+      get event_admission_path(event, format: :json), as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)["recent_activity"]).to include(hash_including("ticket_title" => ticket.title))
+
+      post scan_event_admission_path(event, format: :json),
+           params: { code: purchased_item.signed_id },
+           as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body).dig("ticket", "admission_status")).to eq("already_checked_in")
+    end
+
+    {
+      "pending" => ["pending_payment", "Only paid tickets can be checked in"],
+      "refunded" => ["refunded", "Refunded tickets cannot be checked in"]
+    }.each do |state, (admission_status, check_in_error)|
+      context "when the ticket is #{state}" do
+        let(:purchase_state) { state == "pending" ? "pending" : "paid" }
+        let(:item_state) { state }
+
+        it "reports the payment state and refuses admission" do
+          post scan_event_admission_path(event, format: :json),
+               params: { code: purchased_item.signed_id },
+               as: :json
+
+          expect(response).to have_http_status(:ok)
+          expect(JSON.parse(response.body).dig("ticket", "admission_status")).to eq(admission_status)
+
+          patch event_admission_path(event, format: :json),
+                params: { signed_ticket_id: purchased_item.signed_id, checked_in: true },
+                as: :json
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(JSON.parse(response.body)).to include("errors" => [check_in_error])
+          expect(purchased_item.reload.checked_in?).to be(false)
+          expect(purchased_item.checked_in_at).to be_nil
+        end
+      end
+    end
+  end
 end

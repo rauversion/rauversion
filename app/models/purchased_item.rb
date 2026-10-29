@@ -2,7 +2,8 @@ class PurchasedItem < ApplicationRecord
   class CheckInError < StandardError; end
 
   belongs_to :purchase
-  belongs_to :purchased_item, polymorphic: true
+  # Issued tickets retain their ticket type after it is archived from sale.
+  belongs_to :purchased_item, -> { with_deleted if klass == EventTicket }, polymorphic: true
 
   include AASM
 

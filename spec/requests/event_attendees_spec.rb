@@ -42,7 +42,8 @@ RSpec.describe "EventAttendees", type: :request do
     it "returns attendees with soft-deleted tickets when searching by email" do
       pending_purchase.update!(price: nil)
       ticket.destroy!
-      expect(paid_purchase.reload.purchased_item).to be_nil
+      expect(paid_purchase.reload.purchased_item).to eq(ticket)
+      expect(EventTicket.find_by(id: ticket.id)).to be_nil
 
       get event_event_attendees_path(event), params: { query: user.email, page: 1 }, as: :json
 
