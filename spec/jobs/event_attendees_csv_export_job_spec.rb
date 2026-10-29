@@ -58,7 +58,8 @@ RSpec.describe EventAttendeesCsvExportJob, type: :job do
       item = purchase.purchased_items.first
       item.update!(price: 35)
       ticket.destroy!
-      expect(item.reload.purchased_item).to be_nil
+      expect(item.reload.purchased_item).to eq(ticket)
+      expect(EventTicket.find_by(id: ticket.id)).to be_nil
 
       expect {
         EventAttendeesCsvExportJob.perform_now(event.id, user.id)
