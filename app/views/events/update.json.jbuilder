@@ -24,7 +24,7 @@ if @event.errors.any?
 else
   json.ticket_currency @event.ticket_currency
   json.ticket_tax_behavior @event.effective_ticket_tax_behavior
-  json.tickets @event.event_tickets.reload
+  json.tickets @event.event_tickets.reload.map { |ticket| ticket.as_json.merge("can_delete" => ticket.deletable?) }
 end
 
 json.event do

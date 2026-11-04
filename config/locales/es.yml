@@ -480,6 +480,7 @@ es:
           update_success: Entradas actualizadas exitosamente
           update_error: Error al actualizar las entradas
           update_error_check_form: Error al actualizar las entradas. Por favor revisa el formulario para ver los errores.
+          cannot_delete_with_payments: No se puede eliminar esta entrada porque tiene pagos asociados. Ocúltala para que deje de aparecer en la página del evento.
         currency:
           clp: Peso Chileno (CLP)
           usd: Dólar Estadounidense (USD)

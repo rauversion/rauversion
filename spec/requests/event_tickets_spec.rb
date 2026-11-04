@@ -99,7 +99,8 @@ RSpec.describe "EventTickets", type: :request do
     end
 
     context "when the purchased ticket type is archived" do
-      before { ticket.destroy! }
+      # Reproduce ticket types archived before deletion restrictions were introduced.
+      before { ticket.update_column(:deleted_at, Time.current) }
 
       it "keeps the buyer's ticket and QR accessible" do
         sign_in buyer

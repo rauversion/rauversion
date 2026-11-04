@@ -99,6 +99,7 @@ const zodResolverCompat = (schema) => async (values, _context, options) => {
 
 const ticketSchema = z.object({
   id: z.number().optional(),
+  can_delete: z.boolean().optional(),
   position: z.coerce.number().int().positive().optional(),
   title: z.string().min(2, {
     message: I18n.t('events.edit.tickets.validation.title_min'),
@@ -257,6 +258,7 @@ const ticketFormValue = (ticket) => {
 
   return {
     id: ticket.id,
+    can_delete: ticket.can_delete,
     position: ticket.position,
     title: ticket.title,
     short_description: ticket.short_description,
@@ -319,7 +321,7 @@ export default function Tickets() {
   })
   const watchedTickets = form.watch("tickets") || []
   const sortableTicketIds = fields
-    .filter((field) => !field.hidden_in_form)
+    .filter((field, index) => !(watchedTickets[index] || field).hidden_in_form)
     .map((field) => field.id)
 
   const paymentGateway = React.useMemo(() => {
@@ -433,6 +435,18 @@ export default function Tickets() {
     const ticket = form.getValues(`tickets.${index}`)
     const fieldId = fields[index]?.id
 
+    if (ticket.can_delete === false) {
+      if (fieldId) {
+        setExpandedTickets((current) => Array.from(new Set([...current, fieldId])))
+      }
+      toast({
+        title: I18n.t('events.edit.tickets.messages.error'),
+        description: I18n.t('events.edit.tickets.messages.cannot_delete_with_payments'),
+        variant: "destructive",
+      })
+      return
+    }
+
     if (fieldId) {
       setExpandedTickets((current) => current.filter((id) => id !== fieldId))
     }
@@ -535,6 +549,12 @@ export default function Tickets() {
             const fieldId = fields[Number(index)]?.id
             if (fieldId) invalidTicketIds.push(fieldId)
 
+            if (field === "base" && form.getValues(`tickets.${index}._destroy`)) {
+              form.setValue(`tickets.${index}._destroy`, false)
+              form.setValue(`tickets.${index}.hidden_in_form`, false)
+              form.setValue(`tickets.${index}.can_delete`, false)
+            }
+
             form.setError(`tickets.${index}.${field}`, {
               type: 'server',
               message: responseData.errors[key][0]
@@ -557,7 +577,7 @@ export default function Tickets() {
 
         toast({
           title: I18n.t('events.edit.tickets.messages.error'),
-          description: I18n.t('events.edit.tickets.messages.update_error_check_form'),
+          description: Object.values(responseData.errors || {}).flat()[0] || I18n.t('events.edit.tickets.messages.update_error_check_form'),
           variant: "destructive",
         })
       }
@@ -745,12 +765,12 @@ export default function Tickets() {
                     className="w-full"
                   >
                     {fields.map((field, index) => {
+                      const ticket = watchedTickets[index] || field
                       // Skip rendering tickets marked for destruction
-                      if (field.hidden_in_form) {
+                      if (ticket.hidden_in_form) {
                         return null
                       }
 
-                      const ticket = watchedTickets[index] || field
                       const title = ticket.title || I18n.t('events.edit.tickets.new_ticket')
                       const price = Number(ticket.price) || 0
                       const quantity = Number(ticket.qty) || 0

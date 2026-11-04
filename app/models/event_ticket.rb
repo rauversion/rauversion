@@ -43,6 +43,7 @@ class EventTicket < ApplicationRecord
   validate :suggested_price_valid
 
   before_validation :assign_position, on: :create
+  before_destroy :prevent_deletion_with_payment_history
 
   scope :on_sale_at, ->(at_time = Time.current) {
     where("selling_start <= ?", at_time)
@@ -82,7 +83,18 @@ class EventTicket < ApplicationRecord
     [qty.to_i, 0].max + purchased_items.where(state: "paid").count
   end
 
+  def deletable?
+    !purchased_items.where(state: %w[paid refunded]).exists?
+  end
+
   private
+
+  def prevent_deletion_with_payment_history
+    return if deletable?
+
+    errors.add(:base, I18n.t("events.edit.tickets.messages.cannot_delete_with_payments"))
+    throw :abort
+  end
 
   def assign_position
     return if position.present?

@@ -41,7 +41,7 @@ RSpec.describe "EventAttendees", type: :request do
 
     it "returns attendees with soft-deleted tickets when searching by email" do
       pending_purchase.update!(price: nil)
-      ticket.destroy!
+      ticket.update_column(:deleted_at, Time.current)
       expect(paid_purchase.reload.purchased_item).to eq(ticket)
       expect(EventTicket.find_by(id: ticket.id)).to be_nil
 
@@ -60,7 +60,7 @@ RSpec.describe "EventAttendees", type: :request do
     it "keeps attendees with missing tickets and their stored purchase data" do
       paid_purchase.update!(price: 35)
       pending_purchase.update!(price: nil)
-      ticket.really_destroy!
+      EventTicket.where(id: ticket.id).delete_all
       other_ticket = create(:event_ticket, event: event, title: 'VIP')
       other_item = create(:purchased_item, purchase: paid_purchase.purchase, purchased_item: other_ticket, state: 'paid')
 
@@ -82,7 +82,7 @@ RSpec.describe "EventAttendees", type: :request do
       guest = create(:user, email: 'guest@example.com')
       purchase = create(:purchase, user: guest, guest_email: guest.email, purchasable: event, state: 'paid')
       item = create(:purchased_item, purchase: purchase, purchased_item: ticket, state: 'paid')
-      ticket.destroy!
+      ticket.update_column(:deleted_at, Time.current)
 
       get event_event_attendees_path(event), params: { query: 'GUEST@EXAMPLE.COM' }, as: :json
 

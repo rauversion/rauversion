@@ -1567,6 +1567,7 @@
             "label": "Hide location until ticket purchase"
           },
           "messages": {
+            "cannot_delete_with_payments": "This ticket cannot be deleted because it has associated payments. Hide it so it no longer appears on the event page.",
             "error": "Error",
             "load_error": "Could not load tickets",
             "success": "Success",
@@ -7303,6 +7304,7 @@
             "label": "Ocultar ubicación hasta la compra del ticket"
           },
           "messages": {
+            "cannot_delete_with_payments": "No se puede eliminar esta entrada porque tiene pagos asociados. Ocúltala para que deje de aparecer en la página del evento.",
             "error": "Error",
             "load_error": "No se pudieron cargar las entradas",
             "success": "Éxito",

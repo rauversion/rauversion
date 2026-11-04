@@ -161,7 +161,8 @@ RSpec.describe "EventAdmissions", type: :request do
 
   context "when the purchased ticket type is archived" do
     before do
-      ticket.destroy!
+      # Reproduce ticket types archived before deletion restrictions were introduced.
+      ticket.update_column(:deleted_at, Time.current)
       sign_in admission_staff
     end
 

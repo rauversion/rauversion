@@ -141,7 +141,7 @@ json.show_attendees @event.show_attendees
 json.show_remaining_tickets @event.show_remaining_tickets
 json.social_sharing @event.social_sharing
 json.require_login @event.require_login
-json.tickets @event.event_tickets if @event.event_tickets.present?
+json.tickets @event.event_tickets.map { |ticket| ticket.as_json.merge("can_delete" => ticket.deletable?) }
 
 json.author do
   json.partial! 'users/user', user: @event.user, show_full_name: true

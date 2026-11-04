@@ -456,6 +456,7 @@ en:
           update_success: Tickets updated successfully
           update_error: Failed to update tickets
           update_error_check_form: Failed to update tickets. Please check the form for errors.
+          cannot_delete_with_payments: This ticket cannot be deleted because it has associated payments. Hide it so it no longer appears on the event page.
         currency:
           clp: Chilean Peso (CLP)
           usd: US Dollar (USD)

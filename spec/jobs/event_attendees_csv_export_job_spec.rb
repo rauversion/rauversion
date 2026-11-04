@@ -57,7 +57,7 @@ RSpec.describe EventAttendeesCsvExportJob, type: :job do
     it 'exports soft-deleted tickets with their title and price' do
       item = purchase.purchased_items.first
       item.update!(price: 35)
-      ticket.destroy!
+      ticket.update_column(:deleted_at, Time.current)
       expect(item.reload.purchased_item).to eq(ticket)
       expect(EventTicket.find_by(id: ticket.id)).to be_nil
 
@@ -80,7 +80,7 @@ RSpec.describe EventAttendeesCsvExportJob, type: :job do
     it 'keeps attendees with missing tickets alongside attendees with existing tickets' do
       item = purchase.purchased_items.first
       item.update!(price: 35)
-      ticket.really_destroy!
+      EventTicket.where(id: ticket.id).delete_all
       expect(item.reload.purchased_item).to be_nil
       other_ticket = create(:event_ticket, event: event, title: 'VIP', price: 100)
       other_item = create(:purchased_item, purchase: purchase, purchased_item: other_ticket, state: 'paid')
@@ -163,7 +163,7 @@ RSpec.describe EventAttendeesCsvExportJob, type: :job do
 
       it 'keeps guest email matches and ticket details after the ticket is deleted' do
         purchase.update!(guest_email: 'guest.export@example.com')
-        ticket.destroy!
+        ticket.update_column(:deleted_at, Time.current)
 
         csv = exported_csv('query' => 'GUEST.EXPORT@', 'status' => 'paid', 'checked_in' => 'true')
 

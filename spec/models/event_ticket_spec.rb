@@ -109,6 +109,31 @@ RSpec.describe EventTicket, type: :model do
     end
   end
 
+  describe "deletion with payment history" do
+    let(:user) { create(:user) }
+    let(:event) { create(:event, user: user) }
+    let(:ticket) { create(:event_ticket, event: event) }
+    let(:purchase) { create(:purchase, user: user, purchasable: event, state: "paid") }
+
+    %w[paid refunded].each do |state|
+      it "refuses to delete a ticket with #{state} purchased items" do
+        item = create(:purchased_item, purchase: purchase, purchased_item: ticket, state: state)
+
+        expect(ticket.destroy).to be(false)
+        expect(ticket.errors[:base]).to include(I18n.t("events.edit.tickets.messages.cannot_delete_with_payments"))
+        expect(ticket.reload).not_to be_deleted
+        expect(item.reload.purchased_item).to eq(ticket)
+      end
+    end
+
+    it "raises when deletion is forced through destroy!" do
+      create(:purchased_item, purchase: purchase, purchased_item: ticket, state: "paid")
+
+      expect { ticket.destroy! }.to raise_error(ActiveRecord::RecordNotDestroyed)
+      expect(ticket.reload).not_to be_deleted
+    end
+  end
+
   describe "validations" do
     let(:user) { FactoryBot.create(:user) }
     let(:event) { FactoryBot.create(:event, user: user) }

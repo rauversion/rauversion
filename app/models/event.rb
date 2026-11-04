@@ -68,6 +68,7 @@ class Event < ApplicationRecord
   store_attribute :event_settings, :description_document, :json
 
   validate :validate_description_document
+  validate :validate_ticket_deletions
   validates :ticket_tax_behavior, inclusion: { in: TICKET_TAX_BEHAVIORS }, allow_blank: true
 
   store_attribute :site_data, :site_mode, :string, default: "default"
@@ -90,6 +91,17 @@ class Event < ApplicationRecord
 
   def validate_description_document
     errors.add(:description_document, :invalid) unless EventDescription.new(description, document: description_document).valid_document?
+  end
+
+  def validate_ticket_deletions
+    association(:event_tickets).target.each do |ticket|
+      next unless ticket.marked_for_destruction?
+      next if ticket.deletable?
+
+      message = I18n.t("events.edit.tickets.messages.cannot_delete_with_payments")
+      ticket.errors.add(:base, message)
+      errors.add(:base, message)
+    end
   end
 
   def sync_description_text

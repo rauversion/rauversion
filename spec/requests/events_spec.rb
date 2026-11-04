@@ -297,6 +297,63 @@ RSpec.describe "Events", type: :request do
       expect(JSON.parse(response.body).fetch("tickets")).to eq([])
     end
 
+    context "when a ticket has payment history" do
+      let!(:ticket) { create(:event_ticket, event: event, selling_start: 1.day.ago) }
+      let(:purchase) { create(:purchase, user: user, purchasable: event, state: "paid") }
+      let(:item_state) { "paid" }
+      let!(:item) { create(:purchased_item, purchase: purchase, purchased_item: ticket, state: item_state) }
+
+      it "marks the ticket as protected in the edit payload" do
+        get edit_event_path(event, format: :json)
+
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body).fetch("tickets").sole).to include("can_delete" => false)
+      end
+
+      it "rejects deletion with a message directing the owner to hide the ticket" do
+        original_title = event.title
+        put event_path(event, format: :json), params: {
+          event: { title: "Should not be saved", event_tickets_attributes: [{ id: ticket.id, _destroy: true }] }
+        }, as: :json
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        errors = JSON.parse(response.body).fetch("errors")
+        expect(errors.fetch("event_tickets_attributes.0.base")).to include(
+          I18n.t("events.edit.tickets.messages.cannot_delete_with_payments")
+        )
+        expect(ticket.reload).not_to be_deleted
+        expect(event.reload.title).to eq(original_title)
+        expect(item.reload.purchased_item).to eq(ticket)
+      end
+
+      it "allows hiding the ticket while preserving the purchase and its QR" do
+        original_signed_id = item.signed_id
+        put event_path(event, format: :json), params: {
+          event: { event_tickets_attributes: [{ id: ticket.id, hidden: true }] }
+        }, as: :json
+
+        expect(response).to have_http_status(:ok)
+        expect(ticket.reload.hidden).to be(true)
+        expect(ticket).not_to be_deleted
+        expect(event.reload.available_tickets).not_to include(ticket)
+        expect(item.reload.signed_id).to eq(original_signed_id)
+        expect(JSON.parse(response.body).fetch("tickets").sole).to include("can_delete" => false)
+      end
+
+      context "when the payment was refunded" do
+        let(:item_state) { "refunded" }
+
+        it "still protects the ticket from deletion" do
+          put event_path(event, format: :json), params: {
+            event: { event_tickets_attributes: [{ id: ticket.id, _destroy: true }] }
+          }, as: :json
+
+          expect(response).to have_http_status(:unprocessable_entity)
+          expect(ticket.reload).not_to be_deleted
+        end
+      end
+    end
+
     it "persists the ticket order sent by the editor" do
       general_ticket = create(:event_ticket, event: event, title: "General")
       vip_ticket = create(:event_ticket, event: event, title: "VIP")

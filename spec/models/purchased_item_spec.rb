@@ -10,7 +10,8 @@ RSpec.describe PurchasedItem, type: :model do
     track = create(:track, user: buyer)
     track_purchase = create(:purchase, user: buyer, purchasable: track, state: "paid")
     track_item = create(:purchased_item, purchase: track_purchase, purchased_item: track, state: "paid")
-    ticket.destroy!
+    # Reproduce ticket types archived before deletion restrictions were introduced.
+    ticket.update_column(:deleted_at, Time.current)
 
     expect(ticket_item.reload.purchased_item).to eq(ticket)
     expect(track_item.reload.purchased_item).to eq(track)
