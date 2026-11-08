@@ -7,7 +7,7 @@ class Purchase < ApplicationRecord
 
   attr_writer :virtual_purchased
 
-  store_accessor :payment_metadata, :form_responses
+  store_accessor :payment_metadata, :form_responses, :email_locale, :inviter_id
 
   validate :validate_purchased_items
   validate :user_or_guest_email_present

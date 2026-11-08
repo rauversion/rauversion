@@ -58,7 +58,7 @@ export function EmailVariablesDialog() {
         <div className="border-b px-4 py-3">
           <h3 className="text-sm font-semibold">Variables disponibles</h3>
           <p className="mt-1 text-sm text-muted-foreground">
-            Usa formato tipo mustache como <code>{"{{name}}"}</code>. En preview se usan valores demo del destinatario; el remitente toma tu cuenta actual cuando existe.
+            Usa <code>{"{{ticket_title|tu entrada}}"}</code> para mostrar «tu entrada» si no hay un tipo de entrada disponible. La vista previa usa datos de ejemplo.
           </p>
         </div>
 

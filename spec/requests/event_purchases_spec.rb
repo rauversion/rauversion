@@ -11,6 +11,26 @@ RSpec.describe "EventPurchases", type: :request do
     sign_in user
   end
 
+  describe 'confirmation email locale' do
+    let!(:ticket) { create(:event_ticket, event: event, qty: 10, price: 0, selling_start: 1.day.ago) }
+
+    { es: 'Confirmación de compra:', en: 'Purchase confirmation:' }.each do |locale, subject_prefix|
+      it "stores the #{locale} checkout language and delivers a purchase confirmation" do
+        previous_deliveries = ActionMailer::Base.deliveries.size
+        perform_enqueued_jobs do
+          post event_event_purchases_path(event, format: :json), params: {
+            locale: locale, tickets: [{ id: ticket.id, quantity: 1 }]
+          }, as: :json
+        end
+
+        expect(response).to have_http_status(:success)
+        expect(Purchase.last).to have_attributes(email_locale: locale.to_s, inviter_id: nil)
+        delivered_mail = ActionMailer::Base.deliveries.drop(previous_deliveries).select { |mail| mail.to == [user.email] }.sole
+        expect(delivered_mail.subject).to eq("#{subject_prefix} #{event.title}")
+      end
+    end
+  end
+
   describe "GET /new" do
     let!(:paid_ticket) do
       FactoryBot.create(

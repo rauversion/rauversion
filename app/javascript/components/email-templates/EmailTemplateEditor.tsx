@@ -1,5 +1,5 @@
 import React from "react"
-import { useParams } from "react-router-dom"
+import { useParams, useSearchParams } from "react-router-dom"
 
 import { useToast } from "@/hooks/use-toast"
 import { EmailEditorWorkspace } from "@/components/email-editor/workspace"
@@ -12,6 +12,7 @@ import type { EmailDocument } from "@/lib/email-editor/types"
 
 export default function EmailTemplateEditor() {
   const { id } = useParams()
+  const [searchParams] = useSearchParams()
   const { toast } = useToast()
   const [initialDocument, setInitialDocument] = React.useState<EmailDocument | null | undefined>(id ? undefined : null)
   const [templateName, setTemplateName] = React.useState("Email Editor")
@@ -69,6 +70,7 @@ export default function EmailTemplateEditor() {
       deferInitialLoad={Boolean(id && initialDocument === undefined)}
       title={templateName}
       loadingMessage="Cargando plantilla de email..."
+      reminderEventId={searchParams.get("reminder_event_id") || undefined}
       onPersistDocument={id ? async (document) => {
         const saved = await updateEmailTemplate(id, {
           name: document.name,

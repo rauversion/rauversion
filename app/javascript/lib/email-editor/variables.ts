@@ -14,6 +14,8 @@ export interface EmailVariableRecipientSource {
   last_name?: string | null
   email?: string | null
   country?: string | null
+  event_titles?: string[] | null
+  ticket_titles?: string[] | null
 }
 
 export interface EmailVariableSenderSource {
@@ -25,7 +27,7 @@ export interface EmailVariableSenderSource {
   email?: string | null
 }
 
-export type EmailVariableMap = Record<string, string>
+export type EmailVariableMap = { resolved: Record<string, string>; provided: Record<string, string> }
 
 const defaultRecipient = {
   name: "Camila Rojas",
@@ -33,6 +35,8 @@ const defaultRecipient = {
   last_name: "Rojas",
   email: "camila@example.com",
   country: "Chile",
+  event_title: "Festival de ejemplo",
+  ticket_title: "Entrada general",
 }
 
 export const emailVariableDefinitions: EmailVariableDefinition[] = [
@@ -70,6 +74,18 @@ export const emailVariableDefinitions: EmailVariableDefinition[] = [
     description: "País asociado al contacto cuando exista.",
     category: "recipient",
     aliases: ["recipient_country"],
+  },
+  {
+    key: "event_title",
+    label: "Evento del destinatario",
+    description: "Título cuando la audiencia asocia al destinatario con un solo evento.",
+    category: "recipient",
+  },
+  {
+    key: "ticket_title",
+    label: "Tipo de entrada",
+    description: "Nombre cuando hay un solo tipo de entrada asociado al destinatario.",
+    category: "recipient",
   },
   {
     key: "sender_name",
@@ -124,7 +140,7 @@ function titleizePart(value: string) {
 }
 
 function deriveRecipientFromEmail(email?: string | null) {
-  if (!email) return defaultRecipient
+  if (!email) return { name: "Invitado", first_name: "Invitado", last_name: "", email: "" }
 
   const localPart = email.split("@")[0] || ""
   const parts = localPart
@@ -141,7 +157,6 @@ function deriveRecipientFromEmail(email?: string | null) {
     first_name: firstName || defaultRecipient.first_name,
     last_name: lastName,
     email,
-    country: defaultRecipient.country,
   }
 }
 
@@ -153,6 +168,17 @@ function aliasEntries() {
 }
 
 const emailVariableAliases = new Map<string, string>(aliasEntries())
+const variablePattern = /{{\s*([\w.]+)\s*(?:\|([^{}\r\n]*))?}}/g
+
+function onlyValue(values?: string[] | null) {
+  const titles = [...new Set((values || []).map((value) => value.trim()).filter(Boolean))]
+  return titles.length === 1 ? titles[0] : ""
+}
+
+function unescapeHtml(value: string) {
+  const entities: Record<string, string> = { "&amp;": "&", "&lt;": "<", "&gt;": ">", "&quot;": '"', "&#39;": "'", "&#x27;": "'" }
+  return value.replace(/&(?:amp|lt|gt|quot|#39|#x27);/g, (entity) => entities[entity])
+}
 
 export function buildEmailVariableMap({
   sender,
@@ -165,23 +191,36 @@ export function buildEmailVariableMap({
   recipientEmail?: string | null
   appName?: string | null
 } = {}): EmailVariableMap {
-  const recipientDefaults = deriveRecipientFromEmail(recipient?.email || recipientEmail)
-  const recipientName = recipient?.name || [recipient?.first_name, recipient?.last_name].filter(Boolean).join(" ").trim() || recipientDefaults.name
-  const senderName = sender?.display_name || sender?.full_name || sender?.username || "Rauversion"
+  const email = recipient?.email || recipientEmail || ""
+  const isDemo = !recipient && !recipientEmail
+  const recipientDefaults = isDemo ? defaultRecipient : deriveRecipientFromEmail(email)
+  const recipientName = recipient?.name || [recipient?.first_name, recipient?.last_name].filter(Boolean).join(" ").trim()
+  const senderName = sender?.display_name || sender?.full_name || sender?.username || ""
 
-  return {
+  const resolved = {
     name: recipientName || "",
     first_name: recipient?.first_name || recipientDefaults.first_name || "",
     last_name: recipient?.last_name || recipientDefaults.last_name || "",
-    email: recipient?.email || recipientEmail || recipientDefaults.email || "",
-    country: recipient?.country || recipientDefaults.country || "",
-    sender_name: senderName || "",
+    email: email || recipientDefaults.email || "",
+    country: recipient?.country || (isDemo ? defaultRecipient.country : ""),
+    event_title: isDemo ? defaultRecipient.event_title : onlyValue(recipient?.event_titles),
+    ticket_title: isDemo ? defaultRecipient.ticket_title : onlyValue(recipient?.ticket_titles),
+    sender_name: senderName || "Rauversion",
     sender_first_name: sender?.first_name || "",
     sender_last_name: sender?.last_name || "",
     sender_username: sender?.username || "",
     sender_email: sender?.email || "",
     app_name: appName || "Rauversion",
   }
+  resolved.name ||= recipientDefaults.name
+  const provided = {
+    ...resolved,
+    name: isDemo ? defaultRecipient.name : recipientName.trim().toLowerCase() === email.trim().toLowerCase() ? "" : recipientName,
+    first_name: isDemo ? defaultRecipient.first_name : recipient?.first_name || "",
+    last_name: isDemo ? defaultRecipient.last_name : recipient?.last_name || "",
+    sender_name: senderName,
+  }
+  return { resolved, provided }
 }
 
 export function resolveEmailTemplate(
@@ -193,11 +232,14 @@ export function resolveEmailTemplate(
 ) {
   if (!value || !variables) return value
 
-  return value.replace(/{{\s*([\w.]+)\s*}}/g, (match, rawKey: string) => {
+  return value.replace(variablePattern, (match, rawKey: string, fallback?: string) => {
     const normalizedKey = emailVariableAliases.get(rawKey)
-    if (!normalizedKey) return match
+    if (!normalizedKey && fallback === undefined) return match
 
-    const resolved = variables[normalizedKey] ?? ""
+    const fallbackValue = options.escapeHtmlValues ? unescapeHtml(fallback || "") : fallback || ""
+    const resolved = fallback === undefined
+      ? variables.resolved[normalizedKey!] ?? ""
+      : (normalizedKey ? variables.provided[normalizedKey]?.trim() : "") || fallbackValue.trim()
     return options.escapeHtmlValues ? escapeHtml(resolved) : resolved
   })
 }
@@ -205,6 +247,6 @@ export function resolveEmailTemplate(
 export function getEmailVariableExamples(variables: EmailVariableMap) {
   return emailVariableDefinitions.map((definition) => ({
     ...definition,
-    exampleValue: variables[definition.key] ?? "",
+    exampleValue: variables.resolved[definition.key] ?? "",
   }))
 }

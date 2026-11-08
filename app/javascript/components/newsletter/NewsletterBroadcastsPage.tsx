@@ -1,6 +1,6 @@
 import React from "react"
 import { Link, useNavigate } from "react-router-dom"
-import { Edit3, Eye, Plus, Save, Send, Trash2 } from "lucide-react"
+import { Edit3, Eye, Plus, Save, Send, Sparkles, Trash2 } from "lucide-react"
 
 import { EmailPreviewTab } from "@/components/email-editor/preview-tab"
 import NewsletterBroadcastMetricsPanel from "@/components/newsletter/NewsletterBroadcastMetricsPanel"
@@ -210,6 +210,10 @@ export function NewsletterBroadcastsManager({
     () => templates.find((item) => item.id === broadcast?.emailTemplateId) ?? null,
     [templates, broadcast?.emailTemplateId]
   )
+  const pendingSource = selectedAudience?.sources.length === 1 ? selectedAudience.sources[0] : null
+  const reminderEventId = pendingSource?.sourceType === "event_pending_payments" ? pendingSource.sourceSettings.eventId : undefined
+  const reminderEditorPath = (templateId: string) =>
+    `/email-templates/${templateId}/edit?reminder_event_id=${encodeURIComponent(reminderEventId || "")}`
 
   React.useEffect(() => {
     if (!selectedAudience) {
@@ -319,17 +323,17 @@ export function NewsletterBroadcastsManager({
     }
   }
 
-  const handleCreateTemplate = async () => {
+  const handleCreateTemplate = async (reminder = false) => {
     setCreatingTemplate(true)
     try {
-      const document = createNewEmailDocument("Nuevo correo")
+      const document = createNewEmailDocument(reminder ? "Recordatorio de pago" : "Nuevo correo")
       const template = await createEmailTemplate({
         name: document.name,
         subject: document.subject,
         preheader: document.preheader,
         document,
       })
-      navigate(`/email-templates/${template.id}/edit`)
+      navigate(reminder ? reminderEditorPath(template.id) : `/email-templates/${template.id}/edit`)
     } catch (error) {
       toast({
         title: "Error",
@@ -575,7 +579,7 @@ export function NewsletterBroadcastsManager({
                       </div>
 
                       <div className="flex flex-wrap items-end gap-2">
-                        <Button type="button" variant="outline" onClick={handleCreateTemplate} disabled={creatingTemplate}>
+                        <Button type="button" variant="outline" onClick={() => handleCreateTemplate()} disabled={creatingTemplate}>
                           <Plus className="h-4 w-4" />
                           {creatingTemplate ? "Creando…" : "Nuevo template"}
                         </Button>
@@ -587,6 +591,15 @@ export function NewsletterBroadcastsManager({
                             </Link>
                           </Button>
                         ) : null}
+                        {reminderEventId && !broadcastLocked && (selectedTemplate ? (
+                          <Button asChild variant="outline">
+                            <Link to={reminderEditorPath(selectedTemplate.id)}><Sparkles className="h-4 w-4" /> Redactar recordatorio</Link>
+                          </Button>
+                        ) : (
+                          <Button type="button" variant="outline" onClick={() => handleCreateTemplate(true)} disabled={creatingTemplate}>
+                            <Sparkles className="h-4 w-4" /> Redactar recordatorio
+                          </Button>
+                        ))}
                       </div>
                     </div>
 

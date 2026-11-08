@@ -25,7 +25,7 @@ module Newsletter
         }
 
         recipients.each do |recipient|
-          email = recipient[:email].to_s.downcase.strip
+          email = normalize_email(recipient[:email])
           next if email.blank?
 
           incoming = recipient.merge(email: email)
@@ -87,8 +87,8 @@ module Newsletter
         contact_list_recipients(source)
       when "followers"
         followers_recipients
-      when "event_attendees"
-        event_attendees_recipients(source)
+      when "event_attendees", "event_pending_payments"
+        event_recipients(source)
       when "all_my_event_attendees"
         all_my_event_attendees_recipients
       else
@@ -135,7 +135,7 @@ module Newsletter
       [recipients, "Followers"]
     end
 
-    def event_attendees_recipients(source)
+    def event_recipients(source)
       event = Event.find_by(id: source.dig(:source_settings, "event_id"))
 
       if event.blank?
@@ -146,7 +146,15 @@ module Newsletter
         return [warn_and_return("No tienes permisos para usar los asistentes de #{event.title}"), event.title]
       end
 
-      [attendee_recipients_for_event(event, source_type: "event_attendees"), event.title]
+      source_type = source[:source_type]
+      recipients =
+        if source_type == "event_pending_payments"
+          pending_payment_recipients_for_event(event)
+        else
+          attendee_recipients_for_event(event, source_type: source_type)
+        end
+
+      [recipients, event.title]
     end
 
     def all_my_event_attendees_recipients
@@ -158,9 +166,22 @@ module Newsletter
     end
 
     def attendee_recipients_for_event(event, source_type:)
-      event.paid_purchased_items
+      recipients_for_event_items(event, event.paid_purchased_items, source_type: source_type)
+    end
+
+    def pending_payment_recipients_for_event(event)
+      pending_items = event.purchased_items.where(state: "pending").merge(Purchase.pending)
+      recipients = recipients_for_event_items(event, pending_items, source_type: "event_pending_payments")
+
+      paid_emails = event.purchases.paid.left_joins(:user).pluck("users.email", :guest_email)
+        .flatten.compact.to_set { |email| normalize_email(email) }
+
+      recipients.reject { |recipient| paid_emails.include?(normalize_email(recipient[:email])) }
+    end
+
+    def recipients_for_event_items(event, items, source_type:)
+      items.where(purchased_item_type: "EventTicket")
         .includes(:purchased_item, purchase: :user)
-        .select { |item| item.purchased_item_type == "EventTicket" }
         .map do |item|
           purchase = item.purchase
           attendee = purchase.user
@@ -182,6 +203,10 @@ module Newsletter
             data_rank: attendee.present? ? 3 : 1,
           )
         end
+    end
+
+    def normalize_email(email)
+      email.to_s.downcase.strip
     end
 
     def build_recipient(email:, source_type:, source_label:, data_rank:, **attributes)

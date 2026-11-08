@@ -57,6 +57,7 @@ module Newsletter
           { value: "contact_list", label: "Lista de contactos" },
           { value: "followers", label: "Followers" },
           { value: "event_attendees", label: "Asistentes de un evento" },
+          { value: "event_pending_payments", label: "Solo pagos pendientes de un evento" },
           { value: "all_my_event_attendees", label: "Asistentes de todos mis eventos" },
         ],
         contact_lists: current_user.newsletter_contact_lists.order(updated_at: :desc).map do |contact_list|
@@ -110,12 +111,7 @@ module Newsletter
     end
 
     def normalized_sources_param
-      raw_sources =
-        if params[:audience].respond_to?(:[])
-          params[:audience][:sources]
-        else
-          params[:sources]
-        end
+      raw_sources = params.dig(:audience, :sources) || params[:sources]
 
       Array(raw_sources).map do |source|
         normalized = normalize_json_value(source)
@@ -162,7 +158,7 @@ module Newsletter
         current_user.newsletter_contact_lists.find_by(id: source.source_settings["contact_list_id"])&.name || "Lista no encontrada"
       when "followers"
         "Followers"
-      when "event_attendees"
+      when "event_attendees", "event_pending_payments"
         Event.find_by(id: source.source_settings["event_id"])&.title || "Evento no encontrado"
       when "all_my_event_attendees"
         "Asistentes de todos mis eventos"

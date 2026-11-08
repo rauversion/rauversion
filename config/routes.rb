@@ -18,6 +18,8 @@ Rails.application.routes.draw do
   end
   namespace :newsletter do
     root to: "dashboard#index"
+    post "copilot", to: "copilot#create"
+    get "copilot/events", to: "copilot#events"
     get "contacts", to: "dashboard#index"
     get "templates", to: "dashboard#index"
     get "track/open", to: "tracking#open", as: :track_open

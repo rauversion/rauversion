@@ -7,6 +7,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { clearEmailDocumentStorage } from "@/lib/email-editor/storage"
+import type { EmailCopilotSuggestion } from "@/lib/email-editor/api"
+import { plainTextToEmailHtml } from "@/lib/email-editor/copilot-content"
 import { useEmailEditor } from "@/hooks/use-email-editor"
 import { useSerializedHistory } from "@/hooks/use-serialized-history"
 import type { EmailDocument } from "@/lib/email-editor/types"
@@ -17,6 +19,7 @@ import { EmailBlockSettings } from "./block-settings"
 import { EmailPreviewTab } from "./preview-tab"
 import { EmailTestSendDialog } from "./test-send-dialog"
 import { EmailVariablesDialog } from "./email-variables-dialog"
+import { EmailCopilotDialog } from "./copilot-dialog"
 
 interface EmailEditorWorkspaceProps {
   storageNamespace?: string
@@ -25,6 +28,7 @@ interface EmailEditorWorkspaceProps {
   onPersistDocument?: (document: EmailDocument) => Promise<void>
   title?: string
   loadingMessage?: string
+  reminderEventId?: string
 }
 
 export function EmailEditorWorkspace({
@@ -34,6 +38,7 @@ export function EmailEditorWorkspace({
   onPersistDocument,
   title = "Email Editor",
   loadingMessage = "Cargando editor de email...",
+  reminderEventId,
 }: EmailEditorWorkspaceProps) {
   const {
     document,
@@ -57,7 +62,7 @@ export function EmailEditorWorkspace({
     deferInitialLoad,
     defaultName: initialDocument?.name,
   })
-  const { undo, redo, clearHistory, canUndo, canRedo } = useSerializedHistory(document, setDocumentDirect, isLoaded)
+  const { undo, redo, canUndo, canRedo } = useSerializedHistory(document, setDocumentDirect, isLoaded)
   const lastSavedRef = React.useRef<string | null>(null)
 
   React.useEffect(() => {
@@ -94,20 +99,57 @@ export function EmailEditorWorkspace({
     )
   }
 
+  const applySuggestion = (suggestion: Exclude<EmailCopilotSuggestion, { mode: "edit" }>) => {
+    if (suggestion.mode === "rewrite") {
+      if (selectedBlock?.type !== "text") return
+      updateBlockProps(selectedBlock.id, { content: plainTextToEmailHtml(suggestion.body) })
+    } else if (suggestion.mode === "block") {
+      const selectedIndex = document.blocks.findIndex((block) => block.id === selectedBlockId)
+      const index = selectedIndex < 0 ? document.blocks.length : selectedIndex + 1
+      const blocks = [...document.blocks]
+      blocks.splice(index, 0, ...suggestion.blocks)
+      setDocumentDirect({ ...document, blocks, updatedAt: Date.now() })
+      setSelectedBlockId(suggestion.blocks[0].id)
+    } else {
+      setDocumentDirect({
+        ...document,
+        subject: suggestion.subject,
+        preheader: suggestion.preheader,
+        blocks: suggestion.blocks,
+        updatedAt: Date.now(),
+      })
+      setSelectedBlockId(null)
+    }
+
+    setActiveTab("editor")
+  }
+
   return (
     <div className="flex h-screen flex-col bg-background">
-      <header className="flex items-center justify-between border-b bg-card px-4 py-3">
+      <header className="flex flex-wrap items-center justify-between gap-2 border-b bg-card px-4 py-3">
         <div>
           <p className="text-xs uppercase tracking-[0.2em] text-muted-foreground">MJML</p>
           <h1 className="text-lg font-semibold">{title}</h1>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <EmailCopilotDialog
+            draft={document}
+            initialEventId={reminderEventId}
+            selectedBlockId={selectedBlockId}
+            selectedTextHtml={selectedBlock?.type === "text" ? selectedBlock.props.content : undefined}
+            onApply={applySuggestion}
+            onApplyDraft={(draft) => {
+              setDocumentDirect({ ...draft, updatedAt: Date.now() })
+              if (!draft.blocks.some((block) => block.id === selectedBlockId)) setSelectedBlockId(null)
+              setActiveTab("editor")
+            }}
+          />
           <EmailVariablesDialog />
           <EmailTestSendDialog document={document} />
-          <Button type="button" variant="ghost" size="icon" onClick={() => undo()} disabled={!canUndo}>
+          <Button type="button" variant="ghost" size="icon" aria-label="Deshacer" onClick={() => undo()} disabled={!canUndo}>
             <Undo2 className="h-4 w-4" />
           </Button>
-          <Button type="button" variant="ghost" size="icon" onClick={() => redo()} disabled={!canRedo}>
+          <Button type="button" variant="ghost" size="icon" aria-label="Rehacer" onClick={() => redo()} disabled={!canRedo}>
             <Redo2 className="h-4 w-4" />
           </Button>
           <Button

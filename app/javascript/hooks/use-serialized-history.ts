@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useRef } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 
 const MAX_HISTORY_SIZE = 20
 
@@ -20,6 +20,13 @@ export function useSerializedHistory<T>(
   })
   const isUndoRedoRef = useRef(false)
   const lastSavedRef = useRef("")
+  const [canUndo, setCanUndo] = useState(false)
+  const [canRedo, setCanRedo] = useState(false)
+
+  const updateAvailability = useCallback(() => {
+    setCanUndo(historyRef.current.past.length > 0)
+    setCanRedo(historyRef.current.future.length > 0)
+  }, [])
 
   useEffect(() => {
     if (!value || !isLoaded) return
@@ -41,7 +48,8 @@ export function useSerializedHistory<T>(
     }
 
     lastSavedRef.current = serialized
-  }, [value, isLoaded])
+    updateAvailability()
+  }, [value, isLoaded, updateAvailability])
 
   const undo = useCallback(() => {
     if (!value || historyRef.current.past.length === 0) return false
@@ -55,8 +63,9 @@ export function useSerializedHistory<T>(
     isUndoRedoRef.current = true
     lastSavedRef.current = JSON.stringify(previous)
     setValue(previous)
+    updateAvailability()
     return true
-  }, [setValue, value])
+  }, [setValue, value, updateAvailability])
 
   const redo = useCallback(() => {
     if (!value || historyRef.current.future.length === 0) return false
@@ -70,8 +79,9 @@ export function useSerializedHistory<T>(
     isUndoRedoRef.current = true
     lastSavedRef.current = JSON.stringify(nextValue)
     setValue(nextValue)
+    updateAvailability()
     return true
-  }, [setValue, value])
+  }, [setValue, value, updateAvailability])
 
   const clearHistory = useCallback(() => {
     historyRef.current = {
@@ -82,13 +92,14 @@ export function useSerializedHistory<T>(
     if (value) {
       lastSavedRef.current = JSON.stringify(value)
     }
-  }, [value])
+    updateAvailability()
+  }, [value, updateAvailability])
 
   return {
     undo,
     redo,
     clearHistory,
-    canUndo: historyRef.current.past.length > 0,
-    canRedo: historyRef.current.future.length > 0,
+    canUndo,
+    canRedo,
   }
 }

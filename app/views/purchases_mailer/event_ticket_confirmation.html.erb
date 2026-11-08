@@ -1,5 +1,5 @@
 <h1 style="margin: 0 0 20px 0; font-size: 28px; font-weight: 700; color: #1a1a1a; line-height: 1.3;">
-  ✓ Confirmación de Ticket
+  ✓ <%= t(".#{@confirmation_type}.heading") %>
 </h1>
 
 <h2 style="margin: 0 0 30px 0; font-size: 24px; font-weight: 600; color: #333333; line-height: 1.4;">
@@ -9,7 +9,7 @@
 <% if @inviter %>
   <div style="background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 6px; padding: 15px 20px; margin-bottom: 25px;">
     <p style="margin: 0; font-size: 15px; color: #856404;">
-      <strong><%= @inviter.first_name %> <%= @inviter.last_name %></strong> <%= gettext("Has invited you to the event") %>
+      <%= t(".invited_by", name: @inviter.full_name.presence || @inviter.display_name) %>
     </p>
   </div>
 <% end %>
@@ -17,7 +17,7 @@
 <% if @message %>
   <div style="background-color: #e3f2fd; border: 1px solid #2196f3; border-radius: 6px; padding: 15px 20px; margin-bottom: 25px;">
     <p style="margin: 0 0 8px 0; font-size: 14px; font-weight: 600; color: #1565c0;">
-      Mensaje:
+      <%= t(".message") %>:
     </p>
     <p style="margin: 0; font-size: 15px; color: #424242;">
       <%= @message %>
@@ -34,7 +34,7 @@
             <%= item.purchased_item.title %>
           </h3>
           <p style="margin: 0; font-size: 14px; color: #757575;">
-            Ticket #<%= index + 1 %>
+            <%= t(".ticket_number", number: index + 1) %>
           </p>
         </td>
       </tr>
@@ -52,21 +52,21 @@
             <tr>
               <td style="padding-bottom: 10px;">
                 <p style="margin: 0; font-size: 15px; color: #555555;">
-                  <strong style="color: #1a1a1a;">📅 Fecha:</strong> <%= event_time_formatted(item.purchased_item.event.event_start, item.purchased_item.event.timezone, format: :event_long_with_zone) %>
+                  <strong style="color: #1a1a1a;">📅 <%= t(".date") %>:</strong> <%= event_time_formatted(item.purchased_item.event.event_start, item.purchased_item.event.timezone, format: :event_long_with_zone) %>
                 </p>
               </td>
             </tr>
             <tr>
               <td style="padding-bottom: 10px;">
                 <p style="margin: 0; font-size: 15px; color: #555555;">
-                  <strong style="color: #1a1a1a;">🌍 Zona horaria:</strong> <%= item.purchased_item.event.timezone %>
+                  <strong style="color: #1a1a1a;">🌍 <%= t(".timezone") %>:</strong> <%= item.purchased_item.event.timezone %>
                 </p>
               </td>
             </tr>
             <tr>
               <td>
                 <p style="margin: 0; font-size: 15px; color: #555555;">
-                  <strong style="color: #1a1a1a;">📍 Ubicación:</strong> <%= item.purchased_item.event.location %>
+                  <strong style="color: #1a1a1a;">📍 <%= t(".location") %>:</strong> <%= item.purchased_item.event.location %>
                 </p>
               </td>
             </tr>
@@ -77,34 +77,34 @@
         <tr>
           <td style="text-align: center; padding-top: 20px; border-top: 2px solid #e0e0e0;">
             <p style="margin: 0 0 15px 0; font-size: 14px; font-weight: 600; color: #1a1a1a; text-transform: uppercase; letter-spacing: 0.5px;">
-              Tu código QR
+              <%= t(".qr_code") %>
             </p>
             <div style="background-color: #ffffff; display: inline-block; padding: 15px; border-radius: 8px; border: 2px solid #e0e0e0;">
               <% filename = "ticket_#{item.id}_qr_code.png" %>
               <% if attachments[filename] %>
                 <%= image_tag attachments[filename].url,
-                    alt: "QR Code",
+                    alt: t(".qr_code_alt"),
                     style: "display: block; max-width: 200px; height: auto;" %>
               <% end %>
             </div>
             <p style="margin: 15px 0 0 0; font-size: 13px; color: #757575;">
-              Presenta este código al ingresar al evento
+              <%= t(".qr_instructions") %>
             </p>
 
             <div style="background-color: #f8f9fa; border-left: 4px solid #4caf50; padding: 15px 20px; margin-bottom: 30px; border-radius: 4px;">
               <p style="margin: 0; font-size: 15px; color: #333333;">
-                Para ingresar al evento deberás mostrar tu e-ticket impreso o desde tu móvil.
+                <%= t(".entry_instructions") %>
               </p>
             </div>
 
             <div style="background-color: #ffffff; border: 1px solid #e0e0e0; border-radius: 8px; padding: 25px; margin-bottom: 30px;">
               <h3 style="margin: 0 0 15px 0; font-size: 16px; font-weight: 600; color: #1a1a1a; text-transform: uppercase; letter-spacing: 0.5px;">
-                Cómo acceder a tus tickets
+                <%= t(".access_heading") %>
               </h3>
               <ol style="margin: 0; padding-left: 20px; font-size: 15px; color: #555555; line-height: 1.8;">
-                <li style="margin-bottom: 8px;">Ingresa a Mi cuenta</li>
-                <li style="margin-bottom: 8px;">Ve a la pestaña Mis Compras</li>
-                <li style="margin-bottom: 0;">Toca en Ver ticket/s electrónico/s para verlos y descargarlos</li>
+                <li style="margin-bottom: 8px;"><%= t(".access_steps.account") %></li>
+                <li style="margin-bottom: 8px;"><%= t(".access_steps.purchases") %></li>
+                <li style="margin-bottom: 0;"><%= t(".access_steps.view_tickets") %></li>
               </ol>
             </div>
           </td>
@@ -118,14 +118,14 @@
   <tr>
     <td style="text-align: center;">
       <a href="<%= @url %>" style="display: inline-block; background-color: #2196f3; color: #ffffff; text-decoration: none; padding: 14px 32px; border-radius: 6px; font-size: 16px; font-weight: 600; text-align: center;">
-        Ver mis tickets en la web
+        <%= t(".view_tickets") %>
       </a>
     </td>
   </tr>
   <tr>
     <td style="padding-top: 20px; text-align: center;">
       <p style="margin: 0; font-size: 13px; color: #757575;">
-        ¿Tienes problemas para acceder? Contáctanos en <%= mail_to ENV['EMAIL_ACCOUNT'] || 'support@rauversion.com', nil, style: 'color: #2196f3; text-decoration: none;' %>
+        <%= t(".support", email: ENV['EMAIL_ACCOUNT'].presence || 'support@rauversion.com') %>
       </p>
     </td>
   </tr>

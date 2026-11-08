@@ -32,9 +32,10 @@ export function EmailPreviewTab({
   isActive: boolean
 }) {
   const { currentUser, env } = useAuthStore()
+  const [withoutRecipient, setWithoutRecipient] = React.useState(false)
   const variables = React.useMemo(
-    () => buildEmailVariableMap({ sender: currentUser, appName: env?.app_name }),
-    [currentUser, env?.app_name]
+    () => buildEmailVariableMap({ sender: currentUser, appName: env?.app_name, recipient: withoutRecipient ? {} : undefined }),
+    [currentUser, env?.app_name, withoutRecipient]
   )
   const [mjml, setMjml] = React.useState(() => buildPreviewMjml(document, variables))
   const [html, setHtml] = React.useState("")
@@ -81,7 +82,7 @@ export function EmailPreviewTab({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between border-b bg-muted/20 px-4 py-3">
+      <div className="flex flex-wrap items-center justify-between gap-2 border-b bg-muted/20 px-4 py-3">
         <div className="flex items-center gap-2">
           <Button type="button" variant={deviceMode === "desktop" ? "default" : "ghost"} size="sm" onClick={() => setDeviceMode("desktop")}>
             <Eye className="mr-1 h-4 w-4" />
@@ -92,6 +93,10 @@ export function EmailPreviewTab({
             Mobile
           </Button>
         </div>
+        <label className="flex items-center gap-2 text-sm text-muted-foreground">
+          <input type="checkbox" checked={withoutRecipient} onChange={(event) => setWithoutRecipient(event.target.checked)} />
+          Sin datos del destinatario
+        </label>
         {isLoading ? <p className="text-sm text-muted-foreground">Compilando MJML…</p> : null}
       </div>
 
@@ -118,7 +123,7 @@ export function EmailPreviewTab({
 
           <div className={`mx-auto overflow-hidden rounded-[28px] border bg-white shadow-xl ${deviceMode === "mobile" ? "max-w-[390px]" : "max-w-[920px]"}`}>
             {html ? (
-              <iframe title="email-preview" srcDoc={html} className="h-[900px] w-full bg-white" />
+              <iframe title="email-preview" sandbox="" srcDoc={html} className="h-[900px] w-full bg-white" />
             ) : (
               <div className="flex h-[560px] items-center justify-center text-sm text-muted-foreground">
                 El preview aparecerá aquí cuando el MJML compile correctamente.

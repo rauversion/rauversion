@@ -1,0 +1,30 @@
+en:
+  purchases_mailer:
+    event_ticket_confirmation:
+      purchase:
+        subject: "Purchase confirmation: %{event}"
+        heading: "Ticket confirmation"
+      invitation:
+        subject: "You've been invited to %{event}"
+        heading: "You've been invited"
+      invited_by: "%{name} has invited you to the event."
+      invitation_label: "Invitation"
+      message: "Message"
+      ticket_number: "Ticket #%{number}"
+      your_tickets: "Your tickets"
+      date: "Date"
+      timezone: "Time zone"
+      location: "Location"
+      qr_code: "Your QR code"
+      qr_code_alt: "QR code"
+      qr_instructions: "Show this code when entering the event"
+      entry_instructions: "To enter the event, show your e-ticket printed or on your phone."
+      important: "Important"
+      access_heading: "How to access your tickets"
+      access_steps:
+        account: "Sign in to My account"
+        purchases: "Go to the My purchases tab"
+        view_tickets: "Select View e-tickets to view and download them"
+      qr_availability: "The QR code is available in the HTML version of this email or on the website."
+      view_tickets: "View my tickets online"
+      support: "Having trouble accessing your tickets? Contact us at %{email}"

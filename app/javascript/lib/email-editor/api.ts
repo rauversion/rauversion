@@ -1,7 +1,7 @@
 import { destroy, get, post, put } from "@rails/request.js"
 
-import { normalizeEmailDocument } from "./normalizers"
-import type { EmailDocument } from "./types"
+import { normalizeEmailBlock, normalizeEmailDocument } from "./normalizers"
+import type { EmailBlock, EmailBlockType, EmailDocument } from "./types"
 
 export interface EmailTemplateRecord {
   id: string
@@ -105,6 +105,124 @@ export async function destroyEmailTemplate(id: string): Promise<void> {
   if (!response.ok) {
     throw new Error("No se pudo eliminar la plantilla de email")
   }
+}
+
+export type EmailCopilotSuggestion =
+  | { mode: "draft" | "reminder"; subject: string; preheader: string; blocks: EmailBlock[] }
+  | { mode: "block"; blocks: EmailBlock[] }
+  | { mode: "rewrite"; body: string }
+  | EmailCopilotEdit
+
+export interface EmailCopilotEditorContext {
+  name: string
+  subject: string
+  preheader: string
+  selected_block_id?: string
+  blocks: Array<{
+    id: string
+    type: EmailBlockType
+    fields: Array<{ key: string; text: string }>
+    assets: Array<{ kind: "link" | "image"; url: string; label: string }>
+  }>
+}
+
+export interface EmailCopilotMessage {
+  role: "user" | "assistant"
+  text: string
+}
+
+export interface EmailCopilotEdit {
+  mode: "edit"
+  message: string
+  subject: string | null
+  preheader: string | null
+  changes: Array<
+    { action: "update"; blockId: string; field: string; value: string } |
+    { action: "insert"; after: string; block: EmailBlock }
+  >
+}
+
+export interface CopilotEventOption {
+  id: string
+  title: string
+  startsAt: string
+}
+
+export async function fetchCopilotEvents(): Promise<CopilotEventOption[]> {
+  const response = await get("/newsletter/copilot/events.json", { responseKind: "json" })
+  if (!response.ok) throw new Error("No se pudieron cargar tus eventos.")
+
+  const payload = await response.json
+  if (!isRecord(payload) || !Array.isArray(payload.events)) throw new Error("No se pudieron cargar tus eventos.")
+
+  return payload.events.filter(isRecord).map((event) => ({ id: String(event.id), title: String(event.title), startsAt: String(event.starts_at || "") }))
+}
+
+export async function generateEmailSuggestion(input: {
+  mode: EmailCopilotSuggestion["mode"]
+  prompt: string
+  originalText?: string
+  eventId?: string
+  blockType?: EmailBlockType
+  editorContext?: EmailCopilotEditorContext
+  history?: EmailCopilotMessage[]
+}): Promise<EmailCopilotSuggestion> {
+  const response = await post("/newsletter/copilot.json", {
+    body: JSON.stringify({ newsletter_copilot: {
+      mode: input.mode,
+      prompt: input.prompt,
+      original_text: input.originalText,
+      event_id: input.eventId,
+      block_type: input.blockType,
+      editor_context: input.editorContext,
+      history: input.history,
+    } }),
+    responseKind: "json",
+  })
+  const payload = await response.json
+  const fallback = "No se pudo generar una propuesta. Intenta de nuevo."
+
+  if (!response.ok) {
+    const errors = isRecord(payload) && Array.isArray(payload.errors) ? payload.errors : []
+    throw new Error(errors.join(" ") || fallback)
+  }
+
+  const suggestion = isRecord(payload) ? payload.suggestion : null
+  if (!isRecord(suggestion) || suggestion.mode !== input.mode) throw new Error(fallback)
+
+  const { body, subject, preheader } = suggestion
+  if (input.mode === "edit") {
+    if (typeof suggestion.message !== "string" || (subject !== null && typeof subject !== "string") ||
+      (preheader !== null && typeof preheader !== "string") || !Array.isArray(suggestion.changes)) throw new Error(fallback)
+
+    const changes = suggestion.changes.map((change): EmailCopilotEdit["changes"][number] => {
+      if (isRecord(change) && change.action === "update" && typeof change.block_id === "string" && typeof change.field === "string" && typeof change.value === "string") {
+        return { action: "update", blockId: change.block_id, field: change.field, value: change.value }
+      }
+      if (isRecord(change) && change.action === "insert" && typeof change.after === "string") {
+        const block = normalizeEmailBlock(change.block)
+        if (block) return { action: "insert", after: change.after, block }
+      }
+      throw new Error(fallback)
+    })
+    return { mode: "edit", message: suggestion.message, subject, preheader, changes }
+  }
+  if (input.mode === "rewrite") {
+    if (typeof body !== "string") throw new Error(fallback)
+    return { mode: "rewrite", body }
+  }
+
+  if (!Array.isArray(suggestion.blocks) || suggestion.blocks.length === 0) throw new Error(fallback)
+  const blocks = suggestion.blocks.map(normalizeEmailBlock).filter((block): block is EmailBlock => block !== null)
+  if (blocks.length !== suggestion.blocks.length) throw new Error(fallback)
+
+  if (input.mode === "block") {
+    if (blocks.length !== 1 || blocks[0].type !== input.blockType) throw new Error(fallback)
+    return { mode: "block", blocks }
+  }
+
+  if (typeof subject !== "string" || typeof preheader !== "string") throw new Error(fallback)
+  return { mode: input.mode, subject, preheader, blocks }
 }
 
 export interface EmailPreviewResult {

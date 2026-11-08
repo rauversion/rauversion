@@ -3573,6 +3573,40 @@
       },
       "title": "Shopping"
     },
+    "purchases_mailer": {
+      "event_ticket_confirmation": {
+        "access_heading": "How to access your tickets",
+        "access_steps": {
+          "account": "Sign in to My account",
+          "purchases": "Go to the My purchases tab",
+          "view_tickets": "Select View e-tickets to view and download them"
+        },
+        "date": "Date",
+        "entry_instructions": "To enter the event, show your e-ticket printed or on your phone.",
+        "important": "Important",
+        "invitation": {
+          "heading": "You've been invited",
+          "subject": "You've been invited to %{event}"
+        },
+        "invitation_label": "Invitation",
+        "invited_by": "%{name} has invited you to the event.",
+        "location": "Location",
+        "message": "Message",
+        "purchase": {
+          "heading": "Ticket confirmation",
+          "subject": "Purchase confirmation: %{event}"
+        },
+        "qr_availability": "The QR code is available in the HTML version of this email or on the website.",
+        "qr_code": "Your QR code",
+        "qr_code_alt": "QR code",
+        "qr_instructions": "Show this code when entering the event",
+        "support": "Having trouble accessing your tickets? Contact us at %{email}",
+        "ticket_number": "Ticket #%{number}",
+        "timezone": "Time zone",
+        "view_tickets": "View my tickets online",
+        "your_tickets": "Your tickets"
+      }
+    },
     "repost": "Repost",
     "sales": {
       "actions": {
@@ -9275,6 +9309,40 @@
         "tickets": "Entradas"
       },
       "title": "Compras"
+    },
+    "purchases_mailer": {
+      "event_ticket_confirmation": {
+        "access_heading": "Cómo acceder a tus tickets",
+        "access_steps": {
+          "account": "Ingresa a Mi cuenta",
+          "purchases": "Ve a la pestaña Mis Compras",
+          "view_tickets": "Toca en Ver ticket/s electrónico/s para verlos y descargarlos"
+        },
+        "date": "Fecha",
+        "entry_instructions": "Para ingresar al evento deberás mostrar tu e-ticket impreso o desde tu móvil.",
+        "important": "Importante",
+        "invitation": {
+          "heading": "Te han invitado",
+          "subject": "Te han invitado a %{event}"
+        },
+        "invitation_label": "Invitación",
+        "invited_by": "%{name} te ha invitado al evento.",
+        "location": "Ubicación",
+        "message": "Mensaje",
+        "purchase": {
+          "heading": "Confirmación de ticket",
+          "subject": "Confirmación de compra: %{event}"
+        },
+        "qr_availability": "Código QR disponible en la versión HTML del email o en la web.",
+        "qr_code": "Tu código QR",
+        "qr_code_alt": "Código QR",
+        "qr_instructions": "Presenta este código al ingresar al evento",
+        "support": "¿Tienes problemas para acceder? Contáctanos en %{email}",
+        "ticket_number": "Ticket #%{number}",
+        "timezone": "Zona horaria",
+        "view_tickets": "Ver mis tickets en la web",
+        "your_tickets": "Tus tickets"
+      }
     },
     "repost": "Repostear",
     "sales": {

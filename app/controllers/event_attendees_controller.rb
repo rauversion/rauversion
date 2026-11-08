@@ -88,7 +88,9 @@ class EventAttendeesController < ApplicationController
       purchasable: @event,
       state: 'pending',
       price: ticket.price,
-      currency: @event.ticket_currency
+      currency: @event.ticket_currency,
+      inviter_id: current_user.id,
+      email_locale: I18n.locale.to_s
     )
     purchase.assign_attributes(params.permit(:identifier_type, :identifier_value))
 

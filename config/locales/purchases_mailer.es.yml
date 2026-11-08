@@ -1,0 +1,30 @@
+es:
+  purchases_mailer:
+    event_ticket_confirmation:
+      purchase:
+        subject: "Confirmación de compra: %{event}"
+        heading: "Confirmación de ticket"
+      invitation:
+        subject: "Te han invitado a %{event}"
+        heading: "Te han invitado"
+      invited_by: "%{name} te ha invitado al evento."
+      invitation_label: "Invitación"
+      message: "Mensaje"
+      ticket_number: "Ticket #%{number}"
+      your_tickets: "Tus tickets"
+      date: "Fecha"
+      timezone: "Zona horaria"
+      location: "Ubicación"
+      qr_code: "Tu código QR"
+      qr_code_alt: "Código QR"
+      qr_instructions: "Presenta este código al ingresar al evento"
+      entry_instructions: "Para ingresar al evento deberás mostrar tu e-ticket impreso o desde tu móvil."
+      important: "Importante"
+      access_heading: "Cómo acceder a tus tickets"
+      access_steps:
+        account: "Ingresa a Mi cuenta"
+        purchases: "Ve a la pestaña Mis Compras"
+        view_tickets: "Toca en Ver ticket/s electrónico/s para verlos y descargarlos"
+      qr_availability: "Código QR disponible en la versión HTML del email o en la web."
+      view_tickets: "Ver mis tickets en la web"
+      support: "¿Tienes problemas para acceder? Contáctanos en %{email}"

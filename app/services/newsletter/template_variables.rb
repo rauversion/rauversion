@@ -14,6 +14,8 @@ module Newsletter
       "recipient_email" => "email",
       "country" => "country",
       "recipient_country" => "country",
+      "event_title" => "event_title",
+      "ticket_title" => "ticket_title",
       "sender_name" => "sender_name",
       "sender_display_name" => "sender_name",
       "account_name" => "sender_name",
@@ -25,6 +27,8 @@ module Newsletter
     }.freeze
 
     DEFAULT_APP_NAME = "Rauversion".freeze
+    VARIABLE_PATTERN = /\{\{\s*([\w.]+)\s*(?:\|([^{}\r\n]*))?\}\}/
+    Values = Struct.new(:resolved, :provided)
 
     def self.build_map(sender:, recipient:, app_name: DEFAULT_APP_NAME)
       recipient_email = recipient.email.to_s
@@ -33,21 +37,21 @@ module Newsletter
         recipient.respond_to?(:resolved_name) && recipient.resolved_name.present? ? recipient.resolved_name :
         recipient.try(:name).presence ||
           recipient.try(:display_name).presence ||
-          [recipient.try(:first_name), recipient.try(:last_name)].compact.join(" ").strip.presence ||
-          derived[:name]
+          [recipient.try(:first_name), recipient.try(:last_name)].compact.join(" ").strip.presence
 
       sender_name =
         sender.try(:display_name).presence ||
         sender.try(:full_name).presence ||
-        sender.try(:username).presence ||
-        DEFAULT_APP_NAME
+        sender.try(:username).presence
 
-      {
+      provided = {
         "name" => recipient_name.to_s,
-        "first_name" => recipient.try(:first_name).presence.to_s.presence || derived[:first_name],
-        "last_name" => recipient.try(:last_name).presence.to_s.presence || derived[:last_name],
-        "email" => recipient_email.presence || derived[:email],
+        "first_name" => recipient.try(:first_name).to_s,
+        "last_name" => recipient.try(:last_name).to_s,
+        "email" => recipient_email,
         "country" => recipient.try(:country).to_s,
+        "event_title" => only_value(recipient.try(:event_titles)),
+        "ticket_title" => only_value(recipient.try(:ticket_titles)),
         "sender_name" => sender_name.to_s,
         "sender_first_name" => sender.try(:first_name).to_s,
         "sender_last_name" => sender.try(:last_name).to_s,
@@ -55,18 +59,37 @@ module Newsletter
         "sender_email" => sender.try(:email).to_s,
         "app_name" => app_name.presence || DEFAULT_APP_NAME,
       }
+      resolved = provided.merge(
+        "name" => recipient_name.presence || derived[:name],
+        "first_name" => provided["first_name"].presence || derived[:first_name],
+        "last_name" => provided["last_name"].presence || derived[:last_name],
+        "sender_name" => sender_name.presence || DEFAULT_APP_NAME,
+      )
+      provided["name"] = "" if recipient_name.to_s.strip.casecmp?(recipient_email.strip)
+      Values.new(resolved, provided)
     end
 
     def self.resolve(value, variables, escape_html_values: false)
       return value.to_s if value.blank?
 
-      value.to_s.gsub(/{{\s*([\w.]+)\s*}}/) do |match|
-        normalized_key = VARIABLE_ALIASES[Regexp.last_match(1)]
-        next match if normalized_key.blank?
+      value.to_s.gsub(VARIABLE_PATTERN) do |match|
+        key, fallback = Regexp.last_match.captures
+        normalized_key = VARIABLE_ALIASES[key]
+        next match if normalized_key.nil? && fallback.nil?
 
-        resolved = variables[normalized_key].to_s
+        resolved = if fallback.nil?
+          variables.resolved[normalized_key].to_s
+        else
+          fallback = CGI.unescapeHTML(fallback) if escape_html_values
+          variables.provided[normalized_key].to_s.strip.presence || fallback.strip
+        end
         escape_html_values ? CGI.escapeHTML(resolved) : resolved
       end
+    end
+
+    def self.only_value(values)
+      titles = Array(values).map { |value| value.to_s.strip }.reject(&:blank?).uniq
+      titles.one? ? titles.first : ""
     end
 
     def self.derive_recipient_from_email(email)

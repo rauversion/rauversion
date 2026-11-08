@@ -1,5 +1,5 @@
 class Newsletter::AudienceSource < ApplicationRecord
-  SOURCE_TYPES = %w[contact_list followers event_attendees all_my_event_attendees].freeze
+  SOURCE_TYPES = %w[contact_list followers event_attendees event_pending_payments all_my_event_attendees].freeze
 
   belongs_to :audience, class_name: "Newsletter::Audience", inverse_of: :sources
 
@@ -24,7 +24,7 @@ class Newsletter::AudienceSource < ApplicationRecord
     case source_type
     when "contact_list"
       errors.add(:source_settings, "must include contact_list_id") if source_settings["contact_list_id"].blank?
-    when "event_attendees"
+    when "event_attendees", "event_pending_payments"
       errors.add(:source_settings, "must include event_id") if source_settings["event_id"].blank?
     end
   end

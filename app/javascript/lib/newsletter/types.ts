@@ -2,6 +2,7 @@ export type NewsletterAudienceSourceType =
   | "contact_list"
   | "followers"
   | "event_attendees"
+  | "event_pending_payments"
   | "all_my_event_attendees"
 
 export interface NewsletterContactListRecord {

@@ -1,58 +1,57 @@
-✓ CONFIRMACIÓN DE TICKET
+✓ <%= t(".#{@confirmation_type}.heading").upcase %>
 ================================================================================
 
 <%= @event.title %>
 
 --------------------------------------------------------------------------------
 
-IMPORTANTE: Para ingresar al evento deberás mostrar tu e-ticket impreso o desde 
-tu móvil.
+<%= t(".important").upcase %>: <%= t(".entry_instructions") %>
 
-CÓMO ACCEDER A TUS TICKETS
+<%= t(".access_heading").upcase %>
 --------------------------------------------------------------------------------
 
-1. Ingresa a Mi cuenta
-2. Ve a la pestaña Mis Compras  
-3. Toca en Ver ticket/s electrónico/s para verlos y descargarlos
+1. <%= t(".access_steps.account") %>
+2. <%= t(".access_steps.purchases") %>
+3. <%= t(".access_steps.view_tickets") %>
 
 <% if @inviter %>
 
-INVITACIÓN
+<%= t(".invitation_label").upcase %>
 --------------------------------------------------------------------------------
-<%= @inviter.first_name %> <%= @inviter.last_name %> <%= gettext("Has invited you to the event") %>
+<%= t(".invited_by", name: @inviter.full_name.presence || @inviter.display_name) %>
 
 <% end %>
 <% if @message %>
 
-MENSAJE
+<%= t(".message").upcase %>
 --------------------------------------------------------------------------------
 <%= @message %>
 
 <% end %>
 
-TUS TICKETS
+<%= t(".your_tickets").upcase %>
 ================================================================================
 
 <% @purchase.purchased_items.each_with_index do |item, index| %>
-TICKET #<%= index + 1 %>: <%= item.purchased_item.title %>
+<%= t(".ticket_number", number: index + 1).upcase %>: <%= item.purchased_item.title %>
 --------------------------------------------------------------------------------
 
 <% if item.purchased_item.after_purchase_message.present? %>
 <%= item.purchased_item.after_purchase_message %>
 
 <% end %>
-📅 Fecha: <%= event_time_formatted(item.purchased_item.event.event_start, item.purchased_item.event.timezone, format: :event_long_with_zone) %>
-🌍 Zona horaria: <%= item.purchased_item.event.timezone %>
-📍 Ubicación: <%= item.purchased_item.event.location %>
+📅 <%= t(".date") %>: <%= event_time_formatted(item.purchased_item.event.event_start, item.purchased_item.event.timezone, format: :event_long_with_zone) %>
+🌍 <%= t(".timezone") %>: <%= item.purchased_item.event.timezone %>
+📍 <%= t(".location") %>: <%= item.purchased_item.event.location %>
 <% unless item.purchased_item.disable_qr %>
 
-Código QR disponible en la versión HTML del email o en la web.
+<%= t(".qr_availability") %>
 <% end %>
 
 <% end %>
 
-VER TICKETS EN LA WEB
+<%= t(".view_tickets").upcase %>
 --------------------------------------------------------------------------------
 <%= @url %>
 
-¿Tienes problemas para acceder? Contáctanos en <%= ENV['EMAIL_ACCOUNT'] || 'support@rauversion.com' %>
+<%= t(".support", email: ENV['EMAIL_ACCOUNT'].presence || 'support@rauversion.com') %>

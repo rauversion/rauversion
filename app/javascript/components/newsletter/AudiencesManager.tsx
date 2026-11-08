@@ -59,6 +59,7 @@ function defaultSettingsForType(type: NewsletterAudienceSourceType, sourceOption
     case "contact_list":
       return { contactListId: sourceOptions.contactLists[0]?.id ?? "" }
     case "event_attendees":
+    case "event_pending_payments":
       return { eventId: sourceOptions.events[0]?.id ?? "" }
     default:
       return {}
@@ -367,7 +368,7 @@ export function AudiencesManager() {
                     )
                   ) : null}
 
-                  {source.sourceType === "event_attendees" ? (
+                  {source.sourceType === "event_attendees" || source.sourceType === "event_pending_payments" ? (
                     sourceOptions.events.length > 0 ? (
                       <Select
                         value={source.sourceSettings.eventId || sourceOptions.events[0]?.id}
@@ -411,6 +412,11 @@ export function AudiencesManager() {
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
+                {source.sourceType === "event_pending_payments" ? (
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    Excluye a quienes ya pagaron alguna entrada para este evento.
+                  </p>
+                ) : null}
               </div>
             ))}
 

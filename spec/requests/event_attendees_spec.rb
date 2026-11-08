@@ -417,6 +417,24 @@ RSpec.describe "EventAttendees", type: :request do
     end
 
     let(:new_email) { 'newuser@example.com' }
+
+    { es: 'Te han invitado a', en: "You've been invited to" }.each do |locale, subject_prefix|
+      it "delivers an invitation in #{locale} through the background purchase job" do
+        sign_in grant_admission_staff
+
+        perform_enqueued_jobs do
+          post create_invitation_event_event_attendees_path(event, format: :json),
+            params: { email: new_email, ticket_id: ticket.id, locale: locale }, as: :json
+        end
+
+        expect(response).to have_http_status(:created)
+        expect(Purchase.last).to have_attributes(inviter_id: grant_admission_staff.id, email_locale: locale.to_s)
+        delivered_mail = ActionMailer::Base.deliveries.select { |mail| mail.to == [new_email] }.sole
+        expect(delivered_mail.subject).to eq("#{subject_prefix} #{event.title}")
+        expect(delivered_mail.html_part.body.decoded).to include(grant_admission_staff.full_name)
+        expect(delivered_mail.text_part.body.decoded).to include(grant_admission_staff.full_name)
+      end
+    end
     
     it "creates a new user and purchase with pending status" do
       expect {

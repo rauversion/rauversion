@@ -173,6 +173,7 @@ class EventPurchasesController < ApplicationController
     end
 
     @purchase.virtual_purchased = selected_items
+    @purchase.email_locale = I18n.locale.to_s
     @purchase.assign_attributes(params.permit(:identifier_type, :identifier_value))
 
     unless @purchase.valid?

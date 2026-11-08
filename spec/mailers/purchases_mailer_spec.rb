@@ -2,6 +2,7 @@ require 'rails_helper'
 
 RSpec.describe PurchasesMailer, type: :mailer do
   describe '#event_ticket_confirmation' do
+    let(:locale) { :es }
     let(:user) { FactoryBot.create(:user) }
     let(:event) { FactoryBot.create(:event, title: 'Amazing Concert 2024', user: user, ticket_currency: "USD") }
     let(:event_ticket) { FactoryBot.create(:event_ticket, event: event, title: 'VIP Pass') }
@@ -20,9 +21,13 @@ RSpec.describe PurchasesMailer, type: :mailer do
 
     let(:mail) { PurchasesMailer.event_ticket_confirmation(purchase: purchase) }
 
+    around do |example|
+      I18n.with_locale(locale) { example.run }
+    end
+
     context 'email headers' do
       it 'renders the subject' do
-        expect(mail.subject).to eq('Purchase Confirmation')
+        expect(mail.subject).to eq("Confirmación de compra: #{event.title}")
       end
 
       it 'renders the receiver email' do
@@ -42,7 +47,7 @@ RSpec.describe PurchasesMailer, type: :mailer do
       end
 
       it 'includes confirmation message' do
-        expect(html_body).to include('Confirmación de Ticket')
+        expect(html_body).to include('Confirmación de ticket')
       end
 
       it 'includes access instructions' do
@@ -119,29 +124,105 @@ RSpec.describe PurchasesMailer, type: :mailer do
 
     context 'with inviter' do
       let(:inviter) { FactoryBot.create(:user, first_name: 'John', last_name: 'Doe') }
-      
-      before do
-        #purchase.instance_variable_set(:@inviter, inviter)
-        #allow(purchase).to receive(:inviter).and_return(inviter)
+      let(:mail) { PurchasesMailer.event_ticket_confirmation(purchase: purchase, inviter: inviter) }
+
+      it 'uses invitation wording in the subject and both body formats' do
+        expect(mail.subject).to eq("Te han invitado a #{event.title}")
+        expect(mail.html_part.body.decoded).to include('Te han invitado', 'John Doe te ha invitado al evento.')
+        expect(mail.text_part.body.decoded).to include('TE HAN INVITADO', 'John Doe te ha invitado al evento.')
       end
 
-      it 'includes inviter information in HTML' do
-        # Since @inviter is an instance variable set in the mailer action,
-        # we need to test this differently or mock it properly
-        # This is a placeholder for the actual test
-        expect(mail.html_part.body.encoded).to be_present
+      it 'escapes the inviter name in HTML' do
+        inviter.update!(first_name: '<script>alert(1)</script>')
+
+        expect(mail.html_part.body.decoded).to include('&lt;script&gt;')
+        expect(mail.html_part.body.decoded).not_to include('<script>')
       end
     end
 
     context 'with custom message' do
-      before do
-        #purchase.instance_variable_set(:@message, 'Looking forward to seeing you!')
-        #allow(purchase).to receive(:message).and_return('Looking forward to seeing you!')
+      let(:mail) do
+        PurchasesMailer.event_ticket_confirmation(purchase: purchase, message: 'Looking forward to seeing you!')
       end
 
-      it 'includes custom message in HTML' do
-        # Similar to above, this tests that the email is generated
-        expect(mail.html_part.body.encoded).to be_present
+      it 'includes the custom message in HTML and text' do
+        expect(mail.html_part.body.decoded).to include('Mensaje:', 'Looking forward to seeing you!')
+        expect(mail.text_part.body.decoded).to include('MENSAJE', 'Looking forward to seeing you!')
+      end
+    end
+
+    {
+      es: {
+        purchase_subject: 'Confirmación de compra:', purchase_heading: 'Confirmación de ticket',
+        invitation_subject: 'Te han invitado a', invitation_heading: 'Te han invitado',
+        access_heading: 'Cómo acceder a tus tickets', date: 'Fecha', location: 'Ubicación',
+        qr_code: 'Tu código QR', qr_availability: 'Código QR disponible', message: 'Mensaje'
+      },
+      en: {
+        purchase_subject: 'Purchase confirmation:', purchase_heading: 'Ticket confirmation',
+        invitation_subject: "You've been invited to", invitation_heading: "You've been invited",
+        access_heading: 'How to access your tickets', date: 'Date', location: 'Location',
+        qr_code: 'Your QR code', qr_availability: 'The QR code is available', message: 'Message'
+      }
+    }.each do |email_locale, translations|
+      context "with stored #{email_locale} locale" do
+        before do
+          purchase.update!(email_locale: email_locale.to_s)
+        end
+
+        it 'localizes the purchase subject, HTML, text and date when processed in another locale' do
+          I18n.with_locale(email_locale == :es ? :en : :es) do
+            mail = PurchasesMailer.event_ticket_confirmation(purchase: purchase)
+            expect(mail.subject).to eq("#{translations[:purchase_subject]} #{event.title}")
+            expect(mail.html_part.body.decoded).to include(translations[:purchase_heading], translations[:qr_code])
+            expect(mail.text_part.body.decoded).to include(translations[:purchase_heading].upcase, translations[:qr_availability])
+            [mail.html_part, mail.text_part].each do |part|
+              expect(part.body.decoded).to include("#{translations[:date]}:", "#{translations[:location]}:")
+              expect(part.body.decoded.downcase).to include(translations[:access_heading].downcase)
+              expect(part.body.decoded).to include(I18n.l(event.event_start, locale: email_locale, format: :event_long_with_zone))
+              expect(part.body.decoded).not_to include('Translation missing', 'translation_missing')
+            end
+            expect(I18n.locale).to eq(email_locale == :es ? :en : :es)
+          end
+        end
+
+        it 'recognizes stored invitations after reloading and localizes both formats' do
+          inviter = FactoryBot.create(:user, first_name: 'Ana', last_name: 'Pérez')
+          purchase.update!(inviter_id: inviter.id)
+
+          I18n.with_locale(email_locale == :es ? :en : :es) do
+            mail = PurchasesMailer.event_ticket_confirmation(purchase: purchase.reload, message: 'See you there!')
+
+            expect(mail.subject).to eq("#{translations[:invitation_subject]} #{event.title}")
+            expect(mail.html_part.body.decoded).to include(ERB::Util.html_escape(translations[:invitation_heading]), 'Ana Pérez', "#{translations[:message]}:")
+            expect(mail.text_part.body.decoded).to include(translations[:invitation_heading].upcase, 'Ana Pérez', translations[:message].upcase)
+            expect(mail.html_part.body.decoded).not_to include(translations[:purchase_heading])
+            expect(mail.text_part.body.decoded).not_to include(translations[:purchase_heading].upcase)
+            expect(mail.attachments.first.filename).to eq("ticket_#{purchased_item.id}_qr_code.png")
+          end
+        end
+      end
+    end
+
+    context 'when the inviter no longer exists' do
+      before do
+        purchase.update!(inviter_id: -1)
+      end
+
+      it 'still sends an invitation' do
+        expect(mail.subject).to eq("Te han invitado a #{event.title}")
+        expect(mail.html_part.body.decoded).to include('Te han invitado')
+      end
+    end
+
+    context 'with a guest purchase' do
+      before do
+        purchase.assign_attributes(user: nil, guest_email: 'guest@example.com', email_locale: 'es')
+      end
+
+      it 'sends the localized confirmation to the guest' do
+        expect(mail.to).to eq(['guest@example.com'])
+        expect(mail.subject).to eq("Confirmación de compra: #{event.title}")
       end
     end
 
@@ -222,7 +303,7 @@ RSpec.describe PurchasesMailer, type: :mailer do
       end
 
       it 'still sends the email' do
-        expect(mail.subject).to eq('Purchase Confirmation')
+        expect(mail.subject).to eq("Confirmación de compra: #{event.title}")
         expect(mail.to).to eq([user.email])
       end
 

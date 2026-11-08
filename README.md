@@ -87,6 +87,14 @@ To start your Rauversion server:
 
 Now you can visit [`localhost:3000`](http://localhost:3000) from your browser.
 
+### Newsletter copilot
+
+Set `OPENAI_API_KEY` in the Rails server environment to enable the copilot in **Newsletter → Templates → Edit**. It uses the OpenAI Responses API. Set `OPENAI_NEWSLETTER_MODEL` to override the default (`gpt-4.1-mini`) with a model that supports Structured Outputs.
+
+In **Conversar**, the copilot uses the current draft and recent turns to propose targeted edits or insert new blocks. You can refine the proposal before applying it. Use **Crear desde cero** when you want to replace the contents of the draft. For a payment reminder, select an event in the editor or start from a broadcast whose audience uses only that event's pending-payment source. The copilot sends the text and context needed for the task to OpenAI; it does not send audience data or deliver emails.
+
+Use `{{ticket_title|your ticket}}` to set fallback text when a variable has no known value. The same fallback syntax works in preview, test emails, and broadcasts.
+
 
 ### File preprocessing requirements:
 
