@@ -1098,43 +1098,49 @@
         },
         "reports": {
           "charts": {
-            "orders_description": "Number of orders by status",
-            "orders_distribution": "Orders Distribution",
+            "orders_description": "Number of tickets by payment status",
+            "orders_distribution": "Ticket distribution",
             "revenue_by_status": "Revenue by Status",
             "revenue_description": "Total amount by payment status"
           },
-          "description": "View sales and revenue statistics for your event",
+          "description": "Tickets sold and revenue from confirmed payments for your event.",
           "event_status": {
             "ended": "Ended",
             "in_progress": "In Progress",
             "title": "Event Status",
             "upcoming": "Upcoming"
           },
+          "load_error": "We couldn't update the report. Please try again.",
           "loading": "Loading reports...",
-          "orders": "orders",
+          "orders": "tickets",
           "payout_date": {
             "description": "After event completion",
             "pending": "Pending",
             "title": "Next Payout"
           },
+          "refresh": "Refresh",
           "status": {
             "paid": "Paid",
             "pending": "Pending",
             "refunded": "Refunded"
           },
           "ticket_types": {
-            "description": "Paid and pending revenue for each ticket type",
+            "description": "Only paid tickets count as sales. Pending payments are shown separately.",
             "empty": "There are no ticket types for this event yet.",
+            "pending_tickets": "Pending payment",
+            "sales_percentage": "% sold",
+            "sales_progress": "Percentage sold for %{title}",
             "ticket_type": "Ticket type",
-            "tickets": "Tickets",
-            "title": "Revenue by ticket type",
-            "total": "Total"
+            "tickets": "Tickets sold",
+            "title": "Sales by ticket type",
+            "total": "Confirmed revenue"
           },
-          "title": "Reports",
-          "total_orders": "Total Orders",
-          "total_orders_description": "All ticket orders",
-          "total_revenue": "Total Revenue",
-          "total_revenue_description": "Combined paid and pending revenue"
+          "tickets_available": "Tickets available",
+          "title": "Sales summary",
+          "total_orders": "Tickets sold",
+          "total_orders_description": "Tickets with confirmed payment",
+          "total_revenue": "Confirmed revenue",
+          "total_revenue_description": "Confirmed payments only. Excludes pending and refunded tickets."
         },
         "schedule": {
           "add_item": "Add Item",
@@ -6865,43 +6871,49 @@
         },
         "reports": {
           "charts": {
-            "orders_description": "Número de órdenes por estado",
-            "orders_distribution": "Distribución de Órdenes",
+            "orders_description": "Número de tickets por estado de pago",
+            "orders_distribution": "Distribución de tickets",
             "revenue_by_status": "Ingresos por Estado",
             "revenue_description": "Monto total por estado de pago"
           },
-          "description": "Ver estadísticas de ventas e ingresos de tu evento",
+          "description": "Tickets vendidos e ingresos de pagos confirmados de tu evento.",
           "event_status": {
             "ended": "Finalizado",
             "in_progress": "En Progreso",
             "title": "Estado del Evento",
             "upcoming": "Próximo"
           },
+          "load_error": "No pudimos actualizar el reporte. Inténtalo nuevamente.",
           "loading": "Cargando reportes...",
-          "orders": "órdenes",
+          "orders": "tickets",
           "payout_date": {
             "description": "Después de la finalización del evento",
             "pending": "Pendiente",
             "title": "Próximo Pago"
           },
+          "refresh": "Recargar",
           "status": {
             "paid": "Pagado",
             "pending": "Pendiente",
             "refunded": "Reembolsado"
           },
           "ticket_types": {
-            "description": "Ingresos pagados y pendientes para cada tipo de ticket",
+            "description": "Sólo los tickets pagados se cuentan como ventas. Los pendientes de pago se muestran aparte.",
             "empty": "Aún no hay tipos de ticket para este evento.",
+            "pending_tickets": "Pendientes de pago",
+            "sales_percentage": "% de venta",
+            "sales_progress": "Porcentaje vendido de %{title}",
             "ticket_type": "Tipo de ticket",
-            "tickets": "Tickets",
-            "title": "Ingresos por tipo de ticket",
-            "total": "Total"
+            "tickets": "Tickets vendidos",
+            "title": "Ventas por tipo de ticket",
+            "total": "Ingresos confirmados"
           },
-          "title": "Reportes",
-          "total_orders": "Órdenes Totales",
-          "total_orders_description": "Todas las órdenes de tickets",
-          "total_revenue": "Ingresos Totales",
-          "total_revenue_description": "Ingresos pagados y pendientes combinados"
+          "tickets_available": "Tickets disponibles",
+          "title": "Resumen de ventas",
+          "total_orders": "Tickets vendidos",
+          "total_orders_description": "Tickets con pago confirmado",
+          "total_revenue": "Ingresos confirmados",
+          "total_revenue_description": "Sólo pagos confirmados. No incluye pendientes ni reembolsados."
         },
         "require_login": {
           "description": "Los usuarios deben iniciar sesión para ver los detalles del evento",

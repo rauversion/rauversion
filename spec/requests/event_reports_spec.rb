@@ -56,11 +56,102 @@ RSpec.describe "EventReports", type: :request do
       expect(json.dig("event", "title")).to eq(event.title)
 
       ticket_types = json.fetch("ticket_types").index_by { |ticket_type| ticket_type.fetch("title") }
+      expect(ticket_types.dig("General", "count")).to eq(1)
       expect(ticket_types.dig("General", "revenue")).to eq(1500.0)
       expect(ticket_types.dig("General", "paid")).to eq("count" => 1, "total" => 1500.0)
-      expect(ticket_types.dig("VIP", "revenue")).to eq(2500.0)
+      expect(ticket_types.fetch("General")).to include("available_quantity" => 10, "total_quantity" => 11, "sales_percentage" => 9.1)
+      expect(ticket_types.dig("VIP", "count")).to eq(0)
+      expect(ticket_types.dig("VIP", "revenue")).to eq(0.0)
       expect(ticket_types.dig("VIP", "pending")).to eq("count" => 1, "total" => 2500.0)
+      expect(ticket_types.fetch("VIP")).to include("available_quantity" => 9, "total_quantity" => 10, "sales_percentage" => 0.0)
+      expect(ticket_types.dig("Early bird", "count")).to eq(0)
       expect(ticket_types.dig("Early bird", "revenue")).to eq(0.0)
+      expect(ticket_types.fetch("Early bird")).to include("available_quantity" => 10, "total_quantity" => 10, "sales_percentage" => 0.0)
+    end
+
+    it "counts paid tickets at their purchase price and keeps pending and refunded tickets separate" do
+      create(:purchased_item, purchase: purchase, purchased_item: ticket, state: "paid", price: 1200, currency: "clp")
+      create(:purchased_item, purchase: purchase, purchased_item: ticket, state: "refunded", price: 1500, currency: "clp")
+      create(:purchased_item, purchase: pending_purchase, purchased_item: ticket, state: "pending", price: 1500, currency: "clp")
+      create(:purchased_item, purchase: pending_purchase, purchased_item: ticket, state: "pending", price: 1500, currency: "clp", created_at: 2.days.ago)
+      ticket.update!(price: 2000, qty: 8)
+      sign_in owner
+
+      get event_event_report_path(event, "general_stats", format: :json)
+
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+      general = json.fetch("ticket_types").find { |ticket_type| ticket_type.fetch("id") == ticket.id }
+
+      expect(general).to include(
+        "count" => 2,
+        "revenue" => 2700.0,
+        "available_quantity" => 7,
+        "total_quantity" => 10,
+        "sales_percentage" => 20.0,
+        "paid" => { "count" => 2, "total" => 2700.0 },
+        "pending" => { "count" => 2, "total" => 3000.0 },
+        "refunded" => { "count" => 1, "total" => 1500.0 }
+      )
+      expect(json.fetch("ticket_types").sum { |ticket_type| ticket_type.fetch("count") }).to eq(json.dig("paid", "count"))
+      expect(json.fetch("ticket_types").sum { |ticket_type| ticket_type.fetch("revenue") }).to eq(json.dig("paid", "total"))
+    end
+
+    it "shows full sell-through for sold out tickets and zero for empty inventory without sales" do
+      ticket.update!(qty: 0)
+      unsold_ticket.update!(qty: 0)
+      sign_in owner
+
+      get event_event_report_path(event, "general_stats", format: :json)
+
+      expect(response).to have_http_status(:ok)
+      ticket_types = JSON.parse(response.body).fetch("ticket_types").index_by { |ticket_type| ticket_type.fetch("id") }
+      expect(ticket_types.fetch(ticket.id)).to include("available_quantity" => 0, "total_quantity" => 1, "sales_percentage" => 100.0)
+      expect(ticket_types.fetch(unsold_ticket.id)).to include("available_quantity" => 0, "total_quantity" => 0, "sales_percentage" => 0.0)
+    end
+
+    it "ignores expired reservations and excludes archived stock from availability" do
+      pending_item.update!(created_at: 2.days.ago)
+      unsold_ticket.destroy!
+      sign_in owner
+
+      get event_event_report_path(event, "general_stats", format: :json)
+
+      expect(response).to have_http_status(:ok)
+      ticket_types = JSON.parse(response.body).fetch("ticket_types").index_by { |ticket_type| ticket_type.fetch("id") }
+      expect(ticket_types.fetch(vip_ticket.id)).to include("available_quantity" => 10, "total_quantity" => 10, "sales_percentage" => 0.0)
+      expect(ticket_types.fetch(unsold_ticket.id)).to include("available_quantity" => 0, "total_quantity" => 0, "sales_percentage" => 0.0)
+    end
+
+    it "counts confirmed free tickets as sold without adding revenue" do
+      unsold_ticket.update!(price: 0)
+      create(:purchased_item, purchase: purchase, purchased_item: unsold_ticket, state: "paid", price: 0, currency: "clp")
+      sign_in owner
+
+      get event_event_report_path(event, "general_stats", format: :json)
+
+      expect(response).to have_http_status(:ok)
+      free_ticket = JSON.parse(response.body).fetch("ticket_types").find { |ticket_type| ticket_type.fetch("id") == unsold_ticket.id }
+      expect(free_ticket).to include("count" => 1, "revenue" => 0.0)
+    end
+
+    it "reports only paid tickets as revenue and sales over time within the requested dates" do
+      report_date = Date.current
+      purchased_item.update!(created_at: report_date.noon)
+      pending_item.update!(created_at: report_date.noon)
+      create(:purchased_item, purchase: purchase, purchased_item: ticket, state: "paid", price: 1500, currency: "clp", created_at: report_date.yesterday.noon)
+      create(:purchased_item, purchase: purchase, purchased_item: ticket, state: "refunded", price: 1500, currency: "clp", created_at: report_date.noon)
+      sign_in manager
+
+      get event_event_report_path(event, "revenue_over_time", format: :json), params: { start_date: report_date.to_s, end_date: report_date.to_s }
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)).to include(
+        "total_revenue" => 1500.0,
+        "total_orders" => 1,
+        "daily_revenue" => { report_date.to_s => "1500.0" },
+        "daily_orders" => { report_date.to_s => 1 }
+      )
     end
 
     it "rejects users outside the event team" do

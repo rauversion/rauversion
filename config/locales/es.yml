@@ -785,20 +785,26 @@ es:
           delete_confirm: ¿Estás seguro de que deseas eliminar esta grabación?
           general_error: Algo salió mal
       reports:
-        title: Reportes
-        description: Ver estadísticas de ventas e ingresos de tu evento
+        title: Resumen de ventas
+        description: Tickets vendidos e ingresos de pagos confirmados de tu evento.
         loading: Cargando reportes...
-        total_revenue: Ingresos Totales
-        total_revenue_description: Ingresos pagados y pendientes combinados
-        total_orders: Órdenes Totales
-        total_orders_description: Todas las órdenes de tickets
-        orders: órdenes
+        refresh: Recargar
+        load_error: No pudimos actualizar el reporte. Inténtalo nuevamente.
+        total_revenue: Ingresos confirmados
+        tickets_available: Tickets disponibles
+        total_revenue_description: Sólo pagos confirmados. No incluye pendientes ni reembolsados.
+        total_orders: Tickets vendidos
+        total_orders_description: Tickets con pago confirmado
+        orders: tickets
         ticket_types:
-          title: Ingresos por tipo de ticket
-          description: Ingresos pagados y pendientes para cada tipo de ticket
+          title: Ventas por tipo de ticket
+          description: Sólo los tickets pagados se cuentan como ventas. Los pendientes de pago se muestran aparte.
           ticket_type: Tipo de ticket
-          tickets: Tickets
-          total: Total
+          tickets: Tickets vendidos
+          total: Ingresos confirmados
+          pending_tickets: Pendientes de pago
+          sales_percentage: "% de venta"
+          sales_progress: "Porcentaje vendido de %{title}"
           empty: Aún no hay tipos de ticket para este evento.
         event_status:
           title: Estado del Evento
@@ -816,8 +822,8 @@ es:
         charts:
           revenue_by_status: Ingresos por Estado
           revenue_description: Monto total por estado de pago
-          orders_distribution: Distribución de Órdenes
-          orders_description: Número de órdenes por estado
+          orders_distribution: Distribución de tickets
+          orders_description: Número de tickets por estado de pago
       teams:
 
         title: Equipos y Gestores

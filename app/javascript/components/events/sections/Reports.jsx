@@ -5,8 +5,9 @@ import I18n from '@/stores/locales'
 import { useIsMobile } from "@/hooks/use-mobile"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { DollarSign, Users, Calendar, TrendingUp, Clock, CheckCircle, XCircle, AlertCircle } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Progress } from "@/components/ui/progress"
+import { DollarSign, Ticket, Calendar, Clock, CheckCircle, XCircle, AlertCircle, RefreshCw } from "lucide-react"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, PieChart, Pie, Cell } from "recharts"
 
@@ -40,7 +41,7 @@ function formatMoney(amount, currency = "usd") {
     return new Intl.NumberFormat(currentLocale(), {
       style: "currency",
       currency: currency.toUpperCase(),
-      currencyDisplay: "code",
+      currencyDisplay: "symbol",
       minimumFractionDigits: Number.isInteger(Number(amount)) ? 0 : 2,
       maximumFractionDigits: Number.isInteger(Number(amount)) ? 0 : 2,
     }).format(Number(amount || 0))
@@ -53,6 +54,8 @@ export default function Reports() {
   const { slug } = useParams()
   const isMobile = useIsMobile()
   const [loading, setLoading] = React.useState(true)
+  const [refreshing, setRefreshing] = React.useState(false)
+  const [error, setError] = React.useState(false)
   const [stats, setStats] = React.useState({
     paid: { count: 0, total: 0 },
     pending: { count: 0, total: 0 },
@@ -62,34 +65,37 @@ export default function Reports() {
   const [event, setEvent] = React.useState(null)
 
   React.useEffect(() => {
+    setLoading(true)
     fetchReportsData()
   }, [slug])
 
   const fetchReportsData = async () => {
+    setRefreshing(true)
+    setError(false)
     try {
-      setLoading(true)
-
       const response = await get(`/events/${slug}/event_reports/general_stats`)
+      if (!response.ok) throw new Error("Could not load event reports")
       const data = await response.json
 
-      if (response.ok) {
-        setStats({
-          paid: data.paid,
-          pending: data.pending,
-          refunded: data.refunded,
-        })
-        setTicketTypes(data.ticket_types || [])
-        setEvent(data.event)
-      }
-      setLoading(false)
+      setStats({
+        paid: data.paid,
+        pending: data.pending,
+        refunded: data.refunded,
+      })
+      setTicketTypes(data.ticket_types || [])
+      setEvent(data.event)
     } catch (error) {
       console.error("Error fetching reports data:", error)
+      setError(true)
+    } finally {
       setLoading(false)
+      setRefreshing(false)
     }
   }
 
-  const totalRevenue = stats.paid.total + stats.pending.total
-  const totalOrders = stats.paid.count + stats.pending.count + stats.refunded.count
+  const totalRevenue = stats.paid.total
+  const totalTicketsSold = stats.paid.count
+  const totalTicketsAvailable = ticketTypes.reduce((total, ticketType) => total + ticketType.available_quantity, 0)
 
   const barChartData = [
     { name: I18n.t("events.edit.reports.status.paid"), value: stats.paid.total, fill: COLORS.paid },
@@ -117,15 +123,111 @@ export default function Reports() {
     )
   }
 
+  if (error && !event) {
+    return (
+      <div className="space-y-4 py-12 text-center" role="alert">
+        <p className="text-muted-foreground">{I18n.t("events.edit.reports.load_error")}</p>
+        <Button variant="outline" onClick={fetchReportsData} disabled={refreshing}>
+          <RefreshCw className={refreshing ? "animate-spin" : ""} aria-hidden="true" />
+          {I18n.t("events.edit.reports.refresh")}
+        </Button>
+      </div>
+    )
+  }
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold tracking-tight">{I18n.t("events.edit.reports.title")}</h2>
-        <p className="text-muted-foreground">{I18n.t("events.edit.reports.description")}</p>
+    <div className="space-y-8">
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold tracking-tight">{I18n.t("events.edit.reports.title")}</h2>
+          <p className="mt-1 text-sm text-muted-foreground">{I18n.t("events.edit.reports.description")}</p>
+        </div>
+        <Button variant="outline" className="rounded-full px-5" onClick={fetchReportsData} disabled={refreshing}>
+          <RefreshCw className={refreshing ? "animate-spin" : ""} aria-hidden="true" />
+          {I18n.t("events.edit.reports.refresh")}
+        </Button>
       </div>
 
+      {error && <p role="alert" className="text-sm text-destructive">{I18n.t("events.edit.reports.load_error")}</p>}
+
+      <Card className="rounded-2xl shadow-none dark:bg-muted/20" aria-busy={refreshing}>
+        <CardContent className="grid divide-y p-0 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+          <div className="min-w-0 px-6 py-8 text-center sm:py-10">
+            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{I18n.t("events.edit.reports.total_revenue")}</p>
+            <p className="mt-4 break-words text-3xl font-semibold tracking-tight tabular-nums lg:text-4xl">{formatMoney(totalRevenue, event?.currency)}</p>
+          </div>
+          <div className="min-w-0 px-6 py-8 text-center sm:py-10">
+            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{I18n.t("events.edit.reports.total_orders")}</p>
+            <p className="mt-4 text-3xl font-semibold tracking-tight tabular-nums lg:text-4xl">{totalTicketsSold.toLocaleString(currentLocale())}</p>
+          </div>
+          <div className="min-w-0 px-6 py-8 text-center sm:py-10">
+            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{I18n.t("events.edit.reports.tickets_available")}</p>
+            <p className="mt-4 text-3xl font-semibold tracking-tight tabular-nums lg:text-4xl">{totalTicketsAvailable.toLocaleString(currentLocale())}</p>
+          </div>
+        </CardContent>
+      </Card>
+
+      <section aria-labelledby="ticket-sales-title" className="space-y-4">
+        <div>
+          <h3 id="ticket-sales-title" className="text-lg font-semibold">{I18n.t("events.edit.reports.ticket_types.title")}</h3>
+          <p className="mt-1 text-sm text-muted-foreground">{I18n.t("events.edit.reports.ticket_types.description")}</p>
+        </div>
+        {ticketTypes.length === 0 ? (
+          <Card className="rounded-2xl p-8 text-center text-sm text-muted-foreground shadow-none">
+            {I18n.t("events.edit.reports.ticket_types.empty")}
+          </Card>
+        ) : (
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {ticketTypes.map((ticketType) => (
+              <Card key={ticketType.id} className="flex min-w-0 flex-col rounded-2xl shadow-none dark:bg-muted/20">
+                <CardHeader className="pb-5">
+                  <CardTitle className="break-words text-lg leading-snug">{ticketType.title}</CardTitle>
+                </CardHeader>
+                <CardContent className="flex flex-1 flex-col">
+                  <div className="mb-6">
+                    <p className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <DollarSign className="h-4 w-4 shrink-0 text-success" aria-hidden="true" />
+                      {I18n.t("events.edit.reports.ticket_types.total")}
+                    </p>
+                    <p className="mt-2 break-words text-2xl font-bold tracking-tight tabular-nums">{formatMoney(ticketType.revenue, event?.currency)}</p>
+                  </div>
+                  <dl className="space-y-3 text-sm">
+                    <div className="flex items-center justify-between gap-3">
+                      <dt className="flex items-center gap-2 text-muted-foreground"><Ticket className="h-4 w-4 shrink-0" aria-hidden="true" />{I18n.t("events.edit.reports.ticket_types.tickets")}</dt>
+                      <dd className="font-semibold tabular-nums">{ticketType.count.toLocaleString(currentLocale())}</dd>
+                    </div>
+                    <div className="flex items-center justify-between gap-3">
+                      <dt className="text-muted-foreground">{I18n.t("events.edit.reports.tickets_available")}</dt>
+                      <dd className="font-semibold tabular-nums">{ticketType.available_quantity.toLocaleString(currentLocale())}</dd>
+                    </div>
+                    <div className="flex items-center justify-between gap-3 text-muted-foreground">
+                      <dt>{I18n.t("events.edit.reports.ticket_types.pending_tickets")}</dt>
+                      <dd className="tabular-nums">{ticketType.pending.count.toLocaleString(currentLocale())}</dd>
+                    </div>
+                  </dl>
+                  <div className="mt-auto pt-6">
+                    <div className="mb-3 flex items-center justify-between gap-3 text-sm">
+                      <span className="text-muted-foreground">{I18n.t("events.edit.reports.ticket_types.sales_percentage")}</span>
+                      <span className="font-semibold tabular-nums text-orange-600 dark:text-orange-400">
+                        {new Intl.NumberFormat(currentLocale(), { style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(ticketType.sales_percentage / 100)}
+                      </span>
+                    </div>
+                    <Progress
+                      value={ticketType.sales_percentage}
+                      className="h-2 bg-muted"
+                      indicatorStyle={{ backgroundColor: "#f97316", borderRadius: "9999px" }}
+                      aria-label={I18n.t("events.edit.reports.ticket_types.sales_progress", { title: ticketType.title })}
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
+      </section>
+
       {/* Event Status Cards */}
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -174,21 +276,6 @@ export default function Reports() {
             </div>
             <p className="text-xs text-muted-foreground">
               {I18n.t("events.edit.reports.payout_date.description")}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              {I18n.t("events.edit.reports.total_orders")}
-            </CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalOrders}</div>
-            <p className="text-xs text-muted-foreground">
-              {I18n.t("events.edit.reports.total_orders_description")}
             </p>
           </CardContent>
         </Card>
@@ -241,64 +328,6 @@ export default function Reports() {
           </CardContent>
         </Card>
       </div>
-
-      {/* Total Revenue Card */}
-      <Card>
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">
-            {I18n.t("events.edit.reports.total_revenue")}
-          </CardTitle>
-          <DollarSign className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          <div className="text-2xl font-bold">{formatMoney(totalRevenue, event?.currency)}</div>
-          <p className="text-xs text-muted-foreground">
-            {I18n.t("events.edit.reports.total_revenue_description")}
-          </p>
-        </CardContent>
-      </Card>
-
-      {/* Revenue by Ticket Type */}
-      <Card>
-        <CardHeader>
-          <CardTitle>{I18n.t("events.edit.reports.ticket_types.title")}</CardTitle>
-          <CardDescription>
-            {I18n.t("events.edit.reports.ticket_types.description")}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {ticketTypes.length === 0 ? (
-            <p className="py-6 text-center text-sm text-muted-foreground">
-              {I18n.t("events.edit.reports.ticket_types.empty")}
-            </p>
-          ) : (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>{I18n.t("events.edit.reports.ticket_types.ticket_type")}</TableHead>
-                    <TableHead className="text-right">{I18n.t("events.edit.reports.ticket_types.tickets")}</TableHead>
-                    <TableHead className="text-right">{I18n.t("events.edit.reports.status.paid")}</TableHead>
-                    <TableHead className="text-right">{I18n.t("events.edit.reports.status.pending")}</TableHead>
-                    <TableHead className="text-right">{I18n.t("events.edit.reports.ticket_types.total")}</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {ticketTypes.map((ticketType) => (
-                    <TableRow key={ticketType.id}>
-                      <TableCell className="font-medium">{ticketType.title}</TableCell>
-                      <TableCell className="text-right tabular-nums">{ticketType.count}</TableCell>
-                      <TableCell className="text-right tabular-nums">{formatMoney(ticketType.paid.total, event?.currency)}</TableCell>
-                      <TableCell className="text-right tabular-nums">{formatMoney(ticketType.pending.total, event?.currency)}</TableCell>
-                      <TableCell className="text-right font-semibold tabular-nums">{formatMoney(ticketType.revenue, event?.currency)}</TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
 
       {/* Charts */}
       <div className="grid gap-4 md:grid-cols-1">

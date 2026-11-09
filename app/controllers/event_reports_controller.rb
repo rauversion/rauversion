@@ -80,6 +80,12 @@ class EventReportsController < ApplicationController
         stats_by_ticket[ticket_id][state] = { count: count.to_i, total: total.to_f }
       end
 
+    reserved_by_ticket = purchased_items
+      .where(purchased_item_type: "EventTicket", state: "pending")
+      .where("purchased_items.created_at >= ?", Time.current - Purchase::PENDING_RESERVATION_TTL)
+      .group(:purchased_item_id)
+      .count
+
     EventTicket.with_deleted
       .where(event_id: @event.id)
       .order(:position, :id)
@@ -87,12 +93,19 @@ class EventReportsController < ApplicationController
         status_stats = %w[paid pending refunded].index_with do |state|
           stats_by_ticket.dig(ticket.id, state) || { count: 0, total: 0.0 }
         end
+        sold = status_stats["paid"][:count]
+        remaining = ticket.deleted? ? 0 : [ticket.qty.to_i, 0].max
+        total_quantity = sold + remaining
+        available_quantity = [remaining - reserved_by_ticket.fetch(ticket.id, 0), 0].max
 
         {
           id: ticket.id,
           title: ticket.title,
-          count: status_stats.values_at("paid", "pending").sum { |stats| stats[:count] },
-          revenue: status_stats.values_at("paid", "pending").sum { |stats| stats[:total] },
+          count: sold,
+          revenue: status_stats["paid"][:total],
+          available_quantity: available_quantity,
+          total_quantity: total_quantity,
+          sales_percentage: total_quantity.positive? ? (sold.fdiv(total_quantity) * 100).round(1) : 0.0,
           paid: status_stats["paid"],
           pending: status_stats["pending"],
           refunded: status_stats["refunded"]
@@ -119,11 +132,10 @@ class EventReportsController < ApplicationController
     start_date = params[:start_date]&.to_date || [@event.created_at.to_date, 30.days.ago.to_date].max
     end_date = params[:end_date]&.to_date || Date.today
 
-    purchased_items = @event.purchased_items.where(created_at: start_date.beginning_of_day..end_date.end_of_day)
+    purchased_items = @event.purchased_items.where(state: "paid", created_at: start_date.beginning_of_day..end_date.end_of_day)
 
     # Group by day
     daily_revenue = purchased_items
-      .where(state: ['paid', 'pending'])
       .group_by_day(:created_at, range: start_date..end_date)
       .sum(:price)
 
@@ -137,7 +149,7 @@ class EventReportsController < ApplicationController
       end_date: end_date,
       daily_revenue: daily_revenue.transform_keys { |k| k.strftime('%Y-%m-%d') },
       daily_orders: daily_orders.transform_keys { |k| k.strftime('%Y-%m-%d') },
-      total_revenue: purchased_items.where(state: ['paid', 'pending']).sum(:price).to_f,
+      total_revenue: purchased_items.sum(:price).to_f,
       total_orders: purchased_items.count
     }
   end

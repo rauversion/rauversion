@@ -735,20 +735,26 @@ en:
           delete_confirm: Are you sure you want to delete this recording?
           general_error: Something went wrong
       reports:
-        title: Reports
-        description: View sales and revenue statistics for your event
+        title: Sales summary
+        description: Tickets sold and revenue from confirmed payments for your event.
         loading: Loading reports...
-        total_revenue: Total Revenue
-        total_revenue_description: Combined paid and pending revenue
-        total_orders: Total Orders
-        total_orders_description: All ticket orders
-        orders: orders
+        refresh: Refresh
+        load_error: We couldn't update the report. Please try again.
+        total_revenue: Confirmed revenue
+        tickets_available: Tickets available
+        total_revenue_description: Confirmed payments only. Excludes pending and refunded tickets.
+        total_orders: Tickets sold
+        total_orders_description: Tickets with confirmed payment
+        orders: tickets
         ticket_types:
-          title: Revenue by ticket type
-          description: Paid and pending revenue for each ticket type
+          title: Sales by ticket type
+          description: Only paid tickets count as sales. Pending payments are shown separately.
           ticket_type: Ticket type
-          tickets: Tickets
-          total: Total
+          tickets: Tickets sold
+          total: Confirmed revenue
+          pending_tickets: Pending payment
+          sales_percentage: "% sold"
+          sales_progress: "Percentage sold for %{title}"
           empty: There are no ticket types for this event yet.
         event_status:
           title: Event Status
@@ -766,8 +772,8 @@ en:
         charts:
           revenue_by_status: Revenue by Status
           revenue_description: Total amount by payment status
-          orders_distribution: Orders Distribution
-          orders_description: Number of orders by status
+          orders_distribution: Ticket distribution
+          orders_description: Number of tickets by payment status
       teams:
         title: Teams and Managers
         description: Manage team members and roles
