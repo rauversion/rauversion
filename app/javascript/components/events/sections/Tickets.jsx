@@ -107,6 +107,13 @@ const ticketSchema = z.object({
   short_description: z.string().optional(),
   price: z.coerce.number().min(0),
   qty: z.coerce.number().min(0),
+  simulated_stock: z.preprocess((value) => {
+    if (value === "" || value === null || typeof value === "undefined") return null
+
+    return Number(value)
+  }, z.number().int().positive({
+    message: I18n.t('events.edit.tickets.form.simulated_stock.validation'),
+  }).nullable()),
   selling_start: z.preprocess((arg) => {
     if (typeof arg === 'string') return new Date(arg)
     if (arg instanceof Date) return arg
@@ -264,6 +271,7 @@ const ticketFormValue = (ticket) => {
     short_description: ticket.short_description,
     price: ticket.price,
     qty: ticket.qty,
+    simulated_stock: settings.simulated_stock ?? null,
     selling_start: formatDateSafely(ticket.selling_start),
     selling_end: formatDateSafely(ticket.selling_end),
     min_tickets_per_order: settings.min_tickets_per_order ?? 1,
@@ -410,6 +418,7 @@ export default function Tickets() {
       short_description: "",
       price: 0,
       qty: 1,
+      simulated_stock: null,
       selling_start: new Date(),
       selling_end: new Date(),
       min_tickets_per_order: 1,
@@ -830,7 +839,7 @@ export default function Tickets() {
                         </div>
 
                         {/* Pricing and Quantity */}
-                        <div className="grid grid-cols-3 gap-4">
+                        <div className="grid gap-4 sm:grid-cols-3">
                           <FormField
                             control={form.control}
                             name={`tickets.${index}.price`}
@@ -854,6 +863,23 @@ export default function Tickets() {
                                 <FormControl>
                                   <Input type="number" min="0" {...field} />
                                 </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name={`tickets.${index}.simulated_stock`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>{I18n.t('events.edit.tickets.form.simulated_stock.label')}</FormLabel>
+                                <FormControl>
+                                  <Input type="number" min="1" step="1" {...field} value={field.value ?? ""} />
+                                </FormControl>
+                                <FormDescription>
+                                  {I18n.t('events.edit.tickets.form.simulated_stock.description')}
+                                </FormDescription>
                                 <FormMessage />
                               </FormItem>
                             )}

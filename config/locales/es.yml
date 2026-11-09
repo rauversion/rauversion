@@ -417,6 +417,10 @@ es:
             label: Precio
           qty:
             label: Cantidad Total
+          simulated_stock:
+            label: Stock simulado (opcional)
+            description: "Entradas disponibles para calcular la barra pública. Cuando queden menos entradas reales, se usará el stock real. No modifica las ventas ni los reportes. Déjalo vacío para usar siempre el stock real."
+            validation: Ingresa un número entero mayor que cero o deja el campo vacío.
           sale_start:
             label: Inicio de Venta
           sale_end:

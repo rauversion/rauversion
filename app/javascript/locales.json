@@ -1558,6 +1558,11 @@
               "description": "Show the Sell Until date on the event page",
               "label": "Show sell until"
             },
+            "simulated_stock": {
+              "description": "Available tickets used to calculate the public bar. When fewer real tickets remain, the real stock is used. Does not change sales or reports. Leave blank to always use real stock.",
+              "label": "Simulated stock (optional)",
+              "validation": "Enter a whole number greater than zero or leave blank."
+            },
             "suggested_price": {
               "description": "Default amount shown to buyers. It does not change the minimum price.",
               "label": "Suggested Price",
@@ -7334,6 +7339,11 @@
             "show_sell_until": {
               "description": "Mostrar la fecha de venta hasta en la página del evento",
               "label": "Mostrar venta hasta"
+            },
+            "simulated_stock": {
+              "description": "Entradas disponibles para calcular la barra pública. Cuando queden menos entradas reales, se usará el stock real. No modifica las ventas ni los reportes. Déjalo vacío para usar siempre el stock real.",
+              "label": "Stock simulado (opcional)",
+              "validation": "Ingresa un número entero mayor que cero o deja el campo vacío."
             },
             "suggested_price": {
               "description": "Monto mostrado por defecto a los compradores. No cambia el precio mínimo.",

@@ -57,6 +57,7 @@ export interface EventSiteTicket {
   formatted_price?: string
   short_description?: string
   quantity?: number
+  display_quantity?: number
   total_quantity?: number
   sold_out?: boolean
   minimum_price?: number | null
@@ -248,6 +249,7 @@ function normalizeTicket(value: unknown): EventSiteTicket | null {
     short_description:
       typeof value.short_description === "string" ? value.short_description : undefined,
     quantity: typeof value.quantity === "number" ? value.quantity : Number(value.quantity) || undefined,
+    display_quantity: value.display_quantity == null ? undefined : Number(value.display_quantity),
     total_quantity: value.total_quantity == null ? undefined : Number(value.total_quantity),
     sold_out: value.sold_out === true || value["sold_out?"] === true,
     minimum_price: minimumPrice === null ? null : Number.isFinite(minimumPrice) ? minimumPrice : undefined,

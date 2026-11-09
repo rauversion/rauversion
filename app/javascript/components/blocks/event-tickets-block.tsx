@@ -288,7 +288,7 @@ export function EventTicketsBlock({
                 </div>
                 {showRemaining && typeof ticket.quantity === "number" ? (
                   <TicketAvailability
-                    remaining={ticket.quantity}
+                    remaining={ticket.display_quantity ?? ticket.quantity}
                     total={ticket.total_quantity}
                     title={ticket.title}
                     className="mt-4"

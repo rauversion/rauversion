@@ -28,8 +28,10 @@ class EventTicket < ApplicationRecord
   store_accessor :settings, :show_remaining_count, :boolean
   store_accessor :settings, :requires_login, :boolean
   store_accessor :settings, :required_identifier, :string
+  store_accessor :settings, :simulated_stock
 
   validates :required_identifier, inclusion: { in: %w[rut] }, allow_blank: true
+  validates :simulated_stock, numericality: { only_integer: true, greater_than: 0 }, allow_blank: true
 
   validates :title, presence: true
   validates :price, presence: true
@@ -81,6 +83,12 @@ class EventTicket < ApplicationRecord
 
   def total_quantity
     [qty.to_i, 0].max + purchased_items.where(state: "paid").count
+  end
+
+  def display_quantity(available_quantity: self.available_quantity)
+    return available_quantity if simulated_stock.blank?
+
+    [available_quantity, simulated_stock.to_i].min
   end
 
   def deletable?

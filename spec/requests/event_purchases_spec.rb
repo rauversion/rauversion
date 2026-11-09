@@ -86,6 +86,7 @@ RSpec.describe "EventPurchases", type: :request do
       ticket = json.fetch("tickets").find { |item| item["id"] == paid_ticket.id }
 
       expect(ticket["quantity"]).to eq(9)
+      expect(ticket["display_quantity"]).to eq(9)
       expect(ticket["total_quantity"]).to eq(10)
       expect(ticket["sold_out?"]).to eq(false)
     end
@@ -100,6 +101,45 @@ RSpec.describe "EventPurchases", type: :request do
 
       ticket = JSON.parse(response.body).fetch("tickets").find { |item| item["id"] == paid_ticket.id }
       expect(ticket).to include("quantity" => 8, "total_quantity" => 10)
+    end
+
+    it "uses simulated stock for the public bar while keeping real stock available to purchase" do
+      paid_ticket.update!(simulated_stock: 2)
+      sign_out user
+
+      get new_event_event_purchase_path(event, format: :json)
+
+      expect(response).to have_http_status(:success)
+      ticket = JSON.parse(response.body).fetch("tickets").sole
+      expect(ticket).to include("quantity" => 10, "display_quantity" => 2, "total_quantity" => 10, "sold_out?" => false)
+    end
+
+    [2, 1, 0].each do |remaining|
+      it "uses real stock with #{remaining} tickets remaining at or below the simulated threshold" do
+        purchase = create(:purchase, user: user, purchasable: event, state: "paid")
+        (10 - remaining).times do
+          create(:purchased_item, purchase: purchase, purchased_item: paid_ticket, state: "paid")
+        end
+        paid_ticket.update!(qty: remaining, simulated_stock: 2, show_after_sold_out: true)
+
+        get new_event_event_purchase_path(event, format: :json)
+
+        expect(response).to have_http_status(:success)
+        ticket = JSON.parse(response.body).fetch("tickets").sole
+        expect(ticket).to include(
+          "quantity" => remaining, "display_quantity" => remaining, "total_quantity" => 10,
+          "sold_out?" => remaining.zero?
+        )
+      end
+    end
+
+    it "does not increase public availability when simulated stock exceeds real stock" do
+      paid_ticket.update!(simulated_stock: 20)
+
+      get new_event_event_purchase_path(event, format: :json)
+
+      ticket = JSON.parse(response.body).fetch("tickets").sole
+      expect(ticket).to include("quantity" => 10, "display_quantity" => 10, "total_quantity" => 10)
     end
 
     it "returns tickets in the order configured in the event editor" do
@@ -252,6 +292,21 @@ RSpec.describe "EventPurchases", type: :request do
           }
         end
       }.to change { free_ticket.reload.qty }.from(10).to(8)
+    end
+
+    it "allows purchases larger than the simulated stock and decrements only real stock" do
+      free_ticket.update!(simulated_stock: 1)
+
+      perform_enqueued_jobs do
+        post event_event_purchases_path(event, format: :json), params: {
+          tickets: [{ id: free_ticket.id, quantity: 2 }]
+        }, as: :json
+      end
+
+      expect(response).to have_http_status(:success)
+      expect(Purchase.last.state).to eq("paid")
+      expect(free_ticket.reload.qty).to eq(8)
+      expect(free_ticket.simulated_stock).to eq(1)
     end
   end
 

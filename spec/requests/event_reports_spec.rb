@@ -97,6 +97,17 @@ RSpec.describe "EventReports", type: :request do
       expect(json.fetch("ticket_types").sum { |ticket_type| ticket_type.fetch("revenue") }).to eq(json.dig("paid", "total"))
     end
 
+    it "uses real sales and stock in reports when simulated stock is configured" do
+      ticket.update!(simulated_stock: 1)
+      sign_in owner
+
+      get event_event_report_path(event, "general_stats", format: :json)
+
+      expect(response).to have_http_status(:ok)
+      general = JSON.parse(response.body).fetch("ticket_types").find { |ticket_type| ticket_type.fetch("id") == ticket.id }
+      expect(general).to include("count" => 1, "available_quantity" => 10, "total_quantity" => 11, "sales_percentage" => 9.1)
+    end
+
     it "shows full sell-through for sold out tickets and zero for empty inventory without sales" do
       ticket.update!(qty: 0)
       unsold_ticket.update!(qty: 0)

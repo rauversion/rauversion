@@ -393,6 +393,10 @@ en:
             label: Price
           qty:
             label: Total Quantity
+          simulated_stock:
+            label: Simulated stock (optional)
+            description: "Available tickets used to calculate the public bar. When fewer real tickets remain, the real stock is used. Does not change sales or reports. Leave blank to always use real stock."
+            validation: Enter a whole number greater than zero or leave blank.
           sale_start:
             label: Sale Start
           sale_end:

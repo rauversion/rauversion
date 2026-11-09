@@ -148,6 +148,23 @@ RSpec.describe EventTicket, type: :model do
       ticket = FactoryBot.build(:event_ticket, event: event, selling_start: 1.day.ago, selling_end: 1.day.from_now)
       expect(ticket).to be_valid
     end
+
+    it "allows simulated stock to be blank or a positive whole number" do
+      [nil, "", 1, "20"].each do |stock|
+        ticket = build(:event_ticket, event: event, simulated_stock: stock)
+
+        expect(ticket).to be_valid, "expected simulated stock #{stock.inspect} to be valid"
+      end
+    end
+
+    it "rejects simulated stock that is zero, negative, fractional or not numeric" do
+      [0, -1, 1.5, "1.5", "invalid"].each do |stock|
+        ticket = build(:event_ticket, event: event, simulated_stock: stock)
+
+        expect(ticket).not_to be_valid, "expected simulated stock #{stock.inspect} to be invalid"
+        expect(ticket.errors[:simulated_stock]).to be_present
+      end
+    end
   end
 
   describe "#free?" do

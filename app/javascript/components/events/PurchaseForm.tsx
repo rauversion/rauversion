@@ -23,6 +23,7 @@ interface Ticket {
   formatted_price?: string
   short_description: string
   quantity: number
+  display_quantity?: number
   total_quantity?: number
   min_tickets_per_order?: number
   max_tickets_per_order?: number
@@ -706,7 +707,7 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
                       </div>
                     )}
                     {event?.show_remaining_tickets && (
-                      <TicketAvailability remaining={ticket.quantity} total={ticket.total_quantity} title={ticket.title} />
+                      <TicketAvailability remaining={ticket.display_quantity ?? ticket.quantity} total={ticket.total_quantity} title={ticket.title} />
                     )}
                   </motion.div>
                 )

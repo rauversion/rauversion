@@ -374,6 +374,44 @@ RSpec.describe "Events", type: :request do
       expect(response_ticket_ids).to eq([vip_ticket.id, general_ticket.id])
     end
 
+    it "saves and clears simulated stock without changing real inventory" do
+      ticket = create(:event_ticket, event: event, qty: 40)
+
+      put event_path(event, format: :json), params: {
+        event: { event_tickets_attributes: [{ id: ticket.id, simulated_stock: 8 }] }
+      }, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(ticket.reload.simulated_stock).to eq(8)
+      expect(ticket.qty).to eq(40)
+      expect(JSON.parse(response.body).fetch("tickets").sole.dig("settings", "simulated_stock")).to eq(8)
+
+      get edit_event_path(event, format: :json)
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body).fetch("tickets").sole.dig("settings", "simulated_stock")).to eq(8)
+
+      put event_path(event, format: :json), params: {
+        event: { event_tickets_attributes: [{ id: ticket.id, simulated_stock: nil }] }
+      }, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(ticket.reload.simulated_stock).to be_nil
+      expect(ticket.qty).to eq(40)
+    end
+
+    it "returns field errors for invalid simulated stock without saving it" do
+      ticket = create(:event_ticket, event: event, qty: 40)
+
+      put event_path(event, format: :json), params: {
+        event: { event_tickets_attributes: [{ id: ticket.id, simulated_stock: 1.5 }] }
+      }, as: :json
+
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(JSON.parse(response.body).fetch("errors")).to have_key("event_tickets_attributes.0.simulated_stock")
+      expect(ticket.reload.simulated_stock).to be_nil
+    end
+
     it "persists tracking settings and returns them in the update payload" do
       put event_path(event, format: :json), params: {
         event: {
