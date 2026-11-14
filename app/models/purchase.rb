@@ -9,6 +9,11 @@ class Purchase < ApplicationRecord
 
   store_accessor :payment_metadata, :form_responses, :email_locale, :inviter_id
 
+  scope :event_invitations, -> {
+    where(purchasable_type: "Event")
+      .where("purchases.payment_metadata @> '{\"invitation\": true}' OR purchases.payment_metadata ->> 'inviter_id' IS NOT NULL")
+  }
+
   validate :validate_purchased_items
   validate :user_or_guest_email_present
   validate :validate_identifier
@@ -133,6 +138,10 @@ class Purchase < ApplicationRecord
     # Enqueue background job to handle ticket decrements and post-purchase tasks.
     # This prevents blocking the request and allows DB row-locking inside the job.
     ProcessPurchaseJob.perform_later(self.id)
+  end
+
+  def event_invitation?
+    purchasable_type == "Event" && (inviter_id.present? || payment_metadata["invitation"] == true)
   end
 
   # todo: put this on a background job and queue with concurrency 1 per EventTicket

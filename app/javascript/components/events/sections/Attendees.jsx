@@ -59,7 +59,7 @@ import {
 
 const searchSchema = z.object({
   query: z.string(),
-  status: z.enum(["all", "pending", "paid", "refunded"]).default("all"),
+  status: z.enum(["all", "pending", "paid", "invitation", "refunded"]).default("all"),
   checked_in: z.enum(["all", "true", "false"]).default("all"),
 })
 
@@ -70,9 +70,20 @@ const invitationSchema = z.object({
 })
 
 const attendeeStatuses = {
-  paid: { label: I18n.t('events.edit.attendees.status.paid'), color: "bg-success text-success-foreground" },
+  paid: { label: I18n.t('events.edit.attendees.status.paid', { defaultValue: 'Paid' }), color: "bg-success text-success-foreground" },
+  invitation: { label: I18n.t('events.edit.attendees.status.invitation', { defaultValue: 'Invitation' }), color: "bg-secondary" },
   pending: { label: I18n.t('events.edit.attendees.status.pending'), color: "bg-yellow-500 text-yellow-800" },
   refunded: { label: "Refunded", color: "bg-red-500" },
+}
+
+function AttendeeStatus({ item }) {
+  const status = item.state === "paid" && item.invitation ? "invitation" : item.state
+
+  return (
+    <Badge variant="secondary" className={attendeeStatuses[status]?.color || "bg-secondary"}>
+      {attendeeStatuses[status]?.label || status}
+    </Badge>
+  )
 }
 
 export default function Attendees() {
@@ -453,7 +464,8 @@ export default function Attendees() {
                   </FormControl>
                   <SelectContent>
                     <SelectItem value="all">{I18n.t('events.edit.attendees.search.all_statuses')}</SelectItem>
-                    <SelectItem value="paid">{I18n.t('events.edit.attendees.status.paid')}</SelectItem>
+                    <SelectItem value="paid">{attendeeStatuses.paid.label}</SelectItem>
+                    <SelectItem value="invitation">{attendeeStatuses.invitation.label}</SelectItem>
                     <SelectItem value="pending">{I18n.t('events.edit.attendees.status.pending')}</SelectItem>
                     <SelectItem value="refunded">Refunded</SelectItem>
                   </SelectContent>
@@ -502,12 +514,7 @@ export default function Attendees() {
                   <p className="truncate text-sm text-muted-foreground">{item.user.email || item.guest_email}</p>
                   {item.identifier_type === "rut" && <p className="text-sm text-muted-foreground">RUT: {item.identifier_value}</p>}
                 </div>
-                <Badge
-                  variant="secondary"
-                  className={attendeeStatuses[item.state]?.color || 'bg-secondary'}
-                >
-                  {attendeeStatuses[item.state]?.label || item.state}
-                </Badge>
+                <AttendeeStatus item={item} />
               </div>
 
               <div className="mt-4 grid grid-cols-[auto_1fr] gap-x-3 gap-y-2 text-sm">
@@ -571,12 +578,7 @@ export default function Attendees() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge
-                      variant="secondary"
-                      className={attendeeStatuses[item.state]?.color || 'bg-secondary'}
-                    >
-                      {attendeeStatuses[item.state]?.label || item.state}
-                    </Badge>
+                    <AttendeeStatus item={item} />
                   </TableCell>
                   <TableCell>
                     {format(new Date(item.created_at), 'PPP')}

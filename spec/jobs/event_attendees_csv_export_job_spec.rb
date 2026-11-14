@@ -54,6 +54,19 @@ RSpec.describe EventAttendeesCsvExportJob, type: :job do
       expect(row['RUT']).to be_nil
     end
 
+    it 'exports invitations with their list price and zero paid' do
+      purchase.update!(inviter_id: user.id, price: 0)
+
+      EventAttendeesCsvExportJob.perform_now(event.id, user.id, 'status' => 'invitation')
+
+      csv = CSV.parse(ActionMailer::Base.deliveries.last.attachments.first.body.decoded, headers: true)
+      expect(csv.size).to eq(1)
+      row = csv.first
+      expect(row['Status']).to eq('invitation')
+      expect(row['Ticket Price'].to_d).to eq(50)
+      expect(row['Paid Price'].to_d).to eq(0)
+    end
+
     it 'exports soft-deleted tickets with their title and price' do
       item = purchase.purchased_items.first
       item.update!(price: 35)

@@ -436,7 +436,10 @@ RSpec.describe "EventAttendees", type: :request do
       end
     end
     
-    it "creates a new user and purchase with pending status" do
+    it "creates a new user and confirms a complimentary ticket" do
+      event.update!(ticket_currency: "clp")
+      ticket.update!(price: 1500)
+
       expect {
         perform_enqueued_jobs do
           post create_invitation_event_event_attendees_path(event), 
@@ -455,8 +458,17 @@ RSpec.describe "EventAttendees", type: :request do
       expect(new_user).to be_present
       
       purchase = Purchase.last
-      expect(purchase.state).to eq('paid')
-      expect(purchase.purchased_items.first.state).to eq('paid')
+      expect(purchase).to have_attributes(state: "paid", price: 0, currency: "clp", inviter_id: user.id)
+      expect(purchase.purchased_items.sole).to have_attributes(state: "paid", price: 0, currency: "clp")
+      expect(ticket.reload.qty).to eq(0)
+
+      get event_event_attendees_path(event), params: { status: "invitation" }, as: :json
+      attendee = JSON.parse(response.body).fetch("collection").sole
+      expect(attendee).to include("invitation" => true, "price" => "0.0", "currency" => "clp")
+      expect(attendee.fetch("event_ticket")).to include("price" => "1500.0")
+
+      get event_event_attendees_path(event), params: { status: "paid" }, as: :json
+      expect(JSON.parse(response.body).fetch("collection")).to be_empty
     end
 
     it "uses existing user if email already exists" do

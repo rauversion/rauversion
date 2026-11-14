@@ -53,6 +53,7 @@ RSpec.describe "EventReports", type: :request do
       json = JSON.parse(response.body)
       expect(json.dig("paid", "count")).to eq(1)
       expect(json.dig("paid", "total")).to eq(1500.0)
+      expect(json.fetch("invitation")).to eq("count" => 0, "total" => 0.0)
       expect(json.dig("event", "title")).to eq(event.title)
 
       ticket_types = json.fetch("ticket_types").index_by { |ticket_type| ticket_type.fetch("title") }
@@ -144,6 +145,34 @@ RSpec.describe "EventReports", type: :request do
       expect(response).to have_http_status(:ok)
       free_ticket = JSON.parse(response.body).fetch("ticket_types").find { |ticket_type| ticket_type.fetch("id") == unsold_ticket.id }
       expect(free_ticket).to include("count" => 1, "revenue" => 0.0)
+    end
+
+    it "reports invitations separately from sales while accounting for the stock they use" do
+      sign_in owner
+      perform_enqueued_jobs do
+        post create_invitation_event_event_attendees_path(event, format: :json),
+          params: { email: buyer.email, ticket_id: ticket.id }, as: :json
+      end
+      expect(response).to have_http_status(:created)
+
+      get event_event_report_path(event, "general_stats", format: :json)
+      expect(response).to have_http_status(:ok)
+      json = JSON.parse(response.body)
+      expect(json.fetch("paid")).to eq("count" => 1, "total" => 1500.0)
+      expect(json.fetch("invitation")).to eq("count" => 1, "total" => 0.0)
+      ticket_stats = json.fetch("ticket_types").find { |stats| stats.fetch("id") == ticket.id }
+      expect(ticket_stats).to include(
+        "count" => 1,
+        "revenue" => 1500.0,
+        "invitation" => { "count" => 1, "total" => 0.0 },
+        "available_quantity" => 9,
+        "total_quantity" => 11,
+        "sales_percentage" => 9.1
+      )
+
+      get event_event_report_path(event, "orders_distribution", format: :json)
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body).fetch("distribution")).to eq("paid" => 1, "invitation" => 1, "pending" => 1)
     end
 
     it "reports only paid tickets as revenue and sales over time within the requested dates" do

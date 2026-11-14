@@ -1,4 +1,6 @@
 class EventReportsController < ApplicationController
+  REPORT_STATES = %w[paid invitation pending refunded].freeze
+
   before_action :authenticate_user!
   before_action :set_event
   before_action :authorize_manager!
@@ -36,24 +38,11 @@ class EventReportsController < ApplicationController
 
   def general_stats
     purchased_items = @event.purchased_items
+    stats_by_state = purchased_items.group(report_state).pluck(report_state, item_count, item_total)
+      .to_h { |state, count, total| [state, { count: count.to_i, total: total.to_f }] }
 
-    paid_items = purchased_items.where(state: 'paid')
-    pending_items = purchased_items.where(state: 'pending')
-    refunded_items = purchased_items.where(state: 'refunded')
-
-    {
-      paid: {
-        count: paid_items.count,
-        total: paid_items.sum(:price).to_f
-      },
-      pending: {
-        count: pending_items.count,
-        total: pending_items.sum(:price).to_f
-      },
-      refunded: {
-        count: refunded_items.count,
-        total: refunded_items.sum(:price).to_f
-      },
+    status_stats = REPORT_STATES.index_with { |state| stats_by_state.fetch(state, { count: 0, total: 0.0 }) }
+    status_stats.merge(
       ticket_types: ticket_type_stats(purchased_items),
       event: {
         title: @event.title,
@@ -61,7 +50,23 @@ class EventReportsController < ApplicationController
         event_ends: @event.event_ends,
         currency: @event.ticket_currency || 'usd'
       }
-    }
+    )
+  end
+
+  def report_state
+    invitation_ids = @event.purchases.merge(Purchase.event_invitations).select(:id).to_sql
+    @report_state ||= Arel.sql(<<~SQL.squish)
+      CASE WHEN purchased_items.state = 'paid' AND purchased_items.purchase_id IN (#{invitation_ids})
+      THEN 'invitation' ELSE purchased_items.state END
+    SQL
+  end
+
+  def item_count
+    Arel.sql("COUNT(purchased_items.id)")
+  end
+
+  def item_total
+    Arel.sql("COALESCE(SUM(purchased_items.price), 0)")
   end
 
   def ticket_type_stats(purchased_items)
@@ -69,13 +74,8 @@ class EventReportsController < ApplicationController
 
     purchased_items
       .where(purchased_item_type: "EventTicket")
-      .group(:purchased_item_id, :state)
-      .pluck(
-        :purchased_item_id,
-        :state,
-        Arel.sql("COUNT(purchased_items.id)"),
-        Arel.sql("COALESCE(SUM(purchased_items.price), 0)")
-      )
+      .group(:purchased_item_id, report_state)
+      .pluck(:purchased_item_id, report_state, item_count, item_total)
       .each do |ticket_id, state, count, total|
         stats_by_ticket[ticket_id][state] = { count: count.to_i, total: total.to_f }
       end
@@ -90,12 +90,13 @@ class EventReportsController < ApplicationController
       .where(event_id: @event.id)
       .order(:position, :id)
       .map do |ticket|
-        status_stats = %w[paid pending refunded].index_with do |state|
+        status_stats = REPORT_STATES.index_with do |state|
           stats_by_ticket.dig(ticket.id, state) || { count: 0, total: 0.0 }
         end
         sold = status_stats["paid"][:count]
+        invited = status_stats["invitation"][:count]
         remaining = ticket.deleted? ? 0 : [ticket.qty.to_i, 0].max
-        total_quantity = sold + remaining
+        total_quantity = sold + invited + remaining
         available_quantity = [remaining - reserved_by_ticket.fetch(ticket.id, 0), 0].max
 
         {
@@ -107,6 +108,7 @@ class EventReportsController < ApplicationController
           total_quantity: total_quantity,
           sales_percentage: total_quantity.positive? ? (sold.fdiv(total_quantity) * 100).round(1) : 0.0,
           paid: status_stats["paid"],
+          invitation: status_stats["invitation"],
           pending: status_stats["pending"],
           refunded: status_stats["refunded"]
         }
@@ -118,7 +120,7 @@ class EventReportsController < ApplicationController
     
     total = purchased_items.count
     
-    distribution = purchased_items.group(:state).count
+    distribution = purchased_items.group(report_state).count
     
     {
       total: total,

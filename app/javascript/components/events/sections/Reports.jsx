@@ -13,6 +13,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, PieChart, Pie, Cell } from 
 
 const COLORS = {
   paid: "hsl(142, 76%, 36%)",
+  invitation: "hsl(217, 78%, 52%)",
   pending: "hsl(48, 96%, 53%)",
   refunded: "hsl(0, 84%, 60%)",
 }
@@ -21,6 +22,10 @@ const chartConfig = {
   paid: {
     label: "Paid",
     color: COLORS.paid,
+  },
+  invitation: {
+    label: "Invitations",
+    color: COLORS.invitation,
   },
   pending: {
     label: "Pending",
@@ -58,6 +63,7 @@ export default function Reports() {
   const [error, setError] = React.useState(false)
   const [stats, setStats] = React.useState({
     paid: { count: 0, total: 0 },
+    invitation: { count: 0 },
     pending: { count: 0, total: 0 },
     refunded: { count: 0, total: 0 },
   })
@@ -79,6 +85,7 @@ export default function Reports() {
 
       setStats({
         paid: data.paid,
+        invitation: data.invitation,
         pending: data.pending,
         refunded: data.refunded,
       })
@@ -105,6 +112,7 @@ export default function Reports() {
 
   const pieChartData = [
     { name: I18n.t("events.edit.reports.status.paid"), value: stats.paid.count, fill: COLORS.paid },
+    { name: I18n.t("events.edit.reports.invitations"), value: stats.invitation.count, fill: COLORS.invitation },
     { name: I18n.t("events.edit.reports.status.pending"), value: stats.pending.count, fill: COLORS.pending },
     { name: I18n.t("events.edit.reports.status.refunded"), value: stats.refunded.count, fill: COLORS.refunded },
   ]
@@ -151,16 +159,20 @@ export default function Reports() {
       {error && <p role="alert" className="text-sm text-destructive">{I18n.t("events.edit.reports.load_error")}</p>}
 
       <Card className="rounded-2xl shadow-none dark:bg-muted/20" aria-busy={refreshing}>
-        <CardContent className="grid divide-y p-0 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-          <div className="min-w-0 px-6 py-8 text-center sm:py-10">
+        <CardContent className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl bg-border p-0 lg:grid-cols-4">
+          <div className="min-w-0 bg-card px-3 py-6 text-center sm:px-6 sm:py-10">
             <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{I18n.t("events.edit.reports.total_revenue")}</p>
             <p className="mt-4 break-words text-3xl font-semibold tracking-tight tabular-nums lg:text-4xl">{formatMoney(totalRevenue, event?.currency)}</p>
           </div>
-          <div className="min-w-0 px-6 py-8 text-center sm:py-10">
+          <div className="min-w-0 bg-card px-3 py-6 text-center sm:px-6 sm:py-10">
             <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{I18n.t("events.edit.reports.total_orders")}</p>
             <p className="mt-4 text-3xl font-semibold tracking-tight tabular-nums lg:text-4xl">{totalTicketsSold.toLocaleString(currentLocale())}</p>
           </div>
-          <div className="min-w-0 px-6 py-8 text-center sm:py-10">
+          <div className="min-w-0 bg-card px-3 py-6 text-center sm:px-6 sm:py-10">
+            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{I18n.t("events.edit.reports.invitations")}</p>
+            <p className="mt-4 text-3xl font-semibold tracking-tight tabular-nums lg:text-4xl">{stats.invitation.count.toLocaleString(currentLocale())}</p>
+          </div>
+          <div className="min-w-0 bg-card px-3 py-6 text-center sm:px-6 sm:py-10">
             <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">{I18n.t("events.edit.reports.tickets_available")}</p>
             <p className="mt-4 text-3xl font-semibold tracking-tight tabular-nums lg:text-4xl">{totalTicketsAvailable.toLocaleString(currentLocale())}</p>
           </div>
@@ -195,6 +207,10 @@ export default function Reports() {
                     <div className="flex items-center justify-between gap-3">
                       <dt className="flex items-center gap-2 text-muted-foreground"><Ticket className="h-4 w-4 shrink-0" aria-hidden="true" />{I18n.t("events.edit.reports.ticket_types.tickets")}</dt>
                       <dd className="font-semibold tabular-nums">{ticketType.count.toLocaleString(currentLocale())}</dd>
+                    </div>
+                    <div className="flex items-center justify-between gap-3">
+                      <dt className="text-muted-foreground">{I18n.t("events.edit.reports.invitations")}</dt>
+                      <dd className="font-semibold tabular-nums">{ticketType.invitation.count.toLocaleString(currentLocale())}</dd>
                     </div>
                     <div className="flex items-center justify-between gap-3">
                       <dt className="text-muted-foreground">{I18n.t("events.edit.reports.tickets_available")}</dt>
@@ -397,7 +413,7 @@ export default function Reports() {
               </PieChart>
             </ChartContainer>
 
-            <div className="mt-4 grid gap-2 sm:grid-cols-3">
+            <div className="mt-4 grid grid-cols-2 gap-2">
               {pieChartData.map((entry) => (
                 <div
                   key={entry.name}

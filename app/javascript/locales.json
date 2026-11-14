@@ -963,6 +963,7 @@
             "attending": "Attending",
             "cancelled": "Cancelled",
             "checked_in": "Registrado a las %{time}",
+            "invitation": "Invitation",
             "pending": "Pending"
           },
           "subtitle": "Manage attendees and their status",
@@ -1098,18 +1099,19 @@
         },
         "reports": {
           "charts": {
-            "orders_description": "Number of tickets by payment status",
+            "orders_description": "Number of tickets by status",
             "orders_distribution": "Ticket distribution",
             "revenue_by_status": "Revenue by Status",
             "revenue_description": "Total amount by payment status"
           },
-          "description": "Tickets sold and revenue from confirmed payments for your event.",
+          "description": "Ticket sales, invitations and confirmed revenue for your event.",
           "event_status": {
             "ended": "Ended",
             "in_progress": "In Progress",
             "title": "Event Status",
             "upcoming": "Upcoming"
           },
+          "invitations": "Invitations",
           "load_error": "We couldn't update the report. Please try again.",
           "loading": "Loading reports...",
           "orders": "tickets",
@@ -1125,7 +1127,7 @@
             "refunded": "Refunded"
           },
           "ticket_types": {
-            "description": "Only paid tickets count as sales. Pending payments are shown separately.",
+            "description": "Sales, invitations and pending payments by ticket type.",
             "empty": "There are no ticket types for this event yet.",
             "pending_tickets": "Pending payment",
             "sales_percentage": "% sold",
@@ -6705,6 +6707,7 @@
           "status": {
             "cancelled": "Cancelado",
             "checked_in": "Registrado a las %{time}",
+            "invitation": "Invitación",
             "paid": "Pagado",
             "pending": "Pendiente"
           },
@@ -6876,18 +6879,19 @@
         },
         "reports": {
           "charts": {
-            "orders_description": "Número de tickets por estado de pago",
+            "orders_description": "Número de tickets por estado",
             "orders_distribution": "Distribución de tickets",
             "revenue_by_status": "Ingresos por Estado",
             "revenue_description": "Monto total por estado de pago"
           },
-          "description": "Tickets vendidos e ingresos de pagos confirmados de tu evento.",
+          "description": "Ventas, invitaciones e ingresos confirmados de tu evento.",
           "event_status": {
             "ended": "Finalizado",
             "in_progress": "En Progreso",
             "title": "Estado del Evento",
             "upcoming": "Próximo"
           },
+          "invitations": "Invitaciones",
           "load_error": "No pudimos actualizar el reporte. Inténtalo nuevamente.",
           "loading": "Cargando reportes...",
           "orders": "tickets",
@@ -6903,7 +6907,7 @@
             "refunded": "Reembolsado"
           },
           "ticket_types": {
-            "description": "Sólo los tickets pagados se cuentan como ventas. Los pendientes de pago se muestran aparte.",
+            "description": "Ventas, invitaciones y pagos pendientes por tipo de ticket.",
             "empty": "Aún no hay tipos de ticket para este evento.",
             "pending_tickets": "Pendientes de pago",
             "sales_percentage": "% de venta",

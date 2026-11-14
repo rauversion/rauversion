@@ -19,8 +19,14 @@ class EventAttendeesQuery
       SQL
     end
 
-    if @filters['status'].present? && @filters['status'] != 'all'
-      items = items.where(state: @filters['status'])
+    status = @filters['status']
+    case status
+    when 'invitation'
+      items = items.where(state: 'paid', purchase_id: Purchase.event_invitations.select(:id))
+    when 'paid'
+      items = items.where(state: 'paid').where.not(purchase_id: Purchase.event_invitations.select(:id))
+    when 'pending', 'refunded'
+      items = items.where(state: status)
     end
 
     case @filters['checked_in']

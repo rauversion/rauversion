@@ -600,6 +600,7 @@ en:
           button: Search
         status:
           attending: Attending
+          invitation: Invitation
           cancelled: Cancelled
           pending: Pending
           checked_in: Registrado a las %{time}
@@ -740,7 +741,7 @@ en:
           general_error: Something went wrong
       reports:
         title: Sales summary
-        description: Tickets sold and revenue from confirmed payments for your event.
+        description: Ticket sales, invitations and confirmed revenue for your event.
         loading: Loading reports...
         refresh: Refresh
         load_error: We couldn't update the report. Please try again.
@@ -748,11 +749,12 @@ en:
         tickets_available: Tickets available
         total_revenue_description: Confirmed payments only. Excludes pending and refunded tickets.
         total_orders: Tickets sold
+        invitations: Invitations
         total_orders_description: Tickets with confirmed payment
         orders: tickets
         ticket_types:
           title: Sales by ticket type
-          description: Only paid tickets count as sales. Pending payments are shown separately.
+          description: Sales, invitations and pending payments by ticket type.
           ticket_type: Ticket type
           tickets: Tickets sold
           total: Confirmed revenue
@@ -777,7 +779,7 @@ en:
           revenue_by_status: Revenue by Status
           revenue_description: Total amount by payment status
           orders_distribution: Ticket distribution
-          orders_description: Number of tickets by payment status
+          orders_description: Number of tickets by status
       teams:
         title: Teams and Managers
         description: Manage team members and roles

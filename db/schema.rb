@@ -10,30 +10,30 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_14_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "vector"
 
   create_table "active_storage_attachments", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "record_type", null: false
+    t.bigint "record_id", null: false
     t.bigint "blob_id", null: false
     t.datetime "created_at", null: false
-    t.string "name", null: false
-    t.bigint "record_id", null: false
-    t.string "record_type", null: false
     t.index ["blob_id"], name: "index_active_storage_attachments_on_blob_id"
     t.index ["record_type", "record_id", "name", "blob_id"], name: "index_active_storage_attachments_uniqueness", unique: true
   end
 
   create_table "active_storage_blobs", force: :cascade do |t|
-    t.bigint "byte_size", null: false
-    t.string "checksum"
-    t.string "content_type"
-    t.datetime "created_at", null: false
-    t.string "filename", null: false
     t.string "key", null: false
+    t.string "filename", null: false
+    t.string "content_type"
     t.text "metadata"
     t.string "service_name", null: false
+    t.bigint "byte_size", null: false
+    t.string "checksum"
+    t.datetime "created_at", null: false
     t.index ["key"], name: "index_active_storage_blobs_on_key", unique: true
   end
 
@@ -44,92 +44,92 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
   end
 
   create_table "billing_events", force: :cascade do |t|
-    t.datetime "created_at", null: false
+    t.string "provider", null: false
+    t.string "provider_event_id", null: false
     t.string "event_type", null: false
     t.jsonb "payload", default: {}, null: false
     t.datetime "processed_at"
     t.text "processing_error"
-    t.string "provider", null: false
-    t.string "provider_event_id", null: false
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["provider", "provider_event_id"], name: "index_billing_events_on_provider_and_provider_event_id", unique: true
   end
 
   create_table "categories", force: :cascade do |t|
-    t.datetime "created_at", null: false
     t.string "name"
     t.string "slug"
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
   create_table "comments", force: :cascade do |t|
-    t.text "body"
-    t.bigint "commentable_id", null: false
     t.string "commentable_type", null: false
-    t.datetime "created_at", null: false
-    t.integer "parent_id"
-    t.datetime "updated_at", null: false
+    t.bigint "commentable_id", null: false
     t.bigint "user_id", null: false
+    t.text "body"
+    t.integer "parent_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["commentable_type", "commentable_id"], name: "index_comments_on_commentable"
     t.index ["user_id"], name: "index_comments_on_user_id"
   end
 
   create_table "connected_accounts", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.bigint "parent_id", null: false
-    t.string "password"
-    t.string "state"
-    t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.string "state"
+    t.bigint "parent_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "password"
     t.index ["parent_id"], name: "index_connected_accounts_on_parent_id"
     t.index ["user_id"], name: "index_connected_accounts_on_user_id"
   end
 
   create_table "conversations", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.bigint "messageable_id", null: false
-    t.string "messageable_type", null: false
-    t.string "status"
     t.string "subject"
+    t.string "messageable_type", null: false
+    t.bigint "messageable_id", null: false
+    t.string "status"
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["messageable_type", "messageable_id"], name: "index_conversations_on_messageable"
   end
 
   create_table "coupons", force: :cascade do |t|
+    t.bigint "user_id", null: false
     t.string "code", null: false
-    t.datetime "created_at", null: false
-    t.decimal "discount_amount", precision: 10, scale: 2, null: false
     t.string "discount_type", null: false
+    t.decimal "discount_amount", precision: 10, scale: 2, null: false
     t.datetime "expires_at", null: false
     t.string "stripe_id"
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
     t.index ["code"], name: "index_coupons_on_code", unique: true
     t.index ["user_id"], name: "index_coupons_on_user_id"
   end
 
   create_table "course_documents", force: :cascade do |t|
-    t.bigint "course_id", null: false
-    t.datetime "created_at", null: false
     t.bigint "lesson_id"
-    t.string "name"
     t.string "title"
+    t.string "name"
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "course_id", null: false
     t.index ["course_id"], name: "index_course_documents_on_course_id"
     t.index ["lesson_id"], name: "index_course_documents_on_lesson_id"
   end
 
   create_table "course_enrollments", force: :cascade do |t|
-    t.datetime "completed_at"
-    t.bigint "course_id", null: false
-    t.datetime "created_at", null: false
-    t.datetime "enrolled_at"
-    t.datetime "last_accessed_at"
-    t.jsonb "metadata"
-    t.jsonb "progress"
-    t.string "status", default: "enrolled"
-    t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.bigint "course_id", null: false
+    t.jsonb "progress"
+    t.jsonb "metadata"
+    t.datetime "enrolled_at"
+    t.datetime "completed_at"
+    t.datetime "last_accessed_at"
+    t.string "status", default: "enrolled"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["course_id", "user_id"], name: "index_course_enrollments_on_course_id_and_user_id", unique: true
     t.index ["course_id"], name: "index_course_enrollments_on_course_id"
     t.index ["user_id"], name: "index_course_enrollments_on_user_id"
@@ -137,38 +137,38 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
 
   create_table "course_modules", force: :cascade do |t|
     t.bigint "course_id", null: false
-    t.datetime "created_at", null: false
-    t.text "description"
-    t.bigint "position"
     t.string "title"
+    t.text "description"
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "position"
     t.index ["course_id"], name: "index_course_modules_on_course_id"
   end
 
   create_table "courses", force: :cascade do |t|
-    t.string "category"
-    t.boolean "certificate"
-    t.string "cover_type", default: "image", null: false
-    t.datetime "created_at", null: false
+    t.bigint "user_id", null: false
+    t.string "title"
     t.text "description"
+    t.string "category"
+    t.string "level"
     t.string "duration"
-    t.string "enrollment_type"
-    t.boolean "featured"
+    t.decimal "price", default: "0.0", null: false
     t.string "instructor"
     t.string "instructor_title"
     t.boolean "is_published"
-    t.string "level"
-    t.integer "max_students", default: 0
-    t.decimal "price", default: "0.0", null: false
-    t.boolean "published"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "seo_title"
     t.text "seo_description"
     t.string "seo_keywords"
-    t.string "seo_title"
+    t.integer "max_students", default: 0
+    t.string "enrollment_type"
+    t.boolean "certificate"
+    t.boolean "featured"
+    t.boolean "published"
     t.string "slug"
     t.bigint "tenant_id", null: false
-    t.string "title"
-    t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
+    t.string "cover_type", default: "image", null: false
     t.string "youtube_url"
     t.index ["tenant_id", "slug"], name: "index_courses_on_tenant_id_and_slug"
     t.index ["tenant_id"], name: "index_courses_on_tenant_id"
@@ -176,67 +176,67 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
   end
 
   create_table "editor_templates", force: :cascade do |t|
-    t.string "category", null: false
-    t.datetime "created_at", null: false
-    t.text "description"
-    t.string "name", null: false
-    t.jsonb "page_data", default: {}, null: false
-    t.string "thumbnail"
-    t.datetime "updated_at", null: false
     t.bigint "user_id"
+    t.string "name", null: false
+    t.text "description"
+    t.string "category", null: false
+    t.string "thumbnail"
+    t.jsonb "page_data", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["category", "user_id"], name: "index_editor_templates_on_category_and_user_id"
     t.index ["user_id"], name: "index_editor_templates_on_user_id"
   end
 
   create_table "email_templates", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.jsonb "document", default: {}, null: false
+    t.bigint "user_id", null: false
     t.string "name", null: false
+    t.string "subject", default: "", null: false
     t.string "preheader"
     t.boolean "published", default: false, null: false
-    t.string "subject", default: "", null: false
+    t.jsonb "document", default: {}, null: false
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
     t.index ["document"], name: "index_email_templates_on_document", using: :gin
     t.index ["user_id", "updated_at"], name: "index_email_templates_on_user_id_and_updated_at"
     t.index ["user_id"], name: "index_email_templates_on_user_id"
   end
 
   create_table "embedded_sites", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "site_name"
+    t.string "site_url"
+    t.string "custom_domain"
+    t.string "default_locale"
+    t.string "support_email"
     t.jsonb "allowed_origins", default: [], null: false
     t.jsonb "brand_settings", default: {}, null: false
     t.datetime "created_at", null: false
-    t.string "custom_domain"
-    t.string "default_locale"
-    t.string "site_name"
-    t.string "site_url"
-    t.string "support_email"
     t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
     t.index ["custom_domain"], name: "index_embedded_sites_on_custom_domain", unique: true
     t.index ["user_id"], name: "index_embedded_sites_on_user_id", unique: true
   end
 
   create_table "event_commission_invoices", force: :cascade do |t|
-    t.decimal "commission_amount", precision: 12, scale: 2, default: "0.0", null: false
-    t.datetime "created_at", null: false
-    t.string "currency", null: false
     t.bigint "event_id", null: false
-    t.datetime "finalized_at"
-    t.datetime "generated_at"
-    t.bigint "generated_by_id"
-    t.string "hosted_invoice_url"
-    t.string "invoice_pdf"
-    t.jsonb "metadata", default: {}, null: false
     t.bigint "organizer_id", null: false
-    t.boolean "paid_out_of_band", default: true, null: false
+    t.bigint "generated_by_id"
+    t.string "currency", null: false
+    t.decimal "ticket_subtotal_amount", precision: 12, scale: 2, default: "0.0", null: false
+    t.decimal "commission_amount", precision: 12, scale: 2, default: "0.0", null: false
     t.integer "paid_purchases_count", default: 0, null: false
     t.integer "paid_tickets_count", default: 0, null: false
-    t.string "status", default: "pending", null: false
     t.string "stripe_customer_id"
     t.string "stripe_invoice_id"
     t.string "stripe_invoice_item_id"
-    t.decimal "ticket_subtotal_amount", precision: 12, scale: 2, default: "0.0", null: false
+    t.string "hosted_invoice_url"
+    t.string "invoice_pdf"
+    t.string "status", default: "pending", null: false
+    t.boolean "paid_out_of_band", default: true, null: false
+    t.datetime "generated_at"
+    t.datetime "finalized_at"
+    t.jsonb "metadata", default: {}, null: false
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["event_id", "currency"], name: "index_event_commission_invoices_on_event_id_and_currency", unique: true
     t.index ["event_id"], name: "index_event_commission_invoices_on_event_id"
@@ -247,29 +247,29 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
   end
 
   create_table "event_hosts", force: :cascade do |t|
-    t.string "access_role", null: false
-    t.datetime "created_at", null: false
+    t.string "name"
     t.text "description"
     t.bigint "event_id", null: false
-    t.boolean "event_manager"
-    t.boolean "listed_on_page"
-    t.string "name"
-    t.datetime "updated_at", null: false
     t.bigint "user_id"
+    t.boolean "listed_on_page"
+    t.boolean "event_manager"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "access_role", null: false
     t.index ["access_role"], name: "index_event_hosts_on_access_role"
     t.index ["event_id"], name: "index_event_hosts_on_event_id"
     t.index ["user_id"], name: "index_event_hosts_on_user_id"
   end
 
   create_table "event_list_contacts", force: :cascade do |t|
-    t.string "country"
-    t.datetime "created_at", null: false
-    t.string "dni"
-    t.string "email", null: false
     t.bigint "event_list_id", null: false
+    t.string "email", null: false
+    t.string "name"
     t.string "first_name"
     t.string "last_name"
-    t.string "name"
+    t.string "dni"
+    t.string "country"
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["email"], name: "index_event_list_contacts_on_email"
     t.index ["event_list_id", "email"], name: "index_event_list_contacts_on_event_list_id_and_email", unique: true
@@ -277,55 +277,103 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
   end
 
   create_table "event_lists", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.bigint "event_id", null: false
     t.string "name", null: false
+    t.bigint "event_id", null: false
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["event_id", "name"], name: "index_event_lists_on_event_id_and_name", unique: true
     t.index ["event_id"], name: "index_event_lists_on_event_id"
   end
 
-  create_table "event_recordings", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.text "description"
+  create_table "event_menu_items", force: :cascade do |t|
     t.bigint "event_id", null: false
-    t.text "iframe"
-    t.integer "position"
-    t.jsonb "properties"
-    t.string "title"
+    t.bigint "product_id", null: false
+    t.string "category", null: false
+    t.string "pickup_station"
+    t.integer "position", default: 0, null: false
+    t.boolean "enabled", default: true, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id", "product_id"], name: "index_event_menu_items_on_event_id_and_product_id", unique: true
+    t.index ["event_id"], name: "index_event_menu_items_on_event_id"
+    t.index ["product_id"], name: "index_event_menu_items_on_product_id"
+  end
+
+  create_table "event_menu_order_items", force: :cascade do |t|
+    t.bigint "event_menu_order_id", null: false
+    t.bigint "product_id", null: false
+    t.string "title", null: false
+    t.string "pickup_station"
+    t.decimal "price", precision: 12, scale: 2, null: false
+    t.integer "quantity", null: false
+    t.integer "redeemed_quantity", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_menu_order_id"], name: "index_event_menu_order_items_on_event_menu_order_id"
+    t.index ["product_id"], name: "index_event_menu_order_items_on_product_id"
+    t.check_constraint "quantity > 0 AND redeemed_quantity >= 0 AND redeemed_quantity <= quantity", name: "valid_menu_redemption_quantities"
+  end
+
+  create_table "event_menu_orders", force: :cascade do |t|
+    t.bigint "event_id", null: false
+    t.bigint "product_purchase_id"
+    t.string "token", null: false
+    t.string "email"
+    t.string "currency", null: false
+    t.string "origin", null: false
+    t.datetime "expires_at", null: false
+    t.datetime "reserved_at"
+    t.datetime "released_at"
+    t.string "checkout_url"
+    t.jsonb "checkout_payload"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["event_id"], name: "index_event_menu_orders_on_event_id"
+    t.index ["product_purchase_id"], name: "index_event_menu_orders_on_product_purchase_id", unique: true
+    t.index ["token"], name: "index_event_menu_orders_on_token", unique: true
+  end
+
+  create_table "event_recordings", force: :cascade do |t|
     t.string "type"
+    t.string "title"
+    t.text "description"
+    t.text "iframe"
+    t.jsonb "properties"
+    t.integer "position"
+    t.bigint "event_id", null: false
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["event_id"], name: "index_event_recordings_on_event_id"
   end
 
   create_table "event_schedules", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.string "description"
-    t.datetime "end_date"
     t.bigint "event_id", null: false
-    t.string "name"
-    t.string "schedule_type"
     t.datetime "start_date"
+    t.datetime "end_date"
+    t.string "schedule_type"
+    t.string "name"
+    t.string "description"
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["event_id"], name: "index_event_schedules_on_event_id"
   end
 
   create_table "event_tickets", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "deleted_at"
+    t.string "title"
+    t.decimal "price"
     t.decimal "early_bird_price"
+    t.decimal "standard_price"
+    t.integer "qty"
+    t.datetime "selling_start"
+    t.datetime "selling_end"
+    t.string "short_description"
+    t.jsonb "settings"
     t.bigint "event_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.datetime "deleted_at"
     t.bigint "event_list_id"
     t.integer "position", null: false
-    t.decimal "price"
-    t.integer "qty"
-    t.datetime "selling_end"
-    t.datetime "selling_start"
-    t.jsonb "settings"
-    t.string "short_description"
-    t.decimal "standard_price"
-    t.string "title"
-    t.datetime "updated_at", null: false
     t.index ["deleted_at"], name: "index_event_tickets_on_deleted_at"
     t.index ["event_id", "position"], name: "index_event_tickets_on_event_id_and_position"
     t.index ["event_id"], name: "index_event_tickets_on_event_id"
@@ -333,150 +381,153 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
   end
 
   create_table "events", force: :cascade do |t|
-    t.string "age_requirement"
-    t.jsonb "attendee_list_settings"
-    t.string "city"
-    t.string "country"
-    t.datetime "created_at", null: false
+    t.string "title"
     t.text "description"
-    t.boolean "eticket"
-    t.boolean "event_capacity"
-    t.integer "event_capacity_limit"
-    t.datetime "event_ends"
-    t.jsonb "event_settings"
-    t.string "event_short_link"
-    t.datetime "event_start"
-    t.decimal "lat", precision: 10, scale: 6
-    t.decimal "lng", precision: 10, scale: 6
-    t.string "location"
-    t.boolean "online"
-    t.jsonb "order_form"
-    t.string "postal"
-    t.boolean "private"
-    t.string "province"
-    t.jsonb "scheduling_settings"
-    t.jsonb "site_data", default: {}, null: false
     t.string "slug"
     t.string "state"
-    t.jsonb "streaming_service", default: {}
+    t.string "timezone"
+    t.datetime "event_start"
+    t.datetime "event_ends"
+    t.boolean "private"
+    t.boolean "online"
+    t.string "location"
     t.string "street"
     t.string "street_number"
-    t.jsonb "tax_rates_settings"
-    t.bigint "tenant_id", null: false
-    t.jsonb "tickets"
-    t.string "timezone"
-    t.string "title"
-    t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
+    t.decimal "lat", precision: 10, scale: 6
+    t.decimal "lng", precision: 10, scale: 6
     t.string "venue"
-    t.string "visibility", default: "public"
-    t.jsonb "widget_button"
+    t.string "country"
+    t.string "city"
+    t.string "province"
+    t.string "postal"
+    t.string "age_requirement"
+    t.boolean "event_capacity"
+    t.integer "event_capacity_limit"
+    t.boolean "eticket"
     t.boolean "will_call"
+    t.jsonb "order_form"
+    t.jsonb "widget_button"
+    t.string "event_short_link"
+    t.jsonb "tax_rates_settings"
+    t.jsonb "attendee_list_settings"
+    t.jsonb "scheduling_settings"
+    t.jsonb "event_settings"
+    t.jsonb "tickets"
+    t.bigint "user_id", null: false
+    t.jsonb "streaming_service", default: {}
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "visibility", default: "public"
+    t.jsonb "site_data", default: {}, null: false
+    t.bigint "tenant_id", null: false
+    t.boolean "menu_enabled", default: false, null: false
+    t.string "menu_currency", default: "clp", null: false
+    t.text "menu_instructions"
     t.index ["tenant_id", "slug"], name: "index_events_on_tenant_id_and_slug"
     t.index ["tenant_id"], name: "index_events_on_tenant_id"
     t.index ["user_id"], name: "index_events_on_user_id"
   end
 
   create_table "follows", force: :cascade do |t|
-    t.datetime "created_at"
-    t.integer "followable_id"
-    t.string "followable_type"
-    t.integer "follower_id"
     t.string "follower_type"
+    t.integer "follower_id"
+    t.string "followable_type"
+    t.integer "followable_id"
+    t.datetime "created_at"
     t.index ["followable_id", "followable_type"], name: "fk_followables"
     t.index ["follower_id", "follower_type"], name: "fk_follows"
   end
 
   create_table "friendly_id_slugs", force: :cascade do |t|
-    t.datetime "created_at"
-    t.string "scope"
     t.string "slug", null: false
     t.integer "sluggable_id", null: false
     t.string "sluggable_type", limit: 50
+    t.string "scope"
+    t.datetime "created_at"
     t.index ["slug", "sluggable_type", "scope"], name: "index_friendly_id_slugs_on_slug_and_sluggable_type_and_scope", unique: true
     t.index ["slug", "sluggable_type"], name: "index_friendly_id_slugs_on_slug_and_sluggable_type"
     t.index ["sluggable_type", "sluggable_id"], name: "index_friendly_id_slugs_on_sluggable_type_and_sluggable_id"
   end
 
   create_table "interest_alerts", force: :cascade do |t|
-    t.boolean "approved", default: false, null: false
-    t.text "body", null: false
-    t.datetime "created_at", null: false
-    t.string "role", null: false
-    t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.text "body", null: false
+    t.string "role", null: false
+    t.boolean "approved", default: false, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_interest_alerts_on_user_id"
   end
 
   create_table "lessons", force: :cascade do |t|
     t.bigint "course_module_id", null: false
-    t.datetime "created_at", null: false
-    t.text "description"
+    t.string "title"
     t.string "duration"
     t.string "lesson_type"
-    t.bigint "position"
-    t.string "title"
-    t.string "type"
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.text "description"
+    t.string "type"
+    t.bigint "position"
     t.string "youtube_url"
     t.index ["course_module_id"], name: "index_lessons_on_course_module_id"
   end
 
   create_table "likes", force: :cascade do |t|
-    t.datetime "created_at"
-    t.integer "likeable_id"
-    t.string "likeable_type"
-    t.integer "liker_id"
     t.string "liker_type"
+    t.integer "liker_id"
+    t.string "likeable_type"
+    t.integer "likeable_id"
+    t.datetime "created_at"
     t.index ["likeable_id", "likeable_type"], name: "fk_likeables"
     t.index ["liker_id", "liker_type"], name: "fk_likes"
   end
 
   create_table "link_services", force: :cascade do |t|
-    t.boolean "active", default: true
-    t.datetime "created_at", null: false
-    t.string "icon"
     t.string "name"
-    t.integer "position"
-    t.datetime "updated_at", null: false
+    t.string "icon"
     t.string "url_pattern"
+    t.boolean "active", default: true
+    t.integer "position"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["active"], name: "index_link_services_on_active"
     t.index ["position"], name: "index_link_services_on_position"
   end
 
   create_table "listening_events", force: :cascade do |t|
-    t.boolean "bot"
-    t.string "browser_name"
-    t.string "browser_version"
-    t.string "city"
-    t.string "country"
-    t.datetime "created_at", null: false
-    t.string "device_type"
-    t.string "lang"
-    t.string "modern"
-    t.string "platform"
-    t.integer "playlist_id"
-    t.string "referer"
     t.string "remote_ip"
-    t.integer "resource_profile_id"
-    t.boolean "search_engine"
-    t.integer "track_id"
+    t.string "country"
+    t.string "city"
     t.string "ua"
-    t.datetime "updated_at", null: false
-    t.integer "user_id"
-    t.string "utm_campaign"
-    t.string "utm_content"
+    t.string "lang"
+    t.string "referer"
     t.string "utm_medium"
     t.string "utm_source"
+    t.string "utm_campaign"
+    t.string "utm_content"
     t.string "utm_term"
+    t.string "browser_name"
+    t.string "browser_version"
+    t.string "modern"
+    t.string "platform"
+    t.string "device_type"
+    t.boolean "bot"
+    t.boolean "search_engine"
+    t.integer "resource_profile_id"
+    t.integer "user_id"
+    t.integer "track_id"
+    t.integer "playlist_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "memberships", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.string "role", default: "member", null: false
     t.bigint "tenant_id", null: false
-    t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.string "role", default: "member", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["tenant_id", "role"], name: "index_memberships_on_tenant_id_and_role"
     t.index ["tenant_id", "user_id"], name: "index_memberships_on_tenant_id_and_user_id", unique: true
     t.index ["tenant_id"], name: "index_memberships_on_tenant_id"
@@ -484,20 +535,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
   end
 
   create_table "mentions", force: :cascade do |t|
-    t.datetime "created_at"
-    t.integer "mentionable_id"
-    t.string "mentionable_type"
-    t.integer "mentioner_id"
     t.string "mentioner_type"
+    t.integer "mentioner_id"
+    t.string "mentionable_type"
+    t.integer "mentionable_id"
+    t.datetime "created_at"
     t.index ["mentionable_id", "mentionable_type"], name: "fk_mentionables"
     t.index ["mentioner_id", "mentioner_type"], name: "fk_mentions"
   end
 
   create_table "message_reads", force: :cascade do |t|
-    t.datetime "created_at", null: false
     t.bigint "message_id", null: false
     t.bigint "participant_id", null: false
     t.datetime "read_at", null: false
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["message_id", "participant_id"], name: "index_message_reads_on_message_id_and_participant_id", unique: true
     t.index ["message_id"], name: "index_message_reads_on_message_id"
@@ -507,20 +558,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
   create_table "messages", force: :cascade do |t|
     t.text "body"
     t.bigint "conversation_id", null: false
-    t.datetime "created_at", null: false
-    t.string "message_type"
-    t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.string "message_type"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["conversation_id"], name: "index_messages_on_conversation_id"
     t.index ["user_id"], name: "index_messages_on_user_id"
   end
 
   create_table "newsletter_audience_sources", force: :cascade do |t|
     t.bigint "audience_id", null: false
-    t.datetime "created_at", null: false
-    t.integer "position", default: 0, null: false
-    t.jsonb "source_settings", default: {}, null: false
     t.string "source_type", null: false
+    t.jsonb "source_settings", default: {}, null: false
+    t.integer "position", default: 0, null: false
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["audience_id", "position"], name: "index_newsletter_audience_sources_on_audience_id_and_position"
     t.index ["audience_id"], name: "index_newsletter_audience_sources_on_audience_id"
@@ -528,24 +579,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
   end
 
   create_table "newsletter_audiences", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.string "name", null: false
-    t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["user_id", "name"], name: "index_newsletter_audiences_on_user_id_and_name", unique: true
     t.index ["user_id"], name: "index_newsletter_audiences_on_user_id"
   end
 
   create_table "newsletter_broadcast_events", force: :cascade do |t|
     t.bigint "broadcast_id", null: false
-    t.datetime "created_at", null: false
-    t.string "event_type", null: false
-    t.string "ip_address"
-    t.datetime "occurred_at", null: false
     t.bigint "recipient_id", null: false
+    t.string "event_type", null: false
     t.text "tracked_url"
-    t.datetime "updated_at", null: false
+    t.string "ip_address"
     t.text "user_agent"
+    t.datetime "occurred_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["broadcast_id", "event_type"], name: "idx_on_broadcast_id_event_type_4d9080970e"
     t.index ["broadcast_id", "recipient_id", "event_type"], name: "idx_newsletter_broadcast_events_on_broadcast_recipient_type"
     t.index ["broadcast_id"], name: "index_newsletter_broadcast_events_on_broadcast_id"
@@ -554,24 +605,24 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
 
   create_table "newsletter_broadcast_recipients", force: :cascade do |t|
     t.bigint "broadcast_id", null: false
-    t.string "country"
-    t.datetime "created_at", null: false
-    t.string "display_name"
+    t.integer "position", default: 0, null: false
     t.string "email", null: false
-    t.text "error_message"
-    t.jsonb "event_titles", default: [], null: false
-    t.datetime "failed_at"
+    t.string "name"
     t.string "first_name"
     t.string "last_name"
-    t.string "name"
-    t.integer "position", default: 0, null: false
-    t.datetime "sent_at"
+    t.string "country"
+    t.string "username"
+    t.string "display_name"
+    t.jsonb "event_titles", default: [], null: false
+    t.jsonb "ticket_titles", default: [], null: false
     t.jsonb "source_labels", default: [], null: false
     t.jsonb "source_types", default: [], null: false
     t.string "status", default: "pending", null: false
-    t.jsonb "ticket_titles", default: [], null: false
+    t.text "error_message"
+    t.datetime "sent_at"
+    t.datetime "failed_at"
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "username"
     t.index ["broadcast_id", "email"], name: "idx_on_broadcast_id_email_92e8c072d7", unique: true
     t.index ["broadcast_id", "position"], name: "idx_on_broadcast_id_position_3491f48325"
     t.index ["broadcast_id"], name: "index_newsletter_broadcast_recipients_on_broadcast_id"
@@ -579,22 +630,22 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
   end
 
   create_table "newsletter_broadcasts", force: :cascade do |t|
+    t.bigint "user_id", null: false
     t.bigint "audience_id"
-    t.datetime "completed_at"
-    t.datetime "created_at", null: false
     t.bigint "email_template_id"
-    t.datetime "failed_at"
-    t.integer "failed_recipients", default: 0, null: false
-    t.text "html_template"
-    t.text "last_error"
     t.string "name", null: false
-    t.integer "sent_recipients", default: 0, null: false
-    t.datetime "started_at"
     t.string "status", default: "draft", null: false
     t.text "subject_template"
+    t.text "html_template"
     t.integer "total_recipients", default: 0, null: false
+    t.integer "sent_recipients", default: 0, null: false
+    t.integer "failed_recipients", default: 0, null: false
+    t.text "last_error"
+    t.datetime "started_at"
+    t.datetime "completed_at"
+    t.datetime "failed_at"
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
     t.index ["audience_id"], name: "index_newsletter_broadcasts_on_audience_id"
     t.index ["email_template_id"], name: "index_newsletter_broadcasts_on_email_template_id"
     t.index ["status"], name: "index_newsletter_broadcasts_on_status"
@@ -603,23 +654,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
   end
 
   create_table "newsletter_contact_lists", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.string "name", null: false
-    t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["user_id", "name"], name: "index_newsletter_contact_lists_on_user_id_and_name", unique: true
     t.index ["user_id"], name: "index_newsletter_contact_lists_on_user_id"
   end
 
   create_table "newsletter_contacts", force: :cascade do |t|
     t.bigint "contact_list_id", null: false
-    t.string "country"
-    t.datetime "created_at", null: false
-    t.string "dni"
     t.string "email", null: false
+    t.string "name"
     t.string "first_name"
     t.string "last_name"
-    t.string "name"
+    t.string "country"
+    t.string "dni"
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["contact_list_id", "email"], name: "index_newsletter_contacts_on_contact_list_id_and_email", unique: true
     t.index ["contact_list_id"], name: "index_newsletter_contacts_on_contact_list_id"
@@ -627,118 +678,118 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
   end
 
   create_table "nondisposable_disposable_domains", force: :cascade do |t|
-    t.datetime "created_at", null: false
     t.string "name", null: false
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_nondisposable_disposable_domains_on_name", unique: true
   end
 
   create_table "oauth_credentials", force: :cascade do |t|
-    t.datetime "created_at", null: false
+    t.string "uid"
+    t.string "token"
     t.jsonb "data"
     t.string "provider"
-    t.string "token"
-    t.string "uid"
-    t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_oauth_credentials_on_user_id"
   end
 
   create_table "pages", force: :cascade do |t|
     t.jsonb "body"
-    t.datetime "created_at", null: false
-    t.string "menu"
-    t.boolean "published"
-    t.jsonb "settings"
-    t.string "slug"
     t.string "title"
+    t.string "slug"
+    t.boolean "published"
+    t.string "menu"
+    t.jsonb "settings"
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["slug"], name: "index_pages_on_slug"
   end
 
   create_table "participants", force: :cascade do |t|
-    t.bigint "conversation_id", null: false
-    t.datetime "created_at", null: false
-    t.string "role"
-    t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.bigint "conversation_id", null: false
+    t.string "role"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["conversation_id"], name: "index_participants_on_conversation_id"
     t.index ["user_id"], name: "index_participants_on_user_id"
   end
 
   create_table "photos", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.text "description"
-    t.bigint "photoable_id"
-    t.string "photoable_type"
-    t.string "tags", default: [], array: true
-    t.datetime "updated_at", null: false
     t.bigint "user_id"
+    t.text "description"
+    t.string "tags", default: [], array: true
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "photoable_type"
+    t.bigint "photoable_id"
     t.index ["photoable_type", "photoable_id"], name: "index_photos_on_photoable_type_and_photoable_id"
     t.index ["user_id"], name: "index_photos_on_user_id"
   end
 
   create_table "plain_conversations", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.boolean "pinned"
-    t.datetime "pinned_at"
     t.string "subject"
+    t.datetime "pinned_at"
+    t.boolean "pinned"
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
   create_table "plain_messages", force: :cascade do |t|
-    t.text "content"
-    t.datetime "created_at", null: false
-    t.bigint "plain_conversation_id", null: false
     t.string "role"
+    t.text "content"
+    t.bigint "plain_conversation_id", null: false
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["plain_conversation_id"], name: "index_plain_messages_on_plain_conversation_id"
   end
 
   create_table "plan_prices", force: :cascade do |t|
-    t.boolean "active", default: true, null: false
-    t.integer "amount_cents", null: false
-    t.string "billing_interval", default: "month", null: false
-    t.datetime "created_at", null: false
-    t.string "currency", default: "usd", null: false
     t.bigint "plan_id", null: false
     t.string "provider", default: "stripe", null: false
     t.string "provider_price_id"
+    t.string "currency", default: "usd", null: false
+    t.integer "amount_cents", null: false
+    t.string "billing_interval", default: "month", null: false
+    t.boolean "active", default: true, null: false
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["plan_id"], name: "index_plan_prices_on_plan_id"
     t.index ["provider_price_id"], name: "index_plan_prices_on_provider_price_id", unique: true, where: "(provider_price_id IS NOT NULL)"
   end
 
   create_table "plans", force: :cascade do |t|
-    t.boolean "active", default: true, null: false
     t.string "code", null: false
-    t.datetime "created_at", null: false
-    t.text "description"
-    t.jsonb "entitlements", default: {}, null: false
     t.string "name", null: false
+    t.text "description"
+    t.boolean "active", default: true, null: false
     t.integer "position", default: 0, null: false
+    t.jsonb "entitlements", default: {}, null: false
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["code"], name: "index_plans_on_code", unique: true
   end
 
   create_table "playlists", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.string "custom_genre"
-    t.text "description"
-    t.integer "editor_choice_position"
-    t.string "genre"
-    t.integer "label_id"
-    t.integer "likes_count"
-    t.jsonb "metadata"
-    t.string "playlist_type"
-    t.boolean "private"
-    t.datetime "release_date"
-    t.string "slug"
-    t.string "tags", default: [], array: true
-    t.bigint "tenant_id", null: false
-    t.string "title"
-    t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.string "title"
+    t.string "slug"
+    t.text "description"
+    t.jsonb "metadata"
+    t.boolean "private"
+    t.string "playlist_type"
+    t.datetime "release_date"
+    t.string "genre"
+    t.string "custom_genre"
+    t.integer "likes_count"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "tags", default: [], array: true
+    t.integer "label_id"
+    t.integer "editor_choice_position"
+    t.bigint "tenant_id", null: false
     t.index ["label_id"], name: "index_playlists_on_label_id"
     t.index ["slug"], name: "index_playlists_on_slug"
     t.index ["tags"], name: "index_playlists_on_tags", using: :gin
@@ -748,44 +799,44 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
   end
 
   create_table "podcaster_hosts", force: :cascade do |t|
-    t.datetime "created_at", null: false
+    t.bigint "user_id", null: false
     t.bigint "podcaster_info_id", null: false
     t.string "role", default: "host"
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
     t.index ["podcaster_info_id"], name: "index_podcaster_hosts_on_podcaster_info_id"
     t.index ["user_id", "podcaster_info_id"], name: "index_podcaster_hosts_on_user_id_and_podcaster_info_id", unique: true
     t.index ["user_id"], name: "index_podcaster_hosts_on_user_id"
   end
 
   create_table "podcaster_infos", force: :cascade do |t|
-    t.text "about"
-    t.boolean "active"
-    t.datetime "created_at", null: false
-    t.jsonb "data"
-    t.text "description"
-    t.boolean "highlight"
-    t.jsonb "settings"
-    t.text "title"
-    t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.text "description"
+    t.text "title"
+    t.text "about"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.jsonb "settings"
+    t.boolean "highlight"
+    t.jsonb "data"
+    t.boolean "active"
     t.index ["user_id"], name: "index_podcaster_infos_on_user_id"
   end
 
   create_table "posts", force: :cascade do |t|
+    t.bigint "user_id", null: false
     t.jsonb "body"
-    t.bigint "category_id"
-    t.datetime "created_at", null: false
-    t.text "excerpt"
-    t.boolean "private"
     t.jsonb "settings"
+    t.boolean "private"
+    t.text "excerpt"
+    t.string "title"
     t.string "slug"
     t.string "state"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.bigint "category_id"
     t.string "tags", default: [], array: true
     t.bigint "tenant_id", null: false
-    t.string "title"
-    t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
     t.index ["category_id"], name: "index_posts_on_category_id"
     t.index ["slug"], name: "index_posts_on_slug"
     t.index ["tenant_id", "slug"], name: "index_posts_on_tenant_id_and_slug"
@@ -794,185 +845,185 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
   end
 
   create_table "press_kits", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.jsonb "data", default: {}, null: false
-    t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.jsonb "data", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["data"], name: "index_press_kits_on_data", using: :gin
     t.index ["user_id"], name: "index_press_kits_on_user_id"
   end
 
   create_table "press_kits-old", id: :bigint, default: -> { "nextval('press_kits_id_seq'::regclass)" }, force: :cascade do |t|
-    t.text "bio"
-    t.text "booking_info"
-    t.datetime "created_at", null: false
-    t.jsonb "editor_data", default: {}
-    t.text "press_release"
-    t.boolean "published", default: false
-    t.jsonb "settings", default: {}
-    t.text "stage_plot"
-    t.text "technical_rider"
-    t.datetime "updated_at", null: false
-    t.boolean "use_builder", default: false
     t.bigint "user_id", null: false
+    t.text "bio"
+    t.text "press_release"
+    t.text "technical_rider"
+    t.text "stage_plot"
+    t.text "booking_info"
+    t.jsonb "settings", default: {}
+    t.boolean "published", default: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.jsonb "editor_data", default: {}
+    t.boolean "use_builder", default: false
     t.index ["editor_data"], name: "index_press_kits_on_editor_data__", using: :gin
     t.index ["published"], name: "index_press_kits_on_published__"
     t.index ["user_id"], name: "index_press_kits_on_user_id__"
   end
 
   create_table "preview_cards", force: :cascade do |t|
+    t.string "url"
+    t.string "title"
+    t.text "description"
+    t.string "type"
     t.string "author_name"
     t.string "author_url"
-    t.datetime "created_at", null: false
-    t.text "description"
     t.text "html"
     t.string "image"
-    t.string "title"
-    t.string "type"
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "url"
   end
 
   create_table "product_cart_items", force: :cascade do |t|
-    t.datetime "created_at", null: false
     t.bigint "product_cart_id", null: false
     t.bigint "product_id", null: false
     t.integer "quantity"
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["product_cart_id"], name: "index_product_cart_items_on_product_cart_id"
     t.index ["product_id"], name: "index_product_cart_items_on_product_id"
   end
 
   create_table "product_carts", force: :cascade do |t|
+    t.bigint "user_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
     t.index ["user_id"], name: "index_product_carts_on_user_id"
   end
 
   create_table "product_images", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.string "description"
     t.bigint "product_id", null: false
     t.string "title"
+    t.string "description"
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["product_id"], name: "index_product_images_on_product_id"
   end
 
   create_table "product_options", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.string "name", null: false
     t.bigint "product_id", null: false
+    t.string "name", null: false
     t.integer "quantity"
     t.string "sku", null: false
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["product_id"], name: "index_product_options_on_product_id"
     t.index ["sku"], name: "index_product_options_on_sku", unique: true
   end
 
   create_table "product_purchase_items", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.string "currency", default: "usd", null: false
-    t.decimal "price"
-    t.bigint "product_id", null: false
     t.bigint "product_purchase_id", null: false
+    t.bigint "product_id", null: false
     t.integer "quantity"
-    t.decimal "shipping_cost"
+    t.decimal "price"
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.decimal "shipping_cost"
+    t.string "currency", default: "usd", null: false
     t.index ["product_id"], name: "index_product_purchase_items_on_product_id"
     t.index ["product_purchase_id"], name: "index_product_purchase_items_on_product_purchase_id"
   end
 
   create_table "product_purchases", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.string "currency", default: "usd", null: false
-    t.string "delivery_method", default: "shipping", null: false
-    t.string "payment_intent_id"
-    t.string "phone"
-    t.jsonb "shipping_address"
-    t.decimal "shipping_cost"
-    t.string "shipping_name"
-    t.string "shipping_status"
+    t.bigint "user_id"
+    t.decimal "total_amount"
     t.string "status"
-    t.string "stripe_balance_transaction_id"
-    t.bigint "stripe_processing_fee_amount"
+    t.string "stripe_session_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.jsonb "shipping_address"
+    t.string "shipping_name"
+    t.string "phone"
+    t.decimal "shipping_cost"
+    t.string "tracking_code"
+    t.string "payment_intent_id"
+    t.string "shipping_status"
+    t.string "currency", default: "usd", null: false
     t.string "stripe_seller_account_id"
     t.bigint "stripe_service_fee_amount"
-    t.string "stripe_session_id"
+    t.bigint "stripe_processing_fee_amount"
     t.bigint "stripe_transfer_amount"
     t.string "stripe_transfer_currency"
     t.string "stripe_transfer_id"
-    t.decimal "total_amount"
-    t.string "tracking_code"
-    t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
+    t.string "stripe_balance_transaction_id"
+    t.string "delivery_method", default: "shipping", null: false
     t.index ["shipping_status"], name: "index_product_purchases_on_shipping_status"
     t.index ["stripe_transfer_id"], name: "index_product_purchases_on_stripe_transfer_id", unique: true
     t.index ["user_id"], name: "index_product_purchases_on_user_id"
   end
 
   create_table "product_shippings", force: :cascade do |t|
-    t.decimal "additional_cost", precision: 10, scale: 2
-    t.decimal "base_cost", precision: 10, scale: 2
-    t.string "country"
-    t.datetime "created_at", null: false
-    t.boolean "is_default", default: false
     t.bigint "product_id", null: false
+    t.string "country"
+    t.decimal "base_cost", precision: 10, scale: 2
+    t.decimal "additional_cost", precision: 10, scale: 2
+    t.boolean "is_default", default: false
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["product_id"], name: "index_product_shippings_on_product_id"
   end
 
   create_table "product_variants", force: :cascade do |t|
-    t.datetime "created_at", null: false
     t.string "name"
     t.decimal "price"
-    t.bigint "product_id", null: false
     t.integer "stock_quantity"
+    t.bigint "product_id", null: false
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["product_id"], name: "index_product_variants_on_product_id"
   end
 
   create_table "products", force: :cascade do |t|
-    t.boolean "accept_barter", default: false
-    t.boolean "allow_pickup", default: false, null: false
-    t.text "barter_description"
-    t.string "booking_mode", default: "instant_checkout", null: false
-    t.string "brand"
-    t.string "category"
-    t.string "condition"
-    t.bigint "coupon_id"
-    t.bigint "course_id"
-    t.datetime "created_at", null: false
-    t.string "currency", default: "usd", null: false
-    t.jsonb "data"
-    t.datetime "deleted_at"
-    t.bigint "deleted_by_id"
-    t.text "deletion_reason"
+    t.string "title"
     t.text "description"
-    t.boolean "include_digital_album", default: false
+    t.decimal "price"
+    t.integer "stock_quantity"
+    t.string "sku"
+    t.string "category"
+    t.string "status"
+    t.bigint "user_id", null: false
+    t.bigint "playlist_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.boolean "limited_edition", default: false
     t.integer "limited_edition_count"
-    t.string "model"
+    t.boolean "include_digital_album", default: false
+    t.string "visibility", default: "private"
     t.boolean "name_your_price", default: false
-    t.bigint "playlist_id"
-    t.decimal "price"
-    t.integer "quantity"
-    t.string "service_kind", default: "advisory", null: false
-    t.date "shipping_begins_on"
     t.integer "shipping_days"
+    t.date "shipping_begins_on"
     t.decimal "shipping_within_country_price", precision: 10, scale: 2
     t.decimal "shipping_worldwide_price", precision: 10, scale: 2
-    t.string "sku"
+    t.integer "quantity"
     t.string "slug"
-    t.string "status"
-    t.integer "stock_quantity"
-    t.bigint "tenant_id", null: false
-    t.string "title"
-    t.string "type"
-    t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
-    t.string "visibility", default: "private"
+    t.datetime "deleted_at"
+    t.bigint "coupon_id"
+    t.string "condition"
+    t.string "brand"
+    t.string "model"
     t.integer "year"
+    t.boolean "accept_barter", default: false
+    t.text "barter_description"
+    t.jsonb "data"
+    t.string "type"
+    t.bigint "course_id"
+    t.string "service_kind", default: "advisory", null: false
+    t.string "booking_mode", default: "instant_checkout", null: false
+    t.string "currency", default: "usd", null: false
+    t.bigint "deleted_by_id"
+    t.text "deletion_reason"
+    t.bigint "tenant_id", null: false
+    t.boolean "allow_pickup", default: false, null: false
     t.index ["accept_barter"], name: "index_products_on_accept_barter"
     t.index ["brand"], name: "index_products_on_brand"
     t.index ["condition"], name: "index_products_on_condition"
@@ -993,27 +1044,27 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
   end
 
   create_table "products_images", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.string "description"
     t.bigint "product_id", null: false
     t.string "title"
+    t.string "description"
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["product_id"], name: "index_products_images_on_product_id"
   end
 
   create_table "purchased_items", force: :cascade do |t|
+    t.bigint "purchase_id", null: false
+    t.string "purchased_item_type", null: false
+    t.bigint "purchased_item_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "state"
     t.boolean "checked_in"
     t.datetime "checked_in_at"
-    t.datetime "created_at", null: false
-    t.string "currency"
-    t.decimal "price"
-    t.bigint "purchase_id", null: false
-    t.bigint "purchased_item_id", null: false
-    t.string "purchased_item_type", null: false
-    t.string "refund_id"
     t.datetime "refunded_at"
-    t.string "state"
-    t.datetime "updated_at", null: false
+    t.string "refund_id"
+    t.decimal "price"
+    t.string "currency"
     t.index ["checked_in"], name: "index_purchased_items_on_checked_in"
     t.index ["purchase_id"], name: "index_purchased_items_on_purchase_id"
     t.index ["purchased_item_type", "purchased_item_id"], name: "index_purchased_items_on_purchased_item"
@@ -1022,18 +1073,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
   end
 
   create_table "purchases", force: :cascade do |t|
-    t.string "checkout_id"
-    t.string "checkout_type"
+    t.bigint "user_id", null: false
     t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "state"
+    t.string "checkout_type"
+    t.string "checkout_id"
+    t.string "purchasable_type"
+    t.bigint "purchasable_id"
+    t.decimal "price"
     t.string "currency", default: "usd", null: false
     t.string "guest_email"
     t.jsonb "payment_metadata", default: {}, null: false
-    t.decimal "price"
-    t.bigint "purchasable_id"
-    t.string "purchasable_type"
-    t.string "state"
-    t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
     t.index ["checkout_type"], name: "index_purchases_on_checkout_type"
     t.index ["guest_email"], name: "index_purchases_on_guest_email"
     t.index ["purchasable_type", "purchasable_id"], name: "index_purchases_on_purchasable_type_and_purchasable_id"
@@ -1042,10 +1093,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
   end
 
   create_table "release_playlists", force: :cascade do |t|
-    t.datetime "created_at", null: false
+    t.bigint "release_id", null: false
     t.bigint "playlist_id", null: false
     t.integer "position"
-    t.bigint "release_id", null: false
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["playlist_id"], name: "index_release_playlists_on_playlist_id"
     t.index ["position"], name: "index_release_playlists_on_position"
@@ -1055,36 +1106,36 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
 
   create_table "release_section_images", force: :cascade do |t|
     t.string "caption"
-    t.datetime "created_at", null: false
     t.integer "order"
     t.bigint "release_section_id", null: false
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["release_section_id"], name: "index_release_section_images_on_release_section_id"
   end
 
   create_table "release_sections", force: :cascade do |t|
-    t.text "body"
-    t.datetime "created_at", null: false
-    t.jsonb "data"
-    t.integer "position"
-    t.bigint "release_id", null: false
     t.string "title"
+    t.text "body"
+    t.jsonb "data"
+    t.bigint "release_id", null: false
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "position"
     t.index ["release_id"], name: "index_release_sections_on_release_id"
   end
 
   create_table "releases", force: :cascade do |t|
+    t.bigint "playlist_id", null: false
+    t.string "slug"
+    t.string "title"
     t.jsonb "config"
     t.datetime "created_at", null: false
-    t.jsonb "editor_data"
-    t.bigint "playlist_id", null: false
-    t.bigint "product_id"
-    t.boolean "published"
-    t.string "slug"
-    t.bigint "tenant_id", null: false
-    t.string "title"
     t.datetime "updated_at", null: false
+    t.bigint "product_id"
     t.bigint "user_id"
+    t.jsonb "editor_data"
+    t.boolean "published"
+    t.bigint "tenant_id", null: false
     t.index ["playlist_id"], name: "index_releases_on_playlist_id"
     t.index ["product_id"], name: "index_releases_on_product_id"
     t.index ["tenant_id", "slug"], name: "index_releases_on_tenant_id_and_slug"
@@ -1093,40 +1144,40 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
   end
 
   create_table "reposts", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.bigint "track_id", null: false
-    t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.bigint "track_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["track_id"], name: "index_reposts_on_track_id"
     t.index ["user_id"], name: "index_reposts_on_user_id"
   end
 
   create_table "schedule_schedulings", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.datetime "end_date"
     t.bigint "event_schedule_id", null: false
+    t.datetime "start_date"
+    t.datetime "end_date"
     t.string "name"
     t.string "short_description"
-    t.datetime "start_date"
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["event_schedule_id"], name: "index_schedule_schedulings_on_event_schedule_id"
   end
 
   create_table "service_booking_ledger_entries", force: :cascade do |t|
+    t.bigint "service_booking_id", null: false
     t.bigint "actor_id"
-    t.decimal "amount", precision: 12, scale: 2
-    t.datetime "created_at", null: false
-    t.string "currency", default: "usd", null: false
-    t.string "direction", default: "neutral", null: false
     t.string "entry_type", null: false
+    t.string "milestone"
+    t.string "direction", default: "neutral", null: false
+    t.decimal "amount", precision: 12, scale: 2
+    t.string "currency", default: "usd", null: false
+    t.string "status"
     t.string "gateway"
     t.string "gateway_reference"
     t.string "idempotency_key"
     t.jsonb "metadata", default: {}, null: false
-    t.string "milestone"
     t.datetime "occurred_at", null: false
-    t.bigint "service_booking_id", null: false
-    t.string "status"
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["actor_id"], name: "idx_svc_booking_ledger_actor"
     t.index ["gateway", "gateway_reference"], name: "idx_svc_booking_ledger_gateway_ref"
@@ -1137,47 +1188,47 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
   end
 
   create_table "service_booking_proposals", force: :cascade do |t|
-    t.datetime "accepted_at"
-    t.bigint "accepted_by_id"
-    t.boolean "accommodation_included", default: false, null: false
-    t.integer "artist_counter_count", default: 0, null: false
-    t.bigint "artist_id", null: false
-    t.decimal "artist_payout_amount", precision: 12, scale: 2
-    t.decimal "balance_amount", precision: 12, scale: 2
-    t.text "benefits"
-    t.integer "booker_counter_count", default: 0, null: false
-    t.bigint "booker_id", null: false
-    t.boolean "catering_included", default: false, null: false
-    t.string "city", null: false
-    t.jsonb "contract_snapshot", default: {}, null: false
-    t.string "country"
-    t.datetime "created_at", null: false
-    t.string "currency", default: "clp", null: false
-    t.bigint "current_offer_by_id"
-    t.decimal "deposit_amount", precision: 12, scale: 2
-    t.decimal "deposit_percentage", precision: 5, scale: 2, default: "50.0", null: false
-    t.datetime "ends_at"
-    t.date "event_date", null: false
-    t.string "event_name", null: false
-    t.datetime "expires_at"
-    t.string "fee_type", default: "landed", null: false
-    t.integer "guest_list_count", default: 0, null: false
-    t.boolean "hospitality_included", default: false, null: false
-    t.text "message"
-    t.jsonb "negotiation_history", default: [], null: false
-    t.decimal "platform_fee_amount", precision: 12, scale: 2
-    t.decimal "platform_fee_min_amount", precision: 12, scale: 2, default: "5000.0", null: false
-    t.decimal "platform_fee_rate", precision: 5, scale: 4, default: "0.05", null: false
-    t.decimal "proposed_amount", precision: 12, scale: 2, null: false
-    t.bigint "service_booking_id"
     t.bigint "service_product_id", null: false
-    t.datetime "starts_at"
+    t.bigint "booker_id", null: false
+    t.bigint "artist_id", null: false
+    t.bigint "current_offer_by_id"
+    t.bigint "accepted_by_id"
+    t.bigint "service_booking_id"
     t.string "status", default: "pending_artist_response", null: false
-    t.text "technical_notes"
-    t.boolean "transport_included", default: false, null: false
-    t.datetime "updated_at", null: false
-    t.string "venue_address"
+    t.string "event_name", null: false
+    t.date "event_date", null: false
+    t.datetime "starts_at"
+    t.datetime "ends_at"
     t.string "venue_name", null: false
+    t.string "venue_address"
+    t.string "city", null: false
+    t.string "country"
+    t.decimal "proposed_amount", precision: 12, scale: 2, null: false
+    t.string "currency", default: "clp", null: false
+    t.decimal "deposit_percentage", precision: 5, scale: 2, default: "50.0", null: false
+    t.decimal "deposit_amount", precision: 12, scale: 2
+    t.decimal "balance_amount", precision: 12, scale: 2
+    t.string "fee_type", default: "landed", null: false
+    t.boolean "transport_included", default: false, null: false
+    t.boolean "accommodation_included", default: false, null: false
+    t.boolean "hospitality_included", default: false, null: false
+    t.boolean "catering_included", default: false, null: false
+    t.integer "guest_list_count", default: 0, null: false
+    t.text "benefits"
+    t.text "technical_notes"
+    t.text "message"
+    t.integer "booker_counter_count", default: 0, null: false
+    t.integer "artist_counter_count", default: 0, null: false
+    t.jsonb "negotiation_history", default: [], null: false
+    t.decimal "platform_fee_rate", precision: 5, scale: 4, default: "0.05", null: false
+    t.decimal "platform_fee_min_amount", precision: 12, scale: 2, default: "5000.0", null: false
+    t.decimal "platform_fee_amount", precision: 12, scale: 2
+    t.decimal "artist_payout_amount", precision: 12, scale: 2
+    t.datetime "accepted_at"
+    t.datetime "expires_at"
+    t.jsonb "contract_snapshot", default: {}, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["accepted_by_id"], name: "index_service_booking_proposals_on_accepted_by_id"
     t.index ["artist_id", "event_date", "status"], name: "idx_svc_booking_props_artist_date_status"
     t.index ["artist_id"], name: "index_service_booking_proposals_on_artist_id"
@@ -1190,57 +1241,57 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
   end
 
   create_table "service_bookings", force: :cascade do |t|
-    t.jsonb "agreement_snapshot", default: {}, null: false
-    t.decimal "artist_payout_amount", precision: 12, scale: 2
-    t.string "balance_checkout_session_id"
-    t.datetime "balance_confirmed_at"
-    t.decimal "balance_due_amount", precision: 10, scale: 2
-    t.datetime "balance_paid_at"
-    t.string "balance_payment_intent_id"
-    t.datetime "balance_payment_reminder_sent_at"
-    t.string "balance_status", default: "unpaid", null: false
-    t.bigint "cancelled_by_id"
-    t.string "checkout_provider"
-    t.string "city"
-    t.datetime "contract_signed_at"
-    t.string "contract_status", default: "not_generated", null: false
-    t.string "country"
-    t.datetime "created_at", null: false
-    t.string "currency", default: "usd", null: false
+    t.bigint "service_product_id", null: false
     t.bigint "customer_id", null: false
-    t.decimal "deposit_amount", precision: 10, scale: 2
-    t.string "deposit_checkout_session_id"
-    t.datetime "deposit_confirmed_at"
-    t.datetime "deposit_paid_at"
-    t.string "deposit_payment_intent_id"
-    t.datetime "deposit_payment_reminder_sent_at"
-    t.string "deposit_status", default: "unpaid", null: false
-    t.datetime "ends_at"
-    t.text "feedback"
+    t.bigint "provider_id", null: false
+    t.string "status", null: false
     t.jsonb "metadata", default: {}, null: false
-    t.string "payment_intent_id"
-    t.string "payment_session_id"
-    t.string "payment_status", default: "unpaid", null: false
-    t.text "payment_tracking_notes"
-    t.decimal "platform_fee_amount", precision: 12, scale: 2
-    t.decimal "platform_fee_rate", precision: 5, scale: 4, default: "0.05"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "rating"
+    t.text "feedback"
     t.bigint "product_purchase_id"
     t.bigint "product_purchase_item_id"
-    t.datetime "provider_confirmation_reminder_sent_at"
-    t.bigint "provider_id", null: false
-    t.integer "rating"
-    t.string "refund_id"
-    t.string "refund_status", default: "not_requested", null: false
-    t.datetime "refunded_at"
-    t.bigint "service_product_id", null: false
-    t.datetime "starts_at"
-    t.string "status", null: false
+    t.string "currency", default: "usd", null: false
     t.decimal "subtotal_amount", precision: 10, scale: 2
     t.decimal "total_amount", precision: 10, scale: 2
-    t.datetime "upcoming_reminder_sent_at"
-    t.datetime "updated_at", null: false
-    t.string "venue_address"
+    t.decimal "deposit_amount", precision: 10, scale: 2
+    t.decimal "balance_due_amount", precision: 10, scale: 2
+    t.string "payment_status", default: "unpaid", null: false
+    t.string "checkout_provider"
+    t.string "payment_intent_id"
+    t.string "payment_session_id"
+    t.string "refund_status", default: "not_requested", null: false
+    t.string "refund_id"
+    t.datetime "refunded_at"
+    t.datetime "starts_at"
+    t.datetime "ends_at"
     t.string "venue_name"
+    t.string "venue_address"
+    t.string "city"
+    t.string "country"
+    t.jsonb "agreement_snapshot", default: {}, null: false
+    t.string "contract_status", default: "not_generated", null: false
+    t.datetime "contract_signed_at"
+    t.decimal "platform_fee_rate", precision: 5, scale: 4, default: "0.05"
+    t.decimal "platform_fee_amount", precision: 12, scale: 2
+    t.decimal "artist_payout_amount", precision: 12, scale: 2
+    t.string "deposit_status", default: "unpaid", null: false
+    t.string "balance_status", default: "unpaid", null: false
+    t.datetime "deposit_paid_at"
+    t.datetime "deposit_confirmed_at"
+    t.datetime "balance_paid_at"
+    t.datetime "balance_confirmed_at"
+    t.text "payment_tracking_notes"
+    t.string "deposit_checkout_session_id"
+    t.string "deposit_payment_intent_id"
+    t.string "balance_checkout_session_id"
+    t.string "balance_payment_intent_id"
+    t.bigint "cancelled_by_id"
+    t.datetime "provider_confirmation_reminder_sent_at"
+    t.datetime "deposit_payment_reminder_sent_at"
+    t.datetime "balance_payment_reminder_sent_at"
+    t.datetime "upcoming_reminder_sent_at"
     t.index ["balance_checkout_session_id"], name: "index_service_bookings_on_balance_checkout_session_id"
     t.index ["balance_payment_intent_id"], name: "index_service_bookings_on_balance_payment_intent_id"
     t.index ["balance_payment_reminder_sent_at"], name: "index_service_bookings_on_balance_payment_reminder_sent_at"
@@ -1265,18 +1316,18 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
   end
 
   create_table "service_price_rules", force: :cascade do |t|
-    t.boolean "active", default: true, null: false
+    t.bigint "service_product_id", null: false
+    t.string "name", null: false
+    t.string "rule_type", default: "base", null: false
     t.decimal "amount", precision: 10, scale: 2, default: "0.0", null: false
-    t.jsonb "conditions", default: {}, null: false
-    t.datetime "created_at", null: false
     t.string "currency", default: "usd", null: false
     t.integer "duration_minutes"
     t.string "location_scope"
     t.integer "min_notice_days"
-    t.string "name", null: false
+    t.jsonb "conditions", default: {}, null: false
+    t.boolean "active", default: true, null: false
     t.integer "position", default: 0, null: false
-    t.string "rule_type", default: "base", null: false
-    t.bigint "service_product_id", null: false
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["rule_type"], name: "index_service_price_rules_on_rule_type"
     t.index ["service_product_id", "active"], name: "index_service_price_rules_on_service_product_id_and_active"
@@ -1284,28 +1335,28 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
   end
 
   create_table "spotlights", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.integer "position"
-    t.bigint "spotlightable_id", null: false
-    t.string "spotlightable_type", null: false
-    t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.string "spotlightable_type", null: false
+    t.bigint "spotlightable_id", null: false
+    t.integer "position"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["spotlightable_type", "spotlightable_id"], name: "index_spotlights_on_spotlightable"
     t.index ["user_id"], name: "index_spotlights_on_user_id"
   end
 
   create_table "tenant_profiles", force: :cascade do |t|
-    t.text "bio"
-    t.string "city"
-    t.string "country"
-    t.datetime "created_at", null: false
+    t.bigint "tenant_id", null: false
+    t.bigint "user_id", null: false
+    t.string "username"
     t.string "display_name"
     t.string "first_name"
     t.string "last_name"
-    t.bigint "tenant_id", null: false
+    t.string "country"
+    t.string "city"
+    t.text "bio"
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
-    t.string "username"
     t.index ["tenant_id", "user_id"], name: "index_tenant_profiles_on_tenant_id_and_user_id", unique: true
     t.index ["tenant_id", "username"], name: "index_tenant_profiles_on_tenant_id_and_username", unique: true, where: "(username IS NOT NULL)"
     t.index ["tenant_id"], name: "index_tenant_profiles_on_tenant_id"
@@ -1313,23 +1364,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
   end
 
   create_table "tenant_subscriptions", force: :cascade do |t|
-    t.boolean "cancel_at_period_end", default: false, null: false
-    t.datetime "canceled_at"
-    t.datetime "created_at", null: false
-    t.datetime "current_period_ends_at"
-    t.datetime "current_period_starts_at"
-    t.jsonb "entitlements_snapshot", default: {}, null: false
-    t.datetime "grace_period_ends_at"
+    t.bigint "tenant_id", null: false
+    t.bigint "subscriber_id", null: false
     t.bigint "plan_id", null: false
     t.bigint "plan_price_id", null: false
     t.string "provider", default: "stripe", null: false
-    t.string "provider_checkout_session_id"
     t.string "provider_customer_id"
     t.string "provider_subscription_id"
+    t.string "provider_checkout_session_id"
     t.string "status", default: "pending", null: false
-    t.bigint "subscriber_id", null: false
-    t.bigint "tenant_id", null: false
     t.datetime "trial_ends_at"
+    t.datetime "current_period_starts_at"
+    t.datetime "current_period_ends_at"
+    t.boolean "cancel_at_period_end", default: false, null: false
+    t.datetime "canceled_at"
+    t.datetime "grace_period_ends_at"
+    t.jsonb "entitlements_snapshot", default: {}, null: false
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["plan_id"], name: "index_tenant_subscriptions_on_plan_id"
     t.index ["plan_price_id"], name: "index_tenant_subscriptions_on_plan_price_id"
@@ -1340,75 +1391,75 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
   end
 
   create_table "tenants", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "slug", null: false
     t.boolean "central", default: false, null: false
     t.datetime "created_at", null: false
-    t.string "name", null: false
-    t.jsonb "settings", default: {}, null: false
-    t.string "slug", null: false
     t.datetime "updated_at", null: false
+    t.jsonb "settings", default: {}, null: false
     t.index ["central"], name: "index_tenants_on_single_central", unique: true, where: "(central = true)"
     t.index ["slug"], name: "index_tenants_on_slug", unique: true
   end
 
   create_table "terms_and_conditions", force: :cascade do |t|
+    t.string "title"
     t.string "category"
     t.text "content"
     t.datetime "created_at", null: false
-    t.string "title"
     t.datetime "updated_at", null: false
   end
 
   create_table "tickets", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.decimal "early_bird_price"
-    t.bigint "event_id", null: false
-    t.decimal "price"
-    t.integer "qty"
-    t.datetime "selling_end"
-    t.datetime "selling_start"
-    t.jsonb "settings"
-    t.string "short_description"
-    t.decimal "standard_price"
     t.string "title"
+    t.decimal "price"
+    t.decimal "early_bird_price"
+    t.decimal "standard_price"
+    t.integer "qty"
+    t.datetime "selling_start"
+    t.datetime "selling_end"
+    t.string "short_description"
+    t.jsonb "settings"
+    t.bigint "event_id", null: false
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["event_id"], name: "index_tickets_on_event_id"
   end
 
   create_table "track_artists", force: :cascade do |t|
-    t.datetime "created_at", null: false
     t.bigint "track_id", null: false
-    t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["track_id", "user_id"], name: "index_track_artists_on_track_id_and_user_id", unique: true
     t.index ["track_id"], name: "index_track_artists_on_track_id"
     t.index ["user_id"], name: "index_track_artists_on_user_id"
   end
 
   create_table "track_comments", force: :cascade do |t|
-    t.string "body"
-    t.datetime "created_at", null: false
     t.bigint "track_id", null: false
+    t.string "body"
     t.integer "track_minute"
-    t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["track_id"], name: "index_track_comments_on_track_id"
     t.index ["user_id"], name: "index_track_comments_on_user_id"
   end
 
   create_table "track_masters", force: :cascade do |t|
-    t.jsonb "analysis_after", default: {}, null: false
-    t.jsonb "analysis_before", default: {}, null: false
-    t.datetime "completed_at"
-    t.datetime "created_at", null: false
-    t.text "error_message"
-    t.datetime "failed_at"
-    t.text "feedback"
-    t.jsonb "recipe", default: {}, null: false
-    t.text "reference_notes"
-    t.datetime "started_at"
-    t.string "state", default: "pending", null: false
-    t.string "target_profile", default: "demo_balanced", null: false
     t.bigint "track_id", null: false
+    t.string "target_profile", default: "demo_balanced", null: false
+    t.string "state", default: "pending", null: false
+    t.text "feedback"
+    t.text "reference_notes"
+    t.jsonb "recipe", default: {}, null: false
+    t.jsonb "analysis_before", default: {}, null: false
+    t.jsonb "analysis_after", default: {}, null: false
+    t.text "error_message"
+    t.datetime "started_at"
+    t.datetime "completed_at"
+    t.datetime "failed_at"
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["state"], name: "index_track_masters_on_state"
     t.index ["target_profile"], name: "index_track_masters_on_target_profile"
@@ -1417,43 +1468,43 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
   end
 
   create_table "track_peaks", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.jsonb "data"
     t.bigint "track_id", null: false
+    t.jsonb "data"
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["track_id"], name: "index_track_peaks_on_track_id"
   end
 
   create_table "track_playlists", force: :cascade do |t|
+    t.bigint "track_id", null: false
     t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.bigint "playlist_id", null: false
     t.integer "position"
-    t.bigint "track_id", null: false
-    t.datetime "updated_at", null: false
     t.index ["playlist_id"], name: "index_track_playlists_on_playlist_id"
     t.index ["track_id"], name: "index_track_playlists_on_track_id"
   end
 
   create_table "tracks", force: :cascade do |t|
-    t.string "caption"
-    t.datetime "created_at", null: false
-    t.text "description"
-    t.boolean "dj_set", default: false, null: false
-    t.string "genre"
-    t.integer "label_id"
-    t.integer "likes_count"
-    t.jsonb "metadata"
-    t.jsonb "notification_settings"
-    t.boolean "podcast"
-    t.boolean "private"
-    t.integer "reposts_count"
-    t.string "slug"
-    t.string "state"
-    t.string "tags", default: [], array: true
-    t.bigint "tenant_id", null: false
     t.string "title"
-    t.datetime "updated_at", null: false
+    t.boolean "private"
+    t.string "slug"
+    t.string "caption"
     t.bigint "user_id", null: false
+    t.jsonb "notification_settings"
+    t.jsonb "metadata"
+    t.integer "likes_count"
+    t.integer "reposts_count"
+    t.string "state"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.text "description"
+    t.string "genre"
+    t.string "tags", default: [], array: true
+    t.integer "label_id"
+    t.boolean "podcast"
+    t.boolean "dj_set", default: false, null: false
+    t.bigint "tenant_id", null: false
     t.index ["dj_set"], name: "index_tracks_on_dj_set"
     t.index ["label_id"], name: "index_tracks_on_label_id"
     t.index ["slug"], name: "index_tracks_on_slug"
@@ -1464,65 +1515,65 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
   end
 
   create_table "user_links", force: :cascade do |t|
-    t.datetime "created_at", null: false
-    t.string "custom_url"
-    t.integer "position"
     t.string "title"
-    t.string "type"
-    t.datetime "updated_at", null: false
     t.string "url"
+    t.integer "position"
     t.bigint "user_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "type"
     t.string "username"
+    t.string "custom_url"
     t.index ["position"], name: "index_user_links_on_position"
     t.index ["type"], name: "index_user_links_on_type"
     t.index ["user_id"], name: "index_user_links_on_user_id"
   end
 
   create_table "users", force: :cascade do |t|
-    t.text "bio"
-    t.string "city"
-    t.datetime "confirmation_sent_at"
-    t.string "confirmation_token"
-    t.datetime "confirmed_at"
+    t.string "username"
+    t.boolean "label"
+    t.string "support_link"
+    t.string "first_name"
+    t.string "last_name"
     t.string "country"
+    t.string "city"
+    t.text "bio"
+    t.jsonb "settings"
+    t.string "role"
     t.datetime "created_at", null: false
-    t.datetime "current_sign_in_at"
-    t.string "current_sign_in_ip"
-    t.string "display_name"
-    t.boolean "editor"
+    t.datetime "updated_at", null: false
     t.string "email", default: "", null: false
     t.string "encrypted_password", default: "", null: false
-    t.integer "failed_attempts", default: 0, null: false
-    t.boolean "featured", default: false
-    t.string "first_name"
-    t.datetime "invitation_accepted_at"
-    t.datetime "invitation_created_at"
-    t.integer "invitation_limit"
-    t.datetime "invitation_sent_at"
-    t.string "invitation_token"
-    t.integer "invitations_count", default: 0
-    t.bigint "invited_by_id"
-    t.string "invited_by_type"
-    t.boolean "label"
-    t.string "last_name"
+    t.string "reset_password_token"
+    t.datetime "reset_password_sent_at"
+    t.datetime "remember_created_at"
+    t.integer "sign_in_count", default: 0, null: false
+    t.datetime "current_sign_in_at"
     t.datetime "last_sign_in_at"
+    t.string "current_sign_in_ip"
     t.string "last_sign_in_ip"
+    t.string "confirmation_token"
+    t.datetime "confirmed_at"
+    t.datetime "confirmation_sent_at"
+    t.string "unconfirmed_email"
+    t.integer "failed_attempts", default: 0, null: false
+    t.string "unlock_token"
     t.datetime "locked_at"
     t.jsonb "notification_settings"
-    t.datetime "remember_created_at"
-    t.datetime "reset_password_sent_at"
-    t.string "reset_password_token"
-    t.string "role"
+    t.string "invitation_token"
+    t.datetime "invitation_created_at"
+    t.datetime "invitation_sent_at"
+    t.datetime "invitation_accepted_at"
+    t.integer "invitation_limit"
+    t.string "invited_by_type"
+    t.bigint "invited_by_id"
+    t.integer "invitations_count", default: 0
+    t.boolean "editor"
     t.boolean "seller"
-    t.jsonb "settings"
-    t.integer "sign_in_count", default: 0, null: false
     t.jsonb "social_links_settings", default: {}, null: false
+    t.boolean "featured", default: false
     t.string "stripe_account_id"
-    t.string "support_link"
-    t.string "unconfirmed_email"
-    t.string "unlock_token"
-    t.datetime "updated_at", null: false
-    t.string "username"
+    t.string "display_name"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["featured"], name: "index_users_on_featured"
@@ -1537,29 +1588,29 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
   end
 
   create_table "venue_rating_stats", force: :cascade do |t|
-    t.date "bucket_on", null: false
-    t.integer "count", default: 0, null: false
-    t.datetime "created_at", null: false
-    t.datetime "last_review_at"
-    t.string "metric", null: false
-    t.string "reviewer_role", null: false
-    t.decimal "sum", precision: 10, scale: 2, default: "0.0", null: false
-    t.datetime "updated_at", null: false
     t.bigint "venue_id", null: false
+    t.date "bucket_on", null: false
+    t.string "reviewer_role", null: false
+    t.string "metric", null: false
+    t.decimal "sum", precision: 10, scale: 2, default: "0.0", null: false
+    t.integer "count", default: 0, null: false
+    t.datetime "last_review_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
     t.index ["venue_id", "bucket_on", "reviewer_role", "metric"], name: "idx_venue_rating_stats_unique_bucket", unique: true
     t.index ["venue_id", "metric", "bucket_on"], name: "idx_venue_rating_stats_lookup"
     t.index ["venue_id"], name: "index_venue_rating_stats_on_venue_id"
   end
 
   create_table "venue_reviews", force: :cascade do |t|
+    t.bigint "venue_id", null: false
+    t.bigint "user_id", null: false
+    t.string "reviewer_role", null: false
+    t.decimal "overall_rating", precision: 2, scale: 1, null: false
     t.jsonb "aspects", default: {}, null: false
     t.text "comment"
     t.datetime "created_at", null: false
-    t.decimal "overall_rating", precision: 2, scale: 1, null: false
-    t.string "reviewer_role", null: false
     t.datetime "updated_at", null: false
-    t.bigint "user_id", null: false
-    t.bigint "venue_id", null: false
     t.index ["aspects"], name: "index_venue_reviews_on_aspects", using: :gin
     t.index ["reviewer_role"], name: "index_venue_reviews_on_reviewer_role"
     t.index ["user_id"], name: "index_venue_reviews_on_user_id"
@@ -1567,21 +1618,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
   end
 
   create_table "venues", force: :cascade do |t|
-    t.string "address"
-    t.integer "capacity"
+    t.string "name", null: false
     t.string "city"
     t.string "country"
-    t.datetime "created_at", null: false
-    t.text "description"
-    t.string "genres", array: true
-    t.text "image_url"
-    t.decimal "lat", precision: 10, scale: 6
-    t.decimal "lng", precision: 10, scale: 6
-    t.string "name", null: false
-    t.string "price_range"
     t.decimal "rating", precision: 3, scale: 2, default: "0.0", null: false
     t.integer "review_count", default: 0, null: false
+    t.string "genres", array: true
+    t.integer "capacity"
+    t.string "price_range"
+    t.text "description"
+    t.string "address"
+    t.decimal "lat", precision: 10, scale: 6
+    t.decimal "lng", precision: 10, scale: 6
     t.string "slug"
+    t.text "image_url"
+    t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["city"], name: "index_venues_on_city"
     t.index ["country"], name: "index_venues_on_country"
@@ -1612,6 +1663,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_08_120000) do
   add_foreign_key "event_hosts", "users"
   add_foreign_key "event_list_contacts", "event_lists", on_delete: :cascade
   add_foreign_key "event_lists", "events"
+  add_foreign_key "event_menu_items", "events"
+  add_foreign_key "event_menu_items", "products"
+  add_foreign_key "event_menu_order_items", "event_menu_orders"
+  add_foreign_key "event_menu_order_items", "products"
+  add_foreign_key "event_menu_orders", "events"
+  add_foreign_key "event_menu_orders", "product_purchases"
   add_foreign_key "event_recordings", "events"
   add_foreign_key "event_schedules", "events"
   add_foreign_key "event_tickets", "event_lists", on_delete: :nullify

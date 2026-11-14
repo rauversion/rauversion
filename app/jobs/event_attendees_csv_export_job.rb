@@ -54,7 +54,7 @@ class EventAttendeesCsvExportJob < ApplicationJob
           ticket&.title,
           ticket&.price,
           item.price,
-          item.state,
+          item.paid? && purchase.event_invitation? ? 'invitation' : item.state,
           item.created_at.strftime('%Y-%m-%d %H:%M:%S'),
           item.checked_in? ? 'Yes' : 'No',
           item.checked_in_at&.strftime('%Y-%m-%d %H:%M:%S')

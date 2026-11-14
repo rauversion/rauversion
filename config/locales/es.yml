@@ -548,6 +548,7 @@ es:
           actions: Acciones
         status:
           paid: Pagado
+          invitation: Invitación
           cancelled: Cancelado
           pending: Pendiente
           checked_in: Registrado a las %{time}
@@ -790,7 +791,7 @@ es:
           general_error: Algo salió mal
       reports:
         title: Resumen de ventas
-        description: Tickets vendidos e ingresos de pagos confirmados de tu evento.
+        description: Ventas, invitaciones e ingresos confirmados de tu evento.
         loading: Cargando reportes...
         refresh: Recargar
         load_error: No pudimos actualizar el reporte. Inténtalo nuevamente.
@@ -798,11 +799,12 @@ es:
         tickets_available: Tickets disponibles
         total_revenue_description: Sólo pagos confirmados. No incluye pendientes ni reembolsados.
         total_orders: Tickets vendidos
+        invitations: Invitaciones
         total_orders_description: Tickets con pago confirmado
         orders: tickets
         ticket_types:
           title: Ventas por tipo de ticket
-          description: Sólo los tickets pagados se cuentan como ventas. Los pendientes de pago se muestran aparte.
+          description: Ventas, invitaciones y pagos pendientes por tipo de ticket.
           ticket_type: Tipo de ticket
           tickets: Tickets vendidos
           total: Ingresos confirmados
@@ -827,7 +829,7 @@ es:
           revenue_by_status: Ingresos por Estado
           revenue_description: Monto total por estado de pago
           orders_distribution: Distribución de tickets
-          orders_description: Número de tickets por estado de pago
+          orders_description: Número de tickets por estado
       teams:
 
         title: Equipos y Gestores

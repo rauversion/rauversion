@@ -1,10 +1,12 @@
 json.collection @purchased_items do |item|
   purchased_item = @tickets_by_id[item.purchased_item_id] if item.purchased_item_type == 'EventTicket'
   purchase = item.purchase
+  invitation = purchase.event_invitation?
   json.id item.id
   json.created_at item.created_at
   json.checked_in_at item.checked_in_at
   json.state item.state
+  json.invitation invitation
   json.currency item.currency
   json.price item.price
   json.guest_email purchase.guest_email if purchase.guest_email.present?
@@ -14,7 +16,7 @@ json.collection @purchased_items do |item|
   json.event_ticket do
     json.id item.purchased_item_id
     json.title purchased_item&.title
-    json.price item.price || purchased_item&.price
+    json.price invitation ? purchased_item&.price : (item.price || purchased_item&.price)
     json.currency item.currency
   end
 

@@ -87,8 +87,8 @@ class EventAttendeesController < ApplicationController
       user: user,
       purchasable: @event,
       state: 'pending',
-      price: ticket.price,
-      currency: @event.ticket_currency,
+      price: 0,
+      currency: @event.ticket_currency || 'usd',
       inviter_id: current_user.id,
       email_locale: I18n.locale.to_s
     )
@@ -98,8 +98,8 @@ class EventAttendeesController < ApplicationController
     purchase.purchased_items.build(
       purchased_item: ticket,
       state: 'pending',
-      price: ticket.price,
-      currency: @event.ticket_currency || 'usd'
+      price: 0,
+      currency: purchase.currency
     )
 
     if purchase.save
