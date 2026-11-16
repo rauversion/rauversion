@@ -1008,6 +1008,10 @@ en:
           placeholder: Title of the event
         subtitle: Manage the attendees of the event and their status
         export_csv: Export CSV
+        invitation:
+          quantity: Ticket quantity
+          invalid_quantity: Enter a positive whole number.
+          insufficient_quantity: There are not enough tickets available.
         search:
           placeholder: Search by name or email
           filter_status: Filter by state

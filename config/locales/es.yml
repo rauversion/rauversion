@@ -1065,6 +1065,10 @@ es:
         title: Asistentes al Evento
         subtitle: Gestiona los asistentes al evento y su estado
         export_csv: Exportar CSV
+        invitation:
+          quantity: Cantidad de entradas
+          invalid_quantity: Ingresa un número entero mayor que cero.
+          insufficient_quantity: No hay suficientes entradas disponibles.
         search:
           placeholder: Buscar por nombre o email
           filter_status: Filtrar por estado

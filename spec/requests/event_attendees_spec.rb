@@ -419,7 +419,7 @@ RSpec.describe "EventAttendees", type: :request do
     let(:new_email) { 'newuser@example.com' }
 
     { es: 'Te han invitado a', en: "You've been invited to" }.each do |locale, subject_prefix|
-      it "delivers an invitation in #{locale} through the background purchase job" do
+      it "delivers an invitation in #{locale} asynchronously" do
         sign_in grant_admission_staff
 
         perform_enqueued_jobs do
@@ -469,6 +469,41 @@ RSpec.describe "EventAttendees", type: :request do
 
       get event_event_attendees_path(event), params: { status: "paid" }, as: :json
       expect(JSON.parse(response.body).fetch("collection")).to be_empty
+    end
+
+    it "delivers one email with a distinct QR for each complimentary ticket" do
+      ticket.update!(qty: 3)
+
+      expect {
+        perform_enqueued_jobs do
+          post create_invitation_event_event_attendees_path(event, format: :json),
+            params: { email: new_email, ticket_id: ticket.id, quantity: 3 }, as: :json
+        end
+      }.to change(Purchase, :count).by(1).and change(PurchasedItem, :count).by(3)
+
+      expect(response).to have_http_status(:created)
+      expect(ticket.reload.qty).to eq(0)
+      items = Purchase.last.purchased_items
+      expect(items).to all(have_attributes(state: "paid", price: 0, purchased_item: ticket))
+
+      email = ActionMailer::Base.deliveries.select { |mail| mail.to == [new_email] }.sole
+      expect(email.attachments.map(&:filename)).to match_array(items.map { |item| "ticket_#{item.id}_qr_code.png" })
+      expect(email.attachments.map { |attachment| attachment.body.decoded }.uniq.size).to eq(3)
+    end
+
+    it "rejects invalid quantities and quantities above available stock" do
+      ticket.update!(qty: 2)
+
+      [0, -1, 1.5, nil, 3].each do |quantity|
+        expect {
+          post create_invitation_event_event_attendees_path(event, format: :json),
+            params: { email: new_email, ticket_id: ticket.id, quantity: quantity }, as: :json
+        }.not_to change(Purchase, :count)
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+
+      expect(ticket.reload.qty).to eq(2)
+      expect(User.exists?(email: new_email)).to be(false)
     end
 
     it "uses existing user if email already exists" do

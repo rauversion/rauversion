@@ -66,6 +66,7 @@ const searchSchema = z.object({
 const invitationSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
   ticket_id: z.string().min(1, "Please select a ticket"),
+  quantity: z.coerce.number().int().positive(I18n.t("events.edit.attendees.invitation.invalid_quantity")),
   identifier_value: z.string().optional(),
 })
 
@@ -128,6 +129,7 @@ export default function Attendees() {
     defaultValues: {
       email: "",
       ticket_id: "",
+      quantity: "1",
       identifier_value: ""
     }
   })
@@ -204,6 +206,7 @@ export default function Attendees() {
         body: JSON.stringify({
           email: data.email,
           ticket_id: data.ticket_id,
+          quantity: data.quantity,
           ...(invitationRequiresRut ? {
             identifier_type: "rut",
             identifier_value: normalizeRut(data.identifier_value || ""),
@@ -375,6 +378,19 @@ export default function Attendees() {
                               ))}
                             </SelectContent>
                           </Select>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={inviteForm.control}
+                      name="quantity"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{I18n.t("events.edit.attendees.invitation.quantity")}</FormLabel>
+                          <FormControl>
+                            <Input type="number" min={1} step={1} required {...field} />
+                          </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}

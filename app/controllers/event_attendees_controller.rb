@@ -44,75 +44,55 @@ class EventAttendeesController < ApplicationController
       }, status: :unprocessable_entity
     end
 
-    # Find or create user
-    user = User.find_by(email: email)
-    if user.nil?
-      # Create new user with temporary password
-      password = SecureRandom.hex(16)
-      # Generate unique username from email
-      base_username = email.split('@').first.parameterize
-      username = base_username
-      counter = 1
-      while User.exists?(username: username)
-        username = "#{base_username}#{counter}"
-        counter += 1
-      end
-      
-      user = User.new(
-        email: email,
-        username: username,
-        password: password,
-        password_confirmation: password
+    quantity = Integer(params.fetch(:quantity, 1).to_s, 10, exception: false)
+    unless quantity&.positive?
+      return render json: { errors: [I18n.t("events.edit.attendees.invitation.invalid_quantity")] },
+                    status: :unprocessable_entity
+    end
+
+    ticket = @event.event_tickets.find_by(id: ticket_id)
+    unless ticket
+      return render json: { errors: ['Ticket not found'] }, status: :not_found
+    end
+
+    purchase = ticket.with_lock do
+      next if quantity > ticket.available_quantity
+
+      user = User.find_by(email: email) || create_invited_user!(email)
+      invitation = Purchase.new(
+        user: user,
+        purchasable: @event,
+        state: 'paid',
+        price: 0,
+        currency: @event.ticket_currency || 'usd',
+        inviter_id: current_user.id,
+        email_locale: I18n.locale.to_s
       )
-      user.skip_confirmation!
-      
-      unless user.save
-        return render json: { 
-          errors: user.errors.full_messages 
-        }, status: :unprocessable_entity
+      invitation.assign_attributes(params.permit(:identifier_type, :identifier_value))
+
+      quantity.times do
+        invitation.purchased_items.build(
+          purchased_item: ticket,
+          state: 'paid',
+          price: 0,
+          currency: invitation.currency
+        )
       end
+
+      invitation.save!
+      ticket.update_column(:qty, ticket.qty - quantity)
+      invitation
     end
 
-    # Find the ticket
-    begin
-      ticket = @event.event_tickets.find(ticket_id)
-    rescue ActiveRecord::RecordNotFound
-      return render json: { 
-        errors: ['Ticket not found'] 
-      }, status: :not_found
+    unless purchase
+      return render json: { errors: [I18n.t("events.edit.attendees.invitation.insufficient_quantity")] },
+                    status: :unprocessable_entity
     end
 
-    # Create purchase
-    purchase = Purchase.new(
-      user: user,
-      purchasable: @event,
-      state: 'pending',
-      price: 0,
-      currency: @event.ticket_currency || 'usd',
-      inviter_id: current_user.id,
-      email_locale: I18n.locale.to_s
-    )
-    purchase.assign_attributes(params.permit(:identifier_type, :identifier_value))
-
-    # Create purchased item
-    purchase.purchased_items.build(
-      purchased_item: ticket,
-      state: 'pending',
-      price: 0,
-      currency: purchase.currency
-    )
-
-    if purchase.save
-      purchase.complete_purchase!
-      render json: { 
-        message: 'Invitation created successfully',
-        purchase: purchase
-      }, status: :created
-    else
-      render json: { 
-        errors: purchase.errors.full_messages 
-      }, status: :unprocessable_entity
-    end
+    purchase.notify_purchase.deliver_later
+    render json: { message: 'Invitation created successfully', purchase: purchase }, status: :created
+  rescue ActiveRecord::RecordInvalid => error
+    render json: { errors: error.record.errors.full_messages }, status: :unprocessable_entity
   rescue StandardError => e
     Rails.logger.error("Error creating invitation: #{e.message}")
     render json: { 
@@ -222,6 +202,22 @@ class EventAttendeesController < ApplicationController
   end
 
   private
+
+  def create_invited_user!(email)
+    password = SecureRandom.hex(16)
+    base_username = email.split('@').first.to_s.parameterize
+    username = base_username
+    counter = 1
+    while User.exists?(username: username)
+      username = "#{base_username}#{counter}"
+      counter += 1
+    end
+
+    user = User.new(email: email, username: username, password: password, password_confirmation: password)
+    user.skip_confirmation!
+    user.save!
+    user
+  end
 
   def attendee_filters
     params.permit(:query, :status, :checked_in).to_h

@@ -1644,6 +1644,11 @@
           },
           "error": "The event could not be updated",
           "export_csv": "Export CSV",
+          "invitation": {
+            "insufficient_quantity": "There are not enough tickets available.",
+            "invalid_quantity": "Enter a positive whole number.",
+            "quantity": "Ticket quantity"
+          },
           "location": {
             "label": "Location"
           },
@@ -7435,6 +7440,11 @@
           },
           "error": "No se pudo actualizar el evento",
           "export_csv": "Exportar CSV",
+          "invitation": {
+            "insufficient_quantity": "No hay suficientes entradas disponibles.",
+            "invalid_quantity": "Ingresa un número entero mayor que cero.",
+            "quantity": "Cantidad de entradas"
+          },
           "location": {
             "label": "Ubicación"
           },
