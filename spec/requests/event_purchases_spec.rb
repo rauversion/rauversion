@@ -242,6 +242,77 @@ RSpec.describe "EventPurchases", type: :request do
     end
   end
 
+  describe "POST /create from a secret ticket link" do
+    let(:ticket) { create(:event_ticket, event: event, qty: 10, price: 10, selling_start: 1.day.ago, hidden: true) }
+    let(:ticket_token) { ticket.signed_id(expires_in: 30.days, purpose: :secret_purchase) }
+
+    it "starts paid checkout for the hidden ticket with a valid token" do
+      sign_out user
+      allow_any_instance_of(PaymentProviders::EventStripeProvider).to receive(:create_checkout_session).and_return(
+        { checkout_url: "https://stripe.com/checkout/session" }
+      )
+
+      post event_event_purchases_path(event, format: :json), params: {
+        ticket_token: ticket_token, guest_email: "secret-ticket-guest@example.com",
+        tickets: [{ id: ticket.id, quantity: 2 }]
+      }, as: :json
+
+      expect(response).to have_http_status(:ok)
+      expect(JSON.parse(response.body)).to include("errors" => [], "payment_url" => "https://stripe.com/checkout/session")
+      expect(Purchase.last.purchased_items.pluck(:purchased_item_id)).to eq([ticket.id, ticket.id])
+    end
+
+    [nil, "invalid-token"].each do |token|
+      it "rejects a hidden ticket with #{token ? "an invalid token" : "no token"}" do
+        ticket_id = ticket.id
+
+        expect {
+          post event_event_purchases_path(event, format: :json), params: {
+            ticket_token: token, tickets: [{ id: ticket_id, quantity: 1 }]
+          }, as: :json
+        }.not_to change(Purchase, :count)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+      end
+    end
+
+    it "rejects a token for a different hidden ticket in the same event" do
+      other_ticket = create(:event_ticket, event: event, qty: 10, price: 0, selling_start: 1.day.ago, hidden: true)
+
+      expect {
+        post event_event_purchases_path(event, format: :json), params: {
+          ticket_token: ticket_token, tickets: [{ id: other_ticket.id, quantity: 1 }]
+        }, as: :json
+      }.not_to change(Purchase, :count)
+
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    it "rejects a token and its ticket at a different event's checkout" do
+      other_event = create(:event, user: user, state: "published", title: "Other event")
+
+      expect {
+        post event_event_purchases_path(other_event, format: :json), params: {
+          ticket_token: ticket_token, tickets: [{ id: ticket.id, quantity: 1 }]
+        }, as: :json
+      }.not_to change(Purchase, :count)
+
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+
+    it "rejects a valid token once the ticket sale has ended" do
+      ticket.update!(selling_end: 1.minute.ago)
+
+      expect {
+        post event_event_purchases_path(event, format: :json), params: {
+          ticket_token: ticket_token, tickets: [{ id: ticket.id, quantity: 1 }]
+        }, as: :json
+      }.not_to change(Purchase, :count)
+
+      expect(response).to have_http_status(:unprocessable_entity)
+    end
+  end
+
   describe "POST /create with free tickets" do
     let!(:free_ticket) { FactoryBot.create(:event_ticket, event: event, qty: 10, price: 0, selling_start: 1.day.ago) }
 

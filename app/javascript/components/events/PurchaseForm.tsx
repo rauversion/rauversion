@@ -220,6 +220,7 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
 
       const requestBody: any = {
         tickets: ticketsData,
+        ticket_token: ticketToken,
       }
       if (requiresRut) {
         requestBody.identifier_type = "rut"

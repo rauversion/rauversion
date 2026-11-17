@@ -3,27 +3,7 @@ class EventPurchasesController < ApplicationController
   
   def new
     @event = find_event_for_purchase(params[:event_id])
-
-    # When a customer purchases a ticket for an event:
-    customer = current_user
-    # ticket = EventTicket.find_by(id: ticket_id)
-
-    # If ticket_token is provided, only show that specific hidden ticket
-    if params[:ticket_token].present?
-      begin
-        ticket = EventTicket.find_signed(params[:ticket_token], purpose: :secret_purchase)
-        # Verify the ticket belongs to this event
-        if ticket && ticket.event_id == @event.id
-          @tickets = @event.event_tickets.on_sale_at.where(id: ticket.id).to_a
-        else
-          @tickets = []
-        end
-      rescue ActiveSupport::MessageVerifier::InvalidSignature
-        @tickets = []
-      end
-    else
-      @tickets = @event.available_tickets(Time.zone.now)
-    end
+    @tickets = checkout_tickets
 
     if current_user
       @purchase = current_user.purchases.new
@@ -62,7 +42,7 @@ class EventPurchasesController < ApplicationController
   def create
     # Try to find by signed_id first (for private event access), then fall back to regular lookup
     @event = find_event_for_purchase(params[:event_id])
-    @tickets = @event.available_tickets(Time.zone.now)
+    @tickets = checkout_tickets
     available_tickets_by_id = @tickets.index_by(&:id)
 
     if !current_user
@@ -334,6 +314,15 @@ class EventPurchasesController < ApplicationController
   end
 
   private
+
+  def checkout_tickets
+    token = params[:ticket_token]
+    return @event.available_tickets if token.blank?
+    return [] unless token.is_a?(String)
+
+    ticket = @event.event_tickets.on_sale_at.find_signed(token, purpose: :secret_purchase)
+    ticket ? [ticket] : []
+  end
 
   def calculate_purchase_total(purchase)
     purchase.virtual_purchased.sum do |virtual_item|
