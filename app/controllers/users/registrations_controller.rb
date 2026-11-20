@@ -142,7 +142,7 @@ class Users::RegistrationsController < Devise::RegistrationsController
     secret: auth["credentials"]["secret"])
 
     # Clear the session data
-    session["devise.omniauth_data"] = nil
+    session.delete("devise.omniauth_data")
   end
 
   # The path used after sign up.

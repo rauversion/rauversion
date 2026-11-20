@@ -5,6 +5,11 @@ class Users::SessionsController < Devise::SessionsController
 
   after_action :set_csrf_headers, only: [:create, :destroy]
 
+  def new
+    session.delete("devise.omniauth_data")
+    super
+  end
+
   def create
     self.resource = warden.authenticate!(auth_options)
     sign_in(resource_name, resource)

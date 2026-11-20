@@ -3,6 +3,7 @@ class Users::OauthController < ApplicationController
   before_action :validate_provider
 
   def create
+    session.delete("devise.omniauth_data")
     return_to = safe_sign_in_return_path(params[:return_to]) ||
       safe_sign_in_return_path(stored_location_for(:user)) || root_path
     context = tenant_oauth.start(provider: params[:provider], tenant: Current.tenant, return_to: return_to)

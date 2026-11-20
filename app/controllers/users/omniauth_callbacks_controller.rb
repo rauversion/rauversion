@@ -155,6 +155,7 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
   end
 
   def callback_handler
+    session.delete("devise.omniauth_data")
     auth = request.env["omniauth.auth"]
     if @tenant_oauth_context && action_name != "complete"
       return relay_oauth(auth: auth)
@@ -173,7 +174,12 @@ class Users::OmniauthCallbacksController < Devise::OmniauthCallbacksController
       end
 
     else
-      session["devise.omniauth_data"] = auth.except("extra")
+      # Google also returns large ID tokens and profile data that sign-up never uses.
+      # Keep only the fields needed to build the user and their identity in CookieStore.
+      session["devise.omniauth_data"] = auth.slice("provider", "uid").merge(
+        "info" => auth.fetch("info").slice("email", "first_name", "last_name"),
+        "credentials" => auth.fetch("credentials").slice("token", "secret")
+      )
       oauth_redirect_to(new_user_registration_path)
     end
   end

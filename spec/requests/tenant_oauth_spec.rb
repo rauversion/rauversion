@@ -282,6 +282,77 @@ RSpec.describe "Tenant OAuth", type: :request do
     expect(response).to redirect_to("http://#{tenant.slug}.example.com/users/sign_in?return_to=#{CGI.escape(return_path)}")
   end
 
+  it "keeps Google registration small enough for cookies and allows retrying an unfinished sign-up" do
+    oauth2_mock(:google_oauth2, email: "unfinished@example.com")
+    auth = OmniAuth.config.mock_auth[:google_oauth2]
+    auth.credentials.token = "access-token-" + "a" * 1_000
+    auth.credentials.id_token = "unused-id-token-" + "b" * 5_000
+    auth.credentials.refresh_token = "unused-refresh-token-" + "c" * 1_000
+    auth.info.description = "unused-profile-data-" + "d" * 5_000
+    allow(User).to receive(:allow_unconfirmed_access_for).and_return(2.days)
+
+    start_oauth
+    finish_oauth
+    follow_redirect!
+    expect(response).to have_http_status(:ok)
+    expect(request.session["devise.omniauth_data"].dig("credentials", "id_token")).to be_nil
+    expect(request.session["devise.omniauth_data"].dig("info", "description")).to be_nil
+
+    get new_user_session_path
+    start_oauth
+    finish_oauth
+    follow_redirect!
+    post user_registration_path, params: {user: {username: "finished-oauth-user"}}
+
+    expect(response).to redirect_to(return_path)
+    identity = User.find_by!(email: "unfinished@example.com").identities.find_by!(provider: "google_oauth2")
+    expect(identity.token).to eq(auth.credentials.token)
+    expect(identity.secret).to eq(auth.credentials.secret)
+    expect(request.session["devise.omniauth_data"]).to be_nil
+  end
+
+  it "discards an abandoned OAuth registration when opening sign-in" do
+    oauth2_mock(:google_oauth2, email: "abandoned@example.com")
+    start_oauth
+    finish_oauth
+    expect(request.session["devise.omniauth_data"]).to be_present
+
+    get new_user_session_path
+
+    expect(response).to have_http_status(:ok)
+    expect(request.session["devise.omniauth_data"]).to be_nil
+    get new_user_registration_path(format: :json)
+    expect(JSON.parse(response.body).dig("user", "email")).to be_blank
+  end
+
+  it "discards an abandoned registration before starting another Google authorization" do
+    oauth2_mock(:google_oauth2, email: "abandoned@example.com")
+    start_oauth
+    finish_oauth
+    expect(request.session["devise.omniauth_data"]).to be_present
+    OmniAuth.config.test_mode = false
+
+    start_oauth
+
+    expect(URI.parse(response.location).host).to eq("accounts.google.com")
+    expect(request.session["devise.omniauth_data"]).to be_nil
+  end
+
+  it "discards an abandoned registration when a later Google callback signs in an existing user" do
+    oauth2_mock(:google_oauth2, email: "abandoned@example.com")
+    start_oauth
+    finish_oauth
+    oauth2_mock(:google_oauth2, email: user.email)
+    host! "example.com"
+
+    get "/users/auth/google_oauth2/callback"
+
+    expect(response).to be_redirect
+    expect(request.session["devise.omniauth_data"]).to be_nil
+    get "/api/v1/me.json"
+    expect(JSON.parse(response.body).dig("current_user", "id")).to eq(user.id)
+  end
+
   it "rejects unknown providers" do
     post user_oauth_path("unknown")
 
