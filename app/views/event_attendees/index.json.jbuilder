@@ -12,6 +12,7 @@ json.collection @purchased_items do |item|
   json.guest_email purchase.guest_email if purchase.guest_email.present?
   json.identifier_type purchase.identifier_type
   json.identifier_value purchase.identifier_value
+  json.buyer_name purchase.buyer_name
 
   json.event_ticket do
     json.id item.purchased_item_id

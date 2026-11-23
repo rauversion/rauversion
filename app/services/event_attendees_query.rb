@@ -16,6 +16,7 @@ class EventAttendeesQuery
         OR CONCAT_WS(' ', users.first_name, users.last_name) ILIKE :query
         OR users.email ILIKE :query
         OR purchases.guest_email ILIKE :query
+        OR purchases.payment_metadata -> 'form_responses' ->> 'buyer_name' ILIKE :query
       SQL
     end
 

@@ -28,6 +28,7 @@ class EventTicket < ApplicationRecord
   store_accessor :settings, :show_remaining_count, :boolean
   store_accessor :settings, :requires_login, :boolean
   store_accessor :settings, :required_identifier, :string
+  store_attribute :settings, :requires_name, :boolean, default: false
   store_accessor :settings, :simulated_stock
 
   validates :required_identifier, inclusion: { in: %w[rut] }, allow_blank: true

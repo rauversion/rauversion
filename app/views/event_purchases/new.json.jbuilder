@@ -16,6 +16,7 @@ json.tickets @tickets do |ticket|
   json.min_tickets_per_order ticket.min_tickets_per_order
   json.max_tickets_per_order ticket.max_tickets_per_order
   json.required_identifier ticket.required_identifier
+  json.requires_name ticket.requires_name
 end
 
 json.event do

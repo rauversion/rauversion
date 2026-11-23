@@ -68,6 +68,7 @@ const invitationSchema = z.object({
   ticket_id: z.string().min(1, "Please select a ticket"),
   quantity: z.coerce.number().int().positive(I18n.t("events.edit.attendees.invitation.invalid_quantity")),
   identifier_value: z.string().optional(),
+  buyer_name: z.string().trim().max(200).optional(),
 })
 
 const attendeeStatuses = {
@@ -130,13 +131,16 @@ export default function Attendees() {
       email: "",
       ticket_id: "",
       quantity: "1",
-      identifier_value: ""
+      identifier_value: "",
+      buyer_name: ""
     }
   })
 
-  const invitationRequiresRut = tickets.find((ticket) => (
+  const invitationTicket = tickets.find((ticket) => (
     String(ticket.id) === inviteForm.watch("ticket_id")
-  ))?.required_identifier === "rut"
+  ))
+  const invitationRequiresRut = invitationTicket?.required_identifier === "rut"
+  const invitationRequiresName = invitationTicket?.requires_name
 
   // Load tickets for the invitation dialog
   React.useEffect(() => {
@@ -194,6 +198,10 @@ export default function Attendees() {
   }
 
   const onSubmitInvite = async (data) => {
+    if (invitationRequiresName && !data.buyer_name?.trim()) {
+      inviteForm.setError("buyer_name", { message: I18n.t("event_purchases.errors.name_required") })
+      return
+    }
     if (invitationRequiresRut && !isValidRut(data.identifier_value || "")) {
       inviteForm.setError("identifier_value", {
         message: I18n.t(data.identifier_value ? "event_purchases.errors.invalid_rut" : "event_purchases.errors.rut_required"),
@@ -207,6 +215,7 @@ export default function Attendees() {
           email: data.email,
           ticket_id: data.ticket_id,
           quantity: data.quantity,
+          ...(invitationRequiresName ? { buyer_name: data.buyer_name } : {}),
           ...(invitationRequiresRut ? {
             identifier_type: "rut",
             identifier_value: normalizeRut(data.identifier_value || ""),
@@ -395,6 +404,21 @@ export default function Attendees() {
                         </FormItem>
                       )}
                     />
+                    {invitationRequiresName && (
+                      <FormField
+                        control={inviteForm.control}
+                        name="buyer_name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>{I18n.t("events.purchase_form.buyer_name.label")}</FormLabel>
+                            <FormControl>
+                              <Input autoComplete="name" maxLength={200} {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    )}
                     {invitationRequiresRut && (
                       <FormField
                         control={inviteForm.control}
@@ -526,7 +550,7 @@ export default function Attendees() {
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="truncate font-medium">{item.user.name || item.guest_email}</p>
+                  <p className="truncate font-medium">{item.buyer_name || item.user.name || item.guest_email}</p>
                   <p className="truncate text-sm text-muted-foreground">{item.user.email || item.guest_email}</p>
                   {item.identifier_type === "rut" && <p className="text-sm text-muted-foreground">RUT: {item.identifier_value}</p>}
                 </div>
@@ -581,7 +605,7 @@ export default function Attendees() {
                   <TableCell>
                     <div className="flex items-center space-x-2">
                       <div>
-                        <p className="font-medium">{item.user.name || item.guest_email}</p>
+                        <p className="font-medium">{item.buyer_name || item.user.name || item.guest_email}</p>
                         <p className="text-sm text-muted-foreground">{item.user.email || item.guest_email}</p>
                         {item.identifier_type === "rut" && <p className="text-sm text-muted-foreground">RUT: {item.identifier_value}</p>}
                       </div>

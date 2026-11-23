@@ -102,6 +102,16 @@ RSpec.describe "EventAttendees", type: :request do
       expect(attendee).to include("identifier_type" => "rut", "identifier_value" => "12345678-5")
     end
 
+    it "returns and searches the stored buyer name independently of the user profile" do
+      paid_purchase.purchase.update!(buyer_name: "María Checkout Pérez")
+      get event_event_attendees_path(event), params: { query: "  CHECKOUT PÉREZ  " }, as: :json
+
+      expect(response).to have_http_status(:ok)
+      attendee = JSON.parse(response.body).fetch("collection").sole
+      expect(attendee).to include("id" => paid_purchase.id, "buyer_name" => "María Checkout Pérez")
+      expect(attendee.fetch("user").fetch("name")).to eq(user.display_name)
+    end
+
     it "filters by pending status" do
       get event_event_attendees_path(event), params: { status: 'pending' }, as: :json
       expect(response).to have_http_status(:success)
@@ -389,6 +399,34 @@ RSpec.describe "EventAttendees", type: :request do
   end
 
   describe "POST /events/:event_id/event_attendees/create_invitation" do
+    it "rejects invitations missing the required buyer name" do
+      ticket.update!(requires_name: true)
+      expect {
+        post create_invitation_event_event_attendees_path(event, format: :json),
+          params: { email: user.email, ticket_id: ticket.id, buyer_name: "  " }, as: :json
+      }.not_to change(Purchase, :count)
+      expect(response).to have_http_status(:unprocessable_entity)
+      expect(JSON.parse(response.body).fetch("errors")).to include(I18n.t("event_purchases.errors.name_required"))
+    end
+
+    it "stores one name and RUT for a multi-ticket invitation" do
+      ticket.update!(requires_name: true, required_identifier: "rut", qty: 10)
+      post create_invitation_event_event_attendees_path(event, format: :json), params: {
+        email: user.email, ticket_id: ticket.id, quantity: 2, buyer_name: " María   Pérez ",
+        identifier_type: "rut", identifier_value: "12.345.678-5"
+      }, as: :json
+
+      expect(response).to have_http_status(:created)
+      expect(Purchase.last).to have_attributes(buyer_name: "María Pérez", identifier_value: "12345678-5", state: "paid")
+      expect(Purchase.last.purchased_items.count).to eq(2)
+    end
+
+    it "includes the name requirement in invitation ticket options" do
+      ticket.update!(requires_name: true)
+      get tickets_event_event_attendees_path(event, format: :json)
+      expect(JSON.parse(response.body).fetch("collection").sole.fetch("requires_name")).to be(true)
+    end
+
     it "requires a valid RUT when the selected ticket requests it" do
       ticket.update!(required_identifier: "rut")
       [nil, "12.345.678-4"].each do |rut|

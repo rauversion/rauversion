@@ -32,6 +32,7 @@ interface Ticket {
   suggested_price?: number | null
   sold_out?: boolean
   required_identifier?: string
+  requires_name?: boolean
 }
 
 interface Event {
@@ -49,6 +50,7 @@ interface PurchaseFormProps {
 type TicketFormValues = {
   guest_email?: string
   identifier_value?: string
+  buyer_name?: string
 } & Record<string, any>
 
 function currentLocale() {
@@ -186,6 +188,11 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
     Number(watch(ticket.pay_what_you_want ? `${ticket.id}_quantity` : ticket.id.toString())) > 0
   ))
 
+  const requiresName = tickets.some((ticket) => (
+    ticket.requires_name &&
+    Number(watch(ticket.pay_what_you_want ? `${ticket.id}_quantity` : ticket.id.toString())) > 0
+  ))
+
   const onSubmit = async (data: any) => {
     setLoading(true)
     try {
@@ -225,6 +232,9 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
       if (requiresRut) {
         requestBody.identifier_type = "rut"
         requestBody.identifier_value = normalizeRut(data.identifier_value || "")
+      }
+      if (requiresName) {
+        requestBody.buyer_name = data.buyer_name?.trim()
       }
 
       // Add guest_email if not authenticated
@@ -717,6 +727,32 @@ export default function PurchaseForm({ eventId, ticketToken }: PurchaseFormProps
           </CardContent>
 
           {/* Disclaimers Section */}
+          {requiresName && (
+            <div className="px-6 pb-4 space-y-2">
+              <Label htmlFor="buyer_name">{I18n.t("events.purchase_form.buyer_name.label")}</Label>
+              <Input
+                id="buyer_name"
+                autoComplete="name"
+                maxLength={200}
+                defaultValue={currentUser?.full_name || ""}
+                aria-invalid={!!errors.buyer_name}
+                aria-describedby="buyer_name_description buyer_name_error"
+                {...register("buyer_name", {
+                  shouldUnregister: true,
+                  setValueAs: (value) => value?.trim(),
+                  required: I18n.t("event_purchases.errors.name_required"),
+                })}
+              />
+              <p id="buyer_name_description" className="text-xs text-muted-foreground">
+                {I18n.t("events.purchase_form.buyer_name.description")}
+              </p>
+              {errors.buyer_name && (
+                <p id="buyer_name_error" role="alert" className="text-sm text-destructive">
+                  {errors.buyer_name.message as string}
+                </p>
+              )}
+            </div>
+          )}
           {requiresRut && (
             <div className="px-6 pb-4 space-y-2">
               <Label htmlFor="identifier_value">{I18n.t("events.purchase_form.rut.label")}</Label>

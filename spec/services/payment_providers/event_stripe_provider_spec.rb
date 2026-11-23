@@ -34,7 +34,7 @@ RSpec.describe PaymentProviders::EventStripeProvider, type: :service do
     end
 
     it "preserves local form responses when saving Stripe checkout metadata" do
-      responses = { "identifier" => { "type" => "rut", "value" => "12345678-5" }, "dietary_requirements" => "vegetarian" }
+      responses = { "buyer_name" => "María Pérez", "identifier" => { "type" => "rut", "value" => "12345678-5" }, "dietary_requirements" => "vegetarian" }
       purchase.update!(form_responses: responses)
 
       provider.create_checkout_session

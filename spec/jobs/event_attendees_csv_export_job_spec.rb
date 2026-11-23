@@ -125,6 +125,17 @@ RSpec.describe EventAttendeesCsvExportJob, type: :job do
       expect(csv.map { |row| row['RUT'] }).to eq(['12345678-5', '12345678-5'])
     end
 
+    it 'exports and filters by the buyer name for every ticket after the requirement is disabled' do
+      purchase.update!(buyer_name: 'María Checkout Pérez')
+      create(:purchased_item, purchase: purchase, purchased_item: ticket, state: 'paid')
+      ticket.update!(requires_name: false)
+
+      EventAttendeesCsvExportJob.perform_now(event.id, user.id, 'query' => 'CHECKOUT PÉREZ')
+
+      csv = CSV.parse(ActionMailer::Base.deliveries.last.attachments.first.body.decoded, headers: true)
+      expect(csv.map { |row| row['Name'] }).to eq(['María Checkout Pérez', 'María Checkout Pérez'])
+    end
+
     describe 'filtered exports' do
       let(:checked_item) { purchase.purchased_items.find_by!(state: 'paid', checked_in: true) }
       let!(:unchecked_item) do

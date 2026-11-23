@@ -81,6 +81,64 @@ RSpec.describe Purchase, type: :model do
     end
   end
 
+  describe "buyer name" do
+    let(:user) { create(:user) }
+    let(:event) { create(:event, user: user) }
+    let(:ticket) { create(:event_ticket, event: event, requires_name: true) }
+    let(:purchase) do
+      build(:purchase, user: user, purchasable: event).tap do |purchase|
+        purchase.virtual_purchased = [VirtualPurchasedItem.new(resource: ticket, quantity: 1)]
+      end
+    end
+
+    it "requires a name even when the buyer has one in their profile" do
+      user.update!(first_name: "Profile", last_name: "Name")
+      purchase.buyer_name = " \t "
+      expect(purchase).not_to be_valid
+      expect(purchase.errors.full_messages).to include(I18n.t("event_purchases.errors.name_required"))
+    end
+
+    it "stores a normalized name alongside RUT and other metadata without changing the user" do
+      original_name = user.full_name
+      purchase.payment_metadata = { "service_fee_amount" => 100, "form_responses" => { "dietary_requirements" => "vegetarian" } }
+      purchase.assign_attributes(buyer_name: "  María   José Pérez  ", identifier_type: "rut", identifier_value: "12.345.678-5")
+      purchase.store_items
+      purchase.save!
+
+      expect(purchase.reload.form_responses).to include(
+        "buyer_name" => "María José Pérez", "dietary_requirements" => "vegetarian",
+        "identifier" => { "type" => "rut", "value" => "12345678-5" }
+      )
+      expect(purchase.payment_metadata["service_fee_amount"]).to eq(100)
+      expect(user.reload.full_name).to eq(original_name)
+    end
+
+    it "ignores unselected tickets requiring a name" do
+      purchase.virtual_purchased.first.quantity = 0
+      expect(purchase).to be_valid
+    end
+
+    it "requires a name for directly built invitation tickets" do
+      purchase.virtual_purchased = []
+      purchase.purchased_items.build(purchased_item: ticket)
+      expect(purchase).not_to be_valid
+    end
+
+    it "allows historical purchases to complete when a name requirement is added later" do
+      ticket.update!(requires_name: false)
+      purchase.store_items
+      purchase.save!
+      ticket.update!(requires_name: true)
+      expect(purchase.reload.update(state: "paid")).to be(true)
+    end
+
+    it "rejects excessively long names" do
+      purchase.buyer_name = "a" * 201
+      expect(purchase).not_to be_valid
+      expect(purchase.errors[:buyer_name]).to be_present
+    end
+  end
+
   it { belong_to(:user) }
   it { have_many(:purchased_items) }
   it { belong_to(:purchasable) }

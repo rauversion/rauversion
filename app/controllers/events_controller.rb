@@ -308,6 +308,7 @@ class EventsController < ApplicationController
         :disable_qr,
         :sales_channel,
         :required_identifier,
+        :requires_name,
         :requires_login
       ],
       site_pages: []

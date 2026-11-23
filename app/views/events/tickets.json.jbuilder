@@ -23,6 +23,7 @@ json.event do
     json.after_purchase_message ticket.after_purchase_message
     json.sales_channel ticket.sales_channel
     json.required_identifier ticket.required_identifier
+    json.requires_name ticket.requires_name
     json.suggested_price ticket.suggested_price
     json.created_at ticket.created_at
     json.updated_at ticket.updated_at

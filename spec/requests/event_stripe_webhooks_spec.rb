@@ -86,7 +86,7 @@ RSpec.describe "Event Stripe webhooks", type: :request do
   end
 
   it "preserves form responses through payment confirmation and webhook retries" do
-    responses = { "identifier" => { "type" => "rut", "value" => "12345678-5" }, "dietary_requirements" => "vegetarian" }
+    responses = { "buyer_name" => "María Pérez", "identifier" => { "type" => "rut", "value" => "12345678-5" }, "dietary_requirements" => "vegetarian" }
     purchase.update!(form_responses: responses)
 
     post_event("checkout.session.completed")

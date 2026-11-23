@@ -222,6 +222,20 @@ RSpec.describe "Events", type: :request do
       end
     end
 
+    it "enables and disables the name requirement independently from RUT" do
+      ticket = create(:event_ticket, event: event, required_identifier: "rut")
+      [true, false].each do |required|
+        put event_path(event, format: :json), params: {
+          event: { event_tickets_attributes: [{ id: ticket.id, requires_name: required }] }
+        }, as: :json
+
+        expect(response).to have_http_status(:ok)
+        expect(ticket.reload.requires_name).to eq(required)
+        expect(ticket.required_identifier).to eq("rut")
+        expect(JSON.parse(response.body).fetch("tickets").sole.dig("settings", "requires_name")).to eq(required)
+      end
+    end
+
     it "rejects unsupported ticket identifiers" do
       ticket = create(:event_ticket, event: event)
       put event_path(event, format: :json), params: {

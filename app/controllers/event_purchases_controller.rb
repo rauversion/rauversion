@@ -154,7 +154,7 @@ class EventPurchasesController < ApplicationController
 
     @purchase.virtual_purchased = selected_items
     @purchase.email_locale = I18n.locale.to_s
-    @purchase.assign_attributes(params.permit(:identifier_type, :identifier_value))
+    @purchase.assign_attributes(params.permit(:buyer_name, :identifier_type, :identifier_value))
 
     unless @purchase.valid?
       respond_to do |format|

@@ -18,6 +18,8 @@ class Purchase < ApplicationRecord
   validate :user_or_guest_email_present
   validate :validate_identifier
   validate :validate_required_identifier, on: :create
+  validate :validate_required_buyer_name, on: :create
+  validates :buyer_name, length: { maximum: 200 }
 
   before_validation :normalize_identifier
 
@@ -201,6 +203,14 @@ class Purchase < ApplicationRecord
     user&.email || guest_email
   end
 
+  def buyer_name
+    form_responses&.dig("buyer_name")
+  end
+
+  def buyer_name=(value)
+    self.form_responses = (form_responses || {}).deep_stringify_keys.merge("buyer_name" => value.to_s.squish.presence)
+  end
+
   def identifier_type
     form_responses&.dig("identifier", "type")
   end
@@ -242,12 +252,23 @@ class Purchase < ApplicationRecord
   end
 
   def validate_required_identifier
-    tickets = virtual_purchased.select { |item| item.quantity.to_i.positive? }.map(&:resource)
-    # Inspect built items without caching an empty association before tickets are created.
-    tickets += purchased_items.target.map(&:purchased_item)
-    return unless tickets.any? { |ticket| ticket.is_a?(EventTicket) && ticket.required_identifier == "rut" }
+    return unless selected_event_tickets.any? { |ticket| ticket.required_identifier == "rut" }
     return if identifier_type == "rut" && identifier_value.present?
 
     errors.add(:base, I18n.t("event_purchases.errors.rut_required"))
+  end
+
+  def validate_required_buyer_name
+    return unless selected_event_tickets.any?(&:requires_name)
+    return if buyer_name.present?
+
+    errors.add(:base, I18n.t("event_purchases.errors.name_required"))
+  end
+
+  def selected_event_tickets
+    tickets = virtual_purchased.select { |item| item.quantity.to_i.positive? }.map(&:resource)
+    # Inspect built items without caching an empty association before tickets are created.
+    tickets += purchased_items.target.map(&:purchased_item)
+    tickets.grep(EventTicket)
   end
 end

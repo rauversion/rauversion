@@ -29,7 +29,7 @@ class EventAttendeesController < ApplicationController
   def tickets
     @tickets = @event.event_tickets
     respond_to do |format|
-      format.json { render json: { collection: @tickets.as_json(methods: [:required_identifier]), permissions: attendee_permissions } }
+      format.json { render json: { collection: @tickets.as_json(methods: [:required_identifier, :requires_name]), permissions: attendee_permissions } }
     end
   end
 
@@ -68,7 +68,7 @@ class EventAttendeesController < ApplicationController
         inviter_id: current_user.id,
         email_locale: I18n.locale.to_s
       )
-      invitation.assign_attributes(params.permit(:identifier_type, :identifier_value))
+      invitation.assign_attributes(params.permit(:buyer_name, :identifier_type, :identifier_value))
 
       quantity.times do
         invitation.purchased_items.build(
