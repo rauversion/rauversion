@@ -5,6 +5,8 @@ class OembedController < ApplicationController
 
   def show
     res = FetchLinkCardService.new.call(params[:url])
+    return head :not_found unless res
+
     render json: res.as_oembed_json
   end
 end

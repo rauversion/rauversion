@@ -52,7 +52,13 @@ class PreviewCard < ApplicationRecord
   end
 
   def as_oembed_json(_opts = {})
-    as_json(only: %i[url title description html],
-      methods: %i[provider_url images media])
+    x_media = XPostMetadata.media_from_html(html)
+    image_metadata = x_media ? x_media.fetch(:images) : images
+    media_metadata = x_media ? media.merge(videos: x_media.fetch(:videos)) : media
+
+    as_json(only: %i[url title description html], methods: [:provider_url]).merge(
+      "images" => image_metadata.as_json,
+      "media" => media_metadata.as_json
+    )
   end
 end

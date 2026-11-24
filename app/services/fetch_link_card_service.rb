@@ -17,6 +17,10 @@ class FetchLinkCardService < BaseService
 
     # card = PreviewCard.where(status: status).first_or_initialize(status: status, url: url)
     card = PreviewCard.find_or_initialize_by(url: url)
+    if (x_post_id = XPostMetadata.post_id(url))
+      return fetch_x_post(card, x_post_id)
+    end
+
     # TODO: add a TTL here
     return card if card.persisted?
 
@@ -40,6 +44,20 @@ class FetchLinkCardService < BaseService
   end
 
   private
+
+  def fetch_x_post(card, id)
+    return card if card.persisted? && XPostMetadata.embedded?(card.html)
+
+    provider = XPostMetadata.new
+    attributes = provider.call(id)
+    return card if attributes.nil? && card.persisted?
+
+    attributes ||= provider.oembed(id)
+    return unless attributes
+
+    card.update!(attributes)
+    card
+  end
 
   def user_agent
     @user_agent ||= "#{HTTP::Request::USER_AGENT} (Rauversion/Crawler; +http://github.com/rauversion)"
