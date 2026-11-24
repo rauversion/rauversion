@@ -1,10 +1,14 @@
 class PressKitsController < ApplicationController
+  include PageMetadata
+
   before_action :authenticate_user!, except: [:show]
   before_action :set_user
   before_action :set_press_kit, only: [:show, :update]
   before_action :authorize_user!, only: [:update]
 
   def show
+    set_press_kit_page_metadata
+
     if @press_kit
       respond_to do |format|
         format.html do
@@ -12,7 +16,8 @@ class PressKitsController < ApplicationController
         end
         format.json do
           render json: {
-            press_kit: press_kit_json(@press_kit)
+            press_kit: press_kit_json(@press_kit),
+            seo: @seo_metadata
           }
         end
       end
@@ -23,7 +28,8 @@ class PressKitsController < ApplicationController
         end
         format.json do
           render json: {
-            press_kit: nil
+            press_kit: nil,
+            seo: nil
           }
         end
       end
@@ -77,8 +83,10 @@ class PressKitsController < ApplicationController
         @press_kit.update!(data: parsed_data)
       end
 
+      set_press_kit_page_metadata
       render json: {
         press_kit: press_kit_json(@press_kit),
+        seo: @seo_metadata,
         message: t('press_kit.updated_successfully')
       }
     rescue => e
@@ -88,6 +96,44 @@ class PressKitsController < ApplicationController
   end
 
   private
+
+  def set_press_kit_page_metadata
+    unless @press_kit&.published?
+      set_meta_tags(noindex: true, nofollow: true)
+      return
+    end
+
+    data = @press_kit.data
+    artist_name = press_kit_plain_text(data["artistName"]).presence || @user.display_name
+    title = "#{artist_name} — Press Kit"
+    intro = data["bio"].is_a?(Hash) ? data["bio"]["intro"] : nil
+    description = [intro, data["tagline"]].filter_map do |text|
+      press_kit_plain_text(text).presence
+    end.first || title
+
+    photos = @press_kit.ordered_photos.select { |photo| photo.image.attached? }
+    cover = photos.find { |photo| photo.id.to_s == data["heroPhotoId"].to_s } || photos.first
+    image = if cover
+      rails_blob_url(cover.image)
+    elsif @user.avatar.attached?
+      rails_blob_url(@user.avatar)
+    else
+      "#{request.base_url}#{AlbumsHelper.default_image_sqr}"
+    end
+
+    set_page_metadata(
+      title: title,
+      description: helpers.truncate(description, length: 160),
+      image: image,
+      image_alt: artist_name,
+      url: user_press_kit_url(@user.username, format: nil),
+      type: "website"
+    )
+  end
+
+  def press_kit_plain_text(text)
+    CGI.unescapeHTML(helpers.strip_tags(text.to_s)).squish
+  end
 
   def set_user
     @user = User.find_by!(username: params[:user_id])

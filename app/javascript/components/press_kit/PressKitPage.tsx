@@ -5,6 +5,7 @@ import { AdminPanel, type PressKitData } from "./AdminPanel"
 import TrackCell from "@/components/tracks/TrackCell"
 import { get, patch } from "@rails/request.js"
 import { useToast } from "@/hooks/use-toast"
+import { usePageMetadata, type PageMetadata } from "@/hooks/usePageMetadata"
 import useAuthStore from "@/stores/authStore"
 import { useParams, useSearchParams } from "react-router-dom"
 import { useLocaleStore } from "stores/locales"
@@ -63,6 +64,8 @@ export default function PressKitPage() {
   const [isAdminOpen, setIsAdminOpen] = useState(false)
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [metadata, setMetadata] = useState<PageMetadata | null>(null)
+  usePageMetadata(metadata)
   const [pressKitData, setPressKitData] = useState<PressKitData>({
     artistName: "",
     tagline: "",
@@ -162,11 +165,13 @@ export default function PressKitPage() {
   }, [isOwner, searchParams])
 
   const loadPressKit = async () => {
+    setMetadata(null)
     try {
       const response = await get(`/${username}/press-kit.json`)
       
       if ((response as any).ok) {
         const data = await response.json
+        setMetadata(data.seo || null)
         if (data.press_kit && data.press_kit.data) {
           setPressKitData(data.press_kit.data)
           setHasPressKit(true)
@@ -202,6 +207,7 @@ export default function PressKitPage() {
 
       if ((response as any).ok) {
         const data = await response.json
+        setMetadata(data.seo || null)
         // Update press kit data from the response (includes cleaned up photo URLs)
         if (data.press_kit && data.press_kit.data) {
           setPressKitData(data.press_kit.data)
