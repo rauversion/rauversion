@@ -140,6 +140,75 @@ RSpec.describe "PressKits", type: :request do
         expect(JSON.parse(response.body).dig("press_kit", "data", "videos")).to eq(videos.map(&:stringify_keys))
         expect(JSON.parse(response.body).dig("press_kit", "data")).to include("template" => "editorial", "theme" => "light", "heroPhotoId" => "42")
       end
+
+      it "saves photo order, ignores duplicate and foreign IDs, and appends unlisted photos" do
+        kit = user.create_press_kit!(data: { artistName: "Test Artist", published: true })
+        first, second, third = 3.times.map { kit.photos.create!(user: user) }
+        other_kit = other_user.create_press_kit!(data: { artistName: "Other Artist" })
+        foreign_photo = other_kit.photos.create!(user: other_user)
+
+        patch "/#{user.username}/press-kit.json", params: {
+          press_kit: { data: JSON.generate({ artistName: "Test Artist", published: true, photo_ids: [third.id.to_s, foreign_photo.id, third.id, first.id] }) }
+        }
+
+        expect(response).to have_http_status(:ok)
+        expected_order = [third.id, first.id, second.id]
+        expect(kit.reload.data["photo_ids"]).to eq(expected_order)
+        expect(JSON.parse(response.body).dig("press_kit", "photos").pluck("id")).to eq(expected_order)
+        expect(foreign_photo.reload.photoable).to eq(other_kit)
+
+        sign_out user
+        get "/#{user.username}/press-kit.json"
+
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body).dig("press_kit", "photos").pluck("id")).to eq(expected_order)
+      end
+
+      it "preserves photo order when an older client updates other content" do
+        kit = user.create_press_kit!(data: { artistName: "Test Artist" })
+        first, second = 2.times.map { kit.photos.create!(user: user) }
+        kit.update!(data: kit.data.merge("photo_ids" => [second.id, first.id]))
+
+        patch "/#{user.username}/press-kit.json", params: { press_kit: { data: JSON.generate({ artistName: "Updated Artist" }) } }
+
+        expect(response).to have_http_status(:ok)
+        expect(kit.reload.data).to include("artistName" => "Updated Artist", "photo_ids" => [second.id, first.id])
+      end
+
+      it "keeps tour dates in the artist's chosen order" do
+        dates = [
+          { id: "berlin", date: "July 20", venue: "Berlin show", city: "Berlin" },
+          { id: "tallinn", date: "July 10", venue: "Tallinn show", city: "Tallinn" }
+        ]
+        patch "/#{user.username}/press-kit.json", params: {
+          press_kit: { data: JSON.generate({ artistName: "Test Artist", published: true, tourDates: dates }) }
+        }
+
+        expect(response).to have_http_status(:ok)
+        expect(user.reload.press_kit.data["tourDates"]).to eq(dates.map(&:stringify_keys))
+
+        sign_out user
+        get "/#{user.username}/press-kit.json"
+
+        expect(JSON.parse(response.body).dig("press_kit", "data", "tourDates")).to eq(dates.map(&:stringify_keys))
+      end
+
+      it "prepends newly uploaded photos and preserves the existing photos' order" do
+        kit = user.create_press_kit!(data: { artistName: "Test Artist" })
+        first, second = 2.times.map { kit.photos.create!(user: user) }
+        kit.update!(data: kit.data.merge("photo_ids" => [second.id, first.id]))
+        blob = ActiveStorage::Blob.create_and_upload!(io: StringIO.new("test image"), filename: "press.jpg", content_type: "image/jpeg", identify: false)
+
+        patch "/#{user.username}/press-kit.json", params: {
+          press_kit: { data: JSON.generate({ artistName: "Test Artist", pressPhotos: [{ signed_id: blob.signed_id }] }) }
+        }
+
+        expect(response).to have_http_status(:ok)
+        new_photo = kit.photos.order(:id).last
+        expect(new_photo.image.blob).to eq(blob)
+        expect(kit.reload.data["photo_ids"]).to eq([new_photo.id, second.id, first.id])
+        expect(JSON.parse(response.body).dig("press_kit", "photos").pluck("id")).to eq([new_photo.id, second.id, first.id])
+      end
     end
 
     context "when not authenticated" do
@@ -161,8 +230,9 @@ RSpec.describe "PressKits", type: :request do
         sign_in other_user
       end
 
-      xit "returns unauthorized" do
-        patch "/#{user.username}/press-kit", params: {
+      it "does not allow updating another artist's press kit" do
+        kit = user.create_press_kit!(data: { artistName: "Original Artist" })
+        patch "/#{user.username}/press-kit.json", params: {
           press_kit: {
             data: JSON.generate({
               artistName: "Hacker"
@@ -171,6 +241,7 @@ RSpec.describe "PressKits", type: :request do
         }
 
         expect(response).to have_http_status(:unauthorized)
+        expect(kit.reload.data["artistName"]).to eq("Original Artist")
       end
     end
 

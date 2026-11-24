@@ -2,7 +2,7 @@ class PressKitsController < ApplicationController
   before_action :authenticate_user!, except: [:show]
   before_action :set_user
   before_action :set_press_kit, only: [:show, :update]
-  # before_action :authorize_user!, only: [:update]
+  before_action :authorize_user!, only: [:update]
 
   def show
     if @press_kit
@@ -55,17 +55,23 @@ class PressKitsController < ApplicationController
 
     begin
       PressKit.transaction do
+        uploaded_photo_ids = []
         # Process photos first, creating ActiveStorage-backed Photo records.
         if parsed_data["pressPhotos"].is_a?(Array)
           entries = parsed_data["pressPhotos"].map { |e| e.respond_to?(:to_unsafe_h) ? e.to_unsafe_h : e }
           entries.each do |entry|
             next unless entry.is_a?(Hash) && entry["signed_id"].present?
             # Create Photo via model hook (before_validation attaches signed_id)
-            @press_kit.photos.create!(user: current_user, attach_signed_id: entry["signed_id"])
+            photo = @press_kit.photos.create!(user: current_user, attach_signed_id: entry["signed_id"])
+            uploaded_photo_ids << photo.id
           end
           # Do not persist pressPhotos in the data JSON
           parsed_data.delete("pressPhotos")
         end
+
+        requested_photo_ids = parsed_data.fetch("photo_ids", @press_kit.data["photo_ids"])
+        requested_photo_ids = uploaded_photo_ids + (requested_photo_ids.is_a?(Array) ? requested_photo_ids : [])
+        parsed_data["photo_ids"] = @press_kit.ordered_photos(photo_ids: requested_photo_ids).map(&:id)
 
         # Persist the remaining data cleanly (without pressPhotos)
         @press_kit.update!(data: parsed_data)
@@ -113,7 +119,7 @@ class PressKitsController < ApplicationController
     {
       id: press_kit.id,
       data: press_kit.data,
-      photos: press_kit.photos.map do |photo|
+      photos: press_kit.ordered_photos.map do |photo|
         {
           id: photo.id,
           url: photo.image.attached? ? url_for(photo.image) : nil,

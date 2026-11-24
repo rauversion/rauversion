@@ -3468,6 +3468,18 @@ en:
         title: "Error"
         description: "An unexpected error occurred"
   press_kit:
+    tour_order:
+      hint: "Drag dates or use the arrows, then save your changes. Dates appear in the order you choose."
+      drag: "Move tour date %{number}"
+      move_up: "Move tour date %{number} up"
+      move_down: "Move tour date %{number} down"
+      keyboard: "Press Space to pick up a date, use the arrow keys to move it, then press Space to drop it. Press Escape to cancel."
+    photo_order:
+      hint: "Drag photos or use the arrows, then save your changes to keep the new order."
+      drag: "Move photo %{number}"
+      move_up: "Move photo %{number} up"
+      move_down: "Move photo %{number} down"
+      keyboard: "Press Space to pick up a photo, use the arrow keys to move it, then press Space to drop it. Press Escape to cancel."
     gallery:
       count:
         one: "%{count} photo"

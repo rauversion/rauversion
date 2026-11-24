@@ -1,4 +1,5 @@
 import React, { useState } from "react"
+import * as Dialog from "@radix-ui/react-dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -14,6 +15,9 @@ import VideoEmbed from "./VideoEmbed"
 import { type PressKitVideo, resolveVideoSource } from "./video-embed"
 import TemplatePicker from "./TemplatePicker"
 import { defaultTemplateTheme, resolveTemplate, type PressKitDesign } from "./templates"
+import PressPhotoSorter from "./PressPhotoSorter"
+import { orderPressPhotos } from "./photo-order"
+import TourDatesEditor, { withTourDateIds, type TourDate } from "./TourDatesEditor"
 
 interface AdminPanelProps {
   isOpen: boolean
@@ -23,9 +27,13 @@ interface AdminPanelProps {
   // onSave receives the full press kit data (including published flag inside)
   onSave: (data: PressKitData) => Promise<any>
   onDesignPreview?: (design: PressKitDesign) => void
+  style?: React.CSSProperties
 }
 
+const EMPTY_PHOTOS: NonNullable<AdminPanelProps["photos"]> = []
+
 export interface PressKitData extends PressKitDesign {
+  published?: boolean
   artistName: string
   tagline: string
   location: string
@@ -47,11 +55,7 @@ export interface PressKitData extends PressKitDesign {
     email: string
     agent?: string
   }[]
-  tourDates: {
-    date: string
-    venue: string
-    city: string
-  }[]
+  tourDates: TourDate[]
   technicalRider?: string
   videos?: PressKitVideo[]
   pressPhotos: {
@@ -66,6 +70,7 @@ export interface PressKitData extends PressKitDesign {
   selectedPlaylists?: { id: number | string; title: string; slug?: string; cover_url?: any }[]
   playlist_ids?: (number | string)[]
   track_ids?: (number | string)[]
+  photo_ids?: (number | string)[]
   externalMusicLinks?: {
     platform: string
     url: string
@@ -73,8 +78,8 @@ export interface PressKitData extends PressKitDesign {
   }[]
 }
 
-export function AdminPanel({ isOpen, onClose, data, photos = [], onSave, onDesignPreview }: AdminPanelProps) {
-  const [formData, setFormData] = useState<PressKitData>(data)
+export function AdminPanel({ isOpen, onClose, data, photos = EMPTY_PHOTOS, onSave, onDesignPreview, style }: AdminPanelProps) {
+  const [formData, setFormData] = useState<PressKitData>(() => ({ ...data, tourDates: withTourDateIds(data.tourDates || []) }))
   const [published, setPublished] = useState<boolean>(!!(data && (data as any).published))
   const [saving, setSaving] = useState(false)
   const [previewing, setPreviewing] = useState(false)
@@ -82,6 +87,7 @@ export function AdminPanel({ isOpen, onClose, data, photos = [], onSave, onDesig
   const { toast } = useToast()
   const { username } = useParams()
   const { i18n } = useLocaleStore
+  const orderedPhotos = orderPressPhotos(photos, formData.photo_ids)
 
   // Sync local state when opening panel or when data prop changes
   React.useEffect(() => {
@@ -89,6 +95,8 @@ export function AdminPanel({ isOpen, onClose, data, photos = [], onSave, onDesig
     setFormData((prev) => {
       // Merge incoming data but preserve already resolved selections unless backend explicitly provides them
       const next: any = { ...prev, ...data }
+      next.tourDates = withTourDateIds(data.tourDates || [])
+      next.photo_ids = orderPressPhotos(photos, data.photo_ids).map((photo) => photo.id)
       if (!Array.isArray((data as any).selectedPlaylists) && prev.selectedPlaylists) {
         next.selectedPlaylists = prev.selectedPlaylists
       }
@@ -98,7 +106,7 @@ export function AdminPanel({ isOpen, onClose, data, photos = [], onSave, onDesig
       return next
     })
     setPublished(!!(data && (data as any).published))
-  }, [isOpen, data])
+  }, [isOpen, data, photos])
 
   // Prefill selector UI from stored playlist_ids (only for UI; persisted as IDs)
   React.useEffect(() => {
@@ -176,6 +184,18 @@ export function AdminPanel({ isOpen, onClose, data, photos = [], onSave, onDesig
 
   if (!isOpen) return null
 
+  const buildPayload = (): PressKitData => {
+    const { selectedPlaylists, selectedTracks, ...payload } = formData
+    return {
+      ...payload,
+      published,
+      playlist_ids: selectedPlaylists?.map((playlist) => playlist.id) ?? formData.playlist_ids ?? [],
+      track_ids: selectedTracks?.map((track) => track.id) ?? formData.track_ids ?? [],
+      photo_ids: orderedPhotos.map((photo) => photo.id),
+      videos: (formData.videos || []).filter((video) => video.url.trim()).map((video) => ({ ...video, url: video.url.trim() })),
+    }
+  }
+
   const handleSave = async () => {
     if ((formData.videos || []).some((video) => video.url.trim() && !resolveVideoSource(video.url))) {
       toast({ title: i18n.t("press_kit.error"), description: i18n.t("press_kit.videos.invalid_url"), variant: "destructive" })
@@ -183,17 +203,8 @@ export function AdminPanel({ isOpen, onClose, data, photos = [], onSave, onDesig
     }
     setSaving(true)
     try {
-      // Transform selections to IDs before saving
-      const playlist_ids = formData.selectedPlaylists?.map((p) => p.id) ?? formData.playlist_ids ?? []
-      const track_ids = formData.selectedTracks?.map((t) => t.id) ?? formData.track_ids ?? []
-
-      // Keep UI selections locally but persist only IDs in data
-      const videos = (formData.videos || []).filter((video) => video.url.trim()).map((video) => ({ ...video, url: video.url.trim() }))
-      const dataWithPublished = { ...formData, videos, playlist_ids, track_ids, published }
-      const { selectedPlaylists, selectedTracks, ...payload } = dataWithPublished as any
-
       // Await onSave so we can show toast on completion
-      await onSave(payload as PressKitData)
+      await onSave(buildPayload())
       toast({
         title: i18n.t("press_kit.saved"),
         description: i18n.t("press_kit.updated_successfully")
@@ -227,11 +238,6 @@ export function AdminPanel({ isOpen, onClose, data, photos = [], onSave, onDesig
         ...formData,
         contacts: [...formData.contacts, { type: "", email: "", agent: "" }],
       })
-    } else if (field === "tourDates") {
-      setFormData({
-        ...formData,
-        tourDates: [...formData.tourDates, { date: "", venue: "", city: "" }],
-      })
     } else if (field === "pressPhotos") {
       setFormData({
         ...formData,
@@ -261,11 +267,6 @@ export function AdminPanel({ isOpen, onClose, data, photos = [], onSave, onDesig
         ...formData,
         contacts: formData.contacts.filter((_, i) => i !== index),
       })
-    } else if (field === "tourDates") {
-      setFormData({
-        ...formData,
-        tourDates: formData.tourDates.filter((_, i) => i !== index),
-      })
     } else if (field === "pressPhotos") {
       setFormData({
         ...formData,
@@ -293,10 +294,13 @@ export function AdminPanel({ isOpen, onClose, data, photos = [], onSave, onDesig
   }
 
   return (
-    <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
-      <div className="bg-background border border-border rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-        <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6 border-b border-border">
-          <h2 className="text-2xl font-bold">{i18n.t("press_kit.admin_panel")}</h2>
+    <Dialog.Root open onOpenChange={(open) => { if (!open) onClose() }}>
+      <Dialog.Portal>
+        <Dialog.Overlay style={style} className="fixed inset-0 z-50 bg-black/80" />
+        <Dialog.Content style={style} aria-describedby={undefined}
+          className="fixed inset-x-3 top-4 z-50 mx-auto flex h-[calc(100dvh-10rem)] max-h-[48rem] min-h-0 max-w-4xl flex-col overflow-hidden rounded-xl border border-border bg-background text-foreground shadow-2xl outline-none sm:inset-x-6 sm:top-8">
+        <div className="flex shrink-0 flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6 border-b border-border">
+          <Dialog.Title className="text-xl font-bold sm:text-2xl">{i18n.t("press_kit.admin_panel")}</Dialog.Title>
 
           <div className="flex flex-wrap items-center gap-4">
               <div className="flex items-center gap-2 mr-4">
@@ -321,7 +325,7 @@ export function AdminPanel({ isOpen, onClose, data, photos = [], onSave, onDesig
           </div>
         </div>
 
-        <div className="overflow-y-auto flex-1">
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
           <Tabs defaultValue="design" className="w-full">
             <TabsList className="w-full flex-wrap justify-start border-b rounded-none h-auto p-0 bg-transparent">
               <TabsTrigger value="design" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary">
@@ -379,7 +383,7 @@ export function AdminPanel({ isOpen, onClose, data, photos = [], onSave, onDesig
 
             <div className="p-6">
               <TabsContent value="design" className="mt-0">
-                <TemplatePicker design={formData} artistName={formData.artistName} photos={photos.filter((photo) => photo.url)}
+                <TemplatePicker design={formData} artistName={formData.artistName} photos={orderedPhotos.filter((photo) => photo.url)}
                   onChange={(design) => {
                     setFormData({ ...formData, ...design })
                     onDesignPreview?.(design)
@@ -686,25 +690,7 @@ export function AdminPanel({ isOpen, onClose, data, photos = [], onSave, onDesig
                   {photos.length > 0 && (
                     <div className="space-y-2">
                       <Label className="text-sm text-muted-foreground">{i18n.t("press_kit.press_photos.current_photos")}</Label>
-                      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                        {photos.map((p) => (
-                          <div key={p.id} className="relative border border-border rounded-lg overflow-hidden">
-                            <div className="bg-secondary">
-                              <img
-                                src={p.url}
-                                alt={p.description || i18n.t("press_kit.press_photos.press_photo_alt")}
-                                className="block h-auto w-full"
-                                loading="lazy"
-                              />
-                            </div>
-                            {p.description && (
-                              <div className="p-2 text-xs text-muted-foreground border-t border-border">
-                                {p.description}
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
+                      <PressPhotoSorter photos={orderedPhotos} onChange={(photo_ids) => setFormData((prev) => ({ ...prev, photo_ids }))} />
                     </div>
                   )}
 
@@ -717,7 +703,7 @@ export function AdminPanel({ isOpen, onClose, data, photos = [], onSave, onDesig
                       aspectRatio="free"
                       onUploadComplete={async (signed_id: any, cropData: any) => {
                         try {
-                          await onSave({ ...formData, pressPhotos: [{ signed_id, cropData }] } as any)
+                          await onSave({ ...buildPayload(), pressPhotos: [{ signed_id, cropData }] } as any)
                           toast({ title: i18n.t("press_kit.press_photos.photo_added"), description: i18n.t("press_kit.press_photos.image_uploaded") })
                         } catch (e: any) {
                           console.error("Photo upload save error:", e)
@@ -871,71 +857,13 @@ export function AdminPanel({ isOpen, onClose, data, photos = [], onSave, onDesig
               </TabsContent>
 
               <TabsContent value="tours" className="space-y-6 mt-0">
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">{i18n.t("press_kit.tour_dates.title")}</h3>
-                    <Button onClick={() => addItem("tourDates")} size="sm" variant="outline">
-                      {i18n.t("press_kit.tour_dates.add")}
-                    </Button>
-                  </div>
-
-                  {formData.tourDates.map((tour, index) => (
-                    <div key={index} className="space-y-3 p-4 border border-border rounded-lg">
-                      <div className="space-y-2">
-                        <Label>{i18n.t("press_kit.tour_dates.date")}</Label>
-                        <Input
-                          value={tour.date}
-                          onChange={(e) => {
-                            const newTours = [...formData.tourDates]
-                            newTours[index].date = e.target.value
-                            setFormData({ ...formData, tourDates: newTours })
-                          }}
-                          placeholder={i18n.t("press_kit.tour_dates.date_placeholder")}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>{i18n.t("press_kit.tour_dates.venue")}</Label>
-                        <Input
-                          value={tour.venue}
-                          onChange={(e) => {
-                            const newTours = [...formData.tourDates]
-                            newTours[index].venue = e.target.value
-                            setFormData({ ...formData, tourDates: newTours })
-                          }}
-                          placeholder={i18n.t("press_kit.tour_dates.venue_placeholder")}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>{i18n.t("press_kit.tour_dates.city")}</Label>
-                        <Input
-                          value={tour.city}
-                          onChange={(e) => {
-                            const newTours = [...formData.tourDates]
-                            newTours[index].city = e.target.value
-                            setFormData({ ...formData, tourDates: newTours })
-                          }}
-                          placeholder={i18n.t("press_kit.tour_dates.city_placeholder")}
-                        />
-                      </div>
-
-                      <Button
-                        onClick={() => removeItem("tourDates", index)}
-                        size="sm"
-                        variant="destructive"
-                        className="w-full"
-                      >
-                        {i18n.t("press_kit.tour_dates.remove")}
-                      </Button>
-                    </div>
-                  ))}
-                </div>
+                <TourDatesEditor dates={formData.tourDates} onChange={(tourDates) => setFormData((prev) => ({ ...prev, tourDates }))} />
               </TabsContent>
             </div>
           </Tabs>
         </div>
-      </div>
-    </div>
+        </Dialog.Content>
+      </Dialog.Portal>
+    </Dialog.Root>
   )
 }

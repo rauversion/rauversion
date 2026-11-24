@@ -2853,6 +2853,13 @@
         "photos": "Press Photos",
         "press": "Press & Reviews"
       },
+      "photo_order": {
+        "drag": "Move photo %{number}",
+        "hint": "Drag photos or use the arrows, then save your changes to keep the new order.",
+        "keyboard": "Press Space to pick up a photo, use the arrow keys to move it, then press Space to drop it. Press Escape to cancel.",
+        "move_down": "Move photo %{number} down",
+        "move_up": "Move photo %{number} up"
+      },
       "press_photos": {
         "add": "Add Photo",
         "crop_formats": {
@@ -2964,6 +2971,13 @@
         "upcoming": "Upcoming Tour Dates",
         "venue": "Venue",
         "venue_placeholder": "Berghain, Fabric, etc."
+      },
+      "tour_order": {
+        "drag": "Move tour date %{number}",
+        "hint": "Drag dates or use the arrows, then save your changes. Dates appear in the order you choose.",
+        "keyboard": "Press Space to pick up a date, use the arrow keys to move it, then press Space to drop it. Press Escape to cancel.",
+        "move_down": "Move tour date %{number} down",
+        "move_up": "Move tour date %{number} up"
       },
       "updated_successfully": "Press kit updated successfully",
       "videos": {
@@ -8692,6 +8706,13 @@
         "photos": "Fotos de Prensa",
         "press": "Prensa y Reseñas"
       },
+      "photo_order": {
+        "drag": "Mover foto %{number}",
+        "hint": "Arrastra las fotos o usa las flechas y guarda los cambios al terminar.",
+        "keyboard": "Presiona Espacio para tomar una foto, usa las flechas para moverla y presiona Espacio para soltarla. Presiona Escape para cancelar.",
+        "move_down": "Bajar foto %{number}",
+        "move_up": "Subir foto %{number}"
+      },
       "press_photos": {
         "add": "Agregar Foto",
         "crop_formats": {
@@ -8803,6 +8824,13 @@
         "upcoming": "Próximas Fechas de Gira",
         "venue": "Lugar",
         "venue_placeholder": "Berghain, Fabric, etc."
+      },
+      "tour_order": {
+        "drag": "Mover fecha %{number}",
+        "hint": "Arrastra las fechas o usa las flechas y guarda los cambios. Se mostrarán en el orden que elijas.",
+        "keyboard": "Presiona Espacio para tomar una fecha, usa las flechas para moverla y presiona Espacio para soltarla. Presiona Escape para cancelar.",
+        "move_down": "Bajar fecha %{number}",
+        "move_up": "Subir fecha %{number}"
       },
       "updated_successfully": "Kit de prensa actualizado exitosamente",
       "videos": {

@@ -3526,6 +3526,18 @@ es:
         title: "Error"
         description: "Ocurrió un error inesperado"
   press_kit:
+    tour_order:
+      hint: "Arrastra las fechas o usa las flechas y guarda los cambios. Se mostrarán en el orden que elijas."
+      drag: "Mover fecha %{number}"
+      move_up: "Subir fecha %{number}"
+      move_down: "Bajar fecha %{number}"
+      keyboard: "Presiona Espacio para tomar una fecha, usa las flechas para moverla y presiona Espacio para soltarla. Presiona Escape para cancelar."
+    photo_order:
+      hint: "Arrastra las fotos o usa las flechas y guarda los cambios al terminar."
+      drag: "Mover foto %{number}"
+      move_up: "Subir foto %{number}"
+      move_down: "Bajar foto %{number}"
+      keyboard: "Presiona Espacio para tomar una foto, usa las flechas para moverla y presiona Espacio para soltarla. Presiona Escape para cancelar."
     gallery:
       count:
         one: "%{count} foto"

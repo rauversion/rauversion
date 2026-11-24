@@ -764,6 +764,7 @@ export default function PressKitPage() {
         photos={photos}
         onSave={handleSaveData}
         onDesignPreview={setPreviewDesign}
+        style={pageStyle}
       />
 
       <nav className="fixed left-8 top-1/2 -translate-y-1/2 z-10 hidden lg:block">
@@ -1281,7 +1282,7 @@ export default function PressKitPage() {
                   <div className="space-y-3">
                     {tourDates.map((show, index) => (
                       <div
-                        key={index}
+                        key={show.id || index}
                         className="flex items-center justify-between py-3 border-b border-border hover:border-primary/50 transition-colors duration-300"
                       >
                         <div className="space-y-1">
