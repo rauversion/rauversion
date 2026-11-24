@@ -2794,8 +2794,22 @@
       "failed_to_save": "Failed to save press kit",
       "footer": {
         "all_rights": "All rights reserved",
+        "create_description": "Your music, photos, videos and booking info. Share your story in one place.",
+        "create_yours": "Create your press kit",
         "last_updated": "Last updated",
+        "made_with": "Made with Press Kit by Rauversion",
         "press_kit_version": "Press Kit v2.0"
+      },
+      "gallery": {
+        "count": {
+          "one": "%{count} photo",
+          "other": "%{count} photos"
+        },
+        "hint": "Swipe or use the arrows",
+        "navigation": "Photo gallery navigation",
+        "next": "Next photos",
+        "page": "Page %{current} of %{total}",
+        "previous": "Previous photos"
       },
       "generating": "Generating...",
       "genres": {
@@ -2883,6 +2897,18 @@
         "technical_rider": "Technical Rider",
         "tours": "Tour Dates"
       },
+      "slideshow": {
+        "close": "Close slideshow",
+        "counter": "%{current} / %{total}",
+        "hint": "Use the arrows or swipe to browse",
+        "next": "Next photo",
+        "original": "Open original",
+        "photo": "Press photo %{number}",
+        "previous": "Previous photo",
+        "show_photo": "Show photo %{number}",
+        "thumbnails": "Choose a photo",
+        "title": "Press photos"
+      },
       "social_links": {
         "add": "Add Platform",
         "handle": "Handle/Username",
@@ -2901,6 +2927,31 @@
         "placeholder": "Example: 2 CDJ-3000 players, 1 DJM-900NXS2 mixer, stereo booth monitors at ear level...",
         "title": "Technical Rider"
       },
+      "templates": {
+        "add_photo": "Add photos in the Press Photos tab to use one as your cover.",
+        "back_to_editor": "Back to editor",
+        "classic": {
+          "description": "Clean typography, generous spacing and a focus on your music.",
+          "name": "Classic"
+        },
+        "dark": "Dark",
+        "description": "Choose a look for your press kit, adjust the theme and preview it with your own content.",
+        "editorial": {
+          "description": "Serif typography, warm tones and a portrait beside your story.",
+          "name": "Editorial"
+        },
+        "hero_photo": "Cover photo",
+        "light": "Light",
+        "poster": {
+          "description": "A bold headline, a large photo and a high-contrast accent.",
+          "name": "Poster"
+        },
+        "preview": "Preview page",
+        "previewing": "Template preview",
+        "theme": "Color theme",
+        "title": "Design & templates",
+        "web_only": "Templates apply to the web page. The PDF keeps its print layout."
+      },
       "title": "Press Kit",
       "tour_dates": {
         "add": "Add Date",
@@ -2914,7 +2965,27 @@
         "venue": "Venue",
         "venue_placeholder": "Berghain, Fabric, etc."
       },
-      "updated_successfully": "Press kit updated successfully"
+      "updated_successfully": "Press kit updated successfully",
+      "videos": {
+        "add": "Add video",
+        "caption": "Description (optional)",
+        "description": "Paste a YouTube, Instagram post or Reel, Vimeo, or direct MP4/WebM/OGV link. Other HTTPS sources appear as external links. Instagram posts must be public and allow embeds.",
+        "external_hint": "Watch this video on its original website.",
+        "format": "Player format (Instagram adjusts automatically)",
+        "formats": {
+          "auto": "Automatic",
+          "landscape": "Landscape · 16:9",
+          "portrait": "Portrait · 9:16",
+          "square": "Square · 1:1"
+        },
+        "invalid_url": "Enter a valid HTTPS video URL. For YouTube, Instagram and Vimeo, use a link to a specific video or post.",
+        "move_up": "Move up",
+        "open_source": "Open on %{provider}",
+        "title": "Videos",
+        "title_placeholder": "Live set, interview, music video…",
+        "url": "Video URL",
+        "video_title": "Title (optional)"
+      }
     },
     "products": {
       "accessory": {
@@ -8562,8 +8633,22 @@
       "failed_to_save": "Error al guardar el kit de prensa",
       "footer": {
         "all_rights": "Todos los derechos reservados",
+        "create_description": "Tu música, fotos, videos y contacto para bookings. Presenta tu proyecto en un solo lugar.",
+        "create_yours": "Crea tu press kit",
         "last_updated": "Última actualización",
+        "made_with": "Hecho con Press Kit de Rauversion",
         "press_kit_version": "Kit de Prensa v2.0"
+      },
+      "gallery": {
+        "count": {
+          "one": "%{count} foto",
+          "other": "%{count} fotos"
+        },
+        "hint": "Desliza o usa las flechas",
+        "navigation": "Navegación de la galería de fotos",
+        "next": "Más fotos",
+        "page": "Página %{current} de %{total}",
+        "previous": "Fotos anteriores"
       },
       "generating": "Generando...",
       "genres": {
@@ -8651,6 +8736,18 @@
         "technical_rider": "Rider Técnico",
         "tours": "Fechas de Gira"
       },
+      "slideshow": {
+        "close": "Cerrar presentación",
+        "counter": "%{current} / %{total}",
+        "hint": "Usa las flechas o desliza para recorrer las fotos",
+        "next": "Foto siguiente",
+        "original": "Abrir original",
+        "photo": "Foto de prensa %{number}",
+        "previous": "Foto anterior",
+        "show_photo": "Ver foto %{number}",
+        "thumbnails": "Elegir una foto",
+        "title": "Fotos de prensa"
+      },
       "social_links": {
         "add": "Agregar Plataforma",
         "handle": "Usuario/Handle",
@@ -8669,6 +8766,31 @@
         "placeholder": "Ejemplo: 2 reproductores CDJ-3000, 1 mixer DJM-900NXS2, monitores estéreo de cabina a la altura de los oídos...",
         "title": "Rider Técnico"
       },
+      "templates": {
+        "add_photo": "Agrega fotos en la pestaña Fotos de Prensa para elegir una como portada.",
+        "back_to_editor": "Volver al editor",
+        "classic": {
+          "description": "Tipografía limpia, espacios amplios y tu música al centro.",
+          "name": "Clásica"
+        },
+        "dark": "Oscuro",
+        "description": "Elige cómo se ve tu press kit, ajusta el tema y previsualízalo con tu contenido.",
+        "editorial": {
+          "description": "Tipografía serif, tonos cálidos y una foto junto a tu historia.",
+          "name": "Editorial"
+        },
+        "hero_photo": "Foto de portada",
+        "light": "Claro",
+        "poster": {
+          "description": "Un nombre en grande, una foto protagonista y un acento de alto contraste.",
+          "name": "Póster"
+        },
+        "preview": "Previsualizar página",
+        "previewing": "Vista previa de la plantilla",
+        "theme": "Tema de color",
+        "title": "Diseño y plantillas",
+        "web_only": "Las plantillas se aplican a la página web. El PDF conserva su formato de impresión."
+      },
       "title": "Kit de Prensa",
       "tour_dates": {
         "add": "Agregar Fecha",
@@ -8682,7 +8804,27 @@
         "venue": "Lugar",
         "venue_placeholder": "Berghain, Fabric, etc."
       },
-      "updated_successfully": "Kit de prensa actualizado exitosamente"
+      "updated_successfully": "Kit de prensa actualizado exitosamente",
+      "videos": {
+        "add": "Agregar video",
+        "caption": "Descripción (opcional)",
+        "description": "Pega un enlace de YouTube, una publicación o Reel de Instagram, Vimeo o un archivo MP4/WebM/OGV. Otras fuentes HTTPS se muestran como enlaces externos. Las publicaciones de Instagram deben ser públicas y permitir inserciones.",
+        "external_hint": "Mira este video en su sitio de origen.",
+        "format": "Formato del reproductor (Instagram se ajusta automáticamente)",
+        "formats": {
+          "auto": "Automático",
+          "landscape": "Horizontal · 16:9",
+          "portrait": "Vertical · 9:16",
+          "square": "Cuadrado · 1:1"
+        },
+        "invalid_url": "Ingresa una URL HTTPS válida. Para YouTube, Instagram y Vimeo, usa el enlace de un video o publicación específica.",
+        "move_up": "Subir",
+        "open_source": "Abrir en %{provider}",
+        "title": "Videos",
+        "title_placeholder": "Set en vivo, entrevista, videoclip…",
+        "url": "URL del video",
+        "video_title": "Título (opcional)"
+      }
     },
     "products": {
       "accessory": {

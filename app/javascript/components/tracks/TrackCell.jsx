@@ -94,7 +94,7 @@ export function ClassicTrackCell({ track }) {
 }
 
 // Modern style with overlay play button
-export function ModernTrackCell({ track }) {
+export function ModernTrackCell({ track, coverSize = "medium" }) {
   const { play, pause, currentTrackId, isPlaying } = useAudioStore()
   const isCurrentTrack = `${currentTrackId}` === `${track.id}`
   const shouldShowPause = isCurrentTrack && isPlaying
@@ -117,7 +117,7 @@ export function ModernTrackCell({ track }) {
       >
         <div className="relative aspect-square overflow-hidden rounded-lg mb-4">
           <img
-            src={track.cover_url.medium}
+            src={track.cover_url[coverSize] || track.cover_url.medium}
             alt={track.title}
             className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-500"
           />

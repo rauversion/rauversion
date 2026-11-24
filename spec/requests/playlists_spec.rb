@@ -31,6 +31,20 @@ RSpec.describe "Playlists", type: :request do
       expect(response).to have_http_status(:ok)
       expect(JSON.parse(response.body).fetch("collection").pluck("id")).to eq([private_mix.id])
     end
+
+    it "provides larger artwork for press kit cards while keeping the existing cover URL" do
+      public_album.cover.attach(io: StringIO.new("image data"), filename: "cover.jpg", content_type: "image/jpeg")
+
+      get albums_playlists_path(format: :json, ids: public_album.id)
+
+      expect(response).to have_http_status(:ok)
+      album = JSON.parse(response.body).fetch("collection").first
+      expect(album["cover_url"]).to be_present
+      expect(album.fetch("cover_urls").keys).to match_array(%w[medium large])
+      large_url = album.dig("cover_urls", "large")
+      variation_key = URI(large_url).path.split("/")[-2]
+      expect(ActiveStorage::Variation.decode(variation_key).transformations).to include(resize_to_limit: [1200, 1200])
+    end
   end
 
   describe "GET /playlists/:id.json" do

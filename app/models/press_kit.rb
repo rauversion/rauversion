@@ -8,6 +8,8 @@ class PressKit < ApplicationRecord
   def self.default_data
     {
       published: false,
+      template: "classic",
+      theme: "dark",
       artistName: "",
       tagline: "",
       location: "",
@@ -23,6 +25,7 @@ class PressKit < ApplicationRecord
       contacts: [],
       tourDates: [],
       technicalRider: "",
+      videos: [],
       playlist_ids: [],
       track_ids: [],
       externalMusicLinks: [

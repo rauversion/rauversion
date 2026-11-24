@@ -3468,6 +3468,65 @@ en:
         title: "Error"
         description: "An unexpected error occurred"
   press_kit:
+    gallery:
+      count:
+        one: "%{count} photo"
+        other: "%{count} photos"
+      navigation: "Photo gallery navigation"
+      previous: "Previous photos"
+      next: "Next photos"
+      page: "Page %{current} of %{total}"
+      hint: "Swipe or use the arrows"
+    templates:
+      title: "Design & templates"
+      description: "Choose a look for your press kit, adjust the theme and preview it with your own content."
+      classic:
+        name: "Classic"
+        description: "Clean typography, generous spacing and a focus on your music."
+      editorial:
+        name: "Editorial"
+        description: "Serif typography, warm tones and a portrait beside your story."
+      poster:
+        name: "Poster"
+        description: "A bold headline, a large photo and a high-contrast accent."
+      theme: "Color theme"
+      light: "Light"
+      dark: "Dark"
+      hero_photo: "Cover photo"
+      add_photo: "Add photos in the Press Photos tab to use one as your cover."
+      preview: "Preview page"
+      previewing: "Template preview"
+      back_to_editor: "Back to editor"
+      web_only: "Templates apply to the web page. The PDF keeps its print layout."
+    slideshow:
+      title: "Press photos"
+      close: "Close slideshow"
+      previous: "Previous photo"
+      next: "Next photo"
+      counter: "%{current} / %{total}"
+      photo: "Press photo %{number}"
+      show_photo: "Show photo %{number}"
+      original: "Open original"
+      thumbnails: "Choose a photo"
+      hint: "Use the arrows or swipe to browse"
+    videos:
+      title: "Videos"
+      add: "Add video"
+      description: "Paste a YouTube, Instagram post or Reel, Vimeo, or direct MP4/WebM/OGV link. Other HTTPS sources appear as external links. Instagram posts must be public and allow embeds."
+      video_title: "Title (optional)"
+      title_placeholder: "Live set, interview, music video…"
+      url: "Video URL"
+      caption: "Description (optional)"
+      format: "Player format (Instagram adjusts automatically)"
+      invalid_url: "Enter a valid HTTPS video URL. For YouTube, Instagram and Vimeo, use a link to a specific video or post."
+      external_hint: "Watch this video on its original website."
+      open_source: "Open on %{provider}"
+      move_up: "Move up"
+      formats:
+        auto: "Automatic"
+        landscape: "Landscape · 16:9"
+        portrait: "Portrait · 9:16"
+        square: "Square · 1:1"
     updated_successfully: Press kit updated successfully
     title: Press Kit
     admin_panel: Admin Panel
@@ -3607,6 +3666,9 @@ en:
       press: Press & Reviews
       contact: Get in Touch
     footer:
+      made_with: "Made with Press Kit by Rauversion"
+      create_description: "Your music, photos, videos and booking info. Share your story in one place."
+      create_yours: "Create your press kit"
       all_rights: All rights reserved
       press_kit_version: Press Kit v2.0
       last_updated: Last updated

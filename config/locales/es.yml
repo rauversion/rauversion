@@ -3526,6 +3526,65 @@ es:
         title: "Error"
         description: "Ocurrió un error inesperado"
   press_kit:
+    gallery:
+      count:
+        one: "%{count} foto"
+        other: "%{count} fotos"
+      navigation: "Navegación de la galería de fotos"
+      previous: "Fotos anteriores"
+      next: "Más fotos"
+      page: "Página %{current} de %{total}"
+      hint: "Desliza o usa las flechas"
+    templates:
+      title: "Diseño y plantillas"
+      description: "Elige cómo se ve tu press kit, ajusta el tema y previsualízalo con tu contenido."
+      classic:
+        name: "Clásica"
+        description: "Tipografía limpia, espacios amplios y tu música al centro."
+      editorial:
+        name: "Editorial"
+        description: "Tipografía serif, tonos cálidos y una foto junto a tu historia."
+      poster:
+        name: "Póster"
+        description: "Un nombre en grande, una foto protagonista y un acento de alto contraste."
+      theme: "Tema de color"
+      light: "Claro"
+      dark: "Oscuro"
+      hero_photo: "Foto de portada"
+      add_photo: "Agrega fotos en la pestaña Fotos de Prensa para elegir una como portada."
+      preview: "Previsualizar página"
+      previewing: "Vista previa de la plantilla"
+      back_to_editor: "Volver al editor"
+      web_only: "Las plantillas se aplican a la página web. El PDF conserva su formato de impresión."
+    slideshow:
+      title: "Fotos de prensa"
+      close: "Cerrar presentación"
+      previous: "Foto anterior"
+      next: "Foto siguiente"
+      counter: "%{current} / %{total}"
+      photo: "Foto de prensa %{number}"
+      show_photo: "Ver foto %{number}"
+      original: "Abrir original"
+      thumbnails: "Elegir una foto"
+      hint: "Usa las flechas o desliza para recorrer las fotos"
+    videos:
+      title: "Videos"
+      add: "Agregar video"
+      description: "Pega un enlace de YouTube, una publicación o Reel de Instagram, Vimeo o un archivo MP4/WebM/OGV. Otras fuentes HTTPS se muestran como enlaces externos. Las publicaciones de Instagram deben ser públicas y permitir inserciones."
+      video_title: "Título (opcional)"
+      title_placeholder: "Set en vivo, entrevista, videoclip…"
+      url: "URL del video"
+      caption: "Descripción (opcional)"
+      format: "Formato del reproductor (Instagram se ajusta automáticamente)"
+      invalid_url: "Ingresa una URL HTTPS válida. Para YouTube, Instagram y Vimeo, usa el enlace de un video o publicación específica."
+      external_hint: "Mira este video en su sitio de origen."
+      open_source: "Abrir en %{provider}"
+      move_up: "Subir"
+      formats:
+        auto: "Automático"
+        landscape: "Horizontal · 16:9"
+        portrait: "Vertical · 9:16"
+        square: "Cuadrado · 1:1"
     updated_successfully: Kit de prensa actualizado exitosamente
     title: Kit de Prensa
     admin_panel: Panel de Administración
@@ -3665,6 +3724,9 @@ es:
       press: Prensa y Reseñas
       contact: Ponte en Contacto
     footer:
+      made_with: "Hecho con Press Kit de Rauversion"
+      create_description: "Tu música, fotos, videos y contacto para bookings. Presenta tu proyecto en un solo lugar."
+      create_yours: "Crea tu press kit"
       all_rights: Todos los derechos reservados
       press_kit_version: Kit de Prensa v2.0
       last_updated: Última actualización

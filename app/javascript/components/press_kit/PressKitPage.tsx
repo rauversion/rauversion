@@ -6,10 +6,16 @@ import TrackCell from "@/components/tracks/TrackCell"
 import { get, patch } from "@rails/request.js"
 import { useToast } from "@/hooks/use-toast"
 import useAuthStore from "@/stores/authStore"
-import { useParams } from "react-router-dom"
+import { useParams, useSearchParams } from "react-router-dom"
 import { useLocaleStore } from "stores/locales"
 import { ArrowUpRight, BadgeDollarSign, Clock, MapPin, Radio } from "lucide-react"
 import BookingProposalModal from "@/components/products/service/BookingProposalModal"
+import VideoEmbed from "./VideoEmbed"
+import PhotoSlideshow from "./PhotoSlideshow"
+import PhotoGallery from "./PhotoGallery"
+import { resolveVideoSource } from "./video-embed"
+import PressKitBranding from "./PressKitBranding"
+import { defaultTemplateTheme, resolveTemplate, templateLayout, templateStyle, type PressKitDesign } from "./templates"
 
 interface PerformerServicePriceRule {
   id: number
@@ -46,10 +52,12 @@ interface PerformerService {
 
 export default function PressKitPage() {
   const { username } = useParams()
+  const [searchParams] = useSearchParams()
   const { currentUser } = useAuthStore()
   const { toast } = useToast()
   const { i18n } = useLocaleStore
-  const [isDark, setIsDark] = useState(true)
+  const [themeOverride, setThemeOverride] = useState<boolean | null>(null)
+  const [previewDesign, setPreviewDesign] = useState<PressKitDesign | null>(null)
   const [activeSection, setActiveSection] = useState("")
   const sectionsRef = useRef<Record<string, HTMLElement | null>>({})
   const [isAdminOpen, setIsAdminOpen] = useState(false)
@@ -73,6 +81,9 @@ export default function PressKitPage() {
     technicalRider: "",
     pressPhotos: [],
     externalMusicLinks: [],
+    videos: [],
+    template: "classic",
+    theme: "dark",
   })
   const [playlists, setPlaylists] = useState<any[]>([])
   const [tracks, setTracks] = useState<any[]>([])
@@ -80,7 +91,7 @@ export default function PressKitPage() {
   const [performerServices, setPerformerServices] = useState<PerformerService[]>([])
   const [animatedSections, setAnimatedSections] = useState<string[]>([])
   const [hasPressKit, setHasPressKit] = useState<boolean | null>(null)
-  const [selectedPhoto, setSelectedPhoto] = useState<any | null>(null)
+  const [selectedPhotoIndex, setSelectedPhotoIndex] = useState<number | null>(null)
   const S = (v: any) => (v ?? "").toString()
   const hasTechnicalRider = Boolean(pressKitData.technicalRider?.trim())
   const present = (v: any) => S(v).trim().length > 0
@@ -108,6 +119,7 @@ export default function PressKitPage() {
     return i18n.t("products.service.show.duration_hours_minutes", { hours, minutes: remainingMinutes })
   }
   const bio = pressKitData.bio || { intro: "", career: "", sound: "" }
+  const artistName = pressKitData.artistName || username || ""
   const achievements = (pressKitData.achievements || []).filter(present)
   const genres = (pressKitData.genres || []).filter(present)
   const externalMusicLinks = (pressKitData.externalMusicLinks || []).filter((link) => present(link.url))
@@ -115,7 +127,16 @@ export default function PressKitPage() {
   const socialLinks = (pressKitData.socialLinks || []).filter((social) => present(social.url))
   const tourDates = (pressKitData.tourDates || []).filter((tour) => present(tour.date) || present(tour.venue) || present(tour.city))
   const visiblePhotos = photos.filter((photo) => present(photo.url))
-  const hasBioText = [bio.intro, bio.career, bio.sound].some(present)
+  const design = previewDesign || pressKitData
+  const template = resolveTemplate(design.template)
+  const savedDarkTheme = (design.theme || defaultTemplateTheme(template)) === "dark"
+  const isDark = previewDesign ? savedDarkTheme : themeOverride ?? savedDarkTheme
+  const layout = templateLayout[template]
+  const pageStyle = templateStyle(template, isDark)
+  const heroPhoto = visiblePhotos.find((photo) => String(photo.id) === String(design.heroPhotoId)) || visiblePhotos[0]
+  const closeAdmin = () => { setIsAdminOpen(false); setPreviewDesign(null) }
+  const videos = (pressKitData.videos || []).filter((video) => resolveVideoSource(video.url))
+  const hasBioText = [bio.career, bio.sound].some(present)
   const hasBioSection = hasBioText || achievements.some(present) || genres.some(present)
   const hasMusicSection = playlists.length > 0 || tracks.length > 0 || externalMusicLinks.length > 0
   const hasBookingSection = performerServices.length > 0
@@ -128,12 +149,17 @@ export default function PressKitPage() {
     ...(hasMusicSection ? ["music"] : []),
     ...(hasBookingSection ? ["booking"] : []),
     ...(hasPhotosSection ? ["photos"] : []),
+    ...(videos.length > 0 ? ["videos"] : []),
     ...(hasContactSection ? ["contact"] : []),
   ]
 
   useEffect(() => {
     loadPressKit()
   }, [username])
+
+  useEffect(() => {
+    if (isOwner && searchParams.get("edit") === "1") setIsAdminOpen(true)
+  }, [isOwner, searchParams])
 
   const loadPressKit = async () => {
     try {
@@ -144,6 +170,7 @@ export default function PressKitPage() {
         if (data.press_kit && data.press_kit.data) {
           setPressKitData(data.press_kit.data)
           setHasPressKit(true)
+          setThemeOverride(null)
         } else {
           setHasPressKit(false)
         }
@@ -179,6 +206,7 @@ export default function PressKitPage() {
         if (data.press_kit && data.press_kit.data) {
           setPressKitData(data.press_kit.data)
           setHasPressKit(true)
+          setThemeOverride(null)
         }
         // Update photos from the queryable association
         if (data.press_kit && data.press_kit.photos) {
@@ -189,25 +217,14 @@ export default function PressKitPage() {
           description: data.message || "Press kit updated successfully"
         })
       } else {
-        toast({
-          title: "Error",
-          description: "Failed to update press kit",
-          variant: "destructive"
-        })
+        const data = await response.json
+        throw new Error(data.errors?.join(", ") || i18n.t("press_kit.failed_to_save"))
       }
     } catch (error) {
       console.error('Error saving press kit:', error)
-      toast({
-        title: "Error",
-        description: "Failed to update press kit",
-        variant: "destructive"
-      })
+      throw error
     }
   }
-
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", isDark)
-  }, [isDark])
 
   // Fetch playlists/albums by IDs stored in pressKitData.playlist_ids
   useEffect(() => {
@@ -313,7 +330,7 @@ export default function PressKitPage() {
   }, [loading, visibleSectionIds.join("|")])
 
   const toggleTheme = () => {
-    setIsDark(!isDark)
+    setThemeOverride(!isDark)
   }
 
   const generatePDFOld = async () => {
@@ -354,24 +371,22 @@ export default function PressKitPage() {
             throw new Error("Unable to prepare image for PDF")
           }
 
-          const scale = Math.max(targetWidth / image.naturalWidth, targetHeight / image.naturalHeight)
-          const sourceWidth = targetWidth / scale
-          const sourceHeight = targetHeight / scale
-          const sourceX = (image.naturalWidth - sourceWidth) / 2
-          const sourceY = (image.naturalHeight - sourceHeight) / 2
+          const scale = Math.min(targetWidth / image.naturalWidth, targetHeight / image.naturalHeight)
+          const width = image.naturalWidth * scale
+          const height = image.naturalHeight * scale
 
           context.fillStyle = "#1a1a1a"
           context.fillRect(0, 0, targetWidth, targetHeight)
           context.drawImage(
             image,
-            sourceX,
-            sourceY,
-            sourceWidth,
-            sourceHeight,
             0,
             0,
-            targetWidth,
-            targetHeight,
+            image.naturalWidth,
+            image.naturalHeight,
+            (targetWidth - width) / 2,
+            (targetHeight - height) / 2,
+            width,
+            height,
           )
 
           return imageCanvas.toDataURL("image/jpeg", 0.85)
@@ -679,9 +694,9 @@ export default function PressKitPage() {
   }
 
   // Empty state when there is no press kit yet
-  if (hasPressKit === false) {
+  if (hasPressKit === false && !isOwner) {
     return (
-      <div className="min-h-screen bg-background text-foreground relative">
+      <div className="flow-root min-h-screen bg-background text-foreground relative" style={pageStyle} data-template={template}>
         <main className="max-w-3xl mx-auto px-6 sm:px-8 lg:px-16 py-24">
           <div className="relative overflow-hidden rounded-2xl border border-border bg-gradient-to-b from-secondary/40 to-background p-10 sm:p-12">
             <div className="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-primary/10 blur-2xl" />
@@ -708,36 +723,18 @@ export default function PressKitPage() {
                 {i18n.t("press_kit.empty_state.description")}
               </p>
 
-              {isOwner && (
-                <div className="pt-2">
-                  <Button
-                    onClick={() => setIsAdminOpen(true)}
-                    className="bg-primary hover:bg-primary/90"
-                  >
-                    {i18n.t("press_kit.empty_state.create_button")}
-                  </Button>
-                </div>
-              )}
             </div>
           </div>
         </main>
 
-        {/* Admin launcher for owners */}
-        {isOwner && (
-          <AdminPanel
-            isOpen={isAdminOpen}
-            onClose={() => setIsAdminOpen(false)}
-            data={pressKitData}
-            photos={photos}
-            onSave={handleSaveData}
-          />
-        )}
+        <footer className="mx-auto max-w-6xl px-6 pb-12"><PressKitBranding /></footer>
+
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground relative">
+    <div className="flow-root min-h-screen bg-background text-foreground relative" style={pageStyle} data-template={template}>
       {isOwner && (
         <button
           onClick={() => setIsAdminOpen(true)}
@@ -762,10 +759,11 @@ export default function PressKitPage() {
 
       <AdminPanel
         isOpen={isAdminOpen}
-        onClose={() => setIsAdminOpen(false)}
+        onClose={closeAdmin}
         data={pressKitData}
         photos={photos}
         onSave={handleSaveData}
+        onDesignPreview={setPreviewDesign}
       />
 
       <nav className="fixed left-8 top-1/2 -translate-y-1/2 z-10 hidden lg:block">
@@ -783,22 +781,26 @@ export default function PressKitPage() {
         </div>
       </nav>
 
-      <main className="max-w-6xl mx-auto px-6 sm:px-8 lg:px-16">
+      <main className={layout.main}>
         <header
           id="intro"
           ref={setSectionRef("intro")}
-          className={`min-h-screen flex items-center ${animatedSections.includes("intro") ? "animate-fade-in-up opacity-100" : "opacity-0"}`}
+          className={`${layout.hero} ${template === "editorial" && heroPhoto ? "lg:grid-cols-2" : ""} ${animatedSections.includes("intro") ? "animate-fade-in-up opacity-100" : "opacity-0"}`}
         >
-          <div className="w-full">
+          {template === "poster" && heroPhoto && (
+            <div className="absolute inset-0 -z-10">
+              <img src={heroPhoto.url} alt="" className="h-full w-full object-cover" fetchPriority="high" />
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/10" />
+            </div>
+          )}
+          <div className={`w-full min-w-0 ${template === "poster" && heroPhoto ? "text-white [--foreground:#fff] [--muted-foreground:#dedede] [--primary:#d7ff57] [--primary-foreground:#172000] [--background:#10120c] [--accent:#262921] [--border:#ffffff55]" : ""}`}>
             <div className="space-y-8">
               <div className="space-y-4">
                 <div className="text-xs sm:text-sm text-muted-foreground font-mono tracking-widest uppercase">
                   {pressKitData.tagline}
                 </div>
-                <h1 className="text-6xl sm:text-7xl lg:text-8xl font-bold tracking-tight text-balance">
-                  {pressKitData.artistName.split(" ")[0]}
-                  <br />
-                  <span className="text-primary">{pressKitData.artistName.split(" ").slice(1).join(" ")}</span>
+                <h1 className={layout.title}>
+                  {template === "classic" ? <>{artistName.split(" ")[0]}<br /><span className="text-primary">{artistName.split(" ").slice(1).join(" ")}</span></> : artistName}
                 </h1>
               </div>
 
@@ -843,6 +845,11 @@ export default function PressKitPage() {
               </div>
             </div>
           </div>
+          {template === "editorial" && heroPhoto && (
+            <figure className="flex items-center justify-center border border-border bg-secondary/40 p-3 sm:p-6">
+              <img src={heroPhoto.url} alt={heroPhoto.description || pressKitData.artistName} className="max-h-[65vh] w-full object-contain" fetchPriority="high" />
+            </figure>
+          )}
         </header>
 
         {hasBioSection && (
@@ -855,7 +862,6 @@ export default function PressKitPage() {
             <div className="grid lg:grid-cols-2 gap-12">
               {hasBioText && (
                 <div className="space-y-6 text-lg leading-relaxed text-muted-foreground">
-                  {present(bio.intro) && <p>{bio.intro}</p>}
                   {present(bio.career) && <p>{bio.career}</p>}
                   {present(bio.sound) && <p className="text-foreground">{bio.sound}</p>}
                 </div>
@@ -919,8 +925,11 @@ export default function PressKitPage() {
                       <div className="aspect-square relative overflow-hidden bg-secondary">
                         {playlist.cover_url ? (
                           <img
-                            src={playlist.cover_url}
+                            src={playlist.cover_urls?.large || playlist.cover_url}
+                            srcSet={playlist.cover_urls ? `${playlist.cover_urls.medium} 400w, ${playlist.cover_urls.large} 1200w` : undefined}
+                            sizes="(min-width: 1024px) 320px, (min-width: 640px) 50vw, 100vw"
                             alt={String(playlist.title || "Playlist")}
+                            loading="lazy"
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           />
                         ) : (
@@ -953,7 +962,7 @@ export default function PressKitPage() {
                 <h3 className="text-2xl font-semibold">{i18n.t("press_kit.music.tracks")}</h3>
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {tracks.map((track) => (
-                    <TrackCell key={track.id} track={track} />
+                    <TrackCell key={track.id} track={track} coverSize="large" />
                   ))}
                 </div>
               </div>
@@ -1153,7 +1162,7 @@ export default function PressKitPage() {
         <section
           id="photos"
           ref={setSectionRef("photos")}
-          className={`min-h-screen py-20 sm:py-32 ${animatedSections.includes("photos") ? "animate-fade-in-up opacity-100" : "opacity-0"}`}
+          className={`py-20 sm:py-32 ${animatedSections.includes("photos") ? "animate-fade-in-up opacity-100" : "opacity-0"}`}
         >
           <div className="space-y-12">
             <div className="space-y-4">
@@ -1161,109 +1170,30 @@ export default function PressKitPage() {
               <p className="text-lg text-muted-foreground">{i18n.t("press_kit.press_photos.high_res_available")}</p>
             </div>
 
-            {/* 
-              Display photos from pressKitData.pressPhotos (from JSON data field).
-              These photos are also stored as Photo records with Active Storage and 
-              are queryable through the press_kit.photos association.
-              The photos state variable contains the full Photo records for potential future use.
-            */}
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {visiblePhotos.map((photo, index) => (
-                 <div
-                   key={index}
-                   className="group overflow-hidden rounded-lg border border-border bg-secondary/40 hover:border-primary/50 transition-all duration-500 cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                   role="button"
-                   tabIndex={0}
-                   title="Ver imagen original"
-                   aria-label={`Ver ${photo.title || photo.description || "foto de prensa"} en tamaño completo`}
-                   onClick={() => setSelectedPhoto(photo)}
-                   onKeyDown={(event) => {
-                     if (event.key === "Enter" || event.key === " ") {
-                       event.preventDefault()
-                       setSelectedPhoto(photo)
-                     }
-                   }}
-                 >
-                  <div className="relative flex aspect-[4/3] items-center justify-center overflow-hidden bg-muted/60 p-2 sm:p-3">
-                    <img
-                      src={photo.pdf_url || photo.url || "/placeholder.svg"}
-                      alt={photo.description || "Press photo"}
-                      className="max-h-full max-w-full object-contain transition-transform duration-500 group-hover:scale-[1.02]"
-                    />
-                  </div>
-                  <div className="border-t border-border bg-background/80 p-4">
-                    <div className="space-y-2">
-                      {photo.title && <div className="text-base font-semibold">{photo.title}</div>}
-                      <div className="flex items-center justify-between gap-3">
-                        {photo.description && <span className="text-sm text-muted-foreground line-clamp-2">{photo.description}</span>}
-                         <span className="ml-auto whitespace-nowrap text-sm text-primary">Ampliar ↗</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            <PhotoGallery photos={visiblePhotos} onSelect={setSelectedPhotoIndex} />
           </div>
          </section>
          )}
 
-        {selectedPhoto && (
-          <div
-            className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden bg-background/85 p-3 backdrop-blur-xl sm:p-8"
-            role="dialog"
-            aria-modal="true"
-            aria-label={selectedPhoto.title || selectedPhoto.description || "Foto de prensa ampliada"}
-            tabIndex={-1}
-            autoFocus
-            onClick={() => setSelectedPhoto(null)}
-            onKeyDown={(event) => {
-              if (event.key === "Escape") setSelectedPhoto(null)
-            }}
-          >
-            <img
-              src={selectedPhoto.url || selectedPhoto.pdf_url}
-              alt=""
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 h-full w-full scale-110 object-cover opacity-10 blur-3xl"
-            />
-
-            <div
-              className="relative flex max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-[2rem] border border-border bg-card shadow-2xl shadow-foreground/15"
-              onClick={(event) => event.stopPropagation()}
-            >
-              <button
-                type="button"
-                className="absolute right-4 top-4 z-20 grid h-11 w-11 place-items-center rounded-full border border-border bg-background/80 text-xl text-foreground shadow-lg backdrop-blur transition hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                aria-label="Cerrar imagen"
-                onClick={() => setSelectedPhoto(null)}
-              >
-                <span aria-hidden="true">×</span>
-              </button>
-
-              <div className="flex min-h-0 flex-1 items-center justify-center bg-muted/30 p-3 sm:p-6">
-                <img
-                  src={selectedPhoto.url || selectedPhoto.pdf_url}
-                  alt={selectedPhoto.description || selectedPhoto.title || "Foto de prensa"}
-                  className="max-h-[75vh] max-w-full rounded-xl object-contain shadow-2xl"
-                />
-              </div>
-
-              <div className="flex flex-col gap-4 border-t border-border bg-card/95 px-6 py-5 sm:flex-row sm:items-center sm:justify-between">
-                <div className="min-w-0">
-                  {selectedPhoto.title && <h3 className="truncate text-lg font-semibold text-card-foreground">{selectedPhoto.title}</h3>}
-                  {selectedPhoto.description && <p className="mt-1 text-sm text-muted-foreground">{selectedPhoto.description}</p>}
-                </div>
-                <a
-                  href={selectedPhoto.url || selectedPhoto.pdf_url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="shrink-0 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  Abrir original ↗
-                </a>
+        {videos.length > 0 && (
+          <section id="videos" ref={setSectionRef("videos")}
+            className={`py-20 sm:py-32 ${animatedSections.includes("videos") ? "animate-fade-in-up opacity-100" : "opacity-0"}`}>
+            <div className="space-y-12">
+              <h2 className="text-4xl font-bold sm:text-5xl">{i18n.t("press_kit.videos.title")}</h2>
+              <div className="grid items-start gap-6 md:grid-cols-2">
+                {videos.map((video, index) => <VideoEmbed key={`${video.url}-${index}`} video={video} />)}
               </div>
             </div>
-          </div>
+          </section>
+        )}
+
+        {selectedPhotoIndex !== null && (
+          <PhotoSlideshow
+            photos={visiblePhotos}
+            initialIndex={selectedPhotoIndex}
+            onClose={() => setSelectedPhotoIndex(null)}
+            style={pageStyle}
+          />
         )}
 
         {hasTechnicalRider && (
@@ -1373,16 +1303,16 @@ export default function PressKitPage() {
           <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 sm:gap-8">
             <div className="space-y-2">
               <div className="text-sm text-muted-foreground">
-                © 2025 {pressKitData.artistName}. All rights reserved.
+                © {new Date().getFullYear()} {artistName}. {i18n.t("press_kit.footer.all_rights")}.
               </div>
-              <div className="text-xs text-muted-foreground">Press Kit v2.0 — Last updated January 2025</div>
             </div>
 
             <div className="flex items-center gap-4">
+              {!isAdminOpen && (
               <button
                 onClick={toggleTheme}
                 className="group p-3 rounded-lg border border-border hover:border-primary/50 transition-all duration-300"
-                aria-label="Toggle theme"
+                aria-label={i18n.t("press_kit.buttons.toggle_theme")}
               >
                 {isDark ? (
                   <svg
@@ -1406,10 +1336,11 @@ export default function PressKitPage() {
                   </svg>
                 )}
               </button>
+              )}
 
               <Button
                 onClick={generatePDF}
-                disabled={isGeneratingPDF}
+                disabled={isGeneratingPDF || !hasPressKit}
                 variant="outline"
                 className="border-border hover:border-primary/50 bg-transparent"
               >
@@ -1417,6 +1348,7 @@ export default function PressKitPage() {
               </Button>
             </div>
           </div>
+          <PressKitBranding />
         </footer>
       </main>
     </div>

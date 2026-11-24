@@ -119,6 +119,27 @@ RSpec.describe "PressKits", type: :request do
         user.reload
         expect(user.press_kit).to be_present
       end
+
+      it "persists the design and ordered videos and returns them to public visitors after publication" do
+        videos = [
+          { title: "Live set", url: "https://youtu.be/M7lc1UVf-VE", aspectRatio: "landscape" },
+          { title: "Backstage", url: "https://www.instagram.com/reel/ABC123/", description: "Festival footage", aspectRatio: "auto" }
+        ]
+        patch "/#{user.username}/press-kit.json", params: {
+          press_kit: { data: JSON.generate({ artistName: "Test Artist", published: true, template: "editorial", theme: "light", heroPhotoId: "42", videos: videos }) }
+        }
+
+        expect(response).to have_http_status(:ok)
+        expect(user.reload.press_kit.data["videos"]).to eq(videos.map(&:stringify_keys))
+        expect(user.press_kit.data).to include("template" => "editorial", "theme" => "light", "heroPhotoId" => "42")
+
+        sign_out user
+        get "/#{user.username}/press-kit.json"
+
+        expect(response).to have_http_status(:ok)
+        expect(JSON.parse(response.body).dig("press_kit", "data", "videos")).to eq(videos.map(&:stringify_keys))
+        expect(JSON.parse(response.body).dig("press_kit", "data")).to include("template" => "editorial", "theme" => "light", "heroPhotoId" => "42")
+      end
     end
 
     context "when not authenticated" do

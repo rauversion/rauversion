@@ -10,6 +10,10 @@ import MusicSelector from "./MusicSelector"
 import { useParams } from "react-router-dom"
 import { get } from "@rails/request.js"
 import { useLocaleStore } from "stores/locales"
+import VideoEmbed from "./VideoEmbed"
+import { type PressKitVideo, resolveVideoSource } from "./video-embed"
+import TemplatePicker from "./TemplatePicker"
+import { defaultTemplateTheme, resolveTemplate, type PressKitDesign } from "./templates"
 
 interface AdminPanelProps {
   isOpen: boolean
@@ -18,9 +22,10 @@ interface AdminPanelProps {
   photos?: { id: number | string; url: string; description?: string; tags?: any }[]
   // onSave receives the full press kit data (including published flag inside)
   onSave: (data: PressKitData) => Promise<any>
+  onDesignPreview?: (design: PressKitDesign) => void
 }
 
-export interface PressKitData {
+export interface PressKitData extends PressKitDesign {
   artistName: string
   tagline: string
   location: string
@@ -48,6 +53,7 @@ export interface PressKitData {
     city: string
   }[]
   technicalRider?: string
+  videos?: PressKitVideo[]
   pressPhotos: {
     title: string
     resolution: string
@@ -67,10 +73,11 @@ export interface PressKitData {
   }[]
 }
 
-export function AdminPanel({ isOpen, onClose, data, photos = [], onSave }: AdminPanelProps) {
+export function AdminPanel({ isOpen, onClose, data, photos = [], onSave, onDesignPreview }: AdminPanelProps) {
   const [formData, setFormData] = useState<PressKitData>(data)
   const [published, setPublished] = useState<boolean>(!!(data && (data as any).published))
   const [saving, setSaving] = useState(false)
+  const [previewing, setPreviewing] = useState(false)
   const [prefillTick, setPrefillTick] = useState(0)
   const { toast } = useToast()
   const { username } = useParams()
@@ -78,6 +85,7 @@ export function AdminPanel({ isOpen, onClose, data, photos = [], onSave }: Admin
 
   // Sync local state when opening panel or when data prop changes
   React.useEffect(() => {
+    if (!isOpen) setPreviewing(false)
     setFormData((prev) => {
       // Merge incoming data but preserve already resolved selections unless backend explicitly provides them
       const next: any = { ...prev, ...data }
@@ -169,14 +177,19 @@ export function AdminPanel({ isOpen, onClose, data, photos = [], onSave }: Admin
   if (!isOpen) return null
 
   const handleSave = async () => {
+    if ((formData.videos || []).some((video) => video.url.trim() && !resolveVideoSource(video.url))) {
+      toast({ title: i18n.t("press_kit.error"), description: i18n.t("press_kit.videos.invalid_url"), variant: "destructive" })
+      return
+    }
     setSaving(true)
     try {
       // Transform selections to IDs before saving
-      const playlist_ids = (formData.selectedPlaylists || []).map((p) => p.id)
-      const track_ids = (formData.selectedTracks || []).map((t) => t.id)
+      const playlist_ids = formData.selectedPlaylists?.map((p) => p.id) ?? formData.playlist_ids ?? []
+      const track_ids = formData.selectedTracks?.map((t) => t.id) ?? formData.track_ids ?? []
 
       // Keep UI selections locally but persist only IDs in data
-      const dataWithPublished = { ...formData, playlist_ids, track_ids, published }
+      const videos = (formData.videos || []).filter((video) => video.url.trim()).map((video) => ({ ...video, url: video.url.trim() }))
+      const dataWithPublished = { ...formData, videos, playlist_ids, track_ids, published }
       const { selectedPlaylists, selectedTracks, ...payload } = dataWithPublished as any
 
       // Await onSave so we can show toast on completion
@@ -266,13 +279,26 @@ export function AdminPanel({ isOpen, onClose, data, photos = [], onSave }: Admin
     }
   }
 
+  if (previewing) {
+    return (
+      <div className="fixed inset-x-4 bottom-28 z-50 mx-auto flex max-w-2xl flex-wrap items-center justify-between gap-3 rounded-2xl border border-border bg-background/95 p-4 shadow-2xl backdrop-blur">
+        <span className="text-sm text-muted-foreground">{i18n.t("press_kit.templates.previewing")}</span>
+        <div className="flex flex-wrap gap-2">
+          <Button variant="outline" onClick={() => setPreviewing(false)}>{i18n.t("press_kit.templates.back_to_editor")}</Button>
+          <Button onClick={handleSave} disabled={saving}>{i18n.t(saving ? "press_kit.saving" : "press_kit.save_changes")}</Button>
+          <Button variant="ghost" onClick={onClose}>{i18n.t("press_kit.cancel")}</Button>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4">
       <div className="bg-background border border-border rounded-lg w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-        <div className="flex items-center justify-between p-6 border-b border-border">
+        <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:justify-between sm:p-6 border-b border-border">
           <h2 className="text-2xl font-bold">{i18n.t("press_kit.admin_panel")}</h2>
 
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4">
               <div className="flex items-center gap-2 mr-4">
                 <Label className="text-sm">{i18n.t("press_kit.published")}</Label>
                 <input
@@ -296,8 +322,11 @@ export function AdminPanel({ isOpen, onClose, data, photos = [], onSave }: Admin
         </div>
 
         <div className="overflow-y-auto flex-1">
-          <Tabs defaultValue="bio" className="w-full h-[calc(100vh-355px)]">
-            <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent">
+          <Tabs defaultValue="design" className="w-full">
+            <TabsList className="w-full flex-wrap justify-start border-b rounded-none h-auto p-0 bg-transparent">
+              <TabsTrigger value="design" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary">
+                {i18n.t("press_kit.templates.title")}
+              </TabsTrigger>
               <TabsTrigger
                 value="bio"
                 className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
@@ -323,6 +352,12 @@ export function AdminPanel({ isOpen, onClose, data, photos = [], onSave }: Admin
                 {i18n.t("press_kit.sections.photos")}
               </TabsTrigger>
               <TabsTrigger
+                value="videos"
+                className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
+              >
+                {i18n.t("press_kit.videos.title")}
+              </TabsTrigger>
+              <TabsTrigger
                 value="technical-rider"
                 className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary"
               >
@@ -343,6 +378,18 @@ export function AdminPanel({ isOpen, onClose, data, photos = [], onSave }: Admin
             </TabsList>
 
             <div className="p-6">
+              <TabsContent value="design" className="mt-0">
+                <TemplatePicker design={formData} artistName={formData.artistName} photos={photos.filter((photo) => photo.url)}
+                  onChange={(design) => {
+                    setFormData({ ...formData, ...design })
+                    onDesignPreview?.(design)
+                  }}
+                  onPreview={() => {
+                    const template = resolveTemplate(formData.template)
+                    onDesignPreview?.({ template, theme: formData.theme || defaultTemplateTheme(template), heroPhotoId: formData.heroPhotoId })
+                    setPreviewing(true)
+                  }} />
+              </TabsContent>
               <TabsContent value="bio" className="space-y-6 mt-0">
                 <div className="space-y-4">
                   <h3 className="text-lg font-semibold">{i18n.t("press_kit.artist_info.title")}</h3>
@@ -642,11 +689,12 @@ export function AdminPanel({ isOpen, onClose, data, photos = [], onSave }: Admin
                       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
                         {photos.map((p) => (
                           <div key={p.id} className="relative border border-border rounded-lg overflow-hidden">
-                            <div className="flex aspect-[4/3] items-center justify-center bg-secondary p-2">
+                            <div className="bg-secondary">
                               <img
                                 src={p.url}
                                 alt={p.description || i18n.t("press_kit.press_photos.press_photo_alt")}
-                                className="max-h-full max-w-full object-contain"
+                                className="block h-auto w-full"
+                                loading="lazy"
                               />
                             </div>
                             {p.description && (
@@ -664,17 +712,9 @@ export function AdminPanel({ isOpen, onClose, data, photos = [], onSave }: Admin
                     <Label className="text-sm">{i18n.t("press_kit.press_photos.upload_new")}</Label>
                     <ImageUploader
                       preview={true}
-                      enableCropper={true}
+                      enableCropper={false}
                       imageUrl={null}
                       aspectRatio="free"
-                      cropAspectRatios={[
-                        { label: i18n.t("press_kit.press_photos.crop_formats.free"), value: "free" },
-                        { label: i18n.t("press_kit.press_photos.crop_formats.horizontal"), value: 4 / 3 },
-                        { label: i18n.t("press_kit.press_photos.crop_formats.wide"), value: 16 / 9 },
-                        { label: i18n.t("press_kit.press_photos.crop_formats.vertical"), value: 4 / 5 },
-                        { label: i18n.t("press_kit.press_photos.crop_formats.story"), value: 9 / 16 },
-                        { label: i18n.t("press_kit.press_photos.crop_formats.square"), value: 1 },
-                      ]}
                       onUploadComplete={async (signed_id: any, cropData: any) => {
                         try {
                           await onSave({ ...formData, pressPhotos: [{ signed_id, cropData }] } as any)
@@ -687,6 +727,56 @@ export function AdminPanel({ isOpen, onClose, data, photos = [], onSave }: Admin
                     />
                   </div>
                 </div>
+              </TabsContent>
+
+              <TabsContent value="videos" className="space-y-6 mt-0">
+                <div className="flex items-center justify-between gap-4">
+                  <h3 className="text-lg font-semibold">{i18n.t("press_kit.videos.title")}</h3>
+                  <Button size="sm" variant="outline" onClick={() => setFormData({ ...formData, videos: [...(formData.videos || []), { title: "", url: "", aspectRatio: "auto" }] })}>
+                    {i18n.t("press_kit.videos.add")}
+                  </Button>
+                </div>
+                <p className="text-sm text-muted-foreground">{i18n.t("press_kit.videos.description")}</p>
+                {(formData.videos || []).map((video, index) => {
+                  const updateVideo = (changes: Partial<PressKitVideo>) => setFormData({
+                    ...formData, videos: (formData.videos || []).map((item, i) => i === index ? { ...item, ...changes } : item),
+                  })
+                  const invalid = Boolean(video.url.trim()) && !resolveVideoSource(video.url)
+                  return (
+                    <div key={index} className="space-y-4 rounded-lg border border-border p-4">
+                      <div className="space-y-2">
+                        <Label htmlFor={`video-title-${index}`}>{i18n.t("press_kit.videos.video_title")}</Label>
+                        <Input id={`video-title-${index}`} value={video.title} onChange={(e) => updateVideo({ title: e.target.value })} placeholder={i18n.t("press_kit.videos.title_placeholder")} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor={`video-url-${index}`}>{i18n.t("press_kit.videos.url")}</Label>
+                        <Input id={`video-url-${index}`} type="url" value={video.url} onChange={(e) => updateVideo({ url: e.target.value })} placeholder="https://..." aria-invalid={invalid} aria-describedby={invalid ? `video-error-${index}` : undefined} />
+                        {invalid && <p id={`video-error-${index}`} className="text-sm text-destructive">{i18n.t("press_kit.videos.invalid_url")}</p>}
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor={`video-description-${index}`}>{i18n.t("press_kit.videos.caption")}</Label>
+                        <Textarea id={`video-description-${index}`} value={video.description || ""} onChange={(e) => updateVideo({ description: e.target.value })} rows={2} />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor={`video-ratio-${index}`}>{i18n.t("press_kit.videos.format")}</Label>
+                        <select id={`video-ratio-${index}`} value={video.aspectRatio || "auto"} onChange={(e) => updateVideo({ aspectRatio: e.target.value as PressKitVideo["aspectRatio"] })} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
+                          {["auto", "landscape", "portrait", "square"].map((ratio) => <option key={ratio} value={ratio}>{i18n.t(`press_kit.videos.formats.${ratio}`)}</option>)}
+                        </select>
+                      </div>
+                      {video.url.trim() && !invalid && <VideoEmbed video={video} />}
+                      <div className="flex flex-wrap gap-2">
+                        <Button size="sm" variant="outline" disabled={index === 0} onClick={() => {
+                          const videos = [...(formData.videos || [])]
+                          const previous = videos[index - 1]
+                          videos[index - 1] = videos[index]
+                          videos[index] = previous
+                          setFormData({ ...formData, videos })
+                        }}>{i18n.t("press_kit.videos.move_up")}</Button>
+                        <Button size="sm" variant="destructive" onClick={() => setFormData({ ...formData, videos: (formData.videos || []).filter((_, i) => i !== index) })}>{i18n.t("press_kit.common.remove")}</Button>
+                      </div>
+                    </div>
+                  )
+                })}
               </TabsContent>
 
               <TabsContent value="technical-rider" className="space-y-6 mt-0">

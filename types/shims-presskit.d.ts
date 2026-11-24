@@ -1,6 +1,6 @@
 declare module "@/components/tracks/TrackCell" {
   import React from "react";
-  const TrackCell: React.ComponentType<{ track: any }>;
+  const TrackCell: React.ComponentType<{ track: any; coverSize?: "medium" | "large" }>;
   export default TrackCell;
 }
 
